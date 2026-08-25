@@ -54,6 +54,10 @@ function cmd_run() {
     go run main.go "$@"
 }
 
+function cmd_bundle() {
+    /opt/node/bin/esbuild static/sdkweb/sdkweb.js --bundle --minify --sourcemap --outfile=dist/sdk.min.js
+}
+
 # function cmd_version-inc {
 #     i6dev dever version-inc version/version.go
 #     cat version/version.go | grep return | cut -d' ' -f2- | tr -d '"' > static/version.txt

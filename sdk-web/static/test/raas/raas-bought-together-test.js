@@ -5,7 +5,7 @@
 
         
         QUnit.test("mock", async function (assert) {
-            const { I6Sdk } = await import('../../sdkweb/index.js')
+            const { I6Sdk } = await import('../../sdkweb/sdkweb.js')
             const i6sdk = new I6Sdk()
             await i6sdk.init({
                 'subscription': 'sub1',
