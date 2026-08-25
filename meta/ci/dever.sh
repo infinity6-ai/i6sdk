@@ -2,7 +2,7 @@
 
 function cmd_build() {
   ./meta/ci/ci.sh build
-  i6dev golang gomod-update-i6
+  ./build.sh update_i6
   mkdir -p gen
   if ! i6dev code is-clean; then
     touch gen/dever.flag

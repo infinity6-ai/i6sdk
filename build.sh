@@ -42,5 +42,9 @@ function cmd_fmt() {
   cmd_comps_run fmt "$@"
 }
 
+function cmd_update_i6() {
+  cmd_comps_run update_i6 "$@"
+}
+
 cd "$(dirname "$0")"; _cmd="${1?"cmd is required"}"; shift; "cmd_${_cmd}" "$@"
 

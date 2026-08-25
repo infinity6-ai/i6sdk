@@ -37,6 +37,10 @@ function cmd_fmt() {
   go fmt ./...
 }
 
+function cmd_update_i6() {
+  i6dev golang gomod-update-i6
+}
+
 _comp="${1?"comp is required"}"; shift; 
 _cmd="${1?"cmd is required"}"; shift; 
 cd "$(dirname "$0")/$_comp"; 
