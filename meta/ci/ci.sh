@@ -16,6 +16,7 @@ function cmd_test() {
   echo '#!/bin/bash -xe
   exec /usr/bin/google-chrome.original --no-sandbox "$@" 
   ' | sudo tee /usr/bin/google-chrome
+  sudo chmod +x /usr/bin/google-chrome
   ./build.sh test
 }
 
