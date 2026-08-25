@@ -5,7 +5,7 @@ go 1.26.1
 require (
 	github.com/spf13/cobra v1.10.1
 	go.code.infinity6.ai/platform v1.2.69
-	go.code.infinity6.ai/web v1.2.55
+	go.code.infinity6.ai/web v1.2.56
 )
 
 require (
