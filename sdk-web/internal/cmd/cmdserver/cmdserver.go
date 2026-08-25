@@ -2,15 +2,16 @@ package cmdserver
 
 import (
 	"github.com/spf13/cobra"
+	"go.code.infinity6.ai/sdkweb/internal/sdkwebserver"
 )
 
 func prepareServerStart(parent *cobra.Command) {
 	cmd := &cobra.Command{
 		Use: "start",
 		Run: func(cmd *cobra.Command, args []string) {
-			// sdkwebserver.Start(sdkwebserver.Options{
-			// Context: cmd,
-			// })
+			sdkwebserver.Start(sdkwebserver.Options{
+				Context: cmd.Context(),
+			})
 		},
 	}
 	parent.AddCommand(cmd)

@@ -6,12 +6,11 @@ import (
 
 	"go.code.infinity6.ai/platform/config"
 	"go.code.infinity6.ai/platform/httpz/httpzserver"
-	"go.code.infinity6.ai/platform/service/boxservice"
 	"go.code.infinity6.ai/sdkweb/version"
 	"go.code.infinity6.ai/web/api/webhandler"
 )
 
-var I6_SDK_WE_PORT = config.Create("I6_SDK_WE_PORT", "8040")
+var I6_SDK_WEB_SERVER_LOCAL_ADDRESS = config.Create("I6_SDK_WEB_SERVER_LOCAL_ADDRESS", "127.0.0.1:8040")
 
 type Options struct {
 	Context      context.Context
@@ -50,9 +49,7 @@ func (me *Server) Serve() {
 
 func Listen(opts Options) *Server {
 	if opts.LocalAddress == "" {
-		if boxservice.Config().Id == "local" {
-			// opts.LocalAddress = discovery.Service(datasetmanagercfg.ME).Bind()
-		}
+		opts.LocalAddress = I6_SDK_WEB_SERVER_LOCAL_ADDRESS.Get()
 	}
 
 	ret := &Server{}
