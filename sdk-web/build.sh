@@ -55,7 +55,9 @@ function cmd_run() {
 }
 
 function cmd_bundle() {
-    /opt/node/bin/esbuild static/sdkweb/sdkweb.js --bundle --minify --sourcemap --outfile=dist/sdk.min.js
+    [ ! -d dist ] || rm -rf dist
+    /opt/node/bin/esbuild static/sdkweb/sdkweb.js --bundle --minify --sourcemap --outfile=dist/bundle/sdk.min.js
+    /opt/node/bin/esbuild "static/sdkweb/**/*.js" --minify --outdir=dist/sdkweb
 }
 
 # function cmd_version-inc {
