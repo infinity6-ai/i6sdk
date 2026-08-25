@@ -9,16 +9,13 @@ import (
 	"go.code.infinity6.ai/platform/service/boxservice"
 	"go.code.infinity6.ai/sdkweb/version"
 	"go.code.infinity6.ai/web/api/webhandler"
-	"go.code.infinity6.ai/web/internal/stfiles"
 )
 
-var I6_SDK_WE_PORT = config.Create("I6_SDK_WE_PORT")
+var I6_SDK_WE_PORT = config.Create("I6_SDK_WE_PORT", "8040")
 
 type Options struct {
-	Context            context.Context
-	LocalAddress       string
-	DisableAudit       bool
-	AllowExternalReqId bool
+	Context      context.Context
+	LocalAddress string
 }
 
 type Server struct {
@@ -62,12 +59,11 @@ func Listen(opts Options) *Server {
 	ret.server = &httpzserver.Server{
 		Context:      opts.Context,
 		LocalAddress: opts.LocalAddress,
-		Audit:        !opts.DisableAudit,
+		Audit:        false,
 		ServName:     "sdkweb",
 		ServVersion:  version.Version(),
 	}
 	ret.server.Listen()
-	ret.server.AllowExternalReqId(opts.AllowExternalReqId)
 	return ret
 }
 
@@ -75,7 +71,7 @@ func (me *Server) AddHandlers() {
 	me.server.Health()
 
 	webhandler.Add(me.server)
-	me.server.AddRestPrefix("GET", "/static", stfiles.Handle())
+	// me.server.AddRestPrefix("GET", "/static", stfiles.Handle())
 
 	// datasetmanagerdiscoveryimpl.AddHandlers(me.server)
 
