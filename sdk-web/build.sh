@@ -38,6 +38,10 @@ function cmd_test_web() {
     i6dev golang test_web "$@"
 }
 
+function cmd_test_visual() {
+    I6_WEB_HEADLESS_DISABLED=true cmd_test_web "$@"
+}
+
 function cmd_release() {
     cmd_static
     i6dev golang bin-compile

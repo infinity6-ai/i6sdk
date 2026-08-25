@@ -37,7 +37,7 @@ func StartWithOptions(opts Options) *Server {
 	if opts.WebCheckerEnabled {
 		dfz.AddCloser("I6_WEB_CHECKER_ENABLED", webhandler.I6_WEB_CHECKER_ENABLED.Set("true"))
 	}
-	if opts.SdkWebLocalAddress == "" {
+	if opts.SdkWebLocalAddress != "" {
 		dfz.AddCloser("I6_SDK_WEB_SERVER_LOCAL_ADDRESS", sdkwebserver.I6_SDK_WEB_SERVER_LOCAL_ADDRESS.Set("%s", opts.SdkWebLocalAddress))
 	}
 
@@ -47,8 +47,7 @@ func StartWithOptions(opts Options) *Server {
 
 	dfz.Add("sdkwebserver", s.Stop)
 
-	// dsmanagerServer.AddHandlers()
-
+	s.AddHandlers()
 	s.Start()
 
 	ret.client = httpz.CreateClient(s.Base())
