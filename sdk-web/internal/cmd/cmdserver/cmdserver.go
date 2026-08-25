@@ -9,9 +9,10 @@ func prepareServerStart(parent *cobra.Command) {
 	cmd := &cobra.Command{
 		Use: "start",
 		Run: func(cmd *cobra.Command, args []string) {
-			sdkwebserver.Start(sdkwebserver.Options{
+			s := sdkwebserver.Start(sdkwebserver.Options{
 				Context: cmd.Context(),
 			})
+			s.Serve()
 		},
 	}
 	parent.AddCommand(cmd)
