@@ -56,7 +56,7 @@ function cmd_run() {
 
 function cmd_bundle() {
     [ ! -d dist ] || rm -rf dist
-    /opt/node/bin/esbuild static/sdkweb/sdkweb.js --bundle --minify --sourcemap --outfile=dist/bundle/sdk.min.js
+    /opt/node/bin/esbuild static/sdkweb/sdkweb.js --bundle --minify --sourcemap --outfile=dist/bundle/i6sdkwev.min.js
     /opt/node/bin/esbuild "static/sdkweb/**/*.js" --minify --outdir=dist/sdkweb
 }
 
