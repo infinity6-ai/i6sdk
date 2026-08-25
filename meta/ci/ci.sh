@@ -2,7 +2,7 @@
 
 function cmd_image_download() {
   docker pull us-central1-docker.pkg.dev/i6-rs-contint/i6devhub/i6dev-full:latest
-  docker tag us-central1-docker.pkg.dev/i6-rs-contint/i6devhub/i6dev-ful:latest infinity6/current:dev
+  docker tag us-central1-docker.pkg.dev/i6-rs-contint/i6devhub/i6dev-full:latest infinity6/current:dev
 }
 
 function cmd_build() {
