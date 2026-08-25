@@ -26,10 +26,6 @@ function cmd_update() {
   I6DEV_GOLANG_AUTH_DISABLED="true" cmd_comps_run update "$@"
 }
 
-function cmd_codegen() {
-  cmd_comps_run codegen "$@"
-}
-
 function cmd_test() {
   cmd_comps_run test "$@"
 }
@@ -40,10 +36,6 @@ function cmd_test_remote() {
 
 function cmd_test_all() {
   cmd_comps_run test_all "$@"
-}
-
-function cmd_fmt() {
-  cmd_comps_run fmt "$@"
 }
 
 function cmd_release() {
