@@ -12,6 +12,10 @@ function cmd_build() {
 }
 
 function cmd_test() {
+  sudo mv /usr/bin/google-chrome /usr/bin/google-chrome.original
+  echo '#!/bin/bash -xe
+  exec /usr/bin/google-chrome.original --no-sandbox "$@" 
+  ' | sudo tee /usr/bin/google-chrome
   ./build.sh test
 }
 
