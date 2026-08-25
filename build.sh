@@ -14,8 +14,12 @@ function cmd_comps_run() {
 }
 
 function cmd_clean() {
-  cmd_comps_run clean "$@"
+  local _k=""
+  find -name target | while read _k; do
+    rm -rf "$_k"
+  done
 }
+
 
 function cmd_update() {
   i6dev golang auth
