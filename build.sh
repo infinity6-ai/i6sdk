@@ -42,6 +42,10 @@ function cmd_fmt() {
   cmd_comps_run fmt "$@"
 }
 
+function cmd_release() {
+  cmd_comps_run release "$@"
+}
+
 function cmd_update_i6() {
   cmd_comps_run update_i6 "$@"
 }
