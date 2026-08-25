@@ -9,7 +9,7 @@ function cmd_comp_list() {
 function cmd_comps_run() {
   local _k=""
   cmd_comp_list | while read _k; do
-    ./comp.sh "$_k" "$@"
+    ./"$_k"/build.sh "$@"
   done
 }
 
