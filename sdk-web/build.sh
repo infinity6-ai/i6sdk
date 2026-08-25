@@ -55,6 +55,10 @@ function cmd_release() {
     i6dev golang bin-release latest
 }
 
+function cmd_vendor() {
+    i6dev golang vendor
+}
+
 
 function cmd_run() {
     go run main.go "$@"

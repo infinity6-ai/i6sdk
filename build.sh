@@ -38,6 +38,10 @@ function cmd_test_all() {
   cmd_comps_run test_all "$@"
 }
 
+function cmd_vendor() {
+  cmd_comps_run vendor "$@"
+}
+
 function cmd_release() {
   cmd_comps_run release "$@"
 }
