@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-eval "$(i6dev meta debug i6gox-comp I6DEV_DEBUG)"
+eval "$(i6dev meta debug i6sdk-comp I6DEV_DEBUG)"
 
 function cmd_clean() {
   local _k=""
