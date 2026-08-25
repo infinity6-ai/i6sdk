@@ -60,6 +60,10 @@ function cmd_run() {
     go run main.go "$@"
 }
 
+function cmd_update_i6() {
+  i6dev golang gomod-update-i6
+}
+
 cd "$(dirname "$0")"; 
 [ ! -f .venv/bin/activate ] || source .venv/bin/activate
 _cmd="${1?"cmd is required"}"; shift; "cmd_${_cmd}" "$@"
