@@ -42,6 +42,12 @@ function cmd_test_visual() {
     I6_WEB_HEADLESS_DISABLED=true cmd_test_web "$@"
 }
 
+function cmd_bundle() {
+    [ ! -d dist ] || rm -rf dist
+    /opt/node/bin/esbuild static/sdkweb/sdkweb.js --bundle --minify --sourcemap --outfile=dist/bundle/i6sdkwev.min.js
+    /opt/node/bin/esbuild "static/sdkweb/**/*.js" --minify --outdir=dist/sdkweb
+}
+
 function cmd_release() {
     cmd_static
     i6dev golang bin-compile
@@ -53,17 +59,6 @@ function cmd_release() {
 function cmd_run() {
     go run main.go "$@"
 }
-
-function cmd_bundle() {
-    [ ! -d dist ] || rm -rf dist
-    /opt/node/bin/esbuild static/sdkweb/sdkweb.js --bundle --minify --sourcemap --outfile=dist/bundle/i6sdkwev.min.js
-    /opt/node/bin/esbuild "static/sdkweb/**/*.js" --minify --outdir=dist/sdkweb
-}
-
-# function cmd_version-inc {
-#     i6dev dever version-inc version/version.go
-#     cat version/version.go | grep return | cut -d' ' -f2- | tr -d '"' > static/version.txt
-# }
 
 cd "$(dirname "$0")"; 
 [ ! -f .venv/bin/activate ] || source .venv/bin/activate
