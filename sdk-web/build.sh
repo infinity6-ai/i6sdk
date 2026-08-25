@@ -50,9 +50,9 @@ function cmd_bundle() {
 
 function cmd_release() {
     cmd_static
-    i6dev golang bin-compile
-    i6dev golang release
-    i6dev golang bin-release latest
+    # i6dev golang bin-compile
+    # i6dev golang release
+    # i6dev golang bin-release latest
 }
 
 
