@@ -7,17 +7,23 @@ class RaasBoughtTogether {
     this.config = config
   }
 
-  async predict(cartItems, maxResults = 3) {
+  async predict(cartItems, opts) {
+    opts = {
+      maxResults: 3, 
+      deterministic: false,
+      ...opts,
+    }
+
     if (cartItems.length === 5) {
       throw 'mock error'
     }
 
-    const predictions = cartItems.map(item => ({
+    const predictions = cartItems.map((item, idx) => ({
       products: [{id: item.id}],
-      score: Math.random()
+      score: Math.random() + (opts.deterministic ? idx : 0)
     }));
     const sorted = predictions.sort((a, b) => b.score - a.score);
-    return sorted.slice(0, maxResults);
+    return sorted.slice(0, opts.maxResults);
   }
 }
 
