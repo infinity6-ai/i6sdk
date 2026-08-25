@@ -51,8 +51,8 @@ function cmd_bundle() {
 function cmd_release() {
     cmd_static
     i6dev golang bin-compile
-    # i6dev golang release
-    # i6dev golang bin-release latest
+    i6dev golang release
+    i6dev golang bin-release latest
 }
 
 
@@ -62,6 +62,10 @@ function cmd_run() {
 
 function cmd_update_i6() {
   i6dev golang gomod-update-i6
+}
+
+function cmd_release-describe() {
+  i6dev golang release-describe
 }
 
 cd "$(dirname "$0")"; 

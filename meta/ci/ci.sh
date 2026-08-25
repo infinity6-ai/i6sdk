@@ -16,7 +16,7 @@ function cmd_test() {
 }
 
 function cmd_release() {
-  i6dev golang release-describe || ./build.sh release
+  ./sdk-web/build.sh release-describe || ./build.sh release
 }
 
 function cmd_deploy() {
