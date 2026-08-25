@@ -10,7 +10,7 @@ import (
 	"go.code.infinity6.ai/web/api/webhandler"
 )
 
-var I6_SDK_WEB_SERVER_LOCAL_ADDRESS = config.Create("I6_SDK_WEB_SERVER_LOCAL_ADDRESS", "127.0.0.1:8040")
+var I6_SDK_WEB_SERVER_LOCAL_ADDRESS = config.Create("I6_SDK_WEB_SERVER_LOCAL_ADDRESS", "127.0.0.1:8043")
 
 type Options struct {
 	Context      context.Context

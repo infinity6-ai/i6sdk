@@ -17,7 +17,7 @@ function cmd_update() {
 function cmd_run_server() {
     # [ "x$(i6dev box-config jq -r .id)" == "xlocal" ]
     # eval "$(cmd_env)"
-    I6_WEB_CHECKER_ENABLED=true go run api/main.go "$@"
+    I6_WEB_CHECKER_ENABLED=true cmd_run server start "$@"
 }
 
 function cmd_run_testserver() {
