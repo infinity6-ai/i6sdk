@@ -38,7 +38,7 @@ func StartWithOptions(opts Options) *Server {
 		dfz.AddCloser("I6_WEB_CHECKER_ENABLED", webhandler.I6_WEB_CHECKER_ENABLED.Set("true"))
 	}
 	if opts.SdkWebLocalAddress == "" {
-		dfz.AddCloser("I6_SDK_WEB_SERVER_LOCAL_ADDRESS", sdkwebserver.I6_SDK_WEB_SERVER_LOCAL_ADDRESS.Set(opts.SdkWebLocalAddress))
+		dfz.AddCloser("I6_SDK_WEB_SERVER_LOCAL_ADDRESS", sdkwebserver.I6_SDK_WEB_SERVER_LOCAL_ADDRESS.Set("%s", opts.SdkWebLocalAddress))
 	}
 
 	s := sdkwebserver.Listen(sdkwebserver.Options{
