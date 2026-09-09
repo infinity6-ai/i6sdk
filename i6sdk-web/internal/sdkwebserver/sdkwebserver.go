@@ -70,8 +70,8 @@ func (me *Server) AddHandlers() {
 
 	webhandler.Add(me.server)
 	me.server.AddRestPrefix("GET", "/static", stfiles.Handle())
-
-	// datasetmanagerdiscoveryimpl.AddHandlers(me.server)
+	me.server.AddRestPrefix("GET", "/src", stfiles.Handle())
+	me.server.AddRestPrefix("GET", "/test", stfiles.Handle())
 
 	me.server.AddRestPrefix("GET", "/", stfiles.IndexRedirect)
 }

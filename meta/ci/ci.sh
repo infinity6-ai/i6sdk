@@ -21,7 +21,7 @@ function cmd_test() {
 }
 
 function cmd_release() {
-  ./sdk-web/build.sh release-describe || ./build.sh release
+  ./i6sdk-web/build.sh release-describe || ./build.sh release
 }
 
 function cmd_deploy() {

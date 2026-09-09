@@ -51,7 +51,7 @@ function cmd_update_i6() {
 }
 
 function cmd_version-inc() {
-  i6dev dever version-inc sdk-web/version/version.go
+  i6dev dever version-inc i6sdk-web/version/version.go
 }
 
 cd "$(dirname "$0")"; _cmd="${1?"cmd is required"}"; shift; "cmd_${_cmd}" "$@"

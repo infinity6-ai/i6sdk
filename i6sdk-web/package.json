@@ -1,0 +1,14 @@
+{
+  "name": "i6sdk-web",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "description": "i6 SDK for the web",
+  "scripts": {
+    "bundle": "esbuild src/index.js --bundle --minify --sourcemap --outfile=dist/bundle/i6sdk-web.min.js",
+    "bundle:files": "esbuild \"src/**/*.js\" --minify --outdir=dist/src"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
+}

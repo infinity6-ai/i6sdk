@@ -1,10 +1,8 @@
 #!/bin/bash -e
 
-eval "$(i6dev meta debug i6sdk-web I6DEV_DEBUG)"
+export GOWORK=off
 
-# function cmd_env() {
-#     cmd_run envconfig keys | i6dev box-config vault-export-keys
-# }
+eval "$(i6dev meta debug i6sdk-web I6DEV_DEBUG)"
 
 function cmd_static() {
     i6dev go-platform static . static internal/stfiles
@@ -34,7 +32,6 @@ function cmd_test_unit() {
 }
 
 function cmd_test_web() {
-    # true
     i6dev golang test_web "$@"
 }
 
@@ -42,13 +39,19 @@ function cmd_test_visual() {
     I6_WEB_HEADLESS_DISABLED=true cmd_test_web "$@"
 }
 
+function cmd_npm_install() {
+    npm ci
+}
+
 function cmd_bundle() {
     [ ! -d dist ] || rm -rf dist
-    /opt/node/bin/esbuild static/sdkweb/sdkweb.js --bundle --minify --sourcemap --outfile=dist/bundle/i6sdkwev.min.js
-    /opt/node/bin/esbuild "static/sdkweb/**/*.js" --minify --outdir=dist/sdkweb
+    cmd_npm_install
+    npm run bundle
+    npm run bundle:files
 }
 
 function cmd_release() {
+    cmd_bundle
     cmd_static
     i6dev golang bin-compile
     i6dev golang release

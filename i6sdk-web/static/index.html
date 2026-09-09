@@ -23,7 +23,15 @@
 <body>
     <div id="wrapper">
         <h1>I6 SDK Web</h1>
+        <p id="output">loading...</p>
     </div>
+    <script type="module">
+        import { I6Sdk } from '../src/index.js'
+
+        const i6sdk = new I6Sdk()
+        await i6sdk.config({ subscription: 'sub1', store: 'store1' })
+        document.getElementById('output').textContent = i6sdk.hello()
+    </script>
 </body>
 
 </html>
