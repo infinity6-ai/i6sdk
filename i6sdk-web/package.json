@@ -6,7 +6,8 @@
   "description": "i6 SDK for the web",
   "scripts": {
     "bundle": "esbuild src/index.js --bundle --minify --sourcemap --outfile=dist/bundle/i6sdk-web.min.js",
-    "bundle:files": "esbuild \"src/**/*.js\" --minify --outdir=dist/src"
+    "bundle:files": "esbuild \"src/**/*.js\" --minify --outdir=dist/src",
+    "test": "./build.sh test"
   },
   "devDependencies": {
     "esbuild": "^0.28.2"
