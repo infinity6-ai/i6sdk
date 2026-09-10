@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/spf13/cobra"
 	"go.code.infinity6.ai/sdkweb/internal/cmd/cmdserver"
@@ -30,9 +32,8 @@ func Prepare(ctx context.Context) *cobra.Command {
 }
 
 func Execute(rootCmd *cobra.Command) {
-	ctx := context.Background()
-	// ctx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
-	// defer stop()
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
 	if err := rootCmd.ExecuteContext(ctx); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
