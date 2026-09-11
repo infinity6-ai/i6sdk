@@ -1,0 +1,16 @@
+# Build
+gen
+build
+target
+
+# Vendor
+vendor
+
+# Ignorar arquivos relacionados a log
+*.log
+*.exe
+__debug*
+
+*.gen.*
+
+.idea
