@@ -9,7 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"go.code.infinity6.ai/sdkgo/version"
+	"go.code.infinity6.ai/sdkgo/sdkgo/version"
 )
 
 func Prepare(ctx context.Context) *cobra.Command {

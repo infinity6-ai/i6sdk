@@ -5,7 +5,7 @@ package main
 import (
 	"fmt"
 
-	"go.code.infinity6.ai/sdkgo/version"
+	"go.code.infinity6.ai/sdkgo/sdkgo/version"
 )
 
 func main() {
