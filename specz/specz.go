@@ -5,14 +5,14 @@ import (
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
 )
 
-var all []apiz.ApiSpec
+var all []apiz.Api
 
 func init() {
 	for _, svc := range routezsamplefraction.Services() {
-		all = append(all, svc.Api().ApiSpec())
+		all = append(all, svc.Api())
 	}
 }
 
-func All() []apiz.ApiSpec {
+func All() []apiz.Api {
 	return all
 }

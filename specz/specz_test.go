@@ -13,7 +13,7 @@ func TestUnitAll(t *testing.T) {
 
 	found := false
 	for _, s := range all {
-		if s.Id == "samplefraction" {
+		if s.ApiSpec().Id == "samplefraction" {
 			found = true
 		}
 	}
