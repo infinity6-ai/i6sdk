@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/specz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/specz"
 )
 
 func TestUnitAll(t *testing.T) {
