@@ -5,7 +5,7 @@ package main
 import (
 	"context"
 
-	"go.code.infinity6.ai/sdkgo/cmdsdkgo"
+	"go.code.infinity6.ai/sdkgo/sdkgo/cmdsdkgo"
 )
 
 func main() {
