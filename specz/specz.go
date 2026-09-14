@@ -1,16 +1,18 @@
 package specz
 
 import (
+	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
-	"github.com/infinity6-ai/gox/schemaz/schemaz"
 )
 
-var all []*schemaz.Api
+var all []apiz.ApiSpec
 
 func init() {
-	all = append(all, routezsamplefraction.Schema())
+	for _, svc := range routezsamplefraction.Services() {
+		all = append(all, svc.Api().ApiSpec())
+	}
 }
 
-func All() []*schemaz.Api {
+func All() []apiz.ApiSpec {
 	return all
 }

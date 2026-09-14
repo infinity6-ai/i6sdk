@@ -1,7 +1,5 @@
 #!/bin/bash -e
 
-export GOWORK=off
-
 eval "$(i6dev meta debug sdkgo-build I6DEV_DEBUG)"
 
 function cmd_env() {
