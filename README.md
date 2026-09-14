@@ -7,14 +7,14 @@ The i6 SDK for the web, and the Go server that builds, serves, and tests it.
 Requires Go and Node.js.
 
 ```bash
-cd i6sdk-web
+cd sdkweb
 npm ci
 ```
 
 ## Run
 
 ```bash
-cd i6sdk-web
+cd sdkweb
 ./build.sh run_server
 ```
 
@@ -24,7 +24,7 @@ env var). The SDK demo page is served at `/static/index.html`.
 ## Test
 
 ```bash
-cd i6sdk-web
+cd sdkweb
 npm test
 ```
 

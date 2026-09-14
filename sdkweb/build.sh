@@ -2,7 +2,7 @@
 
 export GOWORK=off
 
-eval "$(i6dev meta debug i6sdk-web I6DEV_DEBUG)"
+eval "$(i6dev meta debug sdkweb I6DEV_DEBUG)"
 
 function cmd_static() {
     i6dev go-platform static . static internal/stfiles
