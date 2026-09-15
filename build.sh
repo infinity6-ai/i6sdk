@@ -54,7 +54,7 @@ function cmd_run() {
 }
 
 function cmd_version-inc() {
-  i6dev dever version-inc version/version.go
+  i6dev dever version-inc sdkgo/version/version.go
   i6dev dever version-inc sdkweb/version/version.go
 }
 
