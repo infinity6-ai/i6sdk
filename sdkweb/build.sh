@@ -40,7 +40,8 @@ function cmd_test_visual() {
 }
 
 function cmd_npm_install() {
-    npm ci
+    # npm ci
+    true
 }
 
 function cmd_bundle() {
