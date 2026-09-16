@@ -8,28 +8,28 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
 )
 
-type DszDomainSelectReq struct {
+type DszSolutionDomainSelectReq struct {
 	Dataset  lakedsz.Dataset   `json:"dataset"`
 	Solution solution.Solution `json:"solution"`
 	Domain   domain.Domain     `json:"domain"`
 	Store    string            `json:"store"`
 }
 
-type DszRaasSolutionSelectApi struct {
-	Req  *DszDomainSelectReq `json:"req"`
-	Resp *DszDomainSelectReq `json:"resp"`
+type DszSolutionDomainSelectApi struct {
+	Req  *DszSolutionDomainSelectReq `json:"req"`
+	Resp *DszSolutionDomainSelectReq `json:"resp"`
 }
 
-func (d *DszRaasSolutionSelectApi) ApiSpec() apiz.ApiSpec {
+func (d *DszSolutionDomainSelectApi) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
 		Id:     "dsz-domain-select",
 		Desc:   nil,
 		Method: "POST",
-		Path:   "/api/dsz/domain-select/dataset/{dataset}",
+		Path:   "/api/dsz/solution-domain-select/dataset/{dataset}",
 	}
 }
 
-func (d *DszRaasSolutionSelectApi) GetDataRefs() *apiz.DataRefs {
+func (d *DszSolutionDomainSelectApi) GetDataRefs() *apiz.DataRefs {
 	return &apiz.DataRefs{
 		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
@@ -37,7 +37,7 @@ func (d *DszRaasSolutionSelectApi) GetDataRefs() *apiz.DataRefs {
 					return nil
 				}
 				if d.Req == nil {
-					d.Req = &DszDomainSelectReq{}
+					d.Req = &DszSolutionDomainSelectReq{}
 				}
 				return map[string]*schemaz.Schema{
 					"dataset": {Str: lakedsz.ParseStr(&d.Req.Dataset)},
@@ -52,7 +52,7 @@ func (d *DszRaasSolutionSelectApi) GetDataRefs() *apiz.DataRefs {
 					return nil
 				}
 				if d.Req == nil {
-					d.Req = &DszDomainSelectReq{}
+					d.Req = &DszSolutionDomainSelectReq{}
 				}
 				return map[string]*schemaz.Schema{
 					"solution": {
