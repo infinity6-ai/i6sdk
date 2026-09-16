@@ -3,9 +3,9 @@ module go.code.infinity6.ai/sdkgo
 go 1.26.1
 
 require (
-	github.com/infinity6-ai/gox/commonz v0.0.23
-	github.com/infinity6-ai/gox/routez v0.0.23
-	github.com/infinity6-ai/gox/schemaz v0.0.23
+	github.com/infinity6-ai/gox/commonz v0.0.24
+	github.com/infinity6-ai/gox/routez v0.0.24
+	github.com/infinity6-ai/gox/schemaz v0.0.24
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.12.1
 )
