@@ -15,7 +15,7 @@ func TestUnitDszApi(t *testing.T) {
 	productApi := &dszapi.DszSolutionDomainSelectApi{
 		Req: &dszapi.DszSolutionDomainSelectReq{
 			Dataset:  lakedsz.MustParse("myds"),
-			Solution: solution.MustParse("raas"),
+			Solution: solution.MustParse("relevance"),
 			Domain:   domain.MustParse("fashion"),
 			Store:    "store1",
 		},

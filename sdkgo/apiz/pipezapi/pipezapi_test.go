@@ -17,7 +17,7 @@ func TestUnitPipezApi(t *testing.T) {
 		Req: &pipezapi.PipezStartReq{
 			Dataset: lakedsz.MustParse("myds"),
 			SolutionDomain: solutiondomain.MustParse(solutiondomain.Value{
-				Solution: solution.MustParse("raas"),
+				Solution: solution.MustParse("relevance"),
 				Domain:   domain.MustParse("fashion"),
 			}),
 		},

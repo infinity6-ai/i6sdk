@@ -28,7 +28,7 @@ func (d Solution) Validate(v string) error {
 	if err := validation.StrNotEmpty(v, "Solution cannot be empty"); err != nil {
 		return err
 	}
-	if err := validation.OneOf([]string{"raas", "forecast"}, v, "Solution"); err != nil {
+	if err := validation.OneOf([]string{"relevance", "forecast"}, v, "Solution"); err != nil {
 		return err
 	}
 	return nil

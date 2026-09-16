@@ -17,13 +17,13 @@ func TestUnitChecked(t *testing.T) {
 			ret := solutiondomain.MustParse(v)
 			return &ret
 		},
-		Valids:   []solutiondomain.Value{{Solution: solution.MustParse("raas"), Domain: domain.MustParse("fashion")}},
+		Valids:   []solutiondomain.Value{{Solution: solution.MustParse("relevance"), Domain: domain.MustParse("fashion")}},
 		Invalids: []solutiondomain.Value{{}},
 	})
 }
 
 func TestUnitJson(t *testing.T) {
-	require.Equal(t, "\"raas_fashion\"", jsonz.MustFormat(solutiondomain.MustParse(solutiondomain.Value{Solution: solution.MustParse("raas"), Domain: domain.MustParse("fashion")})).String())
+	require.Equal(t, "\"raas_fashion\"", jsonz.MustFormat(solutiondomain.MustParse(solutiondomain.Value{Solution: solution.MustParse("relevance"), Domain: domain.MustParse("fashion")})).String())
 
 	require.Panics(t, func() {
 		jsonz.MustFormat(new(solutiondomain.SolutionDomain))
@@ -32,7 +32,7 @@ func TestUnitJson(t *testing.T) {
 
 func TestUnitMutabilty(t *testing.T) {
 	tb := solutiondomain.MustParse(solutiondomain.Value{
-		Solution: solution.MustParse("raas"),
+		Solution: solution.MustParse("relevance"),
 		Domain:   domain.MustParse("fashion"),
 	})
 	x := tb.Get()
