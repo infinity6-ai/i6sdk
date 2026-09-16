@@ -21,7 +21,7 @@ function cmd_test() {
 }
 
 function cmd_release() {
-  # Temporarily disabled: sdk release currently fails. Restore `./sdkweb/build.sh release-describe || ./build.sh release` once fixed.
+  ./build.sh release
   true
 }
 
