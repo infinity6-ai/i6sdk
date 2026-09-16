@@ -16,8 +16,7 @@ type DszSolutionDomainSelectReq struct {
 }
 
 type DszSolutionDomainSelectApi struct {
-	Req  *DszSolutionDomainSelectReq `json:"req"`
-	Resp *DszSolutionDomainSelectReq `json:"resp"`
+	Req *DszSolutionDomainSelectReq `json:"req"`
 }
 
 func (d *DszSolutionDomainSelectApi) ApiSpec() apiz.ApiSpec {
@@ -68,8 +67,6 @@ func (d *DszSolutionDomainSelectApi) GetDataRefs() *apiz.DataRefs {
 			},
 		},
 		RespHeaders: nil,
-		RespBody: &schemaz.Schema{
-			Raw: func() any { return &d.Resp },
-		},
+		RespBody:    nil,
 	}
 }

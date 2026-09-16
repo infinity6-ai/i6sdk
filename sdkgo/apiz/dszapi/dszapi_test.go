@@ -19,12 +19,6 @@ func TestUnitDszApi(t *testing.T) {
 			Domain:   domain.MustParse("fashion"),
 			Store:    "store1",
 		},
-		Resp: &dszapi.DszSolutionDomainSelectReq{
-			Dataset:  lakedsz.MustParse("myds"),
-			Solution: solution.MustParse("raas"),
-			Domain:   domain.MustParse("fashion"),
-			Store:    "store1",
-		},
 	}
 
 	productApi2 := jsonz.MustCopy(productApi, &dszapi.DszSolutionDomainSelectApi{})
