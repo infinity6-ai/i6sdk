@@ -6,41 +6,41 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
 
-type Product string
+type Solution string
 
-const RaasProduct Product = "raas"
-const ForecastProduct Product = "forecast"
+const RaasProduct Solution = "raas"
+const ForecastSolution Solution = "forecast"
 
-var AllProducts = []Product{
+var AllSolutions = []Solution{
 	RaasProduct,
-	ForecastProduct,
+	ForecastSolution,
 }
 
-type DszProductSelectReq struct {
-	Dataset lakedsz.Dataset `json:"dataset"`
-	Product string          `json:"product"`
-}
-
-type DszProductSelectResp struct {
+type DszSolutionSelectReq struct {
 	Dataset  lakedsz.Dataset `json:"dataset"`
-	Products []string        `json:"products"`
+	Solution string          `json:"solution"`
 }
 
-type DszProductSelectApi struct {
-	Req  *DszProductSelectReq  `json:"req"`
-	Resp *DszProductSelectResp `json:"resp"`
+type DszSolutionSelectResp struct {
+	Dataset   lakedsz.Dataset `json:"dataset"`
+	Solutions []string        `json:"solutions"`
 }
 
-func (d *DszProductSelectApi) ApiSpec() apiz.ApiSpec {
+type DszSolutionSelectApi struct {
+	Req  *DszSolutionSelectReq  `json:"req"`
+	Resp *DszSolutionSelectResp `json:"resp"`
+}
+
+func (d *DszSolutionSelectApi) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id:     "dsz-product-select",
+		Id:     "dsz-solution-select",
 		Desc:   nil,
 		Method: "POST",
-		Path:   "/api/dsz/product-select/dataset/{dataset}",
+		Path:   "/api/dsz/solution-select/dataset/{dataset}",
 	}
 }
 
-func (d *DszProductSelectApi) GetDataRefs() *apiz.DataRefs {
+func (d *DszSolutionSelectApi) GetDataRefs() *apiz.DataRefs {
 	return &apiz.DataRefs{
 		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
@@ -48,7 +48,7 @@ func (d *DszProductSelectApi) GetDataRefs() *apiz.DataRefs {
 					return nil
 				}
 				if d.Req == nil {
-					d.Req = &DszProductSelectReq{}
+					d.Req = &DszSolutionSelectReq{}
 				}
 				return map[string]*schemaz.Schema{
 					"dataset": {Str: lakedsz.ParseStr(&d.Req.Dataset)},
@@ -63,11 +63,11 @@ func (d *DszProductSelectApi) GetDataRefs() *apiz.DataRefs {
 					return nil
 				}
 				if d.Req == nil {
-					d.Req = &DszProductSelectReq{}
+					d.Req = &DszSolutionSelectReq{}
 				}
 				return map[string]*schemaz.Schema{
-					"product": {
-						Raw: func() any { return &d.Req.Product },
+					"solution": {
+						Raw: func() any { return &d.Req.Solution },
 					},
 				}
 			},
@@ -79,14 +79,14 @@ func (d *DszProductSelectApi) GetDataRefs() *apiz.DataRefs {
 					return nil
 				}
 				if d.Resp == nil {
-					d.Resp = &DszProductSelectResp{}
+					d.Resp = &DszSolutionSelectResp{}
 				}
 				return map[string]*schemaz.Schema{
 					"dataset": {
 						Raw: func() any { return &d.Resp.Dataset },
 					},
-					"products": {
-						Raw: func() any { return &d.Resp.Products },
+					"solutions": {
+						Raw: func() any { return &d.Resp.Solutions },
 					},
 				}
 			},

@@ -10,18 +10,18 @@ import (
 )
 
 func TestUnitDszApi(t *testing.T) {
-	productApi := &dszapi.DszProductSelectApi{
-		Req: &dszapi.DszProductSelectReq{
-			Dataset: lakedsz.MustParse("dsxxx"),
-			Product: "product",
-		},
-		Resp: &dszapi.DszProductSelectResp{
+	productApi := &dszapi.DszSolutionSelectApi{
+		Req: &dszapi.DszSolutionSelectReq{
 			Dataset:  lakedsz.MustParse("dsxxx"),
-			Products: []string{"product"},
+			Solution: "product",
+		},
+		Resp: &dszapi.DszSolutionSelectResp{
+			Dataset:   lakedsz.MustParse("dsxxx"),
+			Solutions: []string{"product"},
 		},
 	}
 
-	productApi2 := jsonz.MustCopy(productApi, &dszapi.DszProductSelectApi{})
+	productApi2 := jsonz.MustCopy(productApi, &dszapi.DszSolutionSelectApi{})
 
 	require.Equal(t, productApi, productApi2)
 }

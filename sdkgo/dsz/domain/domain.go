@@ -1,0 +1,54 @@
+package domain
+
+import (
+	"github.com/infinity6-ai/gox/commonz/validation"
+	"github.com/infinity6-ai/gox/commonz/validation/checked"
+	"github.com/infinity6-ai/gox/schemaz/schemaz"
+)
+
+type Domain checked.Value[string]
+
+func (d Domain) Get() string {
+	return checked.Value[string](d).Get()
+}
+
+func (d Domain) String() string {
+	return d.Get()
+}
+
+func (d Domain) MarshalJSON() ([]byte, error) {
+	return checked.Marshal[string](d)
+}
+
+func (d *Domain) UnmarshalJSON(data []byte) error {
+	return checked.Unmarshal(d, data)
+}
+
+func (d Domain) Validate(v string) error {
+	if err := validation.StrNotEmpty(v, "Domain cannot be empty"); err != nil {
+		return err
+	}
+	if err := validation.OneOf([]string{"fashion"}, v, "Domain"); err != nil {
+		return err
+	}
+	return nil
+}
+
+func MustParse(id string) Domain {
+	var ret Domain
+	checked.MustSet(&ret, id)
+	return ret
+}
+
+func ParseStr(out *Domain) func() *schemaz.Parser[string] {
+	return func() *schemaz.Parser[string] {
+		return &schemaz.Parser[string]{
+			Parse: func(v string) {
+				*out = MustParse(v)
+			},
+			Format: func() (string, any) {
+				return out.Get(), *out
+			},
+		}
+	}
+}
