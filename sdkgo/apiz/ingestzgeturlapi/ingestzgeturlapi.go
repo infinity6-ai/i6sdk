@@ -3,9 +3,9 @@ package ingestzgeturlapi
 import (
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"go.code.infinity6.ai/datasetz/laketbnamez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/ingestztoken"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
 )
 
 type GetUrlReq struct {
