@@ -1,6 +1,7 @@
 import { Ingestz } from "./ingestz/ingestz.js";
 
 const DEFAULT_BASE_URL = "https://decsuite.sandbox.rs.infinity6.ai";
+// const DEFAULT_BASE_URL = "http://localhost:9021";
 
 class I6Sdk {
   _config = {
