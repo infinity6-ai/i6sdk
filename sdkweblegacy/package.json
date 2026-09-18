@@ -5,8 +5,7 @@
   "type": "module",
   "description": "i6 SDK for the web",
   "scripts": {
-    "bundle": "./build.sh bundle",
-    "test": "./build.sh test"
+    "build": "./build.sh"
   },
   "devDependencies": {
     "esbuild": "^0.28.2"
