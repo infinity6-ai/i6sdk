@@ -47,16 +47,19 @@ function cmd_npm_install() {
 function cmd_bundle() {
     [ ! -d dist ] || rm -rf dist
     cmd_npm_install
-    npm run bundle
-    npm run bundle:files
+    esbuild src/index.js --bundle --sourcemap --outfile=dist/bundle/i6sdk-web.js
+    esbuild src/index.js --bundle --minify --sourcemap --outfile=dist/bundle/i6sdk-web.min.js
+    esbuild "src/**/*.js" --minify --outdir=dist/module
+    # npm run bundle
+    # npm run bundle:files
 }
 
 function cmd_release() {
     cmd_bundle
-    cmd_static
-    i6dev golang bin-compile
-    i6dev golang release
-    i6dev golang bin-release latest
+    mkdir -p ../../i6pages/releases/sdkweb/latest/
+    rsync -av --delete dist/src/ ../../i6pages/releases/sdkweb/latest/
+    mkdir -p ../../i6pages/releases/sdkweb-bundle/latest/
+    rsync -av --delete dist/bundle/ ../../i6pages/releases/sdkweb-bundle/latest/
 }
 
 function cmd_vendor() {
