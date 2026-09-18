@@ -50,16 +50,12 @@ function cmd_bundle() {
     esbuild src/index.js --bundle --sourcemap --outfile=dist/bundle/i6sdk-web.js
     esbuild src/index.js --bundle --minify --sourcemap --outfile=dist/bundle/i6sdk-web.min.js
     esbuild "src/**/*.js" --minify --outdir=dist/module
-    # npm run bundle
-    # npm run bundle:files
 }
 
 function cmd_release() {
     cmd_bundle
-    mkdir -p ../../i6pages/releases/sdkweb/latest/
-    rsync -av --delete dist/src/ ../../i6pages/releases/sdkweb/latest/
-    mkdir -p ../../i6pages/releases/sdkweb-bundle/latest/
-    rsync -av --delete dist/bundle/ ../../i6pages/releases/sdkweb-bundle/latest/
+    mkdir -p ../../i6pages/releases/sdkweb
+    rsync -av --delete dist/ ../../i6pages/releases/sdkweb/latest/
 }
 
 function cmd_vendor() {
