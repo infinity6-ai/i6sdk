@@ -1,4 +1,4 @@
-import { Ingestz } from "./ingestz/ingestz";
+import { Ingestz } from "./ingestz/ingestz.js";
 
 class I6Sdk {
   // async config(config) { //subscription e loja
@@ -12,7 +12,7 @@ class I6Sdk {
     return 'Hello from i6sdk-web!';
   }
 
-  Ingestz() {
+  async ingestz() {
     return new Ingestz()
   }
 }
