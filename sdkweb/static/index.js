@@ -12,7 +12,7 @@ $(window).ready(async () => {
 
     $(form).submit(() => {
         ingestz.upload({
-            dataset: "forecast",
+            dataset: "dectest",
             table: "dummysdk",
             partitions: { store: "b" },
             inputfile: form.find("[type=file]")[0],
