@@ -30,7 +30,7 @@ func (d *GetUrlApi) ApiSpec() apiz.ApiSpec {
 		Id:     "ingestz-get-url",
 		Desc:   nil,
 		Method: "POST",
-		Path:   "/api/ingestz/get-url/dataset/{dataset}",
+		Path:   "/api/ingest/get-url/dataset/{dataset}",
 	}
 }
 

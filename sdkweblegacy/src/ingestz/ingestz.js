@@ -37,7 +37,7 @@ class Ingestz {
    * @returns {Promise<string>}
    */
   async #getUrl({ baseUrl, dataset, table, partitions }) {
-    const url = `${baseUrl}/api/ingestz/get-url/dataset/${encodeURIComponent(dataset)}`;
+    const url = `${baseUrl}/api/ingest/get-url/dataset/${encodeURIComponent(dataset)}`;
     const resp = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

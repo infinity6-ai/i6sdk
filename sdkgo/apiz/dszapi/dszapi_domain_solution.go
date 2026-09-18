@@ -24,7 +24,7 @@ func (d *DszSolutionDomainSelectApi) ApiSpec() apiz.ApiSpec {
 		Id:     "dsz-domain-select",
 		Desc:   nil,
 		Method: "POST",
-		Path:   "/api/dsz/solution-domain-select/dataset/{dataset}",
+		Path:   "/api/ds/solution-domain-select/dataset/{dataset}",
 	}
 }
 

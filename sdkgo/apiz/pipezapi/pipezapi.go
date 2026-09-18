@@ -33,7 +33,7 @@ func (d *PipezStartApi) ApiSpec() apiz.ApiSpec {
 		Id:     "pipez-start",
 		Desc:   nil,
 		Method: "POST",
-		Path:   "/api/pipez/start/dataset/{dataset}",
+		Path:   "/api/pipe/start/dataset/{dataset}",
 	}
 }
 
