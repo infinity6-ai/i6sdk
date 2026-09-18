@@ -1,15 +1,23 @@
 class Ingestz {
   /**
+   * @param {Object} config
+   * @param {string} config.baseUrl - Default base URL of the ingestz server.
+   */
+  constructor(config) {
+    this._config = config;
+  }
+
+  /**
    * Asks ingestz for a signed upload URL (ingestz-get-url API) and uploads a single file to it.
    * @param {Object} params
-   * @param {string} params.baseUrl - Base URL of the ingestz server.
+   * @param {string} [params.baseUrl] - Base URL of the ingestz server. Defaults to the SDK config one.
    * @param {string} params.dataset - Dataset the file is ingested into.
    * @param {string} params.table - Inbox table name.
    * @param {Object<string, string>} params.partitions - Values for the table partitions, except the ingest id one.
    * @param {HTMLInputElement} params.inputfile - A single file input element.
    * @returns {Promise<void>} Resolves on a successful upload, rejects otherwise.
    */
-  async upload({ baseUrl, dataset, table, partitions, inputfile }) {
+  async upload({ baseUrl = this._config.baseUrl, dataset, table, partitions, inputfile }) {
     const file = inputfile.files?.[0];
     if (!file) {
       throw new Error("No file selected.");

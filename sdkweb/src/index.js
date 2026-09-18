@@ -1,19 +1,41 @@
 import { Ingestz } from "./ingestz/ingestz.js";
 
+const DEFAULT_BASE_URL = "https://decsuite.sandbox.rs.infinity6.ai";
+
 class I6Sdk {
-  // async config(config) { //subscription e loja
-  //   if (!config) {
-  //     throw new Error('SDK configuration is missing.');
-  //   }
-  //   this._config = config;
-  // }
+  _config = {
+    baseUrl: DEFAULT_BASE_URL,
+  };
+
+  /**
+   * @param {Object} [config]
+   * @param {string} [config.baseUrl] - Base URL of the i6 server. Defaults to the sandbox one.
+   */
+  constructor(config) {
+    if (config) {
+      this.config(config);
+    }
+  }
+
+  /**
+   * @param {Object} config
+   * @param {string} [config.baseUrl] - Base URL of the i6 server. Defaults to the sandbox one.
+   */
+  config(config) {
+    if (!config) {
+      throw new Error('SDK configuration is missing.');
+    }
+    this._config = {
+      baseUrl: config.baseUrl ?? DEFAULT_BASE_URL,
+    };
+  }
 
   hello() {
     return 'Hello from i6sdk-web!';
   }
 
   async ingestz() {
-    return new Ingestz()
+    return new Ingestz(this._config)
   }
 }
 

@@ -12,7 +12,6 @@ $(window).ready(async () => {
 
     $(form).submit(() => {
         ingestz.upload({
-            baseUrl: "https://decsuite.sandbox.rs.infinity6.ai/",
             dataset: "forecast",
             table: "dummysdk",
             partitions: { store: "b" },
