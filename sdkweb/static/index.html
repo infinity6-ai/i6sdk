@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>I6 Sdk Web</title>
+    <script src="https://datasetmanager.staging.rs.infinity6.ai/static/i6web/core/js/jquery.js"></script>
 </head>
 
 <body>
@@ -16,6 +17,7 @@
             <input type="file" />
             <br>
             <input type="file" />
+            <button type="submit">Submit</button>
         </form>
     </div>
 
@@ -25,7 +27,17 @@
         const i6sdk = new I6Sdk()
         document.getElementById('output').textContent = i6sdk.hello()
         let ingestz = await i6sdk.ingestz()
-        await ingestz.upload("sub", "stor", "f")
+        
+
+
+        $(window).ready(async () => {
+            const form = $("form")
+
+            $(form).submit(() => {
+                ingestz.upload("sub", "stor", form.find("[type=file]"))
+                return false
+            })
+        })
     </script>
 </body>
 
