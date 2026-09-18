@@ -5,7 +5,7 @@ const i6sdk = new I6Sdk()
 document.getElementById('output').textContent = i6sdk.hello()
 
 /** @type {Ingestz} */
-const ingestz = new Ingestz()
+const ingestz = await i6sdk.ingestz()
 
 $(window).ready(async () => {
     const form = $("form")
