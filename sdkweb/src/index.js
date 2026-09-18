@@ -2,10 +2,10 @@ import { Ingestz } from "./ingestz/ingestz.js";
 
 class I6Sdk {
   // async config(config) { //subscription e loja
-    // if (!config) {
-    //   throw new Error('SDK configuration is missing.');
-    // }
-    // this._config = config;
+  //   if (!config) {
+  //     throw new Error('SDK configuration is missing.');
+  //   }
+  //   this._config = config;
   // }
 
   hello() {

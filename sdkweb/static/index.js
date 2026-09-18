@@ -11,7 +11,13 @@ $(window).ready(async () => {
     const form = $("form")
 
     $(form).submit(() => {
-        ingestz.upload({ subscription: "sub", store: "stor", inputfile: form.find("[type=file]")[0] })
+        ingestz.upload({
+            baseUrl: "https://decsuite.sandbox.rs.infinity6.ai/",
+            dataset: "forecast",
+            table: "dummysdk",
+            partitions: { store: "b" },
+            inputfile: form.find("[type=file]")[0],
+        })
             .then(() => console.log("Upload succeeded"))
             .catch((err) => console.error("Upload failed", err))
         return false
