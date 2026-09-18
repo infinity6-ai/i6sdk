@@ -1,0 +1,19 @@
+import { I6Sdk } from '../src/index.js'
+import { Ingestz } from '../src/ingestz/ingestz.js'
+
+const i6sdk = new I6Sdk()
+document.getElementById('output').textContent = i6sdk.hello()
+
+/** @type {Ingestz} */
+const ingestz = new Ingestz()
+
+$(window).ready(async () => {
+    const form = $("form")
+
+    $(form).submit(() => {
+        ingestz.upload({ subscription: "sub", store: "stor", inputfile: form.find("[type=file]")[0] })
+            .then(() => console.log("Upload succeeded"))
+            .catch((err) => console.error("Upload failed", err))
+        return false
+    })
+})
