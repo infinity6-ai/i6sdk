@@ -11,6 +11,5 @@ class I6Sdk {
   }
 }
 
-// Expose the SDK to the global scope
 window.I6Sdk = I6Sdk;
 export { I6Sdk };
