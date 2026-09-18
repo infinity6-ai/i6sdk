@@ -1,3 +1,4 @@
+import { Ingestz } from "./ingestz/ingestz";
 
 class I6Sdk {
   // async config(config) { //subscription e loja
@@ -11,7 +12,9 @@ class I6Sdk {
     return 'Hello from i6sdk-web!';
   }
 
-
+  Ingestz() {
+    return new Ingestz()
+  }
 }
 
 window.I6Sdk = I6Sdk;
