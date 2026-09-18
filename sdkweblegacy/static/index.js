@@ -13,8 +13,8 @@ $(window).ready(async () => {
     $(form).submit(() => {
         ingestz.upload({
             dataset: "dectest",
-            table: "dummysdk",
-            partitions: { store: "b" },
+            table: "dummy-catalog",
+            partitions: { store: "s1" },
             inputfile: form.find("[type=file]")[0],
         })
             .then(() => console.log("Upload succeeded"))
