@@ -4,7 +4,7 @@
 
 /**
  * @typedef {Object} InvokerConfig
- * @property {string} baseUrl - Default base URL of the ingestz server.
+ * @property {string} baseUrl - Base URL of the server.
  */
 
 /**
@@ -20,8 +20,8 @@
  */
 class Invoker {
     /**
-     * @param {InvokerConfig} config
-     * @param {string} config.baseUrl - Default base URL of the ingestz server.
+     * @param {InvokerConfig} config - Configuration object.
+     * @param {string} config.baseUrl - Base URL of the server.
      */
     constructor(config) {
         /**
