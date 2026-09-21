@@ -29,16 +29,10 @@ class I6Sdk {
    * @param {string} [config.baseUrl] - Base URL of the i6 server. Defaults to the sandbox one.
    */
   constructor(config) {
-    /**
-     * @private
-     * @type {I6SdkConfig}
-     */
-    this._config = {
+    this._service = new Services(this._config = {
       ...DEFAULT_CONFIG,
       ...config,
-    };
- 
-    this._service = new Services(this._config)
+    })
   }
 
   /**
@@ -56,7 +50,7 @@ class I6Sdk {
   auth() {
     return this._service.auth()
   }
-  
+
 }
 
 window.I6Sdk = I6Sdk;
