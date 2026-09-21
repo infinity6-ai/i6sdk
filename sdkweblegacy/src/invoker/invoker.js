@@ -3,8 +3,7 @@
  */
 
 /**
- * @typedef {Object} InvokerConfig
- * @property {string} baseUrl - Base URL of the server.
+ * @typedef {import("../index.js").I6SdkConfig} I6SdkConfig
  */
 
 /**
@@ -20,13 +19,13 @@
  */
 class Invoker {
     /**
-     * @param {InvokerConfig} config - Configuration object.
-     * @param {string} config.baseUrl - Base URL of the server.
+     * @param {I6SdkConfig} config - Configuration object.
+     * @param {string} [config.baseUrl] - Base URL of the server.
      */
     constructor(config) {
         /**
          * @private
-         * @type {InvokerConfig}
+         * @type {I6SdkConfig}
          */
         this._config = config;
     }

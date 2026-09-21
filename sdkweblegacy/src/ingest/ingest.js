@@ -3,8 +3,7 @@
  */
 
 /**
- * @typedef {Object} IngestConfig
- * @property {string} baseUrl - Default base URL of the ingestz server.
+ * @typedef {import("../index.js").I6SdkConfig} I6SdkConfig
  */
 
 /**
@@ -27,13 +26,13 @@
  */
 class Ingest {
   /**
-   * @param {IngestConfig} config - Configuration object.
-   * @param {string} config.baseUrl - Default base URL of the ingestz server.
+   * @param {I6SdkConfig} config - Configuration object.
+   * @param {string} [config.baseUrl] - Base URL of the server.
    */
   constructor(config) {
     /**
      * @private
-     * @type {IngestConfig}
+     * @type {I6SdkConfig}
      */
     this._config = config;
   }

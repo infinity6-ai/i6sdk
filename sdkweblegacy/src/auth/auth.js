@@ -3,8 +3,7 @@
  */
 
 /**
- * @typedef {Object} AuthConfig
- * @property {string} baseUrl - Base URL of the server.
+ * @typedef {import("../index.js").I6SdkConfig} I6SdkConfig
  */
 
 /**
@@ -12,13 +11,13 @@
  */
 class Auth {
   /**
-   * @param {AuthConfig} config - Configuration object.
-   * @param {string} config.baseUrl - Base URL of the server.
+   * @param {I6SdkConfig} config - Configuration object.
+   * @param {string} [config.baseUrl] - Base URL of the server.
    */
   constructor(config) {
     /**
      * @private
-     * @type {AuthConfig}
+     * @type {I6SdkConfig}
      */
     this._config = config;
   }
