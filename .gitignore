@@ -16,4 +16,5 @@ vendor
 .venv
 .vscode
 node_modules
+apigenz
 

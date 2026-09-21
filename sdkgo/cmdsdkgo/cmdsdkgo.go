@@ -29,6 +29,8 @@ func Prepare(ctx context.Context) *cobra.Command {
 	return rootCmd
 }
 
+// Aqui comando que vai gerar todas as apis (./build.sh run generate js)
+// importa o gerador do routez
 func Execute(rootCmd *cobra.Command) {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
