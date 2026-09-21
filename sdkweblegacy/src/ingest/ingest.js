@@ -3,29 +3,44 @@
  */
 
 /**
- * @typedef {import("../index.js").I6SdkConfig} I6SdkConfig
+ * @typedef {import("../services/services.js").Services} Services
  */
 
 /**
- * @typedef {Object} UploadParams
- * @property {string} dataset - Dataset the file is ingested into.
- * @property {string} table - Inbox table name.
- * @property {Object<string, string>} partitions - Values for the table partitions, except the ingest id one.
- * @property {File} file - The single file to upload.
+ * Key-value mapping representing dataset table partition values, except the ingest ID.
+ * @typedef {Record<string, string>} Partitions
  */
 
 /**
+ * Parameters for requesting a signed upload URL from the ingest service.
  * @typedef {Object} GetUrlParams
  * @property {string} dataset - Dataset name.
  * @property {string} table - Inbox table name.
- * @property {Object<string, string>} partitions - Values for the table partitions, except the ingest id one.
+ * @property {Partitions} partitions - Values for the table partitions, except the ingest id one.
+ */
+
+/**
+ * Parameters for uploading a single file to the ingest service.
+ * @typedef {Object} UploadParams
+ * @property {string} dataset - Dataset the file is ingested into.
+ * @property {string} table - Inbox table name.
+ * @property {Partitions} partitions - Values for the table partitions, except the ingest id one.
+ * @property {File} file - The single file to upload.
  */
 
 /**
  * Client for handling file uploads to the ingest service.
  */
 class Ingest {
+  /**
+   * Constructs an Ingest client instance.
+   * @param {Services} services - The services manager instance.
+   */
   constructor(services) {
+    /**
+     * @private
+     * @type {Services}
+     */
     this._services = services;
   }
 
@@ -34,7 +49,7 @@ class Ingest {
    * @param {UploadParams} params - Upload parameters.
    * @param {string} params.dataset - Dataset the file is ingested into.
    * @param {string} params.table - Inbox table name.
-   * @param {Object<string, string>} params.partitions - Values for the table partitions, except the ingest id one.
+   * @param {Partitions} params.partitions - Values for the table partitions, except the ingest id one.
    * @param {File} params.file - The single file to upload.
    * @returns {Promise<void>} Resolves on a successful upload, rejects otherwise.
    * @throws {Error} If file is not a single File or if upload fails.
@@ -54,7 +69,7 @@ class Ingest {
    * @param {GetUrlParams} params - Parameters for requesting the upload URL.
    * @param {string} params.dataset - Dataset name.
    * @param {string} params.table - Inbox table name.
-   * @param {Object<string, string>} params.partitions - Values for the table partitions, except the ingest id one.
+   * @param {Partitions} params.partitions - Values for the table partitions, except the ingest id one.
    * @returns {Promise<string>} Resolves with the signed PUT URL.
    * @throws {Error} If the request fails or no upload URL is returned.
    */
@@ -64,12 +79,6 @@ class Ingest {
       path: `api/ingest/get-url/dataset/${encodeURIComponent(dataset)}`,
       json: { table, partitions, amount: 1 },
     })
-    // const url = `${this._services.config().baseUrl}/api/ingest/get-url/dataset/${encodeURIComponent(dataset)}`;
-    // const resp = await fetch(url, {
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify({ table, partitions, amount: 1 }),
-    // });
     if (!resp.ok) {
       throw new Error(`Get upload URL failed with status ${resp.status}`);
     }

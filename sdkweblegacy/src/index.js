@@ -5,8 +5,9 @@
 import { Services } from "./services/services.js";
 
 /**
- * @typedef {Object} I6SdkConfig
- * @property {string} [baseUrl] - Base URL of the i6 server. Defaults to the sandbox environment.
+ * @typedef {import("./types.js").I6SdkConfig} I6SdkConfig
+ * @typedef {import("./ingest/ingest.js").Ingest} Ingest
+ * @typedef {import("./auth/auth.js").Auth} Auth
  */
 
 /**
@@ -26,9 +27,12 @@ class I6Sdk {
   /**
    * Constructs an instance of the i6 SDK.
    * @param {I6SdkConfig} [config] - Configuration options for the SDK.
-   * @param {string} [config.baseUrl] - Base URL of the i6 server. Defaults to the sandbox one.
    */
   constructor(config) {
+    /**
+     * @private
+     * @type {Services}
+     */
     this._service = new Services(this._config = {
       ...DEFAULT_CONFIG,
       ...config,
@@ -37,7 +41,7 @@ class I6Sdk {
 
   /**
    * Returns an Ingest service instance.
-   * @returns {Promise<Ingest>} An instance of the Ingest client.
+   * @returns {Ingest} An instance of the Ingest client.
    */
   ingest() {
     return this._service.ingest()
@@ -45,7 +49,7 @@ class I6Sdk {
 
   /**
    * Returns an Auth service instance.
-   * @returns {Promise<Auth>} An instance of the Auth client.
+   * @returns {Auth} An instance of the Auth client.
    */
   auth() {
     return this._service.auth()

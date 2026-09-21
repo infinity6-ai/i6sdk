@@ -1,22 +1,22 @@
+/**
+ * @fileoverview Service container managing SDK service instances and configuration.
+ */
+
 import { Invoker } from "../invoker/invoker.js";
 import { Auth } from "../auth/auth.js";
 import { Ingest } from "../ingest/ingest.js";
 
 /**
- * @fileoverview write it
+ * @typedef {import("../types.js").I6SdkConfig} I6SdkConfig
  */
 
 /**
- * @typedef {import("../index.js").I6SdkConfig} I6SdkConfig
- */
-
-/**
- * write it
+ * Service container that instantiates and provides access to SDK service clients.
  */
 class Services {
     /**
-     * @param {I6SdkConfig} config - Configuration object.
-     * @param {string} [config.baseUrl] - Base URL of the server.
+     * Constructs a Services instance.
+     * @param {I6SdkConfig} config - Configuration object for the SDK services.
      */
     constructor(config) {
         /**
@@ -26,10 +26,18 @@ class Services {
         this._config = config;
     }
 
+    /**
+     * Returns the SDK configuration.
+     * @returns {I6SdkConfig} The configuration object.
+     */
     config() {
         return this._config
     }
 
+    /**
+     * Creates and returns an Invoker service instance.
+     * @returns {Invoker} An instance of the Invoker client.
+     */
     invoker() {
         const ret = new Invoker(this)
         if (ret.prepare) {
@@ -38,6 +46,10 @@ class Services {
         return ret
     }
 
+    /**
+     * Creates and returns an Auth service instance.
+     * @returns {Auth} An instance of the Auth client.
+     */
     auth() {
         const ret = new Auth(this)
         if (ret.prepare) {
@@ -46,6 +58,10 @@ class Services {
         return ret
     }
 
+    /**
+     * Creates and returns an Ingest service instance.
+     * @returns {Ingest} An instance of the Ingest client.
+     */
     ingest() {
         const ret = new Ingest(this)
         if (ret.prepare) {
