@@ -25,16 +25,8 @@
  * Client for handling file uploads to the ingest service.
  */
 class Ingest {
-  /**
-   * @param {I6SdkConfig} config - Configuration object.
-   * @param {string} [config.baseUrl] - Base URL of the server.
-   */
-  constructor(config) {
-    /**
-     * @private
-     * @type {I6SdkConfig}
-     */
-    this._config = config;
+  constructor(services) {
+    this._services = services;
   }
 
   /**
@@ -67,7 +59,7 @@ class Ingest {
    * @throws {Error} If the request fails or no upload URL is returned.
    */
   async #getUrl({ dataset, table, partitions }) {
-    const url = `${this.config().baseUrl}/api/ingest/get-url/dataset/${encodeURIComponent(dataset)}`;
+    const url = `${this._services.config().baseUrl}/api/ingest/get-url/dataset/${encodeURIComponent(dataset)}`;
     const resp = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
