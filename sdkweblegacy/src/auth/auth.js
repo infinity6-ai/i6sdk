@@ -33,7 +33,7 @@ class Auth {
    */
   async me() {
     const resp = await this._services.invoker().invoke({
-      path: `api/decsuite/_/auth/me`,
+      path: `api/auth/me`,
     });
 
     // https://decsuite.sandbox.rs.infinity6.ai/api/decsuite/_/auth/me
