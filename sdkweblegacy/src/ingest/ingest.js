@@ -59,12 +59,17 @@ class Ingest {
    * @throws {Error} If the request fails or no upload URL is returned.
    */
   async #getUrl({ dataset, table, partitions }) {
-    const url = `${this._services.config().baseUrl}/api/ingest/get-url/dataset/${encodeURIComponent(dataset)}`;
-    const resp = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ table, partitions, amount: 1 }),
-    });
+    const resp = this._services.invoker().invoke({
+      method: 'POST',
+      path: `api/ingest/get-url/dataset/${encodeURIComponent(dataset)}`,
+      json: { table, partitions, amount: 1 },
+    })
+    // const url = `${this._services.config().baseUrl}/api/ingest/get-url/dataset/${encodeURIComponent(dataset)}`;
+    // const resp = await fetch(url, {
+    //   method: "POST",
+    //   headers: { "Content-Type": "application/json" },
+    //   body: JSON.stringify({ table, partitions, amount: 1 }),
+    // });
     if (!resp.ok) {
       throw new Error(`Get upload URL failed with status ${resp.status}`);
     }
