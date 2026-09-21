@@ -1,4 +1,4 @@
-import { Ingestz } from "./ingestz/ingestz.js";
+import { Ingest } from "./ingest/ingest.js";
 
 const DEFAULT_BASE_URL = "https://decsuite.sandbox.rs.infinity6.ai";
 // const DEFAULT_BASE_URL = "http://localhost:9021";
@@ -35,8 +35,8 @@ class I6Sdk {
     return 'Hello from i6sdk-web!';
   }
 
-  async ingestz() {
-    return new Ingestz(this._config)
+  async ingest() {
+    return new Ingest(this._config)
   }
 }
 

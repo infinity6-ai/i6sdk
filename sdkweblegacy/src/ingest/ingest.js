@@ -1,4 +1,4 @@
-class Ingestz {
+class Ingest {
   /**
    * @param {Object} config
    * @param {string} config.baseUrl - Default base URL of the ingestz server.
@@ -81,4 +81,4 @@ class Ingestz {
   }
 }
 
-export { Ingestz };
+export { Ingest };

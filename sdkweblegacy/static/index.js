@@ -1,17 +1,17 @@
 import { I6Sdk } from '../src/index.js'
-import { Ingestz } from '../src/ingestz/ingestz.js'
+import { Ingest } from '../src/ingest/ingest.js'
 
 const i6sdk = new I6Sdk()
 document.getElementById('output').textContent = i6sdk.hello()
 
-/** @type {Ingestz} */
-const ingestz = await i6sdk.ingestz()
+/** @type {Ingest} */
+const ingest = await i6sdk.ingest()
 
 $(window).ready(async () => {
     const form = $("form")
 
     $(form).submit(() => {
-        ingestz.upload({
+        ingest.upload({
             dataset: "dectest",
             table: "dummy-catalog",
             partitions: { store: "s1" },
