@@ -29,7 +29,7 @@ class Invoker {
             opts.headers = {
                 'Content-Type': 'application/json'
             }
-            opts.body = JSON.stringify(data)
+            opts.body = JSON.stringify(opts.json)
         }
 
         console.log("🚀 ~ Invoker ~ invoke ~ url:", url)
