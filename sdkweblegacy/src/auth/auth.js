@@ -10,16 +10,8 @@
  * Authentication client for handling user sessions and authentication requests.
  */
 class Auth {
-  /**
-   * @param {I6SdkConfig} config - Configuration object.
-   * @param {string} [config.baseUrl] - Base URL of the server.
-   */
-  constructor(config) {
-    /**
-     * @private
-     * @type {I6SdkConfig}
-     */
-    this._config = config;
+  constructor(services) {
+    this._services = services;
   }
 
   /**
@@ -29,7 +21,7 @@ class Auth {
   #redirectToLogin() {
     const backurl = location.href
     const encoded = encodeURIComponent(backurl)
-    const loginUrl = `${this._config.baseUrl}/api/decsuite/auth/login?backurl=${encoded}`
+    const loginUrl = `${this._services.config().baseUrl}/api/decsuite/auth/login?backurl=${encoded}`
 
     location = loginUrl
   }
@@ -40,18 +32,20 @@ class Auth {
    * @throws {Error} If the HTTP request fails.
    */
   async me() {
-    const resp = await fetch(`${this._config.baseUrl}/api/decsuite/me`, {
-      method: "GET",
-    });
+    const resp = await this._services.invoker().invoke({
+      path: `api/decsuite/_/auth/me`,
+    })
+
+    // https://decsuite.sandbox.rs.infinity6.ai/api/decsuite/_/auth/me
 
     if (!resp.ok) {
       throw new Error(`Get upload URL failed with status ${resp.status}`);
     }
 
-    if (window.gambeta) {
-        this.#redirectToLogin()
-        return null
-    } 
+    // if (window.gambeta) {
+    //     this.#redirectToLogin()
+    //     return null
+    // } 
 
     const user = await resp.json();
     return user
