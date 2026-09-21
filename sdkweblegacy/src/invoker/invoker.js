@@ -1,32 +1,6 @@
-/**
- * @fileoverview HTTP request invoker.
- */
-
-/**
- * @typedef {import("../index.js").I6SdkConfig} I6SdkConfig
- */
-
-/**
- * @typedef {RequestInit & {
- *   url?: string,
- *   path?: string,
- *   query?: Record<string, any>
- * }} InvokeOptions
- */
-
-/**
- * Class representing an HTTP invoker for executing API requests.
- */
 class Invoker {
-    /**
-     * @param {I6SdkConfig} config - Configuration object.
-     * @param {string} [config.baseUrl] - Base URL of the server.
-     */
+
     constructor(config) {
-        /**
-         * @private
-         * @type {I6SdkConfig}
-         */
         this._config = config;
     }
 
