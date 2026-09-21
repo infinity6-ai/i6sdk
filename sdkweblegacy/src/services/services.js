@@ -24,17 +24,29 @@ class Services {
 
     invoker() {
         import { Invoker } from "./invoker/invoker.js";
-        return new Invoker(this._config)
+        const ret = new Invoker(this._config)
+        if (ret.prepare) {
+            ret.prepare()
+        }
+        return ret
     }
 
     auth() {
-        import { Auth } from "./auth/ingest.js";
-        return new Auth(this._config)
+        import { Auth } from "./auth/auth.js";
+        const ret = new Auth(this._config)
+        if (ret.prepare) {
+            ret.prepare()
+        }
+        return ret
     }
 
     ingest() {
         import { Ingest } from "./ingest/ingest.js";
-        return new Ingest(this._config)
+        const ret = new Ingest(this._config)
+        if (ret.prepare) {
+            ret.prepare()
+        }
+        return ret
     }
 
 }

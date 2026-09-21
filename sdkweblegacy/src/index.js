@@ -2,8 +2,7 @@
  * @fileoverview Main entry point for the i6 Web Legacy SDK.
  */
 
-import { Auth } from "./auth/auth.js";
-import { Ingest } from "./ingest/ingest.js";
+import { Services } from "./services/services.js";
 
 /**
  * @typedef {Object} I6SdkConfig
@@ -38,31 +37,26 @@ class I6Sdk {
       ...DEFAULT_CONFIG,
       ...config,
     };
-  }
-
-  /**
-   * Returns a greeting message.
-   * @returns {string} The greeting message.
-   */
-  hello() {
-    return 'Hello from i6sdk-web!';
+ 
+    this._service = new Services(this._config)
   }
 
   /**
    * Returns an Ingest service instance.
    * @returns {Promise<Ingest>} An instance of the Ingest client.
    */
-  async ingest() {
-    return new Ingest(this._config)
+  ingest() {
+    return this._service.ingest()
   }
 
   /**
    * Returns an Auth service instance.
    * @returns {Promise<Auth>} An instance of the Auth client.
    */
-  async auth() {
-    return new Auth(this._config)
+  auth() {
+    return this._service.auth()
   }
+  
 }
 
 window.I6Sdk = I6Sdk;
