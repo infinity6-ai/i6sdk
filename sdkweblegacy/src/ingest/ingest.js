@@ -10,33 +10,31 @@ class Ingest {
   /**
    * Asks ingestz for a signed upload URL (ingestz-get-url API) and uploads a single file to it.
    * @param {Object} params
-   * @param {string} [params.baseUrl] - Base URL of the ingestz server. Defaults to the SDK config one.
    * @param {string} params.dataset - Dataset the file is ingested into.
    * @param {string} params.table - Inbox table name.
    * @param {Object<string, string>} params.partitions - Values for the table partitions, except the ingest id one.
    * @param {File} params.file - The single file to upload.
    * @returns {Promise<void>} Resolves on a successful upload, rejects otherwise.
    */
-  async upload({ baseUrl = this._config.baseUrl, dataset, table, partitions, file }) {
+  async upload({ dataset, table, partitions, file }) {
     if (!(file instanceof File)) {
       throw new Error("file must be a single File.");
     }
 
-    const signedPutUrl = await this.#getUrl({ baseUrl, dataset, table, partitions });
+    const signedPutUrl = await this.#getUrl({ dataset, table, partitions });
     await this.#put(signedPutUrl, file);
   }
 
   /**
    * Gets one signed PUT URL from the ingestz-get-url API.
    * @param {Object} params
-   * @param {string} params.baseUrl
    * @param {string} params.dataset
    * @param {string} params.table
    * @param {Object<string, string>} params.partitions
    * @returns {Promise<string>}
    */
-  async #getUrl({ baseUrl, dataset, table, partitions }) {
-    const url = `${baseUrl}/api/ingest/get-url/dataset/${encodeURIComponent(dataset)}`;
+  async #getUrl({ dataset, table, partitions }) {
+    const url = `${this._config.baseUrl}/api/ingest/get-url/dataset/${encodeURIComponent(dataset)}`;
     const resp = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
