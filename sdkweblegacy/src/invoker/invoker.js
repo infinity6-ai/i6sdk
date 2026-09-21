@@ -67,6 +67,7 @@ class Invoker {
             opts.body = JSON.stringify(opts.json)
         }
 
+        opts.credentials = "include";
         return fetch(url, opts)
     }
 
