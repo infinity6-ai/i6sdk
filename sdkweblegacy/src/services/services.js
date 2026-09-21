@@ -31,8 +31,7 @@ class Services {
     }
 
     invoker() {
-        import { Invoker } from "./invoker/invoker.js";
-        const ret = new Invoker(this._config)
+        const ret = new Invoker(this)
         if (ret.prepare) {
             ret.prepare()
         }
@@ -40,7 +39,7 @@ class Services {
     }
 
     auth() {
-        const ret = new Auth(this._config)
+        const ret = new Auth(this)
         if (ret.prepare) {
             ret.prepare()
         }
@@ -48,7 +47,7 @@ class Services {
     }
 
     ingest() {
-        const ret = new Ingest(this._config)
+g        const ret = new Ingest(this)
         if (ret.prepare) {
             ret.prepare()
         }
