@@ -35,7 +35,7 @@ func Introspect(schema *schemaz.Schema) *Node {
 // introspectSchema decide qual dos 5 bindings (Object/Array/Raw/Str/Strs) está setado e delega.
 func introspectSchema(s *schemaz.Schema, depth int) *Node {
 	if s == nil {
-		return &Node{Kind: KindUnknown, Nullable: true}
+		return &Node{Kind: KindUnknown}
 	}
 	var n *Node
 	if depth > maxDepth {
@@ -63,9 +63,9 @@ func introspectSchema(s *schemaz.Schema, depth int) *Node {
 // introspectObject chama Object(false) (direção unmarshal, aloca ponteiros aninhados) e ordena
 // as chaves, já que a ordem de um map em Go não é estável entre execuções.
 func introspectObject(fn func(read bool) map[string]*schemaz.Schema, depth int) *Node {
-	m := safeObject(fn)
+	m := safely(func() map[string]*schemaz.Schema { return fn(false) })
 	if m == nil {
-		return &Node{Kind: KindObject, Nullable: true, Fields: map[string]*Node{}}
+		return &Node{Kind: KindObject, Fields: map[string]*Node{}}
 	}
 	keys := make([]string, 0, len(m))
 	for k := range m {
@@ -82,11 +82,11 @@ func introspectObject(fn func(read bool) map[string]*schemaz.Schema, depth int) 
 // introspectArray usa Get(0, false) como sonda de forma — o mesmo padrão que os autores de
 // schema usam (via slicez.GrowLenTo) para crescer o slice sob demanda no caminho de unmarshal.
 func introspectArray(fn func() *schemaz.Array, depth int) *Node {
-	arr := safeArray(fn)
+	arr := safely(fn)
 	if arr == nil {
-		return &Node{Kind: KindArray, Nullable: true, Element: &Node{Kind: KindUnknown}}
+		return &Node{Kind: KindArray, Element: &Node{Kind: KindUnknown}}
 	}
-	elemSchema := safeArrayGet(arr.Get, 0)
+	elemSchema := safely(func() *schemaz.Schema { return arr.Get(0, false) })
 	if elemSchema == nil {
 		return &Node{Kind: KindArray, Element: &Node{Kind: KindUnknown}}
 	}
@@ -95,21 +95,26 @@ func introspectArray(fn func() *schemaz.Array, depth int) *Node {
 
 // introspectRaw obtém o ponteiro via Raw() e infere o tipo real pelo reflect.Type do ponteiro.
 func introspectRaw(fn func() any, depth int) *Node {
-	v := safeRaw(fn)
+	v := safely(fn)
 	if v == nil {
-		return &Node{Kind: KindUnknown, Nullable: true}
+		return &Node{Kind: KindUnknown}
 	}
 	return introspectType(reflect.TypeOf(v), map[reflect.Type]bool{}, depth)
 }
 
 // introspectStr usa o segundo retorno de Format() (valor nativo, antes de virar string) para
 // descobrir o tipo real por trás de um Parser[string] — único canal de tipo disponível aqui.
+// Se o tipo nativo não dá pista nenhuma (ex.: struct com MarshalJSON, como lakedsz.Dataset), o
+// nó vira string: o parser lê e escreve strings, então é isso que o lado JS enxerga.
 func introspectStr(fn func() *schemaz.Parser[string]) *Node {
-	native := safeStrFormat(fn)
+	native := nativeOf(fn)
 	if native == nil {
-		return &Node{Kind: KindUnknown, StringArrayWire: true}
+		return &Node{Kind: KindString, StringArrayWire: true}
 	}
 	n := introspectType(reflect.TypeOf(native), map[reflect.Type]bool{}, 0)
+	if n.Kind == KindUnknown {
+		n.Kind = KindString
+	}
 	n.StringArrayWire = true
 	return n
 }
@@ -117,7 +122,7 @@ func introspectStr(fn func() *schemaz.Parser[string]) *Node {
 // introspectStrs é igual a introspectStr, mas marca MultiValue — fato de transporte que não
 // deve ser confundido com "é array": o campo "c" em schemaz_test.go é Strs com nativo escalar.
 func introspectStrs(fn func() *schemaz.Parser[[]string]) *Node {
-	native := safeStrsFormat(fn)
+	native := nativeOf(fn)
 	if native == nil {
 		return &Node{Kind: KindUnknown, MultiValue: true, StringArrayWire: true}
 	}
@@ -145,9 +150,7 @@ func introspectType(t reflect.Type, visited map[reflect.Type]bool, depth int) *N
 		reflect.Float32, reflect.Float64:
 		return &Node{Kind: KindNumber}
 	case reflect.Ptr:
-		n := introspectType(t.Elem(), extendVisited(visited, t), depth+1)
-		n.Nullable = true
-		return n
+		return introspectType(t.Elem(), extendVisited(visited, t), depth+1)
 	case reflect.Slice, reflect.Array:
 		return &Node{Kind: KindArray, Element: introspectType(t.Elem(), extendVisited(visited, t), depth+1)}
 	case reflect.Map:
@@ -217,73 +220,27 @@ func extendVisited(visited map[reflect.Type]bool, t reflect.Type) map[reflect.Ty
 	return n
 }
 
-// safeObject chama Object(false) protegendo contra panics de closures escritas à mão por
-// autores de API — degrada para "não sei" em vez de derrubar a geração inteira.
-func safeObject(fn func(read bool) map[string]*schemaz.Schema) (m map[string]*schemaz.Schema) {
+// safely chama fn protegendo contra panics de closures escritas à mão por autores de API —
+// degrada para o valor zero de T ("não sei") em vez de derrubar a geração inteira.
+func safely[T any](fn func() T) (out T) {
 	defer func() {
 		if recover() != nil {
-			m = nil
-		}
-	}()
-	return fn(false)
-}
-
-// safeArray é o equivalente de safeObject para Array().
-func safeArray(fn func() *schemaz.Array) (a *schemaz.Array) {
-	defer func() {
-		if recover() != nil {
-			a = nil
+			var zero T
+			out = zero
 		}
 	}()
 	return fn()
 }
 
-// safeArrayGet é o equivalente de safeObject para Array.Get(idx, false).
-func safeArrayGet(fn func(idx int, read bool) *schemaz.Schema, idx int) (s *schemaz.Schema) {
-	defer func() {
-		if recover() != nil {
-			s = nil
+// nativeOf chama Str()/Strs().Format() e devolve só o valor nativo (segundo retorno), ou nil se
+// o parser não tem Format ou entra em pânico.
+func nativeOf[T any](fn func() *schemaz.Parser[T]) any {
+	return safely(func() any {
+		p := fn()
+		if p == nil || p.Format == nil {
+			return nil
 		}
-	}()
-	return fn(idx, false)
-}
-
-// safeRaw é o equivalente de safeObject para Raw().
-func safeRaw(fn func() any) (v any) {
-	defer func() {
-		if recover() != nil {
-			v = nil
-		}
-	}()
-	return fn()
-}
-
-// safeStrFormat chama Str().Format() e devolve só o valor nativo (segundo retorno).
-func safeStrFormat(fn func() *schemaz.Parser[string]) (native any) {
-	defer func() {
-		if recover() != nil {
-			native = nil
-		}
-	}()
-	p := fn()
-	if p == nil || p.Format == nil {
-		return nil
-	}
-	_, native = p.Format()
-	return native
-}
-
-// safeStrsFormat é o equivalente de safeStrFormat para Strs().Format().
-func safeStrsFormat(fn func() *schemaz.Parser[[]string]) (native any) {
-	defer func() {
-		if recover() != nil {
-			native = nil
-		}
-	}()
-	p := fn()
-	if p == nil || p.Format == nil {
-		return nil
-	}
-	_, native = p.Format()
-	return native
+		_, native := p.Format()
+		return native
+	})
 }

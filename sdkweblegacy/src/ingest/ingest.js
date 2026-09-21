@@ -2,6 +2,8 @@
  * @fileoverview Ingest client for uploading files to the ingestion service.
  */
 
+import { ingestzGetUrl } from "../apigenz/ingestz-get-url.js";
+
 /**
  * @typedef {import("../services/services.js").Services} Services
  */
@@ -74,17 +76,12 @@ class Ingest {
    * @throws {Error} If the request fails or no upload URL is returned.
    */
   async #getUrl({ dataset, table, partitions }) {
-    //Esse método chama o que é gerado
-    const resp = await  this._services.invoker().invoke({
-      method: 'POST',
-      path: `api/ingest/get-url/dataset/${encodeURIComponent(dataset)}`,
-      json: { table, partitions, amount: 1 },
-    })
+    const resp = await ingestzGetUrl(this._services, { dataset, table, partitions, amount: 1 });
     if (!resp.ok) {
       throw new Error(`Get upload URL failed with status ${resp.status}`);
     }
 
-    const { uploads } = await resp.json();
+    const uploads = resp.body?.uploads;
     if (!uploads?.[0]) {
       throw new Error("Get upload URL returned no upload URL.");
     }

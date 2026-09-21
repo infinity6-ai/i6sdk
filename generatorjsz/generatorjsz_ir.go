@@ -21,8 +21,6 @@ type Node struct {
 	Kind Kind
 	// Desc é opcional (a maioria dos schemas hoje não a preenche).
 	Desc *schemaz.Desc
-	// Nullable indica que o nó pode ser nil (Object/Array que retornam nil, ou ponteiro Go).
-	Nullable bool
 	// MultiValue é fato de transporte (Strs), independente do Kind (ver caso "c" em schemaz_test.go).
 	MultiValue bool
 	// StringArrayWire é true para nós vindos de Str ou Strs: ambos serializam como array JSON

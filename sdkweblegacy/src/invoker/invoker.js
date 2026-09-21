@@ -52,18 +52,27 @@ class Invoker {
         let url = opts.url || `${this._services.config().baseUrl}/${opts.path}`
 
         if (opts.query) {
-            const queryString = new URLSearchParams(params).toString()
-            if (!url.contains('?')) {
-                url = url + '?' + queryString
-            } else {
-                url = url + '&' + queryString
+            const search = new URLSearchParams()
+            for (const [key, value] of Object.entries(opts.query)) {
+                if (value === undefined || value === null) {
+                    continue
+                }
+                // A list becomes one repeated key per item (?a=1&a=2), not "1,2".
+                for (const item of Array.isArray(value) ? value : [value]) {
+                    search.append(key, String(item))
+                }
+            }
+            const queryString = search.toString()
+            if (queryString) {
+                url = url + (url.includes('?') ? '&' : '?') + queryString
             }
         }
 
         if (opts.json) {
-            opts.headers = {
-                'Content-Type': 'application/json'
-            }
+            // Keep the caller's headers; only Content-Type is forced.
+            const headers = new Headers(opts.headers)
+            headers.set('Content-Type', 'application/json')
+            opts.headers = headers
             opts.body = JSON.stringify(opts.json)
         }
 

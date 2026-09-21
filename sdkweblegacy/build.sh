@@ -15,10 +15,12 @@ function cmd_update() {
 function cmd_run_server() {
     # [ "x$(i6dev box-config jq -r .id)" == "xlocal" ]
     # eval "$(cmd_env)"
+    cmd_generate
     I6_WEB_CHECKER_ENABLED=true cmd_run server start "$@"
 }
 
 function cmd_run_testserver() {
+    cmd_generate
     cmd_run appstack testserver
 }
 
@@ -44,8 +46,15 @@ function cmd_npm_install() {
     npm install
 }
 
+# Generates src/apigenz (gitignored): one JS client per API, imported by src/ingest and friends.
+# Must run before anything that resolves src/**, since a fresh checkout has no apigenz.
+function cmd_generate() {
+    (cd .. && go run . generate js)
+}
+
 function cmd_bundle() {
     [ ! -d dist ] || rm -rf dist
+    cmd_generate
     cmd_npm_install
     esbuild src/index.js --bundle --sourcemap --outfile=dist/bundle/i6sdk-web.js
     esbuild src/index.js --bundle --minify --sourcemap --outfile=dist/bundle/i6sdk-web.min.js
