@@ -14,13 +14,12 @@ class Ingestz {
    * @param {string} params.dataset - Dataset the file is ingested into.
    * @param {string} params.table - Inbox table name.
    * @param {Object<string, string>} params.partitions - Values for the table partitions, except the ingest id one.
-   * @param {HTMLInputElement} params.inputfile - A single file input element.
+   * @param {File} params.file - The single file to upload.
    * @returns {Promise<void>} Resolves on a successful upload, rejects otherwise.
    */
-  async upload({ baseUrl = this._config.baseUrl, dataset, table, partitions, inputfile }) {
-    const file = inputfile.files?.[0];
-    if (!file) {
-      throw new Error("No file selected.");
+  async upload({ baseUrl = this._config.baseUrl, dataset, table, partitions, file }) {
+    if (!(file instanceof File)) {
+      throw new Error("file must be a single File.");
     }
 
     const signedPutUrl = await this.#getUrl({ baseUrl, dataset, table, partitions });

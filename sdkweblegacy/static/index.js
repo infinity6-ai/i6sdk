@@ -15,7 +15,7 @@ $(window).ready(async () => {
             dataset: "dectest",
             table: "dummy-catalog",
             partitions: { store: "s1" },
-            inputfile: form.find("[type=file]")[0],
+            file: form.find("[type=file]")[0].files[0],
         })
             .then(() => console.log("Upload succeeded"))
             .catch((err) => console.error("Upload failed", err))
