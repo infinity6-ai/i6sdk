@@ -1,3 +1,7 @@
+import { Invoker } from "../invoker/invoker.js";
+import { Auth } from "../auth/auth.js";
+import { Ingest } from "../ingest/ingest.js";
+
 /**
  * @fileoverview write it
  */
@@ -22,8 +26,7 @@ class Services {
         this._config = config;
     }
 
-    invoker() {
-        import { Invoker } from "./invoker/invoker.js";
+    async invoker() {
         const ret = new Invoker(this._config)
         if (ret.prepare) {
             ret.prepare()
@@ -32,7 +35,6 @@ class Services {
     }
 
     auth() {
-        import { Auth } from "./auth/auth.js";
         const ret = new Auth(this._config)
         if (ret.prepare) {
             ret.prepare()
@@ -41,7 +43,6 @@ class Services {
     }
 
     ingest() {
-        import { Ingest } from "./ingest/ingest.js";
         const ret = new Ingest(this._config)
         if (ret.prepare) {
             ret.prepare()

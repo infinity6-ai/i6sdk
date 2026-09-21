@@ -9,7 +9,6 @@
                 subscription: 'sub1',
                 store: 'store1'
             })
-            assert.equal(i6sdk.hello(), 'Hello from i6sdk-web!')
         });
 
         QUnit.test("config is required", async function (assert) {

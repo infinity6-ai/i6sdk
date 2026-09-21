@@ -30,4 +30,4 @@ class Invoker {
 
 }
 
-export { Auth };
+export { Invoker };
