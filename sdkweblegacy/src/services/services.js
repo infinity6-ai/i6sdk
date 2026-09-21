@@ -47,7 +47,7 @@ class Services {
     }
 
     ingest() {
-g        const ret = new Ingest(this)
+        const ret = new Ingest(this)
         if (ret.prepare) {
             ret.prepare()
         }
