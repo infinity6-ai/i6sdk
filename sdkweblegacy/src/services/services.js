@@ -34,6 +34,10 @@ class Services {
         return this._config
     }
 
+    bind(evt, fn) {
+        this._config.dispatcher.addEventListener(evt, fn);
+    }
+
     /**
      * Creates and returns an Invoker service instance.
      * @returns {Invoker} An instance of the Invoker client.
@@ -69,6 +73,7 @@ class Services {
         }
         return ret
     }
+
 
 }
 
