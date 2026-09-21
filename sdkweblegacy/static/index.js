@@ -2,8 +2,6 @@ import { I6Sdk } from '../src/index.js'
 
 const i6sdk = new I6Sdk()
 window.i6sdk = i6sdk
-document.getElementById('output').textContent = i6sdk.hello()
-
 /** @type {Ingest} */
 const ingest = await i6sdk.ingest()
 
