@@ -14,7 +14,7 @@ class Auth {
     const encoded = encodeURIComponent(backurl)
     console.log("Encoded", encoded)
 
-    const loginUrl = `${backurl}api/decsuite/auth/login?backurl=${backurl}`
+    const loginUrl = `${this._config.baseUrl}/api/decsuite/auth/login?backurl=${encoded}`
     console.log("LoginUrl", loginUrl)
     location = loginUrl
   }
