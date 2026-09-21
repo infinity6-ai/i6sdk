@@ -34,6 +34,12 @@ class Services {
         return this._config
     }
 
+    /**
+     * Registers an event listener on the internal event dispatcher.
+     * @param {string} evt - The event type or name to listen for.
+     * @param {EventListenerOrEventListenerObject|Function} fn - The callback function or event listener object invoked when the event occurs.
+     * @returns {void}
+     */
     bind(evt, fn) {
         this._config.dispatcher.addEventListener(evt, fn);
     }
