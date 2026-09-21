@@ -54,7 +54,7 @@ class Auth {
   }
 
   async requireUser() {
-    var user = this.me()
+    var user = this.user()
     if (!user) {
       this.#redirectToLogin();
       return null;
