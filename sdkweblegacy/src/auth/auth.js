@@ -45,17 +45,23 @@ class Auth {
    * @returns {Promise<UserProfile|null>} The user profile data, or null if redirected to login.
    * @throws {Error} If the HTTP request fails.
    */
-  async me() {
+  async user() {
     const resp = await this._services.invoker().invoke({
       path: `api/auth/me`,
     });
     const user = await resp.json();
+    return user;
+  }
+
+  async requireUser() {
+    var user = this.me()
     if (!user) {
       this.#redirectToLogin();
       return null;
     }
-    return user;
+    return user
   }
+
 }
 
 export { Auth };
