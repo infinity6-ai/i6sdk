@@ -34,13 +34,10 @@ class Auth {
   async me() {
     const resp = await this._services.invoker().invoke({
       path: `api/decsuite/_/auth/me`,
-    })
+    });
 
     // https://decsuite.sandbox.rs.infinity6.ai/api/decsuite/_/auth/me
 
-    if (!resp.ok) {
-      throw new Error(`Get upload URL failed with status ${resp.status}`);
-    }
 
     // if (window.gambeta) {
     //     this.#redirectToLogin()
@@ -48,7 +45,12 @@ class Auth {
     // } 
 
     const user = await resp.json();
-    return user
+
+    if (!user) {
+      this.#redirectToLogin();
+      return null;
+    }
+    return user;
   }
 }
 
