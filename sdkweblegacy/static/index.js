@@ -4,14 +4,14 @@ const i6sdk = new I6Sdk()
 window.i6sdk = i6sdk
 document.getElementById('output').textContent = i6sdk.hello()
 
-/** @type {Ingestz} */
-const ingestz = await i6sdk.ingestz()
+/** @type {Ingest} */
+const ingest = await i6sdk.ingest()
 
 $(window).ready(async () => {
     const form = $("form")
 
     $(form).submit(() => {
-        ingestz.upload({
+        ingest.upload({
             dataset: "dectest",
             table: "dummy-catalog",
             partitions: { store: "s1" },
