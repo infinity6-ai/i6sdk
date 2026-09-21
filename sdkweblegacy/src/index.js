@@ -56,6 +56,9 @@ class I6Sdk {
     return this._service.auth()
   }
 
+  bind(evt, fn) {
+    this._service.bind(evt, fn)
+  }
 }
 
 window.I6Sdk = I6Sdk;
