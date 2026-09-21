@@ -25,6 +25,13 @@ class Invoker {
             }
         }
 
+        if (opts.json) {
+            opts.headers = {
+                'Content-Type': 'application/json'
+            }
+            opts.body = JSON.stringify(data)
+        }
+
         console.log("🚀 ~ Invoker ~ invoke ~ url:", url)
         return fetch(url, opts)
     }
