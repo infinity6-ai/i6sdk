@@ -49,17 +49,7 @@ class Auth {
     const resp = await this._services.invoker().invoke({
       path: `api/auth/me`,
     });
-
-    // https://decsuite.sandbox.rs.infinity6.ai/api/decsuite/_/auth/me
-
-
-    // if (window.gambeta) {
-    //     this.#redirectToLogin()
-    //     return null
-    // } 
-
     const user = await resp.json();
-
     if (!user) {
       this.#redirectToLogin();
       return null;
