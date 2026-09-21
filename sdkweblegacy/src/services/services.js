@@ -22,6 +22,10 @@ class Services {
         this._config = config;
     }
 
+    config() {
+        return this._config
+    }
+
     invoker() {
         import { Invoker } from "./invoker/invoker.js";
         const ret = new Invoker(this._config)
