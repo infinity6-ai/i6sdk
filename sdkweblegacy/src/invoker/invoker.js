@@ -32,7 +32,6 @@ class Invoker {
             opts.body = JSON.stringify(opts.json)
         }
 
-        console.log("🚀 ~ Invoker ~ invoke ~ url:", url)
         return fetch(url, opts)
     }
 

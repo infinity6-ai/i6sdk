@@ -28,13 +28,9 @@ class Auth {
    */
   #redirectToLogin() {
     const backurl = location.href
-    console.log("Backurl", backurl)
-
     const encoded = encodeURIComponent(backurl)
-    console.log("Encoded", encoded)
-
     const loginUrl = `${this._config.baseUrl}/api/decsuite/auth/login?backurl=${encoded}`
-    console.log("LoginUrl", loginUrl)
+
     location = loginUrl
   }
 
