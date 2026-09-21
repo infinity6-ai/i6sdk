@@ -15,7 +15,6 @@ import { Services } from "./services/services.js";
  * @type {I6SdkConfig}
  */
 const DEFAULT_CONFIG = {
-  dispatcher: new EventTarget(),
   baseUrl: "https://decsuite.sandbox.rs.infinity6.ai",
   // baseUrl: "http://localhost:9021",
 }

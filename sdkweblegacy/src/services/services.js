@@ -19,6 +19,8 @@ class Services {
      * @param {I6SdkConfig} config - Configuration object for the SDK services.
      */
     constructor(config) {
+        this._dispatcher = new EventTarget()
+
         /**
          * @private
          * @type {I6SdkConfig}
@@ -41,7 +43,7 @@ class Services {
      * @returns {void}
      */
     bind(evt, fn) {
-        this._config.dispatcher.addEventListener(evt, fn);
+        this._dispatcher.addEventListener(evt, fn);
     }
 
     /**
