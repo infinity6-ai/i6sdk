@@ -1,7 +1,7 @@
 class Invoker {
 
-    constructor(config) {
-        this._config = config;
+    constructor(services) {
+        this._services = services;
     }
 
     /**
@@ -14,7 +14,7 @@ class Invoker {
      * @returns {Promise<Response>} A promise that resolves to the fetch Response.
      */
     async invoke(opts) {
-        let url = opts.url || `${this._config.baseUrl}/${opts.path}`
+        let url = opts.url || `${this._services.config().baseUrl}/${opts.path}`
 
         if (opts.query) {
             const queryString = new URLSearchParams(params).toString()
@@ -25,6 +25,7 @@ class Invoker {
             }
         }
 
+        console.log("🚀 ~ Invoker ~ invoke ~ url:", url)
         return fetch(url, opts)
     }
 

@@ -59,7 +59,7 @@ class Ingest {
    * @throws {Error} If the request fails or no upload URL is returned.
    */
   async #getUrl({ dataset, table, partitions }) {
-    const resp = this._services.invoker().invoke({
+    const resp = await  this._services.invoker().invoke({
       method: 'POST',
       path: `api/ingest/get-url/dataset/${encodeURIComponent(dataset)}`,
       json: { table, partitions, amount: 1 },
