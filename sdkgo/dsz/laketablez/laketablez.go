@@ -1,6 +1,7 @@
 package laketablez
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/infinity6-ai/gox/commonz/errorz"
@@ -8,6 +9,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/validation"
 	"github.com/infinity6-ai/gox/commonz/validation/checked"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedbz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketablez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
 )
 
@@ -68,7 +70,7 @@ func (t Table) Name() laketbnamez.TableName {
 }
 
 func (t Table) MarshalJSON() ([]byte, error) {
-	return checked.Marshal[Value](t) // // {"database": "..", "table": "..."}
+	return checked.Marshal[Value](t)
 }
 
 func (t Table) String() string {
@@ -97,6 +99,28 @@ func Parse(name Value) (Table, error) {
 
 func MustParse(name Value) Table {
 	ret, err := Parse(name)
+	errorz.Check(err)
+	return ret
+}
+
+func New(name string) (Table, error) {
+	s := strings.SplitN(name, ".", 2)
+	db, err := lakedbz.Parse(s[0])
+	if err != nil {
+		return Table{}, fmt.Errorf("error parsring database part from: %s", name)
+	}
+	table, err := laketablez.Parse(s[1])
+	if err != nil {
+		return Table{}, fmt.Errorf("error parsring table part from: %s", name)
+	}
+	return Parse(Value{
+		Database: db,
+		Name:     table,
+	})
+}
+
+func Must(name string) Table {
+	ret, err := New(name)
 	errorz.Check(err)
 	return ret
 }
