@@ -13,7 +13,6 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/specz"
 )
 
-// fakeApi é uma apiz.Api mínima, para montar casos de borda sem depender das apis reais.
 type fakeApi struct {
 	spec apiz.ApiSpec
 	refs *apiz.DataRefs
@@ -22,20 +21,17 @@ type fakeApi struct {
 func (f *fakeApi) ApiSpec() apiz.ApiSpec       { return f.spec }
 func (f *fakeApi) GetDataRefs() *apiz.DataRefs { return f.refs }
 
-// objectSchema monta um Object com os campos dados.
 func objectSchema(fields map[string]*schemaz.Schema) *schemaz.Schema {
 	return &schemaz.Schema{
 		Object: func(read bool) map[string]*schemaz.Schema { return fields },
 	}
 }
 
-// stringField é um campo Raw que aponta para uma string.
 func stringField() *schemaz.Schema {
 	var s string
 	return &schemaz.Schema{Raw: func() any { return &s }}
 }
 
-// requireJsSyntax roda "node --check" no código; grava como .mjs porque o código gerado é ES module.
 func requireJsSyntax(t *testing.T, name, code string) {
 	t.Helper()
 	if _, err := exec.LookPath("node"); err != nil {
@@ -103,13 +99,11 @@ func TestUnitGenerateRemovesOnlyStaleGeneratedFiles(t *testing.T) {
 	require.FileExists(t, filepath.Join(dir, "ingestz-get-url.js"))
 }
 
-// generateFailureTestScenario é um caso de TestUnitGenerateFailure*.
 type generateFailureTestScenario struct {
 	apis   []apiz.Api
 	errMsg string
 }
 
-// validApi é uma fakeApi mínima e válida, para compor casos de TestUnitGenerateFailure*.
 func validApi(id string) *fakeApi {
 	return &fakeApi{spec: apiz.ApiSpec{Id: id, Method: "GET", Path: "/api/x"}, refs: &apiz.DataRefs{}}
 }
@@ -121,7 +115,6 @@ func checkGenerateFailure(t *testing.T, s generateFailureTestScenario) {
 	require.Error(t, err)
 	require.Contains(t, err.Error(), s.errMsg)
 	require.Nil(t, names)
-	// nada foi escrito: um erro numa api não pode deixar o diretório pela metade.
 	require.NoDirExists(t, dir)
 }
 
@@ -157,7 +150,6 @@ func TestUnitGenerateFailurePathParamsOutOfSyncWithPath(t *testing.T) {
 	})
 }
 
-// nome repetido entre seções colidiria no params único.
 func TestUnitGenerateSchemaShapesSameFieldInPathAndBody(t *testing.T) {
 	api := &fakeApi{
 		spec: apiz.ApiSpec{Id: "dup-field", Method: "POST", Path: "/api/x/{id}"},
