@@ -9,7 +9,6 @@ import (
 	"github.com/infinity6-ai/gox/commonz/validation"
 	"github.com/infinity6-ai/gox/commonz/validation/checked"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedbz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketablez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
 )
 
@@ -109,7 +108,7 @@ func New(name string) (Table, error) {
 	if err != nil {
 		return Table{}, fmt.Errorf("error parsring database part from: %s", name)
 	}
-	table, err := laketablez.Parse(s[1])
+	table, err := laketbnamez.Parse(s[1])
 	if err != nil {
 		return Table{}, fmt.Errorf("error parsring table part from: %s", name)
 	}
