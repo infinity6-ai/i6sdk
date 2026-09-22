@@ -10,14 +10,8 @@ import (
 	"go.code.infinity6.ai/sdkgo/generatorjsz"
 )
 
-// invokerPath é o Invoker real do SDK web legacy, relativo a este pacote (cwd de "go test").
 const invokerPath = "../sdkweblegacy/src/invoker/invoker.js"
 
-// TestUnitSampleFractionJsClient gera o código JS a partir do schema atual e roda ele de verdade
-// contra um servidor real, via node e pelo Invoker real do SDK — se o schema mudar sem o gerador
-// ser ajustado, ou o Invoker deixar de montar query/headers/corpo direito, este teste quebra.
-// A samplefraction é a única api de exemplo que usa path + query + header + corpo + header de
-// resposta ao mesmo tempo.
 func TestUnitSampleFractionJsClient(t *testing.T) {
 	ctx := t.Context()
 	s := httpzserver.New(ctx, httpzserver.Options{})
@@ -36,7 +30,6 @@ func TestUnitSampleFractionJsClient(t *testing.T) {
 	require.Contains(t, code, "@property {string} reason")
 	require.Contains(t, code, "@property {{x_i6_trace_message: string}} headers")
 	require.Contains(t, code, "@property {{display: string, result: string}} [body]")
-	// nomes reais de wire, não os do mockup antigo (que usava "trace-id"/"req-id" hardcoded)
 	require.Contains(t, code, `headers: {"x-i6-trace-id": String(params.x_i6_trace_id)}`)
 	require.Contains(t, code, `query: {"precision": params.precision}`)
 	require.Contains(t, code, `resp.headers.get("x-i6-trace-message")`)
@@ -59,8 +52,6 @@ func TestUnitSampleFractionJsClient(t *testing.T) {
 	require.Equal(t, "3.333", body["result"])
 }
 
-// TestUnitSampleFractionJsClientNotOk confirma que a função gerada devolve o status em vez de
-// lançar quando o servidor responde não-2xx (o body não é lido, não segue o formato do RespBody).
 func TestUnitSampleFractionJsClientNotOk(t *testing.T) {
 	ctx := t.Context()
 	s := httpzserver.New(ctx, httpzserver.Options{})
@@ -68,7 +59,6 @@ func TestUnitSampleFractionJsClientNotOk(t *testing.T) {
 	s.Listen()
 	s.Start()
 
-	// nenhuma rota registrada: o servidor responde 404 para tudo.
 	svc := routezsamplefraction.Services()[0].New()
 	fnName, code, err := generatorjsz.BuildJsFetch(svc.Api().ApiSpec(), svc.Api().GetDataRefs())
 	require.NoError(t, err)
