@@ -10,7 +10,6 @@ import (
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 )
 
-// maxDepth evita recursão infinita ao percorrer schemas/tipos muito profundos ou cíclicos.
 const maxDepth = 32
 
 // jsonMarshalerType/textMarshalerType detectam tipos com serialização JSON customizada
@@ -60,22 +59,27 @@ func introspectSchema(s *schemaz.Schema, depth int) *Node {
 	return n
 }
 
-// introspectObject chama Object(false) (direção unmarshal, aloca ponteiros aninhados) e ordena
-// as chaves, já que a ordem de um map em Go não é estável entre execuções.
+// introspectObject chama Object(false) (direção unmarshal, aloca ponteiros aninhados) e ordena as chaves
 func introspectObject(fn func(read bool) map[string]*schemaz.Schema, depth int) *Node {
 	m := safely(func() map[string]*schemaz.Schema { return fn(false) })
+
 	if m == nil {
 		return &Node{Kind: KindObject, Fields: map[string]*Node{}}
 	}
+
 	keys := make([]string, 0, len(m))
+
 	for k := range m {
 		keys = append(keys, k)
 	}
+
 	sort.Strings(keys)
 	fields := make(map[string]*Node, len(m))
+
 	for _, k := range keys {
 		fields[k] = introspectSchema(m[k], depth+1)
 	}
+
 	return &Node{Kind: KindObject, Fields: fields, FieldOrder: keys}
 }
 
