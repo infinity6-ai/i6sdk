@@ -190,7 +190,6 @@ func introspectStructType(t reflect.Type, visited map[reflect.Type]bool, depth i
 	return &Node{Kind: KindObject, Fields: fields, FieldOrder: order}
 }
 
-// jsonFieldName lê a tag json de um campo de struct, com fallback pro nome do campo Go.
 func jsonFieldName(f reflect.StructField) (name string, skip bool) {
 	tag := f.Tag.Get("json")
 	if tag == "-" {
@@ -199,15 +198,16 @@ func jsonFieldName(f reflect.StructField) (name string, skip bool) {
 	if tag == "" {
 		return f.Name, false
 	}
+
 	parts := strings.SplitN(tag, ",", 2)
+
 	if parts[0] == "" {
 		return f.Name, false
 	}
+
 	return parts[0], false
 }
 
-// extendVisited copia o set de tipos visitados no caminho atual (não é global — tipos irmãos
-// repetidos, como dois campos *Address, continuam válidos; só ciclos reais são bloqueados).
 func extendVisited(visited map[reflect.Type]bool, t reflect.Type) map[reflect.Type]bool {
 	n := make(map[reflect.Type]bool, len(visited)+1)
 	for k, v := range visited {
@@ -217,8 +217,6 @@ func extendVisited(visited map[reflect.Type]bool, t reflect.Type) map[reflect.Ty
 	return n
 }
 
-// safely chama fn protegendo contra panics de closures escritas à mão por autores de API —
-// degrada para o valor zero de T ("não sei") em vez de derrubar a geração inteira.
 func safely[T any](fn func() T) (out T) {
 	defer func() {
 		if recover() != nil {
