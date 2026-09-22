@@ -66,8 +66,7 @@ func strsField(native any) *schemaz.Schema {
 }
 
 // TestUnitJsClientWireFormat roda o código gerado no node, pelo Invoker real, e confere o que
-// chegou no servidor: as formas de query, header e corpo que as apis reais de hoje não usam mas o
-// gerador aceita (listas, Str/Strs, objetos aninhados). Cada cenário confere também o tipo JSDoc.
+// chegou no servidor
 func TestUnitJsClientWireFormat(t *testing.T) {
 	type testScenario struct {
 		refs        *apiz.DataRefs
