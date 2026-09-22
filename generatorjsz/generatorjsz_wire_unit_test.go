@@ -14,14 +14,12 @@ import (
 	"go.code.infinity6.ai/sdkgo/generatorjsz"
 )
 
-// capturedRequest é o que o servidor de teste recebeu da função JS gerada.
 type capturedRequest struct {
 	rawQuery string
 	header   http.Header
 	body     string
 }
 
-// serveCapture sobe um servidor que responde 200 vazio a tudo e guarda a última requisição.
 func serveCapture(t *testing.T) (baseUrl string, got func() capturedRequest) {
 	t.Helper()
 	var mu sync.Mutex
@@ -40,12 +38,10 @@ func serveCapture(t *testing.T) (baseUrl string, got func() capturedRequest) {
 	}
 }
 
-// rawField é um campo Raw que aponta para ptr.
 func rawField(ptr any) *schemaz.Schema {
 	return &schemaz.Schema{Raw: func() any { return ptr }}
 }
 
-// strField é um campo Str cujo valor nativo (segundo retorno de Format) é native.
 func strField(native any) *schemaz.Schema {
 	return &schemaz.Schema{Str: func() *schemaz.Parser[string] {
 		return &schemaz.Parser[string]{
@@ -55,7 +51,6 @@ func strField(native any) *schemaz.Schema {
 	}}
 }
 
-// strsField é um campo Strs cujo valor nativo (segundo retorno de Format) é native.
 func strsField(native any) *schemaz.Schema {
 	return &schemaz.Schema{Strs: func() *schemaz.Parser[[]string] {
 		return &schemaz.Parser[[]string]{
@@ -65,7 +60,6 @@ func strsField(native any) *schemaz.Schema {
 	}}
 }
 
-// wireTestScenario é um caso de TestUnitJsClientWireFormat*.
 type wireTestScenario struct {
 	refs        *apiz.DataRefs
 	params      map[string]any
@@ -75,8 +69,6 @@ type wireTestScenario struct {
 	wantBody    string // JSON; "" quando não deve haver corpo
 }
 
-// checkJsClientWireFormat roda o código gerado no node, pelo Invoker real, e confere o que
-// chegou no servidor.
 func checkJsClientWireFormat(t *testing.T, s wireTestScenario) {
 	t.Helper()
 	baseUrl, got := serveCapture(t)
