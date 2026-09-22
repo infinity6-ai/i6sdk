@@ -64,6 +64,7 @@ func buildSdkApi(t *testing.T, id string) string {
 		}
 	}
 	require.Fail(t, "api not registered in specz.Sdk()", id)
+
 	return ""
 }
 
@@ -71,6 +72,7 @@ func buildCode(t *testing.T, api apiz.Api) string {
 	t.Helper()
 	_, code, err := generatorjsz.BuildJsFetch(api.ApiSpec(), api.GetDataRefs())
 	require.NoError(t, err)
+
 	return code
 }
 
@@ -102,6 +104,7 @@ func TestUnitBuildPipezStart(t *testing.T) {
 	require.Contains(t, code, "path: `api/pipe/start/dataset/${encodeURIComponent(String(params.dataset))}`,")
 	require.Contains(t, code, "json: {params: params.params, pipename: params.pipename, solution_domain: params.solution_domain},")
 	require.Contains(t, code, "@property {{name: string, value: string}[]} params")
+
 	requireJsSyntax(t, "pipez-start", code)
 }
 
