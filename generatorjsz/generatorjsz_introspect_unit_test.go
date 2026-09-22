@@ -10,10 +10,6 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
 
-// Estes testes recriam, de forma independente, os casos de schemaz_test.go (nested object,
-// array de objetos com nil, array de primitivos, Strs escalar) — já que aquelas fixtures são
-// locais à função e não dá pra importar. FractionApi não usa nenhum desses formatos hoje.
-
 func TestUnitIntrospectNestedObject(t *testing.T) {
 	type Address struct {
 		Street string `json:"street"`
@@ -209,8 +205,6 @@ func TestUnitIntrospectFieldOrderIsSorted(t *testing.T) {
 	require.Equal(t, []string{"apple", "mango", "zebra"}, n.FieldOrder)
 }
 
-// Str lê e escreve strings: mesmo quando o tipo nativo é um struct com MarshalJSON (o walker não
-// consegue saber a forma JSON dele, KindUnknown), o lado JS enxerga uma string.
 func TestUnitIntrospectStrWithMarshalerNativeIsString(t *testing.T) {
 	var dataset lakedsz.Dataset
 	s := &schemaz.Schema{
@@ -226,8 +220,6 @@ func TestUnitIntrospectStrWithMarshalerNativeIsString(t *testing.T) {
 	require.True(t, n.Fields["dataset"].StringArrayWire)
 }
 
-// Raw com o mesmo tipo continua desconhecido: aqui a forma JSON real é a do MarshalJSON, que o
-// walker não tem como inferir — melhor "*" do que chutar.
 func TestUnitIntrospectRawWithMarshalerNativeIsUnknown(t *testing.T) {
 	var dataset lakedsz.Dataset
 	s := &schemaz.Schema{
