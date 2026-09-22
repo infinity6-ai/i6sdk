@@ -2,7 +2,7 @@ package generatorjsz
 
 import "github.com/infinity6-ai/gox/schemaz/schemaz"
 
-// Kind é o tipo JS/JSDoc inferido para um nó do schema.
+// Kind é o tipo JS/JSDoc
 type Kind string
 
 const (
@@ -11,7 +11,7 @@ const (
 	KindBoolean Kind = "boolean"
 	KindObject  Kind = "object"
 	KindArray   Kind = "array"
-	// KindUnknown não é erro: o campo é tratado como JSON opaco, repassado como está.
+	// KindUnknown não é erro: o campo é tratado como JSON.
 	KindUnknown Kind = "unknown"
 )
 
