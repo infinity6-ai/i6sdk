@@ -12,18 +12,13 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/specz"
 )
 
-// defaultGenerateJsOut is where the legacy web SDK expects its generated API clients, relative to
-// the repository root (the cwd of ./build.sh).
 const defaultGenerateJsOut = "sdkweblegacy/src/apigenz"
 
-// prepareGenerateCmd builds `generate`, the parent of every code generator.
 func prepareGenerateCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "generate",
 		Short: "generate code from the API schemas",
-		// Runnable only to print the help: it makes cobra reject unknown subcommands instead of
-		// silently succeeding.
-		Args: cobra.NoArgs,
+		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return cmd.Help()
 		},
@@ -32,8 +27,6 @@ func prepareGenerateCmd() *cobra.Command {
 	return cmd
 }
 
-// prepareGenerateJsCmd builds `generate js` (./build.sh run generate js): it generates the JS
-// client of every API listed by specz.Sdk(), one file per API.
 func prepareGenerateJsCmd() *cobra.Command {
 	var out string
 	cmd := &cobra.Command{
