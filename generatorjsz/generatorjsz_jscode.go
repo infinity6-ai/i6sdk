@@ -110,9 +110,6 @@ func BuildJsFetch(spec apiz.ApiSpec, refs *apiz.DataRefs) (fnName string, code s
 	return fnName, b.String(), nil
 }
 
-// introspectOptional é Introspect, mas devolve nil (em vez de um Node com Kind unknown) quando
-// a seção não existe — RespHeaders/RespBody são as únicas seções de DataRefs realmente
-// opcionais (as outras quatro sempre têm um Object, mesmo vazio).
 func introspectOptional(schema *schemaz.Schema) *Node {
 	if schema == nil {
 		return nil
@@ -134,7 +131,6 @@ func introspectFields(schema *schemaz.Schema) []field {
 	return fields
 }
 
-// concatFields junta vários grupos de campos numa lista só, na ordem dos grupos.
 func concatFields(groups ...[]field) []field {
 	var out []field
 	for _, g := range groups {
@@ -143,7 +139,6 @@ func concatFields(groups ...[]field) []field {
 	return out
 }
 
-// validatePathLiteral rejeita paths que quebrariam o template literal JS gerado.
 func validatePathLiteral(path string) error {
 	if strings.ContainsAny(path, "`\\") || strings.Contains(path, "${") {
 		return fmt.Errorf("generatorjsz: path %q tem caractere que não pode entrar num template literal JS", path)
@@ -151,9 +146,6 @@ func validatePathLiteral(path string) error {
 	return nil
 }
 
-// validateFieldNames garante que todo nome de campo vira uma propriedade JS válida via
-// notação de ponto (params.nome) — só spec.Id era validado antes, um nome com "-" gerava
-// JS sintaticamente errado (ou pior, silenciosamente errado: "params.a-b" é subtração).
 func validateFieldNames(groups ...[]field) error {
 	for _, g := range groups {
 		for _, f := range g {
@@ -165,9 +157,6 @@ func validateFieldNames(groups ...[]field) error {
 	return nil
 }
 
-// validateUniqueFieldNames garante que nenhum nome se repete entre path/query/headers/body:
-// os quatro grupos viram um único objeto params, então um nome repetido faria dois campos
-// distintos lerem (e o chamador preencher) o mesmo params.nome.
 func validateUniqueFieldNames(groups ...[]field) error {
 	seen := map[string]bool{}
 	for _, g := range groups {
@@ -181,9 +170,6 @@ func validateUniqueFieldNames(groups ...[]field) error {
 	return nil
 }
 
-// validatePathParams garante que os placeholders {name} de spec.Path batem exatamente com os
-// campos do schema de PathParams — sem isso, um drift entre a rota Go e o schema (renomear um
-// só dos dois) gera um cliente que compila mas manda "undefined" na URL, sem erro nenhum.
 func validatePathParams(path string, pathFields []field) error {
 	placeholders := map[string]bool{}
 	for _, m := range pathParamRe.FindAllStringSubmatch(path, -1) {
@@ -255,8 +241,6 @@ func typedefBase(fnName string) string {
 	return strings.ToUpper(fnName[:1]) + fnName[1:]
 }
 
-// buildJsDoc monta o cabeçalho "gerado, não edite", os typedefs de params e de resultado, e o
-// JSDoc da função (descrição da Api, se houver).
 func buildJsDoc(spec apiz.ApiSpec, fnName string, reqFields []field, respHeaderNode, respBodyNode *Node) string {
 	base := typedefBase(fnName)
 	var b strings.Builder
@@ -301,9 +285,8 @@ func buildJsDoc(spec apiz.ApiSpec, fnName string, reqFields []field, respHeaderN
 	return b.String()
 }
 
-// buildJsRequest monta a chamada a services.invoker().invoke({...}) com método, path (sem "/"
-// inicial, o Invoker já junta baseUrl + "/" + path), query, headers e corpo. Só emite as chaves
-// das seções que a Api realmente tem. Path params são interpolados direto no path, codificados.
+// buildJsRequest monta a chamada a services.invoker().invoke({...}). Só emite as chaves
+// das seções que a Api realmente tem.
 func buildJsRequest(spec apiz.ApiSpec, queryFields, headerFields, bodyFields []field) string {
 	var b strings.Builder
 
@@ -336,8 +319,7 @@ func buildJsRequest(spec apiz.ApiSpec, queryFields, headerFields, bodyFields []f
 }
 
 // joinFields formata fields como "k: v, k2: v2" pra um objeto JS literal, chamando fmtEntry em
-// cada campo — os três blocos acima (query/headers/json) só diferem em como uma entrada é
-// formatada (chave citada ou não, valor vindo de headerValueExpr ou bodyValueExpr).
+// cada campo
 func joinFields(fields []field, fmtEntry func(field) string) string {
 	entries := make([]string, 0, len(fields))
 	for _, f := range fields {
@@ -354,11 +336,7 @@ func headerValueExpr(f field) string {
 	return "String(params." + f.name + ")"
 }
 
-// bodyValueExpr monta a expressão JS de um campo do corpo. Campos Str/Strs (StringArrayWire)
-// viajam como array JSON de strings; campos Raw viajam com o valor nativo, sem embrulho. A
-// forma do lado JS (array ou valor único) segue Kind==KindArray, não MultiValue: MultiValue só
-// diz que o campo veio de Strs, mas um Raw apontando pra []string também é uma lista, e um
-// Strs com nativo escalar (caso "c" em schemaz_test.go) continua sendo um valor só.
+// bodyValueExpr monta a expressão JS de um campo do corpo.
 func bodyValueExpr(f field) string {
 	if f.node == nil || !f.node.StringArrayWire {
 		return "params." + f.name
