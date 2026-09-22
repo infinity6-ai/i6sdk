@@ -103,96 +103,94 @@ func TestUnitGenerateRemovesOnlyStaleGeneratedFiles(t *testing.T) {
 	require.FileExists(t, filepath.Join(dir, "ingestz-get-url.js"))
 }
 
-func TestUnitGenerateFailure(t *testing.T) {
-	type testScenario struct {
-		apis   []apiz.Api
-		errMsg string
-	}
+// generateFailureTestScenario é um caso de TestUnitGenerateFailure*.
+type generateFailureTestScenario struct {
+	apis   []apiz.Api
+	errMsg string
+}
 
-	valid := func(id string) *fakeApi {
-		return &fakeApi{spec: apiz.ApiSpec{Id: id, Method: "GET", Path: "/api/x"}, refs: &apiz.DataRefs{}}
-	}
+// validApi é uma fakeApi mínima e válida, para compor casos de TestUnitGenerateFailure*.
+func validApi(id string) *fakeApi {
+	return &fakeApi{spec: apiz.ApiSpec{Id: id, Method: "GET", Path: "/api/x"}, refs: &apiz.DataRefs{}}
+}
 
-	check := func(t *testing.T, s testScenario) {
-		t.Helper()
-		dir := filepath.Join(t.TempDir(), "out")
-		names, err := generatorjsz.Generate(dir, s.apis)
-		require.Error(t, err)
-		require.Contains(t, err.Error(), s.errMsg)
-		require.Nil(t, names)
-		// nada foi escrito: um erro numa api não pode deixar o diretório pela metade.
-		require.NoDirExists(t, dir)
-	}
+func checkGenerateFailure(t *testing.T, s generateFailureTestScenario) {
+	t.Helper()
+	dir := filepath.Join(t.TempDir(), "out")
+	names, err := generatorjsz.Generate(dir, s.apis)
+	require.Error(t, err)
+	require.Contains(t, err.Error(), s.errMsg)
+	require.Nil(t, names)
+	// nada foi escrito: um erro numa api não pode deixar o diretório pela metade.
+	require.NoDirExists(t, dir)
+}
 
-	t.Run("invalid id", func(t *testing.T) {
-		check(t, testScenario{
-			apis:   []apiz.Api{valid("ok-api"), valid("../evil")},
-			errMsg: `"../evil"`,
-		})
-	})
-
-	t.Run("two apis with the same id", func(t *testing.T) {
-		check(t, testScenario{
-			apis:   []apiz.Api{valid("same-id"), valid("same-id")},
-			errMsg: "mesma função",
-		})
-	})
-
-	t.Run("two ids that collapse to the same function", func(t *testing.T) {
-		check(t, testScenario{
-			apis:   []apiz.Api{valid("get-url"), valid("get_url")},
-			errMsg: "mesma função",
-		})
-	})
-
-	t.Run("path params out of sync with the path", func(t *testing.T) {
-		api := &fakeApi{
-			spec: apiz.ApiSpec{Id: "drift", Method: "GET", Path: "/api/x/{id}"},
-			refs: &apiz.DataRefs{},
-		}
-		check(t, testScenario{
-			apis:   []apiz.Api{api},
-			errMsg: "PathParams",
-		})
+func TestUnitGenerateFailureInvalidId(t *testing.T) {
+	checkGenerateFailure(t, generateFailureTestScenario{
+		apis:   []apiz.Api{validApi("ok-api"), validApi("../evil")},
+		errMsg: `"../evil"`,
 	})
 }
 
-func TestUnitGenerateSchemaShapes(t *testing.T) {
-	// nome repetido entre seções colidiria no params único.
-	t.Run("same field in path and body", func(t *testing.T) {
-		api := &fakeApi{
-			spec: apiz.ApiSpec{Id: "dup-field", Method: "POST", Path: "/api/x/{id}"},
-			refs: &apiz.DataRefs{
-				PathParams: objectSchema(map[string]*schemaz.Schema{"id": stringField()}),
-				ReqBody:    objectSchema(map[string]*schemaz.Schema{"id": stringField()}),
-			},
-		}
-		_, _, err := generatorjsz.BuildJsFetch(api.ApiSpec(), api.GetDataRefs())
-		require.Error(t, err)
-		require.Contains(t, err.Error(), `campo "id" aparece em mais de uma seção`)
+func TestUnitGenerateFailureTwoApisWithSameId(t *testing.T) {
+	checkGenerateFailure(t, generateFailureTestScenario{
+		apis:   []apiz.Api{validApi("same-id"), validApi("same-id")},
+		errMsg: "mesma função",
 	})
+}
 
-	t.Run("path with a template literal escape", func(t *testing.T) {
-		api := &fakeApi{
-			spec: apiz.ApiSpec{Id: "evil-path", Method: "GET", Path: "/api/${alert(1)}"},
-			refs: &apiz.DataRefs{},
-		}
-		_, _, err := generatorjsz.BuildJsFetch(api.ApiSpec(), api.GetDataRefs())
-		require.Error(t, err)
-		require.Contains(t, err.Error(), "template literal")
+func TestUnitGenerateFailureTwoIdsThatCollapseToSameFunction(t *testing.T) {
+	checkGenerateFailure(t, generateFailureTestScenario{
+		apis:   []apiz.Api{validApi("get-url"), validApi("get_url")},
+		errMsg: "mesma função",
 	})
+}
 
-	t.Run("api without request fields takes only services", func(t *testing.T) {
-		api := &fakeApi{
-			spec: apiz.ApiSpec{Id: "ping", Method: "GET", Path: "/api/ping"},
-			refs: &apiz.DataRefs{},
-		}
-		fnName, code, err := generatorjsz.BuildJsFetch(api.ApiSpec(), api.GetDataRefs())
-		require.NoError(t, err)
-		require.Equal(t, "ping", fnName)
-		require.Contains(t, code, "export async function ping(services) {")
-		require.NotContains(t, code, "PingParams")
-		require.NotContains(t, code, "resp.json()")
-		requireJsSyntax(t, "ping", code)
+func TestUnitGenerateFailurePathParamsOutOfSyncWithPath(t *testing.T) {
+	api := &fakeApi{
+		spec: apiz.ApiSpec{Id: "drift", Method: "GET", Path: "/api/x/{id}"},
+		refs: &apiz.DataRefs{},
+	}
+	checkGenerateFailure(t, generateFailureTestScenario{
+		apis:   []apiz.Api{api},
+		errMsg: "PathParams",
 	})
+}
+
+// nome repetido entre seções colidiria no params único.
+func TestUnitGenerateSchemaShapesSameFieldInPathAndBody(t *testing.T) {
+	api := &fakeApi{
+		spec: apiz.ApiSpec{Id: "dup-field", Method: "POST", Path: "/api/x/{id}"},
+		refs: &apiz.DataRefs{
+			PathParams: objectSchema(map[string]*schemaz.Schema{"id": stringField()}),
+			ReqBody:    objectSchema(map[string]*schemaz.Schema{"id": stringField()}),
+		},
+	}
+	_, _, err := generatorjsz.BuildJsFetch(api.ApiSpec(), api.GetDataRefs())
+	require.Error(t, err)
+	require.Contains(t, err.Error(), `campo "id" aparece em mais de uma seção`)
+}
+
+func TestUnitGenerateSchemaShapesPathWithTemplateLiteralEscape(t *testing.T) {
+	api := &fakeApi{
+		spec: apiz.ApiSpec{Id: "evil-path", Method: "GET", Path: "/api/${alert(1)}"},
+		refs: &apiz.DataRefs{},
+	}
+	_, _, err := generatorjsz.BuildJsFetch(api.ApiSpec(), api.GetDataRefs())
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "template literal")
+}
+
+func TestUnitGenerateSchemaShapesApiWithoutRequestFieldsTakesOnlyServices(t *testing.T) {
+	api := &fakeApi{
+		spec: apiz.ApiSpec{Id: "ping", Method: "GET", Path: "/api/ping"},
+		refs: &apiz.DataRefs{},
+	}
+	fnName, code, err := generatorjsz.BuildJsFetch(api.ApiSpec(), api.GetDataRefs())
+	require.NoError(t, err)
+	require.Equal(t, "ping", fnName)
+	require.Contains(t, code, "export async function ping(services) {")
+	require.NotContains(t, code, "PingParams")
+	require.NotContains(t, code, "resp.json()")
+	requireJsSyntax(t, "ping", code)
 }

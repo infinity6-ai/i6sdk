@@ -9,48 +9,47 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/specz"
 )
 
-func TestUnitFuncName(t *testing.T) {
-	type testScenario struct {
-		id     string
-		want   string
-		errMsg string
+// funcNameTestScenario é um caso de TestUnitFuncName*.
+type funcNameTestScenario struct {
+	id     string
+	want   string
+	errMsg string
+}
+
+func checkFuncName(t *testing.T, s funcNameTestScenario) {
+	t.Helper()
+	got, err := generatorjsz.FuncName(s.id)
+	if s.errMsg != "" {
+		require.Error(t, err)
+		require.Contains(t, err.Error(), s.errMsg)
+		return
 	}
+	require.NoError(t, err)
+	require.Equal(t, s.want, got)
+}
 
-	check := func(t *testing.T, s testScenario) {
-		t.Helper()
-		got, err := generatorjsz.FuncName(s.id)
-		if s.errMsg != "" {
-			require.Error(t, err)
-			require.Contains(t, err.Error(), s.errMsg)
-			return
-		}
-		require.NoError(t, err)
-		require.Equal(t, s.want, got)
-	}
+func TestUnitFuncNameKebabIdBecomesCamelCase(t *testing.T) {
+	checkFuncName(t, funcNameTestScenario{id: "ingestz-get-url", want: "ingestzGetUrl"})
+}
 
-	t.Run("kebab id becomes camelCase", func(t *testing.T) {
-		check(t, testScenario{id: "ingestz-get-url", want: "ingestzGetUrl"})
-	})
+func TestUnitFuncNameSingleWordIsKept(t *testing.T) {
+	checkFuncName(t, funcNameTestScenario{id: "samplefraction", want: "samplefraction"})
+}
 
-	t.Run("single word is kept", func(t *testing.T) {
-		check(t, testScenario{id: "samplefraction", want: "samplefraction"})
-	})
+func TestUnitFuncNameUnderscoreAndDotSeparateWordsToo(t *testing.T) {
+	checkFuncName(t, funcNameTestScenario{id: "a_b.c", want: "aBC"})
+}
 
-	t.Run("underscore and dot separate words too", func(t *testing.T) {
-		check(t, testScenario{id: "a_b.c", want: "aBC"})
-	})
+func TestUnitFuncNameStartingWithDigitIsRejected(t *testing.T) {
+	checkFuncName(t, funcNameTestScenario{id: "1abc", errMsg: "inválido"})
+}
 
-	t.Run("starting with a digit is rejected", func(t *testing.T) {
-		check(t, testScenario{id: "1abc", errMsg: "inválido"})
-	})
+func TestUnitFuncNamePathSeparatorsAreRejected(t *testing.T) {
+	checkFuncName(t, funcNameTestScenario{id: "../evil", errMsg: "inválido"})
+}
 
-	t.Run("path separators are rejected", func(t *testing.T) {
-		check(t, testScenario{id: "../evil", errMsg: "inválido"})
-	})
-
-	t.Run("empty is rejected", func(t *testing.T) {
-		check(t, testScenario{id: "", errMsg: "inválido"})
-	})
+func TestUnitFuncNameEmptyIsRejected(t *testing.T) {
+	checkFuncName(t, funcNameTestScenario{id: "", errMsg: "inválido"})
 }
 
 func TestUnitFileName(t *testing.T) {
