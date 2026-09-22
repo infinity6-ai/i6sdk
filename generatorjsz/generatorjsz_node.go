@@ -19,20 +19,16 @@ const (
 // e consumida pelo emissor de JS.
 type Node struct {
 	Kind Kind
-	// Desc é opcional (a maioria dos schemas hoje não a preenche).
-	Desc *schemaz.Desc
-	// MultiValue é fato de transporte (Strs), independente do Kind (ver caso "c" em schemaz_test.go).
+	// Desc é opcional.
+	Desc       *schemaz.Desc
 	MultiValue bool
 	// StringArrayWire é true para nós vindos de Str ou Strs: ambos serializam como array JSON
 	// de strings (Str = array de 1 elemento). Só importa para montar/ler ReqBody manualmente;
-	// QueryParams/ReqHeaders usam URLSearchParams/Headers, que já abstraem isso.
 	StringArrayWire bool
-	// DynamicKeys indica Raw -> map[K]V (chaves não fixas; hoje não ocorre em uso real).
+	// DynamicKeys indica Raw -> map[K]V (chaves não fixas).
 	DynamicKeys bool
-	// Fields são os campos de um objeto, chaveados pelo nome de wire (chave usada em Object()).
-	Fields map[string]*Node
-	// FieldOrder é Fields ordenado (map não garante ordem estável entre execuções).
-	FieldOrder []string
+	Fields      map[string]*Node
+	FieldOrder  []string
 	// Element é o tipo do elemento de um array, ou o tipo de valor quando DynamicKeys.
 	Element *Node
 }
