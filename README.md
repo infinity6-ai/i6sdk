@@ -48,9 +48,10 @@ Solid arrows run at generation time (Go); dotted arrows run in the browser (JS).
 |---|---|
 | API list | `sdkgo/specz/specz.go` (`Sdk()`) |
 | Command | `sdkgo/cmdsdkgo/cmdsdkgo_generate.go` |
-| Walker and IR | `generatorjsz/generatorjsz_walk.go`, `generatorjsz_ir.go` |
-| Emitter | `generatorjsz/generatorjsz_emit.go` |
-| Writing and cleanup | `generatorjsz/generatorjsz_generate.go` |
+| Node type (the IR) | `generatorjsz/generatorjsz_node.go` |
+| Walker (`Introspect`) | `generatorjsz/generatorjsz_introspect.go` |
+| Code generator (`BuildJsFetch`) | `generatorjsz/generatorjsz_jscode.go` |
+| Writing and cleanup (`Generate`) | `generatorjsz/generatorjsz_generate.go` |
 
 ## Run
 

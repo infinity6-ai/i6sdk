@@ -100,13 +100,8 @@ func BuildJsFetch(spec apiz.ApiSpec, refs *apiz.DataRefs) (fnName string, code s
 		return "", "", err
 	}
 
-	var respHeaderNode, respBodyNode *Node
-	if refs.RespHeaders != nil {
-		respHeaderNode = Introspect(refs.RespHeaders)
-	}
-	if refs.RespBody != nil {
-		respBodyNode = Introspect(refs.RespBody)
-	}
+	respHeaderNode := introspectOptional(refs.RespHeaders)
+	respBodyNode := introspectOptional(refs.RespBody)
 
 	allReqFields := concatFields(pathFields, queryFields, headerFields, bodyFields)
 
@@ -121,6 +116,16 @@ func BuildJsFetch(spec apiz.ApiSpec, refs *apiz.DataRefs) (fnName string, code s
 	b.WriteString(buildJsResult(respHeaderNode, respBodyNode))
 	b.WriteString("}\n")
 	return fnName, b.String(), nil
+}
+
+// introspectOptional é Introspect, mas devolve nil (em vez de um Node com Kind unknown) quando
+// a seção não existe — RespHeaders/RespBody são as únicas seções de DataRefs realmente
+// opcionais (as outras quatro sempre têm um Object, mesmo vazio).
+func introspectOptional(schema *schemaz.Schema) *Node {
+	if schema == nil {
+		return nil
+	}
+	return Introspect(schema)
 }
 
 // introspectFields lê um schema de nível superior (sempre um Object, uma seção do DataRefs) e
@@ -245,20 +250,12 @@ func objectTypeLiteral(n *Node) string {
 	return "{" + strings.Join(parts, ", ") + "}"
 }
 
-// descSummary extrai o resumo de um Desc, nil-safe.
-func descSummary(d *schemaz.Desc) string {
-	if d == nil {
+// fieldSummary devolve o resumo de um Node, nil-safe em cada nível (Node e Desc podem ser nil).
+func fieldSummary(n *Node) string {
+	if n == nil || n.Desc == nil {
 		return ""
 	}
-	return d.Summary
-}
-
-// nodeDesc devolve n.Desc protegendo contra n nil.
-func nodeDesc(n *Node) *schemaz.Desc {
-	if n == nil {
-		return nil
-	}
-	return n.Desc
+	return n.Desc.Summary
 }
 
 // typedefBase é o prefixo PascalCase dos typedefs de uma função: ingestzGetUrl -> IngestzGetUrl.
@@ -277,7 +274,7 @@ func buildJsDoc(spec apiz.ApiSpec, fnName string, reqFields []field, respHeaderN
 		fmt.Fprintf(&b, "/**\n * @typedef {Object} %sParams\n", base)
 		for _, f := range reqFields {
 			typ := jsTypeLiteral(f.node)
-			if s := descSummary(nodeDesc(f.node)); s != "" {
+			if s := fieldSummary(f.node); s != "" {
 				fmt.Fprintf(&b, " * @property {%s} %s - %s\n", typ, f.name, s)
 			} else {
 				fmt.Fprintf(&b, " * @property {%s} %s\n", typ, f.name)
@@ -325,31 +322,36 @@ func buildJsRequest(spec apiz.ApiSpec, queryFields, headerFields, bodyFields []f
 	fmt.Fprintf(&b, "    path: `%s`,\n", jsPath)
 
 	if len(queryFields) > 0 {
-		entries := make([]string, 0, len(queryFields))
-		for _, f := range queryFields {
-			entries = append(entries, fmt.Sprintf("%q: params.%s", f.name, f.name))
-		}
-		fmt.Fprintf(&b, "    query: {%s},\n", strings.Join(entries, ", "))
+		fmt.Fprintf(&b, "    query: {%s},\n", joinFields(queryFields, func(f field) string {
+			return fmt.Sprintf("%q: params.%s", f.name, f.name)
+		}))
 	}
 
 	if len(headerFields) > 0 {
-		entries := make([]string, 0, len(headerFields))
-		for _, f := range headerFields {
-			entries = append(entries, fmt.Sprintf("%q: %s", json2HeaderName(f.name), headerValueExpr(f)))
-		}
-		fmt.Fprintf(&b, "    headers: {%s},\n", strings.Join(entries, ", "))
+		fmt.Fprintf(&b, "    headers: {%s},\n", joinFields(headerFields, func(f field) string {
+			return fmt.Sprintf("%q: %s", json2HeaderName(f.name), headerValueExpr(f))
+		}))
 	}
 
 	if len(bodyFields) > 0 {
-		entries := make([]string, 0, len(bodyFields))
-		for _, f := range bodyFields {
-			entries = append(entries, f.name+": "+bodyValueExpr(f))
-		}
-		fmt.Fprintf(&b, "    json: {%s},\n", strings.Join(entries, ", "))
+		fmt.Fprintf(&b, "    json: {%s},\n", joinFields(bodyFields, func(f field) string {
+			return f.name + ": " + bodyValueExpr(f)
+		}))
 	}
 
 	b.WriteString("  });\n")
 	return b.String()
+}
+
+// joinFields formata fields como "k: v, k2: v2" pra um objeto JS literal, chamando fmtEntry em
+// cada campo — os três blocos acima (query/headers/json) só diferem em como uma entrada é
+// formatada (chave citada ou não, valor vindo de headerValueExpr ou bodyValueExpr).
+func joinFields(fields []field, fmtEntry func(field) string) string {
+	entries := make([]string, 0, len(fields))
+	for _, f := range fields {
+		entries = append(entries, fmtEntry(f))
+	}
+	return strings.Join(entries, ", ")
 }
 
 // headerValueExpr monta a expressão JS de um header: lista vira "a, b", o resto vira String().
