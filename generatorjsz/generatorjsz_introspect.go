@@ -83,21 +83,22 @@ func introspectObject(fn func(read bool) map[string]*schemaz.Schema, depth int) 
 	return &Node{Kind: KindObject, Fields: fields, FieldOrder: keys}
 }
 
-// introspectArray usa Get(0, false) como sonda de forma — o mesmo padrão que os autores de
-// schema usam (via slicez.GrowLenTo) para crescer o slice sob demanda no caminho de unmarshal.
 func introspectArray(fn func() *schemaz.Array, depth int) *Node {
 	arr := safely(fn)
+
 	if arr == nil {
 		return &Node{Kind: KindArray, Element: &Node{Kind: KindUnknown}}
 	}
+
 	elemSchema := safely(func() *schemaz.Schema { return arr.Get(0, false) })
+
 	if elemSchema == nil {
 		return &Node{Kind: KindArray, Element: &Node{Kind: KindUnknown}}
 	}
+
 	return &Node{Kind: KindArray, Element: introspectSchema(elemSchema, depth+1)}
 }
 
-// introspectRaw obtém o ponteiro via Raw() e infere o tipo real pelo reflect.Type do ponteiro.
 func introspectRaw(fn func() any, depth int) *Node {
 	v := safely(fn)
 	if v == nil {
@@ -106,10 +107,6 @@ func introspectRaw(fn func() any, depth int) *Node {
 	return introspectType(reflect.TypeOf(v), map[reflect.Type]bool{}, depth)
 }
 
-// introspectStr usa o segundo retorno de Format() (valor nativo, antes de virar string) para
-// descobrir o tipo real por trás de um Parser[string] — único canal de tipo disponível aqui.
-// Se o tipo nativo não dá pista nenhuma (ex.: struct com MarshalJSON, como lakedsz.Dataset), o
-// nó vira string: o parser lê e escreve strings, então é isso que o lado JS enxerga.
 func introspectStr(fn func() *schemaz.Parser[string]) *Node {
 	native := nativeOf(fn)
 	if native == nil {
@@ -123,13 +120,13 @@ func introspectStr(fn func() *schemaz.Parser[string]) *Node {
 	return n
 }
 
-// introspectStrs é igual a introspectStr, mas marca MultiValue — fato de transporte que não
-// deve ser confundido com "é array": o campo "c" em schemaz_test.go é Strs com nativo escalar.
 func introspectStrs(fn func() *schemaz.Parser[[]string]) *Node {
 	native := nativeOf(fn)
+
 	if native == nil {
 		return &Node{Kind: KindUnknown, MultiValue: true, StringArrayWire: true}
 	}
+
 	base := introspectType(reflect.TypeOf(native), map[reflect.Type]bool{}, 0)
 	base.MultiValue = true
 	base.StringArrayWire = true
@@ -153,38 +150,32 @@ func introspectType(t reflect.Type, visited map[reflect.Type]bool, depth int) *N
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
 		reflect.Float32, reflect.Float64:
 		return &Node{Kind: KindNumber}
-	case reflect.Ptr:
+	case reflect.Pointer:
 		return introspectType(t.Elem(), extendVisited(visited, t), depth+1)
 	case reflect.Slice, reflect.Array:
 		return &Node{Kind: KindArray, Element: introspectType(t.Elem(), extendVisited(visited, t), depth+1)}
 	case reflect.Map:
 		return &Node{Kind: KindObject, DynamicKeys: true, Element: introspectType(t.Elem(), extendVisited(visited, t), depth+1)}
 	case reflect.Struct:
-		// time.Time, uuid.UUID etc. têm serialização JSON própria — decompor os campos Go
-		// daria errado (time.Time só tem campo não exportado, viraria "{}" vazio).
 		if implementsMarshaler(t, jsonMarshalerType) {
-			return &Node{Kind: KindUnknown} // MarshalJSON pode devolver qualquer forma, não dá pra saber qual
+			return &Node{Kind: KindUnknown}
 		}
 		if implementsMarshaler(t, textMarshalerType) {
-			return &Node{Kind: KindString} // encoding/json sempre embrulha TextMarshaler num JSON string
+			return &Node{Kind: KindString}
 		}
 		return introspectStructType(t, extendVisited(visited, t), depth+1)
 	default:
-		// Interface/any/chan/func/etc. — tratado como JSON opaco, não é erro.
 		return &Node{Kind: KindUnknown}
 	}
 }
 
-// introspectStructType decompõe um struct Go usando as tags `json:"..."` como nome de wire.
-// Só é usado quando um Raw aponta direto para um struct em vez de passar por Object aninhado
-// (não ocorre em FractionApi hoje, mas nada impede um autor futuro de fazer isso).
 func introspectStructType(t reflect.Type, visited map[reflect.Type]bool, depth int) *Node {
 	fields := map[string]*Node{}
 	var order []string
-	for i := 0; i < t.NumField(); i++ {
-		f := t.Field(i)
+
+	for f := range t.Fields() {
 		if f.PkgPath != "" {
-			continue // campo não exportado
+			continue
 		}
 		name, skip := jsonFieldName(f)
 		if skip {
@@ -193,7 +184,9 @@ func introspectStructType(t reflect.Type, visited map[reflect.Type]bool, depth i
 		fields[name] = introspectType(f.Type, visited, depth+1)
 		order = append(order, name)
 	}
+
 	sort.Strings(order)
+
 	return &Node{Kind: KindObject, Fields: fields, FieldOrder: order}
 }
 
