@@ -13,10 +13,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// runJs executa o código JS gerado com o Node contra um servidor real, e devolve o resultado —
-// é como um teste confirma que o código gerado realmente funciona, não só compila. A função
-// gerada roda com o Invoker de verdade (invokerPath aponta para invoker.js do SDK) e um Services
-// mínimo que só sabe a baseUrl, então o que é testado é gerador + Invoker juntos.
 func runJs(t testing.TB, fnName, code, invokerPath, baseUrl string, params map[string]any) map[string]any {
 	t.Helper()
 	if _, err := exec.LookPath("node"); err != nil {
