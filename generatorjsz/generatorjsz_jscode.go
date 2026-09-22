@@ -347,9 +347,7 @@ func bodyValueExpr(f field) string {
 	return "[String(params." + f.name + ")]"
 }
 
-// buildJsResult monta o objeto {status, ok, headers, body} devolvido pela função gerada. Não
-// lança em status não-2xx: quem chama decide (o body só é lido quando ok, porque um erro do
-// servidor não segue o formato do RespBody).
+// buildJsResult monta o objeto {status, ok, headers, body} devolvido pela função gerada.
 func buildJsResult(respHeaderNode, respBodyNode *Node) string {
 	var b strings.Builder
 	b.WriteString("  const result = {status: resp.status, ok: resp.ok};\n")

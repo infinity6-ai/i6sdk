@@ -56,7 +56,6 @@ func TestUnitFileName(t *testing.T) {
 	require.Equal(t, "ingestz-get-url.js", generatorjsz.FileName("ingestz-get-url"))
 }
 
-// buildSdkApi gera o código da api de specz.Sdk() com o id dado.
 func buildSdkApi(t *testing.T, id string) string {
 	t.Helper()
 	for _, api := range specz.Sdk() {
@@ -75,9 +74,6 @@ func buildCode(t *testing.T, api apiz.Api) string {
 	return code
 }
 
-// As três apis reais têm id com hífen (inválido como identificador JS puro) e são o que o SDK web
-// legacy realmente consome — estes testes travam a forma do código gerado para cada uma.
-
 func TestUnitBuildIngestzGetUrl(t *testing.T) {
 	code := buildSdkApi(t, "ingestz-get-url")
 
@@ -85,11 +81,9 @@ func TestUnitBuildIngestzGetUrl(t *testing.T) {
 	require.Contains(t, code, "export async function ingestzGetUrl(services, params) {")
 	require.Contains(t, code, `@param {import("../services/services.js").Services} services`)
 	require.Contains(t, code, "@param {IngestzGetUrlParams} params")
-	// mesmo path e codificação do request escrito à mão que o gerador substitui em ingest.js
 	require.Contains(t, code, "path: `api/ingest/get-url/dataset/${encodeURIComponent(String(params.dataset))}`,")
 	require.Contains(t, code, `method: "POST",`)
 	require.Contains(t, code, "json: {amount: params.amount, partitions: params.partitions, table: params.table},")
-	// dataset é path param: não pode ir também no corpo
 	require.NotContains(t, code, "dataset: params.dataset")
 	require.Contains(t, code, "@property {string} dataset")
 	require.Contains(t, code, "@property {Record<string, string>} partitions")
@@ -97,6 +91,7 @@ func TestUnitBuildIngestzGetUrl(t *testing.T) {
 	require.Contains(t, code, "result.body = await resp.json();")
 	require.NotContains(t, code, "query:")
 	require.NotContains(t, code, "headers: {")
+
 	requireJsSyntax(t, "ingestz-get-url", code)
 }
 
@@ -105,8 +100,6 @@ func TestUnitBuildPipezStart(t *testing.T) {
 
 	require.Contains(t, code, "export async function pipezStart(services, params) {")
 	require.Contains(t, code, "path: `api/pipe/start/dataset/${encodeURIComponent(String(params.dataset))}`,")
-	// os campos do corpo dependem de d.Req ter sido alocado pela seção de PathParams: se a ordem de
-	// introspecção mudar, o walker engole o panic e o corpo sairia vazio — daí esta asserção.
 	require.Contains(t, code, "json: {params: params.params, pipename: params.pipename, solution_domain: params.solution_domain},")
 	require.Contains(t, code, "@property {{name: string, value: string}[]} params")
 	requireJsSyntax(t, "pipez-start", code)
