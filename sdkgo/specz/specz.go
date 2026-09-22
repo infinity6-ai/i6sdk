@@ -20,10 +20,6 @@ func All() []apiz.Api {
 	return all
 }
 
-// Sdk lists the real APIs exposed to the SDK clients, each one a fresh zero-value instance
-// (generators call GetDataRefs on them, which mutates the instance). It is the single place
-// that decides what `generate js` emits: a new API is part of the generated SDK once it is
-// added here. samplefraction, which lives in All(), is deliberately not listed.
 func Sdk() []apiz.Api {
 	return []apiz.Api{
 		&ingestzgeturlapi.GetUrlApi{},
