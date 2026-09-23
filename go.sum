@@ -5,8 +5,8 @@ github.com/infinity6-ai/gox/commonz v0.0.32 h1:hLNvfcZtG69DyxjElnqRmnJ2aSdFZWEFg
 github.com/infinity6-ai/gox/commonz v0.0.32/go.mod h1:VPy/LScXbFvsYuMPe4JATlxvTzkZakDkgGEVPE1s+3Q=
 github.com/infinity6-ai/gox/httpz v0.0.32 h1:HGttEimsvAVlobY2OLT4oIY57rmbP8fLkyuwexjWkhc=
 github.com/infinity6-ai/gox/httpz v0.0.32/go.mod h1:rlvMgyzNEfhlls+HV7esBz6CK31zu9SeiIQ37cEGMsE=
-github.com/infinity6-ai/gox/routez v0.0.31 h1:wH/jbHCUXjJm9wcrqXa7zb7J9iLDyWZ/KUbL0EAmLt8=
-github.com/infinity6-ai/gox/routez v0.0.31/go.mod h1:GxYSvPVTXpvx9LhguYWxqwzJBAHa4prX4PPm4vq7zF0=
+github.com/infinity6-ai/gox/routez v0.0.32 h1:u/Cgov2PhDdSF9tYtwURdGdAuEsZ2lZBSCcv/RpI5dk=
+github.com/infinity6-ai/gox/routez v0.0.32/go.mod h1:pDwnc6e1k/ob8gsqt4krJO7IfVZPO4dtalyWIKxgl7k=
 github.com/infinity6-ai/gox/schemaz v0.0.32 h1:w4tjCiPZ8sYBOMW9BbtpnzNFoZihWHmr34AOWivb+yw=
 github.com/infinity6-ai/gox/schemaz v0.0.32/go.mod h1:7mMaeueAVqi8Ny34H9d3PMS+7vhcblh3b2rcr/AKQHQ=
 github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=

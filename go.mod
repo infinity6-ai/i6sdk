@@ -5,7 +5,7 @@ go 1.26.1
 require (
 	github.com/infinity6-ai/gox/commonz v0.0.32
 	github.com/infinity6-ai/gox/httpz v0.0.32
-	github.com/infinity6-ai/gox/routez v0.0.31
+	github.com/infinity6-ai/gox/routez v0.0.32
 	github.com/infinity6-ai/gox/schemaz v0.0.32
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.12.1
