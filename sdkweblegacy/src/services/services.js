@@ -5,6 +5,8 @@
 import { Invoker } from "../invoker/invoker.js";
 import { Auth } from "../auth/auth.js";
 import { Ingest } from "../ingest/ingest.js";
+import { Pipe } from "../pipe/pipe.js";
+import { Dataset } from "../dataset/dataset.js";
 
 /**
  * @typedef {import("../types.js").I6SdkConfig} I6SdkConfig
@@ -82,6 +84,29 @@ class Services {
         return ret
     }
 
+    /**
+     * Creates and returns a Pipe service instance.
+     * @returns {Pipe} An instance of the Pipe client.
+     */
+    pipe() {
+        const ret = new Pipe(this)
+        if (ret.prepare) {
+            ret.prepare()
+        }
+        return ret
+    }
+
+    /**
+     * Creates and returns a Dataset service instance.
+     * @returns {Dataset} An instance of the Dataset client.
+     */
+    dataset() {
+        const ret = new Dataset(this)
+        if (ret.prepare) {
+            ret.prepare()
+        }
+        return ret
+    }
 
 }
 

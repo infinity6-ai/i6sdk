@@ -74,4 +74,5 @@ func TestUnitSampleFractionJsClientNotOk(t *testing.T) {
 	require.InDelta(t, 404, result["status"], 0)
 	require.Equal(t, false, result["ok"])
 	require.NotContains(t, result, "body")
+	require.Contains(t, result, "error", "a non-2xx response carries its body in result.error")
 }

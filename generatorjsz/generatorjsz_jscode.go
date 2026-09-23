@@ -268,6 +268,7 @@ func buildJsDoc(spec apiz.ApiSpec, fnName string, reqFields []field, respHeaderN
 	if respBodyNode != nil {
 		fmt.Fprintf(&b, " * @property {%s} [body] - Parsed JSON body, present only when ok.\n", jsTypeLiteral(respBodyNode))
 	}
+	b.WriteString(" * @property {*} [error] - Error body (parsed JSON, or raw text when not JSON), present only when not ok.\n")
 	b.WriteString(" */\n\n")
 
 	b.WriteString("/**\n")
@@ -362,6 +363,14 @@ func buildJsResult(respHeaderNode, respBodyNode *Node) string {
 		b.WriteString("    result.body = await resp.json();\n")
 		b.WriteString("  }\n")
 	}
+	b.WriteString("  if (!resp.ok) {\n")
+	b.WriteString("    const text = await resp.text();\n")
+	b.WriteString("    try {\n")
+	b.WriteString("      result.error = JSON.parse(text);\n")
+	b.WriteString("    } catch {\n")
+	b.WriteString("      result.error = text;\n")
+	b.WriteString("    }\n")
+	b.WriteString("  }\n")
 	b.WriteString("  return result;\n")
 	return b.String()
 }

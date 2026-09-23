@@ -3,11 +3,14 @@
  */
 
 import { Services } from "./services/services.js";
+import { I6Error } from "./errors.js";
 
 /**
  * @typedef {import("./types.js").I6SdkConfig} I6SdkConfig
  * @typedef {import("./ingest/ingest.js").Ingest} Ingest
  * @typedef {import("./auth/auth.js").Auth} Auth
+ * @typedef {import("./pipe/pipe.js").Pipe} Pipe
+ * @typedef {import("./dataset/dataset.js").Dataset} Dataset
  */
 
 /**
@@ -56,6 +59,22 @@ class I6Sdk {
   }
 
   /**
+   * Returns a Pipe service instance.
+   * @returns {Pipe} An instance of the Pipe client.
+   */
+  pipe() {
+    return this._service.pipe()
+  }
+
+  /**
+   * Returns a Dataset service instance.
+   * @returns {Dataset} An instance of the Dataset client.
+   */
+  dataset() {
+    return this._service.dataset()
+  }
+
+  /**
    * Registers an event listener on the internal event dispatcher.
    * @param {string} evt - The event type or name to listen for.
    * @param {EventListenerOrEventListenerObject|Function} fn - The callback function or event listener object invoked when the event occurs.
@@ -66,6 +85,9 @@ class I6Sdk {
   }
 }
 
+// Lets bundle users (window.I6Sdk) test errors with `e instanceof I6Sdk.I6Error`.
+I6Sdk.I6Error = I6Error;
+
 window.I6Sdk = I6Sdk;
-export { I6Sdk };
+export { I6Sdk, I6Error };
 
