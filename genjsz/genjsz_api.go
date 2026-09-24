@@ -51,9 +51,7 @@ func ParseApi(api apiz.Api) *Api {
 	validateDataRef(refs.PathParams, "PathParams")
 	validateDataRef(refs.QueryParams, "QueryParams")
 	validateDataRef(refs.ReqHeaders, "ReqHeaders")
-	validateDataRef(refs.ReqBody, "ReqBody")
 	validateDataRef(refs.RespHeaders, "RespHeaders")
-	validateDataRef(refs.RespBody, "RespBody")
 
 	parseRefs := func(out jstyp.Typ, schemas ...*schemaz.Schema) {
 		for _, s := range schemas {
@@ -70,9 +68,13 @@ func ParseApi(api apiz.Api) *Api {
 	parseRefs(ret.Req, refs.PathParams)
 	parseRefs(ret.Req, refs.QueryParams)
 	parseRefs(ret.Req, refs.ReqHeaders)
-	parseRefs(ret.Req, refs.ReqBody)
+	if refs.ReqBody != nil {
+		ret.Req.Fields["payload"] = ParseSchema(refs.ReqBody)
+	}
 	parseRefs(ret.Resp, refs.RespHeaders)
-	parseRefs(ret.Resp, refs.RespBody)
+	if refs.RespBody != nil {
+		ret.Resp.Fields["payload"] = ParseSchema(refs.RespBody)
+	}
 
 	return ret
 }
