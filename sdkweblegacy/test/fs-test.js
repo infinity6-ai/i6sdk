@@ -98,6 +98,40 @@
             await assert.rejects(fsDir.getDirectoryHandle(name), (e) => e.name === 'NotFoundError')
         })
 
+        QUnit.test("create requires name, etag and data", async function (assert) {
+            await assert.rejects(fs.create({ etag: 'e1', data: 'x' }), /opts.name/)
+            await assert.rejects(fs.create({ name, data: 'x' }), /opts.etag/)
+            await assert.rejects(fs.create({ name, etag: 'e1' }), /opts.data/)
+        })
+
+        QUnit.test("create writes a new version", async function (assert) {
+            const ref = await fs.create({ name, etag: 'e1', data: 'one' })
+            assert.strictEqual(ref.name, name)
+            assert.strictEqual(ref.etag, 'e1')
+            assert.strictEqual(new Date(ref.version).toISOString(), ref.version)
+            assert.deepEqual(await fs.get({ name, version: ref.version }), ref)
+            assert.strictEqual(await fs.get({ name }), null, "not released")
+
+            const versionDir = await (await (await (await (await navigator.storage.getDirectory())
+                .getDirectoryHandle('i6')).getDirectoryHandle('fs')).getDirectoryHandle(name)).getDirectoryHandle('v' + ref.version)
+            const blob = await (await versionDir.getFileHandle('blob.bin')).getFile()
+            assert.strictEqual(await blob.text(), 'one')
+        })
+
+        QUnit.test("create with the latest etag returns the latest version", async function (assert) {
+            const ref = await fs.create({ name, etag: 'e1', data: 'one' })
+            assert.deepEqual(await fs.create({ name, etag: 'e1' }), ref)
+        })
+
+        QUnit.test("create with another etag creates a newer version", async function (assert) {
+            const ref1 = await fs.create({ name, etag: 'e1', data: 'one' })
+            await new Promise((resolve) => setTimeout(resolve, 5))
+            const ref2 = await fs.create({ name, etag: 'e2', data: 'two' })
+            assert.true(ref2.version > ref1.version)
+            assert.deepEqual(await fs.get({ name, version: ref1.version }), ref1, "old kept")
+            assert.deepEqual(await fs.create({ name, etag: 'e2' }), ref2, "latest is the new one")
+        })
+
         QUnit.test("clean cleans all files", async function (assert) {
             const other = name + '-other'
             await write(['version.txt'], 'V2')

@@ -26,6 +26,18 @@ const base = 'i6/fs'
 const readText = async (dir, fileName) => (await (await dir.getFileHandle(fileName)).getFile()).text()
 
 /**
+ * @param {FileSystemDirectoryHandle} dir - Directory holding the file.
+ * @param {string} fileName - Name of the file, created or replaced.
+ * @param {Blob|BufferSource|string} data - The content.
+ * @returns {Promise<void>}
+ */
+const writeFile = async (dir, fileName, data) => {
+  const writable = await (await dir.getFileHandle(fileName, { create: true })).createWritable()
+  await writable.write(data)
+  await writable.close()
+}
+
+/**
  * @returns {Promise<FileSystemDirectoryHandle>} The base directory.
  * @throws {DOMException} NotFoundError if it does not exist.
  */
@@ -112,13 +124,44 @@ class FS {
     }
   }
 
+  /**
+   * Creates a new version, unless the latest version already has this etag.
+   * The new version is not released.
+   * @param {Object} opts
+   * @param {string} opts.name - required
+   * @param {string} opts.etag - required
+   * @param {Blob|BufferSource|string} [opts.data] - content, required when a new version is created
+   * @returns {Promise<FileRef>} a new full FileRef.
+   */
   async create(opts) {
-    // opts.file = "bla" - required
-    // opts.etag = "yyy" - required
+    if (!opts || !opts.name) throw new TypeError('fs: opts.name is required')
+    if (!opts.etag) throw new TypeError('fs: opts.etag is required')
 
-    // if latest version etag does not match opts.tag, create a new version with this opts.tag
+    let dir = await navigator.storage.getDirectory()
+    
+    for (const segment of [...base.split('/'), opts.name]) {
+      dir = await dir.getDirectoryHandle(segment, { create: true })
+    }
 
-    // return new full FileRef
+    let latest = null
+    
+    for await (const [entryName, entry] of dir.entries()) {
+      if (entry.kind === 'directory' && entryName.startsWith('v') && (!latest || entryName > latest)) latest = entryName
+    }
+    
+    if (latest && await readText(await dir.getDirectoryHandle(latest), 'etag.txt').catch(() => null) === opts.etag) {
+      return { name: opts.name, version: latest.substring(1), etag: opts.etag }
+    }
+
+    if (opts.data === undefined) throw new TypeError('fs: opts.data is required to create a new version')
+
+    const version = new Date().toISOString()
+    const versionDir = await dir.getDirectoryHandle('v' + version, { create: true })
+    
+    await writeFile(versionDir, 'blob.bin', opts.data)
+    await writeFile(versionDir, 'etag.txt', opts.etag)
+    
+    return { name: opts.name, version, etag: opts.etag }
   }
 
   async release(opts) {
