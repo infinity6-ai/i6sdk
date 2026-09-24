@@ -1,6 +1,7 @@
 package genjsz_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
@@ -9,5 +10,5 @@ import (
 
 func TestManualFractionSample(t *testing.T) {
 	api := routezsamplefraction.NewService().Api()
-	genjsz.ParseApi(api)
+	fmt.Printf("%s\n", genjsz.ParseApi(api))
 }

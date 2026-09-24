@@ -1,7 +1,10 @@
 package genjsz
 
-import "github.com/infinity6-ai/gox/routez/apiz"
+import (
+	"github.com/infinity6-ai/gox/routez/apiz"
+	"go.code.infinity6.ai/sdkgo/genjsz/jstyp"
+)
 
-func ParseApi(api apiz.Api) {
-	ParseSchema(api.GetDataRefs().PathParams)
+func ParseApi(api apiz.Api) jstyp.Schema {
+	return ParseSchema(api.GetDataRefs().PathParams)
 }
