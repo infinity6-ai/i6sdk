@@ -157,6 +157,23 @@
             assert.deepEqual(await fs.get({ name, version: ref3.version }), ref3, "newer kept")
         })
 
+        QUnit.test("resolve requires name and version", async function (assert) {
+            await assert.rejects(fs.resolve({ version: 'V1' }), /opts.name/)
+            await assert.rejects(fs.resolve({ name }), /opts.version/)
+        })
+
+        QUnit.test("resolve returns the full blob path", async function (assert) {
+            assert.strictEqual(await fs.resolve({ name: 'a', version: 'V1' }), 'i6/fs/a/vV1/blob.bin')
+
+            const ref = await fs.create({ name, etag: 'e1', data: 'one' })
+            const path = await fs.resolve(ref)
+            let file = await navigator.storage.getDirectory()
+            for (const segment of path.split('/')) {
+                file = await (segment === 'blob.bin' ? file.getFileHandle(segment) : file.getDirectoryHandle(segment))
+            }
+            assert.strictEqual(await (await file.getFile()).text(), 'one', "path points to the blob")
+        })
+
         QUnit.test("clean cleans all files", async function (assert) {
             const other = name + '-other'
             await write(['version.txt'], 'V2')

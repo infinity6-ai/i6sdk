@@ -34,10 +34,10 @@ func (d *Dataset) UnmarshalJSON(data []byte) error {
 }
 
 func (d Dataset) Validate(v string) error {
-	if err := validation.StrNotEmpty(v, "TableId cannot be empty"); err != nil {
+	if err := validation.StrNotEmpty(v, "Dataset cannot be empty"); err != nil {
 		return err
 	}
-	if err := validation.RegexMatch(validator, v, "TableId"); err != nil {
+	if err := validation.RegexMatch(validator, v, "Dataset"); err != nil {
 		return err
 	}
 	return nil

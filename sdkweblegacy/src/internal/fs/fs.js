@@ -60,23 +60,19 @@ class FS {
   async cleanFile(opts) {
     if (!opts || !opts.name) throw new TypeError('fs: opts.name is required')
 
-    try {
-      const parent = await baseDir()
-      const dir = await parent.getDirectoryHandle(opts.name)
-      const released = await readText(dir, 'version.txt').then((v) => 'v' + v, () => null)
+    const parent = await baseDir()
+    const dir = await parent.getDirectoryHandle(opts.name)
+    const released = await readText(dir, 'version.txt').then((v) => 'v' + v, () => null)
 
-      for await (const [entryName, entry] of dir.entries()) {
-        if (released && entry.kind === 'directory' && entryName < released) {
-          await dir.removeEntry(entryName, { recursive: true })
-        }
+    for await (const [entryName, entry] of dir.entries()) {
+      if (released && entry.kind === 'directory' && entryName < released) {
+        await dir.removeEntry(entryName, { recursive: true })
       }
-
-      for await (const _ of dir.entries()) return
-
-      await parent.removeEntry(opts.name)
-    } catch (e) {
-      if (e.name !== 'NotFoundError') throw e
     }
+
+    for await (const _ of dir.entries()) return
+
+    await parent.removeEntry(opts.name)
   }
 
   /**
@@ -84,7 +80,6 @@ class FS {
    * @returns {Promise<void>}
    */
   async clean() {
-    try {
       const names = []
       for await (const [entryName, entry] of (await baseDir()).entries()) {
         if (entry.kind === 'directory') names.push(entryName)
@@ -92,9 +87,6 @@ class FS {
       for (const name of names) {
         await this.cleanFile({ name })
       }
-    } catch (e) {
-      if (e.name !== 'NotFoundError') throw e
-    }
   }
 
   /**
@@ -112,11 +104,11 @@ class FS {
 
       const version = opts.version || await readText(dir, 'version.txt')
       const versionDir = await dir.getDirectoryHandle('v' + version)
-      
-      return { 
-        name: opts.name, 
-        version, 
-        etag: await readText(versionDir, 'etag.txt') 
+
+      return {
+        name: opts.name,
+        version,
+        etag: await readText(versionDir, 'etag.txt')
       }
     } catch (e) {
       if (e.name === 'NotFoundError') return null
@@ -124,6 +116,7 @@ class FS {
     }
   }
 
+  // Não criar o bin.
   /**
    * Creates a new version, unless the latest version already has this etag.
    * The new version is not released.
@@ -138,17 +131,17 @@ class FS {
     if (!opts.etag) throw new TypeError('fs: opts.etag is required')
 
     let dir = await navigator.storage.getDirectory()
-    
+
     for (const segment of [...base.split('/'), opts.name]) {
       dir = await dir.getDirectoryHandle(segment, { create: true })
     }
 
     let latest = null
-    
+
     for await (const [entryName, entry] of dir.entries()) {
       if (entry.kind === 'directory' && entryName.startsWith('v') && (!latest || entryName > latest)) latest = entryName
     }
-    
+
     if (latest && await readText(await dir.getDirectoryHandle(latest), 'etag.txt').catch(() => null) === opts.etag) {
       return { name: opts.name, version: latest.substring(1), etag: opts.etag }
     }
@@ -157,11 +150,25 @@ class FS {
 
     const version = new Date().toISOString()
     const versionDir = await dir.getDirectoryHandle('v' + version, { create: true })
-    
+
     await writeFile(versionDir, 'blob.bin', opts.data)
     await writeFile(versionDir, 'etag.txt', opts.etag)
-    
+
     return { name: opts.name, version, etag: opts.etag }
+  }
+
+  /**
+   * Returns the bin file path, full (with base). Does not check that it exists, see get.
+   * @param {Object} opts
+   * @param {string} opts.name - required
+   * @param {string} opts.version - required
+   * @returns {Promise<string>} e.g. "i6/fs/{name}/v{version}/blob.bin"
+   */
+  async resolve(opts) {
+    if (!opts || !opts.name) throw new TypeError('fs: opts.name is required')
+    if (!opts.version) throw new TypeError('fs: opts.version is required')
+
+    return `${base}/${opts.name}/v${opts.version}/blob.bin`
   }
 
   /**
@@ -180,15 +187,8 @@ class FS {
 
     await writeFile(await (await baseDir()).getDirectoryHandle(opts.name), 'version.txt', opts.version)
     await this.cleanFile(opts)
-    
+
     return ref
-  }
-
-  async resolve(opts) {
-    // opts.file = "bla" - required
-    // opts.version = "version" - required
-
-    // return "bin file path full (with base)"
   }
 
 }
