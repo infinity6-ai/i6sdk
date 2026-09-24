@@ -16,5 +16,9 @@ func ParseSchema(schema *schemaz.Schema) jstyp.Typ {
 		s := schema.Str()
 		return ParseSchemaStr(s)
 	}
+	if schema.Raw != nil {
+		s := schema.Raw()
+		return ParseSchemaRaw(s)
+	}
 	panic(fmt.Sprintf("unsupported: %#v", schema))
 }
