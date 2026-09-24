@@ -164,12 +164,24 @@ class FS {
     return { name: opts.name, version, etag: opts.etag }
   }
 
+  /**
+   * Makes a version the current one (version.txt), then cleans the older versions.
+   * @param {Object} opts
+   * @param {string} opts.name - required
+   * @param {string} opts.version - required, must exist
+   * @returns {Promise<FileRef>} a new full FileRef of the released version.
+   */
   async release(opts) {
-    // opts.file = "bla" - required
-    // opts.version = "version" - required
+    if (!opts || !opts.name) throw new TypeError('fs: opts.name is required')
+    if (!opts.version) throw new TypeError('fs: opts.version is required')
 
-    // set version.txt to this version
-    // async cleanFile(opts)  
+    const ref = await this.get(opts)
+    if (!ref) throw new Error(`fs: version ${opts.version} of ${opts.name} does not exist`)
+
+    await writeFile(await (await baseDir()).getDirectoryHandle(opts.name), 'version.txt', opts.version)
+    await this.cleanFile(opts)
+    
+    return ref
   }
 
   async resolve(opts) {

@@ -132,6 +132,31 @@
             assert.deepEqual(await fs.create({ name, etag: 'e2' }), ref2, "latest is the new one")
         })
 
+        QUnit.test("release requires name and version", async function (assert) {
+            await assert.rejects(fs.release({ version: 'V1' }), /opts.name/)
+            await assert.rejects(fs.release({ name }), /opts.version/)
+        })
+
+        QUnit.test("release fails if the version does not exist", async function (assert) {
+            await assert.rejects(fs.release({ name, version: 'V1' }), /does not exist/)
+            await write(['vV1', 'etag.txt'], 'e1')
+            await assert.rejects(fs.release({ name, version: 'V2' }), /does not exist/)
+            assert.strictEqual(await fs.get({ name }), null, "nothing released")
+        })
+
+        QUnit.test("release sets version.txt and cleans older versions", async function (assert) {
+            const ref1 = await fs.create({ name, etag: 'e1', data: 'one' })
+            await new Promise((resolve) => setTimeout(resolve, 5))
+            const ref2 = await fs.create({ name, etag: 'e2', data: 'two' })
+            await new Promise((resolve) => setTimeout(resolve, 5))
+            const ref3 = await fs.create({ name, etag: 'e3', data: 'three' })
+
+            assert.deepEqual(await fs.release(ref2), ref2)
+            assert.deepEqual(await fs.get({ name }), ref2)
+            assert.strictEqual(await fs.get({ name, version: ref1.version }), null, "older removed")
+            assert.deepEqual(await fs.get({ name, version: ref3.version }), ref3, "newer kept")
+        })
+
         QUnit.test("clean cleans all files", async function (assert) {
             const other = name + '-other'
             await write(['version.txt'], 'V2')
