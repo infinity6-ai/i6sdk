@@ -44,7 +44,7 @@ type Schema interface {
 
 type Object struct {
 	Schema
-	Fields map[string]Typ
+	Fields map[string]Schema
 }
 
 func (f Object) String() string {

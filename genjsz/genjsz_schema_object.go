@@ -5,12 +5,13 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jstyp"
 )
 
-func ParseSchemaObject(obj map[string]*schemaz.Schema) jstyp.Typ {
+func ParseSchemaObject(obj map[string]*schemaz.Schema) jstyp.Schema {
 	ret := jstyp.Object{
-		Fields: make(map[string]jstyp.Typ, len(obj)),
+		Fields: make(map[string]jstyp.Schema, len(obj)),
 	}
 	for field, schema := range obj {
-		println(field)
-		ParseSchema(schema)
+		s := ParseSchema(schema)
+		ret.Fields[field] = s
 	}
+	return ret
 }
