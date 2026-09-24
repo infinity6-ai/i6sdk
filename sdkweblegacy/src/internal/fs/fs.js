@@ -184,11 +184,18 @@ class FS {
     return ref
   }
 
+  /**
+   * Returns the bin file path, full (with base). Does not check that it exists, see get.
+   * @param {Object} opts
+   * @param {string} opts.name - required
+   * @param {string} opts.version - required
+   * @returns {Promise<string>} e.g. "i6/fs/{name}/v{version}/blob.bin"
+   */
   async resolve(opts) {
-    // opts.file = "bla" - required
-    // opts.version = "version" - required
+    if (!opts || !opts.name) throw new TypeError('fs: opts.name is required')
+    if (!opts.version) throw new TypeError('fs: opts.version is required')
 
-    // return "bin file path full (with base)"
+    return `${base}/${opts.name}/v${opts.version}/blob.bin`
   }
 
 }
