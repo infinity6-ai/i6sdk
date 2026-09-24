@@ -61,6 +61,42 @@
             assert.strictEqual(await fs.get({ name }), null)
         })
 
+        QUnit.test("cleanFile requires name", async function (assert) {
+            await assert.rejects(fs.cleanFile({}), /opts.name/)
+        })
+
+        QUnit.test("cleanFile on missing file or without version.txt does nothing", async function (assert) {
+            await fs.cleanFile({ name })
+            await write(['vV1', 'etag.txt'], 'e1')
+            await fs.cleanFile({ name })
+            assert.deepEqual(await fs.get({ name, version: 'V1' }), { name, version: 'V1', etag: 'e1' })
+        })
+
+        QUnit.test("cleanFile removes versions older than version.txt", async function (assert) {
+            await write(['version.txt'], 'V2')
+            await write(['vV1', 'etag.txt'], 'e1')
+            await write(['vV2', 'etag.txt'], 'e2')
+            await write(['vV3', 'etag.txt'], 'e3')
+            await fs.cleanFile({ name })
+            assert.strictEqual(await fs.get({ name, version: 'V1' }), null, "older removed")
+            assert.deepEqual(await fs.get({ name }), { name, version: 'V2', etag: 'e2' }, "released kept")
+            assert.deepEqual(await fs.get({ name, version: 'V3' }), { name, version: 'V3', etag: 'e3' }, "newer kept")
+        })
+
+        QUnit.test("cleanFile keeps the directory when it is not empty", async function (assert) {
+            await write(['version.txt'], 'V1')
+            await write(['vV1', 'etag.txt'], 'e1')
+            await fs.cleanFile({ name })
+            assert.notStrictEqual(await fs.get({ name }), null)
+        })
+
+        QUnit.test("cleanFile removes the directory when it is empty", async function (assert) {
+            const fsDir = await (await (await navigator.storage.getDirectory()).getDirectoryHandle('i6')).getDirectoryHandle('fs', { create: true })
+            await fsDir.getDirectoryHandle(name, { create: true })
+            await fs.cleanFile({ name })
+            await assert.rejects(fsDir.getDirectoryHandle(name), (e) => e.name === 'NotFoundError')
+        })
+
     })
 
 })(QUnit)

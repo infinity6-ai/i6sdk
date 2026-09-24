@@ -25,13 +25,46 @@ const base = 'i6/fs'
  */
 const readText = async (dir, fileName) => (await (await dir.getFileHandle(fileName)).getFile()).text()
 
+/**
+ * @returns {Promise<FileSystemDirectoryHandle>} The base directory.
+ * @throws {DOMException} NotFoundError if it does not exist.
+ */
+const baseDir = async () => {
+  let dir = await navigator.storage.getDirectory()
+  for (const segment of base.split('/')) {
+    dir = await dir.getDirectoryHandle(segment)
+  }
+  return dir
+}
+
 class FS {
-
+  /**
+   * Removes the versions older than version.txt, and the whole file if it is left empty.
+   * Without version.txt no version is removed.
+   * @param {Object} opts
+   * @param {string} opts.name - required
+   * @returns {Promise<void>}
+   */
   async cleanFile(opts) {
-    // opts.name - required
+    if (!opts || !opts.name) throw new TypeError('fs: opts.name is required')
 
-    // clean older versions than version.txt
-    // remove entire directory if it is empty
+    try {
+      const parent = await baseDir()
+      const dir = await parent.getDirectoryHandle(opts.name)
+      const released = await readText(dir, 'version.txt').then((v) => 'v' + v, () => null)
+
+      for await (const [entryName, entry] of dir.entries()) {
+        if (released && entry.kind === 'directory' && entryName < released) {
+          await dir.removeEntry(entryName, { recursive: true })
+        }
+      }
+
+      for await (const _ of dir.entries()) return
+
+      await parent.removeEntry(opts.name)
+    } catch (e) {
+      if (e.name !== 'NotFoundError') throw e
+    }
   }
 
   async clean() {
@@ -49,12 +82,8 @@ class FS {
     if (!opts || !opts.name) throw new TypeError('fs: opts.name is required')
 
     try {
-      let dir = await navigator.storage.getDirectory()
-      
-      for (const segment of [...base.split('/'), opts.name]) {
-        dir = await dir.getDirectoryHandle(segment)
-      }
-      
+      const dir = await (await baseDir()).getDirectoryHandle(opts.name)
+
       const version = opts.version || await readText(dir, 'version.txt')
       const versionDir = await dir.getDirectoryHandle('v' + version)
       
