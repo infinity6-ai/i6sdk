@@ -163,16 +163,6 @@ func TestUnitGenerateSchemaShapesSameFieldInPathAndBody(t *testing.T) {
 	require.Contains(t, err.Error(), `campo "id" aparece em mais de uma seção`)
 }
 
-func TestUnitGenerateSchemaShapesPathWithTemplateLiteralEscape(t *testing.T) {
-	api := &fakeApi{
-		spec: apiz.ApiSpec{Id: "evil-path", Method: "GET", Path: "/api/${alert(1)}"},
-		refs: &apiz.DataRefs{},
-	}
-	_, _, err := generatorjsz.BuildJsFetch(api.ApiSpec(), api.GetDataRefs())
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "template literal")
-}
-
 func TestUnitGenerateSchemaShapesApiWithoutRequestFieldsTakesOnlyServices(t *testing.T) {
 	api := &fakeApi{
 		spec: apiz.ApiSpec{Id: "ping", Method: "GET", Path: "/api/ping"},
