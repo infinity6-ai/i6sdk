@@ -7,7 +7,6 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/infinity6-ai/gox/commonz/slicez"
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/stretchr/testify/require"
@@ -179,42 +178,15 @@ func TestUnitJsClientWireFormatBodyRawValuesTravelUntouched(t *testing.T) {
 	})
 }
 
-func TestUnitJsClientWireFormatBodyNestedObjectAndArrayOfObjectsTravelUntouched(t *testing.T) {
-	var street string
-	var items []struct{ Name string }
-	checkJsClientWireFormat(t, wireTestScenario{
-		refs: &apiz.DataRefs{
-			ReqBody: objectSchema(map[string]*schemaz.Schema{
-				"address": {
-					Object: func(read bool) map[string]*schemaz.Schema {
-						return map[string]*schemaz.Schema{"street": rawField(&street)}
-					},
-				},
-				"items": {
-					Array: func() *schemaz.Array {
-						return &schemaz.Array{
-							Len: len(items),
-							Get: func(idx int, read bool) *schemaz.Schema {
-								items = slicez.GrowLenTo(items, idx+1)
-								return &schemaz.Schema{
-									Object: func(read bool) map[string]*schemaz.Schema {
-										return map[string]*schemaz.Schema{"name": rawField(&items[idx].Name)}
-									},
-								}
-							},
-						}
-					},
-				},
-			}),
-		},
-		params: map[string]any{
-			"address": map[string]any{"street": "s"},
-			"items":   []map[string]any{{"name": "a"}, {"name": "b"}},
-		},
-		wantCode: []string{
-			"@property {{street: string}} address",
-			"@property {{name: string}[]} items",
-		},
-		wantBody: `{"address":{"street":"s"},"items":[{"name":"a"},{"name":"b"}]}`,
-	})
+func TestUnitJsClientNestedObjectAndArrayAreNotImplemented(t *testing.T) {
+	for name, nested := range map[string]*schemaz.Schema{
+		"object": {Object: func(bool) map[string]*schemaz.Schema { return nil }},
+		"array":  {Array: func() *schemaz.Array { return nil }},
+	} {
+		refs := &apiz.DataRefs{ReqBody: objectSchema(map[string]*schemaz.Schema{"x": nested})}
+		api := &fakeApi{spec: apiz.ApiSpec{Id: "nested", Method: "POST", Path: "/api/x"}, refs: refs}
+
+		_, _, err := generatorjsz.BuildJsFetch(api.ApiSpec(), api.GetDataRefs())
+		require.ErrorContains(t, err, "ReqBody.x: not implemented", name)
+	}
 }
