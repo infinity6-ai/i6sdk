@@ -15,55 +15,55 @@ func TestUnitFractionSample(t *testing.T) {
 	fmt.Printf("%s\n", jsonz.MustFormatPretty(jsparser.ParseApi(api)).String())
 	require.JSONEq(t, `
 		{
-		"spec": {
-			"id": "samplefraction",
-			"method": "POST",
-			"path": "/api/gox/routez/sample/fraction/{numerator}/{denominator}"
-		},
-		"req": {
-			"js": "object",
-			"fields": {
-			"denominator": {
-				"js": "float"
+			"spec": {
+				"id": "samplefraction",
+				"method": "POST",
+				"path": "/api/gox/routez/sample/fraction/{numerator}/{denominator}"
 			},
-			"numerator": {
-				"js": "float"
-			},
-			"payload": {
+			"req": {
 				"js": "object",
 				"fields": {
-				"reason": {
-					"js": "string"
-				}
+					"denominator": {
+						"js": "float"
+					},
+					"numerator": {
+						"js": "float"
+					},
+					"payload": {
+						"js": "object",
+						"fields": {
+							"reason": {
+								"js": "string"
+							}
+						}
+					},
+					"precision": {
+						"js": "int"
+					},
+					"x_i6_trace_id": {
+						"js": "string"
+					}
 				}
 			},
-			"precision": {
-				"js": "int"
-			},
-			"x_i6_trace_id": {
-				"js": "string"
-			}
-			}
-		},
-		"resp": {
-			"js": "object",
-			"fields": {
-			"payload": {
+			"resp": {
 				"js": "object",
 				"fields": {
-				"display": {
-					"js": "string"
-				},
-				"result": {
-					"js": "string"
+					"payload": {
+						"js": "object",
+						"fields": {
+							"display": {
+								"js": "string"
+							},
+							"result": {
+								"js": "string"
+							}
+						}
+					},
+					"x_i6_trace_message": {
+						"js": "string"
+					}
 				}
-				}
-			},
-			"x_i6_trace_message": {
-				"js": "string"
 			}
-			}
-		}
 		}
 	`, jsonz.MustFormat(jsparser.ParseApi(api)).String())
 
