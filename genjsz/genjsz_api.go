@@ -8,22 +8,36 @@ import (
 )
 
 type Api struct {
+	Spec ApiSpec   `json:"spec"`
 	Req  jstyp.Typ `json:"req"`
 	Resp jstyp.Typ `json:"resp"`
 }
 
+type ApiSpec struct {
+	Id     string        `json:"id,omitempty"`
+	Desc   *schemaz.Desc `json:"desc,omitempty"`
+	Method string        `json:"method,omitempty"`
+	Path   string        `json:"path,omitempty"`
+}
+
 func ParseApi(api apiz.Api) *Api {
-	// return ParseSchema(api.GetDataRefs().PathParams)
 	refs := api.GetDataRefs()
 
-	validateDataRef(refs.PathParams, "PathParams")
-	validateDataRef(refs.QueryParams, "QueryParams")
-	validateDataRef(refs.ReqHeaders, "ReqHeaders")
-	validateDataRef(refs.ReqBody, "ReqBody")
-	validateDataRef(refs.RespHeaders, "RespHeaders")
-	validateDataRef(refs.RespBody, "RespBody")
+	parseSpec := func() ApiSpec {
+		s := api.ApiSpec()
+		ret := ApiSpec{
+			Id:     s.Id,
+			Method: s.Method,
+			Path:   s.Path,
+		}
+		if s.Desc != nil {
+			ret.Desc = s.Desc()
+		}
+		return ret
+	}
 
 	ret := &Api{
+		Spec: parseSpec(),
 		Req: jstyp.Typ{
 			Js:     "object",
 			Fields: make(map[string]jstyp.Typ),
@@ -33,6 +47,13 @@ func ParseApi(api apiz.Api) *Api {
 			Fields: make(map[string]jstyp.Typ),
 		},
 	}
+
+	validateDataRef(refs.PathParams, "PathParams")
+	validateDataRef(refs.QueryParams, "QueryParams")
+	validateDataRef(refs.ReqHeaders, "ReqHeaders")
+	validateDataRef(refs.ReqBody, "ReqBody")
+	validateDataRef(refs.RespHeaders, "RespHeaders")
+	validateDataRef(refs.RespBody, "RespBody")
 
 	parseRefs := func(out jstyp.Typ, schemas ...*schemaz.Schema) {
 		for _, s := range schemas {
