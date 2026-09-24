@@ -7,7 +7,12 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jstyp"
 )
 
-func ParseApi(api apiz.Api) jstyp.Typ {
+type Api struct {
+	Req  jstyp.Typ `json:"req"`
+	Resp jstyp.Typ `json:"resp"`
+}
+
+func ParseApi(api apiz.Api) *Api {
 	// return ParseSchema(api.GetDataRefs().PathParams)
 	refs := api.GetDataRefs()
 
@@ -18,27 +23,35 @@ func ParseApi(api apiz.Api) jstyp.Typ {
 	validateDataRef(refs.RespHeaders, "RespHeaders")
 	validateDataRef(refs.RespBody, "RespBody")
 
-	ret := jstyp.Typ{
-		Js:     "object",
-		Fields: make(map[string]jstyp.Typ),
+	ret := &Api{
+		Req: jstyp.Typ{
+			Js:     "object",
+			Fields: make(map[string]jstyp.Typ),
+		},
+		Resp: jstyp.Typ{
+			Js:     "object",
+			Fields: make(map[string]jstyp.Typ),
+		},
 	}
 
-	parseApi := func(s *schemaz.Schema) {
-		p := ParseSchema(s)
-		checker.Equal("object", p.Js, "must be object")
-		for k, v := range p.Fields {
-			old, ok := ret.Fields[k]
-			checker.False(ok, "field colision %s, old: %s, new: %s", k, old, v)
-			ret.Fields[k] = v
+	parseRefs := func(out jstyp.Typ, schemas ...*schemaz.Schema) {
+		for _, s := range schemas {
+			p := ParseSchema(s)
+			checker.Equal("object", p.Js, "must be object")
+			for k, v := range p.Fields {
+				old, ok := out.Fields[k]
+				checker.False(ok, "field colision %s, old: %s, new: %s", k, old, v)
+				out.Fields[k] = v
+			}
 		}
 	}
 
-	parseApi(refs.PathParams)
-	parseApi(refs.QueryParams)
-	parseApi(refs.ReqHeaders)
-	parseApi(refs.ReqBody)
-	parseApi(refs.RespHeaders)
-	parseApi(refs.RespBody)
+	parseRefs(ret.Req, refs.PathParams)
+	parseRefs(ret.Req, refs.QueryParams)
+	parseRefs(ret.Req, refs.ReqHeaders)
+	parseRefs(ret.Req, refs.ReqBody)
+	parseRefs(ret.Resp, refs.RespHeaders)
+	parseRefs(ret.Resp, refs.RespBody)
 
 	return ret
 }
