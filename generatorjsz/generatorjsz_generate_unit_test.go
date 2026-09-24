@@ -10,7 +10,7 @@ import (
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/generatorjsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/specz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/sdkz"
 )
 
 type fakeApi struct {
@@ -46,7 +46,7 @@ func requireJsSyntax(t *testing.T, name, code string) {
 func TestManualGenerateWritesOneFilePerApi(t *testing.T) {
 	dir := filepath.Join(t.TempDir(), "apigenz") // não existe ainda: Generate cria
 
-	names, err := generatorjsz.Generate(dir, specz.Sdk())
+	names, err := generatorjsz.Generate(dir, sdkz.All())
 	require.NoError(t, err)
 
 	require.Equal(t, []string{"dsz-domain-select.js", "ingestz-get-url.js", "pipez-start.js"}, names)
@@ -72,10 +72,10 @@ func TestManualGenerateIsIdempotent(t *testing.T) {
 		return out
 	}
 
-	_, err := generatorjsz.Generate(dir, specz.Sdk())
+	_, err := generatorjsz.Generate(dir, sdkz.All())
 	require.NoError(t, err)
 	first := read()
-	_, err = generatorjsz.Generate(dir, specz.Sdk())
+	_, err = generatorjsz.Generate(dir, sdkz.All())
 	require.NoError(t, err)
 
 	require.Equal(t, first, read())
@@ -90,7 +90,7 @@ func TestManualGenerateRemovesOnlyStaleGeneratedFiles(t *testing.T) {
 	write("handwritten.js", "export const x = 1;\n")
 	write("apis serao geradas aqui. 1 por api", "")
 
-	_, err := generatorjsz.Generate(dir, specz.Sdk())
+	_, err := generatorjsz.Generate(dir, sdkz.All())
 	require.NoError(t, err)
 
 	require.NoFileExists(t, filepath.Join(dir, "old-api.js"))

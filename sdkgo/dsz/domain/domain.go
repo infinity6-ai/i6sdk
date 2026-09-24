@@ -1,12 +1,17 @@
 package domain
 
 import (
+	"github.com/infinity6-ai/gox/commonz/constraintz/optionalz"
 	"github.com/infinity6-ai/gox/commonz/validation"
 	"github.com/infinity6-ai/gox/commonz/validation/checked"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 )
 
 type Domain checked.Value[string]
+
+func (d Domain) Optional() optionalz.Optional[string] {
+	return checked.Value[string](d).Optional()
+}
 
 func (d Domain) Get() string {
 	return checked.Value[string](d).Get()

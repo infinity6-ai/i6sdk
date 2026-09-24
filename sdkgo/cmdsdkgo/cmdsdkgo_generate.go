@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"go.code.infinity6.ai/sdkgo/generatorjsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/specz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/sdkz"
 )
 
 const defaultGenerateJsOut = "sdkweblegacy/src/apigenz"
@@ -34,7 +34,7 @@ func prepareGenerateJsCmd() *cobra.Command {
 		Short: "generate the JS client of every API into the legacy web SDK",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			names, err := generatorjsz.Generate(out, specz.Sdk())
+			names, err := generatorjsz.Generate(out, sdkz.All())
 			if err != nil {
 				return fmt.Errorf("failed to generate js clients into %s: %w", out, err)
 			}

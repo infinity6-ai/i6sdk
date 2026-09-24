@@ -3,6 +3,7 @@ package lakedsz
 import (
 	"regexp"
 
+	"github.com/infinity6-ai/gox/commonz/constraintz/optionalz"
 	"github.com/infinity6-ai/gox/commonz/validation"
 	"github.com/infinity6-ai/gox/commonz/validation/checked"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
@@ -11,6 +12,10 @@ import (
 var validator = regexp.MustCompile(`^[a-z][a-z0-9\-]{1,}[a-z0-9]$`)
 
 type Dataset checked.Value[string]
+
+func (d Dataset) Optional() optionalz.Optional[string] {
+	return checked.Value[string](d).Optional()
+}
 
 func (d Dataset) Get() string {
 	return checked.Value[string](d).Get()

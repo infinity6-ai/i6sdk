@@ -6,7 +6,7 @@ import (
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/generatorjsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/specz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/sdkz"
 )
 
 // funcNameTestScenario é um caso de TestUnitFuncName*.
@@ -58,7 +58,7 @@ func TestUnitFileName(t *testing.T) {
 
 func buildSdkApi(t *testing.T, id string) string {
 	t.Helper()
-	for _, api := range specz.Sdk() {
+	for _, api := range sdkz.All() {
 		if api.ApiSpec().Id == id {
 			return buildCode(t, api)
 		}

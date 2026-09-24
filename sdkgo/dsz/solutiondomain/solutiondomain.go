@@ -3,6 +3,7 @@ package solutiondomain
 import (
 	"strings"
 
+	"github.com/infinity6-ai/gox/commonz/constraintz/optionalz"
 	"github.com/infinity6-ai/gox/commonz/errorz"
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/infinity6-ai/gox/commonz/validation"
@@ -54,6 +55,10 @@ func (v *Value) UnmarshalJSON(data []byte) error {
 }
 
 type SolutionDomain checked.Value[Value]
+
+func (t SolutionDomain) Optional() optionalz.Optional[Value] {
+	return checked.Value[Value](t).Optional()
+}
 
 func (t SolutionDomain) Get() Value {
 	return checked.Value[Value](t).Get()

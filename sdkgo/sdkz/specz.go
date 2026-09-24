@@ -1,4 +1,4 @@
-package specz
+package sdkz
 
 import (
 	"fmt"
@@ -35,11 +35,7 @@ func init() {
 	add(&dszapi.DszSolutionDomainSelectApi{})
 }
 
-func All() map[string]apiz.Api {
-	return maps.Clone(all)
-}
-
-func Sdk() []apiz.Api {
+func All() []apiz.Api {
 	return slices.Collect(maps.Values(all))
 }
 

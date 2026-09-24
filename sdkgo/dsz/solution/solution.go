@@ -1,12 +1,17 @@
 package solution
 
 import (
+	"github.com/infinity6-ai/gox/commonz/constraintz/optionalz"
 	"github.com/infinity6-ai/gox/commonz/validation"
 	"github.com/infinity6-ai/gox/commonz/validation/checked"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 )
 
 type Solution checked.Value[string]
+
+func (d Solution) Optional() optionalz.Optional[string] {
+	return checked.Value[string](d).Optional()
+}
 
 func (d Solution) Get() string {
 	return checked.Value[string](d).Get()

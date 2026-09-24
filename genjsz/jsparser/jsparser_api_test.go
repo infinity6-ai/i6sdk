@@ -8,6 +8,7 @@ import (
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzgeturlapi"
 )
 
 func TestUnitFractionSample(t *testing.T) {
@@ -70,8 +71,8 @@ func TestUnitFractionSample(t *testing.T) {
 }
 
 func TestUnitIngestz(t *testing.T) {
-	// api := specz.Sdk()
-	// fmt.Printf("%s\n", jsonz.MustFormatPretty(jsparser.ParseApi(api)).String())
+	api := &ingestzgeturlapi.GetUrlApi{}
+	fmt.Printf("%s\n", jsonz.MustFormatPretty(jsparser.ParseApi(api)).String())
 	// require.JSONEq(t, `
 
 	// `, jsonz.MustFormat(jsparser.ParseApi(api)).String())
