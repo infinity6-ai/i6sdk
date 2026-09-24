@@ -41,3 +41,12 @@ func (f Field) String() string {
 type Schema interface {
 	noop()
 }
+
+type Object struct {
+	Schema
+	Fields map[string]Typ
+}
+
+func (f Object) String() string {
+	return fmt.Sprintf("%s", f.Fields)
+}
