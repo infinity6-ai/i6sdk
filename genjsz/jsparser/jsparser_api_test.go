@@ -10,7 +10,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 )
 
-func TestManualFractionSample(t *testing.T) {
+func TestUnitFractionSample(t *testing.T) {
 	api := routezsamplefraction.NewService().Api()
 	fmt.Printf("%s\n", jsonz.MustFormatPretty(jsparser.ParseApi(api)).String())
 	require.JSONEq(t, `
