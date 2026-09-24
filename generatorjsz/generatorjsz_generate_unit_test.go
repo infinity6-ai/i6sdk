@@ -43,7 +43,7 @@ func requireJsSyntax(t *testing.T, name, code string) {
 	require.NoError(t, err, string(out))
 }
 
-func TestUnitGenerateWritesOneFilePerApi(t *testing.T) {
+func TestManualGenerateWritesOneFilePerApi(t *testing.T) {
 	dir := filepath.Join(t.TempDir(), "apigenz") // não existe ainda: Generate cria
 
 	names, err := generatorjsz.Generate(dir, specz.Sdk())
@@ -58,7 +58,7 @@ func TestUnitGenerateWritesOneFilePerApi(t *testing.T) {
 	}
 }
 
-func TestUnitGenerateIsIdempotent(t *testing.T) {
+func TestManualGenerateIsIdempotent(t *testing.T) {
 	dir := t.TempDir()
 	read := func() map[string]string {
 		out := map[string]string{}
@@ -81,7 +81,7 @@ func TestUnitGenerateIsIdempotent(t *testing.T) {
 	require.Equal(t, first, read())
 }
 
-func TestUnitGenerateRemovesOnlyStaleGeneratedFiles(t *testing.T) {
+func TestManualGenerateRemovesOnlyStaleGeneratedFiles(t *testing.T) {
 	dir := t.TempDir()
 	write := func(name, content string) {
 		require.NoError(t, os.WriteFile(filepath.Join(dir, name), []byte(content), 0o644))
@@ -118,28 +118,28 @@ func checkGenerateFailure(t *testing.T, s generateFailureTestScenario) {
 	require.NoDirExists(t, dir)
 }
 
-func TestUnitGenerateFailureInvalidId(t *testing.T) {
+func TestManualGenerateFailureInvalidId(t *testing.T) {
 	checkGenerateFailure(t, generateFailureTestScenario{
 		apis:   []apiz.Api{validApi("ok-api"), validApi("../evil")},
 		errMsg: `"../evil"`,
 	})
 }
 
-func TestUnitGenerateFailureTwoApisWithSameId(t *testing.T) {
+func TestManualGenerateFailureTwoApisWithSameId(t *testing.T) {
 	checkGenerateFailure(t, generateFailureTestScenario{
 		apis:   []apiz.Api{validApi("same-id"), validApi("same-id")},
 		errMsg: "mesma função",
 	})
 }
 
-func TestUnitGenerateFailureTwoIdsThatCollapseToSameFunction(t *testing.T) {
+func TestManualGenerateFailureTwoIdsThatCollapseToSameFunction(t *testing.T) {
 	checkGenerateFailure(t, generateFailureTestScenario{
 		apis:   []apiz.Api{validApi("get-url"), validApi("get_url")},
 		errMsg: "mesma função",
 	})
 }
 
-func TestUnitGenerateFailurePathParamsOutOfSyncWithPath(t *testing.T) {
+func TestManualGenerateFailurePathParamsOutOfSyncWithPath(t *testing.T) {
 	api := &fakeApi{
 		spec: apiz.ApiSpec{Id: "drift", Method: "GET", Path: "/api/x/{id}"},
 		refs: &apiz.DataRefs{},
@@ -150,7 +150,7 @@ func TestUnitGenerateFailurePathParamsOutOfSyncWithPath(t *testing.T) {
 	})
 }
 
-func TestUnitGenerateSchemaShapesSameFieldInPathAndBody(t *testing.T) {
+func TestManualGenerateSchemaShapesSameFieldInPathAndBody(t *testing.T) {
 	api := &fakeApi{
 		spec: apiz.ApiSpec{Id: "dup-field", Method: "POST", Path: "/api/x/{id}"},
 		refs: &apiz.DataRefs{
@@ -163,7 +163,7 @@ func TestUnitGenerateSchemaShapesSameFieldInPathAndBody(t *testing.T) {
 	require.Contains(t, err.Error(), `campo "id" aparece em mais de uma seção`)
 }
 
-func TestUnitGenerateSchemaShapesApiWithoutRequestFieldsTakesOnlyServices(t *testing.T) {
+func TestManualGenerateSchemaShapesApiWithoutRequestFieldsTakesOnlyServices(t *testing.T) {
 	api := &fakeApi{
 		spec: apiz.ApiSpec{Id: "ping", Method: "GET", Path: "/api/ping"},
 		refs: &apiz.DataRefs{},
