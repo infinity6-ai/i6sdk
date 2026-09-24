@@ -13,7 +13,6 @@ const base = 'i6/fs'
  * @typedef {Object} FileRef
  * @property {string} name - [write it: bla, ble].
  * @property {string} version - [write it].
- * @property {string} path - [write it: opfs ref with base].
  * @property {string} etag - [write it].
  */
 
@@ -55,6 +54,13 @@ class FS {
 
     // set version.txt to this version
     // async cleanFile(opts)  
+  }
+
+  async resolve(opts) {
+    // opts.file = "bla" - required
+    // opts.version = "version" - required
+
+    // return "bin file path full (with base)"
   }
 
 }
