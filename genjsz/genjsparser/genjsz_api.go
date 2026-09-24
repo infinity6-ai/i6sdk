@@ -1,4 +1,4 @@
-package genjsz
+package genjsparser
 
 import (
 	"github.com/infinity6-ai/gox/commonz/validation/checker"

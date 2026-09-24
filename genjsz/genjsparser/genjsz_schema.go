@@ -1,4 +1,4 @@
-package genjsz
+package genjsparser
 
 import (
 	"fmt"
