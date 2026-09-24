@@ -19,7 +19,8 @@ func ParseSchema(schema *schemaz.Schema) {
 func ParseSchemaStr(parser *schemaz.Parser[string]) {
 	s, v := parser.Format()
 	println(s)
-	ParseAny(v)
+	typ := ParseAny(v)
+	fmt.Printf("%s\n", typ)
 }
 
 func ParseSchemaObject(obj map[string]*schemaz.Schema) {

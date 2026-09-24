@@ -4,6 +4,10 @@ type Typ struct {
 	Js string
 }
 
+func (t Typ) String() string {
+	return t.Js
+}
+
 var TypInt = Typ{
 	Js: "int",
 }
