@@ -12,4 +12,5 @@ import (
 func TestManualFractionSample(t *testing.T) {
 	api := routezsamplefraction.NewService().Api()
 	fmt.Printf("%s\n", jsonz.MustFormatPretty(genjsz.ParseApi(api)).String())
+
 }
