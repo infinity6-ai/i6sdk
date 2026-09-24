@@ -60,7 +60,6 @@ func isJsonable(v any) *jstyp.Typ {
 	s := b.String()
 	_, err = jsonz.Parse(s, &v)
 	if err != nil {
-		// return nil
 		errorz.Check(err)
 	}
 	if s[0] == '"' {
@@ -72,7 +71,5 @@ func isJsonable(v any) *jstyp.Typ {
 	if s[0] == 'f' || s[0] == 't' {
 		return &jstyp.TypBool
 	}
-	// if s[0] == 'n' || s[0] == '{' {
-	panic(fmt.Sprintf("unsupported type %#v", v))
-	// }
+	return nil
 }
