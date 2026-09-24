@@ -9,10 +9,12 @@ import (
 
 func ParseSchema(schema *schemaz.Schema) jstyp.Schema {
 	if schema.Object != nil {
-		return ParseSchemaObject(schema.Object(false))
+		s := schema.Object(false)
+		return ParseSchemaObject(s)
 	}
 	if schema.Str != nil {
-		return ParseSchemaStr(schema.Str())
+		s := schema.Str()
+		return ParseSchemaStr(s)
 	}
 	panic(fmt.Sprintf("unsupported: %#v", schema))
 }

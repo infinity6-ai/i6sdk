@@ -5,6 +5,7 @@ import (
 )
 
 type Typ struct {
+	Schema
 	Js string
 }
 
