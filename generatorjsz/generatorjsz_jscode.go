@@ -91,13 +91,21 @@ func BuildJsFetch(spec apiz.ApiSpec, refs *apiz.DataRefs) (fnName string, code s
 		return "", "", err
 	}
 
-	// RespBody é um único valor, não uma seção de campos.
+	// RespBody é um Object de folhas (como as seções) ou uma folha só.
 	var respBody *field
 
 	if refs.RespBody != nil {
-		f, err := schemaField("body", refs.RespBody)
+		f := field{name: "body"}
 
-		if err != nil {
+		if refs.RespBody.Object != nil {
+			var fields []field
+
+			if fields, err = sectionFields("RespBody", refs.RespBody); err != nil {
+				return "", "", err
+			}
+
+			f.typ = objectType(fields)
+		} else if f, err = schemaField("body", refs.RespBody); err != nil {
 			return "", "", fmt.Errorf("generatorjsz: RespBody: %w", err)
 		}
 

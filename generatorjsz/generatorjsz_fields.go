@@ -71,16 +71,30 @@ func schemaField(name string, s *schemaz.Schema) (field, error) {
 	case s.Raw != nil:
 		f.typ = jsType(reflect.TypeOf(s.Raw()), 0)
 	case s.Str != nil:
-		_, native := s.Str().Format()
-		f.typ, f.str = jsType(reflect.TypeOf(native), 0), true
+		f.typ, f.str = strType("string", func() any { _, n := s.Str().Format(); return n }), true
 	case s.Strs != nil:
-		_, native := s.Strs().Format()
-		f.typ, f.str = jsType(reflect.TypeOf(native), 0), true
+		f.typ, f.str = strType("string[]", func() any { _, n := s.Strs().Format(); return n }), true
 	default:
 		return f, fmt.Errorf("not implemented: only Raw, Str and Strs")
 	}
 
 	return f, nil
+}
+
+// strType tipa um Str/Strs pelo valor nativo do Format. Format lê o valor zero e pode dar
+// pânico (ex.: tipos checked ainda não setados); nesse caso vale o tipo da wire, fallback.
+func strType(fallback string, native func() any) (typ string) {
+	defer func() {
+		if recover() != nil {
+			typ = fallback
+		}
+	}()
+
+	if t := jsType(reflect.TypeOf(native()), 0); t != "*" {
+		return t
+	}
+
+	return fallback
 }
 
 var (
