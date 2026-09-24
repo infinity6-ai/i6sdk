@@ -4,27 +4,15 @@ import (
 	"fmt"
 
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
+	"go.code.infinity6.ai/sdkgo/genjsz/jstyp"
 )
 
-func ParseSchema(schema *schemaz.Schema) {
+func ParseSchema(schema *schemaz.Schema) jstyp.Schema {
 	if schema.Object != nil {
 		ParseSchemaObject(schema.Object(false))
 	}
 	if schema.Str != nil {
-		ParseSchemaStr(schema.Str())
+		return ParseSchemaStr(schema.Str())
 	}
 	panic(fmt.Sprintf("unsupported: %#v", schema))
-}
-
-func ParseSchemaStr(parser *schemaz.Parser[string]) {
-	s, v := parser.Format()
-	println(s)
-	GenAny(v)
-}
-
-func ParseSchemaObject(obj map[string]*schemaz.Schema) {
-	for field, schema := range obj {
-		println(field)
-		ParseSchema(schema)
-	}
 }

@@ -7,7 +7,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz"
 )
 
-func TestUnitFractionSample(t *testing.T) {
+func TestManualFractionSample(t *testing.T) {
 	api := routezsamplefraction.NewService().Api()
 	genjsz.ParseApi(api)
 }
