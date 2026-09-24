@@ -5,6 +5,6 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jstyp"
 )
 
-func ParseApi(api apiz.Api) jstyp.Schema {
+func ParseApi(api apiz.Api) jstyp.Typ {
 	return ParseSchema(api.GetDataRefs().PathParams)
 }

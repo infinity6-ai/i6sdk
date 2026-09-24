@@ -7,7 +7,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jstyp"
 )
 
-func ParseSchema(schema *schemaz.Schema) jstyp.Schema {
+func ParseSchema(schema *schemaz.Schema) jstyp.Typ {
 	if schema.Object != nil {
 		s := schema.Object(false)
 		return ParseSchemaObject(s)
