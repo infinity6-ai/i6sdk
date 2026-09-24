@@ -1,6 +1,8 @@
 package jstyp
 
-import "go.code.infinity6.ai/sdkgo/genjsz/jstyp"
+import (
+	"fmt"
+)
 
 type Typ struct {
 	Js string
@@ -27,6 +29,15 @@ var TypBool = Typ{
 }
 
 type Field struct {
+	Schema
 	Name string
-	Typ  jstyp.Typ
+	Typ  Typ
+}
+
+func (f Field) String() string {
+	return fmt.Sprintf("%s:%s", f.Name, f.Typ)
+}
+
+type Schema interface {
+	noop()
 }
