@@ -69,7 +69,7 @@ func TestUnitFractionSample(t *testing.T) {
 
 }
 
-func TestUnitIn(t *testing.T) {
+func TestUnitIngestz(t *testing.T) {
 	// api := specz.Sdk()
 	// fmt.Printf("%s\n", jsonz.MustFormatPretty(jsparser.ParseApi(api)).String())
 	// require.JSONEq(t, `
