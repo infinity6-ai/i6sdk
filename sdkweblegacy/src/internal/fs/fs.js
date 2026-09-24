@@ -67,8 +67,22 @@ class FS {
     }
   }
 
+  /**
+   * Cleans all files, see cleanFile.
+   * @returns {Promise<void>}
+   */
   async clean() {
-    // clean all files
+    try {
+      const names = []
+      for await (const [entryName, entry] of (await baseDir()).entries()) {
+        if (entry.kind === 'directory') names.push(entryName)
+      }
+      for (const name of names) {
+        await this.cleanFile({ name })
+      }
+    } catch (e) {
+      if (e.name !== 'NotFoundError') throw e
+    }
   }
 
   /**
