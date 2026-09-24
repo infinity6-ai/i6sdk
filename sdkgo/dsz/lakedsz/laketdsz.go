@@ -56,7 +56,7 @@ func ParseStr(out *Dataset) func() *schemaz.Parser[string] {
 				*out = MustParse(v)
 			},
 			Format: func() (string, any) {
-				return out.Get(), *out
+				return out.Optional().Or(), *out
 			},
 		}
 	}

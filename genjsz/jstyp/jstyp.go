@@ -13,12 +13,8 @@ func (t Typ) String() string {
 	return jsonz.MustFormat(t).String()
 }
 
-var TypInt = Typ{
-	Js: "int",
-}
-
-var TypFloat = Typ{
-	Js: "float",
+var TypNumber = Typ{
+	Js: "number",
 }
 
 var TypString = Typ{
@@ -27,4 +23,8 @@ var TypString = Typ{
 
 var TypBool = Typ{
 	Js: "bool",
+}
+
+var TypJson = Typ{
+	Js: "json",
 }

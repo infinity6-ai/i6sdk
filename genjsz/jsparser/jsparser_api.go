@@ -53,15 +53,16 @@ func ParseApi(api apiz.Api) *Api {
 	validateDataRef(refs.ReqHeaders, "ReqHeaders")
 	validateDataRef(refs.RespHeaders, "RespHeaders")
 
-	parseRefs := func(out jstyp.Typ, schemas ...*schemaz.Schema) {
-		for _, s := range schemas {
-			p := ParseSchema(s)
-			checker.Equal("object", p.Js, "must be object")
-			for k, v := range p.Fields {
-				old, ok := out.Fields[k]
-				checker.False(ok, "field colision %s, old: %s, new: %s", k, old, v)
-				out.Fields[k] = v
-			}
+	parseRefs := func(out jstyp.Typ, s *schemaz.Schema) {
+		if s == nil {
+			return
+		}
+		p := ParseSchema(s)
+		checker.Equal("object", p.Js, "must be object")
+		for k, v := range p.Fields {
+			old, ok := out.Fields[k]
+			checker.False(ok, "field colision %s, old: %s, new: %s", k, old, v)
+			out.Fields[k] = v
 		}
 	}
 
