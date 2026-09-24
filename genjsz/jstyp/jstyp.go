@@ -2,6 +2,7 @@ package jstyp
 
 import (
 	"fmt"
+	"strings"
 )
 
 type Typ struct {
@@ -41,6 +42,7 @@ func (f Field) String() string {
 
 type Schema interface {
 	noop()
+	String() string
 }
 
 type Object struct {
@@ -49,5 +51,18 @@ type Object struct {
 }
 
 func (f Object) String() string {
-	return fmt.Sprintf("%s", f.Fields)
+	var ret strings.Builder
+	ret.WriteString("{")
+	c := 0
+	for k, v := range f.Fields {
+		ret.WriteString(k)
+		ret.WriteString(":")
+		ret.WriteString(v.String())
+		if c < len(f.Fields)-1 {
+			ret.WriteString(",")
+		}
+		c++
+	}
+	ret.WriteString("}")
+	return ret.String()
 }
