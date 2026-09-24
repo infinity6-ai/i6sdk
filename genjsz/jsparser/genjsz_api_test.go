@@ -1,4 +1,4 @@
-package genjsparser_test
+package jsparser_test
 
 import (
 	"fmt"
@@ -6,11 +6,11 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
-	"go.code.infinity6.ai/sdkgo/genjsz/genjsparser"
+	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 )
 
 func TestManualFractionSample(t *testing.T) {
 	api := routezsamplefraction.NewService().Api()
-	fmt.Printf("%s\n", jsonz.MustFormatPretty(genjsparser.ParseApi(api)).String())
+	fmt.Printf("%s\n", jsonz.MustFormatPretty(jsparser.ParseApi(api)).String())
 
 }

@@ -1,4 +1,4 @@
-package genjsparser
+package jsparser
 
 import "go.code.infinity6.ai/sdkgo/genjsz/jstyp"
 

@@ -1,4 +1,4 @@
-package genjsparser
+package jsparser
 
 import (
 	"fmt"

@@ -1,4 +1,4 @@
-package genjsparser
+package jsparser
 
 import (
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
