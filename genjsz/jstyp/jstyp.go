@@ -1,15 +1,16 @@
 package jstyp
 
 import (
-	"fmt"
+	"github.com/infinity6-ai/gox/commonz/jsonz"
 )
 
 type Typ struct {
-	Js string
+	Js     string         `json:"js"`
+	Fields map[string]Typ `json:"fields,omitempty"`
 }
 
 func (t Typ) String() string {
-	return t.Js
+	return jsonz.MustFormat(t).String()
 }
 
 var TypInt = Typ{
@@ -26,18 +27,4 @@ var TypString = Typ{
 
 var TypBool = Typ{
 	Js: "bool",
-}
-
-type Field struct {
-	Schema
-	Name string
-	Typ  Typ
-}
-
-func (f Field) String() string {
-	return fmt.Sprintf("%s:%s", f.Name, f.Typ)
-}
-
-type Schema interface {
-	noop()
 }

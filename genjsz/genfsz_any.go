@@ -10,6 +10,14 @@ import (
 func ParseAny(v any) jstyp.Typ {
 	val := reflect.ValueOf(v)
 
+	for val.Kind() == reflect.Pointer || val.Kind() == reflect.Interface {
+		val = val.Elem()
+	}
+
+	if !val.IsValid() {
+		panic(fmt.Sprintf("invalid value or nil pointer: %#v", v))
+	}
+
 	switch val.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:

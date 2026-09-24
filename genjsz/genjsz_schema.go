@@ -7,12 +7,18 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jstyp"
 )
 
-func ParseSchema(schema *schemaz.Schema) jstyp.Schema {
+func ParseSchema(schema *schemaz.Schema) jstyp.Typ {
 	if schema.Object != nil {
-		ParseSchemaObject(schema.Object(false))
+		s := schema.Object(false)
+		return ParseSchemaObject(s)
 	}
 	if schema.Str != nil {
-		return ParseSchemaStr(schema.Str())
+		s := schema.Str()
+		return ParseSchemaStr(s)
+	}
+	if schema.Raw != nil {
+		s := schema.Raw()
+		return ParseSchemaRaw(s)
 	}
 	panic(fmt.Sprintf("unsupported: %#v", schema))
 }
