@@ -18,6 +18,13 @@ const base = 'i6/fs'
 
 // never changes incomming opts/fileref, returns awlays a copy
 
+/**
+ * @param {FileSystemDirectoryHandle} dir - Directory holding the file.
+ * @param {string} fileName - Name of the text file.
+ * @returns {Promise<string>} The file content.
+ */
+const readText = async (dir, fileName) => (await (await dir.getFileHandle(fileName)).getFile()).text()
+
 class FS {
 
   async cleanFile(opts) {
@@ -31,12 +38,35 @@ class FS {
     // clean all files
   }
 
+  /**
+   * Resolves a version of a file.
+   * @param {Object} opts
+   * @param {string} opts.name - required
+   * @param {string} [opts.version] - defaults to the content of version.txt
+   * @returns {Promise<FileRef|null>} a new full FileRef, or null if it does not exist.
+   */
   async get(opts) {
-    // opts.name - required
-    // opts.version - optional
+    if (!opts || !opts.name) throw new TypeError('fs: opts.name is required')
 
-    // resolve version.txt if version is not given
-    // return new full fileRef
+    try {
+      let dir = await navigator.storage.getDirectory()
+      
+      for (const segment of [...base.split('/'), opts.name]) {
+        dir = await dir.getDirectoryHandle(segment)
+      }
+      
+      const version = opts.version || await readText(dir, 'version.txt')
+      const versionDir = await dir.getDirectoryHandle('v' + version)
+      
+      return { 
+        name: opts.name, 
+        version, 
+        etag: await readText(versionDir, 'etag.txt') 
+      }
+    } catch (e) {
+      if (e.name === 'NotFoundError') return null
+      throw e
+    }
   }
 
   async create(opts) {
