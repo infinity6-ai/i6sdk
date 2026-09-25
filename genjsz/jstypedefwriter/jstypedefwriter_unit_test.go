@@ -17,7 +17,7 @@ func TestUnitWrite(t *testing.T) {
 
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
-		got := jstypedefwriter.Write(s.in)
+		got := jstypedefwriter.Write(&s.in)
 		require.Equal(t, s.want, got)
 	}
 

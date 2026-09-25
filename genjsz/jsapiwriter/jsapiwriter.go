@@ -4,18 +4,23 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
+
 	"go.code.infinity6.ai/sdkgo/camelstring"
+	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
+	"go.code.infinity6.ai/sdkgo/genjsz/jstypedefwriter"
 )
 
 var pathParamRe = regexp.MustCompile(`\{([A-Za-z0-9_]+)\}`)
 
 func Write(api *jsparser.Api) string {
 	apiId := camelstring.KebabToCamel(api.Spec.Id)
-	
+
 	hasParams := api.Req.Properties != nil && len(api.Req.Properties.All()) > 0
-	
+
 	var b strings.Builder
+
+	b.WriteString(jstypedefwriter.Write(api.ReqResp()))
+
 	b.WriteString("/**\n")
 	b.WriteString(" * @param {import(\"../services/services.js\").Services} services\n")
 	if hasParams {
@@ -23,20 +28,20 @@ func Write(api *jsparser.Api) string {
 	}
 	fmt.Fprintf(&b, " * @returns {Promise<%s>}\n", api.Resp.Head.Name)
 	b.WriteString(" */\n")
-	
+
 	if hasParams {
 		fmt.Fprintf(&b, "export async function %s(services, params) {\n", apiId)
 	} else {
 		fmt.Fprintf(&b, "export async function %s(services) {\n", apiId)
 	}
-	
+
 	jsPath := pathParamRe.ReplaceAllString(strings.TrimPrefix(api.Spec.Path, "/"), "${encodeURIComponent(String(params.$1))}")
-	
+
 	b.WriteString("  const resp = await services.invoker().invoke({\n")
 	fmt.Fprintf(&b, "    method: %q,\n", api.Spec.Method)
-	
+
 	fmt.Fprintf(&b, "    path: `%s`,\n", strings.TrimPrefix(jsPath, "/"))
-	
+
 	hasPayload := false
 	if hasParams {
 		for _, p := range api.Req.Properties.All() {
@@ -46,15 +51,15 @@ func Write(api *jsparser.Api) string {
 			}
 		}
 	}
-	
+
 	if hasPayload {
 		b.WriteString("    json: params.payload,\n")
 	}
-	
+
 	b.WriteString("  });\n")
 	b.WriteString("  const result = {status: resp.status, ok: resp.ok};\n")
 	b.WriteString("  if (resp.ok) {\n")
-	
+
 	hasRespPayload := false
 	if api.Resp.Properties != nil {
 		for _, p := range api.Resp.Properties.All() {
@@ -69,7 +74,7 @@ func Write(api *jsparser.Api) string {
 	} else {
 		b.WriteString("    result.body = await resp.json();\n")
 	}
-	
+
 	b.WriteString("  }\n")
 	b.WriteString("  if (!resp.ok) {\n")
 	b.WriteString("    const text = await resp.text();\n")

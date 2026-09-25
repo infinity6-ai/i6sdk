@@ -15,6 +15,12 @@ type Api struct {
 	Typedefs jstypez.Typedefs `json:"typedefs"`
 }
 
+func (a *Api) ReqResp() *jstypez.Typedefs {
+	ret := &jstypez.Typedefs{}
+	ret.Add(&a.Req, &a.Resp)
+	return ret
+}
+
 type ApiSpec struct {
 	Id     string        `json:"id,omitempty"`
 	Desc   *schemaz.Desc `json:"desc,omitempty"`

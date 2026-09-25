@@ -7,7 +7,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
-func Write(pipedefs jstypez.Typedefs) string {
+func Write(pipedefs *jstypez.Typedefs) string {
 	var b strings.Builder
 	for _, pipedef := range pipedefs.All() {
 		b.WriteString("/**\n")
