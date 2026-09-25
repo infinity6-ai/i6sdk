@@ -3,7 +3,7 @@ package jstypez_test
 import (
 	"testing"
 
-	"go.code.infinity6.ai/sdkgo/jstypez"
+	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
 type Labels map[string]string
