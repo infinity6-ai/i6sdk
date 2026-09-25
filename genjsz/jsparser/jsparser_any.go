@@ -32,13 +32,13 @@ func ParseAny(v any) (jstypez.Typedef, jstypez.TypedefsV2) {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
 		reflect.Float32, reflect.Float64:
-		return jstypez.TypeNumber, tdfs
+		return jstypez.Typedef{Head: jstypez.TupleV2{Typ: jstypez.TypeNumber}}, tdfs
 
 	case reflect.String:
-		return jstypez.TypeString, tdfs
+		return jstypez.Typedef{Head: jstypez.TupleV2{Typ: jstypez.TypeString}}, tdfs
 
 	case reflect.Bool:
-		return jstypez.TypeBool, tdfs
+		return jstypez.Typedef{Head: jstypez.TupleV2{Typ: jstypez.TypeBool}}, tdfs
 
 	// case reflect.Struct:
 	// 	return jstyp.TypJson

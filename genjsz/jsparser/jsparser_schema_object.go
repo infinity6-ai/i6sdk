@@ -7,15 +7,15 @@ import (
 
 func ParseSchemaObject(obj map[string]*schemaz.Schema) (jstypez.Typedef, jstypez.TypedefsV2) {
 	ret := jstypez.Typedef{
-		Typ: "object",
+		Head: jstypez.TupleV2{Typ: jstypez.TypeObject},
 	}
 	var tdfs jstypez.TypedefsV2
 	for field, schema := range obj {
 		s, schemaTdfs := ParseSchema(schema)
-		ret.SetProperty(jstypez.Property{
-			Name: field,
-			Typ:  s.Name,
-			Desc: descSummary(schema.Desc),
+		ret.Properties.Add(jstypez.TupleV2{
+			Name:    field,
+			Typ:     s.Head.Typ,
+			Summary: descSummary(schema.Desc),
 		})
 		tdfs.Add(schemaTdfs.All()...)
 	}

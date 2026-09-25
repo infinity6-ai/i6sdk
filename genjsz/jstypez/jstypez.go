@@ -18,6 +18,14 @@ type TuplesV2 struct {
 	s []string
 }
 
+func (t TuplesV2) All() []TupleV2 {
+	ret := make([]TupleV2, len(t.s))
+	for idx, name := range t.s {
+		ret[idx] = t.m[name]
+	}
+	return ret
+}
+
 func (t *TuplesV2) Add(tuples ...TupleV2) {
 	// Prevent panics if the method is called on a nil pointer
 	if t == nil {
@@ -44,20 +52,20 @@ func (t *TuplesV2) Add(tuples ...TupleV2) {
 	}
 }
 
-type TypedefV2 struct {
+type Typedef struct {
 	Head       TupleV2
 	Properties TuplesV2
 }
 
 type TypedefsV2 struct {
-	m map[string]TypedefV2
+	m map[string]Typedef
 }
 
-func (t TypedefsV2) All() []TypedefV2 {
+func (t TypedefsV2) All() []Typedef {
 	return slices.Collect(maps.Values(t.m))
 }
 
-func (t *TypedefsV2) Add(typedefs ...TypedefV2) {
+func (t *TypedefsV2) Add(typedefs ...Typedef) {
 	// Prevent panics if the method is called on a nil pointer
 	if t == nil {
 		panic("cannot call Add on a nil *TypedefsV2")
@@ -65,7 +73,7 @@ func (t *TypedefsV2) Add(typedefs ...TypedefV2) {
 
 	// Lazy initialization of the map
 	if t.m == nil {
-		t.m = make(map[string]TypedefV2)
+		t.m = make(map[string]Typedef)
 	}
 
 	for _, n := range typedefs {
@@ -85,30 +93,37 @@ func (t *TypedefsV2) Add(typedefs ...TypedefV2) {
 	}
 }
 
+const (
+	TypeString = "string"
+	TypeNumber = "number"
+	TypeBool   = "bool"
+	TypeObject = "object"
+)
+
 //////
 
-type Property struct {
-	Typ  string
-	Name string
-	Desc string
-}
+// type Property struct {
+// 	Typ  string
+// 	Name string
+// 	Desc string
+// }
 
-type Typedef struct {
-	Typ        string
-	Name       string
-	Properties []Property
-}
+// type Typedef struct {
+// 	Typ        string
+// 	Name       string
+// 	Properties []Property
+// }
 
-func (t *Typedef) SetProperty(p Property) {
-	exists := slices.ContainsFunc(t.Properties, func(existingProperty Property) bool {
-		return existingProperty.Name == p.Name
-	})
-	if exists {
-		panic(fmt.Sprintf("property collision: %#v", p))
-	}
-	t.Properties = append(t.Properties, p)
-}
+// func (t *Typedef) SetProperty(p Property) {
+// 	exists := slices.ContainsFunc(t.Properties, func(existingProperty Property) bool {
+// 		return existingProperty.Name == p.Name
+// 	})
+// 	if exists {
+// 		panic(fmt.Sprintf("property collision: %#v", p))
+// 	}
+// 	t.Properties = append(t.Properties, p)
+// }
 
-var TypeString = Typedef{Name: "string"}
-var TypeNumber = Typedef{Name: "number"}
-var TypeBool = Typedef{Name: "bool"}
+// var TypeString = Typedef{Name: "string"}
+// var TypeNumber = Typedef{Name: "number"}
+// var TypeBool = Typedef{Name: "bool"}

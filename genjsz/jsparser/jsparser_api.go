@@ -39,8 +39,8 @@ func ParseApi(api apiz.Api) *Api {
 
 	ret := &Api{
 		Spec: parseSpec(),
-		Req:  jstypez.Typedef{Typ: "object"},
-		Resp: jstypez.Typedef{Typ: "object"},
+		Req:  jstypez.Typedef{Head: jstypez.TupleV2{Typ: "object"}},
+		Resp: jstypez.Typedef{Head: jstypez.TupleV2{Typ: "object"}},
 	}
 
 	validateDataRef(refs.PathParams, "PathParams")
@@ -53,29 +53,23 @@ func ParseApi(api apiz.Api) *Api {
 			return
 		}
 		p, _ := ParseSchema(s)
-		checker.Equal("object", p.Typ, "must be object")
-		for _, v := range p.Properties {
-			out.SetProperty(v)
-		}
+		checker.Equal("object", p.Head.Typ, "must be object")
+		out.Properties.Add(p.Properties.All()...)
 	}
 
 	parseRefs(&ret.Req, refs.PathParams)
 	parseRefs(&ret.Req, refs.QueryParams)
 	parseRefs(&ret.Req, refs.ReqHeaders)
 	if refs.ReqBody != nil {
-		// p := ParseSchema(refs.ReqBody)
-		ret.Req.SetProperty(jstypez.Property{
-			Typ:  "object",
-			Name: "payload",
-		})
+		p, tdfs := ParseSchema(refs.ReqBody)
+		ret.Req.Properties.Add(p.Properties.All()...)
+		ret.Typedefs.Add(tdfs.All()...)
 	}
 	parseRefs(&ret.Resp, refs.RespHeaders)
 	if refs.RespBody != nil {
-		// p := ParseSchema(refs.RespBody)
-		ret.Resp.SetProperty(jstypez.Property{
-			Typ:  "object",
-			Name: "payload",
-		})
+		p, tdfs := ParseSchema(refs.RespBody)
+		ret.Resp.Properties.Add(p.Properties.All()...)
+		ret.Typedefs.Add(tdfs.All()...)
 	}
 
 	return ret
