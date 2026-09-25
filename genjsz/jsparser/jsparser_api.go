@@ -9,10 +9,10 @@ import (
 )
 
 type Api struct {
-	Spec     ApiSpec            `json:"spec"`
-	Req      jstypez.Typedef    `json:"req"`
-	Resp     jstypez.Typedef    `json:"resp"`
-	Typedefs jstypez.TypedefsV2 `json:"typedefs"`
+	Spec     ApiSpec          `json:"spec"`
+	Req      jstypez.Typedef  `json:"req"`
+	Resp     jstypez.Typedef  `json:"resp"`
+	Typedefs jstypez.Typedefs `json:"typedefs"`
 }
 
 type ApiSpec struct {
@@ -42,8 +42,8 @@ func ParseApi(api apiz.Api) *Api {
 
 	ret := &Api{
 		Spec: parseSpec(),
-		Req:  jstypez.Typedef{Head: jstypez.TupleV2{Typ: "object", Name: apiId + "Req", Summary: apiId + " Request"}},
-		Resp: jstypez.Typedef{Head: jstypez.TupleV2{Typ: "object", Name: apiId + "Resp", Summary: apiId + " Response"}},
+		Req:  jstypez.Typedef{Head: jstypez.Tuple{Typ: "object", Name: apiId + "Req", Summary: apiId + " Request"}},
+		Resp: jstypez.Typedef{Head: jstypez.Tuple{Typ: "object", Name: apiId + "Resp", Summary: apiId + " Response"}},
 	}
 
 	validateDataRef(refs.PathParams, "PathParams")

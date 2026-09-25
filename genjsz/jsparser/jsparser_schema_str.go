@@ -5,7 +5,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
-func ParseSchemaStr(parser *schemaz.Parser[string]) (jstypez.Typedef, jstypez.TypedefsV2) {
+func ParseSchemaStr(parser *schemaz.Parser[string]) (jstypez.Typedef, jstypez.Typedefs) {
 	_, v := parser.Format()
 	return ParseAny(v)
 }

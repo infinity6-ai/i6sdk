@@ -4,6 +4,6 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
-func ParseSchemaRaw(s any) (jstypez.Typedef, jstypez.TypedefsV2) {
+func ParseSchemaRaw(s any) (jstypez.Typedef, jstypez.Typedefs) {
 	return ParseAny(s)
 }

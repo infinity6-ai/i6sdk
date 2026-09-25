@@ -9,23 +9,23 @@ import (
 	"strings"
 )
 
-type TupleV2 struct {
+type Tuple struct {
 	Typ     string `json:"typ"`
 	Name    string `json:"name"`
 	Summary string `json:"summary"`
 }
 
-type TuplesV2 struct {
-	m map[string]TupleV2
+type Tuples struct {
+	m map[string]Tuple
 	s []string
 }
 
-func (p *TuplesV2) MarshalJSON() ([]byte, error) {
+func (p *Tuples) MarshalJSON() ([]byte, error) {
 	return json.Marshal(p.All())
 }
 
-func (p *TuplesV2) UnmarshalJSON(data []byte) error {
-	var s []TupleV2
+func (p *Tuples) UnmarshalJSON(data []byte) error {
+	var s []Tuple
 	if err := json.Unmarshal(data, &s); err != nil {
 		return fmt.Errorf("cannot unmarshal path from json: %w", err)
 	}
@@ -33,15 +33,15 @@ func (p *TuplesV2) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (t TuplesV2) All() []TupleV2 {
-	ret := make([]TupleV2, len(t.s))
+func (t Tuples) All() []Tuple {
+	ret := make([]Tuple, len(t.s))
 	for idx, name := range t.s {
 		ret[idx] = t.m[name]
 	}
 	return ret
 }
 
-func (t *TuplesV2) Add(tuples ...TupleV2) {
+func (t *Tuples) Add(tuples ...Tuple) {
 	// Prevent panics if the method is called on a nil pointer
 	if t == nil {
 		panic("cannot call Add on a nil *TuplesV2")
@@ -49,7 +49,7 @@ func (t *TuplesV2) Add(tuples ...TupleV2) {
 
 	// Lazy initialization of the map
 	if t.m == nil {
-		t.m = make(map[string]TupleV2)
+		t.m = make(map[string]Tuple)
 	}
 
 	for _, n := range tuples {
@@ -68,26 +68,26 @@ func (t *TuplesV2) Add(tuples ...TupleV2) {
 }
 
 type Typedef struct {
-	Head       TupleV2  `json:"head"`
-	Properties TuplesV2 `json:"properties"`
+	Head       Tuple  `json:"head"`
+	Properties Tuples `json:"properties"`
 }
 
-type TypedefsV2 struct {
+type Typedefs struct {
 	m map[string]Typedef
 }
 
-func (p *TypedefsV2) MarshalJSON() ([]byte, error) {
+func (p *Typedefs) MarshalJSON() ([]byte, error) {
 	return json.Marshal(p.m)
 }
 
-func (p *TypedefsV2) UnmarshalJSON(data []byte) error {
+func (p *Typedefs) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &p.m); err != nil {
 		return fmt.Errorf("cannot unmarshal path from json: %w", err)
 	}
 	return nil
 }
 
-func (t TypedefsV2) All() []Typedef {
+func (t Typedefs) All() []Typedef {
 	ret := slices.Collect(maps.Values(t.m))
 	slices.SortFunc(ret, func(a, b Typedef) int {
 		return strings.Compare(a.Head.Name, b.Head.Name)
@@ -95,7 +95,7 @@ func (t TypedefsV2) All() []Typedef {
 	return ret
 }
 
-func (t *TypedefsV2) Add(typedefs ...Typedef) {
+func (t *Typedefs) Add(typedefs ...Typedef) {
 	// Prevent panics if the method is called on a nil pointer
 	if t == nil {
 		panic("cannot call Add on a nil *TypedefsV2")

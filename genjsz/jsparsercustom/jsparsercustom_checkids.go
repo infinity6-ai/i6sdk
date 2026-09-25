@@ -7,7 +7,7 @@ import (
 
 func IsCheckId(v any) (jstypez.Typedef, bool) {
 	if _, ok := v.(lakedsz.Dataset); ok {
-		return jstypez.Typedef{Head: jstypez.TupleV2{Typ: jstypez.TypeString}}, true
+		return jstypez.Typedef{Head: jstypez.Tuple{Typ: jstypez.TypeString}}, true
 	}
 	var zero jstypez.Typedef
 	return zero, false
