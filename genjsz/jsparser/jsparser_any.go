@@ -4,85 +4,97 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/infinity6-ai/gox/commonz/validation/checker"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparsercustom"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
 
-func ParseAny(v any) jstypez.Typedef {
+func ParseAny(v any) (jstypez.Typedef, jstypez.Typedefs) {
+	if ret, tdfs, ok := jsparsercustom.Resolve(v); ok {
+		return ret, tdfs
+	}
+
 	val := reflect.ValueOf(v)
 
 	for val.Kind() == reflect.Pointer || val.Kind() == reflect.Interface {
 		val = val.Elem()
 	}
 
-	// typ := reflect.TypeOf(v)
-	// ptrToV := reflect.New(typ).Interface()
-	// x, ok := ptrToV.(json.Unmarshaler)
-	// if ok {
-	// 	println(x)
-	// }
-
 	if !val.IsValid() {
 		panic(fmt.Sprintf("invalid value or nil pointer: %#v", v))
 	}
+
+	var zeroTdfs jstypez.Typedefs
 
 	switch val.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
 		reflect.Float32, reflect.Float64:
-		return jstypez.TypeNumber
+		return jstypez.Typedef{Head: jstypez.Tuple{Typ: jstypez.TypeNumber}}, zeroTdfs
 
 	case reflect.String:
-		return jstypez.TypeString
+		return jstypez.Typedef{Head: jstypez.Tuple{Typ: jstypez.TypeString}}, zeroTdfs
 
 	case reflect.Bool:
-		return jstypez.TypeBool
+		return jstypez.Typedef{Head: jstypez.Tuple{Typ: jstypez.TypeBool}}, zeroTdfs
 
-	// case reflect.Struct:
-	// 	return jstyp.TypJson
+	case reflect.Slice, reflect.Array:
+		var allTdfs jstypez.Typedefs
+
+		// 1. Get the reflect.Type of the slice/array element
+		elemType := val.Type().Elem()
+
+		// Optional: Special handling for []byte (often mapped to string or Uint8Array in JS)
+		// if elemType.Kind() == reflect.Uint8 {
+		// 	return jstypez.Typedef{Head: jstypez.Tuple{Typ: "string"}}, allTdfs
+		// }
+
+		// 2. Generate a zero-value instance of the Element type
+		elemZeroVal := reflect.Zero(elemType).Interface()
+
+		// 3. Recursively parse the element type
+		elemTdf, eTdfs := ParseAny(elemZeroVal)
+
+		// 4. Aggregate nested typedefs
+		allTdfs.Add(eTdfs.All()...)
+
+		// 5. Format as a TypeScript array.
+		// You can use "%s[]" (e.g., "string[]") or "Array<%s>" (e.g., "Array<string>")
+		return jstypez.Typedef{
+			Head: jstypez.Tuple{Typ: fmt.Sprintf("Array<%s>", elemTdf.Head.Typ)},
+		}, allTdfs
+
+	case reflect.Map:
+		var allTdfs jstypez.Typedefs
+
+		// 1. Get the reflect.Type of the map
+		mapType := val.Type()
+
+		// 2. Generate a zero-value instance of the Key type (e.g., "" for string)
+		keyType := mapType.Key()
+		keyZeroVal := reflect.Zero(keyType).Interface()
+
+		// 3. Generate a zero-value instance of the Element type (e.g., 0.0 for float64)
+		elemType := mapType.Elem()
+		elemZeroVal := reflect.Zero(elemType).Interface()
+
+		// 4. Recursively parse the key and value types
+		keyTdf, kTdfs := ParseAny(keyZeroVal)
+		valTdf, vTdfs := ParseAny(elemZeroVal)
+
+		// 5. Aggregate nested typedefs
+		allTdfs.Add(kTdfs.All()...)
+		allTdfs.Add(vTdfs.All()...)
+
+		checker.StrEmpty(keyTdf.Head.Name, "keyTdf.Head.Name")
+		checker.StrEmpty(valTdf.Head.Name, "valTdf.Head.Name")
+
+		return jstypez.Typedef{
+			Head: jstypez.Tuple{Typ: fmt.Sprintf("Record<%s, %s>", keyTdf.Head.Typ, valTdf.Head.Typ)},
+		}, allTdfs
 
 	default:
-		if ret, ok := jsparsercustom.IsCheckId(v); ok {
-			return ret
-		}
 		panic(fmt.Sprintf("unsupported type %T / %s: %#v", v, val.Kind(), v))
 	}
 
 }
-
-func bla(v any, val reflect.Value) {
-	var targetType = reflect.TypeOf((*lakedsz.Dataset)(nil)).Elem()
-	if val.Type().ConvertibleTo(targetType) {
-		convertedValue := val.Convert(targetType)
-		dataset := convertedValue.Interface().(lakedsz.Dataset)
-		fmt.Printf("%s\n", dataset)
-
-		dataset, ok := v.(lakedsz.Dataset)
-		fmt.Printf("%s %t\n", dataset, ok)
-	}
-	// vType.ConvertibleTo(targetType)
-	// val.CanConvert()
-}
-
-// func isJsonable(v any) *jstyp.Typ {
-// 	b, err := jsonz.Format(v)
-// 	if err != nil {
-// 		return nil
-// 	}
-// 	s := b.String()
-// 	_, err = jsonz.Parse(s, &v)
-// 	if err != nil {
-// 		errorz.Check(err)
-// 	}
-// 	if s[0] == '"' {
-// 		return &jstyp.TypString
-// 	}
-// 	if s[0] >= '0' && s[0] <= '9' {
-// 		return &jstyp.TypNumber
-// 	}
-// 	if s[0] == 'f' || s[0] == 't' {
-// 		return &jstyp.TypBool
-// 	}
-// 	return nil
-// }

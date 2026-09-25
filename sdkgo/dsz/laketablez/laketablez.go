@@ -9,6 +9,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/infinity6-ai/gox/commonz/validation"
 	"github.com/infinity6-ai/gox/commonz/validation/checked"
+	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedbz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
 )
@@ -56,6 +57,10 @@ func (v *Value) UnmarshalJSON(data []byte) error {
 }
 
 type Table checked.Value[Value]
+
+func (*Table) JSType() string {
+	return jstypez.TypeString
+}
 
 func (t Table) Optional() optionalz.Optional[Value] {
 	return checked.Value[Value](t).Optional()

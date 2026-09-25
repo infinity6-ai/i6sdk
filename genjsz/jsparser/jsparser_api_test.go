@@ -22,49 +22,64 @@ func TestManualFractionSample(t *testing.T) {
 				"path": "/api/gox/routez/sample/fraction/{numerator}/{denominator}"
 			},
 			"req": {
-				"js": "object",
-				"fields": {
-					"denominator": {
-						"js": "float"
-					},
-					"numerator": {
-						"js": "float"
-					},
-					"payload": {
-						"js": "object",
-						"fields": {
-							"reason": {
-								"js": "string"
-							}
-						}
-					},
-					"precision": {
-						"js": "int"
-					},
-					"x_i6_trace_id": {
-						"js": "string"
-					}
+				"head": {
+				"typ": "object",
+				"name": "samplefractionReq",
+				"summary": "samplefraction Request"
+				},
+				"properties": [
+				{
+					"typ": "number",
+					"name": "numerator",
+					"summary": ""
+				},
+				{
+					"typ": "number",
+					"name": "denominator",
+					"summary": ""
+				},
+				{
+					"typ": "number",
+					"name": "precision",
+					"summary": ""
+				},
+				{
+					"typ": "string",
+					"name": "x_i6_trace_id",
+					"summary": ""
+				},
+				{
+					"typ": "string",
+					"name": "reason",
+					"summary": ""
 				}
+				]
 			},
 			"resp": {
-				"js": "object",
-				"fields": {
-					"payload": {
-						"js": "object",
-						"fields": {
-							"display": {
-								"js": "string"
-							},
-							"result": {
-								"js": "string"
-							}
-						}
-					},
-					"x_i6_trace_message": {
-						"js": "string"
-					}
+				"head": {
+				"typ": "object",
+				"name": "samplefractionResp",
+				"summary": "samplefraction Response"
+				},
+				"properties": [
+				{
+					"typ": "string",
+					"name": "x_i6_trace_message",
+					"summary": ""
+				},
+				{
+					"typ": "string",
+					"name": "display",
+					"summary": ""
+				},
+				{
+					"typ": "string",
+					"name": "result",
+					"summary": ""
 				}
-			}
+				]
+			},
+			"typedefs": {}
 		}
 	`, jsonz.MustFormat(jsparser.ParseApi(api)).String())
 
