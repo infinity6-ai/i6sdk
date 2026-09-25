@@ -10,6 +10,10 @@ import (
 )
 
 func ParseAny(v any) (jstypez.Typedef, jstypez.Typedefs) {
+	if ret, tdfs, ok := jsparsercustom.Resolve(v); ok {
+		return ret, tdfs
+	}
+
 	val := reflect.ValueOf(v)
 
 	for val.Kind() == reflect.Pointer || val.Kind() == reflect.Interface {
@@ -33,6 +37,32 @@ func ParseAny(v any) (jstypez.Typedef, jstypez.Typedefs) {
 
 	case reflect.Bool:
 		return jstypez.Typedef{Head: jstypez.Tuple{Typ: jstypez.TypeBool}}, zeroTdfs
+
+	case reflect.Slice, reflect.Array:
+		var allTdfs jstypez.Typedefs
+
+		// 1. Get the reflect.Type of the slice/array element
+		elemType := val.Type().Elem()
+
+		// Optional: Special handling for []byte (often mapped to string or Uint8Array in JS)
+		// if elemType.Kind() == reflect.Uint8 {
+		// 	return jstypez.Typedef{Head: jstypez.Tuple{Typ: "string"}}, allTdfs
+		// }
+
+		// 2. Generate a zero-value instance of the Element type
+		elemZeroVal := reflect.Zero(elemType).Interface()
+
+		// 3. Recursively parse the element type
+		elemTdf, eTdfs := ParseAny(elemZeroVal)
+
+		// 4. Aggregate nested typedefs
+		allTdfs.Add(eTdfs.All()...)
+
+		// 5. Format as a TypeScript array.
+		// You can use "%s[]" (e.g., "string[]") or "Array<%s>" (e.g., "Array<string>")
+		return jstypez.Typedef{
+			Head: jstypez.Tuple{Typ: fmt.Sprintf("Array<%s>", elemTdf.Head.Typ)},
+		}, allTdfs
 
 	case reflect.Map:
 		var allTdfs jstypez.Typedefs
@@ -64,9 +94,6 @@ func ParseAny(v any) (jstypez.Typedef, jstypez.Typedefs) {
 		}, allTdfs
 
 	default:
-		if ret, tdfs, ok := jsparsercustom.Resolve(v); ok {
-			return ret, tdfs
-		}
 		panic(fmt.Sprintf("unsupported type %T / %s: %#v", v, val.Kind(), v))
 	}
 

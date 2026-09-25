@@ -107,6 +107,9 @@ func (t *Typedefs) Add(typedefs ...Typedef) {
 	}
 
 	for _, n := range typedefs {
+		if n.Head.Name == "" {
+			panic(fmt.Sprintf("name is required: %#v", n))
+		}
 		// Using Head.Name as the unique key for the typedef
 		old, ok := t.m[n.Head.Name]
 		if ok {
@@ -128,6 +131,7 @@ const (
 	TypeNumber = "number"
 	TypeBool   = "bool"
 	TypeObject = "object"
+	TypeAny    = "*"
 )
 
 type CustomType interface {

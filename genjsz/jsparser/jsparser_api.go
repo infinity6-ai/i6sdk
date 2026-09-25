@@ -66,14 +66,26 @@ func ParseApi(api apiz.Api) *Api {
 	parseRefs(&ret.Req, refs.ReqHeaders)
 	if refs.ReqBody != nil {
 		p, tdfs := ParseSchema(refs.ReqBody)
-		ret.Req.Properties.Add(p.Properties.All()...)
+		p.Head.Name = ret.Req.Head.Name + "Payload"
+		ret.Req.Properties.Add(jstypez.Tuple{
+			Typ:     p.Head.Name,
+			Name:    "payload",
+			Summary: p.Head.Summary,
+		})
 		ret.Typedefs.Add(tdfs.All()...)
+		ret.Typedefs.Add(p)
 	}
 	parseRefs(&ret.Resp, refs.RespHeaders)
 	if refs.RespBody != nil {
 		p, tdfs := ParseSchema(refs.RespBody)
-		ret.Resp.Properties.Add(p.Properties.All()...)
+		p.Head.Name = ret.Resp.Head.Name + "Payload"
+		ret.Resp.Properties.Add(jstypez.Tuple{
+			Typ:     p.Head.Name,
+			Name:    "payload",
+			Summary: p.Head.Summary,
+		})
 		ret.Typedefs.Add(tdfs.All()...)
+		ret.Typedefs.Add(p)
 	}
 
 	return ret
