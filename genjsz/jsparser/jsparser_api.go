@@ -8,9 +8,10 @@ import (
 )
 
 type Api struct {
-	Spec ApiSpec         `json:"spec"`
-	Req  jstypez.Typedef `json:"req"`
-	Resp jstypez.Typedef `json:"resp"`
+	Spec     ApiSpec            `json:"spec"`
+	Req      jstypez.Typedef    `json:"req"`
+	Resp     jstypez.Typedef    `json:"resp"`
+	Typedefs jstypez.TypedefsV2 `json:"typedefs"`
 }
 
 type ApiSpec struct {
@@ -51,7 +52,7 @@ func ParseApi(api apiz.Api) *Api {
 		if s == nil {
 			return
 		}
-		p := ParseSchema(s)
+		p, _ := ParseSchema(s)
 		checker.Equal("object", p.Typ, "must be object")
 		for _, v := range p.Properties {
 			out.SetProperty(v)

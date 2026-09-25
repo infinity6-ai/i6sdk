@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"reflect"
 
-	"go.code.infinity6.ai/sdkgo/genjsz/jsparsercustom"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
 
-func ParseAny(v any) jstypez.Typedef {
+func ParseAny(v any) (jstypez.Typedef, jstypez.TypedefsV2) {
 	val := reflect.ValueOf(v)
 
 	for val.Kind() == reflect.Pointer || val.Kind() == reflect.Interface {
@@ -27,25 +26,27 @@ func ParseAny(v any) jstypez.Typedef {
 		panic(fmt.Sprintf("invalid value or nil pointer: %#v", v))
 	}
 
+	var tdfs jstypez.TypedefsV2
+
 	switch val.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
 		reflect.Float32, reflect.Float64:
-		return jstypez.TypeNumber
+		return jstypez.TypeNumber, tdfs
 
 	case reflect.String:
-		return jstypez.TypeString
+		return jstypez.TypeString, tdfs
 
 	case reflect.Bool:
-		return jstypez.TypeBool
+		return jstypez.TypeBool, tdfs
 
 	// case reflect.Struct:
 	// 	return jstyp.TypJson
 
 	default:
-		if ret, ok := jsparsercustom.IsCheckId(v); ok {
-			return ret
-		}
+		// if ret, ok := jsparsercustom.IsCheckId(v); ok {
+		// 	return ret, tdfs
+		// }
 		panic(fmt.Sprintf("unsupported type %T / %s: %#v", v, val.Kind(), v))
 	}
 
