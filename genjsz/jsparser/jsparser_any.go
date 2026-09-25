@@ -27,25 +27,25 @@ func ParseAny(v any) (jstypez.Typedef, jstypez.Typedefs) {
 		panic(fmt.Sprintf("invalid value or nil pointer: %#v", v))
 	}
 
-	var tdfs jstypez.Typedefs
+	var zeroTdfs jstypez.Typedefs
 
 	switch val.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
 		reflect.Float32, reflect.Float64:
-		return jstypez.Typedef{Head: jstypez.Tuple{Typ: jstypez.TypeNumber}}, tdfs
+		return jstypez.Typedef{Head: jstypez.Tuple{Typ: jstypez.TypeNumber}}, zeroTdfs
 
 	case reflect.String:
-		return jstypez.Typedef{Head: jstypez.Tuple{Typ: jstypez.TypeString}}, tdfs
+		return jstypez.Typedef{Head: jstypez.Tuple{Typ: jstypez.TypeString}}, zeroTdfs
 
 	case reflect.Bool:
-		return jstypez.Typedef{Head: jstypez.Tuple{Typ: jstypez.TypeBool}}, tdfs
+		return jstypez.Typedef{Head: jstypez.Tuple{Typ: jstypez.TypeBool}}, zeroTdfs
 
 	// case reflect.Struct:
 	// 	return jstyp.TypJson
 
 	default:
-		if ret, ok := jsparsercustom.IsCheckId(v); ok {
+		if ret, tdfs, ok := jsparsercustom.IsCheckId(v); ok {
 			return ret, tdfs
 		}
 		panic(fmt.Sprintf("unsupported type %T / %s: %#v", v, val.Kind(), v))
