@@ -52,9 +52,10 @@ func ParseApi(api apiz.Api) *Api {
 		if s == nil {
 			return
 		}
-		p, _ := ParseSchema(s)
+		p, tdfs := ParseSchema(s)
 		checker.Equal("object", p.Head.Typ, "must be object")
 		out.Properties.Add(p.Properties.All()...)
+		ret.Typedefs.Add(tdfs.All()...)
 	}
 
 	parseRefs(&ret.Req, refs.PathParams)
