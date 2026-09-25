@@ -6,7 +6,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
-func IsCheckId(v any) (jstypez.Typedef, jstypez.Typedefs, bool) {
+func Resolve(v any) (jstypez.Typedef, jstypez.Typedefs, bool) {
 	ret := func(a jstypez.Typedef, b jstypez.Typedefs) (jstypez.Typedef, jstypez.Typedefs, bool) {
 		return a, b, true
 	}

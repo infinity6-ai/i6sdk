@@ -34,7 +34,7 @@ func ParseAny(v any) (jstypez.Typedef, jstypez.Typedefs) {
 		return jstypez.Typedef{Head: jstypez.Tuple{Typ: jstypez.TypeBool}}, zeroTdfs
 
 	default:
-		if ret, tdfs, ok := jsparsercustom.IsCheckId(v); ok {
+		if ret, tdfs, ok := jsparsercustom.Resolve(v); ok {
 			return ret, tdfs
 		}
 		panic(fmt.Sprintf("unsupported type %T / %s: %#v", v, val.Kind(), v))
