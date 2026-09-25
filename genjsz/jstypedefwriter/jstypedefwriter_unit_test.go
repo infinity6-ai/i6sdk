@@ -24,59 +24,59 @@ func TestUnitWritePipedefs(t *testing.T) {
 	t.Run("basic object", func(t *testing.T) {
 		var tds jstypez.Typedefs
 		td := &jstypez.Typedef{
-			Head: &jstypez.Tuple{Typ: "object", Name: "MyType", Summary: "My summary"},
+			Head: &jstypez.Tuple{Typ: jstypez.TypeObject, Name: "MyType", Summary: "My summary"},
 			Properties: &jstypez.Tuples{},
 		}
 		td.Properties.Add(
-			jstypez.Tuple{Typ: "string", Name: "foo"},
-			jstypez.Tuple{Typ: "number", Name: "bar", Summary: "bar summary"},
+			jstypez.Tuple{Typ: jstypez.TypeString, Name: "foo"},
+			jstypez.Tuple{Typ: jstypez.TypeNumber, Name: "bar", Summary: "bar summary"},
 		)
 		tds.Add(td)
-		
+
 		check(t, testScenario{
 			name: "basic object",
 			in:   tds,
-			want: "/**\n * My summary\n * @typedef {Object} MyType\n * @property {string} foo\n * @property {number} bar - bar summary\n */\n\n",
+			want: "/**\n * My summary\n * @typedef {object} MyType\n * @property {string} foo\n * @property {number} bar - bar summary\n */\n\n",
 		})
 	})
 
 	t.Run("multiple typedefs", func(t *testing.T) {
 		var tds jstypez.Typedefs
 		td1 := &jstypez.Typedef{
-			Head: &jstypez.Tuple{Typ: "string", Name: "AliasType"},
+			Head: &jstypez.Tuple{Typ: jstypez.TypeString, Name: "AliasType"},
 		}
 		td2 := &jstypez.Typedef{
-			Head: &jstypez.Tuple{Typ: "object", Name: "BType"},
+			Head: &jstypez.Tuple{Typ: jstypez.TypeObject, Name: "BType"},
 			Properties: &jstypez.Tuples{},
 		}
-		td2.Properties.Add(jstypez.Tuple{Typ: "number", Name: "x"})
-		
+		td2.Properties.Add(jstypez.Tuple{Typ: jstypez.TypeNumber, Name: "x"})
+
 		tds.Add(td1, td2)
-		
+
 		check(t, testScenario{
 			name: "multiple typedefs",
 			in:   tds,
-			want: "/**\n * @typedef {string} AliasType\n */\n\n/**\n * @typedef {Object} BType\n * @property {number} x\n */\n\n",
+			want: "/**\n * @typedef {string} AliasType\n */\n\n/**\n * @typedef {object} BType\n * @property {number} x\n */\n\n",
 		})
 	})
 
-	t.Run("type mappings", func(t *testing.T) {
+	t.Run("various jstypes", func(t *testing.T) {
 		var tds jstypez.Typedefs
 		td := &jstypez.Typedef{
-			Head: &jstypez.Tuple{Typ: "object", Name: "ComplexType"},
+			Head: &jstypez.Tuple{Typ: jstypez.TypeObject, Name: "ComplexType"},
 			Properties: &jstypez.Tuples{},
 		}
 		td.Properties.Add(
-			jstypez.Tuple{Typ: "bool", Name: "flag"},
-			jstypez.Tuple{Typ: "Array<bool>", Name: "flags"},
+			jstypez.Tuple{Typ: jstypez.TypeBoolean, Name: "flag"},
+			jstypez.Tuple{Typ: "Array<boolean>", Name: "flags"},
 			jstypez.Tuple{Typ: "Record<string, object>", Name: "nested"},
 		)
 		tds.Add(td)
-		
+
 		check(t, testScenario{
-			name: "type mappings",
+			name: "various jstypes",
 			in:   tds,
-			want: "/**\n * @typedef {Object} ComplexType\n * @property {boolean} flag\n * @property {Array<boolean>} flags\n * @property {Record<string, Object>} nested\n */\n\n",
+			want: "/**\n * @typedef {object} ComplexType\n * @property {boolean} flag\n * @property {Array<boolean>} flags\n * @property {Record<string, object>} nested\n */\n\n",
 		})
 	})
 }
