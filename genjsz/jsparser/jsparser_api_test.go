@@ -11,7 +11,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzgeturlapi"
 )
 
-func TestManualFractionSample(t *testing.T) {
+func TestUnitFractionSample(t *testing.T) {
 	api := routezsamplefraction.NewService().Api()
 	fmt.Printf("%s\n", jsonz.MustFormatPretty(jsparser.ParseApi(api)).String())
 	require.JSONEq(t, `
@@ -114,11 +114,84 @@ func TestManualFractionSample(t *testing.T) {
 
 }
 
-func TestManualIngestz(t *testing.T) {
+func TestUnitIngestz(t *testing.T) {
 	api := &ingestzgeturlapi.GetUrlApi{}
 	fmt.Printf("%s\n", jsonz.MustFormatPretty(jsparser.ParseApi(api)).String())
-	// require.JSONEq(t, `
-
-	// `, jsonz.MustFormat(jsparser.ParseApi(api)).String())
+	require.JSONEq(t, `
+		{
+			"spec": {
+				"id": "ingestz-get-url",
+				"method": "POST",
+				"path": "/api/ingest/get-url/dataset/{dataset}"
+			},
+			"req": {
+				"head": {
+				"typ": "object",
+				"name": "ingestzGetUrlReq",
+				"summary": "ingestzGetUrl Request"
+				},
+				"properties": [
+				{
+					"typ": "string",
+					"name": "dataset",
+					"summary": ""
+				},
+				{
+					"typ": "ingestzGetUrlReqPayload",
+					"name": "payload",
+					"summary": ""
+				}
+				]
+			},
+			"resp": {
+				"head": {
+				"typ": "object",
+				"name": "ingestzGetUrlResp",
+				"summary": "ingestzGetUrl Response"
+				},
+				"properties": [
+				{
+					"typ": "ingestzGetUrlRespPayload",
+					"name": "payload",
+					"summary": ""
+				}
+				]
+			},
+			"typedefs": {
+				"ingestzGetUrlReqPayload": {
+				"head": {
+					"typ": "object",
+					"name": "ingestzGetUrlReqPayload",
+					"summary": ""
+				},
+				"properties": [
+					{
+					"typ": "string",
+					"name": "table",
+					"summary": ""
+					},
+					{
+					"typ": "Record\u003cstring, string\u003e",
+					"name": "partitions",
+					"summary": ""
+					},
+					{
+					"typ": "number",
+					"name": "amount",
+					"summary": ""
+					}
+				]
+				},
+				"ingestzGetUrlRespPayload": {
+				"head": {
+					"typ": "object",
+					"name": "ingestzGetUrlRespPayload",
+					"summary": ""
+				},
+				"properties": null
+				}
+			}
+		}
+	`, jsonz.MustFormat(jsparser.ParseApi(api)).String())
 
 }
