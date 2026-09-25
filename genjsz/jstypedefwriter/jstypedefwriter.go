@@ -1,11 +1,37 @@
 package jstypedefwriter
 
-import "go.code.infinity6.ai/sdkgo/genjsz/jstypez"
+import (
+	"fmt"
+	"strings"
+
+	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
+)
 
 func WritePipedefs(pipedefs jstypez.Typedefs) string {
+	var b strings.Builder
 	for _, pipedef := range pipedefs.All() {
-		// genarete jsdocs pipedef
-		_ = pipedef
+		b.WriteString("/**\n")
+		if pipedef.Head.Summary != "" {
+			fmt.Fprintf(&b, " * %s\n", pipedef.Head.Summary)
+		}
+		
+		typ := pipedef.Head.Typ
+		if typ == "object" {
+			typ = "Object"
+		}
+
+		fmt.Fprintf(&b, " * @typedef {%s} %s\n", typ, pipedef.Head.Name)
+
+		if pipedef.Properties != nil {
+			for _, prop := range pipedef.Properties.All() {
+				if prop.Summary != "" {
+					fmt.Fprintf(&b, " * @property {%s} %s - %s\n", prop.Typ, prop.Name, prop.Summary)
+				} else {
+					fmt.Fprintf(&b, " * @property {%s} %s\n", prop.Typ, prop.Name)
+				}
+			}
+		}
+		b.WriteString(" */\n\n")
 	}
-	return ""
+	return b.String()
 }
