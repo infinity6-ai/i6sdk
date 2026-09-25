@@ -6,7 +6,6 @@ import (
 
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparsercustom"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
 
 func ParseAny(v any) (jstypez.Typedef, jstypez.Typedefs) {
@@ -52,39 +51,3 @@ func ParseAny(v any) (jstypez.Typedef, jstypez.Typedefs) {
 	}
 
 }
-
-func bla(v any, val reflect.Value) {
-	var targetType = reflect.TypeOf((*lakedsz.Dataset)(nil)).Elem()
-	if val.Type().ConvertibleTo(targetType) {
-		convertedValue := val.Convert(targetType)
-		dataset := convertedValue.Interface().(lakedsz.Dataset)
-		fmt.Printf("%s\n", dataset)
-
-		dataset, ok := v.(lakedsz.Dataset)
-		fmt.Printf("%s %t\n", dataset, ok)
-	}
-	// vType.ConvertibleTo(targetType)
-	// val.CanConvert()
-}
-
-// func isJsonable(v any) *jstyp.Typ {
-// 	b, err := jsonz.Format(v)
-// 	if err != nil {
-// 		return nil
-// 	}
-// 	s := b.String()
-// 	_, err = jsonz.Parse(s, &v)
-// 	if err != nil {
-// 		errorz.Check(err)
-// 	}
-// 	if s[0] == '"' {
-// 		return &jstyp.TypString
-// 	}
-// 	if s[0] >= '0' && s[0] <= '9' {
-// 		return &jstyp.TypNumber
-// 	}
-// 	if s[0] == 'f' || s[0] == 't' {
-// 		return &jstyp.TypBool
-// 	}
-// 	return nil
-// }

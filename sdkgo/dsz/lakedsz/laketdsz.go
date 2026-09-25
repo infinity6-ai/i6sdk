@@ -7,11 +7,16 @@ import (
 	"github.com/infinity6-ai/gox/commonz/validation"
 	"github.com/infinity6-ai/gox/commonz/validation/checked"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
+	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
 var validator = regexp.MustCompile(`^[a-z][a-z0-9\-]{1,}[a-z0-9]$`)
 
 type Dataset checked.Value[string]
+
+func (*Dataset) JSTypedef() (jstypez.Typedef, jstypez.Typedefs) {
+	return jstypez.Typedef{Head: jstypez.Tuple{Typ: jstypez.TypeString}}, jstypez.Typedefs{}
+}
 
 func (d Dataset) Optional() optionalz.Optional[string] {
 	return checked.Value[string](d).Optional()
