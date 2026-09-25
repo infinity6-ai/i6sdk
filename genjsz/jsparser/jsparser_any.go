@@ -9,8 +9,9 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
-func ParseAny(v any) (jstypez.Typedef, jstypez.Typedefs) {
-	if ret, tdfs, ok := jsparsercustom.Resolve(v); ok {
+func ParseAny(v any) (*jstypez.Typedef, *jstypez.Typedefs) {
+	if ret, tdfs := jsparsercustom.Resolve(v); ret != nil {
+		checker.Empty(tdfs.All(), "must be empty")
 		return ret, tdfs
 	}
 
@@ -24,19 +25,17 @@ func ParseAny(v any) (jstypez.Typedef, jstypez.Typedefs) {
 		panic(fmt.Sprintf("invalid value or nil pointer: %#v", v))
 	}
 
-	var zeroTdfs jstypez.Typedefs
-
 	switch val.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
 		reflect.Float32, reflect.Float64:
-		return jstypez.Typedef{Head: jstypez.Tuple{Typ: jstypez.TypeNumber}}, zeroTdfs
+		return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: jstypez.TypeNumber}}, nil
 
 	case reflect.String:
-		return jstypez.Typedef{Head: jstypez.Tuple{Typ: jstypez.TypeString}}, zeroTdfs
+		return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: jstypez.TypeString}}, nil
 
 	case reflect.Bool:
-		return jstypez.Typedef{Head: jstypez.Tuple{Typ: jstypez.TypeBool}}, zeroTdfs
+		return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: jstypez.TypeBool}}, nil
 
 	case reflect.Slice, reflect.Array:
 		var allTdfs jstypez.Typedefs
@@ -46,7 +45,7 @@ func ParseAny(v any) (jstypez.Typedef, jstypez.Typedefs) {
 
 		// Optional: Special handling for []byte (often mapped to string or Uint8Array in JS)
 		// if elemType.Kind() == reflect.Uint8 {
-		// 	return jstypez.Typedef{Head: jstypez.Tuple{Typ: "string"}}, allTdfs
+		// 	return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: "string"}}, allTdfs
 		// }
 
 		// 2. Generate a zero-value instance of the Element type
@@ -56,13 +55,13 @@ func ParseAny(v any) (jstypez.Typedef, jstypez.Typedefs) {
 		elemTdf, eTdfs := ParseAny(elemZeroVal)
 
 		// 4. Aggregate nested typedefs
-		allTdfs.Add(eTdfs.All()...)
+		allTdfs.ExtractFrom(eTdfs)
 
 		// 5. Format as a TypeScript array.
 		// You can use "%s[]" (e.g., "string[]") or "Array<%s>" (e.g., "Array<string>")
-		return jstypez.Typedef{
-			Head: jstypez.Tuple{Typ: fmt.Sprintf("Array<%s>", elemTdf.Head.Typ)},
-		}, allTdfs
+		return &jstypez.Typedef{
+			Head: &jstypez.Tuple{Typ: fmt.Sprintf("Array<%s>", elemTdf.Head.Typ)},
+		}, &allTdfs
 
 	case reflect.Map:
 		var allTdfs jstypez.Typedefs
@@ -83,15 +82,15 @@ func ParseAny(v any) (jstypez.Typedef, jstypez.Typedefs) {
 		valTdf, vTdfs := ParseAny(elemZeroVal)
 
 		// 5. Aggregate nested typedefs
-		allTdfs.Add(kTdfs.All()...)
-		allTdfs.Add(vTdfs.All()...)
+		allTdfs.ExtractFrom(kTdfs)
+		allTdfs.ExtractFrom(vTdfs)
 
 		checker.StrEmpty(keyTdf.Head.Name, "keyTdf.Head.Name")
 		checker.StrEmpty(valTdf.Head.Name, "valTdf.Head.Name")
 
-		return jstypez.Typedef{
-			Head: jstypez.Tuple{Typ: fmt.Sprintf("Record<%s, %s>", keyTdf.Head.Typ, valTdf.Head.Typ)},
-		}, allTdfs
+		return &jstypez.Typedef{
+			Head: &jstypez.Tuple{Typ: fmt.Sprintf("Record<%s, %s>", keyTdf.Head.Typ, valTdf.Head.Typ)},
+		}, &allTdfs
 
 	default:
 		panic(fmt.Sprintf("unsupported type %T / %s: %#v", v, val.Kind(), v))

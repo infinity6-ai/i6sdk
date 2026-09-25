@@ -6,35 +6,24 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
-func Resolve(v any) (jstypez.Typedef, jstypez.Typedefs, bool) {
-	ret := func(a jstypez.Typedef, b jstypez.Typedefs) (jstypez.Typedef, jstypez.Typedefs, bool) {
-		return a, b, true
-	}
-
-	var a jstypez.Typedef
-	var b jstypez.Typedefs
-
-	retSimple := func(s string) (jstypez.Typedef, jstypez.Typedefs, bool) {
-		return ret(jstypez.Typedef{Head: jstypez.Tuple{Typ: s}}, b)
-	}
-
+func Resolve(v any) (*jstypez.Typedef, *jstypez.Typedefs) {
 	if v, ok := v.(jstypez.CustomType); ok {
-		return ret(v.JSTypedef())
+		return v.JSTypedef()
 	}
 	if v, ok := v.(jstypez.CustomTypeSimple); ok {
-		return retSimple(v.JSType())
+		return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: v.JSType()}}, nil
 	}
 	rv := reflect.ValueOf(v)
 	if rv.IsValid() && rv.Kind() != reflect.Ptr {
 		ptr := reflect.New(rv.Type())
 		ptr.Elem().Set(rv)
 		if ct, ok := ptr.Interface().(jstypez.CustomType); ok {
-			return ret(ct.JSTypedef())
+			return ct.JSTypedef()
 		}
 		if ct, ok := ptr.Interface().(jstypez.CustomTypeSimple); ok {
-			return retSimple(ct.JSType())
+			return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: ct.JSType()}}, nil
 		}
 	}
 
-	return a, b, false
+	return nil, nil
 }

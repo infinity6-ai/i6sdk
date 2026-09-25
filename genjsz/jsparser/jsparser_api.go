@@ -42,8 +42,8 @@ func ParseApi(api apiz.Api) *Api {
 
 	ret := &Api{
 		Spec: parseSpec(),
-		Req:  jstypez.Typedef{Head: jstypez.Tuple{Typ: "object", Name: apiId + "Req", Summary: apiId + " Request"}},
-		Resp: jstypez.Typedef{Head: jstypez.Tuple{Typ: "object", Name: apiId + "Resp", Summary: apiId + " Response"}},
+		Req:  jstypez.Typedef{Properties: &jstypez.Tuples{}, Head: &jstypez.Tuple{Typ: "object", Name: apiId + "Req", Summary: apiId + " Request"}},
+		Resp: jstypez.Typedef{Properties: &jstypez.Tuples{}, Head: &jstypez.Tuple{Typ: "object", Name: apiId + "Resp", Summary: apiId + " Response"}},
 	}
 
 	validateDataRef(refs.PathParams, "PathParams")

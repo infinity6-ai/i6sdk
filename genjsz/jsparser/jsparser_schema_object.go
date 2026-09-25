@@ -5,11 +5,12 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
-func ParseSchemaObject(obj map[string]*schemaz.Schema) (jstypez.Typedef, jstypez.Typedefs) {
+func ParseSchemaObject(obj map[string]*schemaz.Schema) (*jstypez.Typedef, *jstypez.Typedefs) {
 	ret := jstypez.Typedef{
-		Head: jstypez.Tuple{Typ: jstypez.TypeObject},
+		Head:       &jstypez.Tuple{Typ: jstypez.TypeObject},
+		Properties: &jstypez.Tuples{},
 	}
-	var tdfs jstypez.Typedefs
+	tdfs := &jstypez.Typedefs{}
 	for field, schema := range obj {
 		s, schemaTdfs := ParseSchema(schema)
 		ret.Properties.Add(jstypez.Tuple{
@@ -17,7 +18,7 @@ func ParseSchemaObject(obj map[string]*schemaz.Schema) (jstypez.Typedef, jstypez
 			Typ:     s.Head.Typ,
 			Summary: descSummary(schema.Desc),
 		})
-		tdfs.Add(schemaTdfs.All()...)
+		tdfs.ExtractFrom(schemaTdfs)
 	}
-	return ret, tdfs
+	return &ret, tdfs
 }

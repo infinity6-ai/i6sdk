@@ -7,7 +7,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
-func ParseSchema(schema *schemaz.Schema) (jstypez.Typedef, jstypez.Typedefs) {
+func ParseSchema(schema *schemaz.Schema) (*jstypez.Typedef, *jstypez.Typedefs) {
 	if schema.Object != nil {
 		s := schema.Object(false)
 		return ParseSchemaObject(s)

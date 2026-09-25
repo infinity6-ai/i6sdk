@@ -49,8 +49,8 @@ func TestManualFractionSample(t *testing.T) {
 					"summary": ""
 				},
 				{
-					"typ": "string",
-					"name": "reason",
+					"typ": "samplefractionReqPayload",
+					"name": "payload",
 					"summary": ""
 				}
 				]
@@ -68,18 +68,47 @@ func TestManualFractionSample(t *testing.T) {
 					"summary": ""
 				},
 				{
-					"typ": "string",
-					"name": "display",
-					"summary": ""
-				},
-				{
-					"typ": "string",
-					"name": "result",
+					"typ": "samplefractionRespPayload",
+					"name": "payload",
 					"summary": ""
 				}
 				]
 			},
-			"typedefs": {}
+			"typedefs": {
+				"samplefractionReqPayload": {
+				"head": {
+					"typ": "object",
+					"name": "samplefractionReqPayload",
+					"summary": ""
+				},
+				"properties": [
+					{
+					"typ": "string",
+					"name": "reason",
+					"summary": ""
+					}
+				]
+				},
+				"samplefractionRespPayload": {
+				"head": {
+					"typ": "object",
+					"name": "samplefractionRespPayload",
+					"summary": ""
+				},
+				"properties": [
+					{
+					"typ": "string",
+					"name": "display",
+					"summary": ""
+					},
+					{
+					"typ": "string",
+					"name": "result",
+					"summary": ""
+					}
+				]
+				}
+			}
 		}
 	`, jsonz.MustFormat(jsparser.ParseApi(api)).String())
 

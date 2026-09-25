@@ -68,12 +68,18 @@ func (t *Tuples) Add(tuples ...Tuple) {
 }
 
 type Typedef struct {
-	Head       Tuple  `json:"head"`
-	Properties Tuples `json:"properties"`
+	Head       *Tuple  `json:"head"`
+	Properties *Tuples `json:"properties"`
 }
 
 type Typedefs struct {
-	m map[string]Typedef
+	m map[string]*Typedef
+}
+
+func (p *Typedefs) ExtractFrom(tds *Typedefs) {
+	if tds != nil {
+		p.Add(tds.All()...)
+	}
 }
 
 func (p *Typedefs) MarshalJSON() ([]byte, error) {
@@ -87,23 +93,27 @@ func (p *Typedefs) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (t Typedefs) All() []Typedef {
+func (t *Typedefs) All() []*Typedef {
+	// Prevent panics if the method is called on a nil pointer
+	if t == nil {
+		panic("cannot call on a nil *TypedefsV2")
+	}
 	ret := slices.Collect(maps.Values(t.m))
-	slices.SortFunc(ret, func(a, b Typedef) int {
+	slices.SortFunc(ret, func(a, b *Typedef) int {
 		return strings.Compare(a.Head.Name, b.Head.Name)
 	})
 	return ret
 }
 
-func (t *Typedefs) Add(typedefs ...Typedef) {
+func (t *Typedefs) Add(typedefs ...*Typedef) {
 	// Prevent panics if the method is called on a nil pointer
 	if t == nil {
-		panic("cannot call Add on a nil *TypedefsV2")
+		panic("cannot call on a nil *TypedefsV2")
 	}
 
 	// Lazy initialization of the map
 	if t.m == nil {
-		t.m = make(map[string]Typedef)
+		t.m = make(map[string]*Typedef)
 	}
 
 	for _, n := range typedefs {
@@ -135,7 +145,7 @@ const (
 )
 
 type CustomType interface {
-	JSTypedef() (Typedef, Typedefs)
+	JSTypedef() (*Typedef, *Typedefs)
 }
 
 type CustomTypeSimple interface {
