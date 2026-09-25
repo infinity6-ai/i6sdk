@@ -43,8 +43,7 @@ func (t *TuplesV2) Add(tuples ...TupleV2) {
 }
 
 type TypedefV2 struct {
-	Typ        string
-	Name       string
+	Head       TupleV2
 	Properties TuplesV2
 }
 
