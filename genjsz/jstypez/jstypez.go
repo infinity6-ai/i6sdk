@@ -6,6 +6,7 @@ import (
 	"maps"
 	"reflect"
 	"slices"
+	"strings"
 )
 
 type TupleV2 struct {
@@ -87,7 +88,11 @@ func (p *TypedefsV2) UnmarshalJSON(data []byte) error {
 }
 
 func (t TypedefsV2) All() []Typedef {
-	return slices.Collect(maps.Values(t.m))
+	ret := slices.Collect(maps.Values(t.m))
+	slices.SortFunc(ret, func(a, b Typedef) int {
+		return strings.Compare(a.Head.Name, b.Head.Name)
+	})
+	return ret
 }
 
 func (t *TypedefsV2) Add(typedefs ...Typedef) {
