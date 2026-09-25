@@ -30,12 +30,12 @@ func TestUnitFractionSample(t *testing.T) {
 				"properties": [
 				{
 					"typ": "number",
-					"name": "numerator",
+					"name": "denominator",
 					"summary": ""
 				},
 				{
 					"typ": "number",
-					"name": "denominator",
+					"name": "numerator",
 					"summary": ""
 				},
 				{
@@ -166,8 +166,8 @@ func TestUnitIngestz(t *testing.T) {
 				},
 				"properties": [
 					{
-					"typ": "string",
-					"name": "table",
+					"typ": "number",
+					"name": "amount",
 					"summary": ""
 					},
 					{
@@ -176,8 +176,8 @@ func TestUnitIngestz(t *testing.T) {
 					"summary": ""
 					},
 					{
-					"typ": "number",
-					"name": "amount",
+					"typ": "string",
+					"name": "table",
 					"summary": ""
 					}
 				]

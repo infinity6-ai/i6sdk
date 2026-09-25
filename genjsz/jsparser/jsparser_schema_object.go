@@ -1,6 +1,9 @@
 package jsparser
 
 import (
+	"maps"
+	"slices"
+
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
@@ -11,7 +14,8 @@ func ParseSchemaObject(obj map[string]*schemaz.Schema) (*jstypez.Typedef, *jstyp
 		Properties: &jstypez.Tuples{},
 	}
 	tdfs := &jstypez.Typedefs{}
-	for field, schema := range obj {
+	for _, field := range slices.Sorted(maps.Keys(obj)) {
+		schema := obj[field]
 		s, schemaTdfs := ParseSchema(schema)
 		ret.Properties.Add(jstypez.Tuple{
 			Name:    field,
