@@ -17,14 +17,14 @@ func TestUnitWritePipedefs(t *testing.T) {
 
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
-		got := jstypedefwriter.WritePipedefs(s.in)
+		got := jstypedefwriter.Write(s.in)
 		require.Equal(t, s.want, got)
 	}
 
 	t.Run("basic object", func(t *testing.T) {
 		var tds jstypez.Typedefs
 		td := &jstypez.Typedef{
-			Head: &jstypez.Tuple{Typ: jstypez.TypeObject, Name: "MyType", Summary: "My summary"},
+			Head:       &jstypez.Tuple{Typ: jstypez.TypeObject, Name: "MyType", Summary: "My summary"},
 			Properties: &jstypez.Tuples{},
 		}
 		td.Properties.Add(
@@ -46,7 +46,7 @@ func TestUnitWritePipedefs(t *testing.T) {
 			Head: &jstypez.Tuple{Typ: jstypez.TypeString, Name: "AliasType"},
 		}
 		td2 := &jstypez.Typedef{
-			Head: &jstypez.Tuple{Typ: jstypez.TypeObject, Name: "BType"},
+			Head:       &jstypez.Tuple{Typ: jstypez.TypeObject, Name: "BType"},
 			Properties: &jstypez.Tuples{},
 		}
 		td2.Properties.Add(jstypez.Tuple{Typ: jstypez.TypeNumber, Name: "x"})
@@ -63,7 +63,7 @@ func TestUnitWritePipedefs(t *testing.T) {
 	t.Run("various jstypes", func(t *testing.T) {
 		var tds jstypez.Typedefs
 		td := &jstypez.Typedef{
-			Head: &jstypez.Tuple{Typ: jstypez.TypeObject, Name: "ComplexType"},
+			Head:       &jstypez.Tuple{Typ: jstypez.TypeObject, Name: "ComplexType"},
 			Properties: &jstypez.Tuples{},
 		}
 		td.Properties.Add(
