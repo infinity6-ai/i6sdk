@@ -4,6 +4,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
+	"go.code.infinity6.ai/sdkgo/camelstring"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
@@ -37,10 +38,12 @@ func ParseApi(api apiz.Api) *Api {
 		return ret
 	}
 
+	apiId := camelstring.KebabToCamel(api.ApiSpec().Id)
+
 	ret := &Api{
 		Spec: parseSpec(),
-		Req:  jstypez.Typedef{Head: jstypez.TupleV2{Typ: "object"}},
-		Resp: jstypez.Typedef{Head: jstypez.TupleV2{Typ: "object"}},
+		Req:  jstypez.Typedef{Head: jstypez.TupleV2{Typ: "object", Name: apiId + "Req", Summary: apiId + " Request"}},
+		Resp: jstypez.Typedef{Head: jstypez.TupleV2{Typ: "object", Name: apiId + "Resp", Summary: apiId + " Response"}},
 	}
 
 	validateDataRef(refs.PathParams, "PathParams")
