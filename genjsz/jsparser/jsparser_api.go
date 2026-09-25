@@ -47,7 +47,7 @@ func ParseApi(api apiz.Api) *Api {
 	validateDataRef(refs.ReqHeaders, "ReqHeaders")
 	validateDataRef(refs.RespHeaders, "RespHeaders")
 
-	parseRefs := func(out jstypez.Typedef, s *schemaz.Schema) {
+	parseRefs := func(out *jstypez.Typedef, s *schemaz.Schema) {
 		if s == nil {
 			return
 		}
@@ -58,9 +58,9 @@ func ParseApi(api apiz.Api) *Api {
 		}
 	}
 
-	parseRefs(ret.Req, refs.PathParams)
-	parseRefs(ret.Req, refs.QueryParams)
-	parseRefs(ret.Req, refs.ReqHeaders)
+	parseRefs(&ret.Req, refs.PathParams)
+	parseRefs(&ret.Req, refs.QueryParams)
+	parseRefs(&ret.Req, refs.ReqHeaders)
 	if refs.ReqBody != nil {
 		// p := ParseSchema(refs.ReqBody)
 		ret.Req.SetProperty(jstypez.Property{
@@ -68,7 +68,7 @@ func ParseApi(api apiz.Api) *Api {
 			Name: "payload",
 		})
 	}
-	parseRefs(ret.Resp, refs.RespHeaders)
+	parseRefs(&ret.Resp, refs.RespHeaders)
 	if refs.RespBody != nil {
 		// p := ParseSchema(refs.RespBody)
 		ret.Resp.SetProperty(jstypez.Property{
