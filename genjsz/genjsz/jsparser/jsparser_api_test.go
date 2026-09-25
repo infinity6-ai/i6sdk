@@ -7,7 +7,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
+	"go.code.infinity6.ai/sdkgo/genjsz/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzgeturlapi"
 )
 

@@ -7,6 +7,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/errorz"
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstyp"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
 
 func ParseAny(v any) jstyp.Typ {
@@ -43,13 +44,28 @@ func ParseAny(v any) jstyp.Typ {
 	// 	return jstyp.TypJson
 
 	default:
-		ret := isJsonable(v)
-		if ret != nil {
-			return *ret
-		}
+		bla(v, val)
+		// ret := isJsonable(v)
+		// if ret != nil {
+		// 	return *ret
+		// }
 		panic(fmt.Sprintf("unsupported type %T / %s: %#v", v, val.Kind(), v))
 	}
 
+}
+
+func bla(v any, val reflect.Value) {
+	var targetType = reflect.TypeOf((*lakedsz.Dataset)(nil)).Elem()
+	if val.Type().ConvertibleTo(targetType) {
+		convertedValue := val.Convert(targetType)
+		dataset := convertedValue.Interface().(lakedsz.Dataset)
+		fmt.Printf("%s\n", dataset)
+
+		dataset, ok := v.(lakedsz.Dataset)
+		fmt.Printf("%s %t\n", dataset, ok)
+	}
+	// vType.ConvertibleTo(targetType)
+	// val.CanConvert()
 }
 
 func isJsonable(v any) *jstyp.Typ {
