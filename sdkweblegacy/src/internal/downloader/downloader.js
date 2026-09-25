@@ -20,6 +20,7 @@ class Downloader {
         // HEAD (gcs) to get the current etag
         const head = await fetch(opts.url, { method: 'HEAD' })
         if (!head.ok) throw new Error(`downloader: HEAD ${opts.url} failed (${head.status})`)
+            
         const etag = head.headers.get('etag')
         if (!etag) throw new Error('downloader: no etag in HEAD response')
 
