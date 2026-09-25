@@ -11,7 +11,9 @@ import (
 
 func ParseAny(v any) (*jstypez.Typedef, *jstypez.Typedefs) {
 	if ret, tdfs := jsparsercustom.Resolve(v); ret != nil {
-		checker.Empty(tdfs.All(), "must be empty")
+		if tdfs != nil {
+			checker.Empty(tdfs.All(), "must be empty")
+		}
 		return ret, tdfs
 	}
 

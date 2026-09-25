@@ -84,7 +84,7 @@ func ParseApi(api apiz.Api) *Api {
 			Name:    "payload",
 			Summary: p.Head.Summary,
 		})
-		ret.Typedefs.Add(tdfs.All()...)
+		ret.Typedefs.ExtractFrom(tdfs)
 		ret.Typedefs.Add(p)
 	}
 

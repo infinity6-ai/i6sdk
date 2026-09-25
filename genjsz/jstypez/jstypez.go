@@ -42,11 +42,6 @@ func (t Tuples) All() []Tuple {
 }
 
 func (t *Tuples) Add(tuples ...Tuple) {
-	// Prevent panics if the method is called on a nil pointer
-	if t == nil {
-		panic("cannot call Add on a nil *TuplesV2")
-	}
-
 	// Lazy initialization of the map
 	if t.m == nil {
 		t.m = make(map[string]Tuple)
@@ -94,10 +89,6 @@ func (p *Typedefs) UnmarshalJSON(data []byte) error {
 }
 
 func (t *Typedefs) All() []*Typedef {
-	// Prevent panics if the method is called on a nil pointer
-	if t == nil {
-		panic("cannot call on a nil *TypedefsV2")
-	}
 	ret := slices.Collect(maps.Values(t.m))
 	slices.SortFunc(ret, func(a, b *Typedef) int {
 		return strings.Compare(a.Head.Name, b.Head.Name)
@@ -106,11 +97,6 @@ func (t *Typedefs) All() []*Typedef {
 }
 
 func (t *Typedefs) Add(typedefs ...*Typedef) {
-	// Prevent panics if the method is called on a nil pointer
-	if t == nil {
-		panic("cannot call on a nil *TypedefsV2")
-	}
-
 	// Lazy initialization of the map
 	if t.m == nil {
 		t.m = make(map[string]*Typedef)
