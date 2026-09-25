@@ -15,13 +15,6 @@ func ParseAny(v any) (jstypez.Typedef, jstypez.Typedefs) {
 		val = val.Elem()
 	}
 
-	// typ := reflect.TypeOf(v)
-	// ptrToV := reflect.New(typ).Interface()
-	// x, ok := ptrToV.(json.Unmarshaler)
-	// if ok {
-	// 	println(x)
-	// }
-
 	if !val.IsValid() {
 		panic(fmt.Sprintf("invalid value or nil pointer: %#v", v))
 	}
@@ -39,9 +32,6 @@ func ParseAny(v any) (jstypez.Typedef, jstypez.Typedefs) {
 
 	case reflect.Bool:
 		return jstypez.Typedef{Head: jstypez.Tuple{Typ: jstypez.TypeBool}}, zeroTdfs
-
-	// case reflect.Struct:
-	// 	return jstyp.TypJson
 
 	default:
 		if ret, tdfs, ok := jsparsercustom.IsCheckId(v); ok {
