@@ -114,8 +114,12 @@
 
             const versionDir = await (await (await (await (await navigator.storage.getDirectory())
                 .getDirectoryHandle('i6')).getDirectoryHandle('fs')).getDirectoryHandle(name)).getDirectoryHandle('v' + ref.version)
-            const blob = await (await versionDir.getFileHandle('blob.bin')).getFile()
-            assert.strictEqual(await blob.text(), 'one')
+            try {
+                await versionDir.getFileHandle('blob.bin')
+                assert.true(false, "blob.bin is not created")
+            } catch (e) {
+                assert.strictEqual(e.name, 'NotFoundError', "blob.bin is not created")
+            }
         })
 
         QUnit.test("create with the latest etag returns the latest version", async function (assert) {
@@ -167,11 +171,7 @@
 
             const ref = await fs.create({ name, etag: 'e1', data: 'one' })
             const path = await fs.resolve(ref)
-            let file = await navigator.storage.getDirectory()
-            for (const segment of path.split('/')) {
-                file = await (segment === 'blob.bin' ? file.getFileHandle(segment) : file.getDirectoryHandle(segment))
-            }
-            assert.strictEqual(await (await file.getFile()).text(), 'one', "path points to the blob")
+            assert.strictEqual(path, `i6/fs/${name}/v${ref.version}/blob.bin`)
         })
 
         QUnit.test("clean cleans all files", async function (assert) {

@@ -60,19 +60,23 @@ class FS {
   async cleanFile(opts) {
     if (!opts || !opts.name) throw new TypeError('fs: opts.name is required')
 
-    const parent = await baseDir()
-    const dir = await parent.getDirectoryHandle(opts.name)
-    const released = await readText(dir, 'version.txt').then((v) => 'v' + v, () => null)
+    try {
+      const parent = await baseDir()
+      const dir = await parent.getDirectoryHandle(opts.name)
+      const released = await readText(dir, 'version.txt').then((v) => 'v' + v, () => null)
 
-    for await (const [entryName, entry] of dir.entries()) {
-      if (released && entry.kind === 'directory' && entryName < released) {
-        await dir.removeEntry(entryName, { recursive: true })
+      for await (const [entryName, entry] of dir.entries()) {
+        if (released && entry.kind === 'directory' && entryName < released) {
+          await dir.removeEntry(entryName, { recursive: true })
+        }
       }
+
+      for await (const _ of dir.entries()) return
+
+      await parent.removeEntry(opts.name)
+    } catch (e) {
+      if (e.name !== 'NotFoundError') throw e
     }
-
-    for await (const _ of dir.entries()) return
-
-    await parent.removeEntry(opts.name)
   }
 
   /**
@@ -80,6 +84,7 @@ class FS {
    * @returns {Promise<void>}
    */
   async clean() {
+    try {
       const names = []
       for await (const [entryName, entry] of (await baseDir()).entries()) {
         if (entry.kind === 'directory') names.push(entryName)
@@ -87,6 +92,9 @@ class FS {
       for (const name of names) {
         await this.cleanFile({ name })
       }
+    } catch (e) {
+      if (e.name !== 'NotFoundError') throw e
+    }
   }
 
   /**
@@ -116,7 +124,6 @@ class FS {
     }
   }
 
-  // Não criar o bin.
   /**
    * Creates a new version, unless the latest version already has this etag.
    * The new version is not released.
@@ -151,7 +158,6 @@ class FS {
     const version = new Date().toISOString()
     const versionDir = await dir.getDirectoryHandle('v' + version, { create: true })
 
-    await writeFile(versionDir, 'blob.bin', opts.data)
     await writeFile(versionDir, 'etag.txt', opts.etag)
 
     return { name: opts.name, version, etag: opts.etag }
