@@ -1,6 +1,7 @@
 package jstypez
 
 import (
+	"encoding/json"
 	"fmt"
 	"maps"
 	"reflect"
@@ -16,6 +17,19 @@ type TupleV2 struct {
 type TuplesV2 struct {
 	m map[string]TupleV2
 	s []string
+}
+
+func (p *TuplesV2) MarshalJSON() ([]byte, error) {
+	return json.Marshal(p.All())
+}
+
+func (p *TuplesV2) UnmarshalJSON(data []byte) error {
+	var s []TupleV2
+	if err := json.Unmarshal(data, &s); err != nil {
+		return fmt.Errorf("cannot unmarshal path from json: %w", err)
+	}
+	p.Add(s...)
+	return nil
 }
 
 func (t TuplesV2) All() []TupleV2 {
@@ -53,12 +67,23 @@ func (t *TuplesV2) Add(tuples ...TupleV2) {
 }
 
 type Typedef struct {
-	Head       TupleV2
-	Properties TuplesV2
+	Head       TupleV2  `json:"head"`
+	Properties TuplesV2 `json:"properties"`
 }
 
 type TypedefsV2 struct {
 	m map[string]Typedef
+}
+
+func (p *TypedefsV2) MarshalJSON() ([]byte, error) {
+	return json.Marshal(p.m)
+}
+
+func (p *TypedefsV2) UnmarshalJSON(data []byte) error {
+	if err := json.Unmarshal(data, &p.m); err != nil {
+		return fmt.Errorf("cannot unmarshal path from json: %w", err)
+	}
+	return nil
 }
 
 func (t TypedefsV2) All() []Typedef {
