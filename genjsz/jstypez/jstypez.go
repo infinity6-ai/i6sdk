@@ -133,3 +133,7 @@ const (
 type CustomType interface {
 	JSTypedef() (Typedef, Typedefs)
 }
+
+type CustomTypeSimple interface {
+	JSType() string
+}

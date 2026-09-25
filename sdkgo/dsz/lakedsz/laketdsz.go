@@ -14,8 +14,8 @@ var validator = regexp.MustCompile(`^[a-z][a-z0-9\-]{1,}[a-z0-9]$`)
 
 type Dataset checked.Value[string]
 
-func (*Dataset) JSTypedef() (jstypez.Typedef, jstypez.Typedefs) {
-	return jstypez.Typedef{Head: jstypez.Tuple{Typ: jstypez.TypeString}}, jstypez.Typedefs{}
+func (*Dataset) JSType() string {
+	return jstypez.TypeString
 }
 
 func (d Dataset) Optional() optionalz.Optional[string] {
