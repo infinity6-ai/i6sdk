@@ -2,17 +2,20 @@ package jsparser
 
 import (
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"go.code.infinity6.ai/sdkgo/genjsz/jstyp"
+	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
-func ParseSchemaObject(obj map[string]*schemaz.Schema) jstyp.Typ {
-	ret := jstyp.Typ{
-		Js:     "object",
-		Fields: make(map[string]jstyp.Typ, len(obj)),
+func ParseSchemaObject(obj map[string]*schemaz.Schema) jstypez.Typedef {
+	ret := jstypez.Typedef{
+		Typ: "object",
 	}
 	for field, schema := range obj {
 		s := ParseSchema(schema)
-		ret.Fields[field] = s
+		ret.SetProperty(jstypez.Property{
+			Name: field,
+			Typ:  s.Name,
+			Desc: schema.Desc.Summary,
+		})
 	}
 	return ret
 }

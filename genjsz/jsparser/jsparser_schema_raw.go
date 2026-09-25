@@ -1,7 +1,9 @@
 package jsparser
 
-import "go.code.infinity6.ai/sdkgo/genjsz/jstyp"
+import (
+	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
+)
 
-func ParseSchemaRaw(s any) jstyp.Typ {
+func ParseSchemaRaw(s any) jstypez.Typedef {
 	return ParseAny(s)
 }

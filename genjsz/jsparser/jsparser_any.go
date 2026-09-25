@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/infinity6-ai/gox/commonz/errorz"
-	"github.com/infinity6-ai/gox/commonz/jsonz"
-	"go.code.infinity6.ai/sdkgo/genjsz/jstyp"
+	"go.code.infinity6.ai/sdkgo/genjsz/jsparsercustom"
+	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
 
-func ParseAny(v any) jstyp.Typ {
+func ParseAny(v any) jstypez.Typedef {
 	val := reflect.ValueOf(v)
 
 	for val.Kind() == reflect.Pointer || val.Kind() == reflect.Interface {
@@ -32,23 +31,21 @@ func ParseAny(v any) jstyp.Typ {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
 		reflect.Float32, reflect.Float64:
-		return jstyp.TypNumber
+		return jstypez.TypeNumber
 
 	case reflect.String:
-		return jstyp.TypString
+		return jstypez.TypeString
 
 	case reflect.Bool:
-		return jstyp.TypBool
+		return jstypez.TypeBool
 
 	// case reflect.Struct:
 	// 	return jstyp.TypJson
 
 	default:
-		bla(v, val)
-		// ret := isJsonable(v)
-		// if ret != nil {
-		// 	return *ret
-		// }
+		if ret, ok := jsparsercustom.IsCheckId(v); ok {
+			return ret
+		}
 		panic(fmt.Sprintf("unsupported type %T / %s: %#v", v, val.Kind(), v))
 	}
 
@@ -68,24 +65,24 @@ func bla(v any, val reflect.Value) {
 	// val.CanConvert()
 }
 
-func isJsonable(v any) *jstyp.Typ {
-	b, err := jsonz.Format(v)
-	if err != nil {
-		return nil
-	}
-	s := b.String()
-	_, err = jsonz.Parse(s, &v)
-	if err != nil {
-		errorz.Check(err)
-	}
-	if s[0] == '"' {
-		return &jstyp.TypString
-	}
-	if s[0] >= '0' && s[0] <= '9' {
-		return &jstyp.TypNumber
-	}
-	if s[0] == 'f' || s[0] == 't' {
-		return &jstyp.TypBool
-	}
-	return nil
-}
+// func isJsonable(v any) *jstyp.Typ {
+// 	b, err := jsonz.Format(v)
+// 	if err != nil {
+// 		return nil
+// 	}
+// 	s := b.String()
+// 	_, err = jsonz.Parse(s, &v)
+// 	if err != nil {
+// 		errorz.Check(err)
+// 	}
+// 	if s[0] == '"' {
+// 		return &jstyp.TypString
+// 	}
+// 	if s[0] >= '0' && s[0] <= '9' {
+// 		return &jstyp.TypNumber
+// 	}
+// 	if s[0] == 'f' || s[0] == 't' {
+// 		return &jstyp.TypBool
+// 	}
+// 	return nil
+// }

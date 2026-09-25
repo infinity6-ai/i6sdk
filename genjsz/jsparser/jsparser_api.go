@@ -4,13 +4,13 @@ import (
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"go.code.infinity6.ai/sdkgo/genjsz/jstyp"
+	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
 type Api struct {
-	Spec ApiSpec   `json:"spec"`
-	Req  jstyp.Typ `json:"req"`
-	Resp jstyp.Typ `json:"resp"`
+	Spec ApiSpec         `json:"spec"`
+	Req  jstypez.Typedef `json:"req"`
+	Resp jstypez.Typedef `json:"resp"`
 }
 
 type ApiSpec struct {
@@ -38,14 +38,8 @@ func ParseApi(api apiz.Api) *Api {
 
 	ret := &Api{
 		Spec: parseSpec(),
-		Req: jstyp.Typ{
-			Js:     "object",
-			Fields: make(map[string]jstyp.Typ),
-		},
-		Resp: jstyp.Typ{
-			Js:     "object",
-			Fields: make(map[string]jstyp.Typ),
-		},
+		Req:  jstypez.Typedef{Name: "object"},
+		Resp: jstypez.Typedef{Name: "object"},
 	}
 
 	validateDataRef(refs.PathParams, "PathParams")
@@ -53,16 +47,14 @@ func ParseApi(api apiz.Api) *Api {
 	validateDataRef(refs.ReqHeaders, "ReqHeaders")
 	validateDataRef(refs.RespHeaders, "RespHeaders")
 
-	parseRefs := func(out jstyp.Typ, s *schemaz.Schema) {
+	parseRefs := func(out jstypez.Typedef, s *schemaz.Schema) {
 		if s == nil {
 			return
 		}
 		p := ParseSchema(s)
-		checker.Equal("object", p.Js, "must be object")
-		for k, v := range p.Fields {
-			old, ok := out.Fields[k]
-			checker.False(ok, "field colision %s, old: %s, new: %s", k, old, v)
-			out.Fields[k] = v
+		checker.Equal("object", p.Typ, "must be object")
+		for _, v := range p.Properties {
+			out.SetProperty(v)
 		}
 	}
 
@@ -70,11 +62,19 @@ func ParseApi(api apiz.Api) *Api {
 	parseRefs(ret.Req, refs.QueryParams)
 	parseRefs(ret.Req, refs.ReqHeaders)
 	if refs.ReqBody != nil {
-		ret.Req.Fields["payload"] = ParseSchema(refs.ReqBody)
+		p := ParseSchema(refs.ReqBody)
+		ret.Req.SetProperty(jstypez.Property{
+			Typ:  p.Name,
+			Name: "payload",
+		})
 	}
 	parseRefs(ret.Resp, refs.RespHeaders)
 	if refs.RespBody != nil {
-		ret.Resp.Fields["payload"] = ParseSchema(refs.RespBody)
+		p := ParseSchema(refs.RespBody)
+		ret.Req.SetProperty(jstypez.Property{
+			Typ:  p.Name,
+			Name: "payload",
+		})
 	}
 
 	return ret
