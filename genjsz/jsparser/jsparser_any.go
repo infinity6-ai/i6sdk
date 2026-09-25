@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"go.code.infinity6.ai/sdkgo/genjsz/jsparsercustom"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
@@ -44,9 +45,9 @@ func ParseAny(v any) (jstypez.Typedef, jstypez.TypedefsV2) {
 	// 	return jstyp.TypJson
 
 	default:
-		// if ret, ok := jsparsercustom.IsCheckId(v); ok {
-		// 	return ret, tdfs
-		// }
+		if ret, ok := jsparsercustom.IsCheckId(v); ok {
+			return ret, tdfs
+		}
 		panic(fmt.Sprintf("unsupported type %T / %s: %#v", v, val.Kind(), v))
 	}
 
