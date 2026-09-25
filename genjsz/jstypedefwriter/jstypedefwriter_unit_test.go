@@ -8,7 +8,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
-func TestUnitWritePipedefs(t *testing.T) {
+func TestUnitWrite(t *testing.T) {
 	type testScenario struct {
 		name string
 		in   jstypez.Typedefs
