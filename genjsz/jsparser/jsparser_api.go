@@ -71,7 +71,7 @@ func ParseApi(api apiz.Api) *Api {
 	parseRefs(ret.Resp, refs.RespHeaders)
 	if refs.RespBody != nil {
 		p := ParseSchema(refs.RespBody)
-		ret.Req.SetProperty(jstypez.Property{
+		ret.Resp.SetProperty(jstypez.Property{
 			Typ:  p.Name,
 			Name: "payload",
 		})
@@ -84,4 +84,11 @@ func validateDataRef(schema *schemaz.Schema, n string) {
 	if schema != nil {
 		checker.NotNil(schema.Object, "%s", n)
 	}
+}
+
+func descSummary(d *schemaz.Desc) string {
+	if d == nil {
+		return ""
+	}
+	return d.Summary
 }

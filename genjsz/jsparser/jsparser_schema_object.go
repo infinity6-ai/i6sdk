@@ -14,7 +14,7 @@ func ParseSchemaObject(obj map[string]*schemaz.Schema) jstypez.Typedef {
 		ret.SetProperty(jstypez.Property{
 			Name: field,
 			Typ:  s.Name,
-			Desc: schema.Desc.Summary,
+			Desc: descSummary(schema.Desc),
 		})
 	}
 	return ret
