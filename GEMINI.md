@@ -1,6 +1,6 @@
 # Commonz Go Project
 
-This is an open-source Go project providing several helper utilities and common functionalities.
+This is an open-source Go project providing our company sdk utilities functionalities.
 
 ## Testing Conventions
 
