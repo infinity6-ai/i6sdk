@@ -38,8 +38,8 @@ func ParseApi(api apiz.Api) *Api {
 
 	ret := &Api{
 		Spec: parseSpec(),
-		Req:  jstypez.Typedef{Name: "object"},
-		Resp: jstypez.Typedef{Name: "object"},
+		Req:  jstypez.Typedef{Typ: "object"},
+		Resp: jstypez.Typedef{Typ: "object"},
 	}
 
 	validateDataRef(refs.PathParams, "PathParams")
@@ -62,17 +62,17 @@ func ParseApi(api apiz.Api) *Api {
 	parseRefs(ret.Req, refs.QueryParams)
 	parseRefs(ret.Req, refs.ReqHeaders)
 	if refs.ReqBody != nil {
-		p := ParseSchema(refs.ReqBody)
+		// p := ParseSchema(refs.ReqBody)
 		ret.Req.SetProperty(jstypez.Property{
-			Typ:  p.Name,
+			Typ:  "object",
 			Name: "payload",
 		})
 	}
 	parseRefs(ret.Resp, refs.RespHeaders)
 	if refs.RespBody != nil {
-		p := ParseSchema(refs.RespBody)
+		// p := ParseSchema(refs.RespBody)
 		ret.Resp.SetProperty(jstypez.Property{
-			Typ:  p.Name,
+			Typ:  "object",
 			Name: "payload",
 		})
 	}
