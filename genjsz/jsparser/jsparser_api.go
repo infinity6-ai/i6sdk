@@ -1,6 +1,8 @@
 package jsparser
 
 import (
+	"strings"
+
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
@@ -67,32 +69,28 @@ func ParseApi(api apiz.Api) *Api {
 		ret.Typedefs.Add(tdfs.All()...)
 	}
 
-	parseRefs(&ret.Req, refs.PathParams)
-	parseRefs(&ret.Req, refs.QueryParams)
-	parseRefs(&ret.Req, refs.ReqHeaders)
-	if refs.ReqBody != nil {
-		p, tdfs := ParseSchema(refs.ReqBody)
-		p.Head.Name = ret.Req.Head.Name + "Payload"
-		ret.Req.Properties.Add(jstypez.Tuple{
+	parseIntoObject := func(input *schemaz.Schema, out *jstypez.Typedef, fieldName string) {
+		if input == nil {
+			return
+		}
+		p, tdfs := ParseSchema(input)
+		upperFiledName := strings.ToUpper(fieldName[0:1]) + fieldName[1:]
+		p.Head.Name = out.Head.Name + upperFiledName
+		out.Properties.Add(jstypez.Tuple{
 			Typ:     p.Head.Name,
-			Name:    "payload",
-			Summary: p.Head.Summary,
-		})
-		ret.Typedefs.Add(tdfs.All()...)
-		ret.Typedefs.Add(p)
-	}
-	parseRefs(&ret.Resp, refs.RespHeaders)
-	if refs.RespBody != nil {
-		p, tdfs := ParseSchema(refs.RespBody)
-		p.Head.Name = ret.Resp.Head.Name + "Payload"
-		ret.Resp.Properties.Add(jstypez.Tuple{
-			Typ:     p.Head.Name,
-			Name:    "payload",
+			Name:    fieldName,
 			Summary: p.Head.Summary,
 		})
 		ret.Typedefs.ExtractFrom(tdfs)
 		ret.Typedefs.Add(p)
 	}
+
+	parseRefs(&ret.Req, refs.PathParams)
+	parseRefs(&ret.Req, refs.QueryParams)
+	parseRefs(&ret.Req, refs.ReqHeaders)
+	parseIntoObject(refs.ReqBody, &ret.Req, "payload")
+	parseRefs(&ret.Resp, refs.RespHeaders)
+	parseIntoObject(refs.RespBody, &ret.Resp, "payload")
 
 	return ret
 }
