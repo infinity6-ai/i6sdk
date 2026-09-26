@@ -11,7 +11,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzgeturlapi"
 )
 
-func TestUnitFractionSample(t *testing.T) {
+func TestManualFractionSample(t *testing.T) {
 	api := routezsamplefraction.NewService().Api()
 	fmt.Printf("%s\n", jsonz.MustFormatPretty(jsparser.ParseApi(api)).String())
 	require.JSONEq(t, `
@@ -114,7 +114,7 @@ func TestUnitFractionSample(t *testing.T) {
 
 }
 
-func TestUnitIngestz(t *testing.T) {
+func TestManualIngestz(t *testing.T) {
 	api := &ingestzgeturlapi.GetUrlApi{}
 	fmt.Printf("%s\n", jsonz.MustFormatPretty(jsparser.ParseApi(api)).String())
 	require.JSONEq(t, `

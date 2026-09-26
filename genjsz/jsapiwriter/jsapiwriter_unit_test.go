@@ -11,7 +11,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzgeturlapi"
 )
 
-func TestUnitWrite(t *testing.T) {
+func TestManualWrite(t *testing.T) {
 	type testScenario struct {
 		in   *jsparser.Api
 		want string
