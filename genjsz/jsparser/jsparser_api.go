@@ -78,13 +78,16 @@ func ParseApi(api apiz.Api) *Api {
 		if s == nil {
 			return
 		}
-		upperFiledName := ret.Spec.CamelId + suffix
-		out.Head = &jstypez.Tuple{Typ: "object", Name: upperFiledName}
+		fieldName := ret.Spec.CamelId + suffix
+		// out.Head = &jstypez.Tuple{Typ: "object", Name: fieldName}
 		out.Properties = &jstypez.Tuples{}
 		p, tdfs := ParseSchema(s)
 		checker.Equal("object", p.Head.Typ, "must be object")
-		out.Properties.Add(p.Properties.All()...)
+		out.Head = &jstypez.Tuple{Typ: fieldName, Name: suffix}
+		p.Head.Name = out.Head.Typ
+		// out.Properties.Add(p.Properties.All()...)
 		ret.Typedefs.ExtractFrom(tdfs)
+		ret.Typedefs.Add(p)
 	}
 
 	// parseRefs := func(out *jstypez.Typedef, s *schemaz.Schema) {
@@ -115,10 +118,10 @@ func ParseApi(api apiz.Api) *Api {
 
 	parseRefsV2(&ret.ReqV2.Params, "Params", refs.PathParams)
 	parseRefsV2(&ret.ReqV2.Query, "Query", refs.QueryParams)
-	parseRefsV2(&ret.ReqV2.Headers, "Headers", refs.ReqHeaders)
-	parseRefsV2(&ret.ReqV2.Payload, "Payload", refs.ReqBody)
-	parseRefsV2(&ret.RespV2.Headers, "Headers", refs.RespHeaders)
-	parseRefsV2(&ret.RespV2.Payload, "Payload", refs.RespBody)
+	parseRefsV2(&ret.ReqV2.Headers, "ReqHeaders", refs.ReqHeaders)
+	parseRefsV2(&ret.ReqV2.Payload, "ReqPayload", refs.ReqBody)
+	parseRefsV2(&ret.RespV2.Headers, "RespHeaders", refs.RespHeaders)
+	parseRefsV2(&ret.RespV2.Payload, "RespPayload", refs.RespBody)
 
 	// parseRefs(&ret.Req, refs.PathParams)
 	// parseRefs(&ret.Req, refs.QueryParams)
