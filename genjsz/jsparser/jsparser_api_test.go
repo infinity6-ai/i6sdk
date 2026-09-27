@@ -64,47 +64,29 @@ func TestUnitFractionSample(t *testing.T) {
 		}),
 		Req: jsparser.Req{
 			Params: jstypez.Typedef{
-				Head: &jstypez.Tuple{
-					Typ:  "samplefractionparams",
-					Name: "params",
-				},
+				Head:       &jstypez.Tuple{Typ: "samplefractionparams", Name: "params"},
 				Properties: jstypez.NewTuples(nil),
 			},
 			Query: jstypez.Typedef{
-				Head: &jstypez.Tuple{
-					Typ:  "samplefractionquery",
-					Name: "query",
-				},
+				Head:       &jstypez.Tuple{Typ: "samplefractionquery", Name: "query"},
 				Properties: jstypez.NewTuples(nil),
 			},
 			Headers: jstypez.Typedef{
-				Head: &jstypez.Tuple{
-					Typ:  "samplefractionreqHeaders",
-					Name: "reqHeaders",
-				},
+				Head:       &jstypez.Tuple{Typ: "samplefractionreqHeaders", Name: "reqHeaders"},
 				Properties: jstypez.NewTuples(nil),
 			},
 			Payload: jstypez.Typedef{
-				Head: &jstypez.Tuple{
-					Typ:  "samplefractionreqPayload",
-					Name: "reqPayload",
-				},
+				Head:       &jstypez.Tuple{Typ: "samplefractionreqPayload", Name: "reqPayload"},
 				Properties: jstypez.NewTuples(nil),
 			},
 		},
 		Resp: jsparser.Resp{
 			Headers: jstypez.Typedef{
-				Head: &jstypez.Tuple{
-					Typ:  "samplefractionrespHeaders",
-					Name: "respHeaders",
-				},
+				Head:       &jstypez.Tuple{Typ: "samplefractionrespHeaders", Name: "respHeaders"},
 				Properties: jstypez.NewTuples(nil),
 			},
 			Payload: jstypez.Typedef{
-				Head: &jstypez.Tuple{
-					Typ:  "samplefractionrespPayload",
-					Name: "respPayload",
-				},
+				Head:       &jstypez.Tuple{Typ: "samplefractionrespPayload", Name: "respPayload"},
 				Properties: jstypez.NewTuples(nil),
 			},
 		},
@@ -144,26 +126,17 @@ func TestUnitIngestz(t *testing.T) {
 		}),
 		Req: jsparser.Req{
 			Params: jstypez.Typedef{
-				Head: &jstypez.Tuple{
-					Typ:  "ingestzGetUrlparams",
-					Name: "params",
-				},
+				Head:       &jstypez.Tuple{Typ: "ingestzGetUrlparams", Name: "params"},
 				Properties: jstypez.NewTuples(nil),
 			},
 			Payload: jstypez.Typedef{
-				Head: &jstypez.Tuple{
-					Typ:  "ingestzGetUrlreqPayload",
-					Name: "reqPayload",
-				},
+				Head:       &jstypez.Tuple{Typ: "ingestzGetUrlreqPayload", Name: "reqPayload"},
 				Properties: jstypez.NewTuples(nil),
 			},
 		},
 		Resp: jsparser.Resp{
 			Payload: jstypez.Typedef{
-				Head: &jstypez.Tuple{
-					Typ:  "ingestzGetUrlrespPayload",
-					Name: "respPayload",
-				},
+				Head:       &jstypez.Tuple{Typ: "ingestzGetUrlrespPayload", Name: "respPayload"},
 				Properties: jstypez.NewTuples(nil),
 			},
 		},
