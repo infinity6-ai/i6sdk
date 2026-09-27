@@ -47,6 +47,12 @@ func TestUnitIngestz(t *testing.T) {
 				}),
 			},
 		}),
+		Req: jsparser.Req{
+			Params: jstypez.Typedef{},
+		},
+		Resp: jsparser.Resp{
+			Headers: jstypez.Typedef{},
+		},
 	}
 	require.Equal(t, expected, actual)
 }
