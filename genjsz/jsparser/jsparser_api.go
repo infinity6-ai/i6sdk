@@ -22,18 +22,10 @@ type Resp struct {
 
 type Api struct {
 	Spec     ApiSpec          `json:"spec"`
-	ReqOld   jstypez.Typedef  `json:"-"`
-	RespOld  jstypez.Typedef  `json:"-"`
 	Typedefs jstypez.Typedefs `json:"typedefs"`
 
 	Req  Req  `json:"req"`
 	Resp Resp `json:"resp"`
-}
-
-func (a *Api) ReqResp() *jstypez.Typedefs {
-	ret := &jstypez.Typedefs{}
-	ret.Add(&a.ReqOld, &a.RespOld)
-	return ret
 }
 
 type ApiSpec struct {

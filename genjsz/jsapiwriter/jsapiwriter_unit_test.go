@@ -28,26 +28,42 @@ func TestManualWrite(t *testing.T) {
 		want := `/**
  * ingestzGetUrl Request
  * @typedef {object} ingestzGetUrlReq
- * @property {string} dataset
- * @property {ingestzGetUrlReqPayload} payload
+ * @property {ingestzGetUrlparams} params
+ * @property {ingestzGetUrlreqPayload} payload
  */
 
 /**
  * ingestzGetUrl Response
  * @typedef {object} ingestzGetUrlResp
- * @property {ingestzGetUrlRespPayload} payload
+ * @property {ingestzGetUrlrespPayload} payload
+ */
+
+/**
+ * @typedef {object} ingestzGetUrlparams
+ * @property {string} dataset
+ */
+
+/**
+ * @typedef {object} ingestzGetUrlreqPayload
+ * @property {number} amount
+ * @property {Record<string, string>} partitions
+ * @property {string} table
+ */
+
+/**
+ * @typedef {object} ingestzGetUrlrespPayload
  */
 
 /**
  * @param {import("../services/services.js").Services} services
- * @param {ingestzGetUrlReq} params
+ * @param {ingestzGetUrlReq} req
  * @returns {Promise<ingestzGetUrlResp>}
  */
-export async function ingestzGetUrl(services, params) {
+export async function ingestzGetUrl(services, req) {
   const resp = await services.invoker().invoke({
     method: "POST",
-    path: ` + "`api/ingest/get-url/dataset/${encodeURIComponent(String(params.dataset))}`," + `
-    json: params.payload,
+    path: ` + "`" + `api/ingest/get-url/dataset/${encodeURIComponent(String(req.params.dataset))}` + "`" + `,
+    json: req.payload,
   });
   const result = {status: resp.status, ok: resp.ok};
   if (resp.ok) {
@@ -75,30 +91,63 @@ export async function ingestzGetUrl(services, params) {
 		want := `/**
  * samplefraction Request
  * @typedef {object} samplefractionReq
- * @property {number} denominator
- * @property {number} numerator
- * @property {number} precision
- * @property {string} x_i6_trace_id
- * @property {samplefractionReqPayload} payload
+ * @property {samplefractionparams} params
+ * @property {samplefractionquery} query
+ * @property {samplefractionreqHeaders} headers
+ * @property {samplefractionreqPayload} payload
  */
 
 /**
  * samplefraction Response
  * @typedef {object} samplefractionResp
+ * @property {samplefractionrespHeaders} headers
+ * @property {samplefractionrespPayload} payload
+ */
+
+/**
+ * @typedef {object} samplefractionparams
+ * @property {number} denominator
+ * @property {number} numerator
+ */
+
+/**
+ * @typedef {object} samplefractionquery
+ * @property {number} precision
+ */
+
+/**
+ * @typedef {object} samplefractionreqHeaders
+ * @property {string} x_i6_trace_id
+ */
+
+/**
+ * @typedef {object} samplefractionreqPayload
+ * @property {string} reason
+ */
+
+/**
+ * @typedef {object} samplefractionrespHeaders
  * @property {string} x_i6_trace_message
- * @property {samplefractionRespPayload} payload
+ */
+
+/**
+ * @typedef {object} samplefractionrespPayload
+ * @property {string} display
+ * @property {string} result
  */
 
 /**
  * @param {import("../services/services.js").Services} services
- * @param {samplefractionReq} params
+ * @param {samplefractionReq} req
  * @returns {Promise<samplefractionResp>}
  */
-export async function samplefraction(services, params) {
+export async function samplefraction(services, req) {
   const resp = await services.invoker().invoke({
     method: "POST",
-    path: ` + "`api/gox/routez/sample/fraction/${encodeURIComponent(String(params.numerator))}/${encodeURIComponent(String(params.denominator))}`," + `
-    json: params.payload,
+    path: ` + "`" + `api/gox/routez/sample/fraction/${encodeURIComponent(String(req.params.numerator))}/${encodeURIComponent(String(req.params.denominator))}` + "`" + `,
+    query: req.query,
+    headers: req.headers,
+    json: req.payload,
   });
   const result = {status: resp.status, ok: resp.ok};
   if (resp.ok) {
@@ -128,21 +177,10 @@ export async function samplefraction(services, params) {
 				Method: "GET",
 				Path:   "/api/health",
 			},
-			ReqOld: jstypez.Typedef{
-				Head:       &jstypez.Tuple{Typ: "object", Name: "healthCheckReq"},
-				Properties: &jstypez.Tuples{},
-			},
-			RespOld: jstypez.Typedef{
-				Head:       &jstypez.Tuple{Typ: "object", Name: "healthCheckResp"},
-				Properties: &jstypez.Tuples{},
-			},
 		}
 
 		want := `/**
- * @typedef {object} healthCheckReq
- */
-
-/**
+ * healthCheck Response
  * @typedef {object} healthCheckResp
  */
 
@@ -153,7 +191,7 @@ export async function samplefraction(services, params) {
 export async function healthCheck(services) {
   const resp = await services.invoker().invoke({
     method: "GET",
-    path: ` + "`api/health`," + `
+    path: ` + "`" + `api/health` + "`" + `,
   });
   const result = {status: resp.status, ok: resp.ok};
   if (resp.ok) {
@@ -183,37 +221,31 @@ export async function healthCheck(services) {
 				Method: "GET",
 				Path:   "/api/user/{id}",
 			},
-			ReqOld: jstypez.Typedef{
-				Head:       &jstypez.Tuple{Typ: "object", Name: "getUserReq"},
-				Properties: &jstypez.Tuples{},
-			},
-			RespOld: jstypez.Typedef{
-				Head:       &jstypez.Tuple{Typ: "object", Name: "getUserResp"},
-				Properties: &jstypez.Tuples{},
-			},
 		}
-		api.ReqOld.Properties.Add(jstypez.Tuple{Typ: "string", Name: "id"})
-		api.RespOld.Properties.Add(jstypez.Tuple{Typ: "getUserRespPayload", Name: "payload"})
+		api.Req.Params.Head = &jstypez.Tuple{Typ: "getUserParams", Name: "params"}
+		api.Resp.Payload.Head = &jstypez.Tuple{Typ: "getUserRespPayload", Name: "payload"}
 
 		want := `/**
+ * getUser Request
  * @typedef {object} getUserReq
- * @property {string} id
+ * @property {getUserParams} params
  */
 
 /**
+ * getUser Response
  * @typedef {object} getUserResp
  * @property {getUserRespPayload} payload
  */
 
 /**
  * @param {import("../services/services.js").Services} services
- * @param {getUserReq} params
+ * @param {getUserReq} req
  * @returns {Promise<getUserResp>}
  */
-export async function getUser(services, params) {
+export async function getUser(services, req) {
   const resp = await services.invoker().invoke({
     method: "GET",
-    path: ` + "`api/user/${encodeURIComponent(String(params.id))}`," + `
+    path: ` + "`" + `api/user/${encodeURIComponent(String(req.params.id))}` + "`" + `,
   });
   const result = {status: resp.status, ok: resp.ok};
   if (resp.ok) {
@@ -243,19 +275,10 @@ export async function getUser(services, params) {
 				Method: "GET",
 				Path:   "ping",
 			},
-			ReqOld: jstypez.Typedef{
-				Head: &jstypez.Tuple{Typ: "object", Name: "pingReq"},
-			},
-			RespOld: jstypez.Typedef{
-				Head: &jstypez.Tuple{Typ: "object", Name: "pingResp"},
-			},
 		}
 
 		want := `/**
- * @typedef {object} pingReq
- */
-
-/**
+ * ping Response
  * @typedef {object} pingResp
  */
 
@@ -266,7 +289,7 @@ export async function getUser(services, params) {
 export async function ping(services) {
   const resp = await services.invoker().invoke({
     method: "GET",
-    path: ` + "`ping`," + `
+    path: ` + "`" + `ping` + "`" + `,
   });
   const result = {status: resp.status, ok: resp.ok};
   if (resp.ok) {
