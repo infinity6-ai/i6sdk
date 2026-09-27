@@ -15,18 +15,99 @@ func TestUnitFractionSample(t *testing.T) {
 	api := routezsamplefraction.NewService().Api()
 	actual := jsparser.ParseApi(api)
 	jsonz.MustParse(jsonz.MustFormat(actual).String(), &actual)
-	expected := jsparser.Api{
+	expected := &jsparser.Api{
 		Spec: jsparser.ApiSpec{
-			Id: "aaaa",
+			Id:      "samplefraction",
+			CamelId: "samplefraction",
+			Method:  "POST",
+			Path:    "/api/gox/routez/sample/fraction/{numerator}/{denominator}",
 		},
 		Typedefs: jstypez.NewTypedefs([]*jstypez.Typedef{
 			{
-				Head: &jstypez.Tuple{Typ: "xxx", Name: "bbb"},
+				Head: &jstypez.Tuple{Typ: "object", Name: "samplefractionparams"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "xxx", Name: "yyyy"},
+					{Typ: "number", Name: "denominator"},
+					{Typ: "number", Name: "numerator"},
+				}),
+			},
+			{
+				Head: &jstypez.Tuple{Typ: "object", Name: "samplefractionquery"},
+				Properties: jstypez.NewTuples([]jstypez.Tuple{
+					{Typ: "number", Name: "precision"},
+				}),
+			},
+			{
+				Head: &jstypez.Tuple{Typ: "object", Name: "samplefractionreqHeaders"},
+				Properties: jstypez.NewTuples([]jstypez.Tuple{
+					{Typ: "string", Name: "x_i6_trace_id"},
+				}),
+			},
+			{
+				Head: &jstypez.Tuple{Typ: "object", Name: "samplefractionreqPayload"},
+				Properties: jstypez.NewTuples([]jstypez.Tuple{
+					{Typ: "string", Name: "reason"},
+				}),
+			},
+			{
+				Head: &jstypez.Tuple{Typ: "object", Name: "samplefractionrespHeaders"},
+				Properties: jstypez.NewTuples([]jstypez.Tuple{
+					{Typ: "string", Name: "x_i6_trace_message"},
+				}),
+			},
+			{
+				Head: &jstypez.Tuple{Typ: "object", Name: "samplefractionrespPayload"},
+				Properties: jstypez.NewTuples([]jstypez.Tuple{
+					{Typ: "string", Name: "display"},
+					{Typ: "string", Name: "result"},
 				}),
 			},
 		}),
+		Req: jsparser.Req{
+			Params: jstypez.Typedef{
+				Head: &jstypez.Tuple{
+					Typ:  "samplefractionparams",
+					Name: "params",
+				},
+				Properties: jstypez.NewTuples(nil),
+			},
+			Query: jstypez.Typedef{
+				Head: &jstypez.Tuple{
+					Typ:  "samplefractionquery",
+					Name: "query",
+				},
+				Properties: jstypez.NewTuples(nil),
+			},
+			Headers: jstypez.Typedef{
+				Head: &jstypez.Tuple{
+					Typ:  "samplefractionreqHeaders",
+					Name: "reqHeaders",
+				},
+				Properties: jstypez.NewTuples(nil),
+			},
+			Payload: jstypez.Typedef{
+				Head: &jstypez.Tuple{
+					Typ:  "samplefractionreqPayload",
+					Name: "reqPayload",
+				},
+				Properties: jstypez.NewTuples(nil),
+			},
+		},
+		Resp: jsparser.Resp{
+			Headers: jstypez.Typedef{
+				Head: &jstypez.Tuple{
+					Typ:  "samplefractionrespHeaders",
+					Name: "respHeaders",
+				},
+				Properties: jstypez.NewTuples(nil),
+			},
+			Payload: jstypez.Typedef{
+				Head: &jstypez.Tuple{
+					Typ:  "samplefractionrespPayload",
+					Name: "respPayload",
+				},
+				Properties: jstypez.NewTuples(nil),
+			},
+		},
 	}
 	require.Equal(t, expected, actual)
 }
@@ -35,23 +116,56 @@ func TestUnitIngestz(t *testing.T) {
 	api := &ingestzgeturlapi.GetUrlApi{}
 	actual := jsparser.ParseApi(api)
 	jsonz.MustParse(jsonz.MustFormat(actual).String(), &actual)
-	expected := jsparser.Api{
+	expected := &jsparser.Api{
 		Spec: jsparser.ApiSpec{
-			Id: "aaaa",
+			Id:      "ingestz-get-url",
+			CamelId: "ingestzGetUrl",
+			Method:  "POST",
+			Path:    "/api/ingest/get-url/dataset/{dataset}",
 		},
 		Typedefs: jstypez.NewTypedefs([]*jstypez.Typedef{
 			{
-				Head: &jstypez.Tuple{Typ: "xxx", Name: "bbb"},
+				Head: &jstypez.Tuple{Typ: "object", Name: "ingestzGetUrlparams"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "xxx", Name: "yyyy"},
+					{Typ: "string", Name: "dataset"},
 				}),
+			},
+			{
+				Head: &jstypez.Tuple{Typ: "object", Name: "ingestzGetUrlreqPayload"},
+				Properties: jstypez.NewTuples([]jstypez.Tuple{
+					{Typ: "number", Name: "amount"},
+					{Typ: "Record<string, string>", Name: "partitions"},
+					{Typ: "string", Name: "table"},
+				}),
+			},
+			{
+				Head: &jstypez.Tuple{Typ: "object", Name: "ingestzGetUrlrespPayload"},
 			},
 		}),
 		Req: jsparser.Req{
-			Params: jstypez.Typedef{},
+			Params: jstypez.Typedef{
+				Head: &jstypez.Tuple{
+					Typ:  "ingestzGetUrlparams",
+					Name: "params",
+				},
+				Properties: jstypez.NewTuples(nil),
+			},
+			Payload: jstypez.Typedef{
+				Head: &jstypez.Tuple{
+					Typ:  "ingestzGetUrlreqPayload",
+					Name: "reqPayload",
+				},
+				Properties: jstypez.NewTuples(nil),
+			},
 		},
 		Resp: jsparser.Resp{
-			Headers: jstypez.Typedef{},
+			Payload: jstypez.Typedef{
+				Head: &jstypez.Tuple{
+					Typ:  "ingestzGetUrlrespPayload",
+					Name: "respPayload",
+				},
+				Properties: jstypez.NewTuples(nil),
+			},
 		},
 	}
 	require.Equal(t, expected, actual)
