@@ -20,6 +20,12 @@ type Tuples struct {
 	s []string
 }
 
+func NewTuples(tuples []Tuple) *Tuples {
+	ret := &Tuples{}
+	ret.Add(tuples...)
+	return ret
+}
+
 func (p *Tuples) MarshalJSON() ([]byte, error) {
 	return json.Marshal(p.All())
 }
@@ -69,6 +75,12 @@ type Typedef struct {
 
 type Typedefs struct {
 	m map[string]*Typedef
+}
+
+func NewTypedefs(tuples []*Typedef) Typedefs {
+	ret := Typedefs{}
+	ret.Add(tuples...)
+	return ret
 }
 
 func (p *Typedefs) ExtractFrom(tds *Typedefs) {
