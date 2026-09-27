@@ -22,17 +22,17 @@ type Resp struct {
 
 type Api struct {
 	Spec     ApiSpec          `json:"spec"`
-	Req      jstypez.Typedef  `json:"-"`
-	Resp     jstypez.Typedef  `json:"-"`
+	ReqOld   jstypez.Typedef  `json:"-"`
+	RespOld  jstypez.Typedef  `json:"-"`
 	Typedefs jstypez.Typedefs `json:"typedefs"`
 
-	ReqV2  Req  `json:"req_v2"`
-	RespV2 Resp `json:"resp_v2"`
+	Req  Req  `json:"req"`
+	Resp Resp `json:"resp"`
 }
 
 func (a *Api) ReqResp() *jstypez.Typedefs {
 	ret := &jstypez.Typedefs{}
-	ret.Add(&a.Req, &a.Resp)
+	ret.Add(&a.ReqOld, &a.RespOld)
 	return ret
 }
 
@@ -116,12 +116,12 @@ func ParseApi(api apiz.Api) *Api {
 	// 	ret.Typedefs.Add(p)
 	// }
 
-	parseRefsV2(&ret.ReqV2.Params, "params", refs.PathParams)
-	parseRefsV2(&ret.ReqV2.Query, "query", refs.QueryParams)
-	parseRefsV2(&ret.ReqV2.Headers, "reqHeaders", refs.ReqHeaders)
-	parseRefsV2(&ret.ReqV2.Payload, "reqPayload", refs.ReqBody)
-	parseRefsV2(&ret.RespV2.Headers, "respHeaders", refs.RespHeaders)
-	parseRefsV2(&ret.RespV2.Payload, "respPayload", refs.RespBody)
+	parseRefsV2(&ret.Req.Params, "params", refs.PathParams)
+	parseRefsV2(&ret.Req.Query, "query", refs.QueryParams)
+	parseRefsV2(&ret.Req.Headers, "reqHeaders", refs.ReqHeaders)
+	parseRefsV2(&ret.Req.Payload, "reqPayload", refs.ReqBody)
+	parseRefsV2(&ret.Resp.Headers, "respHeaders", refs.RespHeaders)
+	parseRefsV2(&ret.Resp.Payload, "respPayload", refs.RespBody)
 
 	// parseRefs(&ret.Req, refs.PathParams)
 	// parseRefs(&ret.Req, refs.QueryParams)

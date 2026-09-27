@@ -15,7 +15,7 @@ var pathParamRe = regexp.MustCompile(`\{([A-Za-z0-9_]+)\}`)
 func Write(api *jsparser.Api) string {
 	apiId := camelstring.KebabToCamel(api.Spec.Id)
 
-	hasParams := api.Req.Properties != nil && len(api.Req.Properties.All()) > 0
+	hasParams := api.ReqOld.Properties != nil && len(api.ReqOld.Properties.All()) > 0
 
 	var b strings.Builder
 
@@ -24,9 +24,9 @@ func Write(api *jsparser.Api) string {
 	b.WriteString("/**\n")
 	b.WriteString(" * @param {import(\"../services/services.js\").Services} services\n")
 	if hasParams {
-		fmt.Fprintf(&b, " * @param {%s} params\n", api.Req.Head.Name)
+		fmt.Fprintf(&b, " * @param {%s} params\n", api.ReqOld.Head.Name)
 	}
-	fmt.Fprintf(&b, " * @returns {Promise<%s>}\n", api.Resp.Head.Name)
+	fmt.Fprintf(&b, " * @returns {Promise<%s>}\n", api.RespOld.Head.Name)
 	b.WriteString(" */\n")
 
 	if hasParams {
@@ -44,7 +44,7 @@ func Write(api *jsparser.Api) string {
 
 	hasPayload := false
 	if hasParams {
-		for _, p := range api.Req.Properties.All() {
+		for _, p := range api.ReqOld.Properties.All() {
 			if p.Name == "payload" {
 				hasPayload = true
 				break
@@ -61,8 +61,8 @@ func Write(api *jsparser.Api) string {
 	b.WriteString("  if (resp.ok) {\n")
 
 	hasRespPayload := false
-	if api.Resp.Properties != nil {
-		for _, p := range api.Resp.Properties.All() {
+	if api.RespOld.Properties != nil {
+		for _, p := range api.RespOld.Properties.All() {
 			if p.Name == "payload" {
 				hasRespPayload = true
 				break

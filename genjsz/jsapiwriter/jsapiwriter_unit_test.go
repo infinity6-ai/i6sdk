@@ -128,11 +128,11 @@ export async function samplefraction(services, params) {
 				Method: "GET",
 				Path:   "/api/health",
 			},
-			Req: jstypez.Typedef{
+			ReqOld: jstypez.Typedef{
 				Head:       &jstypez.Tuple{Typ: "object", Name: "healthCheckReq"},
 				Properties: &jstypez.Tuples{},
 			},
-			Resp: jstypez.Typedef{
+			RespOld: jstypez.Typedef{
 				Head:       &jstypez.Tuple{Typ: "object", Name: "healthCheckResp"},
 				Properties: &jstypez.Tuples{},
 			},
@@ -183,17 +183,17 @@ export async function healthCheck(services) {
 				Method: "GET",
 				Path:   "/api/user/{id}",
 			},
-			Req: jstypez.Typedef{
+			ReqOld: jstypez.Typedef{
 				Head:       &jstypez.Tuple{Typ: "object", Name: "getUserReq"},
 				Properties: &jstypez.Tuples{},
 			},
-			Resp: jstypez.Typedef{
+			RespOld: jstypez.Typedef{
 				Head:       &jstypez.Tuple{Typ: "object", Name: "getUserResp"},
 				Properties: &jstypez.Tuples{},
 			},
 		}
-		api.Req.Properties.Add(jstypez.Tuple{Typ: "string", Name: "id"})
-		api.Resp.Properties.Add(jstypez.Tuple{Typ: "getUserRespPayload", Name: "payload"})
+		api.ReqOld.Properties.Add(jstypez.Tuple{Typ: "string", Name: "id"})
+		api.RespOld.Properties.Add(jstypez.Tuple{Typ: "getUserRespPayload", Name: "payload"})
 
 		want := `/**
  * @typedef {object} getUserReq
@@ -243,10 +243,10 @@ export async function getUser(services, params) {
 				Method: "GET",
 				Path:   "ping",
 			},
-			Req: jstypez.Typedef{
+			ReqOld: jstypez.Typedef{
 				Head: &jstypez.Tuple{Typ: "object", Name: "pingReq"},
 			},
-			Resp: jstypez.Typedef{
+			RespOld: jstypez.Typedef{
 				Head: &jstypez.Tuple{Typ: "object", Name: "pingResp"},
 			},
 		}
