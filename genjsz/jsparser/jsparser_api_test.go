@@ -11,13 +11,13 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzgeturlapi"
 )
 
-func TestManualFractionSample(t *testing.T) {
+func TestUnitFractionSample(t *testing.T) {
 	api := routezsamplefraction.NewService().Api()
 	fmt.Printf("%s\n", jsonz.MustFormatPretty(jsparser.ParseApi(api)).String())
 	require.Equal(t, jsparser.Api{}, jsparser.ParseApi(api))
 }
 
-func TestManualIngestz(t *testing.T) {
+func TestUnitIngestz(t *testing.T) {
 	api := &ingestzgeturlapi.GetUrlApi{}
 	fmt.Printf("%s\n", jsonz.MustFormatPretty(jsparser.ParseApi(api)).String())
 }
