@@ -12,7 +12,8 @@ type Apis struct {
 
 func ParseApis(apis []apiz.Api) *Apis {
 	ret := Apis{
-		Apis: make([]*Api, len(apis)),
+		Apis:     make([]*Api, len(apis)),
+		Typedefs: jstypez.NewTypedefs(nil),
 	}
 	for idx, api := range apis {
 		parsed := ParseApi(api)

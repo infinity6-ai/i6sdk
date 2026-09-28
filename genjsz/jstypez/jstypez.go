@@ -77,7 +77,10 @@ type Typedefs struct {
 	m map[string]*Typedef
 }
 
-func (t Typedefs) Merge(other Typedefs) {
+func (t *Typedefs) Merge(other Typedefs) {
+	if t.m == nil {
+		t.m = make(map[string]*Typedef)
+	}
 	for k, v := range other.m {
 		if _, ok := t.m[k]; !ok {
 			t.m[k] = v
