@@ -20,6 +20,10 @@ func ParseAny(v any) (*jstypez.Typedef, *jstypez.Typedefs) {
 	val := reflect.ValueOf(v)
 
 	for val.Kind() == reflect.Pointer || val.Kind() == reflect.Interface {
+		if val.IsNil() {
+			val = reflect.Zero(val.Type().Elem())
+			break
+		}
 		val = val.Elem()
 	}
 
