@@ -13,6 +13,7 @@ import (
 )
 
 func TestUnitWrite(t *testing.T) {
+	ctx := t.Context()
 	type testScenario struct {
 		in   *jsparser.Apis
 		want string
@@ -20,7 +21,7 @@ func TestUnitWrite(t *testing.T) {
 
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
-		got := jsapiwriter.Write(s.in)
+		got := jsapiwriter.Write(ctx, s.in)
 		require.Equal(t, s.want, got)
 	}
 
