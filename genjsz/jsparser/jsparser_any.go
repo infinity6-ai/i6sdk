@@ -10,12 +10,9 @@ import (
 )
 
 func ParseAny(v any) (*jstypez.Typedef, *jstypez.Typedefs) {
-	if ret, tdfs := jsparsercustom.Resolve(v); ret != nil {
-		if tdfs != nil {
-			checker.Empty(tdfs.All(), "must be empty")
-		}
-		return ret, tdfs
-	}
+	// if a, b := checkCustom(v); a != nil {
+	// 	return a, b
+	// }
 
 	val := reflect.ValueOf(v)
 
@@ -25,6 +22,10 @@ func ParseAny(v any) (*jstypez.Typedef, *jstypez.Typedefs) {
 			break
 		}
 		val = val.Elem()
+	}
+
+	if a, b := checkCustom(val); a != nil {
+		return a, b
 	}
 
 	if !val.IsValid() {
@@ -102,4 +103,18 @@ func ParseAny(v any) (*jstypez.Typedef, *jstypez.Typedefs) {
 		panic(fmt.Sprintf("unsupported type %T / %s: %#v", v, val.Kind(), v))
 	}
 
+}
+
+func checkCustom(val reflect.Value) (*jstypez.Typedef, *jstypez.Typedefs) {
+	// if val.IsNil() {
+	// 	val = reflect.Zero(val.Type().Elem())
+	// }
+	v := val.Interface()
+	if ret, tdfs := jsparsercustom.Resolve(v); ret != nil {
+		if tdfs != nil {
+			checker.Empty(tdfs.All(), "must be empty")
+		}
+		return ret, tdfs
+	}
+	return nil, nil
 }

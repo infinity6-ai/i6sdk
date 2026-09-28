@@ -12,6 +12,10 @@ type PipeParam struct {
 	Value string `json:"value"`
 }
 
+func (PipeParam) JSType() string {
+	return "object"
+}
+
 type PipezStartReq struct {
 	Dataset        lakedsz.Dataset               `json:"dataset"`
 	SolutionDomain solutiondomain.SolutionDomain `json:"solution_domain"`
