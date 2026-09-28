@@ -140,6 +140,33 @@
             align-items: start;
         }
 
+        .card-actions { display: flex; align-items: center; gap: 8px; }
+
+        a.link {
+            padding: 4px 10px;
+            color: var(--muted);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        a.link:hover { background: var(--accent-soft); color: var(--text); }
+
+        #tests {
+            margin-top: 16px;
+        }
+
+        #tests iframe {
+            display: block;
+            width: 100%;
+            height: 640px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #fff;
+        }
+
         @media (max-width: 800px) {
             .grid { grid-template-columns: 1fr; }
             #console-log { height: 320px; }
@@ -211,9 +238,25 @@
                 <div id="console-log"></div>
             </section>
         </div>
+
+        <section class="card" id="tests">
+            <div class="card-head">
+                <h2>Tests</h2>
+                <div class="card-actions">
+                    <button id="tests-reload" class="link" type="button">Reload</button>
+                    <a class="link" href="test.html" target="_blank" rel="noopener">Open in new tab</a>
+                </div>
+            </div>
+            <iframe src="test.html" title="Tests"></iframe>
+        </section>
     </div>
 
     <script src="console.js"></script>
+    <script>
+        document.getElementById("tests-reload").addEventListener("click", () => {
+            document.querySelector("#tests iframe").contentWindow.location.reload()
+        })
+    </script>
 
     <script type="module" src="index.js"></script>
 
