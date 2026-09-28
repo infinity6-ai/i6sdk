@@ -11,7 +11,12 @@ $(window).ready(async () => {
 
     $("#login").click(async () => {
         try {
-            await (await i6sdk.auth()).requireUser()
+            const user = await (await i6sdk.auth()).requireUser()
+            if (user) {
+                console.log("Logged in", user)
+            } else {
+                console.log("Not logged in, redirecting to login...")
+            }
         } catch (err) {
             console.error("Login failed", err)
         }
