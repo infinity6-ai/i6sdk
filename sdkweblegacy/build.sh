@@ -49,7 +49,7 @@ function cmd_npm_install() {
 # Generates src/apigenz (gitignored): one JS client per API, imported by src/ingest and friends.
 # Must run before anything that resolves src/**, since a fresh checkout has no apigenz.
 function cmd_generate() {
-    (cd .. && go run . generate js)
+    (cd .. && go run . js generate)
 }
 
 function cmd_bundle() {
