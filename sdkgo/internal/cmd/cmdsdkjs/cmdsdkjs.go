@@ -1,6 +1,19 @@
 package cmdsdkjs
 
-import "github.com/spf13/cobra"
+import (
+	"os"
+
+	"github.com/infinity6-ai/gox/commonz/errorz"
+	"github.com/spf13/cobra"
+	"go.code.infinity6.ai/platform/logz"
+	"go.code.infinity6.ai/sdkgo/genjsz/jsapiwriter"
+	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
+	"go.code.infinity6.ai/sdkgo/sdkgo/sdkz"
+)
+
+type tlogger logz.Type
+
+var logger = logz.Create(tlogger(true))
 
 func Prepare(parent *cobra.Command) *cobra.Command {
 	cmd := &cobra.Command{
@@ -20,18 +33,17 @@ func prepareGenerateJsCmd() *cobra.Command {
 		Short: "generate the JS client of every API into the legacy web SDK",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// names, err := generatorjsz.Generate(out, sdkz.All())
-			// if err != nil {
-			// 	return fmt.Errorf("failed to generate js clients into %s: %w", out, err)
-			// }
-			// w := cmd.OutOrStdout()
-			// for _, name := range names {
-			// 	fmt.Fprintln(w, filepath.Join(out, name))
-			// }
-			// fmt.Fprintf(w, "generated %d apis into %s\n", len(names), out)
+			ctx := cmd.Context()
+			out := errorz.Check2(cmd.Flags().GetString("out"))
+			apis := sdkz.All()
+			parsedApis := jsparser.ParseApis(apis)
+			code := []byte(jsapiwriter.Write(parsedApis))
+			err := os.WriteFile(out, []byte(code), os.ModePerm)
+			errorz.Check(err)
+			logger.Info(ctx, "sdkapis generated", map[string]any{"out": out, "len": len(code)})
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&out, "out", "sdkweblegacy/src/apigenz", "output directory, one .js file per api")
+	cmd.Flags().StringVar(&out, "out", "sdkweblegacy/src/sdkapis/sdkapis.js", "output directory, one .js file per api")
 	return cmd
 }
