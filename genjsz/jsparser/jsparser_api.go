@@ -1,6 +1,8 @@
 package jsparser
 
 import (
+	"strings"
+
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
@@ -40,6 +42,7 @@ func ParseApi(api apiz.Api) *Api {
 	refs := api.GetDataRefs()
 
 	apiId := camelstring.KebabToCamel(api.ApiSpec().Id)
+	apiId = "api" + strings.ToUpper(apiId[0:1]) + apiId[1:]
 
 	parseSpec := func() ApiSpec {
 		s := api.ApiSpec()
