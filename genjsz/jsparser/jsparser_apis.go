@@ -19,4 +19,5 @@ func ParseApis(apis []apiz.Api) *Apis {
 		ret.Typedefs.Merge(parsed.Typedefs)
 		ret.Apis[idx] = parsed
 	}
+	return &ret
 }
