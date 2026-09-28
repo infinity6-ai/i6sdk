@@ -8,6 +8,10 @@
     "build": "./build.sh"
   },
   "devDependencies": {
-    "esbuild": "^0.28.2"
-  }
+    "dts-bundle-generator": "^9.5.1",
+    "esbuild": "^0.28.2",
+    "typescript": "^7.0.2"
+  },
+  "main": "dist/bundle/i6sdk-web.js",
+  "types": "dist/bundle/i6sdk-web.d.ts"
 }

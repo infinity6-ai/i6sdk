@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "rootDir": "src",
+    "outDir": "dist/types",
+    "moduleResolution": "bundler",
+    "target": "ESNext",
+    "module": "ESNext"
+  },
+  "include": ["src/**/*"]
+}

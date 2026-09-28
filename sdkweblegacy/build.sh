@@ -56,6 +56,16 @@ function cmd_bundle() {
     [ ! -d dist ] || rm -rf dist
     cmd_generate
     cmd_npm_install
+    
+    # 1. Generate the standard .d.ts files into dist/types
+    npx tsc
+    
+    # 2. Stitch them all into one giant file for the LLM 
+    # (mkdir ensures the bundle folder exists before we create the file)
+    mkdir -p dist/bundle
+    find dist/types -name "*.d.ts" -exec cat {} + > dist/bundle/i6sdk-web.d.ts
+
+    # 3. Build the JavaScript
     esbuild src/index.js --bundle --sourcemap --outfile=dist/bundle/i6sdk-web.js
     esbuild src/index.js --bundle --minify --sourcemap --outfile=dist/bundle/i6sdk-web.min.js
     esbuild "src/**/*.js" --minify --outdir=dist/module-min
