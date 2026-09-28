@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"go.code.infinity6.ai/platform/logz"
-	"go.code.infinity6.ai/sdkgo/camelstring"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypedefwriter"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
@@ -33,7 +32,7 @@ func Write(ctx context.Context, apis *jsparser.Apis) string {
 		logger.Info(ctx, "genereating js sdk api", map[string]any{"api": api.Spec.Id})
 		allTdfs.Add(api.Typedefs.All()...)
 
-		apiId := camelstring.KebabToCamel(api.Spec.Id)
+		apiId := api.Spec.CamelId
 		reqTypedef, hasReq := buildReqTypedef(apiId, api)
 		respTypedef := buildRespTypedef(apiId, api)
 
@@ -97,7 +96,7 @@ func buildRespTypedef(apiId string, api *jsparser.Api) jstypez.Typedef {
 }
 
 func writeApiDecl(b *strings.Builder, api *jsparser.Api) {
-	apiId := camelstring.KebabToCamel(api.Spec.Id)
+	apiId := api.Spec.CamelId
 
 	hasParams := api.Req.Params.Head != nil
 	hasQuery := api.Req.Query.Head != nil
