@@ -13,17 +13,48 @@ import (
 
 var pathParamRe = regexp.MustCompile(`\{([A-Za-z0-9_]+)\}`)
 
-func Write(api *jsparser.Api) string {
-	apiId := camelstring.KebabToCamel(api.Spec.Id)
+func Write(apis *jsparser.Apis) string {
+	if apis == nil {
+		return ""
+	}
 
+	var b strings.Builder
+
+	allTdfs := &jstypez.Typedefs{}
+	allTdfs.Add(apis.Typedefs.All()...)
+
+	for _, api := range apis.Apis {
+		allTdfs.Add(api.Typedefs.All()...)
+
+		apiId := camelstring.KebabToCamel(api.Spec.Id)
+		reqTypedef, hasReq := buildReqTypedef(apiId, api)
+		respTypedef := buildRespTypedef(apiId, api)
+
+		if hasReq {
+			allTdfs.Add(&reqTypedef)
+		}
+		allTdfs.Add(&respTypedef)
+	}
+
+	b.WriteString(jstypedefwriter.Write(allTdfs))
+
+	for idx, api := range apis.Apis {
+		if idx > 0 {
+			b.WriteString("\n")
+		}
+		writeApiDecl(&b, api)
+	}
+
+	return b.String()
+}
+
+func buildReqTypedef(apiId string, api *jsparser.Api) (jstypez.Typedef, bool) {
 	hasParams := api.Req.Params.Head != nil
 	hasQuery := api.Req.Query.Head != nil
 	hasReqHeaders := api.Req.Headers.Head != nil
 	hasPayload := api.Req.Payload.Head != nil
 
 	hasReq := hasParams || hasQuery || hasReqHeaders || hasPayload
-
-	var b strings.Builder
 
 	reqTypedef := jstypez.Typedef{
 		Head:       &jstypez.Tuple{Typ: "object", Name: apiId + "Req", Summary: apiId + " Request"},
@@ -41,7 +72,10 @@ func Write(api *jsparser.Api) string {
 	if hasPayload {
 		reqTypedef.Properties.Add(jstypez.Tuple{Typ: api.Req.Payload.Head.Typ, Name: "payload"})
 	}
+	return reqTypedef, hasReq
+}
 
+func buildRespTypedef(apiId string, api *jsparser.Api) jstypez.Typedef {
 	respTypedef := jstypez.Typedef{
 		Head:       &jstypez.Tuple{Typ: "object", Name: apiId + "Resp", Summary: apiId + " Response"},
 		Properties: &jstypez.Tuples{},
@@ -52,28 +86,31 @@ func Write(api *jsparser.Api) string {
 	if api.Resp.Payload.Head != nil {
 		respTypedef.Properties.Add(jstypez.Tuple{Typ: api.Resp.Payload.Head.Typ, Name: "payload"})
 	}
+	return respTypedef
+}
 
-	allTdfs := &jstypez.Typedefs{}
-	allTdfs.Add(api.Typedefs.All()...)
-	if hasReq {
-		allTdfs.Add(&reqTypedef)
-	}
-	allTdfs.Add(&respTypedef)
+func writeApiDecl(b *strings.Builder, api *jsparser.Api) {
+	apiId := camelstring.KebabToCamel(api.Spec.Id)
 
-	b.WriteString(jstypedefwriter.Write(allTdfs))
+	hasParams := api.Req.Params.Head != nil
+	hasQuery := api.Req.Query.Head != nil
+	hasReqHeaders := api.Req.Headers.Head != nil
+	hasPayload := api.Req.Payload.Head != nil
+
+	hasReq := hasParams || hasQuery || hasReqHeaders || hasPayload
 
 	b.WriteString("/**\n")
 	b.WriteString(" * @param {import(\"../services/services.js\").Services} services\n")
 	if hasReq {
-		fmt.Fprintf(&b, " * @param {%sReq} req\n", apiId)
+		fmt.Fprintf(b, " * @param {%sReq} req\n", apiId)
 	}
-	fmt.Fprintf(&b, " * @returns {Promise<%sResp>}\n", apiId)
+	fmt.Fprintf(b, " * @returns {Promise<%sResp>}\n", apiId)
 	b.WriteString(" */\n")
 
 	if hasReq {
-		fmt.Fprintf(&b, "export async function %s(services, req) {\n", apiId)
+		fmt.Fprintf(b, "export async function %s(services, req) {\n", apiId)
 	} else {
-		fmt.Fprintf(&b, "export async function %s(services) {\n", apiId)
+		fmt.Fprintf(b, "export async function %s(services) {\n", apiId)
 	}
 
 	jsPath := strings.TrimPrefix(api.Spec.Path, "/")
@@ -82,9 +119,9 @@ func Write(api *jsparser.Api) string {
 	}
 
 	b.WriteString("  const resp = await services.invoker().invoke({\n")
-	fmt.Fprintf(&b, "    method: %q,\n", api.Spec.Method)
+	fmt.Fprintf(b, "    method: %q,\n", api.Spec.Method)
 
-	fmt.Fprintf(&b, "    path: `%s`,\n", jsPath)
+	fmt.Fprintf(b, "    path: `%s`,\n", jsPath)
 
 	if hasQuery {
 		b.WriteString("    query: req.query,\n")
@@ -117,5 +154,4 @@ func Write(api *jsparser.Api) string {
 	b.WriteString("  }\n")
 	b.WriteString("  return result;\n")
 	b.WriteString("}\n")
-	return b.String()
 }
