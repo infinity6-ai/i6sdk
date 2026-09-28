@@ -9,6 +9,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzgeturlapi"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/pipezapi"
 )
 
 func TestUnitFractionSample(t *testing.T) {
@@ -142,4 +143,10 @@ func TestUnitIngestz(t *testing.T) {
 		},
 	}
 	require.Equal(t, expected, actual)
+}
+
+func TestManualOne(t *testing.T) {
+	api := &pipezapi.PipezStartApi{}
+	actual := jsparser.ParseApi(api)
+	println(jsonz.MustFormat(actual).String())
 }
