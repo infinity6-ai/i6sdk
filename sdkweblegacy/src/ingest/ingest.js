@@ -2,7 +2,7 @@
  * @fileoverview Ingest client for uploading files to the ingestion service.
  */
 
-import { ingestzGetUrl } from "../sdkapis/sdkapis.js";
+import { apiIngestzGetUrl } from "../sdkapis/sdkapis.js";
 import { I6Error } from "../errors.js";
 
 /**

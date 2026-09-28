@@ -2,7 +2,7 @@
  * @fileoverview Dataset client for selecting the solution domain of a dataset.
  */
 
-import { dszDomainSelect } from "../sdkapis/sdkapis.js";
+import { apiDszDomainSelect } from "../sdkapis/sdkapis.js";
 import { I6Error } from "../errors.js";
 
 /**
