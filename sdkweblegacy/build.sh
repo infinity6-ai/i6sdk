@@ -58,7 +58,8 @@ function cmd_bundle() {
     cmd_npm_install
     esbuild src/index.js --bundle --sourcemap --outfile=dist/bundle/i6sdk-web.js
     esbuild src/index.js --bundle --minify --sourcemap --outfile=dist/bundle/i6sdk-web.min.js
-    esbuild "src/**/*.js" --minify --outdir=dist/module
+    esbuild "src/**/*.js" --minify --outdir=dist/module-min
+    esbuild "src/**/*.js" --outdir=dist/module
 }
 
 function cmd_release() {
