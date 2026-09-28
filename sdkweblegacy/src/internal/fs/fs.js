@@ -1,22 +1,12 @@
 
 const base = 'i6/fs'
 
-// file is actually a directory
-// {base}/{file}/version.txt
-// {base}/{file}/v{versioon}/blob.bin
-// {base}/{file}/v{versioon}/etag.txt
-
-// version is current date toISOString
-
 /**
- * [write it].
  * @typedef {Object} FileRef
  * @property {string} name - [write it: bla, ble].
  * @property {string} version - [write it].
  * @property {string} etag - [write it].
  */
-
-// never changes incomming opts/fileref, returns awlays a copy
 
 /**
  * @param {FileSystemDirectoryHandle} dir - Directory holding the file.
