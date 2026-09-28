@@ -138,6 +138,7 @@ func expectedIngestzApi() *jsparser.Api {
 }
 
 func TestUnitParseApis(t *testing.T) {
+	ctx := t.Context()
 	type testScenario struct {
 		in   []apiz.Api
 		want *jsparser.Apis
@@ -145,7 +146,7 @@ func TestUnitParseApis(t *testing.T) {
 
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
-		actual := jsparser.ParseApis(s.in)
+		actual := jsparser.ParseApis(ctx, s.in)
 		jsonz.MustParse(jsonz.MustFormat(actual).String(), &actual)
 		require.Equal(t, s.want, actual)
 	}

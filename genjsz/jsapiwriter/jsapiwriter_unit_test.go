@@ -40,7 +40,7 @@ func TestUnitWrite(t *testing.T) {
 	})
 
 	t.Run("with path param, request payload, and response payload", func(t *testing.T) {
-		apis := jsparser.ParseApis([]apiz.Api{&ingestzgeturlapi.GetUrlApi{}})
+		apis := jsparser.ParseApis(ctx, []apiz.Api{&ingestzgeturlapi.GetUrlApi{}})
 		want := `/**
  * ingestzGetUrl Request
  * @typedef {object} ingestzGetUrlReq
@@ -103,7 +103,7 @@ export async function ingestzGetUrl(services, req) {
 	})
 
 	t.Run("with multiple path params and extra request fields", func(t *testing.T) {
-		apis := jsparser.ParseApis([]apiz.Api{routezsamplefraction.NewService().Api()})
+		apis := jsparser.ParseApis(ctx, []apiz.Api{routezsamplefraction.NewService().Api()})
 		want := `/**
  * samplefraction Request
  * @typedef {object} samplefractionReq
@@ -338,7 +338,7 @@ export async function ping(services) {
 	})
 
 	t.Run("with multiple apis: all typedefs first then all api declarations", func(t *testing.T) {
-		apis := jsparser.ParseApis([]apiz.Api{
+		apis := jsparser.ParseApis(ctx, []apiz.Api{
 			routezsamplefraction.NewService().Api(),
 			&ingestzgeturlapi.GetUrlApi{},
 		})
