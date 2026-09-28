@@ -9,6 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"go.code.infinity6.ai/sdkgo/sdkgo/internal/cmd/cmdsdkjs"
 	"go.code.infinity6.ai/sdkgo/sdkgo/version"
 )
 
@@ -26,7 +27,7 @@ func Prepare(ctx context.Context) *cobra.Command {
 		},
 	})
 
-	rootCmd.AddCommand(prepareGenerateCmd())
+	cmdsdkjs.Prepare(rootCmd)
 
 	return rootCmd
 }

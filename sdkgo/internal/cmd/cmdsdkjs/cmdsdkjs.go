@@ -1,30 +1,22 @@
-//go:build !testcover
+package cmdsdkjs
 
-package cmdsdkgo
+import "github.com/spf13/cobra"
 
-import (
-	"github.com/spf13/cobra"
-)
-
-const defaultGenerateJsOut = "sdkweblegacy/src/apigenz"
-
-func prepareGenerateCmd() *cobra.Command {
+func Prepare(parent *cobra.Command) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "generate",
-		Short: "generate code from the API schemas",
-		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return cmd.Help()
-		},
+		Use: "js",
 	}
+	parent.AddCommand(cmd)
+
 	cmd.AddCommand(prepareGenerateJsCmd())
+
 	return cmd
 }
 
 func prepareGenerateJsCmd() *cobra.Command {
 	var out string
 	cmd := &cobra.Command{
-		Use:   "js",
+		Use:   "generate",
 		Short: "generate the JS client of every API into the legacy web SDK",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -40,6 +32,6 @@ func prepareGenerateJsCmd() *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&out, "out", defaultGenerateJsOut, "output directory, one .js file per api")
+	cmd.Flags().StringVar(&out, "out", "sdkweblegacy/src/apigenz", "output directory, one .js file per api")
 	return cmd
 }
