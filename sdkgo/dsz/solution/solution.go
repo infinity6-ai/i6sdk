@@ -5,9 +5,14 @@ import (
 	"github.com/infinity6-ai/gox/commonz/validation"
 	"github.com/infinity6-ai/gox/commonz/validation/checked"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
+	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
 type Solution checked.Value[string]
+
+func (*Solution) JSType() string {
+	return jstypez.TypeString
+}
 
 func (d Solution) Optional() optionalz.Optional[string] {
 	return checked.Value[string](d).Optional()
