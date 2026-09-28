@@ -92,16 +92,19 @@ class Ingest {
    * @throws {I6Error} If the request fails or no upload URL is returned.
    */
   async #getUrl({ dataset, table, partitions }) {
-    const resp = await ingestzGetUrl(this._services, { dataset, table, partitions, amount: 1 });
+    const resp = await ingestzGetUrl(this._services, {
+      params: { dataset },
+      payload: { table, partitions, amount: 1 },
+    });
     if (!resp.ok) {
       throw I6Error.fromResult("Get upload URL failed", resp);
     }
 
-    const uploads = resp.body?.uploads;
+    const uploads = resp.payload?.uploads;
     if (!uploads?.[0]) {
       throw new I6Error("Get upload URL returned no upload URL.", { code: "no_upload_url" });
     }
-    return { ingestId: resp.body.ingest_id, url: uploads[0] };
+    return { ingestId: resp.payload.ingest_id, url: uploads[0] };
   }
 
   /**

@@ -2,7 +2,7 @@
  * @fileoverview Pipe client for starting pipelines.
  */
 
-import { pipezStart } from "../apigenz/pipez-start.js";
+import { pipezStart } from "../sdkapis/sdkapis.js";
 import { I6Error } from "../errors.js";
 
 /**
@@ -48,15 +48,13 @@ class Pipe {
    */
   async start({ dataset, pipename, params = [], solutionDomain }) {
     const resp = await pipezStart(this._services, {
-      dataset,
-      pipename,
-      params,
-      solution_domain: solutionDomain,
+      params: { dataset },
+      payload: { pipename, params, solution_domain: solutionDomain },
     });
     if (!resp.ok) {
       throw I6Error.fromResult("Start pipe failed", resp);
     }
-    return { id: resp.body.id };
+    return { id: resp.payload.id };
   }
 }
 

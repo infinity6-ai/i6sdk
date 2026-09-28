@@ -1,24 +1,163 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>I6 Sdk Web</title>
+    <link rel="icon" type="image/png" href="favicon.png">
     <script src="https://datasetmanager.staging.rs.infinity6.ai/static/i6web/core/js/jquery.js"></script>
+    <style>
+        :root {
+            --bg: #f4f5f9;
+            --card: #ffffff;
+            --text: #1c2033;
+            --muted: #6b7189;
+            --border: #dfe2ec;
+            --accent: #4f46e5;
+            --accent-hover: #4338ca;
+            --accent-soft: #eef0ff;
+            --shadow: 0 1px 2px rgba(20, 24, 50, .06), 0 8px 24px rgba(20, 24, 50, .06);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #0f1120;
+                --card: #181b2e;
+                --text: #e8eaf6;
+                --muted: #949ab8;
+                --border: #2b2f4a;
+                --accent: #7c83ff;
+                --accent-hover: #939aff;
+                --accent-soft: #23274a;
+                --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
+            }
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+            font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            padding: 48px 16px;
+        }
+
+        #wrapper { width: 100%; max-width: 560px; }
+
+        header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+
+        header img { width: 40px; height: 40px; border-radius: 10px; }
+
+        h1 { font-size: 22px; margin: 0; letter-spacing: -.01em; }
+
+        header p { margin: 0; color: var(--muted); font-size: 13px; }
+
+        #login { margin-left: auto; }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+            padding: 24px;
+        }
+
+        h2 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--muted);
+            margin: 0 0 16px;
+        }
+
+        form { display: flex; flex-direction: column; gap: 16px; }
+
+        .field { display: flex; flex-direction: column; gap: 6px; }
+
+        .field > span { font-size: 13px; font-weight: 600; }
+
+        input[type=file] {
+            width: 100%;
+            padding: 10px;
+            color: var(--muted);
+            background: var(--bg);
+            border: 1.5px dashed var(--border);
+            border-radius: 10px;
+            font: inherit;
+            cursor: pointer;
+            transition: border-color .15s, background .15s;
+        }
+
+        input[type=file]:hover,
+        input[type=file]:focus-visible {
+            border-color: var(--accent);
+            background: var(--accent-soft);
+            outline: none;
+        }
+
+        input[type=file]::file-selector-button {
+            margin-right: 12px;
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--card);
+            color: var(--text);
+            font: inherit;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        button {
+            align-self: flex-start;
+            padding: 10px 22px;
+            border: 0;
+            border-radius: 10px;
+            background: var(--accent);
+            color: #fff;
+            font: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .15s, transform .05s;
+        }
+
+        button:hover { background: var(--accent-hover); }
+        button:active { transform: translateY(1px); }
+        button:focus-visible { outline: 3px solid var(--accent-soft); outline-offset: 2px; }
+        button:disabled { opacity: .55; cursor: progress; }
+
+    </style>
 </head>
 
 <body>
     <div id="wrapper">
-        <h1>I6 SDK Web</h1>
-        <p id="output">loading...</p>
+        <header>
+            <img src="favicon.png" alt="">
+            <div>
+                <h1>I6 SDK Web</h1>
+                <p>API test console</p>
+            </div>
+            <button id="login" type="button">Login</button>
+        </header>
 
-        <form>
-            <input type="file" />
-            <br>
-            <input type="file" />
-            <button type="submit">Submit</button>
-        </form>
+        <section class="card">
+            <h2>Ingest upload</h2>
+            <form>
+                <label class="field">
+                    <span>File</span>
+                    <input type="file" />
+                </label>
+                <label class="field">
+                    <span>Second file</span>
+                    <input type="file" />
+                </label>
+                <button type="submit">Submit</button>
+            </form>
+        </section>
     </div>
 
     <script type="module" src="index.js"></script>
