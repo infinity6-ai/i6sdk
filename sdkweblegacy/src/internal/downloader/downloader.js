@@ -1,8 +1,3 @@
-// Downloader depends on fs.js
-// By now we dont support resuming the Download
-// We cant download the entire file in the memory (not even in blocks)
-// Use browser API to "Download this file in this opfs"
-
 import { fs } from '../fs/fs.js'
 
 class Downloader {
