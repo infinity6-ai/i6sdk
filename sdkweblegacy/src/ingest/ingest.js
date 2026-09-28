@@ -155,7 +155,7 @@ class Ingest {
       }
 
       xhr.open('PUT', signedPutUrl, true);
-      // Without this the browser already sends the file's own type as Content-Type.
+
       if (contentType) {
         xhr.setRequestHeader('Content-Type', contentType);
       }
