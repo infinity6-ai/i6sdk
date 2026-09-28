@@ -6,8 +6,8 @@ import (
 )
 
 type Apis struct {
-	Apis     []*Api
-	Typedefs jstypez.Typedefs
+	Apis     []*Api           `json:"apis"`
+	Typedefs jstypez.Typedefs `json:"typedefs"`
 }
 
 func ParseApis(apis []apiz.Api) *Apis {
