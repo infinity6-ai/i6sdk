@@ -186,7 +186,6 @@ class FS {
 
     return ref
   }
-
 }
 
 const fs = new FS()
