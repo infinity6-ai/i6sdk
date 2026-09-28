@@ -77,6 +77,14 @@ type Typedefs struct {
 	m map[string]*Typedef
 }
 
+func (t Typedefs) Merge(other Typedefs) {
+	for k, v := range other.m {
+		if _, ok := t.m[k]; !ok {
+			t.m[k] = v
+		}
+	}
+}
+
 func NewTypedefs(tuples []*Typedef) Typedefs {
 	ret := Typedefs{}
 	ret.Add(tuples...)
