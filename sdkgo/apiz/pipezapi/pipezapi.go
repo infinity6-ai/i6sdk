@@ -3,6 +3,7 @@ package pipezapi
 import (
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
+	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solutiondomain"
 )
@@ -12,8 +13,8 @@ type PipeParam struct {
 	Value string `json:"value"`
 }
 
-func (PipeParam) JSType() string {
-	return "object"
+func (*PipeParam) JSType() string {
+	return jstypez.TypeObject
 }
 
 type PipezStartReq struct {
@@ -25,6 +26,10 @@ type PipezStartReq struct {
 
 type PipezStartResp struct {
 	Id string `json:"id"`
+}
+
+func (*PipezStartResp) JSType() string {
+	return jstypez.TypeObject
 }
 
 type PipezStartApi struct {

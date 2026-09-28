@@ -8,6 +8,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/infinity6-ai/gox/commonz/validation"
 	"github.com/infinity6-ai/gox/commonz/validation/checked"
+	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/domain"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
 )
@@ -55,6 +56,10 @@ func (v *Value) UnmarshalJSON(data []byte) error {
 }
 
 type SolutionDomain checked.Value[Value]
+
+func (*SolutionDomain) JSType() string {
+	return jstypez.TypeString
+}
 
 func (t SolutionDomain) Optional() optionalz.Optional[Value] {
 	return checked.Value[Value](t).Optional()
