@@ -42,6 +42,9 @@ func Write(ctx context.Context, apis *jsparser.Apis) string {
 		allTdfs.Add(&respTypedef)
 	}
 
+	b.WriteString("/**\n")
+	b.WriteString(" * @typedef {import(\"../services/services.js\").Services} Services\n")
+	b.WriteString(" */\n\n")
 	b.WriteString(jstypedefwriter.Write(allTdfs))
 
 	if len(apis.Apis) == 0 {
@@ -49,6 +52,19 @@ func Write(ctx context.Context, apis *jsparser.Apis) string {
 	}
 
 	b.WriteString("class Apis {\n\n")
+
+	b.WriteString("  /**\n")
+	b.WriteString("   * Constructs an Ingest client instance.\n")
+	b.WriteString("   * @param {Services} services - The services manager instance.\n")
+	b.WriteString("   */\n")
+	b.WriteString("  constructor(services) {\n")
+	b.WriteString("    /**\n")
+	b.WriteString("     * @private\n")
+	b.WriteString("     * @type {Services}\n")
+	b.WriteString("     */\n")
+	b.WriteString("    this._services = services;\n")
+	b.WriteString("  }\n\n")
+
 	// b.WriteString("const apis = {\n")
 	for idx, api := range apis.Apis {
 		if idx > 0 {
@@ -132,7 +148,6 @@ func writeApiDecl(b *strings.Builder, api *jsparser.Api) {
 	hasReq := hasParams || hasQuery || hasReqHeaders || hasPayload
 
 	b.WriteString("/**\n")
-	b.WriteString(" * @param {import(\"../services/services.js\").Services} services\n")
 	if hasReq {
 		fmt.Fprintf(b, " * @param {%sReq} req\n", apiId)
 	}
@@ -140,9 +155,9 @@ func writeApiDecl(b *strings.Builder, api *jsparser.Api) {
 	b.WriteString(" */\n")
 
 	if hasReq {
-		fmt.Fprintf(b, "async %s(services, req) {\n", funcName(apiId))
+		fmt.Fprintf(b, "async %s(req) {\n", funcName(apiId))
 	} else {
-		fmt.Fprintf(b, "async %s(services) {\n", funcName(apiId))
+		fmt.Fprintf(b, "async %s() {\n", funcName(apiId))
 	}
 
 	jsPath := strings.TrimPrefix(api.Spec.Path, "/")
@@ -150,7 +165,7 @@ func writeApiDecl(b *strings.Builder, api *jsparser.Api) {
 		jsPath = pathParamRe.ReplaceAllString(jsPath, "${encodeURIComponent(String(req.params.$1))}")
 	}
 
-	b.WriteString("  const resp = await services.invoker().invoke({\n")
+	b.WriteString("  const resp = await this._services.invoker().invoke({\n")
 	fmt.Fprintf(b, "    method: %q,\n", api.Spec.Method)
 
 	fmt.Fprintf(b, "    path: `%s`,\n", jsPath)
