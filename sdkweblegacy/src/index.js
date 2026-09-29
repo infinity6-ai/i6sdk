@@ -6,10 +6,15 @@ import { Services } from "./services/services.js";
 import { I6Error } from "./errors.js";
 
 /**
- * @typedef {import("./types.js").I6SdkConfig} I6SdkConfig
  * @typedef {import("./ingest/ingest.js").Ingest} Ingest
  * @typedef {import("./auth/auth.js").Auth} Auth
  * @typedef {import("./pipe/pipe.js").Pipe} Pipe
+ */
+
+/**
+ * Configuration options for the i6 SDK.
+ * @typedef {Object} I6SdkConfig
+ * @property {string} [baseUrl] - Base URL of the i6 server. Defaults to the sandbox environment.
  */
 
 /**
