@@ -6,7 +6,6 @@ window.i6sdk = i6sdk
 const ingest = await i6sdk.ingest()
 
 $(window).ready(async () => {
-    console.log("Teste")
     const form = $("form")
     const button = form.find("button")
 
