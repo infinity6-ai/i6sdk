@@ -10,7 +10,6 @@ import { I6Error } from "./errors.js";
  * @typedef {import("./ingest/ingest.js").Ingest} Ingest
  * @typedef {import("./auth/auth.js").Auth} Auth
  * @typedef {import("./pipe/pipe.js").Pipe} Pipe
- * @typedef {import("./dataset/dataset.js").Dataset} Dataset
  */
 
 /**
@@ -64,14 +63,6 @@ class I6Sdk {
    */
   pipe() {
     return this._service.pipe()
-  }
-
-  /**
-   * Returns a Dataset service instance.
-   * @returns {Dataset} An instance of the Dataset client.
-   */
-  dataset() {
-    return this._service.dataset()
   }
 
   /**
