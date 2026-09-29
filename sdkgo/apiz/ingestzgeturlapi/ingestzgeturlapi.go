@@ -32,8 +32,13 @@ type GetUrlApi struct {
 
 func (d *GetUrlApi) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id:     "ingestz-get-url",
-		Desc:   nil,
+		Id: "ingestz-get-url",
+		Desc: func() *schemaz.Desc {
+			return &schemaz.Desc{
+				Name:    "Ingestz get url",
+				Summary: "Get the url that will be used to ingest files",
+			}
+		},
 		Method: "POST",
 		Path:   "/api/ingest/get-url/dataset/{dataset}",
 	}
