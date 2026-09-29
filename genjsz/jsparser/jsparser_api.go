@@ -73,7 +73,7 @@ func ParseApi(api apiz.Api) *Api {
 		if s == nil {
 			return
 		}
-		fieldName := ret.Spec.CamelId + suffix[0:1] + suffix[1:]
+		fieldName := ret.Spec.CamelId + strings.ToUpper(suffix[0:1]) + suffix[1:]
 		// out.Head = &jstypez.Tuple{Typ: "object", Name: fieldName}
 		out.Properties = &jstypez.Tuples{}
 		p, tdfs := ParseSchema(s)
