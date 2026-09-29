@@ -26,8 +26,8 @@ func TestUnitFractionSample(t *testing.T) {
 				Summary:  "Sample API that performs a fraction operation",
 				Markdown: "",
 			},
-			Method:  "POST",
-			Path:    "/api/gox/routez/sample/fraction/{numerator}/{denominator}",
+			Method: "POST",
+			Path:   "/api/gox/routez/sample/fraction/{numerator}/{denominator}",
 		},
 		Typedefs: jstypez.NewTypedefs([]*jstypez.Typedef{
 			{
@@ -114,8 +114,8 @@ func TestUnitIngestz(t *testing.T) {
 				Summary:  "Generates presigned PUT URLs and an ingestion token for uploading files into a target dataset table and partitions.",
 				Markdown: "",
 			},
-			Method:  "POST",
-			Path:    "/api/ingest/get-url/dataset/{dataset}",
+			Method: "POST",
+			Path:   "/api/ingest/get-url/dataset/{dataset}",
 		},
 		Typedefs: jstypez.NewTypedefs([]*jstypez.Typedef{
 			{
@@ -133,7 +133,7 @@ func TestUnitIngestz(t *testing.T) {
 				}),
 			},
 			{
-				Head: &jstypez.Tuple{Typ: "object", Name: "apiIngestzGetUrlRespPayload"},
+				Head: &jstypez.Tuple{Typ: "object", Name: "apiIngestzGetUrlRespPayload", Summary: "Presigned upload URLs and the ingestion token that identifies this ingestion."},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
 					{Typ: "string", Name: "ingest_id", Summary: "Ingestion token that identifies this ingestion and ties the uploaded files together."},
 					{Typ: "Array<string>", Name: "uploads", Summary: "Presigned PUT URLs, one per requested file; upload each file to its URL."},

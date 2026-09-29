@@ -25,5 +25,8 @@ func ParseSchema(schema *schemaz.Schema) (*jstypez.Typedef, *jstypez.Typedefs) {
 	if typedef == nil {
 		panic(fmt.Sprintf("unsupported: %#v", schema))
 	}
+	if schema.Desc != nil {
+		typedef.Head.Summary = schema.Desc.Summary
+	}
 	return typedef, typedefs
 }
