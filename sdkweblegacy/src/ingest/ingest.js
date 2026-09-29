@@ -92,7 +92,7 @@ class Ingest {
    * @throws {I6Error} If the request fails or no upload URL is returned.
    */
   async #getUrl({ dataset, table, partitions }) {
-    const resp = await apis.apiIngestzGetUrl(this._services, {
+    const resp = await apis.ingestzGetUrl(this._services, {
       params: { dataset },
       payload: { table, partitions, amount: 1 },
     });
