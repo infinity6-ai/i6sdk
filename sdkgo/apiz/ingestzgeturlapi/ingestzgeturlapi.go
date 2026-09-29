@@ -35,8 +35,8 @@ func (d *GetUrlApi) ApiSpec() apiz.ApiSpec {
 		Id: "ingestz-get-url",
 		Desc: func() *schemaz.Desc {
 			return &schemaz.Desc{
-				Name:    "Ingestz get url",
-				Summary: "Get the url that will be used to ingest files",
+				Name:    "Get Ingestion Upload URLs",
+				Summary: "Generates presigned PUT URLs and an ingestion token for uploading files into a target dataset table and partitions.",
 			}
 		},
 		Method: "POST",
