@@ -90,19 +90,6 @@ class Services {
         }
         return ret
     }
-
-    /**
-     * Creates and returns a Dataset service instance.
-     * @returns {Dataset} An instance of the Dataset client.
-     */
-    dataset() {
-        const ret = new Dataset(this)
-        if (ret.prepare) {
-            ret.prepare()
-        }
-        return ret
-    }
-
 }
 
 export { Services };
