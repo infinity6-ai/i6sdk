@@ -8,10 +8,6 @@ import { Ingest } from "../ingest/ingest.js";
 import { Pipe } from "../pipe/pipe.js";
 
 /**
- * @typedef {import("../types.js").I6SdkConfig} I6SdkConfig
- */
-
-/**
  * Service container that instantiates and provides access to SDK service clients.
  */
 class Services {
