@@ -1,6 +1,7 @@
 package jsparser
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
@@ -77,6 +78,7 @@ func ParseApi(api apiz.Api) *Api {
 		checker.Equal("object", p.Head.Typ, "must be object")
 		out.Head = &jstypez.Tuple{Typ: fieldName, Name: suffix}
 		p.Head.Name = out.Head.Typ
+		p.Head.Summary = fmt.Sprintf("%s %s", ret.Spec.CamelId, suffix)
 		ret.Typedefs.ExtractFrom(tdfs)
 		ret.Typedefs.Add(p)
 	}

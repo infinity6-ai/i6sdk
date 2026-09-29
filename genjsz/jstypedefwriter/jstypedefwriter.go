@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
@@ -11,6 +12,9 @@ func Write(pipedefs *jstypez.Typedefs) string {
 	var b strings.Builder
 	for _, pipedef := range pipedefs.All() {
 		b.WriteString("/**\n")
+		if pipedef.Head.Summary == "" {
+			panic(jsonz.MustFormat(pipedef))
+		}
 		if pipedef.Head.Summary != "" {
 			fmt.Fprintf(&b, " * %s\n", pipedef.Head.Summary)
 		}
