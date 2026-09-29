@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
-	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzgeturlapi"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzapi/ingestzgeturlapi"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/pipezapi"
 )
 
