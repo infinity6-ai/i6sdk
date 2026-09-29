@@ -20,9 +20,9 @@ type Path struct {
 
 func (p Path) Format() (*pathz.Path, error) {
 	ret := pathz.New(0, []string{
-		p.Table.Database.Get(),
+		p.Table.Database().Get(),
 		"table",
-		p.Table.Name.Get(),
+		p.Table.Name().Get(),
 	}, false)
 	if p.Partition != nil {
 		ret = ret.MustJoin(p.Partition.Format())
