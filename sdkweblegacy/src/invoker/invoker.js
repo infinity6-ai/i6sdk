@@ -79,12 +79,6 @@ class Invoker {
         opts.credentials = "include";
 
         const resp = await fetch(url, opts)
-        // if (resp.status == 401 || resp.status == 403) {
-        //     this._services._dispatcher.dispatchEvent(new CustomEvent('i6:accessDenied', {
-        //         opts: opts,
-        //         resp: resp,
-        //     }))
-        // }
         return resp
     }
 
