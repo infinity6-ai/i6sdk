@@ -50,12 +50,14 @@ func TestUnitWrite(t *testing.T) {
  */
 
 /**
+ * apiSampleFraction params
  * @typedef {object} apiSampleFractionParams
  * @property {number} denominator - Fraction Denominator
  * @property {number} numerator - Fraction Numerator
  */
 
 /**
+ * apiSampleFraction query
  * @typedef {object} apiSampleFractionQuery
  * @property {number} precision - Fraction max precision
  */
@@ -70,11 +72,13 @@ func TestUnitWrite(t *testing.T) {
  */
 
 /**
+ * apiSampleFraction reqHeaders
  * @typedef {object} apiSampleFractionReqHeaders
  * @property {string} x_i6_trace_id - Sample of Trace Id
  */
 
 /**
+ * apiSampleFraction reqPayload
  * @typedef {object} apiSampleFractionReqPayload
  * @property {string} reason - Sample reason of this fraction
  */
@@ -87,11 +91,13 @@ func TestUnitWrite(t *testing.T) {
  */
 
 /**
+ * apiSampleFraction respHeaders
  * @typedef {object} apiSampleFractionRespHeaders
  * @property {string} x_i6_trace_message - Sample of any trace message
  */
 
 /**
+ * apiSampleFraction respPayload
  * @typedef {object} apiSampleFractionRespPayload
  * @property {string} display - Human Fraction Representation
  * @property {string} result - Fraction Result
@@ -112,6 +118,10 @@ class Apis {
   }
 
   /**
+   * Sample Fraction
+   * 
+   * Sample API that performs a fraction operation
+   * 
    * @param {apiSampleFractionReq} req
    * @returns {Promise<apiSampleFractionResp>}
    */
