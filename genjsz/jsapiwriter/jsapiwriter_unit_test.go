@@ -34,14 +34,22 @@ func TestUnitWrite(t *testing.T) {
 
 	t.Run("empty apis", func(t *testing.T) {
 		check(t, testScenario{
-			in:   &jsparser.Apis{},
-			want: "",
+			in: &jsparser.Apis{},
+			want: `/**
+ * @typedef {import("../services/services.js").Services} Services
+ */
+
+`,
 		})
 	})
 
 	t.Run("with path param, request payload, and response payload", func(t *testing.T) {
 		apis := jsparser.ParseApis(ctx, []apiz.Api{&ingestzgeturlapi.GetUrlApi{}})
 		want := `/**
+ * @typedef {import("../services/services.js").Services} Services
+ */
+
+/**
  * apiIngestzGetUrl Request
  * @typedef {object} apiIngestzGetUrlReq
  * @property {apiIngestzGetUrlparams} params
@@ -70,14 +78,26 @@ func TestUnitWrite(t *testing.T) {
  * @typedef {object} apiIngestzGetUrlrespPayload
  */
 
-const apis = {
+class Apis {
+
   /**
-   * @param {import("../services/services.js").Services} services
+   * Constructs an Ingest client instance.
+   * @param {Services} services - The services manager instance.
+   */
+  constructor(services) {
+    /**
+     * @private
+     * @type {Services}
+     */
+    this._services = services;
+  }
+
+  /**
    * @param {apiIngestzGetUrlReq} req
    * @returns {Promise<apiIngestzGetUrlResp>}
    */
-  async ingestzGetUrl(services, req) {
-    const resp = await services.invoker().invoke({
+  async ingestzGetUrl(req) {
+    const resp = await this._services.invoker().invoke({
       method: "POST",
       path: ` + "`" + `api/ingest/get-url/dataset/${encodeURIComponent(String(req.params.dataset))}` + "`" + `,
       json: req.payload,
@@ -95,10 +115,10 @@ const apis = {
       }
     }
     return result;
-  },
-};
+  }
+}
 
-export { apis };
+export { Apis };
 `
 		check(t, testScenario{
 			in:   apis,
@@ -109,6 +129,10 @@ export { apis };
 	t.Run("with multiple path params and extra request fields", func(t *testing.T) {
 		apis := jsparser.ParseApis(ctx, []apiz.Api{routezsamplefraction.NewService().Api()})
 		want := `/**
+ * @typedef {import("../services/services.js").Services} Services
+ */
+
+/**
  * apiSamplefraction Request
  * @typedef {object} apiSamplefractionReq
  * @property {apiSamplefractionparams} params
@@ -156,14 +180,26 @@ export { apis };
  * @property {string} result
  */
 
-const apis = {
+class Apis {
+
   /**
-   * @param {import("../services/services.js").Services} services
+   * Constructs an Ingest client instance.
+   * @param {Services} services - The services manager instance.
+   */
+  constructor(services) {
+    /**
+     * @private
+     * @type {Services}
+     */
+    this._services = services;
+  }
+
+  /**
    * @param {apiSamplefractionReq} req
    * @returns {Promise<apiSamplefractionResp>}
    */
-  async samplefraction(services, req) {
-    const resp = await services.invoker().invoke({
+  async samplefraction(req) {
+    const resp = await this._services.invoker().invoke({
       method: "POST",
       path: ` + "`" + `api/gox/routez/sample/fraction/${encodeURIComponent(String(req.params.numerator))}/${encodeURIComponent(String(req.params.denominator))}` + "`" + `,
       query: req.query,
@@ -183,10 +219,10 @@ const apis = {
       }
     }
     return result;
-  },
-};
+  }
+}
 
-export { apis };
+export { Apis };
 `
 		check(t, testScenario{
 			in:   apis,
@@ -208,17 +244,33 @@ export { apis };
 		}
 
 		want := `/**
+ * @typedef {import("../services/services.js").Services} Services
+ */
+
+/**
  * healthCheck Response
  * @typedef {object} healthCheckResp
  */
 
-const apis = {
+class Apis {
+
   /**
-   * @param {import("../services/services.js").Services} services
+   * Constructs an Ingest client instance.
+   * @param {Services} services - The services manager instance.
+   */
+  constructor(services) {
+    /**
+     * @private
+     * @type {Services}
+     */
+    this._services = services;
+  }
+
+  /**
    * @returns {Promise<healthCheckResp>}
    */
-  async healthCheck(services) {
-    const resp = await services.invoker().invoke({
+  async healthCheck() {
+    const resp = await this._services.invoker().invoke({
       method: "GET",
       path: ` + "`" + `api/health` + "`" + `,
     });
@@ -235,10 +287,10 @@ const apis = {
       }
     }
     return result;
-  },
-};
+  }
+}
 
-export { apis };
+export { Apis };
 `
 		check(t, testScenario{
 			in:   apis,
@@ -262,6 +314,10 @@ export { apis };
 		}
 
 		want := `/**
+ * @typedef {import("../services/services.js").Services} Services
+ */
+
+/**
  * getUser Request
  * @typedef {object} getUserReq
  * @property {getUserParams} params
@@ -273,14 +329,26 @@ export { apis };
  * @property {getUserRespPayload} payload
  */
 
-const apis = {
+class Apis {
+
   /**
-   * @param {import("../services/services.js").Services} services
+   * Constructs an Ingest client instance.
+   * @param {Services} services - The services manager instance.
+   */
+  constructor(services) {
+    /**
+     * @private
+     * @type {Services}
+     */
+    this._services = services;
+  }
+
+  /**
    * @param {getUserReq} req
    * @returns {Promise<getUserResp>}
    */
-  async getUser(services, req) {
-    const resp = await services.invoker().invoke({
+  async getUser(req) {
+    const resp = await this._services.invoker().invoke({
       method: "GET",
       path: ` + "`" + `api/user/${encodeURIComponent(String(req.params.id))}` + "`" + `,
     });
@@ -297,10 +365,10 @@ const apis = {
       }
     }
     return result;
-  },
-};
+  }
+}
 
-export { apis };
+export { Apis };
 `
 		check(t, testScenario{
 			in:   apis,
@@ -322,17 +390,33 @@ export { apis };
 		}
 
 		want := `/**
+ * @typedef {import("../services/services.js").Services} Services
+ */
+
+/**
  * ping Response
  * @typedef {object} pingResp
  */
 
-const apis = {
+class Apis {
+
   /**
-   * @param {import("../services/services.js").Services} services
+   * Constructs an Ingest client instance.
+   * @param {Services} services - The services manager instance.
+   */
+  constructor(services) {
+    /**
+     * @private
+     * @type {Services}
+     */
+    this._services = services;
+  }
+
+  /**
    * @returns {Promise<pingResp>}
    */
-  async ping(services) {
-    const resp = await services.invoker().invoke({
+  async ping() {
+    const resp = await this._services.invoker().invoke({
       method: "GET",
       path: ` + "`" + `ping` + "`" + `,
     });
@@ -349,10 +433,10 @@ const apis = {
       }
     }
     return result;
-  },
-};
+  }
+}
 
-export { apis };
+export { Apis };
 `
 		check(t, testScenario{
 			in:   apis,
@@ -367,6 +451,10 @@ export { apis };
 		})
 
 		want := `/**
+ * @typedef {import("../services/services.js").Services} Services
+ */
+
+/**
  * apiIngestzGetUrl Request
  * @typedef {object} apiIngestzGetUrlReq
  * @property {apiIngestzGetUrlparams} params
@@ -443,14 +531,26 @@ export { apis };
  * @property {string} result
  */
 
-const apis = {
+class Apis {
+
   /**
-   * @param {import("../services/services.js").Services} services
+   * Constructs an Ingest client instance.
+   * @param {Services} services - The services manager instance.
+   */
+  constructor(services) {
+    /**
+     * @private
+     * @type {Services}
+     */
+    this._services = services;
+  }
+
+  /**
    * @param {apiSamplefractionReq} req
    * @returns {Promise<apiSamplefractionResp>}
    */
-  async samplefraction(services, req) {
-    const resp = await services.invoker().invoke({
+  async samplefraction(req) {
+    const resp = await this._services.invoker().invoke({
       method: "POST",
       path: ` + "`" + `api/gox/routez/sample/fraction/${encodeURIComponent(String(req.params.numerator))}/${encodeURIComponent(String(req.params.denominator))}` + "`" + `,
       query: req.query,
@@ -470,15 +570,14 @@ const apis = {
       }
     }
     return result;
-  },
+  }
 
   /**
-   * @param {import("../services/services.js").Services} services
    * @param {apiIngestzGetUrlReq} req
    * @returns {Promise<apiIngestzGetUrlResp>}
    */
-  async ingestzGetUrl(services, req) {
-    const resp = await services.invoker().invoke({
+  async ingestzGetUrl(req) {
+    const resp = await this._services.invoker().invoke({
       method: "POST",
       path: ` + "`" + `api/ingest/get-url/dataset/${encodeURIComponent(String(req.params.dataset))}` + "`" + `,
       json: req.payload,
@@ -496,10 +595,10 @@ const apis = {
       }
     }
     return result;
-  },
-};
+  }
+}
 
-export { apis };
+export { Apis };
 `
 		check(t, testScenario{
 			in:   apis,
