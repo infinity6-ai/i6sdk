@@ -6,7 +6,6 @@ import { Invoker } from "../invoker/invoker.js";
 import { Auth } from "../auth/auth.js";
 import { Ingest } from "../ingest/ingest.js";
 import { Pipe } from "../pipe/pipe.js";
-import { Dataset } from "../dataset/dataset.js";
 
 /**
  * @typedef {import("../types.js").I6SdkConfig} I6SdkConfig
