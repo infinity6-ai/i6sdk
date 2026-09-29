@@ -8,7 +8,12 @@ import { Ingest } from "../ingest/ingest.js";
 import { Apis } from "../sdkapis/sdkapis.js";
 
 /**
+ * @typedef {import("../index.js").I6SdkConfig} I6SdkConfig
+ */
+
+/**
  * Service container that instantiates and provides access to SDK service clients.
+ * Every accessor returns a new client sharing this container's config and dispatcher.
  */
 class Services {
     /**
@@ -80,8 +85,8 @@ class Services {
     }
 
     /**
-     * Returns i6 apis
-     * @returns {Apis} i6 apis.
+     * Creates and returns an Apis service instance.
+     * @returns {Apis} An instance of the generated Apis client.
      */
     apis() {
         const ret = new Apis(this)
