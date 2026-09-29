@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
-	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzapi/ingestzgeturlapi"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzapi/ingestzapigeturl"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/pipezapi"
 )
 
@@ -102,7 +102,7 @@ func TestUnitFractionSample(t *testing.T) {
 }
 
 func TestUnitIngestz(t *testing.T) {
-	api := &ingestzgeturlapi.GetUrlApi{}
+	api := &ingestzapigeturl.GetUrlApi{}
 	actual := jsparser.ParseApi(api)
 	jsonz.MustParse(jsonz.MustFormat(actual).String(), &actual)
 	expected := &jsparser.Api{

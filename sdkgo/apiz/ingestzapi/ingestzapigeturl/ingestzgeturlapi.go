@@ -1,4 +1,4 @@
-package ingestzgeturlapi
+package ingestzapigeturl
 
 import (
 	"github.com/infinity6-ai/gox/routez/apiz"

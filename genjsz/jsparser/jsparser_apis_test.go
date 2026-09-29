@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
-	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzapi/ingestzgeturlapi"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzapi/ingestzapigeturl"
 )
 
 func expectedFractionApi() *jsparser.Api {
@@ -190,7 +190,7 @@ func TestUnitParseApis(t *testing.T) {
 		ingestz := expectedIngestzApi()
 		check(t, testScenario{
 			in: []apiz.Api{
-				&ingestzgeturlapi.GetUrlApi{},
+				&ingestzapigeturl.GetUrlApi{},
 			},
 			want: &jsparser.Apis{
 				Apis:     []*jsparser.Api{ingestz},
@@ -210,7 +210,7 @@ func TestUnitParseApis(t *testing.T) {
 		check(t, testScenario{
 			in: []apiz.Api{
 				routezsamplefraction.NewService().Api(),
-				&ingestzgeturlapi.GetUrlApi{},
+				&ingestzapigeturl.GetUrlApi{},
 			},
 			want: &jsparser.Apis{
 				Apis:     []*jsparser.Api{fraction, ingestz},
