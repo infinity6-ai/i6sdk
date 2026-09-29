@@ -2,7 +2,7 @@
  * @fileoverview Dataset client for selecting the solution domain of a dataset.
  */
 
-import { apiDszDomainSelect } from "../sdkapis/sdkapis.js";
+import { apis } from "../sdkapis/sdkapis.js";
 import { I6Error } from "../errors.js";
 
 /**
@@ -41,7 +41,7 @@ class Dataset {
    * @throws {I6Error} If the request fails.
    */
   async selectDomain({ dataset, domain, solution, store }) {
-    const resp = await dszDomainSelect(this._services, {
+    const resp = await apis.apiDszDomainSelect(this._services, {
       params: { dataset },
       payload: { domain, solution, store },
     });

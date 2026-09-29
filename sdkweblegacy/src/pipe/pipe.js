@@ -2,7 +2,7 @@
  * @fileoverview Pipe client for starting pipelines.
  */
 
-import { apiPipezStart } from "../sdkapis/sdkapis.js";
+import { apis } from "../sdkapis/sdkapis.js";
 import { I6Error } from "../errors.js";
 
 /**
@@ -47,7 +47,7 @@ class Pipe {
    * @throws {I6Error} If the request fails.
    */
   async start({ dataset, pipename, params = [], solutionDomain }) {
-    const resp = await pipezStart(this._services, {
+    const resp = await apis.apiPipezStart(this._services, {
       params: { dataset },
       payload: { pipename, params, solution_domain: solutionDomain },
     });

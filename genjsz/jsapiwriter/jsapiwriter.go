@@ -44,14 +44,33 @@ func Write(ctx context.Context, apis *jsparser.Apis) string {
 
 	b.WriteString(jstypedefwriter.Write(allTdfs))
 
+	if len(apis.Apis) == 0 {
+		return b.String()
+	}
+
+	b.WriteString("const apis = {\n")
 	for idx, api := range apis.Apis {
 		if idx > 0 {
 			b.WriteString("\n")
 		}
-		writeApiDecl(&b, api)
+		var decl strings.Builder
+		writeApiDecl(&decl, api)
+		b.WriteString(indent(decl.String(), "  "))
 	}
+	b.WriteString("};\n\n")
+	b.WriteString("export { apis };\n")
 
 	return b.String()
+}
+
+func indent(s, prefix string) string {
+	lines := strings.Split(strings.TrimSuffix(s, "\n"), "\n")
+	for i, l := range lines {
+		if l != "" {
+			lines[i] = prefix + l
+		}
+	}
+	return strings.Join(lines, "\n") + "\n"
 }
 
 func buildReqTypedef(apiId string, api *jsparser.Api) (jstypez.Typedef, bool) {
@@ -114,9 +133,9 @@ func writeApiDecl(b *strings.Builder, api *jsparser.Api) {
 	b.WriteString(" */\n")
 
 	if hasReq {
-		fmt.Fprintf(b, "export async function %s(services, req) {\n", apiId)
+		fmt.Fprintf(b, "async %s(services, req) {\n", apiId)
 	} else {
-		fmt.Fprintf(b, "export async function %s(services) {\n", apiId)
+		fmt.Fprintf(b, "async %s(services) {\n", apiId)
 	}
 
 	jsPath := strings.TrimPrefix(api.Spec.Path, "/")
@@ -159,5 +178,5 @@ func writeApiDecl(b *strings.Builder, api *jsparser.Api) {
 	b.WriteString("    }\n")
 	b.WriteString("  }\n")
 	b.WriteString("  return result;\n")
-	b.WriteString("}\n")
+	b.WriteString("},\n")
 }

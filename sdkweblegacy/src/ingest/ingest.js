@@ -2,7 +2,7 @@
  * @fileoverview Ingest client for uploading files to the ingestion service.
  */
 
-import { apiIngestzGetUrl } from "../sdkapis/sdkapis.js";
+import { apis } from "../sdkapis/sdkapis.js";
 import { I6Error } from "../errors.js";
 
 /**
@@ -92,7 +92,7 @@ class Ingest {
    * @throws {I6Error} If the request fails or no upload URL is returned.
    */
   async #getUrl({ dataset, table, partitions }) {
-    const resp = await ingestzGetUrl(this._services, {
+    const resp = await apis.apiIngestzGetUrl(this._services, {
       params: { dataset },
       payload: { table, partitions, amount: 1 },
     });

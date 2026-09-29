@@ -42,59 +42,63 @@ func TestUnitWrite(t *testing.T) {
 	t.Run("with path param, request payload, and response payload", func(t *testing.T) {
 		apis := jsparser.ParseApis(ctx, []apiz.Api{&ingestzgeturlapi.GetUrlApi{}})
 		want := `/**
- * ingestzGetUrl Request
- * @typedef {object} ingestzGetUrlReq
- * @property {ingestzGetUrlparams} params
- * @property {ingestzGetUrlreqPayload} payload
+ * apiIngestzGetUrl Request
+ * @typedef {object} apiIngestzGetUrlReq
+ * @property {apiIngestzGetUrlparams} params
+ * @property {apiIngestzGetUrlreqPayload} payload
  */
 
 /**
- * ingestzGetUrl Response
- * @typedef {object} ingestzGetUrlResp
- * @property {ingestzGetUrlrespPayload} payload
+ * apiIngestzGetUrl Response
+ * @typedef {object} apiIngestzGetUrlResp
+ * @property {apiIngestzGetUrlrespPayload} payload
  */
 
 /**
- * @typedef {object} ingestzGetUrlparams
+ * @typedef {object} apiIngestzGetUrlparams
  * @property {string} dataset
  */
 
 /**
- * @typedef {object} ingestzGetUrlreqPayload
+ * @typedef {object} apiIngestzGetUrlreqPayload
  * @property {number} amount
  * @property {Record<string, string>} partitions
  * @property {string} table
  */
 
 /**
- * @typedef {object} ingestzGetUrlrespPayload
+ * @typedef {object} apiIngestzGetUrlrespPayload
  */
 
-/**
- * @param {import("../services/services.js").Services} services
- * @param {ingestzGetUrlReq} req
- * @returns {Promise<ingestzGetUrlResp>}
- */
-export async function ingestzGetUrl(services, req) {
-  const resp = await services.invoker().invoke({
-    method: "POST",
-    path: ` + "`" + `api/ingest/get-url/dataset/${encodeURIComponent(String(req.params.dataset))}` + "`" + `,
-    json: req.payload,
-  });
-  const result = {status: resp.status, ok: resp.ok};
-  if (resp.ok) {
-    result.payload = await resp.json();
-  }
-  if (!resp.ok) {
-    const text = await resp.text();
-    try {
-      result.error = JSON.parse(text);
-    } catch {
-      result.error = text;
+const apis = {
+  /**
+   * @param {import("../services/services.js").Services} services
+   * @param {apiIngestzGetUrlReq} req
+   * @returns {Promise<apiIngestzGetUrlResp>}
+   */
+  async apiIngestzGetUrl(services, req) {
+    const resp = await services.invoker().invoke({
+      method: "POST",
+      path: ` + "`" + `api/ingest/get-url/dataset/${encodeURIComponent(String(req.params.dataset))}` + "`" + `,
+      json: req.payload,
+    });
+    const result = {status: resp.status, ok: resp.ok};
+    if (resp.ok) {
+      result.payload = await resp.json();
     }
-  }
-  return result;
-}
+    if (!resp.ok) {
+      const text = await resp.text();
+      try {
+        result.error = JSON.parse(text);
+      } catch {
+        result.error = text;
+      }
+    }
+    return result;
+  },
+};
+
+export { apis };
 `
 		check(t, testScenario{
 			in:   apis,
@@ -105,80 +109,84 @@ export async function ingestzGetUrl(services, req) {
 	t.Run("with multiple path params and extra request fields", func(t *testing.T) {
 		apis := jsparser.ParseApis(ctx, []apiz.Api{routezsamplefraction.NewService().Api()})
 		want := `/**
- * samplefraction Request
- * @typedef {object} samplefractionReq
- * @property {samplefractionparams} params
- * @property {samplefractionquery} query
- * @property {samplefractionreqHeaders} headers
- * @property {samplefractionreqPayload} payload
+ * apiSamplefraction Request
+ * @typedef {object} apiSamplefractionReq
+ * @property {apiSamplefractionparams} params
+ * @property {apiSamplefractionquery} query
+ * @property {apiSamplefractionreqHeaders} headers
+ * @property {apiSamplefractionreqPayload} payload
  */
 
 /**
- * samplefraction Response
- * @typedef {object} samplefractionResp
- * @property {samplefractionrespHeaders} headers
- * @property {samplefractionrespPayload} payload
+ * apiSamplefraction Response
+ * @typedef {object} apiSamplefractionResp
+ * @property {apiSamplefractionrespHeaders} headers
+ * @property {apiSamplefractionrespPayload} payload
  */
 
 /**
- * @typedef {object} samplefractionparams
+ * @typedef {object} apiSamplefractionparams
  * @property {number} denominator
  * @property {number} numerator
  */
 
 /**
- * @typedef {object} samplefractionquery
+ * @typedef {object} apiSamplefractionquery
  * @property {number} precision
  */
 
 /**
- * @typedef {object} samplefractionreqHeaders
+ * @typedef {object} apiSamplefractionreqHeaders
  * @property {string} x_i6_trace_id
  */
 
 /**
- * @typedef {object} samplefractionreqPayload
+ * @typedef {object} apiSamplefractionreqPayload
  * @property {string} reason
  */
 
 /**
- * @typedef {object} samplefractionrespHeaders
+ * @typedef {object} apiSamplefractionrespHeaders
  * @property {string} x_i6_trace_message
  */
 
 /**
- * @typedef {object} samplefractionrespPayload
+ * @typedef {object} apiSamplefractionrespPayload
  * @property {string} display
  * @property {string} result
  */
 
-/**
- * @param {import("../services/services.js").Services} services
- * @param {samplefractionReq} req
- * @returns {Promise<samplefractionResp>}
- */
-export async function samplefraction(services, req) {
-  const resp = await services.invoker().invoke({
-    method: "POST",
-    path: ` + "`" + `api/gox/routez/sample/fraction/${encodeURIComponent(String(req.params.numerator))}/${encodeURIComponent(String(req.params.denominator))}` + "`" + `,
-    query: req.query,
-    headers: req.headers,
-    json: req.payload,
-  });
-  const result = {status: resp.status, ok: resp.ok};
-  if (resp.ok) {
-    result.payload = await resp.json();
-  }
-  if (!resp.ok) {
-    const text = await resp.text();
-    try {
-      result.error = JSON.parse(text);
-    } catch {
-      result.error = text;
+const apis = {
+  /**
+   * @param {import("../services/services.js").Services} services
+   * @param {apiSamplefractionReq} req
+   * @returns {Promise<apiSamplefractionResp>}
+   */
+  async apiSamplefraction(services, req) {
+    const resp = await services.invoker().invoke({
+      method: "POST",
+      path: ` + "`" + `api/gox/routez/sample/fraction/${encodeURIComponent(String(req.params.numerator))}/${encodeURIComponent(String(req.params.denominator))}` + "`" + `,
+      query: req.query,
+      headers: req.headers,
+      json: req.payload,
+    });
+    const result = {status: resp.status, ok: resp.ok};
+    if (resp.ok) {
+      result.payload = await resp.json();
     }
-  }
-  return result;
-}
+    if (!resp.ok) {
+      const text = await resp.text();
+      try {
+        result.error = JSON.parse(text);
+      } catch {
+        result.error = text;
+      }
+    }
+    return result;
+  },
+};
+
+export { apis };
 `
 		check(t, testScenario{
 			in:   apis,
@@ -189,9 +197,10 @@ export async function samplefraction(services, req) {
 	t.Run("without request params and response body fallback", func(t *testing.T) {
 		api := &jsparser.Api{
 			Spec: jsparser.ApiSpec{
-				Id:     "health-check",
-				Method: "GET",
-				Path:   "/api/health",
+				Id:      "health-check",
+				CamelId: "healthCheck",
+				Method:  "GET",
+				Path:    "/api/health",
 			},
 		}
 		apis := &jsparser.Apis{
@@ -203,29 +212,33 @@ export async function samplefraction(services, req) {
  * @typedef {object} healthCheckResp
  */
 
-/**
- * @param {import("../services/services.js").Services} services
- * @returns {Promise<healthCheckResp>}
- */
-export async function healthCheck(services) {
-  const resp = await services.invoker().invoke({
-    method: "GET",
-    path: ` + "`" + `api/health` + "`" + `,
-  });
-  const result = {status: resp.status, ok: resp.ok};
-  if (resp.ok) {
-    result.body = await resp.json();
-  }
-  if (!resp.ok) {
-    const text = await resp.text();
-    try {
-      result.error = JSON.parse(text);
-    } catch {
-      result.error = text;
+const apis = {
+  /**
+   * @param {import("../services/services.js").Services} services
+   * @returns {Promise<healthCheckResp>}
+   */
+  async healthCheck(services) {
+    const resp = await services.invoker().invoke({
+      method: "GET",
+      path: ` + "`" + `api/health` + "`" + `,
+    });
+    const result = {status: resp.status, ok: resp.ok};
+    if (resp.ok) {
+      result.body = await resp.json();
     }
-  }
-  return result;
-}
+    if (!resp.ok) {
+      const text = await resp.text();
+      try {
+        result.error = JSON.parse(text);
+      } catch {
+        result.error = text;
+      }
+    }
+    return result;
+  },
+};
+
+export { apis };
 `
 		check(t, testScenario{
 			in:   apis,
@@ -236,9 +249,10 @@ export async function healthCheck(services) {
 	t.Run("with request params but without payload", func(t *testing.T) {
 		api := &jsparser.Api{
 			Spec: jsparser.ApiSpec{
-				Id:     "get-user",
-				Method: "GET",
-				Path:   "/api/user/{id}",
+				Id:      "get-user",
+				CamelId: "getUser",
+				Method:  "GET",
+				Path:    "/api/user/{id}",
 			},
 		}
 		api.Req.Params.Head = &jstypez.Tuple{Typ: "getUserParams", Name: "params"}
@@ -259,30 +273,34 @@ export async function healthCheck(services) {
  * @property {getUserRespPayload} payload
  */
 
-/**
- * @param {import("../services/services.js").Services} services
- * @param {getUserReq} req
- * @returns {Promise<getUserResp>}
- */
-export async function getUser(services, req) {
-  const resp = await services.invoker().invoke({
-    method: "GET",
-    path: ` + "`" + `api/user/${encodeURIComponent(String(req.params.id))}` + "`" + `,
-  });
-  const result = {status: resp.status, ok: resp.ok};
-  if (resp.ok) {
-    result.payload = await resp.json();
-  }
-  if (!resp.ok) {
-    const text = await resp.text();
-    try {
-      result.error = JSON.parse(text);
-    } catch {
-      result.error = text;
+const apis = {
+  /**
+   * @param {import("../services/services.js").Services} services
+   * @param {getUserReq} req
+   * @returns {Promise<getUserResp>}
+   */
+  async getUser(services, req) {
+    const resp = await services.invoker().invoke({
+      method: "GET",
+      path: ` + "`" + `api/user/${encodeURIComponent(String(req.params.id))}` + "`" + `,
+    });
+    const result = {status: resp.status, ok: resp.ok};
+    if (resp.ok) {
+      result.payload = await resp.json();
     }
-  }
-  return result;
-}
+    if (!resp.ok) {
+      const text = await resp.text();
+      try {
+        result.error = JSON.parse(text);
+      } catch {
+        result.error = text;
+      }
+    }
+    return result;
+  },
+};
+
+export { apis };
 `
 		check(t, testScenario{
 			in:   apis,
@@ -293,9 +311,10 @@ export async function getUser(services, req) {
 	t.Run("with nil properties", func(t *testing.T) {
 		api := &jsparser.Api{
 			Spec: jsparser.ApiSpec{
-				Id:     "ping",
-				Method: "GET",
-				Path:   "ping",
+				Id:      "ping",
+				CamelId: "ping",
+				Method:  "GET",
+				Path:    "ping",
 			},
 		}
 		apis := &jsparser.Apis{
@@ -307,29 +326,33 @@ export async function getUser(services, req) {
  * @typedef {object} pingResp
  */
 
-/**
- * @param {import("../services/services.js").Services} services
- * @returns {Promise<pingResp>}
- */
-export async function ping(services) {
-  const resp = await services.invoker().invoke({
-    method: "GET",
-    path: ` + "`" + `ping` + "`" + `,
-  });
-  const result = {status: resp.status, ok: resp.ok};
-  if (resp.ok) {
-    result.body = await resp.json();
-  }
-  if (!resp.ok) {
-    const text = await resp.text();
-    try {
-      result.error = JSON.parse(text);
-    } catch {
-      result.error = text;
+const apis = {
+  /**
+   * @param {import("../services/services.js").Services} services
+   * @returns {Promise<pingResp>}
+   */
+  async ping(services) {
+    const resp = await services.invoker().invoke({
+      method: "GET",
+      path: ` + "`" + `ping` + "`" + `,
+    });
+    const result = {status: resp.status, ok: resp.ok};
+    if (resp.ok) {
+      result.body = await resp.json();
     }
-  }
-  return result;
-}
+    if (!resp.ok) {
+      const text = await resp.text();
+      try {
+        result.error = JSON.parse(text);
+      } catch {
+        result.error = text;
+      }
+    }
+    return result;
+  },
+};
+
+export { apis };
 `
 		check(t, testScenario{
 			in:   apis,
@@ -344,135 +367,139 @@ export async function ping(services) {
 		})
 
 		want := `/**
- * ingestzGetUrl Request
- * @typedef {object} ingestzGetUrlReq
- * @property {ingestzGetUrlparams} params
- * @property {ingestzGetUrlreqPayload} payload
+ * apiIngestzGetUrl Request
+ * @typedef {object} apiIngestzGetUrlReq
+ * @property {apiIngestzGetUrlparams} params
+ * @property {apiIngestzGetUrlreqPayload} payload
  */
 
 /**
- * ingestzGetUrl Response
- * @typedef {object} ingestzGetUrlResp
- * @property {ingestzGetUrlrespPayload} payload
+ * apiIngestzGetUrl Response
+ * @typedef {object} apiIngestzGetUrlResp
+ * @property {apiIngestzGetUrlrespPayload} payload
  */
 
 /**
- * @typedef {object} ingestzGetUrlparams
+ * @typedef {object} apiIngestzGetUrlparams
  * @property {string} dataset
  */
 
 /**
- * @typedef {object} ingestzGetUrlreqPayload
+ * @typedef {object} apiIngestzGetUrlreqPayload
  * @property {number} amount
  * @property {Record<string, string>} partitions
  * @property {string} table
  */
 
 /**
- * @typedef {object} ingestzGetUrlrespPayload
+ * @typedef {object} apiIngestzGetUrlrespPayload
  */
 
 /**
- * samplefraction Request
- * @typedef {object} samplefractionReq
- * @property {samplefractionparams} params
- * @property {samplefractionquery} query
- * @property {samplefractionreqHeaders} headers
- * @property {samplefractionreqPayload} payload
+ * apiSamplefraction Request
+ * @typedef {object} apiSamplefractionReq
+ * @property {apiSamplefractionparams} params
+ * @property {apiSamplefractionquery} query
+ * @property {apiSamplefractionreqHeaders} headers
+ * @property {apiSamplefractionreqPayload} payload
  */
 
 /**
- * samplefraction Response
- * @typedef {object} samplefractionResp
- * @property {samplefractionrespHeaders} headers
- * @property {samplefractionrespPayload} payload
+ * apiSamplefraction Response
+ * @typedef {object} apiSamplefractionResp
+ * @property {apiSamplefractionrespHeaders} headers
+ * @property {apiSamplefractionrespPayload} payload
  */
 
 /**
- * @typedef {object} samplefractionparams
+ * @typedef {object} apiSamplefractionparams
  * @property {number} denominator
  * @property {number} numerator
  */
 
 /**
- * @typedef {object} samplefractionquery
+ * @typedef {object} apiSamplefractionquery
  * @property {number} precision
  */
 
 /**
- * @typedef {object} samplefractionreqHeaders
+ * @typedef {object} apiSamplefractionreqHeaders
  * @property {string} x_i6_trace_id
  */
 
 /**
- * @typedef {object} samplefractionreqPayload
+ * @typedef {object} apiSamplefractionreqPayload
  * @property {string} reason
  */
 
 /**
- * @typedef {object} samplefractionrespHeaders
+ * @typedef {object} apiSamplefractionrespHeaders
  * @property {string} x_i6_trace_message
  */
 
 /**
- * @typedef {object} samplefractionrespPayload
+ * @typedef {object} apiSamplefractionrespPayload
  * @property {string} display
  * @property {string} result
  */
 
-/**
- * @param {import("../services/services.js").Services} services
- * @param {samplefractionReq} req
- * @returns {Promise<samplefractionResp>}
- */
-export async function samplefraction(services, req) {
-  const resp = await services.invoker().invoke({
-    method: "POST",
-    path: ` + "`" + `api/gox/routez/sample/fraction/${encodeURIComponent(String(req.params.numerator))}/${encodeURIComponent(String(req.params.denominator))}` + "`" + `,
-    query: req.query,
-    headers: req.headers,
-    json: req.payload,
-  });
-  const result = {status: resp.status, ok: resp.ok};
-  if (resp.ok) {
-    result.payload = await resp.json();
-  }
-  if (!resp.ok) {
-    const text = await resp.text();
-    try {
-      result.error = JSON.parse(text);
-    } catch {
-      result.error = text;
+const apis = {
+  /**
+   * @param {import("../services/services.js").Services} services
+   * @param {apiSamplefractionReq} req
+   * @returns {Promise<apiSamplefractionResp>}
+   */
+  async apiSamplefraction(services, req) {
+    const resp = await services.invoker().invoke({
+      method: "POST",
+      path: ` + "`" + `api/gox/routez/sample/fraction/${encodeURIComponent(String(req.params.numerator))}/${encodeURIComponent(String(req.params.denominator))}` + "`" + `,
+      query: req.query,
+      headers: req.headers,
+      json: req.payload,
+    });
+    const result = {status: resp.status, ok: resp.ok};
+    if (resp.ok) {
+      result.payload = await resp.json();
     }
-  }
-  return result;
-}
+    if (!resp.ok) {
+      const text = await resp.text();
+      try {
+        result.error = JSON.parse(text);
+      } catch {
+        result.error = text;
+      }
+    }
+    return result;
+  },
 
-/**
- * @param {import("../services/services.js").Services} services
- * @param {ingestzGetUrlReq} req
- * @returns {Promise<ingestzGetUrlResp>}
- */
-export async function ingestzGetUrl(services, req) {
-  const resp = await services.invoker().invoke({
-    method: "POST",
-    path: ` + "`" + `api/ingest/get-url/dataset/${encodeURIComponent(String(req.params.dataset))}` + "`" + `,
-    json: req.payload,
-  });
-  const result = {status: resp.status, ok: resp.ok};
-  if (resp.ok) {
-    result.payload = await resp.json();
-  }
-  if (!resp.ok) {
-    const text = await resp.text();
-    try {
-      result.error = JSON.parse(text);
-    } catch {
-      result.error = text;
+  /**
+   * @param {import("../services/services.js").Services} services
+   * @param {apiIngestzGetUrlReq} req
+   * @returns {Promise<apiIngestzGetUrlResp>}
+   */
+  async apiIngestzGetUrl(services, req) {
+    const resp = await services.invoker().invoke({
+      method: "POST",
+      path: ` + "`" + `api/ingest/get-url/dataset/${encodeURIComponent(String(req.params.dataset))}` + "`" + `,
+      json: req.payload,
+    });
+    const result = {status: resp.status, ok: resp.ok};
+    if (resp.ok) {
+      result.payload = await resp.json();
     }
-  }
-  return result;
-}
+    if (!resp.ok) {
+      const text = await resp.text();
+      try {
+        result.error = JSON.parse(text);
+      } catch {
+        result.error = text;
+      }
+    }
+    return result;
+  },
+};
+
+export { apis };
 `
 		check(t, testScenario{
 			in:   apis,
