@@ -5,6 +5,7 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
+	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
@@ -18,76 +19,81 @@ func TestUnitFractionSample(t *testing.T) {
 	jsonz.MustParse(jsonz.MustFormat(actual).String(), &actual)
 	expected := &jsparser.Api{
 		Spec: jsparser.ApiSpec{
-			Id:      "samplefraction",
-			CamelId: "apiSamplefraction",
+			Id:      "sample-fraction",
+			CamelId: "apiSampleFraction",
+			Desc: &schemaz.Desc{
+				Name:     "Sample Fraction",
+				Summary:  "Sample API that performs a fraction operation",
+				Markdown: "",
+			},
 			Method:  "POST",
 			Path:    "/api/gox/routez/sample/fraction/{numerator}/{denominator}",
 		},
 		Typedefs: jstypez.NewTypedefs([]*jstypez.Typedef{
 			{
-				Head: &jstypez.Tuple{Typ: "object", Name: "apiSamplefractionparams"},
+				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionparams"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "number", Name: "denominator"},
-					{Typ: "number", Name: "numerator"},
+					{Typ: "number", Name: "denominator", Summary: "Fraction Denominator"},
+					{Typ: "number", Name: "numerator", Summary: "Fraction Numerator"},
 				}),
 			},
 			{
-				Head: &jstypez.Tuple{Typ: "object", Name: "apiSamplefractionquery"},
+				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionquery"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "number", Name: "precision"},
+					{Typ: "number", Name: "precision", Summary: "Fraction max precision"},
 				}),
 			},
 			{
-				Head: &jstypez.Tuple{Typ: "object", Name: "apiSamplefractionreqHeaders"},
+				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionreqHeaders"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "string", Name: "x_i6_trace_id"},
+					{Typ: "string", Name: "x_i6_trace_id", Summary: "Sample of Trace Id"},
 				}),
 			},
 			{
-				Head: &jstypez.Tuple{Typ: "object", Name: "apiSamplefractionreqPayload"},
+				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionreqPayload"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "string", Name: "reason"},
+					{Typ: "string", Name: "reason", Summary: "Sample reason of this fraction"},
 				}),
 			},
 			{
-				Head: &jstypez.Tuple{Typ: "object", Name: "apiSamplefractionrespHeaders"},
+				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionrespHeaders"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "string", Name: "x_i6_trace_message"},
+					{Typ: "string", Name: "x_i6_trace_message", Summary: "Sample of any trace message"},
 				}),
 			},
 			{
-				Head: &jstypez.Tuple{Typ: "object", Name: "apiSamplefractionrespPayload"},
+				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionrespPayload"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "string", Name: "display"},
-					{Typ: "string", Name: "result"},
+					{Typ: "string", Name: "display", Summary: "Human Fraction Representation"},
+					{Typ: "string", Name: "result", Summary: "Fraction Result"},
 				}),
 			},
 		}),
 		Req: jsparser.Req{
 			Params: jstypez.Typedef{
-				Head:       &jstypez.Tuple{Typ: "apiSamplefractionparams", Name: "params"},
+				Head:       &jstypez.Tuple{Typ: "apiSampleFractionparams", Name: "params"},
 				Properties: jstypez.NewTuples(nil),
 			},
 			Query: jstypez.Typedef{
-				Head:       &jstypez.Tuple{Typ: "apiSamplefractionquery", Name: "query"},
+				Head:       &jstypez.Tuple{Typ: "apiSampleFractionquery", Name: "query"},
 				Properties: jstypez.NewTuples(nil),
 			},
 			Headers: jstypez.Typedef{
-				Head:       &jstypez.Tuple{Typ: "apiSamplefractionreqHeaders", Name: "reqHeaders"},
+				Head:       &jstypez.Tuple{Typ: "apiSampleFractionreqHeaders", Name: "reqHeaders"},
 				Properties: jstypez.NewTuples(nil),
 			},
 			Payload: jstypez.Typedef{
-				Head:       &jstypez.Tuple{Typ: "apiSamplefractionreqPayload", Name: "reqPayload"},
+				Head:       &jstypez.Tuple{Typ: "apiSampleFractionreqPayload", Name: "reqPayload"},
 				Properties: jstypez.NewTuples(nil),
 			},
 		},
 		Resp: jsparser.Resp{
 			Headers: jstypez.Typedef{
-				Head:       &jstypez.Tuple{Typ: "apiSamplefractionrespHeaders", Name: "respHeaders"},
+				Head:       &jstypez.Tuple{Typ: "apiSampleFractionrespHeaders", Name: "respHeaders"},
 				Properties: jstypez.NewTuples(nil),
 			},
 			Payload: jstypez.Typedef{
-				Head:       &jstypez.Tuple{Typ: "apiSamplefractionrespPayload", Name: "respPayload"},
+				Head:       &jstypez.Tuple{Typ: "apiSampleFractionrespPayload", Name: "respPayload"},
 				Properties: jstypez.NewTuples(nil),
 			},
 		},
