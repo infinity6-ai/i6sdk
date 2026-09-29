@@ -5,7 +5,7 @@
 import { Invoker } from "../invoker/invoker.js";
 import { Auth } from "../auth/auth.js";
 import { Ingest } from "../ingest/ingest.js";
-import { apis } from "../sdkapis/sdkapis.js";
+import { Apis } from "../sdkapis/sdkapis.js";
 
 /**
  * Service container that instantiates and provides access to SDK service clients.
@@ -79,8 +79,16 @@ class Services {
         return ret
     }
 
+    /**
+     * Returns i6 apis
+     * @returns {Apis} i6 apis.
+     */
     apis() {
-        return apis
+        const ret = new Apis(this)
+        if (ret.prepare) {
+            ret.prepare()
+        }
+        return ret
     }
 }
 

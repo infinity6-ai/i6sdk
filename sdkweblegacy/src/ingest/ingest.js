@@ -2,7 +2,6 @@
  * @fileoverview Ingest client for uploading files to the ingestion service.
  */
 
-import { apis } from "../sdkapis/sdkapis.js";
 import { I6Error } from "../errors.js";
 
 /**
@@ -92,10 +91,10 @@ class Ingest {
    * @throws {I6Error} If the request fails or no upload URL is returned.
    */
   async #getUrl({ dataset, table, partitions }) {
-    const resp = await apis.ingestzGetUrl(this._services, {
+    const resp = await this._services.apis().ingestzGetUrl({
       params: { dataset },
       payload: { table, partitions, amount: 1 },
-    });
+    })
     if (!resp.ok) {
       throw I6Error.fromResult("Get upload URL failed", resp);
     }
