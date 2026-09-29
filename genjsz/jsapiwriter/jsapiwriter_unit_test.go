@@ -76,7 +76,7 @@ const apis = {
    * @param {apiIngestzGetUrlReq} req
    * @returns {Promise<apiIngestzGetUrlResp>}
    */
-  async apiIngestzGetUrl(services, req) {
+  async ingestzGetUrl(services, req) {
     const resp = await services.invoker().invoke({
       method: "POST",
       path: ` + "`" + `api/ingest/get-url/dataset/${encodeURIComponent(String(req.params.dataset))}` + "`" + `,
@@ -162,7 +162,7 @@ const apis = {
    * @param {apiSamplefractionReq} req
    * @returns {Promise<apiSamplefractionResp>}
    */
-  async apiSamplefraction(services, req) {
+  async samplefraction(services, req) {
     const resp = await services.invoker().invoke({
       method: "POST",
       path: ` + "`" + `api/gox/routez/sample/fraction/${encodeURIComponent(String(req.params.numerator))}/${encodeURIComponent(String(req.params.denominator))}` + "`" + `,
@@ -449,7 +449,7 @@ const apis = {
    * @param {apiSamplefractionReq} req
    * @returns {Promise<apiSamplefractionResp>}
    */
-  async apiSamplefraction(services, req) {
+  async samplefraction(services, req) {
     const resp = await services.invoker().invoke({
       method: "POST",
       path: ` + "`" + `api/gox/routez/sample/fraction/${encodeURIComponent(String(req.params.numerator))}/${encodeURIComponent(String(req.params.denominator))}` + "`" + `,
@@ -477,7 +477,7 @@ const apis = {
    * @param {apiIngestzGetUrlReq} req
    * @returns {Promise<apiIngestzGetUrlResp>}
    */
-  async apiIngestzGetUrl(services, req) {
+  async ingestzGetUrl(services, req) {
     const resp = await services.invoker().invoke({
       method: "POST",
       path: ` + "`" + `api/ingest/get-url/dataset/${encodeURIComponent(String(req.params.dataset))}` + "`" + `,

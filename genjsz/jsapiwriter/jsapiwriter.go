@@ -116,6 +116,11 @@ func buildRespTypedef(apiId string, api *jsparser.Api) jstypez.Typedef {
 	return respTypedef
 }
 
+func funcName(apiId string) string {
+	name := strings.TrimPrefix(apiId, "api")
+	return strings.ToLower(name[0:1]) + name[1:]
+}
+
 func writeApiDecl(b *strings.Builder, api *jsparser.Api) {
 	apiId := api.Spec.CamelId
 
@@ -135,9 +140,9 @@ func writeApiDecl(b *strings.Builder, api *jsparser.Api) {
 	b.WriteString(" */\n")
 
 	if hasReq {
-		fmt.Fprintf(b, "async %s(services, req) {\n", apiId)
+		fmt.Fprintf(b, "async %s(services, req) {\n", funcName(apiId))
 	} else {
-		fmt.Fprintf(b, "async %s(services) {\n", apiId)
+		fmt.Fprintf(b, "async %s(services) {\n", funcName(apiId))
 	}
 
 	jsPath := strings.TrimPrefix(api.Spec.Path, "/")
