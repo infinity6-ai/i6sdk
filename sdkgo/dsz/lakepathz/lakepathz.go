@@ -7,7 +7,7 @@ import (
 )
 
 type Path struct {
-	Table     laketablez.Table     `json:"table"`
-	Partition *hivepartz.HiveParts `json:"partition"`
-	File      *pathz.Path          `json:"file"`
+	Table      laketablez.Table     `json:"table"`
+	Partitions *hivepartz.HiveParts `json:"partitions"`
+	File       *pathz.Path          `json:"file"`
 }
