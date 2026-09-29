@@ -57,15 +57,16 @@ class I6Sdk {
   }
 
   /**
-   * I6 Apis.
-   * @returns {Apis} I6 Apis.
+   * Returns the Apis service instance, one typed method per i6 server API.
+   * Each call resolves with `{status, ok, payload?, error?}` and does not throw on an HTTP error.
+   * @returns {Apis} An instance of the generated Apis client.
    */
   apis() {
     return this._service.apis()
   }
 
   /**
-   * Registers an event listener on the internal event dispatcher.
+   * Registers an event listener on the SDK's internal event dispatcher (an EventTarget).
    * @param {string} evt - The event type or name to listen for.
    * @param {EventListenerOrEventListenerObject|Function} fn - The callback function or event listener object invoked when the event occurs.
    * @returns {void}

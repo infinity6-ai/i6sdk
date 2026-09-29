@@ -1,12 +1,28 @@
+/**
+ * @fileoverview Keeps a remote file cached in the browser's file system (see fs.js),
+ * downloading it only when its etag changes.
+ */
+
 import { fs } from '../fs/fs.js'
 
+/**
+ * @typedef {import('../fs/fs.js').FileRef} FileRef
+ */
+
+/**
+ * Downloads remote files into the versioned file store. Use the `downloader` singleton.
+ */
 class Downloader {
     /**
-     * Download the file by name if necessary (checking etag)
+     * Downloads the file by name if necessary (checking etag): sends a HEAD request, and
+     * if the etag differs from the released version, streams the body into a new version
+     * and releases it.
      * @param {Object} opts
-     * @param {string} opts.name - required
-     * @param {string} opts.url - required
-     * @returns {Promise<FileRef>} the FileRef of the downloaded file (basically to get the version)
+     * @param {string} opts.name - required, name to store the file under (see fs.js)
+     * @param {string} opts.url - required, URL of the file; must answer HEAD with an etag
+     * @returns {Promise<FileRef>} the FileRef of the up-to-date file (basically to get the version)
+     * @throws {TypeError} If name or url is missing.
+     * @throws {Error} If the HEAD or GET request fails, or the HEAD response has no etag.
     */
     async update(opts) {
         if (!opts || !opts.name) throw new TypeError('downloader: opts.name is required')
@@ -42,6 +58,7 @@ class Downloader {
     }
 }
 
+/** Shared Downloader instance. */
 const downloader = new Downloader()
 
 export { downloader };

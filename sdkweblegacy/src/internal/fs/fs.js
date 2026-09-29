@@ -1,10 +1,23 @@
+/**
+ * @fileoverview Versioned file store on the browser's origin private file system (OPFS).
+ *
+ * Layout under `i6/fs`:
+ *   {name}/version.txt          the released (current) version, if any
+ *   {name}/v{version}/etag.txt  the etag the version was created for
+ *   {name}/v{version}/blob.bin  the content (written by the caller, see `resolve`)
+ *
+ * Versions are ISO timestamps, so they sort in creation order.
+ */
+
+/** OPFS path of the store, relative to the origin's root directory. */
 const base = 'i6/fs'
 
 /**
+ * Reference to one version of a stored file.
  * @typedef {Object} FileRef
- * @property {string} name - [write it: bla, ble].
- * @property {string} version - [write it].
- * @property {string} etag - [write it].
+ * @property {string} name - File name, a single OPFS directory name (e.g. "model").
+ * @property {string} version - Version id, an ISO timestamp (e.g. "2026-09-29T12:00:00.000Z").
+ * @property {string} etag - Etag of the remote content this version was created for.
  */
 
 /**
@@ -38,6 +51,12 @@ const baseDir = async () => {
   return dir
 }
 
+/**
+ * Versioned file store. Use the `fs` singleton.
+ *
+ * A file is created as a new unreleased version, filled, then released to become the
+ * current one; releasing removes the older versions.
+ */
 class FS {
   /**
    * Removes the versions older than version.txt, and the whole file if it is left empty.
@@ -187,6 +206,7 @@ class FS {
   }
 }
 
+/** Shared FS instance. */
 const fs = new FS()
 
 export { fs };
