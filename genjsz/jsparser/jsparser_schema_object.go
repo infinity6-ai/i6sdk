@@ -20,7 +20,7 @@ func ParseSchemaObject(obj map[string]*schemaz.Schema) (*jstypez.Typedef, *jstyp
 		ret.Properties.Add(jstypez.Tuple{
 			Name:    field,
 			Typ:     s.Head.Typ,
-			Summary: descSummary(schema.Desc),
+			Summary: DescSummary(schema.Desc),
 		})
 		tdfs.ExtractFrom(schemaTdfs)
 	}

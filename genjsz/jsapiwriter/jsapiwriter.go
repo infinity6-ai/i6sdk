@@ -160,6 +160,10 @@ func writeApiDecl(b *strings.Builder, api *jsparser.Api) {
 	hasReq := hasParams || hasQuery || hasReqHeaders || hasPayload
 
 	writeln(b, "/**")
+	writeln(b, " * %s", jsparser.DescName(api.Spec.Desc))
+	writeln(b, " * ")
+	writeln(b, " * %s", jsparser.DescSummary(api.Spec.Desc))
+	writeln(b, " * ")
 	if hasReq {
 		writeln(b, " * @param {%sReq} req", apiId)
 	}
