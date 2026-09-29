@@ -50,49 +50,49 @@ func TestUnitWrite(t *testing.T) {
  */
 
 /**
- * apiSampleFraction Request
- * @typedef {object} apiSampleFractionReq
- * @property {apiSampleFractionparams} params
- * @property {apiSampleFractionquery} query
- * @property {apiSampleFractionreqHeaders} headers
- * @property {apiSampleFractionreqPayload} payload
- */
-
-/**
- * apiSampleFraction Response
- * @typedef {object} apiSampleFractionResp
- * @property {apiSampleFractionrespHeaders} headers
- * @property {apiSampleFractionrespPayload} payload
- */
-
-/**
- * @typedef {object} apiSampleFractionparams
+ * @typedef {object} apiSampleFractionParams
  * @property {number} denominator - Fraction Denominator
  * @property {number} numerator - Fraction Numerator
  */
 
 /**
- * @typedef {object} apiSampleFractionquery
+ * @typedef {object} apiSampleFractionQuery
  * @property {number} precision - Fraction max precision
  */
 
 /**
- * @typedef {object} apiSampleFractionreqHeaders
+ * apiSampleFraction Request
+ * @typedef {object} apiSampleFractionReq
+ * @property {apiSampleFractionParams} params
+ * @property {apiSampleFractionQuery} query
+ * @property {apiSampleFractionReqHeaders} headers
+ * @property {apiSampleFractionReqPayload} payload
+ */
+
+/**
+ * @typedef {object} apiSampleFractionReqHeaders
  * @property {string} x_i6_trace_id - Sample of Trace Id
  */
 
 /**
- * @typedef {object} apiSampleFractionreqPayload
+ * @typedef {object} apiSampleFractionReqPayload
  * @property {string} reason - Sample reason of this fraction
  */
 
 /**
- * @typedef {object} apiSampleFractionrespHeaders
+ * apiSampleFraction Response
+ * @typedef {object} apiSampleFractionResp
+ * @property {apiSampleFractionRespHeaders} headers
+ * @property {apiSampleFractionRespPayload} payload
+ */
+
+/**
+ * @typedef {object} apiSampleFractionRespHeaders
  * @property {string} x_i6_trace_message - Sample of any trace message
  */
 
 /**
- * @typedef {object} apiSampleFractionrespPayload
+ * @typedef {object} apiSampleFractionRespPayload
  * @property {string} display - Human Fraction Representation
  * @property {string} result - Fraction Result
  */

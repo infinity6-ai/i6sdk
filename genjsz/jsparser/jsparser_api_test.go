@@ -31,38 +31,38 @@ func TestUnitFractionSample(t *testing.T) {
 		},
 		Typedefs: jstypez.NewTypedefs([]*jstypez.Typedef{
 			{
-				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionparams"},
+				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionParams"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
 					{Typ: "number", Name: "denominator", Summary: "Fraction Denominator"},
 					{Typ: "number", Name: "numerator", Summary: "Fraction Numerator"},
 				}),
 			},
 			{
-				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionquery"},
+				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionQuery"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
 					{Typ: "number", Name: "precision", Summary: "Fraction max precision"},
 				}),
 			},
 			{
-				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionreqHeaders"},
+				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionReqHeaders"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
 					{Typ: "string", Name: "x_i6_trace_id", Summary: "Sample of Trace Id"},
 				}),
 			},
 			{
-				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionreqPayload"},
+				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionReqPayload"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
 					{Typ: "string", Name: "reason", Summary: "Sample reason of this fraction"},
 				}),
 			},
 			{
-				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionrespHeaders"},
+				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionRespHeaders"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
 					{Typ: "string", Name: "x_i6_trace_message", Summary: "Sample of any trace message"},
 				}),
 			},
 			{
-				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionrespPayload"},
+				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionRespPayload"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
 					{Typ: "string", Name: "display", Summary: "Human Fraction Representation"},
 					{Typ: "string", Name: "result", Summary: "Fraction Result"},
@@ -71,29 +71,29 @@ func TestUnitFractionSample(t *testing.T) {
 		}),
 		Req: jsparser.Req{
 			Params: jstypez.Typedef{
-				Head:       &jstypez.Tuple{Typ: "apiSampleFractionparams", Name: "params"},
+				Head:       &jstypez.Tuple{Typ: "apiSampleFractionParams", Name: "params"},
 				Properties: jstypez.NewTuples(nil),
 			},
 			Query: jstypez.Typedef{
-				Head:       &jstypez.Tuple{Typ: "apiSampleFractionquery", Name: "query"},
+				Head:       &jstypez.Tuple{Typ: "apiSampleFractionQuery", Name: "query"},
 				Properties: jstypez.NewTuples(nil),
 			},
 			Headers: jstypez.Typedef{
-				Head:       &jstypez.Tuple{Typ: "apiSampleFractionreqHeaders", Name: "reqHeaders"},
+				Head:       &jstypez.Tuple{Typ: "apiSampleFractionReqHeaders", Name: "reqHeaders"},
 				Properties: jstypez.NewTuples(nil),
 			},
 			Payload: jstypez.Typedef{
-				Head:       &jstypez.Tuple{Typ: "apiSampleFractionreqPayload", Name: "reqPayload"},
+				Head:       &jstypez.Tuple{Typ: "apiSampleFractionReqPayload", Name: "reqPayload"},
 				Properties: jstypez.NewTuples(nil),
 			},
 		},
 		Resp: jsparser.Resp{
 			Headers: jstypez.Typedef{
-				Head:       &jstypez.Tuple{Typ: "apiSampleFractionrespHeaders", Name: "respHeaders"},
+				Head:       &jstypez.Tuple{Typ: "apiSampleFractionRespHeaders", Name: "respHeaders"},
 				Properties: jstypez.NewTuples(nil),
 			},
 			Payload: jstypez.Typedef{
-				Head:       &jstypez.Tuple{Typ: "apiSampleFractionrespPayload", Name: "respPayload"},
+				Head:       &jstypez.Tuple{Typ: "apiSampleFractionRespPayload", Name: "respPayload"},
 				Properties: jstypez.NewTuples(nil),
 			},
 		},
@@ -109,41 +109,50 @@ func TestUnitIngestz(t *testing.T) {
 		Spec: jsparser.ApiSpec{
 			Id:      "ingestz-get-url",
 			CamelId: "apiIngestzGetUrl",
+			Desc: &schemaz.Desc{
+				Name:     "Get Ingestion Upload URLs",
+				Summary:  "Generates presigned PUT URLs and an ingestion token for uploading files into a target dataset table and partitions.",
+				Markdown: "",
+			},
 			Method:  "POST",
 			Path:    "/api/ingest/get-url/dataset/{dataset}",
 		},
 		Typedefs: jstypez.NewTypedefs([]*jstypez.Typedef{
 			{
-				Head: &jstypez.Tuple{Typ: "object", Name: "apiIngestzGetUrlparams"},
+				Head: &jstypez.Tuple{Typ: "object", Name: "apiIngestzGetUrlParams"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "string", Name: "dataset"},
+					{Typ: "string", Name: "dataset", Summary: "Name of the dataset that receives the uploaded files."},
 				}),
 			},
 			{
-				Head: &jstypez.Tuple{Typ: "object", Name: "apiIngestzGetUrlreqPayload"},
+				Head: &jstypez.Tuple{Typ: "object", Name: "apiIngestzGetUrlReqPayload"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "number", Name: "amount"},
-					{Typ: "Record<string, string>", Name: "partitions"},
-					{Typ: "string", Name: "table"},
+					{Typ: "number", Name: "amount", Summary: "Number of presigned upload URLs to generate."},
+					{Typ: "Record<string, string>", Name: "partitions", Summary: "Partition key/value pairs that select the table partition the files are ingested into."},
+					{Typ: "string", Name: "table", Summary: "Name of the table, inside the dataset, that receives the uploaded files."},
 				}),
 			},
 			{
-				Head: &jstypez.Tuple{Typ: "object", Name: "apiIngestzGetUrlrespPayload"},
+				Head: &jstypez.Tuple{Typ: "object", Name: "apiIngestzGetUrlRespPayload"},
+				Properties: jstypez.NewTuples([]jstypez.Tuple{
+					{Typ: "string", Name: "ingest_id", Summary: "Ingestion token that identifies this ingestion and ties the uploaded files together."},
+					{Typ: "Array<string>", Name: "uploads", Summary: "Presigned PUT URLs, one per requested file; upload each file to its URL."},
+				}),
 			},
 		}),
 		Req: jsparser.Req{
 			Params: jstypez.Typedef{
-				Head:       &jstypez.Tuple{Typ: "apiIngestzGetUrlparams", Name: "params"},
+				Head:       &jstypez.Tuple{Typ: "apiIngestzGetUrlParams", Name: "params"},
 				Properties: jstypez.NewTuples(nil),
 			},
 			Payload: jstypez.Typedef{
-				Head:       &jstypez.Tuple{Typ: "apiIngestzGetUrlreqPayload", Name: "reqPayload"},
+				Head:       &jstypez.Tuple{Typ: "apiIngestzGetUrlReqPayload", Name: "reqPayload"},
 				Properties: jstypez.NewTuples(nil),
 			},
 		},
 		Resp: jsparser.Resp{
 			Payload: jstypez.Typedef{
-				Head:       &jstypez.Tuple{Typ: "apiIngestzGetUrlrespPayload", Name: "respPayload"},
+				Head:       &jstypez.Tuple{Typ: "apiIngestzGetUrlRespPayload", Name: "respPayload"},
 				Properties: jstypez.NewTuples(nil),
 			},
 		},
