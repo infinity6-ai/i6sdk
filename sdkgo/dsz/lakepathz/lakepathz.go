@@ -7,11 +7,13 @@ import (
 	"github.com/infinity6-ai/gox/commonz/hivepartz"
 	"github.com/infinity6-ai/gox/commonz/pathz"
 	"github.com/infinity6-ai/gox/commonz/validation"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedbz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketablez"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
 )
 
 type Path struct {
-	Table     laketablez.Value
+	Table     laketablez.Table
 	Partition *hivepartz.HiveParts
 	File      *pathz.Path
 }
@@ -50,4 +52,31 @@ func (p Path) MustFormat() *pathz.Path {
 
 func (p Path) String() string {
 	return p.MustFormat().String()
+}
+
+func Parse(full *pathz.Path) (*Path, error) {
+	err := full.Validate(pathz.ValidateOptions{
+		Absolute:   new(false),
+		MaxParents: new(0),
+		MinPart:    3,
+	})
+	if err != nil {
+		return nil, err
+	}
+	parts := full.Parts()
+	var table laketablez.Value
+	if table.Database, err = lakedbz.Parse(parts[0]); err != nil {
+		return nil, err
+	}
+	if table.Name, err = laketbnamez.Parse(parts[0]); err != nil {
+		return nil, err
+	}
+	var ret Path
+	if ret.Table, err = laketablez.Parse(table); err != nil {
+		return nil, err
+	}
+	if ret.Partition, ret.File, err = hivepartz.Parse(pathz.New(0, parts[2:], false)); err != nil {
+		return nil, err
+	}
+	return &ret, nil
 }
