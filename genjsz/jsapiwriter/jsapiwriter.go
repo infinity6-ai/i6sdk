@@ -48,7 +48,8 @@ func Write(ctx context.Context, apis *jsparser.Apis) string {
 		return b.String()
 	}
 
-	b.WriteString("const apis = {\n")
+	b.WriteString("class Apis {\n\n")
+	// b.WriteString("const apis = {\n")
 	for idx, api := range apis.Apis {
 		if idx > 0 {
 			b.WriteString("\n")
@@ -57,8 +58,9 @@ func Write(ctx context.Context, apis *jsparser.Apis) string {
 		writeApiDecl(&decl, api)
 		b.WriteString(indent(decl.String(), "  "))
 	}
-	b.WriteString("};\n\n")
-	b.WriteString("export { apis };\n")
+	b.WriteString("}\n\n")
+	// b.WriteString("export { apis };\n")
+	b.WriteString("export { Apis };\n")
 
 	return b.String()
 }
@@ -178,5 +180,5 @@ func writeApiDecl(b *strings.Builder, api *jsparser.Api) {
 	b.WriteString("    }\n")
 	b.WriteString("  }\n")
 	b.WriteString("  return result;\n")
-	b.WriteString("},\n")
+	b.WriteString("}\n")
 }
