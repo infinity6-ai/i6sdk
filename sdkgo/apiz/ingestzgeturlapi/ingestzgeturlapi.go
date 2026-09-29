@@ -32,8 +32,13 @@ type GetUrlApi struct {
 
 func (d *GetUrlApi) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id:     "ingestz-get-url",
-		Desc:   nil,
+		Id: "ingestz-get-url",
+		Desc: func() *schemaz.Desc {
+			return &schemaz.Desc{
+				Name:    "Get Ingestion Upload URLs",
+				Summary: "Generates presigned PUT URLs and an ingestion token for uploading files into a target dataset table and partitions.",
+			}
+		},
 		Method: "POST",
 		Path:   "/api/ingest/get-url/dataset/{dataset}",
 	}
@@ -44,7 +49,10 @@ func (d *GetUrlApi) GetDataRefs() *apiz.DataRefs {
 		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"dataset": {Str: lakedsz.ParseStr(&d.Req.Dataset)},
+					"dataset": {
+						Desc: &schemaz.Desc{Name: "Dataset", Summary: "Name of the dataset that receives the uploaded files."},
+						Str:  lakedsz.ParseStr(&d.Req.Dataset),
+					},
 				}
 			},
 		},
@@ -53,15 +61,36 @@ func (d *GetUrlApi) GetDataRefs() *apiz.DataRefs {
 		ReqBody: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"table":      {Raw: func() any { return &d.Req.Table }},
-					"partitions": {Raw: func() any { return &d.Req.Partitions }},
-					"amount":     {Raw: func() any { return &d.Req.Amount }},
+					"table": {
+						Desc: &schemaz.Desc{Name: "Table", Summary: "Name of the table, inside the dataset, that receives the uploaded files."},
+						Raw:  func() any { return &d.Req.Table },
+					},
+					"partitions": {
+						Desc: &schemaz.Desc{Name: "Partitions", Summary: "Partition key/value pairs that select the table partition the files are ingested into."},
+						Raw:  func() any { return &d.Req.Partitions },
+					},
+					"amount": {
+						Desc: &schemaz.Desc{Name: "Amount", Summary: "Number of presigned upload URLs to generate."},
+						Raw:  func() any { return &d.Req.Amount },
+					},
 				}
 			},
 		},
 		RespHeaders: nil,
 		RespBody: &schemaz.Schema{
-			Raw: func() any { return &d.Resp },
+			Desc: &schemaz.Desc{Name: "Get URL Response", Summary: "Presigned upload URLs and the ingestion token that identifies this ingestion."},
+			Object: func(read bool) map[string]*schemaz.Schema {
+				return map[string]*schemaz.Schema{
+					"uploads": {
+						Desc: &schemaz.Desc{Name: "Uploads", Summary: "Presigned PUT URLs, one per requested file; upload each file to its URL."},
+						Raw:  func() any { return &d.Resp.Uploads },
+					},
+					"ingest_id": {
+						Desc: &schemaz.Desc{Name: "Ingest ID", Summary: "Ingestion token that identifies this ingestion and ties the uploaded files together."},
+						Raw:  func() any { return &d.Resp.IngestedAt },
+					},
+				}
+			},
 		},
 	}
 }
