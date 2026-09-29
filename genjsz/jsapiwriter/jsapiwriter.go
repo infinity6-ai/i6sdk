@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/infinity6-ai/gox/commonz/errorz"
 	"go.code.infinity6.ai/platform/logz"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypedefwriter"
@@ -17,6 +18,13 @@ type tlogger logz.Type
 var logger = logz.Create(tlogger(true))
 
 var pathParamRe = regexp.MustCompile(`\{([A-Za-z0-9_]+)\}`)
+
+func writeln(sb *strings.Builder, msg string, args ...any) {
+	_, err := fmt.Fprintf(sb, msg, args...)
+	errorz.Check(err)
+	_, err = sb.WriteRune('\n')
+	errorz.Check(err)
+}
 
 func Write(ctx context.Context, apis *jsparser.Apis) string {
 	if apis == nil {
@@ -42,41 +50,45 @@ func Write(ctx context.Context, apis *jsparser.Apis) string {
 		allTdfs.Add(&respTypedef)
 	}
 
-	b.WriteString("/**\n")
-	b.WriteString(" * @typedef {import(\"../services/services.js\").Services} Services\n")
-	b.WriteString(" */\n\n")
-	b.WriteString(jstypedefwriter.Write(allTdfs))
+	writeln(&b, "/**")
+	writeln(&b, " * @typedef {import(\"../services/services.js\").Services} Services")
+	writeln(&b, " */")
+	writeln(&b, "")
+	if tdfs := jstypedefwriter.Write(allTdfs); tdfs != "" {
+		writeln(&b, "%s", strings.TrimSuffix(tdfs, "\n"))
+	}
 
 	if len(apis.Apis) == 0 {
 		return b.String()
 	}
 
-	b.WriteString("class Apis {\n\n")
+	writeln(&b, "class Apis {")
+	writeln(&b, "")
 
-	b.WriteString("  /**\n")
-	b.WriteString("   * Constructs an Ingest client instance.\n")
-	b.WriteString("   * @param {Services} services - The services manager instance.\n")
-	b.WriteString("   */\n")
-	b.WriteString("  constructor(services) {\n")
-	b.WriteString("    /**\n")
-	b.WriteString("     * @private\n")
-	b.WriteString("     * @type {Services}\n")
-	b.WriteString("     */\n")
-	b.WriteString("    this._services = services;\n")
-	b.WriteString("  }\n\n")
+	writeln(&b, "  /**")
+	writeln(&b, "   * Constructs an Ingest client instance.")
+	writeln(&b, "   * @param {Services} services - The services manager instance.")
+	writeln(&b, "   */")
+	writeln(&b, "  constructor(services) {")
+	writeln(&b, "    /**")
+	writeln(&b, "     * @private")
+	writeln(&b, "     * @type {Services}")
+	writeln(&b, "     */")
+	writeln(&b, "    this._services = services;")
+	writeln(&b, "  }")
+	writeln(&b, "")
 
-	// b.WriteString("const apis = {\n")
 	for idx, api := range apis.Apis {
 		if idx > 0 {
-			b.WriteString("\n")
+			writeln(&b, "")
 		}
 		var decl strings.Builder
 		writeApiDecl(&decl, api)
-		b.WriteString(indent(decl.String(), "  "))
+		writeln(&b, "%s", indent(decl.String(), "  "))
 	}
-	b.WriteString("}\n\n")
-	// b.WriteString("export { apis };\n")
-	b.WriteString("export { Apis };\n")
+	writeln(&b, "}")
+	writeln(&b, "")
+	writeln(&b, "export { Apis };")
 
 	return b.String()
 }
@@ -88,7 +100,7 @@ func indent(s, prefix string) string {
 			lines[i] = prefix + l
 		}
 	}
-	return strings.Join(lines, "\n") + "\n"
+	return strings.Join(lines, "\n")
 }
 
 func buildReqTypedef(apiId string, api *jsparser.Api) (jstypez.Typedef, bool) {
@@ -147,17 +159,21 @@ func writeApiDecl(b *strings.Builder, api *jsparser.Api) {
 
 	hasReq := hasParams || hasQuery || hasReqHeaders || hasPayload
 
-	b.WriteString("/**\n")
+	writeln(b, "/**")
+	writeln(b, " * %s", jsparser.DescName(api.Spec.Desc))
+	writeln(b, " * ")
+	writeln(b, " * %s", jsparser.DescSummary(api.Spec.Desc))
+	writeln(b, " * ")
 	if hasReq {
-		fmt.Fprintf(b, " * @param {%sReq} req\n", apiId)
+		writeln(b, " * @param {%sReq} req", apiId)
 	}
-	fmt.Fprintf(b, " * @returns {Promise<%sResp>}\n", apiId)
-	b.WriteString(" */\n")
+	writeln(b, " * @returns {Promise<%sResp>}", apiId)
+	writeln(b, " */")
 
 	if hasReq {
-		fmt.Fprintf(b, "async %s(req) {\n", funcName(apiId))
+		writeln(b, "async %s(req) {", funcName(apiId))
 	} else {
-		fmt.Fprintf(b, "async %s() {\n", funcName(apiId))
+		writeln(b, "async %s() {", funcName(apiId))
 	}
 
 	jsPath := strings.TrimPrefix(api.Spec.Path, "/")
@@ -165,40 +181,40 @@ func writeApiDecl(b *strings.Builder, api *jsparser.Api) {
 		jsPath = pathParamRe.ReplaceAllString(jsPath, "${encodeURIComponent(String(req.params.$1))}")
 	}
 
-	b.WriteString("  const resp = await this._services.invoker().invoke({\n")
-	fmt.Fprintf(b, "    method: %q,\n", api.Spec.Method)
+	writeln(b, "  const resp = await this._services.invoker().invoke({")
+	writeln(b, "    method: %q,", api.Spec.Method)
 
-	fmt.Fprintf(b, "    path: `%s`,\n", jsPath)
+	writeln(b, "    path: `%s`,", jsPath)
 
 	if hasQuery {
-		b.WriteString("    query: req.query,\n")
+		writeln(b, "    query: req.query,")
 	}
 	if hasReqHeaders {
-		b.WriteString("    headers: req.headers,\n")
+		writeln(b, "    headers: req.headers,")
 	}
 	if hasPayload {
-		b.WriteString("    json: req.payload,\n")
+		writeln(b, "    json: req.payload,")
 	}
 
-	b.WriteString("  });\n")
-	b.WriteString("  const result = {status: resp.status, ok: resp.ok};\n")
-	b.WriteString("  if (resp.ok) {\n")
+	writeln(b, "  });")
+	writeln(b, "  const result = {status: resp.status, ok: resp.ok};")
+	writeln(b, "  if (resp.ok) {")
 
 	if api.Resp.Payload.Head != nil {
-		b.WriteString("    result.payload = await resp.json();\n")
+		writeln(b, "    result.payload = await resp.json();")
 	} else {
-		b.WriteString("    result.body = await resp.json();\n")
+		writeln(b, "    result.body = await resp.json();")
 	}
 
-	b.WriteString("  }\n")
-	b.WriteString("  if (!resp.ok) {\n")
-	b.WriteString("    const text = await resp.text();\n")
-	b.WriteString("    try {\n")
-	b.WriteString("      result.error = JSON.parse(text);\n")
-	b.WriteString("    } catch {\n")
-	b.WriteString("      result.error = text;\n")
-	b.WriteString("    }\n")
-	b.WriteString("  }\n")
-	b.WriteString("  return result;\n")
-	b.WriteString("}\n")
+	writeln(b, "  }")
+	writeln(b, "  if (!resp.ok) {")
+	writeln(b, "    const text = await resp.text();")
+	writeln(b, "    try {")
+	writeln(b, "      result.error = JSON.parse(text);")
+	writeln(b, "    } catch {")
+	writeln(b, "      result.error = text;")
+	writeln(b, "    }")
+	writeln(b, "  }")
+	writeln(b, "  return result;")
+	writeln(b, "}")
 }

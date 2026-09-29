@@ -8,7 +8,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
-	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzgeturlapi"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzapi/ingestzapigeturl"
 )
 
 var all map[string]apiz.Api
@@ -28,7 +28,7 @@ func init() {
 	for _, svc := range routezsamplefraction.Services() {
 		add(svc.Api())
 	}
-	add(&ingestzgeturlapi.GetUrlApi{})
+	add(&ingestzapigeturl.GetUrlApi{})
 	// add(&pipezapi.PipezStartApi{})
 	// add(&dszapi.DszSolutionDomainSelectApi{})
 }

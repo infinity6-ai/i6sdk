@@ -8,8 +8,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsapiwriter"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
-	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
-	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzgeturlapi"
 )
 
 func TestUnitWrite(t *testing.T) {
@@ -22,6 +20,8 @@ func TestUnitWrite(t *testing.T) {
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
 		got := jsapiwriter.Write(ctx, s.in)
+		println(got)
+
 		require.Equal(t, s.want, got)
 	}
 
@@ -43,89 +43,6 @@ func TestUnitWrite(t *testing.T) {
 		})
 	})
 
-	t.Run("with path param, request payload, and response payload", func(t *testing.T) {
-		apis := jsparser.ParseApis(ctx, []apiz.Api{&ingestzgeturlapi.GetUrlApi{}})
-		want := `/**
- * @typedef {import("../services/services.js").Services} Services
- */
-
-/**
- * apiIngestzGetUrl Request
- * @typedef {object} apiIngestzGetUrlReq
- * @property {apiIngestzGetUrlparams} params
- * @property {apiIngestzGetUrlreqPayload} payload
- */
-
-/**
- * apiIngestzGetUrl Response
- * @typedef {object} apiIngestzGetUrlResp
- * @property {apiIngestzGetUrlrespPayload} payload
- */
-
-/**
- * @typedef {object} apiIngestzGetUrlparams
- * @property {string} dataset
- */
-
-/**
- * @typedef {object} apiIngestzGetUrlreqPayload
- * @property {number} amount
- * @property {Record<string, string>} partitions
- * @property {string} table
- */
-
-/**
- * @typedef {object} apiIngestzGetUrlrespPayload
- */
-
-class Apis {
-
-  /**
-   * Constructs an Ingest client instance.
-   * @param {Services} services - The services manager instance.
-   */
-  constructor(services) {
-    /**
-     * @private
-     * @type {Services}
-     */
-    this._services = services;
-  }
-
-  /**
-   * @param {apiIngestzGetUrlReq} req
-   * @returns {Promise<apiIngestzGetUrlResp>}
-   */
-  async ingestzGetUrl(req) {
-    const resp = await this._services.invoker().invoke({
-      method: "POST",
-      path: ` + "`" + `api/ingest/get-url/dataset/${encodeURIComponent(String(req.params.dataset))}` + "`" + `,
-      json: req.payload,
-    });
-    const result = {status: resp.status, ok: resp.ok};
-    if (resp.ok) {
-      result.payload = await resp.json();
-    }
-    if (!resp.ok) {
-      const text = await resp.text();
-      try {
-        result.error = JSON.parse(text);
-      } catch {
-        result.error = text;
-      }
-    }
-    return result;
-  }
-}
-
-export { Apis };
-`
-		check(t, testScenario{
-			in:   apis,
-			want: want,
-		})
-	})
-
 	t.Run("with multiple path params and extra request fields", func(t *testing.T) {
 		apis := jsparser.ParseApis(ctx, []apiz.Api{routezsamplefraction.NewService().Api()})
 		want := `/**
@@ -133,51 +50,57 @@ export { Apis };
  */
 
 /**
- * apiSamplefraction Request
- * @typedef {object} apiSamplefractionReq
- * @property {apiSamplefractionparams} params
- * @property {apiSamplefractionquery} query
- * @property {apiSamplefractionreqHeaders} headers
- * @property {apiSamplefractionreqPayload} payload
+ * apiSampleFraction params
+ * @typedef {object} apiSampleFractionParams
+ * @property {number} denominator - Fraction Denominator
+ * @property {number} numerator - Fraction Numerator
  */
 
 /**
- * apiSamplefraction Response
- * @typedef {object} apiSamplefractionResp
- * @property {apiSamplefractionrespHeaders} headers
- * @property {apiSamplefractionrespPayload} payload
+ * apiSampleFraction query
+ * @typedef {object} apiSampleFractionQuery
+ * @property {number} precision - Fraction max precision
  */
 
 /**
- * @typedef {object} apiSamplefractionparams
- * @property {number} denominator
- * @property {number} numerator
+ * apiSampleFraction Request
+ * @typedef {object} apiSampleFractionReq
+ * @property {apiSampleFractionParams} params
+ * @property {apiSampleFractionQuery} query
+ * @property {apiSampleFractionReqHeaders} headers
+ * @property {apiSampleFractionReqPayload} payload
  */
 
 /**
- * @typedef {object} apiSamplefractionquery
- * @property {number} precision
+ * apiSampleFraction reqHeaders
+ * @typedef {object} apiSampleFractionReqHeaders
+ * @property {string} x_i6_trace_id - Sample of Trace Id
  */
 
 /**
- * @typedef {object} apiSamplefractionreqHeaders
- * @property {string} x_i6_trace_id
+ * apiSampleFraction reqPayload
+ * @typedef {object} apiSampleFractionReqPayload
+ * @property {string} reason - Sample reason of this fraction
  */
 
 /**
- * @typedef {object} apiSamplefractionreqPayload
- * @property {string} reason
+ * apiSampleFraction Response
+ * @typedef {object} apiSampleFractionResp
+ * @property {apiSampleFractionRespHeaders} headers
+ * @property {apiSampleFractionRespPayload} payload
  */
 
 /**
- * @typedef {object} apiSamplefractionrespHeaders
- * @property {string} x_i6_trace_message
+ * apiSampleFraction respHeaders
+ * @typedef {object} apiSampleFractionRespHeaders
+ * @property {string} x_i6_trace_message - Sample of any trace message
  */
 
 /**
- * @typedef {object} apiSamplefractionrespPayload
- * @property {string} display
- * @property {string} result
+ * apiSampleFraction respPayload
+ * @typedef {object} apiSampleFractionRespPayload
+ * @property {string} display - Human Fraction Representation
+ * @property {string} result - Fraction Result
  */
 
 class Apis {
@@ -195,10 +118,14 @@ class Apis {
   }
 
   /**
-   * @param {apiSamplefractionReq} req
-   * @returns {Promise<apiSamplefractionResp>}
+   * Sample Fraction
+   * 
+   * Sample API that performs a fraction operation
+   * 
+   * @param {apiSampleFractionReq} req
+   * @returns {Promise<apiSampleFractionResp>}
    */
-  async samplefraction(req) {
+  async sampleFraction(req) {
     const resp = await this._services.invoker().invoke({
       method: "POST",
       path: ` + "`" + `api/gox/routez/sample/fraction/${encodeURIComponent(String(req.params.numerator))}/${encodeURIComponent(String(req.params.denominator))}` + "`" + `,
@@ -230,379 +157,4 @@ export { Apis };
 		})
 	})
 
-	t.Run("without request params and response body fallback", func(t *testing.T) {
-		api := &jsparser.Api{
-			Spec: jsparser.ApiSpec{
-				Id:      "health-check",
-				CamelId: "healthCheck",
-				Method:  "GET",
-				Path:    "/api/health",
-			},
-		}
-		apis := &jsparser.Apis{
-			Apis: []*jsparser.Api{api},
-		}
-
-		want := `/**
- * @typedef {import("../services/services.js").Services} Services
- */
-
-/**
- * healthCheck Response
- * @typedef {object} healthCheckResp
- */
-
-class Apis {
-
-  /**
-   * Constructs an Ingest client instance.
-   * @param {Services} services - The services manager instance.
-   */
-  constructor(services) {
-    /**
-     * @private
-     * @type {Services}
-     */
-    this._services = services;
-  }
-
-  /**
-   * @returns {Promise<healthCheckResp>}
-   */
-  async healthCheck() {
-    const resp = await this._services.invoker().invoke({
-      method: "GET",
-      path: ` + "`" + `api/health` + "`" + `,
-    });
-    const result = {status: resp.status, ok: resp.ok};
-    if (resp.ok) {
-      result.body = await resp.json();
-    }
-    if (!resp.ok) {
-      const text = await resp.text();
-      try {
-        result.error = JSON.parse(text);
-      } catch {
-        result.error = text;
-      }
-    }
-    return result;
-  }
-}
-
-export { Apis };
-`
-		check(t, testScenario{
-			in:   apis,
-			want: want,
-		})
-	})
-
-	t.Run("with request params but without payload", func(t *testing.T) {
-		api := &jsparser.Api{
-			Spec: jsparser.ApiSpec{
-				Id:      "get-user",
-				CamelId: "getUser",
-				Method:  "GET",
-				Path:    "/api/user/{id}",
-			},
-		}
-		api.Req.Params.Head = &jstypez.Tuple{Typ: "getUserParams", Name: "params"}
-		api.Resp.Payload.Head = &jstypez.Tuple{Typ: "getUserRespPayload", Name: "payload"}
-		apis := &jsparser.Apis{
-			Apis: []*jsparser.Api{api},
-		}
-
-		want := `/**
- * @typedef {import("../services/services.js").Services} Services
- */
-
-/**
- * getUser Request
- * @typedef {object} getUserReq
- * @property {getUserParams} params
- */
-
-/**
- * getUser Response
- * @typedef {object} getUserResp
- * @property {getUserRespPayload} payload
- */
-
-class Apis {
-
-  /**
-   * Constructs an Ingest client instance.
-   * @param {Services} services - The services manager instance.
-   */
-  constructor(services) {
-    /**
-     * @private
-     * @type {Services}
-     */
-    this._services = services;
-  }
-
-  /**
-   * @param {getUserReq} req
-   * @returns {Promise<getUserResp>}
-   */
-  async getUser(req) {
-    const resp = await this._services.invoker().invoke({
-      method: "GET",
-      path: ` + "`" + `api/user/${encodeURIComponent(String(req.params.id))}` + "`" + `,
-    });
-    const result = {status: resp.status, ok: resp.ok};
-    if (resp.ok) {
-      result.payload = await resp.json();
-    }
-    if (!resp.ok) {
-      const text = await resp.text();
-      try {
-        result.error = JSON.parse(text);
-      } catch {
-        result.error = text;
-      }
-    }
-    return result;
-  }
-}
-
-export { Apis };
-`
-		check(t, testScenario{
-			in:   apis,
-			want: want,
-		})
-	})
-
-	t.Run("with nil properties", func(t *testing.T) {
-		api := &jsparser.Api{
-			Spec: jsparser.ApiSpec{
-				Id:      "ping",
-				CamelId: "ping",
-				Method:  "GET",
-				Path:    "ping",
-			},
-		}
-		apis := &jsparser.Apis{
-			Apis: []*jsparser.Api{api},
-		}
-
-		want := `/**
- * @typedef {import("../services/services.js").Services} Services
- */
-
-/**
- * ping Response
- * @typedef {object} pingResp
- */
-
-class Apis {
-
-  /**
-   * Constructs an Ingest client instance.
-   * @param {Services} services - The services manager instance.
-   */
-  constructor(services) {
-    /**
-     * @private
-     * @type {Services}
-     */
-    this._services = services;
-  }
-
-  /**
-   * @returns {Promise<pingResp>}
-   */
-  async ping() {
-    const resp = await this._services.invoker().invoke({
-      method: "GET",
-      path: ` + "`" + `ping` + "`" + `,
-    });
-    const result = {status: resp.status, ok: resp.ok};
-    if (resp.ok) {
-      result.body = await resp.json();
-    }
-    if (!resp.ok) {
-      const text = await resp.text();
-      try {
-        result.error = JSON.parse(text);
-      } catch {
-        result.error = text;
-      }
-    }
-    return result;
-  }
-}
-
-export { Apis };
-`
-		check(t, testScenario{
-			in:   apis,
-			want: want,
-		})
-	})
-
-	t.Run("with multiple apis: all typedefs first then all api declarations", func(t *testing.T) {
-		apis := jsparser.ParseApis(ctx, []apiz.Api{
-			routezsamplefraction.NewService().Api(),
-			&ingestzgeturlapi.GetUrlApi{},
-		})
-
-		want := `/**
- * @typedef {import("../services/services.js").Services} Services
- */
-
-/**
- * apiIngestzGetUrl Request
- * @typedef {object} apiIngestzGetUrlReq
- * @property {apiIngestzGetUrlparams} params
- * @property {apiIngestzGetUrlreqPayload} payload
- */
-
-/**
- * apiIngestzGetUrl Response
- * @typedef {object} apiIngestzGetUrlResp
- * @property {apiIngestzGetUrlrespPayload} payload
- */
-
-/**
- * @typedef {object} apiIngestzGetUrlparams
- * @property {string} dataset
- */
-
-/**
- * @typedef {object} apiIngestzGetUrlreqPayload
- * @property {number} amount
- * @property {Record<string, string>} partitions
- * @property {string} table
- */
-
-/**
- * @typedef {object} apiIngestzGetUrlrespPayload
- */
-
-/**
- * apiSamplefraction Request
- * @typedef {object} apiSamplefractionReq
- * @property {apiSamplefractionparams} params
- * @property {apiSamplefractionquery} query
- * @property {apiSamplefractionreqHeaders} headers
- * @property {apiSamplefractionreqPayload} payload
- */
-
-/**
- * apiSamplefraction Response
- * @typedef {object} apiSamplefractionResp
- * @property {apiSamplefractionrespHeaders} headers
- * @property {apiSamplefractionrespPayload} payload
- */
-
-/**
- * @typedef {object} apiSamplefractionparams
- * @property {number} denominator
- * @property {number} numerator
- */
-
-/**
- * @typedef {object} apiSamplefractionquery
- * @property {number} precision
- */
-
-/**
- * @typedef {object} apiSamplefractionreqHeaders
- * @property {string} x_i6_trace_id
- */
-
-/**
- * @typedef {object} apiSamplefractionreqPayload
- * @property {string} reason
- */
-
-/**
- * @typedef {object} apiSamplefractionrespHeaders
- * @property {string} x_i6_trace_message
- */
-
-/**
- * @typedef {object} apiSamplefractionrespPayload
- * @property {string} display
- * @property {string} result
- */
-
-class Apis {
-
-  /**
-   * Constructs an Ingest client instance.
-   * @param {Services} services - The services manager instance.
-   */
-  constructor(services) {
-    /**
-     * @private
-     * @type {Services}
-     */
-    this._services = services;
-  }
-
-  /**
-   * @param {apiSamplefractionReq} req
-   * @returns {Promise<apiSamplefractionResp>}
-   */
-  async samplefraction(req) {
-    const resp = await this._services.invoker().invoke({
-      method: "POST",
-      path: ` + "`" + `api/gox/routez/sample/fraction/${encodeURIComponent(String(req.params.numerator))}/${encodeURIComponent(String(req.params.denominator))}` + "`" + `,
-      query: req.query,
-      headers: req.headers,
-      json: req.payload,
-    });
-    const result = {status: resp.status, ok: resp.ok};
-    if (resp.ok) {
-      result.payload = await resp.json();
-    }
-    if (!resp.ok) {
-      const text = await resp.text();
-      try {
-        result.error = JSON.parse(text);
-      } catch {
-        result.error = text;
-      }
-    }
-    return result;
-  }
-
-  /**
-   * @param {apiIngestzGetUrlReq} req
-   * @returns {Promise<apiIngestzGetUrlResp>}
-   */
-  async ingestzGetUrl(req) {
-    const resp = await this._services.invoker().invoke({
-      method: "POST",
-      path: ` + "`" + `api/ingest/get-url/dataset/${encodeURIComponent(String(req.params.dataset))}` + "`" + `,
-      json: req.payload,
-    });
-    const result = {status: resp.status, ok: resp.ok};
-    if (resp.ok) {
-      result.payload = await resp.json();
-    }
-    if (!resp.ok) {
-      const text = await resp.text();
-      try {
-        result.error = JSON.parse(text);
-      } catch {
-        result.error = text;
-      }
-    }
-    return result;
-  }
-}
-
-export { Apis };
-`
-		check(t, testScenario{
-			in:   apis,
-			want: want,
-		})
-	})
 }

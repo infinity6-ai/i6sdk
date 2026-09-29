@@ -1,6 +1,7 @@
 package jsparser
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
@@ -60,8 +61,6 @@ func ParseApi(api apiz.Api) *Api {
 
 	ret := &Api{
 		Spec: parseSpec(),
-		// Req:  jstypez.Typedef{Properties: &jstypez.Tuples{}, Head: &jstypez.Tuple{Typ: "object", Name: apiId + "Req", Summary: apiId + " Request"}},
-		// Resp: jstypez.Typedef{Properties: &jstypez.Tuples{}, Head: &jstypez.Tuple{Typ: "object", Name: apiId + "Resp", Summary: apiId + " Response"}},
 	}
 
 	validateDataRef(refs.PathParams, "PathParams")
@@ -73,43 +72,16 @@ func ParseApi(api apiz.Api) *Api {
 		if s == nil {
 			return
 		}
-		fieldName := ret.Spec.CamelId + suffix[0:1] + suffix[1:]
-		// out.Head = &jstypez.Tuple{Typ: "object", Name: fieldName}
+		fieldName := ret.Spec.CamelId + strings.ToUpper(suffix[0:1]) + suffix[1:]
 		out.Properties = &jstypez.Tuples{}
 		p, tdfs := ParseSchema(s)
 		checker.Equal("object", p.Head.Typ, "must be object")
 		out.Head = &jstypez.Tuple{Typ: fieldName, Name: suffix}
 		p.Head.Name = out.Head.Typ
-		// out.Properties.Add(p.Properties.All()...)
+		p.Head.Summary = fmt.Sprintf("%s %s", ret.Spec.CamelId, suffix)
 		ret.Typedefs.ExtractFrom(tdfs)
 		ret.Typedefs.Add(p)
 	}
-
-	// parseRefs := func(out *jstypez.Typedef, s *schemaz.Schema) {
-	// 	if s == nil {
-	// 		return
-	// 	}
-	// 	p, tdfs := ParseSchema(s)
-	// 	checker.Equal("object", p.Head.Typ, "must be object")
-	// 	out.Properties.Add(p.Properties.All()...)
-	// 	ret.Typedefs.Add(tdfs.All()...)
-	// }
-
-	// parseIntoObject := func(input *schemaz.Schema, out *jstypez.Typedef, fieldName string) {
-	// 	if input == nil {
-	// 		return
-	// 	}
-	// 	p, tdfs := ParseSchema(input)
-	// 	upperFiledName := strings.ToUpper(fieldName[0:1]) + fieldName[1:]
-	// 	p.Head.Name = out.Head.Name + upperFiledName
-	// 	out.Properties.Add(jstypez.Tuple{
-	// 		Typ:     p.Head.Name,
-	// 		Name:    fieldName,
-	// 		Summary: p.Head.Summary,
-	// 	})
-	// 	ret.Typedefs.ExtractFrom(tdfs)
-	// 	ret.Typedefs.Add(p)
-	// }
 
 	parseRefsV2(&ret.Req.Params, "params", refs.PathParams)
 	parseRefsV2(&ret.Req.Query, "query", refs.QueryParams)
@@ -117,14 +89,6 @@ func ParseApi(api apiz.Api) *Api {
 	parseRefsV2(&ret.Req.Payload, "reqPayload", refs.ReqBody)
 	parseRefsV2(&ret.Resp.Headers, "respHeaders", refs.RespHeaders)
 	parseRefsV2(&ret.Resp.Payload, "respPayload", refs.RespBody)
-
-	// parseRefs(&ret.Req, refs.PathParams)
-	// parseRefs(&ret.Req, refs.QueryParams)
-	// parseRefs(&ret.Req, refs.ReqHeaders)
-	// parseIntoObject(refs.ReqBody, &ret.Req, "payload")
-
-	// parseRefs(&ret.Resp, refs.RespHeaders)
-	// parseIntoObject(refs.RespBody, &ret.Resp, "payload")
 
 	return ret
 }
@@ -135,7 +99,14 @@ func validateDataRef(schema *schemaz.Schema, n string) {
 	}
 }
 
-func descSummary(d *schemaz.Desc) string {
+func DescName(d *schemaz.Desc) string {
+	if d == nil {
+		return ""
+	}
+	return d.Name
+}
+
+func DescSummary(d *schemaz.Desc) string {
 	if d == nil {
 		return ""
 	}

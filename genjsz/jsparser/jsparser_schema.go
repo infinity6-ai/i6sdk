@@ -8,17 +8,24 @@ import (
 )
 
 func ParseSchema(schema *schemaz.Schema) (*jstypez.Typedef, *jstypez.Typedefs) {
+	var typedef *jstypez.Typedef
+	var typedefs *jstypez.Typedefs
 	if schema.Object != nil {
 		s := schema.Object(false)
-		return ParseSchemaObject(s)
+		typedef, typedefs = ParseSchemaObject(s)
 	}
 	if schema.Str != nil {
 		s := schema.Str()
-		return ParseSchemaStr(s)
+		typedef, typedefs = ParseSchemaStr(s)
 	}
 	if schema.Raw != nil {
 		s := schema.Raw()
-		return ParseSchemaRaw(s)
+		typedef, typedefs = ParseSchemaRaw(s)
 	}
-	panic(fmt.Sprintf("unsupported: %#v", schema))
+	if typedef == nil {
+		panic(fmt.Sprintf("unsupported: %#v", schema))
+	}
+
+	typedef.Head.Summary = DescSummary(schema.Desc)
+	return typedef, typedefs
 }
