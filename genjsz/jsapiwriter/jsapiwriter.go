@@ -3,7 +3,6 @@ package jsapiwriter
 import (
 	"context"
 	"fmt"
-	"io"
 	"regexp"
 	"strings"
 
@@ -20,10 +19,10 @@ var logger = logz.Create(tlogger(true))
 
 var pathParamRe = regexp.MustCompile(`\{([A-Za-z0-9_]+)\}`)
 
-func writeln(sb io.Writer, msg string, args ...any) {
+func writeln(sb *strings.Builder, msg string, args ...any) {
 	_, err := fmt.Fprintf(sb, msg, args...)
 	errorz.Check(err)
-	_, err = fmt.Fprintf(sb, msg, args...)
+	_, err = sb.WriteRune('\n')
 	errorz.Check(err)
 }
 
