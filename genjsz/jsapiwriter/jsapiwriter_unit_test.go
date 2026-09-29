@@ -20,6 +20,8 @@ func TestUnitWrite(t *testing.T) {
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
 		got := jsapiwriter.Write(ctx, s.in)
+		println(got)
+
 		require.Equal(t, s.want, got)
 	}
 
@@ -48,51 +50,51 @@ func TestUnitWrite(t *testing.T) {
  */
 
 /**
- * apiSamplefraction Request
- * @typedef {object} apiSamplefractionReq
- * @property {apiSamplefractionparams} params
- * @property {apiSamplefractionquery} query
- * @property {apiSamplefractionreqHeaders} headers
- * @property {apiSamplefractionreqPayload} payload
+ * apiSampleFraction Request
+ * @typedef {object} apiSampleFractionReq
+ * @property {apiSampleFractionparams} params
+ * @property {apiSampleFractionquery} query
+ * @property {apiSampleFractionreqHeaders} headers
+ * @property {apiSampleFractionreqPayload} payload
  */
 
 /**
- * apiSamplefraction Response
- * @typedef {object} apiSamplefractionResp
- * @property {apiSamplefractionrespHeaders} headers
- * @property {apiSamplefractionrespPayload} payload
+ * apiSampleFraction Response
+ * @typedef {object} apiSampleFractionResp
+ * @property {apiSampleFractionrespHeaders} headers
+ * @property {apiSampleFractionrespPayload} payload
  */
 
 /**
- * @typedef {object} apiSamplefractionparams
- * @property {number} denominator
- * @property {number} numerator
+ * @typedef {object} apiSampleFractionparams
+ * @property {number} denominator - Fraction Denominator
+ * @property {number} numerator - Fraction Numerator
  */
 
 /**
- * @typedef {object} apiSamplefractionquery
- * @property {number} precision
+ * @typedef {object} apiSampleFractionquery
+ * @property {number} precision - Fraction max precision
  */
 
 /**
- * @typedef {object} apiSamplefractionreqHeaders
- * @property {string} x_i6_trace_id
+ * @typedef {object} apiSampleFractionreqHeaders
+ * @property {string} x_i6_trace_id - Sample of Trace Id
  */
 
 /**
- * @typedef {object} apiSamplefractionreqPayload
- * @property {string} reason
+ * @typedef {object} apiSampleFractionreqPayload
+ * @property {string} reason - Sample reason of this fraction
  */
 
 /**
- * @typedef {object} apiSamplefractionrespHeaders
- * @property {string} x_i6_trace_message
+ * @typedef {object} apiSampleFractionrespHeaders
+ * @property {string} x_i6_trace_message - Sample of any trace message
  */
 
 /**
- * @typedef {object} apiSamplefractionrespPayload
- * @property {string} display
- * @property {string} result
+ * @typedef {object} apiSampleFractionrespPayload
+ * @property {string} display - Human Fraction Representation
+ * @property {string} result - Fraction Result
  */
 
 class Apis {
@@ -110,10 +112,10 @@ class Apis {
   }
 
   /**
-   * @param {apiSamplefractionReq} req
-   * @returns {Promise<apiSamplefractionResp>}
+   * @param {apiSampleFractionReq} req
+   * @returns {Promise<apiSampleFractionResp>}
    */
-  async samplefraction(req) {
+  async sampleFraction(req) {
     const resp = await this._services.invoker().invoke({
       method: "POST",
       path: ` + "`" + `api/gox/routez/sample/fraction/${encodeURIComponent(String(req.params.numerator))}/${encodeURIComponent(String(req.params.denominator))}` + "`" + `,
