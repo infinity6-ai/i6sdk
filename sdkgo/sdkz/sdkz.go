@@ -8,6 +8,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapisignedurl"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzapi/ingestzapigeturl"
 )
 
@@ -29,6 +30,7 @@ func init() {
 		add(svc.Api())
 	}
 	add(&ingestzapigeturl.GetUrlApi{})
+	add(&dszapisignedurl.Api{})
 	// add(&pipezapi.PipezStartApi{})
 	// add(&dszapi.DszSolutionDomainSelectApi{})
 }

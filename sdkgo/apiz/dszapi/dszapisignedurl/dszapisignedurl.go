@@ -3,6 +3,7 @@ package dszapisignedurl
 import (
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
+	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakepathz"
 )
@@ -10,6 +11,10 @@ import (
 type Path struct {
 	Method string         `json:"method"`
 	Path   lakepathz.Path `json:"path"`
+}
+
+func (*Path) JSType() string {
+	return jstypez.TypeObject
 }
 
 type Paths []Path
@@ -23,6 +28,10 @@ type Urls []string
 
 type Resp struct {
 	Urls Urls `json:"urls"`
+}
+
+func (*Resp) JSType() string {
+	return jstypez.TypeObject
 }
 
 type Api struct {
