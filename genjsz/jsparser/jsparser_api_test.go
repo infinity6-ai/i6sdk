@@ -9,7 +9,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
-	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapisignedurl"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzapi/ingestzapigeturl"
 )
 
@@ -161,9 +160,9 @@ func TestUnitIngestz(t *testing.T) {
 	require.Equal(t, expected, actual)
 }
 
-func TestManualOne(t *testing.T) {
-	api := &dszapisignedurl.Api{}
-	actual := jsparser.ParseApi(api)
-	println(jsonz.MustFormatPretty(actual).String())
-	t.Fail()
-}
+// func TestManualOne(t *testing.T) {
+// 	api := &dszapisignedurl.Api{}
+// 	actual := jsparser.ParseApi(api)
+// 	println(jsonz.MustFormatPretty(actual).String())
+// 	t.Fail()
+// }
