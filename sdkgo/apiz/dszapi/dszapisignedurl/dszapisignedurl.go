@@ -54,7 +54,7 @@ func (d *Api) GetDataRefs() *apiz.DataRefs {
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
 					"dataset": {
-						Desc: &schemaz.Desc{Name: "Dataset", Summary: "write it1"},
+						Desc: &schemaz.Desc{Summary: "write it1"},
 						Str:  lakedsz.ParseStr(&d.Req.Dataset),
 					},
 				}
@@ -66,7 +66,7 @@ func (d *Api) GetDataRefs() *apiz.DataRefs {
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
 					"paths": {
-						Desc: &schemaz.Desc{Name: "paths", Summary: "write it2"},
+						Desc: &schemaz.Desc{Summary: "write it2"},
 						Array: func() *schemaz.Array {
 							return &schemaz.Array{
 								Get: func(idx int, read bool) *schemaz.Schema {
@@ -74,15 +74,15 @@ func (d *Api) GetDataRefs() *apiz.DataRefs {
 										d.Req.Paths = slicez.GrowLenTo(d.Req.Paths, idx+1)
 									}
 									return &schemaz.Schema{
-										Desc: &schemaz.Desc{Name: "path", Summary: "write it3"},
+										Desc: &schemaz.Desc{Summary: "write it3"},
 										Object: func(read bool) map[string]*schemaz.Schema {
 											return map[string]*schemaz.Schema{
 												"method": {
-													Desc: &schemaz.Desc{Name: "method", Summary: "write it4"},
+													Desc: &schemaz.Desc{Summary: "write it4"},
 													Raw:  func() any { return &d.Req.Paths[idx].Method },
 												},
 												"path": {
-													Desc: &schemaz.Desc{Name: "path", Summary: "write it5"},
+													Desc: &schemaz.Desc{Summary: "write it5"},
 													Raw:  func() any { return &d.Req.Paths[idx].Path },
 												},
 											}

@@ -50,7 +50,7 @@ func (d *GetUrlApi) GetDataRefs() *apiz.DataRefs {
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
 					"dataset": {
-						Desc: &schemaz.Desc{Name: "Dataset", Summary: "Name of the dataset that receives the uploaded files."},
+						Desc: &schemaz.Desc{Summary: "Name of the dataset that receives the uploaded files."},
 						Str:  lakedsz.ParseStr(&d.Req.Dataset),
 					},
 				}
@@ -62,15 +62,15 @@ func (d *GetUrlApi) GetDataRefs() *apiz.DataRefs {
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
 					"table": {
-						Desc: &schemaz.Desc{Name: "Table", Summary: "Name of the table, inside the dataset, that receives the uploaded files."},
+						Desc: &schemaz.Desc{Summary: "Name of the table, inside the dataset, that receives the uploaded files."},
 						Raw:  func() any { return &d.Req.Table },
 					},
 					"partitions": {
-						Desc: &schemaz.Desc{Name: "Partitions", Summary: "Partition key/value pairs that select the table partition the files are ingested into."},
+						Desc: &schemaz.Desc{Summary: "Partition key/value pairs that select the table partition the files are ingested into."},
 						Raw:  func() any { return &d.Req.Partitions },
 					},
 					"amount": {
-						Desc: &schemaz.Desc{Name: "Amount", Summary: "Number of presigned upload URLs to generate."},
+						Desc: &schemaz.Desc{Summary: "Number of presigned upload URLs to generate."},
 						Raw:  func() any { return &d.Req.Amount },
 					},
 				}
@@ -82,7 +82,7 @@ func (d *GetUrlApi) GetDataRefs() *apiz.DataRefs {
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
 					"uploads": {
-						Desc: &schemaz.Desc{Name: "Uploads", Summary: "Presigned PUT URLs, one per requested file; upload each file to its URL."},
+						Desc: &schemaz.Desc{Summary: "Presigned PUT URLs, one per requested file; upload each file to its URL."},
 						Raw:  func() any { return &d.Resp.Uploads },
 					},
 					"ingest_id": {
