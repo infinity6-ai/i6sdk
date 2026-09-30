@@ -22,6 +22,10 @@ func ParseSchema(schema *schemaz.Schema) (*jstypez.Typedef, *jstypez.Typedefs) {
 		s := schema.Raw()
 		typedef, typedefs = ParseSchemaRaw(s)
 	}
+	if schema.Array != nil {
+		s := schema.Array()
+		typedef, typedefs = ParseSchemaArray(s)
+	}
 	if typedef == nil {
 		panic(fmt.Sprintf("unsupported: %#v", schema))
 	}
