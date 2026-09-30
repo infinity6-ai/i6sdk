@@ -121,7 +121,7 @@ func expectedIngestzApi() *jsparser.Api {
 				Head: &jstypez.Tuple{Typ: "object", Name: "apiIngestzGetUrlReqPayload", Summary: "apiIngestzGetUrl reqPayload"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
 					{Typ: "number", Name: "amount", Summary: "Number of presigned upload URLs to generate."},
-					{Typ: "Record<string, string>", Name: "partitions", Summary: "Partition key/value pairs that select the table partition the files are ingested into."},
+					{Typ: "Record<apiIngestzGetUrlReqPayloadPartitionsKey, apiIngestzGetUrlReqPayloadPartitionsValue>", Name: "partitions", Summary: "Partition key/value pairs that select the table partition the files are ingested into."},
 					{Typ: "string", Name: "table", Summary: "Name of the table, inside the dataset, that receives the uploaded files."},
 				}),
 			},
@@ -129,8 +129,17 @@ func expectedIngestzApi() *jsparser.Api {
 				Head: &jstypez.Tuple{Typ: "object", Name: "apiIngestzGetUrlRespPayload", Summary: "apiIngestzGetUrl respPayload"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
 					{Typ: "string", Name: "ingest_id", Summary: "Ingestion token that identifies this ingestion and ties the uploaded files together."},
-					{Typ: "Array<string>", Name: "uploads", Summary: "Presigned PUT URLs, one per requested file; upload each file to its URL."},
+					{Typ: "Array<apiIngestzGetUrlRespPayloadUploadsElement>", Name: "uploads", Summary: "Presigned PUT URLs, one per requested file; upload each file to its URL."},
 				}),
+			},
+			{
+				Head: &jstypez.Tuple{Typ: "string", Name: "apiIngestzGetUrlReqPayloadPartitionsKey"},
+			},
+			{
+				Head: &jstypez.Tuple{Typ: "string", Name: "apiIngestzGetUrlReqPayloadPartitionsValue"},
+			},
+			{
+				Head: &jstypez.Tuple{Typ: "string", Name: "apiIngestzGetUrlRespPayloadUploadsElement"},
 			},
 		}),
 		Req: jsparser.Req{

@@ -143,6 +143,15 @@ func TestUnitIngestz(t *testing.T) {
 					{Typ: "Array<apiIngestzGetUrlRespPayloadUploadsElement>", Name: "uploads", Summary: "Presigned PUT URLs, one per requested file; upload each file to its URL."},
 				}),
 			},
+			{
+				Head: &jstypez.Tuple{Typ: "string", Name: "apiIngestzGetUrlReqPayloadPartitionsKey"},
+			},
+			{
+				Head: &jstypez.Tuple{Typ: "string", Name: "apiIngestzGetUrlReqPayloadPartitionsValue"},
+			},
+			{
+				Head: &jstypez.Tuple{Typ: "string", Name: "apiIngestzGetUrlRespPayloadUploadsElement"},
+			},
 		}),
 		Req: jsparser.Req{
 			Params: jstypez.Typedef{
