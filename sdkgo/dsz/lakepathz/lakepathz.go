@@ -134,12 +134,18 @@ func MustParse(name string) Path {
 func From(p ParsePath) Path {
 	partitions := p.Partitions()
 	file := p.File()
-	ret, err := New(p.Table(), &partitions, &file)
+	ret, err := Build(p.Table(), &partitions, &file)
 	errorz.Check(err)
 	return ret
 }
 
-func New(table laketablez.Table, hiveParts *hivepartz.HiveParts, file *pathz.Path) (Path, error) {
+func MustBuild(table laketablez.Table, hiveParts *hivepartz.HiveParts, file *pathz.Path) Path {
+	ret, err := Build(table, hiveParts, file)
+	errorz.Check(err)
+	return ret
+}
+
+func Build(table laketablez.Table, hiveParts *hivepartz.HiveParts, file *pathz.Path) (Path, error) {
 	b := table.String() + "/" + stringz.String(hiveParts) + "/" + stringz.String(file)
 	var zero Path
 	p, err := pathz.Parse(b)
