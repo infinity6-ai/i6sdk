@@ -1,4 +1,4 @@
-package dszapi
+package dszapidomainsolutionselect
 
 import (
 	"github.com/infinity6-ai/gox/routez/apiz"
