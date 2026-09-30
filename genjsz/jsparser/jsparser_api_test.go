@@ -164,7 +164,7 @@ func TestUnitIngestz(t *testing.T) {
 	require.Equal(t, expected, actual)
 }
 
-func TestManualOne(t *testing.T) {
+func TestMUnitAll(t *testing.T) {
 	apis := []apiz.Api{
 		&ingestzapigeturl.GetUrlApi{},
 		&dszapisignedurl.Api{},
@@ -172,8 +172,11 @@ func TestManualOne(t *testing.T) {
 		&dszapi.DszSolutionDomainSelectApi{},
 	}
 	for _, api := range apis {
-		actual := jsparser.ParseApi(api)
-		println(jsonz.MustFormatPretty(actual).String())
+		expected := jsparser.ParseApi(api)
+		var actual *jsparser.Api
+		jsonz.MustParse(jsonz.MustFormat(expected).String(), &actual)
+		// require.Equal(t, expected, actual)
+		// println(jsonz.MustFormatPretty(actual).String())
 	}
 	// t.Fail()
 }
