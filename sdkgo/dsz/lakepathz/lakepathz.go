@@ -7,7 +7,6 @@ import (
 	"github.com/infinity6-ai/gox/commonz/constraintz/optionalz"
 	"github.com/infinity6-ai/gox/commonz/errorz"
 	"github.com/infinity6-ai/gox/commonz/hivepartz"
-	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/infinity6-ai/gox/commonz/pathz"
 	"github.com/infinity6-ai/gox/commonz/stringz"
 	"github.com/infinity6-ai/gox/commonz/validation/checked"
@@ -48,14 +47,10 @@ func (v parsedPathImpl) String() string {
 	return v.format()
 }
 
-func (v *parsedPathImpl) Parse(data []byte) error {
+func (v *parsedPathImpl) Parse(s string) error {
 	*v = parsedPathImpl{}
-	var s string
-	if err := jsonz.ParseInto(data, &s); err != nil {
-		return err
-	}
 	if s == "" {
-		return nil
+		return fmt.Errorf("path must no be empty")
 	}
 	s, found := strings.CutPrefix(s, schema)
 	if !found {
@@ -112,7 +107,7 @@ func (d *Path) UnmarshalJSON(data []byte) error {
 
 func (d Path) Parse() (ParsePath, error) {
 	var ret parsedPathImpl
-	err := ret.Parse([]byte(d.Get()))
+	err := ret.Parse(d.Get())
 	if err != nil {
 		return nil, err
 	}
@@ -121,8 +116,7 @@ func (d Path) Parse() (ParsePath, error) {
 
 func (d Path) Validate(v string) error {
 	var ret parsedPathImpl
-	err := ret.Parse([]byte(d.Get()))
-	return err
+	return ret.Parse(v)
 }
 
 func Parse(name string) (Path, error) {
