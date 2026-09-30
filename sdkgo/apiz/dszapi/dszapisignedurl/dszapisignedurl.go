@@ -13,15 +13,9 @@ type Path struct {
 	Path   lakepathz.Path `json:"path"`
 }
 
-func (*Path) JSType() string {
-	return jstypez.TypeObject
-}
-
-type Paths []Path
-
 type Req struct {
 	Dataset lakedsz.Dataset `json:"dataset"`
-	Paths   Paths           `json:"paths"`
+	Paths   []Path          `json:"paths"`
 }
 
 type Urls []string
