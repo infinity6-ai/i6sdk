@@ -173,7 +173,7 @@ func TestUnitIngestz(t *testing.T) {
 	require.Equal(t, expected, actual)
 }
 
-func TestMUnitAll(t *testing.T) {
+func TestUnitAll(t *testing.T) {
 	apis := []apiz.Api{
 		&ingestzapigeturl.GetUrlApi{},
 		&dszapisignedurl.Api{},
