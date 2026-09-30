@@ -116,7 +116,7 @@ func checkCustom(baseId string, val reflect.Value) (*jstypez.Typedef, *jstypez.T
 			checker.Empty(tdfs.All(), "must be empty")
 		}
 		if ret.Head.Typ != jstypez.TypeBool && ret.Head.Typ != jstypez.TypeString && ret.Head.Typ != jstypez.TypeNumber {
-			log.Printf("custom object detected: %s", baseId)
+			log.Printf("non basic parser custom detected %s: %s", ret.Head.Typ, baseId)
 		}
 		return ret, tdfs
 	}
