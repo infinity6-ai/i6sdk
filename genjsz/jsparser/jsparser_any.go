@@ -9,7 +9,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
-func ParseAny(v any) (*jstypez.Typedef, *jstypez.Typedefs) {
+func ParseAny(baseId string, v any) (*jstypez.Typedef, *jstypez.Typedefs) {
 	val := reflect.ValueOf(v)
 
 	for val.Kind() == reflect.Pointer || val.Kind() == reflect.Interface {
@@ -55,15 +55,18 @@ func ParseAny(v any) (*jstypez.Typedef, *jstypez.Typedefs) {
 		elemZeroVal := reflect.Zero(elemType).Interface()
 
 		// 3. Recursively parse the element type
-		elemTdf, eTdfs := ParseAny(elemZeroVal)
+		elemTdf, eTdfs := ParseAny(baseId+"Element", elemZeroVal)
+		checker.StrEmpty(elemTdf.Head.Name, "elemTdf.Head.Name")
+		elemTdf.Head.Name = baseId + "Element"
 
 		// 4. Aggregate nested typedefs
 		allTdfs.ExtractFrom(eTdfs)
+		allTdfs.Add(elemTdf)
 
 		// 5. Format as a TypeScript array.
 		// You can use "%s[]" (e.g., "string[]") or "Array<%s>" (e.g., "Array<string>")
 		return &jstypez.Typedef{
-			Head: &jstypez.Tuple{Typ: fmt.Sprintf("Array<%s>", elemTdf.Head.Typ)},
+			Head: &jstypez.Tuple{Typ: fmt.Sprintf("Array<%s>", elemTdf.Head.Name)},
 		}, &allTdfs
 
 	case reflect.Map:
@@ -81,18 +84,22 @@ func ParseAny(v any) (*jstypez.Typedef, *jstypez.Typedefs) {
 		elemZeroVal := reflect.Zero(elemType).Interface()
 
 		// 4. Recursively parse the key and value types
-		keyTdf, kTdfs := ParseAny(keyZeroVal)
-		valTdf, vTdfs := ParseAny(elemZeroVal)
-
-		// 5. Aggregate nested typedefs
-		allTdfs.ExtractFrom(kTdfs)
-		allTdfs.ExtractFrom(vTdfs)
+		keyTdf, kTdfs := ParseAny(baseId+"Key", keyZeroVal)
+		valTdf, vTdfs := ParseAny(baseId+"Value", elemZeroVal)
 
 		checker.StrEmpty(keyTdf.Head.Name, "keyTdf.Head.Name")
 		checker.StrEmpty(valTdf.Head.Name, "valTdf.Head.Name")
 
+		keyTdf.Head.Name = baseId + "Key"
+		valTdf.Head.Name = baseId + "Value"
+
+		// 5. Aggregate nested typedefs
+		allTdfs.ExtractFrom(kTdfs)
+		allTdfs.ExtractFrom(vTdfs)
+		allTdfs.Add(keyTdf, valTdf)
+
 		return &jstypez.Typedef{
-			Head: &jstypez.Tuple{Typ: fmt.Sprintf("Record<%s, %s>", keyTdf.Head.Typ, valTdf.Head.Typ)},
+			Head: &jstypez.Tuple{Typ: fmt.Sprintf("Record<%s, %s>", keyTdf.Head.Name, valTdf.Head.Name)},
 		}, &allTdfs
 
 	default:

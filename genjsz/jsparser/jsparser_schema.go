@@ -17,11 +17,11 @@ func ParseSchema(baseId string, schema *schemaz.Schema) (*jstypez.Typedef, *jsty
 	}
 	if schema.Str != nil {
 		s := schema.Str()
-		typedef, typedefs = ParseSchemaStr(s)
+		typedef, typedefs = ParseSchemaStr(baseId, s)
 	}
 	if schema.Raw != nil {
 		s := schema.Raw()
-		typedef, typedefs = ParseSchemaRaw(s)
+		typedef, typedefs = ParseSchemaRaw(baseId, s)
 	}
 	if schema.Array != nil {
 		s := schema.Array()
