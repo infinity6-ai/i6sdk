@@ -5,10 +5,11 @@ import (
 	"slices"
 
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
+	"go.code.infinity6.ai/sdkgo/camelstring"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
-func ParseSchemaObject(obj map[string]*schemaz.Schema) (*jstypez.Typedef, *jstypez.Typedefs) {
+func ParseSchemaObject(baseId string, obj map[string]*schemaz.Schema) (*jstypez.Typedef, *jstypez.Typedefs) {
 	ret := jstypez.Typedef{
 		Head:       &jstypez.Tuple{Typ: jstypez.TypeObject},
 		Properties: &jstypez.Tuples{},
@@ -16,7 +17,8 @@ func ParseSchemaObject(obj map[string]*schemaz.Schema) (*jstypez.Typedef, *jstyp
 	tdfs := &jstypez.Typedefs{}
 	for _, field := range slices.Sorted(maps.Keys(obj)) {
 		schema := obj[field]
-		s, schemaTdfs := ParseSchema(schema)
+		fieldId := baseId + camelstring.ToCamelUpper(field)
+		s, schemaTdfs := ParseSchema(fieldId, schema)
 		ret.Properties.Add(jstypez.Tuple{
 			Name:    field,
 			Typ:     s.Head.Typ,

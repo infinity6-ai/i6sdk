@@ -17,6 +17,7 @@ func TestUnitFractionSample(t *testing.T) {
 	api := routezsamplefraction.NewService().Api()
 	actual := jsparser.ParseApi(api)
 	jsonz.MustParse(jsonz.MustFormat(actual).String(), &actual)
+	println(jsonz.MustFormatPretty(actual).String())
 	expected := &jsparser.Api{
 		Spec: jsparser.ApiSpec{
 			Id:      "sample-fraction",
@@ -163,5 +164,6 @@ func TestUnitIngestz(t *testing.T) {
 func TestManualOne(t *testing.T) {
 	api := &dszapisignedurl.Api{}
 	actual := jsparser.ParseApi(api)
-	println(jsonz.MustFormat(actual).String())
+	println(jsonz.MustFormatPretty(actual).String())
+	t.Fail()
 }

@@ -42,7 +42,7 @@ type ApiSpec struct {
 func ParseApi(api apiz.Api) *Api {
 	refs := api.GetDataRefs()
 
-	apiId := camelstring.KebabToCamel(api.ApiSpec().Id)
+	apiId := camelstring.ToCamel(api.ApiSpec().Id)
 	apiId = "api" + strings.ToUpper(apiId[0:1]) + apiId[1:]
 
 	parseSpec := func() ApiSpec {
@@ -73,11 +73,10 @@ func ParseApi(api apiz.Api) *Api {
 			return
 		}
 		fieldName := ret.Spec.CamelId + strings.ToUpper(suffix[0:1]) + suffix[1:]
-		out.Properties = &jstypez.Tuples{}
-		p, tdfs := ParseSchema(s)
+		p, tdfs := ParseSchema(fieldName, s)
 		checker.Equal("object", p.Head.Typ, "must be object")
+		out.Properties = &jstypez.Tuples{}
 		out.Head = &jstypez.Tuple{Typ: fieldName, Name: suffix}
-		p.Head.Name = out.Head.Typ
 		p.Head.Summary = fmt.Sprintf("%s %s", ret.Spec.CamelId, suffix)
 		ret.Typedefs.ExtractFrom(tdfs)
 		ret.Typedefs.Add(p)

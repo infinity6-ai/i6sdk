@@ -25,14 +25,22 @@ func CamelToKebab(s string) string {
 	return builder.String()
 }
 
-// KebabToCamel converts kebab-case to lowerCamelCase.
-func KebabToCamel(s string) string {
+func ToCamelUpper(s string) string {
+	ret := ToCamel(s)
+	if ret == "" {
+		return ""
+	}
+	return strings.ToUpper(ret[0:1]) + ret[1:]
+}
+
+// ToCamel converts to lowerCamelCase.
+func ToCamel(s string) string {
 	var builder strings.Builder
 	builder.Grow(len(s))
 
 	nextUpper := false
 	for i, r := range s {
-		if r == '-' {
+		if r == '-' || r == '_' {
 			nextUpper = true
 			continue
 		}
