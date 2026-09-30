@@ -13,7 +13,7 @@ func TestUnitTableChecked(t *testing.T) {
 			ret := lakepathz.MustParse(v)
 			return &ret
 		},
-		Valids:   []string{"i6tb://bla.ble/a=2/b=x/my/file.txt"},
-		Invalids: []string{"", "a_a", "_1a", "a1_"},
+		Valids:   []string{"i6tb://bla.ble/a=2/b=x/my/file.txt", "i6tb://bla.ble/my/file.txt", "i6tb://bla.ble/a=2/b=x", "i6tb://bla.ble", "i6tb://bla.ble/"},
+		Invalids: []string{"", "a_a", "_1a", "a1_", "i6tb://bla/", "i6tb://bla", "i6tb://", "i6tb://bla.", "i6tb://.ble", "i6tb://."},
 	})
 }
