@@ -4,12 +4,16 @@ import (
 	"testing"
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
+	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/stretchr/testify/require"
+	"go.code.infinity6.ai/datasetz/dszapi"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapisignedurl"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzapi/ingestzapigeturl"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/pipezapi"
 )
 
 func TestUnitFractionSample(t *testing.T) {
@@ -160,9 +164,16 @@ func TestUnitIngestz(t *testing.T) {
 	require.Equal(t, expected, actual)
 }
 
-// func TestManualOne(t *testing.T) {
-// 	api := &dszapisignedurl.Api{}
-// 	actual := jsparser.ParseApi(api)
-// 	println(jsonz.MustFormatPretty(actual).String())
-// 	t.Fail()
-// }
+func TestManualOne(t *testing.T) {
+	apis := []apiz.Api{
+		&ingestzapigeturl.GetUrlApi{},
+		&dszapisignedurl.Api{},
+		&pipezapi.PipezStartApi{},
+		&dszapi.DszSolutionDomainSelectApi{},
+	}
+	for _, api := range apis {
+		actual := jsparser.ParseApi(api)
+		println(jsonz.MustFormatPretty(actual).String())
+	}
+	// t.Fail()
+}
