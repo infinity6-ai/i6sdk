@@ -2,6 +2,7 @@ package jsparser
 
 import (
 	"fmt"
+	"log"
 	"reflect"
 
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
@@ -20,7 +21,7 @@ func ParseAny(baseId string, v any) (*jstypez.Typedef, *jstypez.Typedefs) {
 		val = val.Elem()
 	}
 
-	if a, b := checkCustom(val); a != nil {
+	if a, b := checkCustom(baseId, val); a != nil {
 		return a, b
 	}
 
@@ -108,11 +109,14 @@ func ParseAny(baseId string, v any) (*jstypez.Typedef, *jstypez.Typedefs) {
 
 }
 
-func checkCustom(val reflect.Value) (*jstypez.Typedef, *jstypez.Typedefs) {
+func checkCustom(baseId string, val reflect.Value) (*jstypez.Typedef, *jstypez.Typedefs) {
 	v := val.Interface()
 	if ret, tdfs := jsparsercustom.Resolve(v); ret != nil {
 		if tdfs != nil {
 			checker.Empty(tdfs.All(), "must be empty")
+		}
+		if ret.Head.Typ != jstypez.TypeBool && ret.Head.Typ != jstypez.TypeString && ret.Head.Typ != jstypez.TypeNumber {
+			log.Printf("custom object detected: %s", baseId)
 		}
 		return ret, tdfs
 	}
