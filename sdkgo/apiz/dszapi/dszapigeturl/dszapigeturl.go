@@ -1,4 +1,4 @@
-package dszapiurl
+package dszapigeturl
 
 // type GetUrlReq struct {
 // 	Dataset    lakedsz.Dataset       `json:"dataset"`
