@@ -1,4 +1,4 @@
-package dszapilisttable
+package dszapitablelist
 
 import (
 	"github.com/infinity6-ai/gox/fsz/fsz"
@@ -10,12 +10,12 @@ import (
 
 type Req struct {
 	Dataset   lakedsz.Dataset `json:"dataset"`
-	Path      lakepathz.Path  `json:"path"`
-	Sign      bool            `json:"sign"`
-	Recursive bool            `json:"recursive"`
-	Stat      bool            `json:"stat"`
-	Cursor    string          `json:"cursor"`
-	Limit     int             `json:"limist"`
+	Path      lakepathz.Path  `json:"path"`      // query
+	Sign      bool            `json:"sign"`      // query
+	Recursive bool            `json:"recursive"` // query
+	Stat      bool            `json:"stat"`      // query
+	Cursor    string          `json:"cursor"`    // query
+	Limit     int             `json:"limist"`    // query
 }
 
 type File struct {
@@ -35,7 +35,7 @@ type Api struct {
 
 func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id: "dsz-signed-url",
+		Id: "dsz-table-list",
 		Desc: func() *schemaz.Desc {
 			return &schemaz.Desc{
 				Name:    "Get Dataset Signed URLs",
@@ -43,7 +43,7 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 			}
 		},
 		Method: "GET",
-		Path:   "/api/dsz/list-table/dataset/{dataset}",
+		Path:   "/api/dsz/dataset/{dataset}/table-list",
 	}
 }
 

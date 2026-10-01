@@ -3,7 +3,6 @@ package dszapisignedurl
 import (
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakepathz"
 )
@@ -18,14 +17,8 @@ type Req struct {
 	Paths   []Path          `json:"paths"`
 }
 
-type Urls []string
-
 type Resp struct {
-	Urls Urls `json:"urls"`
-}
-
-func (*Resp) JSType() string {
-	return jstypez.TypeObject
+	Urls []string `json:"urls"`
 }
 
 type Api struct {
@@ -43,7 +36,7 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 			}
 		},
 		Method: "POST",
-		Path:   "/api/dsz/signed-url/dataset/{dataset}",
+		Path:   "/api/dsz/dataset/{dataset}/signed-url",
 	}
 }
 
@@ -92,8 +85,24 @@ func (d *Api) GetDataRefs() *apiz.DataRefs {
 		},
 		RespHeaders: nil,
 		RespBody: &schemaz.Schema{
-			Desc: &schemaz.Desc{Name: "Get URL Response", Summary: "Presigned URLs generated for the requested paths."},
-			Raw:  func() any { return &d.Resp },
+			Desc: &schemaz.Desc{Summary: "Presigned URLs generated for the requested paths."},
+			Object: func(read bool) map[string]*schemaz.Schema {
+				return map[string]*schemaz.Schema{
+					"urls": {
+						Array: schemaz.NewArray(schemaz.ArrayOptions[[]string, string]{
+							Slice: func() *[]string { return &d.Resp.Urls },
+							Get: func(idx int, element *string) *schemaz.Schema {
+								return &schemaz.Schema{
+									Desc: &schemaz.Desc{Summary: "signed url"},
+									Raw: func() any {
+										return element
+									},
+								}
+							},
+						}),
+					},
+				}
+			},
 		},
 	}
 }
