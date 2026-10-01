@@ -69,6 +69,7 @@ func (d *Api) GetDataRefs() *apiz.DataRefs {
 						Desc: &schemaz.Desc{Summary: "List of paths and HTTP methods to generate signed URLs for."},
 						Array: func() *schemaz.Array {
 							return &schemaz.Array{
+								Len: len(d.Req.Paths),
 								Get: func(idx int, read bool) *schemaz.Schema {
 									if !read {
 										d.Req.Paths = slicez.GrowLenTo(d.Req.Paths, idx+1)
