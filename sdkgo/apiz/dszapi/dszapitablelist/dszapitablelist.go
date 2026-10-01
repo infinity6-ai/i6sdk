@@ -4,7 +4,6 @@ import (
 	"github.com/infinity6-ai/gox/fsz/fsz"
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakepathz"
 )
@@ -23,10 +22,6 @@ type File struct {
 	Path      lakepathz.Path `json:"path"`
 	Stat      fsz.FileStat   `json:"stat"`
 	SignedUrl string         `json:"signed_url"`
-}
-
-func (*File) JSType() string {
-	return jstypez.TypeObject
 }
 
 type Resp struct {
@@ -107,8 +102,10 @@ func (d *Api) GetDataRefs() *apiz.DataRefs {
 							Get: func(idx int, element *File) *schemaz.Schema {
 								return &schemaz.Schema{
 									Desc: &schemaz.Desc{Summary: "File entry"},
-									Raw: func() any {
-										return element
+									Object: func(_ bool) map[string]*schemaz.Schema {
+										return map[string]*schemaz.Schema{
+											"path": &schemaz.Schema{},
+										}
 									},
 								}
 							},
