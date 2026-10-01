@@ -2,25 +2,19 @@ FBT - INPUTS
 
 ENTRADA: ITENS DO CARRINHO (fornecidos pelo usuário do sdk)
 - lista de itens do carrinho
-    - por item: id do produto (obrigatório, string)
+    - por item: id do produto (obrigatório, string) -> procurar no sqlite utilizando esse id.
 
 ENTRADA: ARQUIVOS DO MODELO (fornecidos pelo usuário do sdk)
 - bytes do modelo (.tflite)
-- identificador de versão do modelo (etag)
+    - identificador de versão do modelo (etag)
 - bytes do banco (.sqlite)
-- identificador de versão do banco (etag)
-- nome do modelo ("fbt")
-
-SCHEMA DO SQLITE - tabela model_signature
-- i (índice da saída do modelo)
-- value (casa com product.rec_out)
-- mask (disponibilidade na loja/catálogo, 0 ou 1)
+    - identificador de versão do banco (etag)
 
 SAÍDA DO MODELO
 - primeiro tensor de saída, scores em float
-- um score por índice de assinatura
+    - um score por índice de assinatura
 
 SAÍDA DA INFERÊNCIA (retorno para o usuário do sdk)
 - lista ordenada de product_ids recomendados (até TOP_N)
-- scores dos itens recomendados
-- id único da recomendação (UUID)
+    - scores dos itens recomendados
+    - id único da recomendação (UUID)
