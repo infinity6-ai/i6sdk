@@ -11,7 +11,7 @@ import (
 type Domain checked.Value[string]
 
 func (*Domain) JSType() string {
-	return jstypez.TypeString
+	return jstypez.TypString
 }
 
 func (d Domain) Optional() optionalz.Optional[string] {

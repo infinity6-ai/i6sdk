@@ -24,12 +24,12 @@ func TestUnitWrite(t *testing.T) {
 	t.Run("basic object", func(t *testing.T) {
 		var tds jstypez.Typedefs
 		td := &jstypez.Typedef{
-			Head:       &jstypez.Tuple{Typ: jstypez.TypeObject, Name: "MyType", Summary: "My summary"},
+			Head:       &jstypez.Tuple{Typ: jstypez.TypObject, Name: "MyType", Summary: "My summary"},
 			Properties: &jstypez.Tuples{},
 		}
 		td.Properties.Add(
-			jstypez.Tuple{Typ: jstypez.TypeString, Name: "foo"},
-			jstypez.Tuple{Typ: jstypez.TypeNumber, Name: "bar", Summary: "bar summary"},
+			jstypez.Tuple{Typ: jstypez.TypString, Name: "foo"},
+			jstypez.Tuple{Typ: jstypez.TypNumber, Name: "bar", Summary: "bar summary"},
 		)
 		tds.Add(td)
 
@@ -43,13 +43,13 @@ func TestUnitWrite(t *testing.T) {
 	t.Run("multiple typedefs", func(t *testing.T) {
 		var tds jstypez.Typedefs
 		td1 := &jstypez.Typedef{
-			Head: &jstypez.Tuple{Typ: jstypez.TypeString, Name: "AliasType"},
+			Head: &jstypez.Tuple{Typ: jstypez.TypString, Name: "AliasType"},
 		}
 		td2 := &jstypez.Typedef{
-			Head:       &jstypez.Tuple{Typ: jstypez.TypeObject, Name: "BType"},
+			Head:       &jstypez.Tuple{Typ: jstypez.TypObject, Name: "BType"},
 			Properties: &jstypez.Tuples{},
 		}
-		td2.Properties.Add(jstypez.Tuple{Typ: jstypez.TypeNumber, Name: "x"})
+		td2.Properties.Add(jstypez.Tuple{Typ: jstypez.TypNumber, Name: "x"})
 
 		tds.Add(td1, td2)
 
@@ -63,11 +63,11 @@ func TestUnitWrite(t *testing.T) {
 	t.Run("various jstypes", func(t *testing.T) {
 		var tds jstypez.Typedefs
 		td := &jstypez.Typedef{
-			Head:       &jstypez.Tuple{Typ: jstypez.TypeObject, Name: "ComplexType"},
+			Head:       &jstypez.Tuple{Typ: jstypez.TypObject, Name: "ComplexType"},
 			Properties: &jstypez.Tuples{},
 		}
 		td.Properties.Add(
-			jstypez.Tuple{Typ: jstypez.TypeBoolean, Name: "flag"},
+			jstypez.Tuple{Typ: jstypez.TypBoolean, Name: "flag"},
 			jstypez.Tuple{Typ: "Array<boolean>", Name: "flags"},
 			jstypez.Tuple{Typ: "Record<string, object>", Name: "nested"},
 		)

@@ -11,7 +11,7 @@ import (
 type Solution checked.Value[string]
 
 func (*Solution) JSType() string {
-	return jstypez.TypeString
+	return jstypez.TypString
 }
 
 func (d Solution) Optional() optionalz.Optional[string] {

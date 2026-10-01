@@ -14,7 +14,7 @@ type PipeParam struct {
 }
 
 func (*PipeParam) JSType() string {
-	return jstypez.TypeObject
+	return jstypez.TypObject
 }
 
 type PipezStartReq struct {
@@ -29,7 +29,7 @@ type PipezStartResp struct {
 }
 
 func (*PipezStartResp) JSType() string {
-	return jstypez.TypeObject
+	return jstypez.TypObject
 }
 
 type PipezStartApi struct {

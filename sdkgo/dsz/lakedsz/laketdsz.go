@@ -15,7 +15,7 @@ var validator = regexp.MustCompile(`^[a-z][a-z0-9\-]{1,}[a-z0-9]$`)
 type Dataset checked.Value[string]
 
 func (*Dataset) JSType() string {
-	return jstypez.TypeString
+	return jstypez.TypString
 }
 
 func (d Dataset) Optional() optionalz.Optional[string] {

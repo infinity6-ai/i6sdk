@@ -37,13 +37,13 @@ func ParseAny(baseId string, v any) (*jstypez.Typedef, *jstypez.Typedefs) {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
 		reflect.Float32, reflect.Float64:
-		return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: jstypez.TypeNumber}}, nil
+		return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: jstypez.TypNumber}}, nil
 
 	case reflect.String:
-		return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: jstypez.TypeString}}, nil
+		return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: jstypez.TypString}}, nil
 
 	case reflect.Bool:
-		return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: jstypez.TypeBool}}, nil
+		return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: jstypez.TypBoolean}}, nil
 
 	case reflect.Slice, reflect.Array:
 		var allTdfs jstypez.Typedefs
@@ -119,7 +119,7 @@ func checkCustom(baseId string, val reflect.Value) (*jstypez.Typedef, *jstypez.T
 		if tdfs != nil {
 			checker.Empty(tdfs.All(), "must be empty")
 		}
-		if ret.Head.Typ != jstypez.TypeBool && ret.Head.Typ != jstypez.TypeString && ret.Head.Typ != jstypez.TypeNumber {
+		if ret.Head.Typ != jstypez.TypBoolean && ret.Head.Typ != jstypez.TypString && ret.Head.Typ != jstypez.TypNumber {
 			log.Printf("non basic parser custom detected %s: %s", ret.Head.Typ, baseId)
 		}
 		return ret, tdfs

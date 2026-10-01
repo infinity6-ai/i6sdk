@@ -15,7 +15,7 @@ var validator = regexp.MustCompile(`^[a-z][a-z0-9\-]{1,}[a-z0-9]$`)
 type TableName checked.Value[string]
 
 func (*TableName) JSType() string {
-	return jstypez.TypeString
+	return jstypez.TypString
 }
 
 func (d TableName) Optional() optionalz.Optional[string] {

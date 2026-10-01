@@ -146,12 +146,11 @@ func (t *Typedefs) Add(typedefs ...*Typedef) {
 }
 
 const (
-	TypeString  = "string"
-	TypeNumber  = "number"
-	TypeBoolean = "boolean"
-	TypeBool    = TypeBoolean
-	TypeObject  = "object"
-	TypeAny     = "*"
+	TypString  = "string"
+	TypNumber  = "number"
+	TypBoolean = "boolean"
+	TypObject  = "object"
+	TypAny     = "*"
 )
 
 type CustomType interface {

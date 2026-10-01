@@ -22,7 +22,7 @@ type GetUrlResp struct {
 }
 
 func (*GetUrlResp) JSType() string {
-	return jstypez.TypeObject
+	return jstypez.TypObject
 }
 
 type GetUrlApi struct {
