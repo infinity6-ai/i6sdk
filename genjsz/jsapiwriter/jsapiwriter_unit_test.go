@@ -80,7 +80,14 @@ func TestUnitWrite(t *testing.T) {
 /**
  * apiSampleFraction reqPayload
  * @typedef {object} apiSampleFractionReqPayload
+ * @property {Array<apiSampleFractionReqPayloadMessagesElement>} messages
  * @property {string} reason - Sample reason of this fraction
+ */
+
+/**
+ * message
+ * @typedef {object} apiSampleFractionReqPayloadMessagesElement
+ * @property {string} message - message string
  */
 
 /**
@@ -100,7 +107,12 @@ func TestUnitWrite(t *testing.T) {
  * apiSampleFraction respPayload
  * @typedef {object} apiSampleFractionRespPayload
  * @property {string} display - Human Fraction Representation
+ * @property {Array<apiSampleFractionRespPayloadMessagesElement>} messages - Output Messages
  * @property {string} result - Fraction Result
+ */
+
+/**
+ * @typedef {string} apiSampleFractionRespPayloadMessagesElement
  */
 
 class Apis {

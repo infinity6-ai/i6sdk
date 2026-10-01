@@ -1,7 +1,6 @@
 package dszapisignedurl
 
 import (
-	"github.com/infinity6-ai/gox/commonz/slicez"
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
@@ -67,31 +66,26 @@ func (d *Api) GetDataRefs() *apiz.DataRefs {
 				return map[string]*schemaz.Schema{
 					"paths": {
 						Desc: &schemaz.Desc{Summary: "List of paths and HTTP methods to generate signed URLs for."},
-						Array: func() *schemaz.Array {
-							return &schemaz.Array{
-								Len: len(d.Req.Paths),
-								Get: func(idx int, read bool) *schemaz.Schema {
-									if !read {
-										d.Req.Paths = slicez.GrowLenTo(d.Req.Paths, idx+1)
-									}
-									return &schemaz.Schema{
-										Desc: &schemaz.Desc{Summary: "Path and HTTP method specification for a signed URL."},
-										Object: func(read bool) map[string]*schemaz.Schema {
-											return map[string]*schemaz.Schema{
-												"method": {
-													Desc: &schemaz.Desc{Summary: "HTTP method (e.g. GET, PUT) for the signed URL."},
-													Raw:  func() any { return &d.Req.Paths[idx].Method },
-												},
-												"path": {
-													Desc: &schemaz.Desc{Summary: "File path within the dataset."},
-													Raw:  func() any { return &d.Req.Paths[idx].Path },
-												},
-											}
-										},
-									}
-								},
-							}
-						},
+						Array: schemaz.NewArray(schemaz.ArrayOptions[[]Path, Path]{
+							Slice: func() *[]Path { return &d.Req.Paths },
+							Get: func(idx int, element *Path) *schemaz.Schema {
+								return &schemaz.Schema{
+									Desc: &schemaz.Desc{Summary: "Path and HTTP method specification for a signed URL."},
+									Object: func(read bool) map[string]*schemaz.Schema {
+										return map[string]*schemaz.Schema{
+											"method": {
+												Desc: &schemaz.Desc{Summary: "HTTP method (e.g. GET, PUT) for the signed URL."},
+												Raw:  func() any { return &d.Req.Paths[idx].Method },
+											},
+											"path": {
+												Desc: &schemaz.Desc{Summary: "File path within the dataset."},
+												Raw:  func() any { return &d.Req.Paths[idx].Path },
+											},
+										}
+									},
+								}
+							},
+						}),
 					},
 				}
 			},
