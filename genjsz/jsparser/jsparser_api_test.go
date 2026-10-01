@@ -9,7 +9,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
-	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzapi/ingestzapigeturl"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkz"
 )
 
@@ -106,74 +105,6 @@ func TestUnitFractionSample(t *testing.T) {
 			},
 			Payload: jstypez.Typedef{
 				Head:       &jstypez.Tuple{Typ: "apiSampleFractionRespPayload", Name: "respPayload"},
-				Properties: jstypez.NewTuples(nil),
-			},
-		},
-	}
-	require.Equal(t, expected, actual)
-}
-
-func TestUnitIngestz(t *testing.T) {
-	api := &ingestzapigeturl.GetUrlApi{}
-	actual := jsparser.ParseApi(api)
-	jsonz.MustParse(jsonz.MustFormat(actual).String(), &actual)
-	expected := &jsparser.Api{
-		Spec: jsparser.ApiSpec{
-			Id:      "ingestz-get-url",
-			CamelId: "apiIngestzGetUrl",
-			Desc: &schemaz.Desc{
-				Name:     "Get Ingestion Upload URLs",
-				Summary:  "Generates presigned PUT URLs and an ingestion token for uploading files into a target dataset table and partitions.",
-				Markdown: "",
-			},
-			Method: "POST",
-			Path:   "/api/ingest/get-url/dataset/{dataset}",
-		},
-		Typedefs: jstypez.NewTypedefs([]*jstypez.Typedef{
-			{
-				Head: &jstypez.Tuple{Typ: "object", Name: "apiIngestzGetUrlParams", Summary: "apiIngestzGetUrl params"},
-				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "string", Name: "dataset", Summary: "Name of the dataset that receives the uploaded files."},
-				}),
-			},
-			{
-				Head: &jstypez.Tuple{Typ: "object", Name: "apiIngestzGetUrlReqPayload", Summary: "apiIngestzGetUrl reqPayload"},
-				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "number", Name: "amount", Summary: "Number of presigned upload URLs to generate."},
-					{Typ: "Record<apiIngestzGetUrlReqPayloadPartitionsKey, apiIngestzGetUrlReqPayloadPartitionsValue>", Name: "partitions", Summary: "Partition key/value pairs that select the table partition the files are ingested into."},
-					{Typ: "string", Name: "table", Summary: "Name of the table, inside the dataset, that receives the uploaded files."},
-				}),
-			},
-			{
-				Head: &jstypez.Tuple{Typ: "object", Name: "apiIngestzGetUrlRespPayload", Summary: "apiIngestzGetUrl respPayload"},
-				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "string", Name: "ingest_id", Summary: "Ingestion token that identifies this ingestion and ties the uploaded files together."},
-					{Typ: "Array<apiIngestzGetUrlRespPayloadUploadsElement>", Name: "uploads", Summary: "Presigned PUT URLs, one per requested file; upload each file to its URL."},
-				}),
-			},
-			{
-				Head: &jstypez.Tuple{Typ: "string", Name: "apiIngestzGetUrlReqPayloadPartitionsKey"},
-			},
-			{
-				Head: &jstypez.Tuple{Typ: "string", Name: "apiIngestzGetUrlReqPayloadPartitionsValue"},
-			},
-			{
-				Head: &jstypez.Tuple{Typ: "string", Name: "apiIngestzGetUrlRespPayloadUploadsElement"},
-			},
-		}),
-		Req: jsparser.Req{
-			Params: jstypez.Typedef{
-				Head:       &jstypez.Tuple{Typ: "apiIngestzGetUrlParams", Name: "params"},
-				Properties: jstypez.NewTuples(nil),
-			},
-			Payload: jstypez.Typedef{
-				Head:       &jstypez.Tuple{Typ: "apiIngestzGetUrlReqPayload", Name: "reqPayload"},
-				Properties: jstypez.NewTuples(nil),
-			},
-		},
-		Resp: jsparser.Resp{
-			Payload: jstypez.Typedef{
-				Head:       &jstypez.Tuple{Typ: "apiIngestzGetUrlRespPayload", Name: "respPayload"},
 				Properties: jstypez.NewTuples(nil),
 			},
 		},

@@ -58,7 +58,7 @@ func (v *Value) UnmarshalJSON(data []byte) error {
 type SolutionDomain checked.Value[Value]
 
 func (*SolutionDomain) JSType() string {
-	return jstypez.TypeString
+	return jstypez.TypString
 }
 
 func (t SolutionDomain) Optional() optionalz.Optional[Value] {

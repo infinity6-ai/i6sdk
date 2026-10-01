@@ -59,7 +59,7 @@ func (v *Value) UnmarshalJSON(data []byte) error {
 type Table checked.Value[Value]
 
 func (*Table) JSType() string {
-	return jstypez.TypeString
+	return jstypez.TypString
 }
 
 func (t Table) Optional() optionalz.Optional[Value] {

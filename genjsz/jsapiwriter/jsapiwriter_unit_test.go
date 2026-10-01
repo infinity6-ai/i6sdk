@@ -115,6 +115,22 @@ func TestUnitWrite(t *testing.T) {
  * @typedef {string} apiSampleFractionRespPayloadMessagesElement
  */
 
+/**
+ * @typedef {object} dszFileStat
+ * @property {string} url - missing summary
+ * @property {string} content_type - missing summary
+ * @property {string} md5 - missing summary
+ * @property {string} size - missing summary
+ * @property {string} etag - missing summary
+ * @property {dszTime} created_at - missing summary
+ * @property {dszTime} updated_at - missing summary
+ */
+
+/**
+ * Missing Summary
+ * @typedef {string} dszTime
+ */
+
 class Apis {
 
   /**

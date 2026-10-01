@@ -87,7 +87,7 @@ func (v *parsedPathImpl) Parse(s string) error {
 type Path checked.Value[string]
 
 func (*Path) JSType() string {
-	return jstypez.TypeString
+	return jstypez.TypString
 }
 
 func (d Path) Optional() optionalz.Optional[string] {

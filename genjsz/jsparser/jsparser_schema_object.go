@@ -11,7 +11,7 @@ import (
 
 func ParseSchemaObject(baseId string, obj map[string]*schemaz.Schema) (*jstypez.Typedef, *jstypez.Typedefs) {
 	ret := jstypez.Typedef{
-		Head:       &jstypez.Tuple{Typ: jstypez.TypeObject},
+		Head:       &jstypez.Tuple{Typ: jstypez.TypObject},
 		Properties: &jstypez.Tuples{},
 	}
 	tdfs := &jstypez.Typedefs{}
