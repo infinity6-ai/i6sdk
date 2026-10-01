@@ -104,7 +104,10 @@ func (d *Api) GetDataRefs() *apiz.DataRefs {
 									Desc: &schemaz.Desc{Summary: "File entry"},
 									Object: func(_ bool) map[string]*schemaz.Schema {
 										return map[string]*schemaz.Schema{
-											"path": &schemaz.Schema{},
+											"path": {
+												Desc: &schemaz.Desc{Summary: "write it"},
+												Raw:  func() any { return &element.Path },
+											},
 										}
 									},
 								}
