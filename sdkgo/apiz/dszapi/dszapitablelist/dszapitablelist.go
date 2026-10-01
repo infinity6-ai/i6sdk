@@ -1,4 +1,4 @@
-package dszapilisttable
+package dszapitablelist
 
 import (
 	"github.com/infinity6-ai/gox/fsz/fsz"
