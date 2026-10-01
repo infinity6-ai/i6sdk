@@ -76,6 +76,21 @@ func expectedFractionApi() *jsparser.Api {
 			{
 				Head: &jstypez.Tuple{Typ: "string", Name: "apiSampleFractionRespPayloadMessagesElement"},
 			},
+			{
+				Head: &jstypez.Tuple{Typ: "object", Name: "dszFileStat"},
+				Properties: jstypez.NewTuples([]jstypez.Tuple{
+					{Typ: "string", Name: "url", Summary: "missing summary"},
+					{Typ: "string", Name: "content_type", Summary: "missing summary"},
+					{Typ: "string", Name: "md5", Summary: "missing summary"},
+					{Typ: "string", Name: "size", Summary: "missing summary"},
+					{Typ: "string", Name: "etag", Summary: "missing summary"},
+					{Typ: "dszTime", Name: "created_at", Summary: "missing summary"},
+					{Typ: "dszTime", Name: "updated_at", Summary: "missing summary"},
+				}),
+			},
+			{
+				Head: &jstypez.Tuple{Typ: "string", Name: "dszTime", Summary: "Missing Summary"},
+			},
 		}),
 		Req: jsparser.Req{
 			Params: jstypez.Typedef{
@@ -151,6 +166,21 @@ func expectedIngestzApi() *jsparser.Api {
 			},
 			{
 				Head: &jstypez.Tuple{Typ: "string", Name: "apiIngestzGetUrlRespPayloadUploadsElement"},
+			},
+			{
+				Head: &jstypez.Tuple{Typ: "object", Name: "dszFileStat"},
+				Properties: jstypez.NewTuples([]jstypez.Tuple{
+					{Typ: "string", Name: "url", Summary: "missing summary"},
+					{Typ: "string", Name: "content_type", Summary: "missing summary"},
+					{Typ: "string", Name: "md5", Summary: "missing summary"},
+					{Typ: "string", Name: "size", Summary: "missing summary"},
+					{Typ: "string", Name: "etag", Summary: "missing summary"},
+					{Typ: "dszTime", Name: "created_at", Summary: "missing summary"},
+					{Typ: "dszTime", Name: "updated_at", Summary: "missing summary"},
+				}),
+			},
+			{
+				Head: &jstypez.Tuple{Typ: "string", Name: "dszTime", Summary: "Missing Summary"},
 			},
 		}),
 		Req: jsparser.Req{
