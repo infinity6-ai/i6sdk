@@ -9,7 +9,6 @@ ENTRADA: ARQUIVOS DO MODELO (fornecidos pelo usuário do sdk)
 - identificador de versão do modelo (etag)
 - bytes do banco (.sqlite)
 - identificador de versão do banco (etag)
-- nome do modelo ("fbt")
 
 SAÍDA DO MODELO
 - primeiro tensor de saída, scores em float
