@@ -53,8 +53,14 @@ func TestUnitFractionSample(t *testing.T) {
 			{
 				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionReqPayload", Summary: "apiSampleFraction reqPayload"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "string", Name: "reason", Summary: "Sample reason of this fraction"},
 					{Typ: "Array<apiSampleFractionReqPayloadMessagesElement>", Name: "messages"},
+					{Typ: "string", Name: "reason", Summary: "Sample reason of this fraction"},
+				}),
+			},
+			{
+				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionReqPayloadMessagesElement", Summary: "message"},
+				Properties: jstypez.NewTuples([]jstypez.Tuple{
+					{Typ: "string", Name: "message", Summary: "message string"},
 				}),
 			},
 			{
@@ -67,9 +73,12 @@ func TestUnitFractionSample(t *testing.T) {
 				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionRespPayload", Summary: "apiSampleFraction respPayload"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
 					{Typ: "string", Name: "display", Summary: "Human Fraction Representation"},
+					{Typ: "Array<apiSampleFractionRespPayloadMessagesElement>", Name: "messages", Summary: "Output Messages"},
 					{Typ: "string", Name: "result", Summary: "Fraction Result"},
-					{Typ: "string", Name: "messages", Summary: "Output Messages"},
 				}),
+			},
+			{
+				Head: &jstypez.Tuple{Typ: "string", Name: "apiSampleFractionRespPayloadMessagesElement"},
 			},
 		}),
 		Req: jsparser.Req{
