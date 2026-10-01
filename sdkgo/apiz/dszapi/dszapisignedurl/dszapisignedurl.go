@@ -67,7 +67,7 @@ func (d *Api) GetDataRefs() *apiz.DataRefs {
 					"paths": {
 						Desc: &schemaz.Desc{Summary: "List of paths and HTTP methods to generate signed URLs for."},
 						Array: schemaz.NewArray(schemaz.ArrayOptions[[]Path, Path]{
-							Slice: &d.Req.Paths,
+							Slice: func() *[]Path { return &d.Req.Paths },
 							Get: func(idx int, element *Path) *schemaz.Schema {
 								return &schemaz.Schema{
 									Desc: &schemaz.Desc{Summary: "Path and HTTP method specification for a signed URL."},
