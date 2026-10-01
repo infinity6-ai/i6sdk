@@ -108,7 +108,14 @@ func (d *Api) GetDataRefs() *apiz.DataRefs {
 												Desc: &schemaz.Desc{Summary: "write it"},
 												Raw:  func() any { return &element.Path },
 											},
-											// finish it
+											"stat": {
+												Desc: &schemaz.Desc{Summary: "write it"},
+												Raw:  func() any { return &element.Stat },
+											},
+											"signed_url": {
+												Desc: &schemaz.Desc{Summary: "write it"},
+												Raw:  func() any { return &element.SignedUrl },
+											},
 										}
 									},
 								}

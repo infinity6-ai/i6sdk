@@ -63,6 +63,8 @@ func ParseApi(api apiz.Api) *Api {
 		Spec: parseSpec(),
 	}
 
+	ret.Typedefs.ExtractFrom(basicTypes())
+
 	validateDataRef(refs.PathParams, "PathParams")
 	validateDataRef(refs.QueryParams, "QueryParams")
 	validateDataRef(refs.ReqHeaders, "ReqHeaders")
