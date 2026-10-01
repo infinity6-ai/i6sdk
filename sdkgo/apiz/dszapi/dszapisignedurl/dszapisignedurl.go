@@ -36,7 +36,7 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 			}
 		},
 		Method: "POST",
-		Path:   "/api/dsz/signed-url/dataset/{dataset}",
+		Path:   "/api/dsz/dataset/{dataset}/signed-url",
 	}
 }
 

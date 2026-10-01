@@ -35,7 +35,7 @@ type Api struct {
 
 func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id: "dsz-signed-url",
+		Id: "dsz-table-list",
 		Desc: func() *schemaz.Desc {
 			return &schemaz.Desc{
 				Name:    "Get Dataset Signed URLs",
@@ -43,7 +43,7 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 			}
 		},
 		Method: "GET",
-		Path:   "/api/dsz/list-table/dataset/{dataset}",
+		Path:   "/api/dsz/dataset/{dataset}/table/list",
 	}
 }
 
