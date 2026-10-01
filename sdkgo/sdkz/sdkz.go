@@ -10,6 +10,7 @@ import (
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
 	"go.code.infinity6.ai/datasetz/dszapi"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapisignedurl"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitablelist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzapi/ingestzapigeturl"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/pipezapi"
 )
@@ -33,6 +34,7 @@ func init() {
 	}
 	add(&ingestzapigeturl.GetUrlApi{})
 	add(&dszapisignedurl.Api{})
+	add(&dszapitablelist.Api{})
 	add(&pipezapi.PipezStartApi{})
 	add(&dszapi.DszSolutionDomainSelectApi{})
 }
