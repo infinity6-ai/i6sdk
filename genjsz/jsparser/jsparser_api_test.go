@@ -183,8 +183,8 @@ func TestUnitIngestz(t *testing.T) {
 
 func TestUnitAll(t *testing.T) {
 	// apis := []apiz.Api{
-	// 	&ingestzapigeturl.GetUrlApi{},
-	// 	&dszapisignedurl.Api{},
+	// &ingestzapigeturl.GetUrlApi{},
+	// &dszapisignedurl.Api{},
 	// 	&pipezapi.PipezStartApi{},
 	// 	&dszapi.DszSolutionDomainSelectApi{},
 	// }
