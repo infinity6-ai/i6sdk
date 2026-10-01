@@ -10,12 +10,12 @@ import (
 
 type Req struct {
 	Dataset   lakedsz.Dataset `json:"dataset"`
-	Path      lakepathz.Path  `json:"path"`
-	Sign      bool            `json:"sign"`
-	Recursive bool            `json:"recursive"`
-	Stat      bool            `json:"stat"`
-	Cursor    string          `json:"cursor"`
-	Limit     int             `json:"limist"`
+	Path      lakepathz.Path  `json:"path"`      // query
+	Sign      bool            `json:"sign"`      // query
+	Recursive bool            `json:"recursive"` // query
+	Stat      bool            `json:"stat"`      // query
+	Cursor    string          `json:"cursor"`    // query
+	Limit     int             `json:"limist"`    // query
 }
 
 type File struct {
