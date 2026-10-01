@@ -1,0 +1,110 @@
+FBT (FREQUENTLY BOUGHT TOGETHER) - INPUTS PARA A NOVA ESTRUTURA DE INFERÊNCIA NO i6sdk
+(genérico: independe da plataforma/loja onde o usuário do sdk vai rodar)
+
+ENTRADA: ITENS DO CARRINHO (fornecidos pelo usuário do sdk)
+- lista de itens do carrinho
+- por item: id do produto (obrigatório, string)
+- por item: id da variante (opcional, só log)
+- por item: título (opcional, só log)
+- por item: quantidade (opcional, só log)
+- ordem dos itens (a ordem importa: os últimos itens têm prioridade quando excede o tamanho do modelo)
+
+ENTRADA: ARQUIVOS DO MODELO (fornecidos pelo usuário do sdk)
+- bytes do modelo (.tflite, Uint8Array)
+- bytes do banco (.sqlite, Uint8Array)
+- nome do modelo ("fbt")
+- identificador de versão do modelo (etag/hash, para cache)
+- identificador de versão do banco (etag/hash, para cache)
+- fonte dos arquivos: bytes diretos OU callback/URL que retorna os bytes (a definição de onde baixar fica com o usuário do sdk)
+
+VALIDAÇÕES DOS ARQUIVOS
+- modelo: tamanho mínimo 1000 bytes
+- modelo: bytes 4 a 8 == "TFL3"
+- banco: tamanho mínimo 100 bytes
+- banco: primeiros 16 bytes == "SQLite format 3\0"
+
+ENTRADA: CACHE (opcional, definido pelo usuário do sdk)
+- interface de storage: get(chave) / set(chave, bytes) / clear()
+- chaves: {modelo}-model, {modelo}-db, {modelo}-model.etag, {modelo}-db.etag
+- regra: só reutiliza o cache se a versão (etag) for igual e o arquivo não estiver vazio
+
+BIBLIOTECAS DE RUNTIME
+- LiteRT (@litertjs/core 2.5.3): módulo ESM
+- LiteRT: diretório dos arquivos .wasm
+- LiteRT: accelerator "wasm"
+- sql.js 1.14.1: script sql-wasm.js
+- sql.js: arquivo sql-wasm.wasm (locateFile)
+- URLs/bundling dessas libs configuráveis (CDN ou local)
+
+SCHEMA DO SQLITE - tabela product
+- product_id
+- rec_in (vetor de entrada do modelo, números separados por "|")
+- rec_in_fields
+- rec_out (valor da assinatura de saída)
+- rec_out_fields (nomes dos campos separados por "|")
+- base_text (título)
+- meta (JSON)
+
+SCHEMA DO SQLITE - tabela model_signature
+- i (índice da saída do modelo)
+- value (casa com product.rec_out)
+- mask (disponibilidade na loja/catálogo, 0 ou 1)
+
+CONSULTAS NO SQLITE
+- linhas dos produtos do carrinho: product LEFT JOIN model_signature ON value = rec_out
+- máscara completa: model_signature.mask ordenado por i ASC
+- assinaturas dos índices do top: model_signature WHERE i IN (...)
+- produtos das assinaturas: product WHERE rec_out IN (...)
+- rec_out_fields: primeira linha não vazia, para decodificar a assinatura
+- modo somente leitura (PRAGMA query_only = ON)
+
+TENSORES DE ENTRADA DO MODELO
+- input com nome contendo "field": shape [1, numItems, vectorLength]
+- input "field": valores = vetores rec_in dos itens do carrinho
+- input "field": dtype lido do modelo (float32 / int32 / uint8)
+- input com nome contendo "pad": shape [1, numItems]
+- input "pad": 1 = item real ou slot de máscara, 0 = padding
+- numItems e vectorLength lidos do shape do modelo (-1 vira 1)
+- numRealItems = min(numItems - 1, vetores válidos), mantendo os últimos
+- numPadItems = numItems - numRealItems - 1
+- MASK_ID = 2 (slot de máscara preenchido com 2)
+- PAD_ID = 0 (slots de padding preenchidos com 0)
+- ordem dos slots: itens reais, 1 slot de máscara, slots de padding
+- descartar vetores não numéricos ou com tamanho != vectorLength
+
+SAÍDA DO MODELO
+- primeiro tensor de saída, scores em float
+- um score por índice de assinatura
+
+PARÂMETROS DE PÓS-PROCESSAMENTO
+- TOP_N = 20 (configurável)
+- ordenar scores em ordem decrescente
+- remover índices com mask == 0
+- mapear índice -> value da assinatura -> product_ids (rec_out)
+- vários produtos com o mesmo rec_out: escolher o de maior preço
+- preço: callback opcional fornecido pelo usuário do sdk, getPrices(productIds) -> { productId: preço }
+- sem callback de preço: fica o primeiro produto encontrado
+
+SAÍDA DA INFERÊNCIA (retorno para o usuário do sdk)
+- lista ordenada de product_ids recomendados (até TOP_N)
+- scores dos itens recomendados (opcional)
+- id único da recomendação (UUID)
+- status: ok / carrinho vazio / sem features / sem vetores válidos / erro
+
+CONTROLE DE EXECUÇÃO
+- trigger de execução fica com o usuário do sdk (método run(cartItems))
+- guarda de execução em andamento + execução enfileirada
+- chave da última execução (ids únicos ordenados, unidos por ",") para evitar reprocessar
+- debounce configurável (padrão 500ms)
+- cache do modelo compilado e dos assets em memória
+
+TRATAMENTO DE FALHAS
+- carrinho vazio: retorna lista vazia
+- nenhum produto do carrinho com features no banco: pula
+- nenhum vetor válido: pula (null)
+- erro: limpa o cache e retorna status de erro
+- falha no primeiro download: tenta de novo forçando re-download
+
+LOGS
+- logger configurável (ligar/desligar/injetar)
+- entradas brutas, saídas brutas e tabelas de debug opcionais
