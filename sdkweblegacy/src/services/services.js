@@ -6,6 +6,7 @@ import { Invoker } from "../invoker/invoker.js";
 import { Auth } from "../auth/auth.js";
 import { Ingest } from "../ingest/ingest.js";
 import { Apis } from "../sdkapis/sdkapis.js";
+import { Infer } from "../infer/infer.js";
 
 /**
  * @typedef {import("../index.js").I6SdkConfig} I6SdkConfig
@@ -78,6 +79,18 @@ class Services {
      */
     ingest() {
         const ret = new Ingest(this)
+        if (ret.prepare) {
+            ret.prepare()
+        }
+        return ret
+    }
+
+    /**
+     * Creates and returns an Infer service instance.
+     * @returns {Infer} An instance of the Infer client.
+     */
+    infer() {
+        const ret = new Infer(this)
         if (ret.prepare) {
             ret.prepare()
         }

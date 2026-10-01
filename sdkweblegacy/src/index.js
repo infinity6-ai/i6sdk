@@ -49,6 +49,14 @@ class I6Sdk {
   }
 
   /**
+   * Returns an Infer service instance, which runs an i6 model in the browser and returns the result.
+   * @returns {Infer} An instance of the Infer client.
+   */
+  infer() {
+    return this._service.infer()
+  }
+
+  /**
    * Returns an Auth service instance.
    * @returns {Auth} An instance of the Auth client.
    */
