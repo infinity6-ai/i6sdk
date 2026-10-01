@@ -21,7 +21,7 @@ func ParseAny(baseId string, v any) (*jstypez.Typedef, *jstypez.Typedefs) {
 		val = val.Elem()
 	}
 
-	if a, b := knownTypes(baseId, val); a != nil {
+	if a, b := knownTypes(val); a != nil {
 		return a, b
 	}
 

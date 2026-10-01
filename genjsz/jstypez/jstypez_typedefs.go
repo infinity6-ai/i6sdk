@@ -145,14 +145,6 @@ func (t *Typedefs) Add(typedefs ...*Typedef) {
 	}
 }
 
-const (
-	TypString  = "string"
-	TypNumber  = "number"
-	TypBoolean = "boolean"
-	TypObject  = "object"
-	TypAny     = "*"
-)
-
 type CustomType interface {
 	JSTypedef() (*Typedef, *Typedefs)
 }

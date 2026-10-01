@@ -63,7 +63,8 @@ func ParseApi(api apiz.Api) *Api {
 		Spec: parseSpec(),
 	}
 
-	ret.Typedefs.ExtractFrom(basicTypes())
+	xxx := jstypez.BasicTypes()
+	ret.Typedefs.ExtractFrom(xxx)
 
 	validateDataRef(refs.PathParams, "PathParams")
 	validateDataRef(refs.QueryParams, "QueryParams")

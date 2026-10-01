@@ -7,10 +7,10 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
-func knownTypes(baseId string, val reflect.Value) (*jstypez.Typedef, *jstypez.Typedefs) {
+func knownTypes(val reflect.Value) (*jstypez.Typedef, *jstypez.Typedefs) {
 	switch val.Interface().(type) {
 	case fsz.FileStat:
-		return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: TypFileStat.Head.Name}}, nil
+		return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: jstypez.TypFileStat}}, nil
 	default:
 		return nil, nil
 	}
