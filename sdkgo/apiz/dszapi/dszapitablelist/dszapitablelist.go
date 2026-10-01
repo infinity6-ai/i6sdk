@@ -9,13 +9,13 @@ import (
 )
 
 type Req struct {
-	Dataset   lakedsz.Dataset `json:"dataset"`
-	Path      lakepathz.Path  `json:"path"`
-	Sign      bool            `json:"sign"`
-	Recursive bool            `json:"recursive"`
-	Stat      bool            `json:"stat"`
-	Cursor    string          `json:"cursor"`
-	Limit     int             `json:"limit"`
+	Dataset    lakedsz.Dataset `json:"dataset"`
+	Path       lakepathz.Path  `json:"path"`
+	Sign       bool            `json:"sign"`
+	Recursive  bool            `json:"recursive"`
+	Stat       bool            `json:"stat"`
+	FromCursor string          `json:"from_cursor"`
+	Limit      int             `json:"limit"`
 }
 
 type File struct {
@@ -25,7 +25,8 @@ type File struct {
 }
 
 type Resp struct {
-	Files []File `json:"files"`
+	Files      []File `json:"files"`
+	NextCursor string `json:"next_cursor"`
 }
 
 type Api struct {
@@ -78,9 +79,9 @@ func (d *Api) GetDataRefs() *apiz.DataRefs {
 						Desc: &schemaz.Desc{Summary: "Whether to include file stats."},
 						Raw:  func() any { return &d.Req.Stat },
 					},
-					"cursor": {
+					"from_cursor": {
 						Desc: &schemaz.Desc{Summary: "Pagination cursor."},
-						Str:  schemaz.ParseStr(&d.Req.Cursor),
+						Str:  schemaz.ParseStr(&d.Req.FromCursor),
 					},
 					"limist": {
 						Desc: &schemaz.Desc{Summary: "Limit the number of results."},
@@ -121,6 +122,10 @@ func (d *Api) GetDataRefs() *apiz.DataRefs {
 								}
 							},
 						}),
+					},
+					"next_cursor": {
+						Desc: &schemaz.Desc{Summary: "Cursor for the next page of results."},
+						Str:  schemaz.ParseStr(&d.Resp.NextCursor),
 					},
 				}
 			},
