@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>infer demo</title>
+  <!-- Demo only: the SDK bundle will bring these in later. Same versions as package.json. -->
+  <script type="importmap">
+    { "imports": {
+        "@litertjs/core": "https://cdn.jsdelivr.net/npm/@litertjs/core@2.5.3/+esm"
+    } }
+  </script>
+  <style>
+    body { font: 14px monospace; margin: 16px; background: #111; color: #ddd }
+    button { font: inherit; margin-right: 8px }
+    #log { margin-top: 12px; white-space: pre-wrap }
+    .err { color: #f66 }
+    .t { color: #888 }
+    .stage { color: #6cf; font-weight: bold }
+  </style>
+</head>
+<body>
+  <button id="run">Run</button>
+  <button id="clear">Clear OPFS cache</button>
+  <div id="log"></div>
+  <script type="module" src="./demo.js"></script>
+</body>
+</html>

@@ -6,6 +6,10 @@
  * back to product ids through the sqlite. Nothing is rendered, the caller uses the result.
  */
 
+import { I6Error } from "../errors.js";
+import { downloader } from "../internal/downloader/downloader.js";
+import { fs } from "../internal/fs/fs.js";
+
 /**
  * @typedef {import("../services/services.js").Services} Services
  */
@@ -15,6 +19,7 @@
  * @typedef {Object} InferAssets
  * @property {string} sqlite - URL of the model's .sqlite file (must answer HEAD with an etag).
  * @property {string} tflite - URL of the model's .tflite file (must answer HEAD with an etag).
+ * @property {string} [litertWasm] - URL of the folder with the LiteRT wasm files (ending in "/"). Defaults to the jsdelivr copy.
  */
 
 /**
@@ -29,6 +34,7 @@
  * @property {string} model - Model name (e.g. "fbt"), also used to name the cached assets.
  * @property {InferParams} params - Model input.
  * @property {InferAssets} assets - Where to download the model assets from.
+ * @property {(msg: string, data?: any) => void} [log] - Called with progress messages, for debugging. Nothing is logged without it.
  */
 
 /**
@@ -70,10 +76,11 @@ class Infer {
    */
   async run(opts) {
     const { model, params, assets } = opts
+    setLog(opts.log)
 
     // 1. Get the model files (cached by etag) and the runtimes
     const { dbBytes, modelBytes } = await downloadAssets(model, assets)
-    const litert = await loadLiteRt()
+    const litert = await loadLiteRt(assets.litertWasm)
     const compiled = await loadModel(litert, modelBytes)
 
     // 2. Read the input products from the sqlite
@@ -94,6 +101,28 @@ class Infer {
 /** How many recommendations are kept. */
 const TOP_N = 20
 
+/** Must match the @litertjs/core version in package.json. */
+const LITERT_VERSION = "2.5.3"
+
+/** Where the LiteRT wasm files are loaded from when the caller does not say. */
+const LITERT_WASM_URL = `https://cdn.jsdelivr.net/npm/@litertjs/core@${LITERT_VERSION}/wasm/`
+
+const noLog = () => {}
+
+/** Progress logger of the current run (set by `run`). */
+let log = noLog
+
+/**
+ * Sets the progress logger (used by `run`, and by the demo to call the helpers one by one).
+ * @param {((msg: string, data?: any) => void)|undefined} fn - The logger, or nothing to silence it.
+ */
+function setLog(fn) {
+  log = fn || noLog
+}
+
+/** Last compiled model, with the bytes it was compiled from. */
+let cachedModel = null
+
 /**
  * Downloads (or reads from the browser cache, checking the etag) the model assets and validates them.
  * @param {string} model - Model name, used to name the cached files.
@@ -101,7 +130,39 @@ const TOP_N = 20
  * @returns {Promise<ModelAssets>} The bytes of both files.
  * @throws {I6Error} With code "asset" if a download fails or a file is not a valid sqlite/tflite.
  */
-async function downloadAssets(model, assets) {}
+async function downloadAssets(model, assets) {
+  const dbBytes = await downloadFile(`infer-${model}-sqlite`, assets.sqlite)
+  const modelBytes = await downloadFile(`infer-${model}-tflite`, assets.tflite)
+
+  if (new TextDecoder().decode(dbBytes.subarray(0, 16)) !== "SQLite format 3\0") {
+    throw new I6Error(`infer: ${assets.sqlite} is not a sqlite file`, { code: "asset" })
+  }
+  if (new TextDecoder().decode(modelBytes.subarray(4, 8)) !== "TFL3") {
+    throw new I6Error(`infer: ${assets.tflite} is not a tflite file`, { code: "asset" })
+  }
+  log("assets are valid (sqlite header, TFL3)")
+
+  return { dbBytes, modelBytes }
+}
+
+/**
+ * Brings one remote file to the browser cache (if its etag changed) and reads it.
+ * @param {string} name - Name of the cached file.
+ * @param {string} url - URL of the file.
+ * @returns {Promise<Uint8Array>} The bytes of the file.
+ * @throws {I6Error} With code "asset" if the download or the read fails.
+ */
+async function downloadFile(name, url) {
+  try {
+    const before = await fs.get({ name })
+    const ref = await downloader.update({ name, url })
+    const bytes = await fs.read(ref)
+    log(`${name}: ${before && before.version === ref.version ? "cache hit" : "downloaded"}, ${bytes.length} bytes`, ref)
+    return bytes
+  } catch (cause) {
+    throw new I6Error(`infer: could not get ${url}: ${cause.message}`, { code: "asset", cause })
+  }
+}
 
 /**
  * Loads the bundled sql.js (wasm) once.
@@ -111,9 +172,26 @@ async function loadSqlJs() {}
 
 /**
  * Loads the bundled LiteRT runtime (wasm) once.
+ * @param {string} [wasmUrl] - URL of the folder with the LiteRT wasm files. Defaults to the jsdelivr copy.
  * @returns {Promise<Object>} The LiteRT module.
+ * @throws {I6Error} With code "model" if the runtime cannot be loaded.
  */
-async function loadLiteRt() {}
+async function loadLiteRt(wasmUrl = LITERT_WASM_URL) {
+  try {
+    const litert = await import("@litertjs/core")
+    const loading = litert.getGlobalLiteRtPromise()
+    if (loading) {
+      await loading
+      log("litert: already loaded")
+    } else {
+      await litert.loadLiteRt(wasmUrl)
+      log(`litert: loaded from ${wasmUrl}`)
+    }
+    return litert
+  } catch (cause) {
+    throw new I6Error(`infer: could not load LiteRT: ${cause.message}`, { code: "model", cause })
+  }
+}
 
 /**
  * Compiles the tflite model, reusing the previous compilation when the bytes are the same.
@@ -121,7 +199,29 @@ async function loadLiteRt() {}
  * @param {Uint8Array} modelBytes - Content of the .tflite file.
  * @returns {Promise<Object>} The compiled model.
  */
-async function loadModel(litert, modelBytes) {}
+async function loadModel(litert, modelBytes) {
+  const sameBytes = (a, b) => a.length === b.length && a.every((v, i) => v === b[i])
+
+  if (cachedModel && sameBytes(cachedModel.bytes, modelBytes)) {
+    log("model: reusing the compiled model")
+    return cachedModel.compiled
+  }
+
+  try {
+    const compiled = await litert.loadAndCompile(modelBytes, { accelerator: "wasm" })
+    if (cachedModel) cachedModel.compiled.delete()
+    cachedModel = { bytes: modelBytes, compiled }
+
+    const describe = (d) => ({ name: d.name, dtype: d.dtype, shape: Array.from(d.shape) })
+    log("model: compiled", {
+      inputs: compiled.getInputDetails().map(describe),
+      outputs: compiled.getOutputDetails().map(describe),
+    })
+    return compiled
+  } catch (cause) {
+    throw new I6Error(`infer: could not compile the model: ${cause.message}`, { code: "model", cause })
+  }
+}
 
 /**
  * Reads from the sqlite the rows of the input products and the store mask.
@@ -169,4 +269,4 @@ function rankSignatures(scores, storeMask, topN) {}
  */
 async function fetchRecommendedProductIds(dbBytes, signatureIndices) {}
 
-export { Infer };
+export { Infer, setLog, downloadAssets, loadLiteRt, loadModel };

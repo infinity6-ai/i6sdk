@@ -186,6 +186,26 @@ class FS {
   }
 
   /**
+   * Reads the content (blob.bin) of a version.
+   * @param {Object} opts
+   * @param {string} opts.name - required
+   * @param {string} opts.version - required
+   * @returns {Promise<Uint8Array>} the bytes of the file.
+   * @throws {DOMException} NotFoundError if the version or its blob does not exist.
+   */
+  async read(opts) {
+    if (!opts || !opts.name) throw new TypeError('fs: opts.name is required')
+    if (!opts.version) throw new TypeError('fs: opts.version is required')
+
+    let dir = await navigator.storage.getDirectory()
+    for (const segment of [...base.split('/'), opts.name, 'v' + opts.version]) {
+      dir = await dir.getDirectoryHandle(segment)
+    }
+    const file = await (await dir.getFileHandle('blob.bin')).getFile()
+    return new Uint8Array(await file.arrayBuffer())
+  }
+
+  /**
    * Makes a version the current one (version.txt), then cleans the older versions.
    * @param {Object} opts
    * @param {string} opts.name - required

@@ -13,5 +13,9 @@
     "typescript": "^7.0.2"
   },
   "main": "dist/bundle/i6sdk-web.js",
-  "types": "dist/bundle/i6sdk-web.d.ts"
+  "types": "dist/bundle/i6sdk-web.d.ts",
+  "dependencies": {
+    "@litertjs/core": "^2.5.3",
+    "sql.js": "^1.14.2"
+  }
 }

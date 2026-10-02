@@ -3,7 +3,7 @@
  */
 
 /**
- * @typedef {"http"|"network"|"invalid_argument"|"no_upload_url"} I6ErrorCode
+ * @typedef {"http"|"network"|"invalid_argument"|"no_upload_url"|"asset"|"model"|"query"} I6ErrorCode
  */
 
 /**
