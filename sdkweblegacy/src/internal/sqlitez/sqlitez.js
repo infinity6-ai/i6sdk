@@ -145,9 +145,9 @@ class SqliteConn {
 
     async laranjaQuery(name, bleParam) {
         let stringifiedble = JSON.stringify(bleParam)
-        let result = await this.namedQuery({name: name, params:[stringifiedble]})
+        let result = await this.namedQuery({ name: name, params: [stringifiedble] })
 
-        if (!result.step()) return null 
+        if (!result.step()) return null
         let ret = await result.getAsObject()["ret"]
 
         return JSON.parse(ret)
@@ -184,11 +184,11 @@ class Sqlitez {
             const segments = opts.path.split("/")
             const fileName = segments.pop()
             let dir = await navigator.storage.getDirectory()
-            
+
             for (const segment of segments) dir = await dir.getDirectoryHandle(segment)
-            
+
             const file = await (await dir.getFileHandle(fileName)).getFile()
-            
+
             bytes = new Uint8Array(await file.arrayBuffer())
         } catch (cause) {
             throw new I6Error(`sqlitez: could not read ${opts.path}: ${cause.message}`, { code: "asset", cause })
