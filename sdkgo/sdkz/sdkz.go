@@ -8,9 +8,12 @@ import (
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
-	"go.code.infinity6.ai/datasetz/dszapi"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapicreatestore"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapidomainsolutionget"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapidomainsolutionselect"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapisignedurl"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitablelist"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapiliststores"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzapi/ingestzapigeturl"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/pipezapi"
 )
@@ -36,7 +39,10 @@ func init() {
 	add(&dszapisignedurl.Api{})
 	add(&dszapitablelist.Api{})
 	add(&pipezapi.PipezStartApi{})
-	add(&dszapi.DszSolutionDomainSelectApi{})
+	add(&dszapidomainsolutionselect.DszSolutionDomainSelectApi{})
+	add(&dszapidomainsolutionget.DszSolutionDomainGetApi{})
+	add(&dszapicreatestore.DszCreateStoreApi{})
+	add(&dszapiliststores.DszListStoresApi{})
 }
 
 func All() []apiz.Api {
