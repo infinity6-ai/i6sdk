@@ -84,6 +84,7 @@ class Infer {
     const compiled = await loadModel(litert, modelBytes)
 
     // 2. Read the input products from the sqlite
+    // The sqlinput and output now must be names of queries that will be run using sqlitez namedquery (they will be hardcoded, model-fbt-input and model-fbt-output, "fbt" is model name)
     const productIds = [...new Set(params.productIds)]
     const { productFeaturesMap, storeMask } = await fetchShopData(dbBytes, productIds)
 
