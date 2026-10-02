@@ -3,7 +3,7 @@
 import { downloader } from '../../internal/downloader/downloader.js'
 import { fs } from '../../internal/fs/fs.js'
 import { sqlitez } from '../../internal/sqlitez/sqlitez.js'
-import { downloadAssets, loadLiteRt, loadModel } from '../infer.js'
+import { Infer } from '../infer.js'
 
 const assets = {
   sqlite: new URL('../gen/modeldb.sqlite', import.meta.url).href,
@@ -34,11 +34,12 @@ async function step(name, fn) {
 // Prints the error of a call that is expected to fail
 const fails = (what, promise) => promise.then(() => log(`${what}: did NOT fail`), (e) => log(`${what} -> [${e.code}] ${e.message}`))
 
-document.getElementById('run').onclick = () => step('1. model files and runtimes', async () => {
-  const { modelBytes } = await downloadAssets('fbt', assets)
-  const litert = await loadLiteRt()
-  await loadModel(litert, modelBytes)
-})
+// Until every stage is implemented, run() stops with an error at the first one that is not
+document.getElementById('run').onclick = () => step('infer.run', () => new Infer().run({
+  model: 'fbt',
+  params: { productIds: ['9132438814883'] },
+  assets,
+}))
 
 document.getElementById('sqlitez').onclick = () => step('A. sqlitez', async () => {
   const ref = await downloader.update({ name: 'infer-fbt-sqlite', url: assets.sqlite })

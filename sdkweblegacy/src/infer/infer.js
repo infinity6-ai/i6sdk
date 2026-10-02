@@ -255,4 +255,4 @@ function rankSignatures(scores, storeMask, topN) { }
  */
 async function fetchRecommendedProductIds(dbBytes, signatureIndices) { }
 
-export { Infer, downloadAssets, loadLiteRt, loadModel };
+export { Infer };
