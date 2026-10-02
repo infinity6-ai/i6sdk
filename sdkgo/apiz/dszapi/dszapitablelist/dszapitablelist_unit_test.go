@@ -23,7 +23,7 @@ func TestUnitDszApiTableList(t *testing.T) {
 			Limit:      50,
 		},
 		Resp: dszapitablelist.Resp{
-			Files: []dszapitablelist.File{
+			Files: []*dszapitablelist.File{
 				{
 					Path:      lakepathz.MustParse("i6tb://mydb.mytable/part-1"),
 					SignedUrl: "https://example.com/part-1",
