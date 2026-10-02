@@ -21,27 +21,20 @@ console.log = (...args) => {
   log(...args)
 }
 
-// Runs one demo step, printing the error if it fails
-async function step(name, fn) {
-  log(`\n== ${name}`)
-  try {
-    await fn()
-  } catch (e) {
-    log(`ERROR ${e.name} [${e.code}] ${e.message}`)
-  }
-}
+// Errors of the handlers below end up here
+window.onunhandledrejection = (e) => log(`ERROR ${e.reason.name} [${e.reason.code}] ${e.reason.message}`)
 
 // Prints the error of a call that is expected to fail
 const fails = (what, promise) => promise.then(() => log(`${what}: did NOT fail`), (e) => log(`${what} -> [${e.code}] ${e.message}`))
 
 // Until every stage is implemented, run() stops with an error at the first one that is not
-document.getElementById('run').onclick = () => step('infer.run', () => new Infer().run({
-  model: 'fbt',
-  params: { productIds: ['9132438814883'] },
-  assets,
-}))
+document.getElementById('run').onclick = async () => {
+  log('\n== infer.run')
+  await new Infer().run({ model: 'fbt', params: { productIds: ['9132438814883'] }, assets })
+}
 
-document.getElementById('sqlitez').onclick = () => step('A. sqlitez', async () => {
+document.getElementById('sqlitez').onclick = async () => {
+  log('\n== sqlitez')
   const ref = await downloader.update({ name: 'infer-fbt-sqlite', url: assets.sqlite })
   const conn = await sqlitez.open({ path: await fs.resolve(ref) })
   try {
@@ -61,7 +54,7 @@ document.getElementById('sqlitez').onclick = () => step('A. sqlitez', async () =
     await conn.close()
   }
   await fails('query after close', conn.query({ query: 'SELECT 1' }))
-})
+}
 
 document.getElementById('clear').onclick = async () => {
   await (await navigator.storage.getDirectory()).removeEntry('i6', { recursive: true }).catch(() => {})
