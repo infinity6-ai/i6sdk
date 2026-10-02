@@ -11,7 +11,7 @@ import (
 type Req struct {
 	Dataset    lakedsz.Dataset `json:"dataset"`
 	Path       lakepathz.Path  `json:"path"`
-	SignMethod string          `json:"sign"`
+	SignMethod string          `json:"sign_method"`
 	Recursive  bool            `json:"recursive"`
 	Stat       bool            `json:"stat"`
 	FromCursor string          `json:"from_cursor"`
