@@ -139,6 +139,7 @@ class SqliteConn {
         if (found.length === 0) {
             throw new I6Error(`sqlitez: no named query "${opts.name}"`, { code: "query" })
         }
+
         return this.query({ query: String(found[0].query), params: opts.params })
     }
 
@@ -173,8 +174,11 @@ class Sqlitez {
             const segments = opts.path.split("/")
             const fileName = segments.pop()
             let dir = await navigator.storage.getDirectory()
+            
             for (const segment of segments) dir = await dir.getDirectoryHandle(segment)
+            
             const file = await (await dir.getFileHandle(fileName)).getFile()
+            
             bytes = new Uint8Array(await file.arrayBuffer())
         } catch (cause) {
             throw new I6Error(`sqlitez: could not read ${opts.path}: ${cause.message}`, { code: "asset", cause })
