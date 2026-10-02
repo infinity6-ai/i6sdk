@@ -11,9 +11,11 @@ class Handler(SimpleHTTPRequestHandler):
         # Always revalidate: the browser must not answer our HEAD requests from its own cache
         self.send_header("Cache-Control", "no-cache")
         path = self.translate_path(self.path)
+        
         if os.path.isfile(path):
             st = os.stat(path)
             self.send_header("ETag", '"%x-%x"' % (int(st.st_mtime), st.st_size))
+        
         super().end_headers()
 
 
