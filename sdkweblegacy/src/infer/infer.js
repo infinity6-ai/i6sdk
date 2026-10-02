@@ -34,7 +34,6 @@ import { fs } from "../internal/fs/fs.js";
  * @property {string} model - Model name (e.g. "fbt"), also used to name the cached assets.
  * @property {InferParams} params - Model input.
  * @property {InferAssets} assets - Where to download the model assets from.
- * @property {(msg: string, data?: any) => void} [log] - Called with progress messages, for debugging. Nothing is logged without it.
  */
 
 /**
@@ -76,7 +75,6 @@ class Infer {
    */
   async run(opts) {
     const { model, params, assets } = opts
-    setLog(opts.log)
 
     // 1. Get the model files (cached by etag) and the runtimes
     const { dbBytes, modelBytes } = await downloadAssets(model, assets)
@@ -108,19 +106,6 @@ const LITERT_VERSION = "2.5.3"
 /** Where the LiteRT wasm files are loaded from when the caller does not say. */
 const LITERT_WASM_URL = `https://cdn.jsdelivr.net/npm/@litertjs/core@${LITERT_VERSION}/wasm/`
 
-const noLog = () => { }
-
-/** Progress logger of the current run (set by `run`). */
-let log = noLog
-
-/**
- * Sets the progress logger (used by `run`, and by the demo to call the helpers one by one).
- * @param {((msg: string, data?: any) => void)|undefined} fn - The logger, or nothing to silence it.
- */
-function setLog(fn) {
-  log = fn || noLog
-}
-
 /** Last compiled model, with the bytes it was compiled from. */
 let cachedModel = null
 
@@ -141,7 +126,7 @@ async function downloadAssets(model, assets) {
   if (new TextDecoder().decode(modelBytes.subarray(4, 8)) !== "TFL3") {
     throw new I6Error(`infer: ${assets.tflite} is not a tflite file`, { code: "asset" })
   }
-  log("assets are valid (sqlite header, TFL3)")
+  console.log("infer: assets are valid (sqlite header, TFL3)")
 
   return { dbBytes, modelBytes }
 }
@@ -158,7 +143,7 @@ async function downloadFile(name, url) {
     const before = await fs.get({ name })
     const ref = await downloader.update({ name, url })
     const bytes = await fs.read(ref)
-    log(`${name}: ${before && before.version === ref.version ? "cache hit" : "downloaded"}, ${bytes.length} bytes`, ref)
+    console.log(`infer: ${name}: ${before && before.version === ref.version ? "cache hit" : "downloaded"}, ${bytes.length} bytes`, ref)
     return bytes
   } catch (cause) {
     throw new I6Error(`infer: could not get ${url}: ${cause.message}`, { code: "asset", cause })
@@ -183,10 +168,10 @@ async function loadLiteRt(wasmUrl = LITERT_WASM_URL) {
     const loading = litert.getGlobalLiteRtPromise()
     if (loading) {
       await loading
-      log("litert: already loaded")
+      console.log("infer: litert: already loaded")
     } else {
       await litert.loadLiteRt(wasmUrl)
-      log(`litert: loaded from ${wasmUrl}`)
+      console.log(`infer: litert: loaded from ${wasmUrl}`)
     }
     return litert
   } catch (cause) {
@@ -204,7 +189,7 @@ async function loadModel(litert, modelBytes) {
   const sameBytes = (a, b) => a.length === b.length && a.every((v, i) => v === b[i])
 
   if (cachedModel && sameBytes(cachedModel.bytes, modelBytes)) {
-    log("model: reusing the compiled model")
+    console.log("infer: model: reusing the compiled model")
     return cachedModel.compiled
   }
 
@@ -214,7 +199,7 @@ async function loadModel(litert, modelBytes) {
     cachedModel = { bytes: modelBytes, compiled }
 
     const describe = (d) => ({ name: d.name, dtype: d.dtype, shape: Array.from(d.shape) })
-    log("model: compiled", {
+    console.log("infer: model: compiled", {
       inputs: compiled.getInputDetails().map(describe),
       outputs: compiled.getOutputDetails().map(describe),
     })
@@ -270,4 +255,4 @@ function rankSignatures(scores, storeMask, topN) { }
  */
 async function fetchRecommendedProductIds(dbBytes, signatureIndices) { }
 
-export { Infer, setLog, downloadAssets, loadLiteRt, loadModel };
+export { Infer, downloadAssets, loadLiteRt, loadModel };

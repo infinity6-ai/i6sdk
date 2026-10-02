@@ -3,22 +3,27 @@
 import { downloader } from '../../internal/downloader/downloader.js'
 import { fs } from '../../internal/fs/fs.js'
 import { sqlitez } from '../../internal/sqlitez/sqlitez.js'
-import { setLog, downloadAssets, loadLiteRt, loadModel } from '../infer.js'
+import { downloadAssets, loadLiteRt, loadModel } from '../infer.js'
 
 const assets = {
   sqlite: new URL('../gen/modeldb.sqlite', import.meta.url).href,
   tflite: new URL('../gen/model.tflite', import.meta.url).href,
 }
 
+// Shows everything sent to console.log on the page too (infer.js logs with console.log)
 const out = document.getElementById('log')
-const log = (msg, data) => {
-  out.textContent += msg + (data === undefined ? '' : ' ' + JSON.stringify(data)) + '\n'
+const consoleLog = console.log
+const log = (...args) => {
+  out.textContent += args.map((a) => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ') + '\n'
+}
+console.log = (...args) => {
+  consoleLog(...args)
+  log(...args)
 }
 
 // Runs one demo step, printing the error if it fails
 async function step(name, fn) {
   log(`\n== ${name}`)
-  setLog(log)
   try {
     await fn()
   } catch (e) {
