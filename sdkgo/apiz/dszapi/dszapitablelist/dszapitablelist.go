@@ -11,7 +11,7 @@ import (
 type Req struct {
 	Dataset    lakedsz.Dataset `json:"dataset"`
 	Path       lakepathz.Path  `json:"path"`
-	Sign       bool            `json:"sign"`
+	SignMethod string          `json:"sign_method"`
 	Recursive  bool            `json:"recursive"`
 	Stat       bool            `json:"stat"`
 	FromCursor string          `json:"from_cursor"`
@@ -20,13 +20,13 @@ type Req struct {
 
 type File struct {
 	Path      lakepathz.Path `json:"path"`
-	Stat      fsz.FileStat   `json:"stat"`
+	Stat      *fsz.FileStat  `json:"stat"`
 	SignedUrl string         `json:"signed_url"`
 }
 
 type Resp struct {
-	Files      []File `json:"files"`
-	NextCursor string `json:"next_cursor"`
+	Files      []*File `json:"files"`
+	NextCursor string  `json:"next_cursor"`
 }
 
 type Api struct {
@@ -69,7 +69,7 @@ func (d *Api) GetDataRefs() *apiz.DataRefs {
 					},
 					"sign": {
 						Desc: &schemaz.Desc{Summary: "Whether to return signed URLs."},
-						Raw:  func() any { return &d.Req.Sign },
+						Raw:  func() any { return &d.Req.SignMethod },
 					},
 					"recursive": {
 						Desc: &schemaz.Desc{Summary: "Whether to list recursively."},
@@ -98,24 +98,25 @@ func (d *Api) GetDataRefs() *apiz.DataRefs {
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
 					"files": {
-						Array: schemaz.NewArray(schemaz.ArrayOptions[[]File, File]{
-							Slice: func() *[]File { return &d.Resp.Files },
-							Get: func(idx int, element *File) *schemaz.Schema {
+						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*File, *File]{
+							Slice:      func() *[]*File { return &d.Resp.Files },
+							NewElement: func(idx int) *File { return &File{} },
+							Get: func(idx int, element **File) *schemaz.Schema {
 								return &schemaz.Schema{
 									Desc: &schemaz.Desc{Summary: "File entry"},
 									Object: func(_ bool) map[string]*schemaz.Schema {
 										return map[string]*schemaz.Schema{
 											"path": {
 												Desc: &schemaz.Desc{Summary: "write it"},
-												Raw:  func() any { return &element.Path },
+												Raw:  func() any { return &(*element).Path },
 											},
 											"stat": {
 												Desc: &schemaz.Desc{Summary: "write it"},
-												Raw:  func() any { return &element.Stat },
+												Raw:  func() any { return &(*element).Stat },
 											},
 											"signed_url": {
 												Desc: &schemaz.Desc{Summary: "write it"},
-												Raw:  func() any { return &element.SignedUrl },
+												Raw:  func() any { return &(*element).SignedUrl },
 											},
 										}
 									},

@@ -1,40 +1,62 @@
-// Runs the stages of infer.js one by one and prints what happens. Served with:
-//   cd sdkweblegacy && python -m http.server 8000   ->   http://localhost:8000/src/infer/demo/index.html
-import { setLog, downloadAssets, loadLiteRt, loadModel } from '../infer.js'
+// Runs the stages of infer.js and prints what happens.
+// Serve: python src/infer/demo/serve.py -> http://localhost:8000/src/infer/demo/index.html
+import { downloader } from '../../internal/downloader/downloader.js'
+import { fs } from '../../internal/fs/fs.js'
+import { sqlitez } from '../../internal/sqlitez/sqlitez.js'
+import { Infer } from '../infer.js'
 
 const assets = {
   sqlite: new URL('../gen/modeldb.sqlite', import.meta.url).href,
   tflite: new URL('../gen/model.tflite', import.meta.url).href,
-  // litertWasm: new URL('../../../node_modules/@litertjs/core/wasm/', import.meta.url).href,
 }
 
+// Shows everything sent to console.log on the page too (infer.js logs with console.log)
 const out = document.getElementById('log')
-const t0 = performance.now()
-
-function log(msg, data) {
-  const time = ((performance.now() - t0) / 1000).toFixed(2).padStart(6)
-  out.insertAdjacentHTML('beforeend', `<div><span class="t">${time}s</span> ${escape(msg)}${data === undefined ? '' : ' ' + escape(JSON.stringify(data))}</div>`)
-  console.log(msg, data)
+const consoleLog = console.log
+const log = (...args) => {
+  out.textContent += args.map((a) => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ') + '\n'
 }
-const stage = (msg) => out.insertAdjacentHTML('beforeend', `<div class="stage">== ${escape(msg)}</div>`)
-const escape = (s) => String(s).replace(/[&<]/g, (c) => ({ '&': '&amp;', '<': '&lt;' }[c]))
+console.log = (...args) => {
+  consoleLog(...args)
+  log(...args)
+}
 
-async function run() {
+// Errors of the handlers below end up here
+window.onunhandledrejection = (e) => log(`ERROR ${e.reason.name} [${e.reason.code}] ${e.reason.message}`)
+
+// Prints the error of a call that is expected to fail
+const fails = (what, promise) => promise.then(() => log(`${what}: did NOT fail`), (e) => log(`${what} -> [${e.code}] ${e.message}`))
+
+// Until every stage is implemented, run() stops with an error at the first one that is not
+document.getElementById('run').onclick = async () => {
+  log('\n== infer.run')
+  await new Infer().run({ model: 'fbt', params: { productIds: ['9132438814883'] }, assets })
+}
+
+document.getElementById('sqlitez').onclick = async () => {
+  log('\n== sqlitez')
+  const ref = await downloader.update({ name: 'infer-fbt-sqlite', url: assets.sqlite })
+  const conn = await sqlitez.open({ path: await fs.resolve(ref) })
   try {
-    stage('1. model files and runtimes')
-    setLog(log)
-    const { dbBytes, modelBytes } = await downloadAssets('fbt', assets)
-    const litert = await loadLiteRt(assets.litertWasm)
-    const compiled = await loadModel(litert, modelBytes)
-    log('step 1 done', { dbBytes: dbBytes.length, modelBytes: modelBytes.length })
-  } catch (e) {
-    out.insertAdjacentHTML('beforeend', `<div class="err">${escape(e.name)} [${e.code}] ${escape(e.message)}</div>`)
-    console.error(e)
+    log('tables', await conn.query({ query: "SELECT name FROM sqlite_master WHERE type = 'table'" }))
+    const [first] = await conn.query({ query: 'SELECT product_id, rec_out FROM product LIMIT 1' })
+    log('first product', first)
+    log('bind', await conn.query({ query: 'SELECT rec_out FROM product WHERE product_id = ?', params: [first.product_id] }))
+
+    // update changes memory only; the test sqlite has no namedqueries table, so we make one
+    await conn.update({ query: 'CREATE TABLE namedqueries (name TEXT, query TEXT)' })
+    await conn.update({ query: 'INSERT INTO namedqueries VALUES (?, ?)', params: ['by_id', 'SELECT rec_out FROM product WHERE product_id = ?'] })
+    log('namedQuery', await conn.namedQuery({ name: 'by_id', params: [first.product_id] }))
+
+    await fails('missing named query', conn.namedQuery({ name: 'nope' }))
+    await fails('bad sql', conn.query({ query: 'SELEC' }))
+  } finally {
+    await conn.close()
   }
+  await fails('query after close', conn.query({ query: 'SELECT 1' }))
 }
 
-document.getElementById('run').onclick = run
 document.getElementById('clear').onclick = async () => {
   await (await navigator.storage.getDirectory()).removeEntry('i6', { recursive: true }).catch(() => {})
-  log('opfs cache removed')
+  log('\nopfs cache removed')
 }
