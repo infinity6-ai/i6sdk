@@ -6,7 +6,8 @@
   <!-- Demo only: the SDK bundle will bring these in later. Same versions as package.json. -->
   <script type="importmap">
     { "imports": {
-        "@litertjs/core": "https://cdn.jsdelivr.net/npm/@litertjs/core@2.5.3/+esm"
+        "@litertjs/core": "https://cdn.jsdelivr.net/npm/@litertjs/core@2.5.3/+esm",
+        "sql.js": "https://cdn.jsdelivr.net/npm/sql.js@1.14.2/+esm"
     } }
   </script>
   <style>
@@ -20,6 +21,7 @@
 </head>
 <body>
   <button id="run">Run</button>
+  <button id="sqlitez">Test sqlitez</button>
   <button id="clear">Clear OPFS cache</button>
   <div id="log"></div>
   <script type="module" src="./demo.js"></script>
