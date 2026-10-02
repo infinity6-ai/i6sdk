@@ -110,6 +110,12 @@ func (d *Path) UnmarshalJSON(data []byte) error {
 	return checked.Unmarshal(d, data)
 }
 
+func (d Path) MustParse() ParsePath {
+	ret, err := d.Parse()
+	errorz.Check(err)
+	return ret
+}
+
 func (d Path) Parse() (ParsePath, error) {
 	var ret parsedPathImpl
 	err := ret.Parse(d.Get())
