@@ -143,6 +143,17 @@ class SqliteConn {
         return this.query({ query: String(found[0].query), params: opts.params })
     }
 
+    //
+    async laranjaQuery(name, bleParam) {
+        let stringifiedble = JSON.stringify(bleParam)
+        let result = await this.namedQuery({name: name, params:[stringifiedble]})
+
+        if (!result.step()) return null 
+        let ret = await result.getAsObject()["ret"]
+
+        return JSON.parse(ret)
+    }
+
     /**
      * @private
      * @returns {Object} The sql.js database.
