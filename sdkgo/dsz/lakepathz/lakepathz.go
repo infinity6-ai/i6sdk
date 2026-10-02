@@ -18,21 +18,21 @@ const schema = "i6tb://"
 
 type ParsePath interface {
 	Table() laketablez.Table
-	Partitions() hivepartz.HiveParts
-	File() pathz.Path
+	Partitions() *hivepartz.HiveParts
+	File() *pathz.Path
 }
 
 type parsedPathImpl struct {
 	table      laketablez.Table
-	partitions hivepartz.HiveParts
-	file       pathz.Path
+	partitions *hivepartz.HiveParts
+	file       *pathz.Path
 }
 
-func (v parsedPathImpl) File() pathz.Path {
+func (v parsedPathImpl) File() *pathz.Path {
 	return v.file
 }
 
-func (v parsedPathImpl) Partitions() hivepartz.HiveParts {
+func (v parsedPathImpl) Partitions() *hivepartz.HiveParts {
 	return v.partitions
 }
 
@@ -41,7 +41,7 @@ func (v parsedPathImpl) Table() laketablez.Table {
 }
 
 func (v parsedPathImpl) format() string {
-	return schema + pathz.MustParse(v.table.String()).MustJoin(v.partitions.Format()).MustJoin(&v.file).String()
+	return schema + pathz.MustParse(v.table.String()).MustJoin(v.partitions.Format()).MustJoin(v.file).String()
 }
 
 func (v parsedPathImpl) String() string {
@@ -79,8 +79,8 @@ func (v *parsedPathImpl) Parse(s string) error {
 		return fmt.Errorf("error parsing %s path: %s: %w", schema, s, err)
 	}
 	v.table = table
-	v.partitions = *hp
-	v.file = *p
+	v.partitions = hp
+	v.file = p
 	return nil
 }
 
@@ -145,7 +145,7 @@ func MustParse(name string) Path {
 func From(p ParsePath) Path {
 	partitions := p.Partitions()
 	file := p.File()
-	ret, err := Build(p.Table(), &partitions, &file)
+	ret, err := Build(p.Table(), partitions, file)
 	errorz.Check(err)
 	return ret
 }
