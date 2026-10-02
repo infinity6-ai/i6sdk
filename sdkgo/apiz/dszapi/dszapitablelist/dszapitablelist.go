@@ -11,7 +11,7 @@ import (
 type Req struct {
 	Dataset    lakedsz.Dataset `json:"dataset"`
 	Path       lakepathz.Path  `json:"path"`
-	Sign       bool            `json:"sign"`
+	SignMethod string          `json:"sign"`
 	Recursive  bool            `json:"recursive"`
 	Stat       bool            `json:"stat"`
 	FromCursor string          `json:"from_cursor"`
@@ -69,7 +69,7 @@ func (d *Api) GetDataRefs() *apiz.DataRefs {
 					},
 					"sign": {
 						Desc: &schemaz.Desc{Summary: "Whether to return signed URLs."},
-						Raw:  func() any { return &d.Req.Sign },
+						Raw:  func() any { return &d.Req.SignMethod },
 					},
 					"recursive": {
 						Desc: &schemaz.Desc{Summary: "Whether to list recursively."},

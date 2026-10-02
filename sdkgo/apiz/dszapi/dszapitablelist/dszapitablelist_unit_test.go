@@ -16,7 +16,7 @@ func TestUnitDszApiTableList(t *testing.T) {
 		Req: dszapitablelist.Req{
 			Dataset:    lakedsz.MustParse("myds"),
 			Path:       lakepathz.MustParse("i6tb://mydb.mytable"),
-			Sign:       true,
+			SignMethod: "GET",
 			Recursive:  true,
 			Stat:       true,
 			FromCursor: "cur-123",
