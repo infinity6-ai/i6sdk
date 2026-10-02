@@ -65,7 +65,7 @@ class Infer {
    * Constructs an Infer client instance.
    * @param {Services} services - The services manager instance.
    */
-  constructor(services) {}
+  constructor(services) { }
 
   /**
    * Runs the model for the given params and returns the recommended product ids.
@@ -107,7 +107,7 @@ const LITERT_VERSION = "2.5.3"
 /** Where the LiteRT wasm files are loaded from when the caller does not say. */
 const LITERT_WASM_URL = `https://cdn.jsdelivr.net/npm/@litertjs/core@${LITERT_VERSION}/wasm/`
 
-const noLog = () => {}
+const noLog = () => { }
 
 /** Progress logger of the current run (set by `run`). */
 let log = noLog
@@ -168,7 +168,7 @@ async function downloadFile(name, url) {
  * Loads the bundled sql.js (wasm) once.
  * @returns {Promise<Object>} The initialized sql.js module (`SQL`).
  */
-async function loadSqlJs() {}
+async function loadSqlJs() { }
 
 /**
  * Loads the bundled LiteRT runtime (wasm) once.
@@ -229,7 +229,7 @@ async function loadModel(litert, modelBytes) {
  * @param {string[]} productIds - Unique ids of the input products.
  * @returns {Promise<ShopData>} The product rows by id and the mask of every signature index.
  */
-async function fetchShopData(dbBytes, productIds) {}
+async function fetchShopData(dbBytes, productIds) { }
 
 /**
  * Builds the model input tensors: the feature vectors (`rec_in`) of the last items, one
@@ -241,7 +241,7 @@ async function fetchShopData(dbBytes, productIds) {}
  * @param {Record<string, Object>} productFeaturesMap - Product id -> sqlite row.
  * @returns {Record<string, Object>|null} Input name -> tensor, or null if no product has a usable feature vector.
  */
-function buildInputTensors(litert, model, productIds, productFeaturesMap) {}
+function buildInputTensors(litert, model, productIds, productFeaturesMap) { }
 
 /**
  * Runs the model and frees the input and output tensors.
@@ -249,7 +249,7 @@ function buildInputTensors(litert, model, productIds, productFeaturesMap) {}
  * @param {Record<string, Object>} tensors - Input name -> tensor, from buildInputTensors.
  * @returns {Promise<Float32Array>} One score per signature index (first output of the model).
  */
-async function runModel(model, tensors) {}
+async function runModel(model, tensors) { }
 
 /**
  * Ranks the scores, dropping the signatures that no product has, and keeps the best ones.
@@ -258,7 +258,7 @@ async function runModel(model, tensors) {}
  * @param {number} topN - How many signature indices to keep.
  * @returns {number[]} Signature indices, best score first.
  */
-function rankSignatures(scores, storeMask, topN) {}
+function rankSignatures(scores, storeMask, topN) { }
 
 /**
  * Maps signature indices to product ids through the sqlite (index -> rec_out -> product).
@@ -267,6 +267,6 @@ function rankSignatures(scores, storeMask, topN) {}
  * @param {number[]} signatureIndices - Signature indices, best first.
  * @returns {Promise<string[]>} Product ids in the same order.
  */
-async function fetchRecommendedProductIds(dbBytes, signatureIndices) {}
+async function fetchRecommendedProductIds(dbBytes, signatureIndices) { }
 
 export { Infer, setLog, downloadAssets, loadLiteRt, loadModel };
