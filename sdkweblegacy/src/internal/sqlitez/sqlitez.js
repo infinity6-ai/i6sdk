@@ -71,6 +71,7 @@ class SqliteConn {
      */
     async close() {
         if (!this.db) return
+        
         this.db.close()
         this.db = null
     }
@@ -88,14 +89,16 @@ class SqliteConn {
         if (!opts || !opts.query) throw new TypeError("sqlitez: opts.query is required")
 
         const db = this.alive()
+        
         let stmt
         try {
             stmt = db.prepare(opts.query)
-            if (opts.params) stmt.bind(opts.params)
-            const rows = []
-            while (stmt.step()) rows.push(stmt.getAsObject())
-            return rows
+            if (opts.params) { stmt.bind(opts.params) }
 
+            const rows = []
+            while (stmt.step()) { rows.push(stmt.getAsObject()) }
+
+            return rows
         } catch (cause) {
             throw new I6Error(`sqlitez: query failed: ${cause.message}`, { code: "query", cause })
         } finally {
