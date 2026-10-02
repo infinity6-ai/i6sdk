@@ -143,7 +143,6 @@ class SqliteConn {
         return this.query({ query: String(found[0].query), params: opts.params })
     }
 
-    //
     async laranjaQuery(name, bleParam) {
         let stringifiedble = JSON.stringify(bleParam)
         let result = await this.namedQuery({name: name, params:[stringifiedble]})
