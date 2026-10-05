@@ -1,11 +1,9 @@
-// Demo of the infer SDK: the config of an SDK user, one button per step (inputs and outputs shown) and
-// a button that runs everything through `new I6Sdk().infer().run(opts)`.
-// Steps 1-6 use the same internal pieces as infer.js (downloader, sqlitez, LiteRT) so each stage can be seen alone.
 // Serve: python src/infer/demo/serve.py -> http://localhost:8000/src/infer/demo/index.html
 import { I6Sdk } from '../../index.js'
 import { downloader } from '../../internal/downloader/downloader.js'
 import { fs } from '../../internal/fs/fs.js'
 import { sqlitez } from '../../internal/sqlitez/sqlitez.js'
+import { loadLiteRt, loadModel, runModel } from '../infer.js'
 
 const $ = (id) => document.getElementById(id)
 $('sqlite').value = new URL('../gen/modeldb.sqlite', import.meta.url).href
@@ -23,7 +21,6 @@ console.log = (...args) => { consoleLog(...args); log(...args) }
 $('clearlog').onclick = () => { $('log').textContent = '' }
 
 // --- showing values ----------------------------------------------------------------------------------
-// Long arrays are cut (first 10 + how many more) unless "show full arrays" is checked
 function preview(v) {
   if (ArrayBuffer.isView(v)) v = Array.from(v)
   if (Array.isArray(v)) {
@@ -79,8 +76,7 @@ const config = () => {
   }
 }
 
-// The caller's job (not infer.js): turn the result of the input query into the FBT model inputs.
-// Last items' rec_in vectors, one masked row (2), then padding rows (0); pad_mask is 1 up to the masked row.
+// ????????????????????????
 const NUM_ITEMS = 10
 const VECTOR_LENGTH = 7
 const buildFbtInputs = (productIds) => ({ products }) => {
@@ -109,7 +105,6 @@ async function namedJsonQuery(name, param) {
 }
 
 const describe = (d) => ({ name: d.name, dtype: d.dtype, shape: Array.from(d.shape) })
-const DTYPE_CTORS = { float32: Float32Array, int32: Int32Array, uint8: Uint8Array }
 
 // --- the steps ---------------------------------------------------------------------------------------
 const steps = {
@@ -133,13 +128,8 @@ const steps = {
 
   2: () => runStep(2, async () => {
     need('modelBytes')
-    const litert = await import('@litertjs/core')
-    const loading = litert.getGlobalLiteRtPromise()
-    if (loading) await loading
-    else await litert.loadLiteRt('https://cdn.jsdelivr.net/npm/@litertjs/core@2.5.3/wasm/')
-    if (state.compiled) state.compiled.delete()
-    state.litert = litert
-    state.compiled = await litert.loadAndCompile(state.modelBytes, { accelerator: 'wasm' })
+    state.litert = await loadLiteRt()
+    state.compiled = await loadModel(state.litert, state.modelBytes)
     return {
       input: { tflite: `${state.modelBytes.length} bytes`, accelerator: 'wasm' },
       output: { inputs: state.compiled.getInputDetails().map(describe), outputs: state.compiled.getOutputDetails().map(describe) },
@@ -166,34 +156,18 @@ const steps = {
   }),
 
   5: () => runStep(5, async () => {
-    need('compiled', 'inputs')
-    const tensors = {}
-    const described = {}
-    let raw = {}
-    try {
-      for (const d of state.compiled.getInputDetails()) {
-        const input = state.inputs[d.name]
-        if (!input) throw new Error(`step 4 did not return "${d.name}"`)
-        const shape = input.shape ?? Array.from(d.shape, (x) => (x === -1 ? 1 : x))
-        tensors[d.name] = new state.litert.Tensor(new DTYPE_CTORS[d.dtype](input.data), shape)
-        described[d.name] = { dtype: d.dtype, shape, data: input.data }
-      }
-      raw = await state.compiled.run(tensors)
-      state.outputs = {}
-      const output = {}
-      for (const [name, tensor] of Object.entries(raw)) {
-        const values = Array.from(await tensor.data())
-        state.outputs[name] = values
-        output[name] = { length: values.length, values }
-      }
-      // The best 5 raw scores, so they can be checked at a glance
-      const scores = state.outputs.signature_probs
-      if (scores) output.signature_probs.best5 = scores.map((score, i) => ({ i, score })).sort((a, b) => b.score - a.score).slice(0, 5)
-      return { input: described, output }
-    } finally {
-      Object.values(raw).forEach((t) => t.delete())
-      Object.values(tensors).forEach((t) => t.delete())
+    need('litert', 'compiled', 'inputs')
+    const outputs = await runModel(state.litert, state.compiled, state.inputs)
+    state.outputs = {}
+    const output = {}
+    for (const [name, values] of Object.entries(outputs)) {
+      state.outputs[name] = Array.from(values)
+      output[name] = { length: values.length, values: state.outputs[name] }
     }
+    // The best 5 raw scores, so they can be checked at a glance
+    const scores = state.outputs.signature_probs
+    if (scores) output.signature_probs.best5 = scores.map((score, i) => ({ i, score })).sort((a, b) => b.score - a.score).slice(0, 5)
+    return { input: state.inputs, output }
   }),
 
   6: () => runStep(6, async () => {
@@ -210,8 +184,7 @@ const steps = {
     const { model, productIds, params, assets } = config()
     const opts = { model, params, assets, buildInputs: buildFbtInputs(productIds) }
     const result = await new I6Sdk().infer().run(opts)
-    const same = state.result ? JSON.stringify(result) === JSON.stringify(state.result) : 'n/a (run step 6 to compare)'
-    return { input: { ...opts, buildInputs: '[function]' }, output: { 'same as step 6': same, result } }
+    return { input: { ...opts, buildInputs: '[function]' }, output: result }
   }),
 }
 

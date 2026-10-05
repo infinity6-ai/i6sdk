@@ -83,8 +83,8 @@
 
   <div class="card" id="step5">
     <h2><button data-step="5">5. Run the model</button><span class="badge">idle</span></h2>
-    <p class="hint">Tensors from the inputs, model.run, every output read.</p>
-    <div class="io"><div><h3>Input (tensors)</h3><pre class="in"></pre></div><div><h3>Output</h3><pre class="out"></pre></div></div>
+    <p class="hint">infer.js turns the data + shapes into LiteRT tensors, runs the model and reads every output.</p>
+    <div class="io"><div><h3>Input (data + shapes)</h3><pre class="in"></pre></div><div><h3>Output</h3><pre class="out"></pre></div></div>
   </div>
 
   <div class="card" id="step6">
@@ -96,7 +96,7 @@
 
   <div class="card" id="step7">
     <h2><button data-step="7" class="primary">Run all with the SDK</button><span class="badge">idle</span></h2>
-    <p class="hint">new I6Sdk().infer().run(opts), the real code path. It is compared with the result of step 6.</p>
+    <p class="hint">new I6Sdk().infer().run(opts), the real code path.</p>
     <div class="io"><div><h3>Input (opts)</h3><pre class="in"></pre></div><div><h3>Output (result)</h3><pre class="out"></pre></div></div>
   </div>
 

@@ -86,7 +86,7 @@ class Infer {
       const inputs = await buildInputs(ctx)
 
       // 3. Run the model
-      const outputs = await runModel(compiled, buildInputTensors(litert, compiled, inputs))
+      const outputs = await runModel(litert, compiled, inputs)
 
       // 4. The sqlite turns the outputs into the result
       const outputsJson = Object.fromEntries(Object.entries(outputs).map(([name, values]) => [name, Array.from(values)]))
@@ -208,37 +208,29 @@ async function loadModel(litert, modelBytes) {
 const DTYPE_CTORS = { float32: Float32Array, int32: Int32Array, uint8: Uint8Array }
 
 /**
- * Turns the caller's inputs into model tensors. Every model input must be in `inputs` under its exact name.
- * @param {Object} litert - The LiteRT module.
- * @param {Object} model - The compiled model.
+ * Runs the model. The caller only gives data and shapes: every LiteRT tensor is created and freed here.
+ * Every model input must be in `inputs` under its exact name.
+ * @param {Object} litert - The LiteRT module, from loadLiteRt.
+ * @param {Object} model - The compiled model, from loadModel.
  * @param {Record<string, ModelInput>} inputs - Input name -> data and shape.
- * @returns {Record<string, Object>} Input name -> tensor.
+ * @returns {Promise<Record<string, ArrayLike<number>>>} Output name -> values, for every output of the model.
  * @throws {I6Error} With code "invalid_argument" if an input is missing or its data does not fit its shape.
  */
-function buildInputTensors(litert, model, inputs) {
+async function runModel(litert, model, inputs) {
   const tensors = {}
-  for (const detail of model.getInputDetails()) {
-    const input = inputs?.[detail.name]
-    if (!input) throw new I6Error(`infer: buildInputs did not return "${detail.name}"`, { code: "invalid_argument" })
-
-    const shape = input.shape ?? Array.from(detail.shape, (d) => (d === -1 ? 1 : d))
-    if (input.data.length !== shape.reduce((a, b) => a * b, 1)) {
-      throw new I6Error(`infer: input "${detail.name}" has ${input.data.length} values, does not fit shape [${shape}]`, { code: "invalid_argument" })
-    }
-    tensors[detail.name] = new litert.Tensor(new DTYPE_CTORS[detail.dtype](input.data), shape)
-  }
-  return tensors
-}
-
-/**
- * Runs the model and frees the input and output tensors.
- * @param {Object} model - The compiled model.
- * @param {Record<string, Object>} tensors - Input name -> tensor, from buildInputTensors.
- * @returns {Promise<Record<string, ArrayLike<number>>>} Output name -> values, for every output of the model.
- */
-async function runModel(model, tensors) {
   let raw = {}
   try {
+    for (const detail of model.getInputDetails()) {
+      const input = inputs?.[detail.name]
+      if (!input) throw new I6Error(`infer: buildInputs did not return "${detail.name}"`, { code: "invalid_argument" })
+
+      const shape = input.shape ?? Array.from(detail.shape, (d) => (d === -1 ? 1 : d))
+      if (input.data.length !== shape.reduce((a, b) => a * b, 1)) {
+        throw new I6Error(`infer: input "${detail.name}" has ${input.data.length} values, does not fit shape [${shape}]`, { code: "invalid_argument" })
+      }
+      tensors[detail.name] = new litert.Tensor(new DTYPE_CTORS[detail.dtype](input.data), shape)
+    }
+
     raw = await model.run(tensors)
     const outputs = {}
     for (const [name, tensor] of Object.entries(raw)) outputs[name] = await tensor.data()
@@ -249,4 +241,4 @@ async function runModel(model, tensors) {
   }
 }
 
-export { Infer };
+export { Infer, loadLiteRt, loadModel, runModel };
