@@ -1,9 +1,9 @@
 /**
  * @fileoverview Runs an i6 model (e.g. "fbt") in the browser and returns the result.
  *
- * Flow: download the model's sqlite + tflite, read the features of the input products from
- * the sqlite, feed them to the tflite model, rank the model scores and map the best ones
- * back to product ids through the sqlite. Nothing is rendered, the caller uses the result.
+ * Flow: download the model's sqlite + tflite, run the named query `model-${model}-input` (its result is
+ * the `ctx`), let the caller build the model inputs from it, run the tflite model, and run the named query
+ * `model-${model}-output` with the model outputs. Its result is returned as is. Nothing here is model specific.
  */
 
 import { I6Error } from "../errors.js";
@@ -25,21 +25,6 @@ import { sqlitez } from "../internal/sqlitez/sqlitez.js";
  */
 
 /**
- * Parameters of the inference.
- * @typedef {Object} InferParams
- * @property {string[]} productIds - Ids of the products the recommendation is based on (e.g. the cart).
- */
-
-/**
- * Options of an inference run.
- * @typedef {Object} InferOptions
- * @property {string} model - Model name (e.g. "fbt"), also used to name the cached assets.
- * @property {InferParams} params - Model input.
- * @property {InferAssets} assets - Where to download the model assets from.
- * @property {Record<string, ModelInput>} inputs - Tensors fed to the model, by model input name (exact match).
- */
-
-/**
  * One model input tensor, built by the caller.
  * @typedef {Object} ModelInput
  * @property {ArrayLike<number>} data - Flat values, row-major.
@@ -47,9 +32,13 @@ import { sqlitez } from "../internal/sqlitez/sqlitez.js";
  */
 
 /**
- * Result of an inference run.
- * @typedef {Object} InferResult
- * @property {string[]} productIds - Recommended product ids, best first. Empty when none of the input products is known to the model.
+ * Options of an inference run.
+ * @typedef {Object} InferOptions
+ * @property {string} model - Model name (e.g. "fbt"), also used to name the cached assets and the named queries.
+ * @property {*} params - Model input, any JSON. It is the param of `model-${model}-input` and goes to `model-${model}-output`.
+ * @property {InferAssets} assets - Where to download the model assets from.
+ * @property {(ctx: *) => Record<string, ModelInput>|Promise<Record<string, ModelInput>>} buildInputs - Gets the result
+ *   of `model-${model}-input` and returns the model inputs by exact model input name.
  */
 
 /**
@@ -57,13 +46,6 @@ import { sqlitez } from "../internal/sqlitez/sqlitez.js";
  * @typedef {Object} ModelAssets
  * @property {string} dbPath - OPFS path of the .sqlite file (open it with sqlitez).
  * @property {Uint8Array} modelBytes - Content of the .tflite file.
- */
-
-/**
- * Product data read from the sqlite for the input products.
- * @typedef {Object} ShopData
- * @property {Record<string, Object>} productFeaturesMap - Product id -> sqlite row (rec_in, rec_out, base_text, ...).
- * @property {number[]} storeMask - Per signature index: 1 if some product has that signature, 0 otherwise.
  */
 
 /**
@@ -77,14 +59,18 @@ class Infer {
   constructor(services) { }
 
   /**
-   * Runs the model for the given params and returns the recommended product ids.
+   * Runs the model for the given params and returns what the output query gives.
    * @param {InferOptions} opts - Inference options.
-   * @returns {Promise<InferResult>} The recommended product ids.
+   * @returns {Promise<*>} The `ret` of the named query `model-${model}-output`.
    * @throws {I6Error} With code "invalid_argument" if opts is malformed, or "asset"/"model"/"query"
    *   if downloading, running the model or reading the sqlite fails.
    */
   async run(opts) {
-    const { model, params, assets, inputs } = opts
+    if (!opts || !opts.model) throw new I6Error("infer: opts.model is required", { code: "invalid_argument" })
+    if (!opts.assets || !opts.assets.sqlite || !opts.assets.tflite) throw new I6Error("infer: opts.assets.sqlite and opts.assets.tflite are required", { code: "invalid_argument" })
+    if (typeof opts.buildInputs !== "function") throw new I6Error("infer: opts.buildInputs must be a function", { code: "invalid_argument" })
+
+    const { model, params, assets, buildInputs } = opts
 
     // 1. Get the model files (cached by etag) and the runtimes
     const { dbPath, modelBytes } = await downloadAssets(model, assets)
@@ -94,27 +80,25 @@ class Infer {
     // The sqlite is only needed while the stages below run
     const conn = await sqlitez.open({ path: dbPath })
     try {
-      // 2. Read the input products from the sqlite
-      const productIds = [...new Set(params.productIds)]
-      const { storeMask } = await fetchShopData(conn, model, productIds)
+      // 2. Read what the model needs from the sqlite, the caller turns it into inputs
+      const ctx = await conn.namedJsonQuery({ name: `model-${model}-input`, param: params })
+      console.log("infer: input query ->", Object.keys(ctx))
+      const inputs = await buildInputs(ctx)
 
       // 3. Run the model
-      const tensors = buildInputTensors(litert, compiled, inputs)
-      const outputs = await runModel(compiled, tensors)
-      const scores = Object.values(outputs)[0]
+      const outputs = await runModel(compiled, buildInputTensors(litert, compiled, inputs))
 
-      // 4. Rank the scores and map the best ones back to product ids
-      const signatureIndices = rankSignatures(scores, storeMask, TOP_N)
-      return { productIds: await fetchRecommendedProductIds(conn, model, signatureIndices) }
+      // 4. The sqlite turns the outputs into the result
+      const outputsJson = Object.fromEntries(Object.entries(outputs).map(([name, values]) => [name, Array.from(values)]))
+      const result = await conn.namedJsonQuery({ name: `model-${model}-output`, param: { params, ctx, outputs: outputsJson } })
+      console.log("infer: output query ->", result)
+      return result
     } finally {
       await conn.close()
       console.log("infer: sqlite closed")
     }
   }
 }
-
-/** How many recommendations are kept. */
-const TOP_N = 20
 
 /** Must match the @litertjs/core version in package.json. */
 const LITERT_VERSION = "2.5.3"
@@ -220,33 +204,6 @@ async function loadModel(litert, modelBytes) {
   }
 }
 
-/**
- * Reads from the sqlite the rows of the input products and the store mask, with the named
- * query `model-${model}-input` (param `{productIds}`, ret `{products, storeMask}`).
- * @param {SqliteConn} conn - Open connection to the model's sqlite.
- * @param {string} model - Model name (e.g. "fbt").
- * @param {string[]} productIds - Unique ids of the input products.
- * @returns {Promise<ShopData>} The product rows by id and the mask of every signature index.
- * @throws {I6Error} With code "query" if the named query is missing or fails.
- */
-async function fetchShopData(conn, model, productIds) {
-  const ret = await conn.namedJsonQuery({ name: `model-${model}-input`, param: { productIds } })
-  const { products, storeMask } = ret
-
-  const productFeaturesMap = {}
-  for (const row of products) productFeaturesMap[row.product_id] = row
-
-  const found = Object.keys(productFeaturesMap)
-  console.log(`infer: sqlite: requested ${productIds.length} products ${JSON.stringify(productIds)}, found ${found.length} ${JSON.stringify(found)}`)
-  for (const id of found) {
-    const row = productFeaturesMap[id]
-    console.log(`infer: sqlite: product ${id}: rec_in has ${row.rec_in ? row.rec_in.split("|").length : 0} values, rec_out=${row.rec_out}, sig_index=${row.sig_index}`)
-  }
-  console.log(`infer: sqlite: storeMask has ${storeMask.length} signatures, ${storeMask.filter((m) => m === 1).length} available`)
-
-  return { productFeaturesMap, storeMask }
-}
-
 /** Typed array of each dtype the runner accepts. */
 const DTYPE_CTORS = { float32: Float32Array, int32: Int32Array, uint8: Uint8Array }
 
@@ -262,7 +219,7 @@ function buildInputTensors(litert, model, inputs) {
   const tensors = {}
   for (const detail of model.getInputDetails()) {
     const input = inputs?.[detail.name]
-    if (!input) throw new I6Error(`infer: opts.inputs is missing "${detail.name}"`, { code: "invalid_argument" })
+    if (!input) throw new I6Error(`infer: buildInputs did not return "${detail.name}"`, { code: "invalid_argument" })
 
     const shape = input.shape ?? Array.from(detail.shape, (d) => (d === -1 ? 1 : d))
     if (input.data.length !== shape.reduce((a, b) => a * b, 1)) {
@@ -290,35 +247,6 @@ async function runModel(model, tensors) {
     Object.values(raw).forEach((t) => t.delete())
     Object.values(tensors).forEach((t) => t.delete())
   }
-}
-
-/**
- * Ranks the scores, dropping the signatures that no product has, and keeps the best ones.
- * @param {ArrayLike<number>} scores - One score per signature index.
- * @param {number[]} storeMask - Per signature index: 1 if available, 0 otherwise.
- * @param {number} topN - How many signature indices to keep.
- * @returns {number[]} Signature indices, best score first.
- */
-function rankSignatures(scores, storeMask, topN) { }
-
-/**
- * Maps signature indices to product ids with the named query `model-${model}-output`
- * (param `{signatureIndices}`, ret `{matches: [{sig_index, sig_value, productIds}]}`).
- * Indices with no product are skipped; when several products share a signature the first one is used.
- * @param {SqliteConn} conn - Open connection to the model's sqlite.
- * @param {string} model - Model name (e.g. "fbt").
- * @param {number[]} signatureIndices - Signature indices, best first.
- * @returns {Promise<string[]>} Product ids in the same order.
- * @throws {I6Error} With code "query" if the named query is missing or fails.
- */
-async function fetchRecommendedProductIds(conn, model, signatureIndices) {
-  if (signatureIndices.length === 0) return []
-
-  const { matches } = await conn.namedJsonQuery({ name: `model-${model}-output`, param: { signatureIndices } })
-  const productIds = matches.map((m) => m.productIds[0])
-
-  console.log(`infer: sqlite: ${signatureIndices.length} signatures -> ${matches.length} with products`, matches.map((m) => ({ sig_index: m.sig_index, candidates: m.productIds.length, chosen: m.productIds[0] })))
-  return productIds
 }
 
 export { Infer };
