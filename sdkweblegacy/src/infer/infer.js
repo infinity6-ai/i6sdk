@@ -202,6 +202,7 @@ async function loadModel(litert, modelBytes) {
 
     const describe = (d) => ({ name: d.name, dtype: d.dtype, shape: Array.from(d.shape) })
     console.log("infer: model: compiled", {
+      details: compiled.getInputDetails(),
       inputs: compiled.getInputDetails().map(describe),
       outputs: compiled.getOutputDetails().map(describe),
     })

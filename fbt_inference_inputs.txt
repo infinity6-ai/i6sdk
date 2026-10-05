@@ -27,10 +27,17 @@ SAÍDA DA INFERÊNCIA (retorno para o usuário do sdk)
 //     baixar o sqlite, .tflite, query-input.sql, query-output.sql (tudo do modelo que veio na opts)
 
 //     x = executa o query-input(params json) (no sql vai ter um ?params que vai aceitar um json)
+
+
+
+
 //     z = valores (x) adaptados para os tensores (no x teremos as definicoes do que deve se tornar tensor e cada tipo de cada tensor)
-//     y = chama o modelo .tflite com o valor de z
-    
+//     y = chama o modelo .tflite com o valor de z    
 //     g = desconverter o y de tensores para js
+
+
+
+
 //     t = executa o query-output(g json) em g (no sql vai ter um ?params que vai aceitar um json)
 
 //     return t
