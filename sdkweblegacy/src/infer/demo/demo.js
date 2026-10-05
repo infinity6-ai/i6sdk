@@ -75,38 +75,33 @@ async function mustFail(what, promise) {
   )
 }
 
-// The caller's job (not infer.js): turn products into the FBT model inputs.
+// The caller's job (not infer.js): turn the result of the input query into the FBT model inputs.
 // Last items' rec_in vectors, one masked row (2), then padding rows (0); pad_mask is 1 up to the masked row.
 const NUM_ITEMS = 10
 const VECTOR_LENGTH = 7
-async function buildFbtInputs(productIds) {
-  const ref = await downloader.update({ name: 'infer-fbt-sqlite', url: assets.sqlite })
-  const conn = await sqlitez.open({ path: await fs.resolve(ref) })
-  let products
-  try {
-    products = (await conn.namedJsonQuery({ name: 'model-fbt-input', param: { productIds: [...new Set(productIds)] } })).products
-  } finally {
-    await conn.close()
-  }
-  const byId = Object.fromEntries(products.map((p) => [p.product_id, p]))
-  const vectors = productIds
-    .map((id) => byId[id]?.rec_in?.split('|').map(Number))
-    .filter((v) => v && v.length === VECTOR_LENGTH && v.every(Number.isFinite))
-    .slice(-(NUM_ITEMS - 1))
-  const rows = [...vectors, Array(VECTOR_LENGTH).fill(2)]
-  while (rows.length < NUM_ITEMS) rows.push(Array(VECTOR_LENGTH).fill(0))
-  return {
-    fields: { data: rows.flat(), shape: [1, NUM_ITEMS, VECTOR_LENGTH] },
-    pad_mask: { data: rows.map((_, i) => (i <= vectors.length ? 1 : 0)), shape: [1, NUM_ITEMS] },
+function buildFbtInputs(productIds) {
+  return ({ products }) => {
+    const byId = Object.fromEntries(products.map((p) => [p.product_id, p]))
+    const vectors = productIds
+      .map((id) => byId[id]?.rec_in?.split('|').map(Number))
+      .filter((v) => v && v.length === VECTOR_LENGTH && v.every(Number.isFinite))
+      .slice(-(NUM_ITEMS - 1))
+    const rows = [...vectors, Array(VECTOR_LENGTH).fill(2)]
+    while (rows.length < NUM_ITEMS) rows.push(Array(VECTOR_LENGTH).fill(0))
+    return {
+      fields: { data: rows.flat(), shape: [1, NUM_ITEMS, VECTOR_LENGTH] },
+      pad_mask: { data: rows.map((_, i) => (i <= vectors.length ? 1 : 0)), shape: [1, NUM_ITEMS] },
+    }
   }
 }
 
 document.getElementById('run').onclick = async () => {
   const productIds = ['9132438814883', '9132177490083', 'unknown-id', '9132438814883']
-  const opts = { model: 'fbt', params: { productIds }, assets, inputs: await buildFbtInputs(productIds) }
+  const opts = { model: 'fbt', params: { productIds: [...new Set(productIds)] }, assets, buildInputs: buildFbtInputs(productIds) }
   log('\n==== infer.run')
-  log('opts', opts)
-  await new Infer().run(opts)
+  log('opts', { ...opts, buildInputs: '[function]' })
+  const result = await new Infer().run(opts)
+  log('result', result)
 }
 
 document.getElementById('sqlitez').onclick = async () => {
