@@ -76,7 +76,7 @@ async function mustFail(what, promise) {
 }
 
 document.getElementById('run').onclick = async () => {
-  const opts = { model: 'fbt', params: { productIds: ['9132438814883'] }, assets }
+  const opts = { model: 'fbt', params: { productIds: ['9132438814883', '9132177490083', 'unknown-id', '9132438814883'] }, assets }
   log('\n==== infer.run')
   log('opts', opts)
   await new Infer().run(opts)

@@ -9,9 +9,11 @@
 import { I6Error } from "../errors.js";
 import { downloader } from "../internal/downloader/downloader.js";
 import { fs } from "../internal/fs/fs.js";
+import { sqlitez } from "../internal/sqlitez/sqlitez.js";
 
 /**
  * @typedef {import("../services/services.js").Services} Services
+ * @typedef {import("../internal/sqlitez/sqlitez.js").SqliteConn} SqliteConn
  */
 
 /**
@@ -45,7 +47,7 @@ import { fs } from "../internal/fs/fs.js";
 /**
  * Downloaded model assets.
  * @typedef {Object} ModelAssets
- * @property {Uint8Array} dbBytes - Content of the .sqlite file.
+ * @property {string} dbPath - OPFS path of the .sqlite file (open it with sqlitez).
  * @property {Uint8Array} modelBytes - Content of the .tflite file.
  */
 
@@ -77,23 +79,29 @@ class Infer {
     const { model, params, assets } = opts
 
     // 1. Get the model files (cached by etag) and the runtimes
-    const { dbBytes, modelBytes } = await downloadAssets(model, assets)
+    const { dbPath, modelBytes } = await downloadAssets(model, assets)
     const litert = await loadLiteRt(assets.litertWasm)
     const compiled = await loadModel(litert, modelBytes)
 
-    // 2. Read the input products from the sqlite
-    // The sqlinput and output now must be names of queries that will be run using sqlitez namedquery (they will be hardcoded, model-fbt-input and model-fbt-output, "fbt" is model name)
-    const productIds = [...new Set(params.productIds)]
-    const { productFeaturesMap, storeMask } = await fetchShopData(dbBytes, productIds)
+    // The sqlite is only needed while the stages below run
+    const conn = await sqlitez.open({ path: dbPath })
+    try {
+      // 2. Read the input products from the sqlite
+      const productIds = [...new Set(params.productIds)]
+      const { productFeaturesMap, storeMask } = await fetchShopData(conn, model, productIds)
 
-    // 3. Run the model
-    const tensors = buildInputTensors(litert, compiled, params.productIds, productFeaturesMap)
-    if (!tensors) return { productIds: [] }
-    const scores = await runModel(compiled, tensors)
+      // 3. Run the model
+      const tensors = buildInputTensors(litert, compiled, params.productIds, productFeaturesMap)
+      if (!tensors) return { productIds: [] }
+      const scores = await runModel(compiled, tensors)
 
-    // 4. Rank the scores and map the best ones back to product ids
-    const signatureIndices = rankSignatures(scores, storeMask, TOP_N)
-    return { productIds: await fetchRecommendedProductIds(dbBytes, signatureIndices) }
+      // 4. Rank the scores and map the best ones back to product ids
+      const signatureIndices = rankSignatures(scores, storeMask, TOP_N)
+      return { productIds: await fetchRecommendedProductIds(conn, model, signatureIndices) }
+    } finally {
+      await conn.close()
+      console.log("infer: sqlite closed")
+    }
   }
 }
 
@@ -110,51 +118,45 @@ const LITERT_WASM_URL = `https://cdn.jsdelivr.net/npm/@litertjs/core@${LITERT_VE
 let cachedModel = null
 
 /**
- * Downloads (or reads from the browser cache, checking the etag) the model assets and validates them.
+ * Downloads (or reuses from the browser cache, checking the etag) the model assets and validates them.
  * @param {string} model - Model name, used to name the cached files.
  * @param {InferAssets} assets - Asset URLs.
- * @returns {Promise<ModelAssets>} The bytes of both files.
+ * @returns {Promise<ModelAssets>} The path of the sqlite and the bytes of the tflite.
  * @throws {I6Error} With code "asset" if a download fails or a file is not a valid sqlite/tflite.
  */
 async function downloadAssets(model, assets) {
-  const dbBytes = await downloadFile(`infer-${model}-sqlite`, assets.sqlite)
-  const modelBytes = await downloadFile(`infer-${model}-tflite`, assets.tflite)
+  const dbRef = await downloadFile(`infer-${model}-sqlite`, assets.sqlite)
+  const modelRef = await downloadFile(`infer-${model}-tflite`, assets.tflite)
 
-  if (new TextDecoder().decode(dbBytes.subarray(0, 16)) !== "SQLite format 3\0") {
-    throw new I6Error(`infer: ${assets.sqlite} is not a sqlite file`, { code: "asset" })
-  }
+  // sqlitez.open checks the sqlite header
+  const dbPath = await fs.resolve(dbRef)
+  const modelBytes = await fs.read(modelRef)
+
   if (new TextDecoder().decode(modelBytes.subarray(4, 8)) !== "TFL3") {
     throw new I6Error(`infer: ${assets.tflite} is not a tflite file`, { code: "asset" })
   }
-  console.log("infer: assets are valid (sqlite header, TFL3)")
+  console.log(`infer: assets are ready (sqlite at ${dbPath}, tflite ${modelBytes.length} bytes, TFL3)`)
 
-  return { dbBytes, modelBytes }
+  return { dbPath, modelBytes }
 }
 
 /**
- * Brings one remote file to the browser cache (if its etag changed) and reads it.
+ * Brings one remote file to the browser cache, downloading it only if its etag changed.
  * @param {string} name - Name of the cached file.
  * @param {string} url - URL of the file.
- * @returns {Promise<Uint8Array>} The bytes of the file.
- * @throws {I6Error} With code "asset" if the download or the read fails.
+ * @returns {Promise<import("../internal/fs/fs.js").FileRef>} The cached file.
+ * @throws {I6Error} With code "asset" if the download fails.
  */
 async function downloadFile(name, url) {
   try {
     const before = await fs.get({ name })
     const ref = await downloader.update({ name, url })
-    const bytes = await fs.read(ref)
-    console.log(`infer: ${name}: ${before && before.version === ref.version ? "cache hit" : "downloaded"}, ${bytes.length} bytes`, ref)
-    return bytes
+    console.log(`infer: ${name}: ${before && before.version === ref.version ? "cache hit" : "downloaded"}`, ref)
+    return ref
   } catch (cause) {
     throw new I6Error(`infer: could not get ${url}: ${cause.message}`, { code: "asset", cause })
   }
 }
-
-/**
- * Loads the bundled sql.js (wasm) once.
- * @returns {Promise<Object>} The initialized sql.js module (`SQL`).
- */
-async function loadSqlJs() { }
 
 /**
  * Loads the bundled LiteRT runtime (wasm) once.
@@ -210,12 +212,31 @@ async function loadModel(litert, modelBytes) {
 }
 
 /**
- * Reads from the sqlite the rows of the input products and the store mask.
- * @param {Uint8Array} dbBytes - Content of the .sqlite file.
+ * Reads from the sqlite the rows of the input products and the store mask, with the named
+ * query `model-${model}-input` (param `{productIds}`, ret `{products, storeMask}`).
+ * @param {SqliteConn} conn - Open connection to the model's sqlite.
+ * @param {string} model - Model name (e.g. "fbt").
  * @param {string[]} productIds - Unique ids of the input products.
  * @returns {Promise<ShopData>} The product rows by id and the mask of every signature index.
+ * @throws {I6Error} With code "query" if the named query is missing or fails.
  */
-async function fetchShopData(dbBytes, productIds) { }
+async function fetchShopData(conn, model, productIds) {
+  const ret = await conn.namedJsonQuery({ name: `model-${model}-input`, param: { productIds } })
+  const { products, storeMask } = ret
+
+  const productFeaturesMap = {}
+  for (const row of products) productFeaturesMap[row.product_id] = row
+
+  const found = Object.keys(productFeaturesMap)
+  console.log(`infer: sqlite: requested ${productIds.length} products ${JSON.stringify(productIds)}, found ${found.length} ${JSON.stringify(found)}`)
+  for (const id of found) {
+    const row = productFeaturesMap[id]
+    console.log(`infer: sqlite: product ${id}: rec_in has ${row.rec_in ? row.rec_in.split("|").length : 0} values, rec_out=${row.rec_out}, sig_index=${row.sig_index}`)
+  }
+  console.log(`infer: sqlite: storeMask has ${storeMask.length} signatures, ${storeMask.filter((m) => m === 1).length} available`)
+
+  return { productFeaturesMap, storeMask }
+}
 
 /**
  * Builds the model input tensors: the feature vectors (`rec_in`) of the last items, one
@@ -247,12 +268,23 @@ async function runModel(model, tensors) { }
 function rankSignatures(scores, storeMask, topN) { }
 
 /**
- * Maps signature indices to product ids through the sqlite (index -> rec_out -> product).
+ * Maps signature indices to product ids with the named query `model-${model}-output`
+ * (param `{signatureIndices}`, ret `{matches: [{sig_index, sig_value, productIds}]}`).
  * Indices with no product are skipped; when several products share a signature the first one is used.
- * @param {Uint8Array} dbBytes - Content of the .sqlite file.
+ * @param {SqliteConn} conn - Open connection to the model's sqlite.
+ * @param {string} model - Model name (e.g. "fbt").
  * @param {number[]} signatureIndices - Signature indices, best first.
  * @returns {Promise<string[]>} Product ids in the same order.
+ * @throws {I6Error} With code "query" if the named query is missing or fails.
  */
-async function fetchRecommendedProductIds(dbBytes, signatureIndices) { }
+async function fetchRecommendedProductIds(conn, model, signatureIndices) {
+  if (signatureIndices.length === 0) return []
+
+  const { matches } = await conn.namedJsonQuery({ name: `model-${model}-output`, param: { signatureIndices } })
+  const productIds = matches.map((m) => m.productIds[0])
+
+  console.log(`infer: sqlite: ${signatureIndices.length} signatures -> ${matches.length} with products`, matches.map((m) => ({ sig_index: m.sig_index, candidates: m.productIds.length, chosen: m.productIds[0] })))
+  return productIds
+}
 
 export { Infer };
