@@ -2,7 +2,7 @@
  * @fileoverview Runs an i6 model (e.g. "fbt") in the browser and returns the result.
  *
  * Flow: download the model's sqlite + tflite, run the named query `model-${model}-input` (its result is
- * the `ctx`; its `inputs` are the model inputs, or the caller builds them from it), run the tflite model, and run the named query
+ * the `ctx`; its `inputs` are the model inputs), run the tflite model, and run the named query
  * `model-${model}-output` with the model outputs. Its result is returned as is. Nothing here is model specific.
  */
 
@@ -41,8 +41,6 @@ import { sqlitez } from "../internal/sqlitez/sqlitez.js";
  * @property {string} model - Model name (e.g. "fbt"), also used to name the cached assets and the named queries.
  * @property {*} params - Model input, any JSON. It is the param of `model-${model}-input` and goes to `model-${model}-output`.
  * @property {InferAssets} assets - Where to download the model assets from.
- * @property {(ctx: *) => Record<string, ModelInput>|Promise<Record<string, ModelInput>>} [buildInputs] - Optional. Gets the result
- *   of `model-${model}-input` and returns the model inputs by exact model input name. Without it the `inputs` of that result are used.
  */
 
 /**
@@ -72,9 +70,8 @@ class Infer {
   async run(opts) {
     if (!opts || !opts.model) throw new I6Error("infer: opts.model is required", { code: "invalid_argument" })
     if (!opts.assets || !opts.assets.sqlite || !opts.assets.tflite) throw new I6Error("infer: opts.assets.sqlite and opts.assets.tflite are required", { code: "invalid_argument" })
-    if (opts.buildInputs !== undefined && typeof opts.buildInputs !== "function") throw new I6Error("infer: opts.buildInputs must be a function", { code: "invalid_argument" })
 
-    const { model, params, assets, buildInputs } = opts
+    const { model, params, assets } = opts
 
     // 1. Get the model files (cached by etag) and the runtimes
     const { dbPath, modelBytes } = await downloadAssets(model, assets)
@@ -83,11 +80,11 @@ class Infer {
     // The sqlite is only needed while the stages below run
     const conn = await sqlitez.open({ path: dbPath })
     try {
-      // 2. Read what the model needs from the sqlite, the caller turns it into inputs
+      // 2. Read what the model needs from the sqlite: the model inputs (`inputs`) and anything the output query needs
       const ctx = await conn.namedJsonQuery({ name: `model-${model}-input`, param: params })
       console.log("infer: input query ->", Object.keys(ctx))
-      const inputs = buildInputs ? await buildInputs(ctx) : ctx?.inputs
-      if (!inputs) throw new I6Error(`infer: model-${model}-input returned no "inputs" and opts.buildInputs was not given`, { code: "invalid_argument" })
+      const inputs = ctx?.inputs
+      if (!inputs) throw new I6Error(`infer: model-${model}-input returned no "inputs"`, { code: "query" })
 
       // 3. Run the model
       const outputs = await runModel(compiled, inputs)
@@ -284,7 +281,7 @@ async function runModel(model, inputs) {
   try {
     for (const detail of model.getInputDetails()) {
       const input = inputs?.[detail.name]
-      if (!input) throw new I6Error(`infer: buildInputs did not return "${detail.name}"`, { code: "invalid_argument" })
+      if (!input) throw new I6Error(`infer: input "${detail.name}" is missing`, { code: "invalid_argument" })
 
       const { flat, shape } = toTensorData(detail.name, input, Array.from(detail.shape))
       tensors[detail.name] = new litertModule.Tensor(new DTYPE_CTORS[detail.dtype](flat), shape)
