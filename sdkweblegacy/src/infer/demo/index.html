@@ -2,6 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>infer demo</title>
   <!-- Demo only: the SDK bundle will bring these in later -->
   <script type="importmap">
@@ -10,12 +11,100 @@
         "sql.js": "https://cdn.jsdelivr.net/npm/sql.js@1.14.2/+esm"
     } }
   </script>
+  <style>
+    :root { --bg:#f6f7f9; --card:#fff; --fg:#1b1f24; --muted:#667; --line:#d8dce2; --ok:#1a7f37; --err:#cf222e; --run:#9a6700; --code:#f0f2f5; }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg:#0f1318; --card:#181d24; --fg:#e6e9ee; --muted:#9aa4b2; --line:#2c333d; --ok:#3fb950; --err:#f85149; --run:#d29922; --code:#0f1318; }
+    }
+    * { box-sizing: border-box }
+    body { margin:0; padding:16px; background:var(--bg); color:var(--fg); font:14px/1.45 system-ui, sans-serif }
+    h1 { font-size:18px; margin:0 0 12px }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:12px; margin-bottom:12px }
+    .card h2 { font-size:14px; margin:0 0 8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap }
+    .badge { font-size:12px; padding:1px 8px; border-radius:10px; border:1px solid var(--line); color:var(--muted) }
+    .badge.ok { color:var(--ok); border-color:var(--ok) } .badge.error { color:var(--err); border-color:var(--err) } .badge.running { color:var(--run); border-color:var(--run) }
+    .hint { color:var(--muted); font-size:13px; margin:0 0 8px }
+    label { display:block; font-size:12px; color:var(--muted); margin:6px 0 2px }
+    input[type=text], textarea { width:100%; padding:6px 8px; font:13px ui-monospace, monospace; background:var(--code); color:var(--fg); border:1px solid var(--line); border-radius:6px }
+    button { padding:6px 12px; border:1px solid var(--line); border-radius:6px; background:var(--card); color:var(--fg); cursor:pointer; font:inherit }
+    button:hover { border-color:var(--fg) } button.primary { background:var(--fg); color:var(--bg) }
+    .io { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px }
+    @media (max-width:800px) { .io { grid-template-columns:1fr } }
+    .io h3, .sqlh { font-size:12px; color:var(--muted); margin:0 0 2px; font-weight:600 }
+    .sqlh { margin:8px 0 2px }
+    pre { margin:0; padding:8px; background:var(--code); border:1px solid var(--line); border-radius:6px; font:12px/1.4 ui-monospace, monospace; max-height:320px; overflow:auto; white-space:pre-wrap; word-break:break-word; min-height:34px }
+    .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center }
+  </style>
 </head>
 <body>
-  <button id="run">Run</button>
-  <button id="sqlitez">Test sqlitez</button>
-  <button id="clear">Clear OPFS cache</button>
-  <pre id="log"></pre>
+  <h1>infer demo <span class="badge">uses the SDK: new I6Sdk().infer().run(opts)</span></h1>
+
+  <div class="card">
+    <h2>Config <span class="badge">what an SDK user passes in opts</span></h2>
+    <label for="model">opts.model</label>
+    <input type="text" id="model" value="fbt">
+    <label for="productIds">opts.params.productIds (comma separated; repeats allowed, they count as items)</label>
+    <input type="text" id="productIds" value="9132438814883, 9132177490083, unknown-id">
+    <label for="sqlite">opts.assets.sqlite</label>
+    <input type="text" id="sqlite">
+    <label for="tflite">opts.assets.tflite</label>
+    <input type="text" id="tflite">
+    <div class="row" style="margin-top:8px">
+      <label style="margin:0"><input type="checkbox" id="full"> show full arrays (otherwise long arrays are cut)</label>
+      <button id="clear">Clear OPFS cache</button>
+      <button id="dump">Dump sqlite (to the log)</button>
+    </div>
+  </div>
+
+  <div class="card" id="step1">
+    <h2><button data-step="1">1. Download assets</button><span class="badge">idle</span></h2>
+    <p class="hint">downloader.update for the sqlite and the tflite: HEAD, etag check, download only if changed.</p>
+    <div class="io"><div><h3>Input</h3><pre class="in"></pre></div><div><h3>Output</h3><pre class="out"></pre></div></div>
+  </div>
+
+  <div class="card" id="step2">
+    <h2><button data-step="2">2. Load runtime + compile model</button><span class="badge">idle</span></h2>
+    <p class="hint">LiteRT wasm and the compiled model. Output: the inputs and outputs the model declares.</p>
+    <div class="io"><div><h3>Input</h3><pre class="in"></pre></div><div><h3>Output</h3><pre class="out"></pre></div></div>
+  </div>
+
+  <div class="card" id="step3">
+    <h2><button data-step="3">3. Input query (sqlite)</button><span class="badge">idle</span></h2>
+    <p class="hint">namedJsonQuery model-X-input with the params. The result is the ctx.</p>
+    <div class="io"><div><h3>Input</h3><pre class="in"></pre></div><div><h3>Output (ctx)</h3><pre class="out"></pre></div></div>
+    <h3 class="sqlh">Stored query (namedqueries table of the sqlite)</h3><pre class="sql"></pre>
+  </div>
+
+  <div class="card" id="step4">
+    <h2><button data-step="4">4. buildInputs (caller callback)</button><span class="badge">idle</span></h2>
+    <p class="hint">The caller turns the ctx into the model inputs: data + shape by exact input name.</p>
+    <div class="io"><div><h3>Input (ctx)</h3><pre class="in"></pre></div><div><h3>Output (inputs)</h3><pre class="out"></pre></div></div>
+  </div>
+
+  <div class="card" id="step5">
+    <h2><button data-step="5">5. Run the model</button><span class="badge">idle</span></h2>
+    <p class="hint">Tensors from the inputs, model.run, every output read.</p>
+    <div class="io"><div><h3>Input (tensors)</h3><pre class="in"></pre></div><div><h3>Output</h3><pre class="out"></pre></div></div>
+  </div>
+
+  <div class="card" id="step6">
+    <h2><button data-step="6">6. Output query (sqlite)</button><span class="badge">idle</span></h2>
+    <p class="hint">namedJsonQuery model-X-output with {params, ctx, outputs}: ranking and mapping in SQL.</p>
+    <div class="io"><div><h3>Input</h3><pre class="in"></pre></div><div><h3>Output (result)</h3><pre class="out"></pre></div></div>
+    <h3 class="sqlh">Stored query (namedqueries table of the sqlite)</h3><pre class="sql"></pre>
+  </div>
+
+  <div class="card" id="step7">
+    <h2><button data-step="7" class="primary">Run all with the SDK</button><span class="badge">idle</span></h2>
+    <p class="hint">new I6Sdk().infer().run(opts), the real code path. It is compared with the result of step 6.</p>
+    <div class="io"><div><h3>Input (opts)</h3><pre class="in"></pre></div><div><h3>Output (result)</h3><pre class="out"></pre></div></div>
+  </div>
+
+  <div class="card">
+    <h2>Log <span class="badge">console.log of infer.js and the steps</span> <button id="clearlog">Clear</button></h2>
+    <pre id="log" style="max-height:420px"></pre>
+  </div>
+
   <script type="module" src="./demo.js"></script>
 </body>
 </html>
