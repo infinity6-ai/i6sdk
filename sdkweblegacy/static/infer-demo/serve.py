@@ -1,6 +1,6 @@
 """Static server for the demo: like `python -m http.server`, plus an ETag header (our downloader needs one).
 
-Run from anywhere:  python src/infer/demo/serve.py   ->   http://localhost:8000/src/infer/demo/index.html
+Run from anywhere:  python static/infer-demo/serve.py   ->   http://localhost:8000/static/infer-demo/index.html
 """
 import os
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -20,6 +20,6 @@ class Handler(SimpleHTTPRequestHandler):
 
 
 # Always serve sdkweblegacy, whatever the current directory is
-os.chdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".."))
+os.chdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 
 ThreadingHTTPServer(("", 8000), Handler).serve_forever()

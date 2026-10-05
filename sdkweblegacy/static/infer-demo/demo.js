@@ -1,13 +1,13 @@
-// Serve: python src/infer/demo/serve.py -> http://localhost:8000/src/infer/demo/index.html
-import { I6Sdk } from '../../index.js'
-import { downloader } from '../../internal/downloader/downloader.js'
-import { fs } from '../../internal/fs/fs.js'
-import { sqlitez } from '../../internal/sqlitez/sqlitez.js'
-import { describeModel, loadModel, runModel } from '../infer.js'
+// Serve: python static/infer-demo/serve.py -> http://localhost:8000/static/infer-demo/index.html
+import { I6Sdk } from '../../src/index.js'
+import { downloader } from '../../src/internal/downloader/downloader.js'
+import { fs } from '../../src/internal/fs/fs.js'
+import { sqlitez } from '../../src/internal/sqlitez/sqlitez.js'
+import { describeModel, loadModel, runModel } from '../../src/infer/infer.js'
 
 const $ = (id) => document.getElementById(id)
-$('sqlite').value = new URL('../gen/modeldb.sqlite', import.meta.url).href
-$('tflite').value = new URL('../gen/model.tflite', import.meta.url).href
+$('sqlite').value = new URL('../../src/infer/gen/modeldb.sqlite', import.meta.url).href
+$('tflite').value = new URL('../../src/infer/gen/model.tflite', import.meta.url).href
 
 // What every step leaves for the next one
 const state = {}
@@ -85,13 +85,7 @@ const result = await new I6Sdk().infer().run({
   model: ${JSON.stringify(model)},
   params: { productIds: ${JSON.stringify(productIds)} },
   assets: ${JSON.stringify(assets, null, 4).replace(/\n/g, '\n  ')},
-})
-// params go to the stored query model-${model}-input, which returns the model inputs as plain rows
-// (the SDK pads them to the model's shape and creates the tensors); the model outputs go to
-// model-${model}-output, and result is what that query returns.
-
-// Optional: build the inputs yourself instead of the stored query, from what the input query returned:
-//   buildInputs: (ctx) => ({ fields: { data: [[...], [...]], fill: 0 }, pad_mask: { data: [1, 1], fill: 0 } })`
+})`
 }
 for (const id of ['model', 'productIds', 'sqlite', 'tflite']) $(id).addEventListener('input', () => { $('usage').textContent = usage() })
 

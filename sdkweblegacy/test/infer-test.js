@@ -35,7 +35,6 @@
             await rejectsWithCode(assert, infer.run(), 'invalid_argument', /opts.model/)
             await rejectsWithCode(assert, infer.run({ ...ok, model: '' }), 'invalid_argument', /opts.model/)
             await rejectsWithCode(assert, infer.run({ ...ok, assets: { sqlite: assets.sqlite } }), 'invalid_argument', /opts.assets/)
-            await rejectsWithCode(assert, infer.run({ ...ok, buildInputs: 'nope' }), 'invalid_argument', /buildInputs/)
         })
 
         QUnit.test("run reports an asset that cannot be downloaded", async function (assert) {
@@ -54,16 +53,23 @@
             assert.deepEqual(result.productIds, result.top.map((t) => t.product_id))
             assert.true(result.top.every((t, i) => i === 0 || result.top[i - 1].score >= t.score), 'best score first')
             assert.strictEqual(result.top[0].sig_index, 4611, 'best signature of this cart (from the first port run)')
+        })
 
-            // buildInputs replaces the inputs of the input query, here with the same rows written by hand
-            const same = await infer.run({ ...opts, buildInputs: ({ inputs }) => inputs })
-            assert.deepEqual(same, result)
+        QUnit.test("runModel reports inputs that do not fit the model", async function (assert) {
+            const response = await fetch(assets.tflite)
+            if (!response.ok) return assert.ok(true, 'skipped: no assets in src/infer/gen')
 
-            // errors in the inputs of the model
-            const withInputs = (buildInputs) => infer.run({ ...opts, buildInputs })
-            await rejectsWithCode(assert, withInputs(() => ({})), 'invalid_argument', /did not return "/)
-            await rejectsWithCode(assert, withInputs(({ inputs }) => ({ ...inputs, fields: { data: [1, 2, 3] } })), 'invalid_argument', /dimensions/)
-            await rejectsWithCode(assert, withInputs(({ inputs }) => ({ ...inputs, fields: { data: [[1, 2, 3]] } })), 'invalid_argument', /needs/)
+            const { loadModel, runModel } = await import('../src/infer/infer.js')
+            const model = await loadModel(new Uint8Array(await response.arrayBuffer()))
+            const fields = { data: [[1, 2, 3, 4, 5, 6, 7]], fill: 0 }
+            const padMask = { data: [1], fill: 0 }
+
+            await rejectsWithCode(assert, runModel(model, {}), 'invalid_argument', /is missing/)
+            await rejectsWithCode(assert, runModel(model, { fields: { data: [1, 2, 3] }, pad_mask: padMask }), 'invalid_argument', /dimensions/)
+            await rejectsWithCode(assert, runModel(model, { fields: { data: [[1, 2, 3, 4, 5, 6, 7]] }, pad_mask: padMask }), 'invalid_argument', /needs/)
+
+            const outputs = await runModel(model, { fields, pad_mask: padMask })
+            assert.strictEqual(outputs.signature_probs.length, 7185)
         })
     })
 
