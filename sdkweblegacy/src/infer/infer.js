@@ -2,7 +2,7 @@
  * @fileoverview Runs an i6 model (e.g. "fbt") in the browser and returns the result.
  *
  * Flow: download the model's sqlite + tflite, run the named query `model-${model}-input` (its result is
- * the `ctx`), let the caller build the model inputs from it, run the tflite model, and run the named query
+ * the `ctx`; its `inputs` are the model inputs, or the caller builds them from it), run the tflite model, and run the named query
  * `model-${model}-output` with the model outputs. Its result is returned as is. Nothing here is model specific.
  */
 
@@ -27,8 +27,12 @@ import { sqlitez } from "../internal/sqlitez/sqlitez.js";
 /**
  * One model input tensor, built by the caller.
  * @typedef {Object} ModelInput
- * @property {ArrayLike<number>} data - Flat values, row-major.
- * @property {number[]} [shape] - Tensor shape. Defaults to the model's shape with -1 as 1.
+ * @property {ArrayLike<number>|Array} data - Flat values (then `shape` is needed, or the model's shape is used) or nested rows,
+ *   e.g. `[[1, 2], [3, 4]]`; nested rows need no `shape`: it is read from the nesting, a missing leading batch dimension of 1 is
+ *   added, and `fill` fits the data to the model's shape.
+ * @property {number[]} [shape] - Tensor shape of flat `data`.
+ * @property {number} [fill] - With nested `data`: value used to pad up to the model's shape. Too many rows are cut from
+ *   the front (the last ones are kept). Without `fill`, data that does not match the model's shape is an error.
  */
 
 /**
@@ -37,8 +41,8 @@ import { sqlitez } from "../internal/sqlitez/sqlitez.js";
  * @property {string} model - Model name (e.g. "fbt"), also used to name the cached assets and the named queries.
  * @property {*} params - Model input, any JSON. It is the param of `model-${model}-input` and goes to `model-${model}-output`.
  * @property {InferAssets} assets - Where to download the model assets from.
- * @property {(ctx: *) => Record<string, ModelInput>|Promise<Record<string, ModelInput>>} buildInputs - Gets the result
- *   of `model-${model}-input` and returns the model inputs by exact model input name.
+ * @property {(ctx: *) => Record<string, ModelInput>|Promise<Record<string, ModelInput>>} [buildInputs] - Optional. Gets the result
+ *   of `model-${model}-input` and returns the model inputs by exact model input name. Without it the `inputs` of that result are used.
  */
 
 /**
@@ -68,14 +72,13 @@ class Infer {
   async run(opts) {
     if (!opts || !opts.model) throw new I6Error("infer: opts.model is required", { code: "invalid_argument" })
     if (!opts.assets || !opts.assets.sqlite || !opts.assets.tflite) throw new I6Error("infer: opts.assets.sqlite and opts.assets.tflite are required", { code: "invalid_argument" })
-    if (typeof opts.buildInputs !== "function") throw new I6Error("infer: opts.buildInputs must be a function", { code: "invalid_argument" })
+    if (opts.buildInputs !== undefined && typeof opts.buildInputs !== "function") throw new I6Error("infer: opts.buildInputs must be a function", { code: "invalid_argument" })
 
     const { model, params, assets, buildInputs } = opts
 
     // 1. Get the model files (cached by etag) and the runtimes
     const { dbPath, modelBytes } = await downloadAssets(model, assets)
-    const litert = await loadLiteRt(assets.litertWasm)
-    const compiled = await loadModel(litert, modelBytes)
+    const compiled = await loadModel(modelBytes, assets.litertWasm)
 
     // The sqlite is only needed while the stages below run
     const conn = await sqlitez.open({ path: dbPath })
@@ -83,10 +86,11 @@ class Infer {
       // 2. Read what the model needs from the sqlite, the caller turns it into inputs
       const ctx = await conn.namedJsonQuery({ name: `model-${model}-input`, param: params })
       console.log("infer: input query ->", Object.keys(ctx))
-      const inputs = await buildInputs(ctx)
+      const inputs = buildInputs ? await buildInputs(ctx) : ctx?.inputs
+      if (!inputs) throw new I6Error(`infer: model-${model}-input returned no "inputs" and opts.buildInputs was not given`, { code: "invalid_argument" })
 
       // 3. Run the model
-      const outputs = await runModel(litert, compiled, inputs)
+      const outputs = await runModel(compiled, inputs)
 
       // 4. The sqlite turns the outputs into the result
       const outputsJson = Object.fromEntries(Object.entries(outputs).map(([name, values]) => [name, Array.from(values)]))
@@ -108,6 +112,9 @@ const LITERT_WASM_URL = `https://cdn.jsdelivr.net/npm/@litertjs/core@${LITERT_VE
 
 /** Last compiled model, with the bytes it was compiled from. */
 let cachedModel = null
+
+/** The LiteRT module, once loaded. */
+let litertModule = null
 
 /**
  * Downloads (or reuses from the browser cache, checking the etag) the model assets and validates them.
@@ -167,10 +174,33 @@ async function loadLiteRt(wasmUrl = LITERT_WASM_URL) {
       await litert.loadLiteRt(wasmUrl)
       console.log(`infer: litert: loaded from ${wasmUrl}`)
     }
+    litertModule = litert
     return litert
   } catch (cause) {
     throw new I6Error(`infer: could not load LiteRT: ${cause.message}`, { code: "model", cause })
   }
+}
+
+/**
+ * Loads the LiteRT runtime (once) and the tflite model. Everything LiteRT stays inside this file.
+ * @param {Uint8Array} modelBytes - Content of the .tflite file.
+ * @param {string} [wasmUrl] - URL of the folder with the LiteRT wasm files. Defaults to the jsdelivr copy.
+ * @returns {Promise<Object>} The compiled model, to give to `runModel` and `describeModel`.
+ * @throws {I6Error} With code "model" if the runtime cannot be loaded or the model cannot be compiled.
+ */
+async function loadModel(modelBytes, wasmUrl) {
+  const litert = await loadLiteRt(wasmUrl)
+  return compileModel(litert, modelBytes)
+}
+
+/**
+ * Names, dtypes and shapes of what the model takes and returns.
+ * @param {Object} model - The compiled model, from `loadModel`.
+ * @returns {{inputs: Object[], outputs: Object[]}}
+ */
+function describeModel(model) {
+  const describe = (d) => ({ name: d.name, dtype: d.dtype, shape: Array.from(d.shape) })
+  return { inputs: model.getInputDetails().map(describe), outputs: model.getOutputDetails().map(describe) }
 }
 
 /**
@@ -179,7 +209,7 @@ async function loadLiteRt(wasmUrl = LITERT_WASM_URL) {
  * @param {Uint8Array} modelBytes - Content of the .tflite file.
  * @returns {Promise<Object>} The compiled model.
  */
-async function loadModel(litert, modelBytes) {
+async function compileModel(litert, modelBytes) {
   const sameBytes = (a, b) => a.length === b.length && a.every((v, i) => v === b[i])
 
   if (cachedModel && sameBytes(cachedModel.bytes, modelBytes)) {
@@ -192,12 +222,7 @@ async function loadModel(litert, modelBytes) {
     if (cachedModel) cachedModel.compiled.delete()
     cachedModel = { bytes: modelBytes, compiled }
 
-    const describe = (d) => ({ name: d.name, dtype: d.dtype, shape: Array.from(d.shape) })
-    console.log("infer: model: compiled", {
-      details: compiled.getInputDetails(),
-      inputs: compiled.getInputDetails().map(describe),
-      outputs: compiled.getOutputDetails().map(describe),
-    })
+    console.log("infer: model: compiled", describeModel(compiled))
     return compiled
   } catch (cause) {
     throw new I6Error(`infer: could not compile the model: ${cause.message}`, { code: "model", cause })
@@ -208,15 +233,52 @@ async function loadModel(litert, modelBytes) {
 const DTYPE_CTORS = { float32: Float32Array, int32: Int32Array, uint8: Uint8Array }
 
 /**
+ * Flat values and shape of one input. Flat data with a `shape` is used as is. Nested data (or flat data
+ * without a shape) is fitted to the model's shape: missing batch dimension added, padded with `fill`.
+ * @param {string} name - Input name, for error messages.
+ * @param {ModelInput} input - What the caller gave.
+ * @param {number[]} modelShape - Shape of the model input (-1 is free).
+ * @returns {{flat: ArrayLike<number>, shape: number[]}}
+ * @throws {I6Error} With code "invalid_argument" if the data does not fit the model's shape.
+ */
+function toTensorData(name, input, modelShape) {
+  const invalid = (msg) => new I6Error(`infer: input "${name}" ${msg}`, { code: "invalid_argument" })
+  const check = (flat, shape) => {
+    if (flat.length !== shape.reduce((a, b) => a * b, 1)) throw invalid(`has ${flat.length} values, does not fit shape [${shape}]`)
+    return { flat, shape }
+  }
+  if (input.shape) return check(input.data, input.shape)
+
+  let data = ArrayBuffer.isView(input.data) ? Array.from(input.data) : input.data
+  let rank = 0
+  for (let a = data; Array.isArray(a); a = a[0]) rank++
+  if (rank === modelShape.length - 1) data = [data]
+  else if (rank !== modelShape.length) throw invalid(`has ${rank} dimensions, the model needs ${modelShape.length}`)
+
+  const make = (dims) => (dims.length === 0 ? input.fill : Array.from({ length: dims[0] }, () => make(dims.slice(1))))
+  const fit = (rows, dims) => {
+    if (dims.length === 0) return rows
+    const n = dims[0] === -1 ? rows.length : dims[0]
+    if (rows.length !== n && input.fill === undefined) throw invalid(`has ${rows.length} values where the model needs ${n} (give "fill" to pad)`)
+    const fitted = rows.length > n ? rows.slice(rows.length - n) : [...rows, ...Array.from({ length: n - rows.length }, () => make(dims.slice(1)))]
+    return fitted.map((row) => fit(row, dims.slice(1)))
+  }
+  data = fit(data, modelShape)
+
+  const shape = []
+  for (let a = data; Array.isArray(a); a = a[0]) shape.push(a.length)
+  return check(data.flat(Infinity), shape)
+}
+
+/**
  * Runs the model. The caller only gives data and shapes: every LiteRT tensor is created and freed here.
  * Every model input must be in `inputs` under its exact name.
- * @param {Object} litert - The LiteRT module, from loadLiteRt.
  * @param {Object} model - The compiled model, from loadModel.
  * @param {Record<string, ModelInput>} inputs - Input name -> data and shape.
  * @returns {Promise<Record<string, ArrayLike<number>>>} Output name -> values, for every output of the model.
  * @throws {I6Error} With code "invalid_argument" if an input is missing or its data does not fit its shape.
  */
-async function runModel(litert, model, inputs) {
+async function runModel(model, inputs) {
   const tensors = {}
   let raw = {}
   try {
@@ -224,11 +286,8 @@ async function runModel(litert, model, inputs) {
       const input = inputs?.[detail.name]
       if (!input) throw new I6Error(`infer: buildInputs did not return "${detail.name}"`, { code: "invalid_argument" })
 
-      const shape = input.shape ?? Array.from(detail.shape, (d) => (d === -1 ? 1 : d))
-      if (input.data.length !== shape.reduce((a, b) => a * b, 1)) {
-        throw new I6Error(`infer: input "${detail.name}" has ${input.data.length} values, does not fit shape [${shape}]`, { code: "invalid_argument" })
-      }
-      tensors[detail.name] = new litert.Tensor(new DTYPE_CTORS[detail.dtype](input.data), shape)
+      const { flat, shape } = toTensorData(detail.name, input, Array.from(detail.shape))
+      tensors[detail.name] = new litertModule.Tensor(new DTYPE_CTORS[detail.dtype](flat), shape)
     }
 
     raw = await model.run(tensors)
@@ -241,4 +300,4 @@ async function runModel(litert, model, inputs) {
   }
 }
 
-export { Infer, loadLiteRt, loadModel, runModel };
+export { Infer, loadModel, describeModel, runModel, toTensorData };

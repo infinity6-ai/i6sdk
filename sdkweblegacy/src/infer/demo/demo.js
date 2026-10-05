@@ -3,7 +3,7 @@ import { I6Sdk } from '../../index.js'
 import { downloader } from '../../internal/downloader/downloader.js'
 import { fs } from '../../internal/fs/fs.js'
 import { sqlitez } from '../../internal/sqlitez/sqlitez.js'
-import { loadLiteRt, loadModel, runModel } from '../infer.js'
+import { describeModel, loadModel, runModel } from '../infer.js'
 
 const $ = (id) => document.getElementById(id)
 $('sqlite').value = new URL('../gen/modeldb.sqlite', import.meta.url).href
@@ -41,6 +41,7 @@ function setStatus(card, status) {
 // Runs one step: shows its input and output, or the error
 async function runStep(n, fn) {
   const card = $(`step${n}`)
+  card.querySelector('.code').textContent = fn.toString()
   setStatus(card, 'running')
   card.querySelector('.in').textContent = ''
   card.querySelector('.out').textContent = ''
@@ -71,27 +72,28 @@ const config = () => {
   return {
     model: $('model').value.trim(),
     productIds,
-    params: { productIds: [...new Set(productIds)] },
     assets: { sqlite: $('sqlite').value.trim(), tflite: $('tflite').value.trim() },
   }
 }
 
-// ????????????????????????
-const NUM_ITEMS = 10
-const VECTOR_LENGTH = 7
-const buildFbtInputs = (productIds) => ({ products }) => {
-  const byId = Object.fromEntries(products.map((p) => [p.product_id, p]))
-  const vectors = productIds
-    .map((id) => byId[id]?.rec_in?.split('|').map(Number))
-    .filter((v) => v && v.length === VECTOR_LENGTH && v.every(Number.isFinite))
-    .slice(-(NUM_ITEMS - 1))
-  const rows = [...vectors, Array(VECTOR_LENGTH).fill(2)]
-  while (rows.length < NUM_ITEMS) rows.push(Array(VECTOR_LENGTH).fill(0))
-  return {
-    fields: { data: rows.flat(), shape: [1, NUM_ITEMS, VECTOR_LENGTH] },
-    pad_mask: { data: rows.map((_, i) => (i <= vectors.length ? 1 : 0)), shape: [1, NUM_ITEMS] },
-  }
+// The code of the SDK user, written with the values of the config card. Shown at the top of the page and run by step 7
+function usage() {
+  const { model, productIds, assets } = config()
+  return `import { I6Sdk } from './i6sdk-web.js'
+
+const result = await new I6Sdk().infer().run({
+  model: ${JSON.stringify(model)},
+  params: { productIds: ${JSON.stringify(productIds)} },
+  assets: ${JSON.stringify(assets, null, 4).replace(/\n/g, '\n  ')},
+})
+// params go to the stored query model-${model}-input, which returns the model inputs as plain rows
+// (the SDK pads them to the model's shape and creates the tensors); the model outputs go to
+// model-${model}-output, and result is what that query returns.
+
+// Optional: build the inputs yourself instead of the stored query, from what the input query returned:
+//   buildInputs: (ctx) => ({ fields: { data: [[...], [...]], fill: 0 }, pad_mask: { data: [1, 1], fill: 0 } })`
 }
+for (const id of ['model', 'productIds', 'sqlite', 'tflite']) $(id).addEventListener('input', () => { $('usage').textContent = usage() })
 
 // Opens the sqlite of step 1, runs a named query and always closes it. Returns the result and the SQL of the stored query.
 async function namedJsonQuery(name, param) {
@@ -104,7 +106,6 @@ async function namedJsonQuery(name, param) {
   }
 }
 
-const describe = (d) => ({ name: d.name, dtype: d.dtype, shape: Array.from(d.shape) })
 
 // --- the steps ---------------------------------------------------------------------------------------
 const steps = {
@@ -128,43 +129,42 @@ const steps = {
 
   2: () => runStep(2, async () => {
     need('modelBytes')
-    state.litert = await loadLiteRt()
-    state.compiled = await loadModel(state.litert, state.modelBytes)
+    state.compiled = await loadModel(state.modelBytes)
     return {
       input: { tflite: `${state.modelBytes.length} bytes`, accelerator: 'wasm' },
-      output: { inputs: state.compiled.getInputDetails().map(describe), outputs: state.compiled.getOutputDetails().map(describe) },
+      output: describeModel(state.compiled),
     }
   }),
 
   3: () => runStep(3, async () => {
     need('dbPath')
-    const { model, params } = config()
+    const { model, productIds } = config()
+    const params = { productIds }
     const name = `model-${model}-input`
     const { ret, sql } = await namedJsonQuery(name, params)
     state.ctx = ret
     return {
       sql,
       input: { namedQuery: name, param: params },
-      output: { ...state.ctx, 'storeMask: ones': state.ctx.storeMask.filter((m) => m === 1).length, 'products: found': state.ctx.products.length },
+      output: { ...state.ctx, 'storeMask: ones': state.ctx.storeMask.filter((m) => m === 1).length },
     }
   }),
 
   4: () => runStep(4, async () => {
     need('ctx')
-    state.inputs = buildFbtInputs(config().productIds)(state.ctx)
-    return { input: { products: state.ctx.products, storeMask: `${state.ctx.storeMask.length} values` }, output: state.inputs }
+    state.inputs = state.ctx.inputs
+    return { input: { ctx: { inputs: 'see output', storeMask: `${state.ctx.storeMask.length} values` } }, output: state.inputs }
   }),
 
   5: () => runStep(5, async () => {
-    need('litert', 'compiled', 'inputs')
-    const outputs = await runModel(state.litert, state.compiled, state.inputs)
+    need('compiled', 'inputs')
+    const outputs = await runModel(state.compiled, state.inputs)
     state.outputs = {}
     const output = {}
     for (const [name, values] of Object.entries(outputs)) {
       state.outputs[name] = Array.from(values)
       output[name] = { length: values.length, values: state.outputs[name] }
     }
-    // The best 5 raw scores, so they can be checked at a glance
     const scores = state.outputs.signature_probs
     if (scores) output.signature_probs.best5 = scores.map((score, i) => ({ i, score })).sort((a, b) => b.score - a.score).slice(0, 5)
     return { input: state.inputs, output }
@@ -172,7 +172,8 @@ const steps = {
 
   6: () => runStep(6, async () => {
     need('ctx', 'outputs')
-    const { model, params } = config()
+    const { model, productIds } = config()
+    const params = { productIds }
     const name = `model-${model}-output`
     const param = { params, ctx: state.ctx, outputs: state.outputs }
     const { ret, sql } = await namedJsonQuery(name, param)
@@ -181,12 +182,14 @@ const steps = {
   }),
 
   7: () => runStep(7, async () => {
-    const { model, productIds, params, assets } = config()
-    const opts = { model, params, assets, buildInputs: buildFbtInputs(productIds) }
+    const { model, productIds, assets } = config()
+    const opts = { model, params: { productIds }, assets }
     const result = await new I6Sdk().infer().run(opts)
-    return { input: { ...opts, buildInputs: '[function]' }, output: result }
+    return { input: opts, output: result }
   }),
 }
+
+$('usage').textContent = usage()
 
 for (const button of document.querySelectorAll('button[data-step]')) {
   button.onclick = steps[button.dataset.step]

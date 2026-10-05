@@ -56,16 +56,24 @@
     </div>
   </div>
 
+  <div class="card">
+    <h2>SDK usage <span class="badge">the code an SDK user writes</span></h2>
+    <p class="hint">Step 7 runs exactly this. It follows the config above.</p>
+    <pre id="usage"></pre>
+  </div>
+
   <div class="card" id="step1">
     <h2><button data-step="1">1. Download assets</button><span class="badge">idle</span></h2>
     <p class="hint">downloader.update for the sqlite and the tflite: HEAD, etag check, download only if changed.</p>
     <div class="io"><div><h3>Input</h3><pre class="in"></pre></div><div><h3>Output</h3><pre class="out"></pre></div></div>
+    <details><summary class="sqlh">Code this step runs</summary><pre class="code"></pre></details>
   </div>
 
   <div class="card" id="step2">
     <h2><button data-step="2">2. Load runtime + compile model</button><span class="badge">idle</span></h2>
     <p class="hint">LiteRT wasm and the compiled model. Output: the inputs and outputs the model declares.</p>
     <div class="io"><div><h3>Input</h3><pre class="in"></pre></div><div><h3>Output</h3><pre class="out"></pre></div></div>
+    <details><summary class="sqlh">Code this step runs</summary><pre class="code"></pre></details>
   </div>
 
   <div class="card" id="step3">
@@ -73,18 +81,21 @@
     <p class="hint">namedJsonQuery model-X-input with the params. The result is the ctx.</p>
     <div class="io"><div><h3>Input</h3><pre class="in"></pre></div><div><h3>Output (ctx)</h3><pre class="out"></pre></div></div>
     <h3 class="sqlh">Stored query (namedqueries table of the sqlite)</h3><pre class="sql"></pre>
+    <details><summary class="sqlh">Code this step runs</summary><pre class="code"></pre></details>
   </div>
 
   <div class="card" id="step4">
-    <h2><button data-step="4">4. buildInputs (caller callback)</button><span class="badge">idle</span></h2>
-    <p class="hint">The caller turns the ctx into the model inputs: data + shape by exact input name.</p>
+    <h2><button data-step="4">4. Model inputs</button><span class="badge">idle</span></h2>
+    <p class="hint">The inputs the input query returned: plain rows by exact model input name. The SDK pads them to the model's shape in step 5.</p>
     <div class="io"><div><h3>Input (ctx)</h3><pre class="in"></pre></div><div><h3>Output (inputs)</h3><pre class="out"></pre></div></div>
+    <details><summary class="sqlh">Code this step runs</summary><pre class="code"></pre></details>
   </div>
 
   <div class="card" id="step5">
     <h2><button data-step="5">5. Run the model</button><span class="badge">idle</span></h2>
     <p class="hint">infer.js turns the data + shapes into LiteRT tensors, runs the model and reads every output.</p>
     <div class="io"><div><h3>Input (data + shapes)</h3><pre class="in"></pre></div><div><h3>Output</h3><pre class="out"></pre></div></div>
+    <details><summary class="sqlh">Code this step runs</summary><pre class="code"></pre></details>
   </div>
 
   <div class="card" id="step6">
@@ -92,12 +103,14 @@
     <p class="hint">namedJsonQuery model-X-output with {params, ctx, outputs}: ranking and mapping in SQL.</p>
     <div class="io"><div><h3>Input</h3><pre class="in"></pre></div><div><h3>Output (result)</h3><pre class="out"></pre></div></div>
     <h3 class="sqlh">Stored query (namedqueries table of the sqlite)</h3><pre class="sql"></pre>
+    <details><summary class="sqlh">Code this step runs</summary><pre class="code"></pre></details>
   </div>
 
   <div class="card" id="step7">
     <h2><button data-step="7" class="primary">Run all with the SDK</button><span class="badge">idle</span></h2>
     <p class="hint">new I6Sdk().infer().run(opts), the real code path.</p>
     <div class="io"><div><h3>Input (opts)</h3><pre class="in"></pre></div><div><h3>Output (result)</h3><pre class="out"></pre></div></div>
+    <details><summary class="sqlh">Code this step runs</summary><pre class="code"></pre></details>
   </div>
 
   <div class="card">
