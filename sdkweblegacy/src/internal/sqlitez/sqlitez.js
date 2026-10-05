@@ -146,14 +146,34 @@ class SqliteConn {
         return this.query({ query: String(found[0].query), params: opts.params })
     }
 
-    async laranjaQuery(name, bleParam) {
-        let stringifiedble = JSON.stringify(bleParam)
-        let result = await this.namedQuery({ name: name, params: [stringifiedble] })
+    /**
+     * Like `namedQuery`, but with JSON in and JSON out: the stored query gets ONE bound value, `opts.param`
+     * as a JSON string (read it in SQL with `json_extract(?, '$.field')`, `json_each(?)`, ...), and must
+     * return a row with a column `ret` holding a JSON string. That JSON is parsed and returned.
+     * The stored query must contain that `?`, otherwise sqlite rejects the bind ("column index out of range").
+     * @param {Object} opts
+     * @param {string} opts.name - required, the `name` of the stored query (see `namedQuery`).
+     * @param {*} [opts.param] - any JSON-serializable value, bound as `?` (a single one) of the stored query.
+     * @returns {Promise<*>} The parsed `ret` of the first row, or null if there is no row or `ret` is null.
+     * @throws {TypeError} If opts.name is missing.
+     * @throws {I6Error} With code "query" if `namedQuery` fails, the rows have no `ret` column, or `ret` is not valid JSON.
+     */
+    async namedJsonQuery(opts) {
+        if (!opts || !opts.name) throw new TypeError("sqlitez: opts.name is required")
 
-        if (!result.step()) return null
-        let ret = await result.getAsObject()["ret"]
+        const rows = await this.namedQuery({ name: opts.name, params: [JSON.stringify(opts.param ?? null)] })
+        if (rows.length === 0) return null
 
-        return JSON.parse(ret)
+        if (!("ret" in rows[0])) {
+            throw new I6Error(`sqlitez: named query "${opts.name}" returned no "ret" column`, { code: "query" })
+        }
+        if (rows[0].ret === null) return null
+
+        try {
+            return JSON.parse(rows[0].ret)
+        } catch (cause) {
+            throw new I6Error(`sqlitez: "ret" of named query "${opts.name}" is not valid JSON: ${cause.message}`, { code: "query", cause })
+        }
     }
 
     /**

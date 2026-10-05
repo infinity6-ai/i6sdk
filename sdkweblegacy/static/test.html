@@ -5,6 +5,9 @@
   <title>I6 Web Checker</title>
   <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
   <link rel="stylesheet" href="test/qunit.css">
+  <script type="importmap">
+    { "imports": { "sql.js": "https://cdn.jsdelivr.net/npm/sql.js@1.14.2/+esm" } }
+  </script>
 </head>
 <body onload="QUnit.start()">
   <div id="qunit"></div>
@@ -16,5 +19,6 @@
   <script src="../test/sample-test.js"></script>
   <script src="../test/fs-test.js"></script>
   <script src="../test/downloader-test.js"></script>
+  <script src="../test/sqlitez-test.js"></script>
 </body>
 </html>
