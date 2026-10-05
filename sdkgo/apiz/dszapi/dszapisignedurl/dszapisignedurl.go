@@ -1,6 +1,7 @@
 package dszapisignedurl
 
 import (
+	"github.com/infinity6-ai/gox/fsz/fsz/fszsignmethod"
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
@@ -8,8 +9,8 @@ import (
 )
 
 type Path struct {
-	Method string         `json:"method"`
-	Path   lakepathz.Path `json:"path"`
+	Method fszsignmethod.SignMethod `json:"method"`
+	Path   lakepathz.Path           `json:"path"`
 }
 
 type Req struct {
