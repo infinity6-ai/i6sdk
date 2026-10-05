@@ -163,5 +163,5 @@ func Build(table laketablez.Table, hiveParts *hivepartz.HiveParts, file *pathz.P
 	if err != nil {
 		return zero, fmt.Errorf("error parsing path %s: %w", b, err)
 	}
-	return Parse(p.String())
+	return Parse(schema + p.String())
 }
