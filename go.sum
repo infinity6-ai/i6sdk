@@ -72,8 +72,8 @@ github.com/infinity6-ai/gox/fsz v0.0.40 h1:W8Td97JqwjTlqmhhdahJM34DNBCliWNG7Wg4v
 github.com/infinity6-ai/gox/fsz v0.0.40/go.mod h1:v9FvMmKvNontC5e8u5dAdz3rENjopXBQyGSFkYBIzmU=
 github.com/infinity6-ai/gox/httpz v0.0.40 h1:xQ7UNX7MB3EDPpL5c54bCGfEat5EBqTzpniDJmhxg2E=
 github.com/infinity6-ai/gox/httpz v0.0.40/go.mod h1:R1i1WNWF42TTs+KCGqKDuZznZnANiZj130vIhu49nzw=
-github.com/infinity6-ai/gox/routez v0.0.39 h1:xBfDc2hEAhxx96+Htm0QV4YzifH7iZlCwuvEkATY4sU=
-github.com/infinity6-ai/gox/routez v0.0.39/go.mod h1:ZjKbjscM4rBH06reu182e/yeEyz1ovjwGHf5SIi3qIU=
+github.com/infinity6-ai/gox/routez v0.0.40 h1:SE6vLqex18V95MZQ5UnbGE7ulR9r8/XUTX0b+tlEOE0=
+github.com/infinity6-ai/gox/routez v0.0.40/go.mod h1:sGnuo35IeIUOJeJCRnPaGKGMOU1YZqGhy/X/ToV35mU=
 github.com/infinity6-ai/gox/schemaz v0.0.40 h1:i0fp5JJ6D1BQ8aYT5HsSvu6z3ZKnIZBZQUYI+NtgQ8M=
 github.com/infinity6-ai/gox/schemaz v0.0.40/go.mod h1:+8ZWm/Mr2wGqMgh3zDNPqh02KaPckz8H1CBa2qPMlbI=
 github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 h1:GFCKgmp0tecUJ0sJuv4pzYCqS9+RGSn52M3FUwPs+uo=

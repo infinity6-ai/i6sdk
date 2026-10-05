@@ -5,7 +5,7 @@ go 1.26.1
 require (
 	github.com/infinity6-ai/gox/commonz v0.0.40
 	github.com/infinity6-ai/gox/fsz v0.0.40
-	github.com/infinity6-ai/gox/routez v0.0.39
+	github.com/infinity6-ai/gox/routez v0.0.40
 	github.com/infinity6-ai/gox/schemaz v0.0.40
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.12.1
@@ -37,7 +37,6 @@ require (
 	github.com/googleapis/enterprise-certificate-proxy v0.3.22 // indirect
 	github.com/googleapis/gax-go/v2 v2.24.1 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
-	github.com/infinity6-ai/gox/httpz v0.0.40 // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/spf13/pflag v1.0.9 // indirect
 	github.com/spiffe/go-spiffe/v2 v2.8.1 // indirect
