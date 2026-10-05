@@ -15,6 +15,11 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitablelist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapiliststores"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapilistdatasets"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapilistingestiontokens"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapicreateingestiontoken"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapilistrecsystokens"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapicreaterecsystoken"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapideletetoken"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzapi/ingestzapigeturl"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/pipezapi"
 )
@@ -45,6 +50,11 @@ func init() {
 	add(&dszapicreatestore.DszCreateStoreApi{})
 	add(&dszapiliststores.DszListStoresApi{})
 	add(&dszapilistdatasets.DszListDatasetsApi{})
+	add(&dszapilistingestiontokens.DszListIngestionTokensApi{})
+	add(&dszapicreateingestiontoken.DszCreateIngestionTokenApi{})
+	add(&dszapilistrecsystokens.DszListRecsysTokensApi{})
+	add(&dszapicreaterecsystoken.DszCreateRecsysTokenApi{})
+	add(&dszapideletetoken.DszDeleteTokenApi{})
 }
 
 func All() []apiz.Api {
