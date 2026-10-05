@@ -6,7 +6,10 @@
   <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
   <link rel="stylesheet" href="test/qunit.css">
   <script type="importmap">
-    { "imports": { "sql.js": "https://cdn.jsdelivr.net/npm/sql.js@1.14.2/+esm" } }
+    { "imports": {
+        "sql.js": "https://cdn.jsdelivr.net/npm/sql.js@1.14.2/+esm",
+        "@litertjs/core": "https://cdn.jsdelivr.net/npm/@litertjs/core@2.5.3/+esm"
+    } }
   </script>
 </head>
 <body onload="QUnit.start()">
@@ -20,5 +23,6 @@
   <script src="../test/fs-test.js"></script>
   <script src="../test/downloader-test.js"></script>
   <script src="../test/sqlitez-test.js"></script>
+  <script src="../test/infer-test.js"></script>
 </body>
 </html>

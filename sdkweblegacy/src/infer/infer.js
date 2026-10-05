@@ -219,7 +219,7 @@ function buildInputTensors(litert, model, inputs) {
   const tensors = {}
   for (const detail of model.getInputDetails()) {
     const input = inputs?.[detail.name]
-    if (!input) throw new I6Error(`infer: opts.inputs is missing "${detail.name}"`, { code: "invalid_argument" })
+    if (!input) throw new I6Error(`infer: buildInputs did not return "${detail.name}"`, { code: "invalid_argument" })
 
     const shape = input.shape ?? Array.from(detail.shape, (d) => (d === -1 ? 1 : d))
     if (input.data.length !== shape.reduce((a, b) => a * b, 1)) {
