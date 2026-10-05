@@ -36,6 +36,14 @@ import { sqlitez } from "../internal/sqlitez/sqlitez.js";
  * @property {string} model - Model name (e.g. "fbt"), also used to name the cached assets.
  * @property {InferParams} params - Model input.
  * @property {InferAssets} assets - Where to download the model assets from.
+ * @property {Record<string, ModelInput>} inputs - Tensors fed to the model, by model input name (exact match).
+ */
+
+/**
+ * One model input tensor, built by the caller.
+ * @typedef {Object} ModelInput
+ * @property {ArrayLike<number>} data - Flat values, row-major.
+ * @property {number[]} [shape] - Tensor shape. Defaults to the model's shape with -1 as 1.
  */
 
 /**
@@ -76,7 +84,7 @@ class Infer {
    *   if downloading, running the model or reading the sqlite fails.
    */
   async run(opts) {
-    const { model, params, assets } = opts
+    const { model, params, assets, inputs } = opts
 
     // 1. Get the model files (cached by etag) and the runtimes
     const { dbPath, modelBytes } = await downloadAssets(model, assets)
@@ -88,12 +96,12 @@ class Infer {
     try {
       // 2. Read the input products from the sqlite
       const productIds = [...new Set(params.productIds)]
-      const { productFeaturesMap, storeMask } = await fetchShopData(conn, model, productIds)
+      const { storeMask } = await fetchShopData(conn, model, productIds)
 
       // 3. Run the model
-      const tensors = buildInputTensors(litert, compiled, params.productIds, productFeaturesMap)
-      if (!tensors) return { productIds: [] }
-      const scores = await runModel(compiled, tensors)
+      const tensors = buildInputTensors(litert, compiled, inputs)
+      const outputs = await runModel(compiled, tensors)
+      const scores = Object.values(outputs)[0]
 
       // 4. Rank the scores and map the best ones back to product ids
       const signatureIndices = rankSignatures(scores, storeMask, TOP_N)
@@ -239,25 +247,50 @@ async function fetchShopData(conn, model, productIds) {
   return { productFeaturesMap, storeMask }
 }
 
+/** Typed array of each dtype the runner accepts. */
+const DTYPE_CTORS = { float32: Float32Array, int32: Int32Array, uint8: Uint8Array }
+
 /**
- * Builds the model input tensors: the feature vectors (`rec_in`) of the last items, one
- * masked slot to predict, then padding, plus the padding mask. The inputs are found by name
- * ("field" and "pad") and the shapes come from the model.
+ * Turns the caller's inputs into model tensors. Every model input must be in `inputs` under its exact name.
  * @param {Object} litert - The LiteRT module.
  * @param {Object} model - The compiled model.
- * @param {string[]} productIds - Input product ids, in order (may repeat).
- * @param {Record<string, Object>} productFeaturesMap - Product id -> sqlite row.
- * @returns {Record<string, Object>|null} Input name -> tensor, or null if no product has a usable feature vector.
+ * @param {Record<string, ModelInput>} inputs - Input name -> data and shape.
+ * @returns {Record<string, Object>} Input name -> tensor.
+ * @throws {I6Error} With code "invalid_argument" if an input is missing or its data does not fit its shape.
  */
-function buildInputTensors(litert, model, productIds, productFeaturesMap) { }
+function buildInputTensors(litert, model, inputs) {
+  const tensors = {}
+  for (const detail of model.getInputDetails()) {
+    const input = inputs?.[detail.name]
+    if (!input) throw new I6Error(`infer: opts.inputs is missing "${detail.name}"`, { code: "invalid_argument" })
+
+    const shape = input.shape ?? Array.from(detail.shape, (d) => (d === -1 ? 1 : d))
+    if (input.data.length !== shape.reduce((a, b) => a * b, 1)) {
+      throw new I6Error(`infer: input "${detail.name}" has ${input.data.length} values, does not fit shape [${shape}]`, { code: "invalid_argument" })
+    }
+    tensors[detail.name] = new litert.Tensor(new DTYPE_CTORS[detail.dtype](input.data), shape)
+  }
+  return tensors
+}
 
 /**
  * Runs the model and frees the input and output tensors.
  * @param {Object} model - The compiled model.
  * @param {Record<string, Object>} tensors - Input name -> tensor, from buildInputTensors.
- * @returns {Promise<Float32Array>} One score per signature index (first output of the model).
+ * @returns {Promise<Record<string, ArrayLike<number>>>} Output name -> values, for every output of the model.
  */
-async function runModel(model, tensors) { }
+async function runModel(model, tensors) {
+  let raw = {}
+  try {
+    raw = await model.run(tensors)
+    const outputs = {}
+    for (const [name, tensor] of Object.entries(raw)) outputs[name] = await tensor.data()
+    return outputs
+  } finally {
+    Object.values(raw).forEach((t) => t.delete())
+    Object.values(tensors).forEach((t) => t.delete())
+  }
+}
 
 /**
  * Ranks the scores, dropping the signatures that no product has, and keeps the best ones.
