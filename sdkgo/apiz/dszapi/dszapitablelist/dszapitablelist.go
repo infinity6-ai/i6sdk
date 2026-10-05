@@ -65,19 +65,19 @@ func (d *Api) GetDataRefs() *apiz.DataRefs {
 				return map[string]*schemaz.Schema{
 					"path": {
 						Desc: &schemaz.Desc{Summary: "Path to list."},
-						Raw:  func() any { return &d.Req.Path },
+						Str:  schemaz.ParseStrGet(&d.Req.Path, lakepathz.MustParse),
 					},
-					"sign": {
+					"sign_method": {
 						Desc: &schemaz.Desc{Summary: "Whether to return signed URLs."},
-						Raw:  func() any { return &d.Req.SignMethod },
+						Str:  schemaz.ParseStr(&d.Req.SignMethod),
 					},
 					"recursive": {
 						Desc: &schemaz.Desc{Summary: "Whether to list recursively."},
-						Raw:  func() any { return &d.Req.Recursive },
+						Str:  schemaz.ParseStrBool(&d.Req.Recursive),
 					},
 					"stat": {
 						Desc: &schemaz.Desc{Summary: "Whether to include file stats."},
-						Raw:  func() any { return &d.Req.Stat },
+						Str:  schemaz.ParseStrBool(&d.Req.Stat),
 					},
 					"from_cursor": {
 						Desc: &schemaz.Desc{Summary: "Pagination cursor."},
