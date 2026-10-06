@@ -2,6 +2,7 @@ package dszapitablelist
 
 import (
 	"github.com/infinity6-ai/gox/fsz/fsz"
+	"github.com/infinity6-ai/gox/fsz/fsz/fszsignmethod"
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
@@ -9,13 +10,13 @@ import (
 )
 
 type Req struct {
-	Dataset    lakedsz.Dataset `json:"dataset"`
-	Path       lakepathz.Path  `json:"path"`
-	SignMethod string          `json:"sign_method"`
-	Recursive  bool            `json:"recursive"`
-	Stat       bool            `json:"stat"`
-	FromCursor string          `json:"from_cursor"`
-	Limit      int             `json:"limit"`
+	Dataset    lakedsz.Dataset          `json:"dataset"`
+	Path       lakepathz.Path           `json:"path"`
+	SignMethod fszsignmethod.SignMethod `json:"sign_method"`
+	Recursive  bool                     `json:"recursive"`
+	Stat       bool                     `json:"stat"`
+	FromCursor string                   `json:"from_cursor"`
+	Limit      int                      `json:"limit"`
 }
 
 type File struct {
@@ -69,7 +70,7 @@ func (d *Api) GetDataRefs() *apiz.DataRefs {
 					},
 					"sign_method": {
 						Desc: &schemaz.Desc{Summary: "Whether to return signed URLs."},
-						Str:  schemaz.ParseStr(&d.Req.SignMethod),
+						Str:  schemaz.ParseStrGet(&d.Req.SignMethod, fszsignmethod.MustParseOptional),
 					},
 					"recursive": {
 						Desc: &schemaz.Desc{Summary: "Whether to list recursively."},

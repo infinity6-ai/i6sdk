@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
+	"github.com/infinity6-ai/gox/fsz/fsz/fszsignmethod"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitablelist"
@@ -16,7 +17,7 @@ func TestUnitDszApiTableList(t *testing.T) {
 		Req: dszapitablelist.Req{
 			Dataset:    lakedsz.MustParse("myds"),
 			Path:       lakepathz.MustParse("i6tb://mydb.mytable"),
-			SignMethod: "GET",
+			SignMethod: fszsignmethod.SignMethodGet,
 			Recursive:  true,
 			Stat:       true,
 			FromCursor: "cur-123",
