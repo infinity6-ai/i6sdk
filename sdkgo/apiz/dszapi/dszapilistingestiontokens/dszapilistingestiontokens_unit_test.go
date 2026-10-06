@@ -7,18 +7,20 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapilistingestiontokens"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/dsztoken"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
 
 func TestUnitDszListIngestionTokensApi(t *testing.T) {
 	api := &dszapilistingestiontokens.DszListIngestionTokensApi{
 		Req: dszapilistingestiontokens.DszListIngestionTokensReq{
-			Dataset: "myds",
+			Dataset: lakedsz.MustParse("myds"),
 		},
-		Resp: []dszapilistingestiontokens.DatasetToken{
+		Resp: []dsztoken.DatasetToken{
 			{
 				Id:             "token1",
 				Jti:            "jti1",
-				Dataset:        "myds",
+				Dataset:        lakedsz.MustParse("myds"),
 				Annotation:     "Annotation",
 				ExpirationDate: 12345678,
 				Audience:       "aud",

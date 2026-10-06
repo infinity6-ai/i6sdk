@@ -7,12 +7,13 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapideletetoken"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
 
 func TestUnitDszDeleteTokenApi(t *testing.T) {
 	api := &dszapideletetoken.DszDeleteTokenApi{
 		Req: dszapideletetoken.DszDeleteTokenReq{
-			Dataset: "myds",
+			Dataset: lakedsz.MustParse("myds"),
 			Token:   "tok-123",
 		},
 	}

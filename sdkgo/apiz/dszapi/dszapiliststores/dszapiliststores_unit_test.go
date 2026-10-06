@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapiliststores"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/dszstore"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
 
@@ -17,7 +18,7 @@ func TestUnitDszListStoresApi(t *testing.T) {
 		},
 		Resp: &dszapiliststores.DszListStoresResp{
 			Dataset: lakedsz.MustParse("myds"),
-			Stores: []dszapiliststores.DszStore{
+			Stores: []dszstore.DszStore{
 				{
 					Id:   "store1",
 					Name: "Store One",
