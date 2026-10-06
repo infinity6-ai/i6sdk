@@ -141,14 +141,14 @@ const steps = {
     return {
       sql,
       input: { namedQuery: name, param: params },
-      output: { ...state.ctx, 'storeMask: ones': state.ctx.storeMask.filter((m) => m === 1).length },
+      output: state.ctx,
     }
   }),
 
   4: () => runStep(4, async () => {
     need('ctx')
     state.inputs = state.ctx.inputs
-    return { input: { ctx: { inputs: 'see output', storeMask: `${state.ctx.storeMask.length} values` } }, output: state.inputs }
+    return { input: { ctx: state.ctx }, output: state.inputs }
   }),
 
   5: () => runStep(5, async () => {
