@@ -1,4 +1,4 @@
-package dszapilistingestiontokens_test
+package dszapiingestiontokenslist_test
 
 import (
 	"testing"
@@ -6,14 +6,14 @@ import (
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
-	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapilistingestiontokens"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapiingestiontokenslist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/dsztoken"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
 
 func TestUnitDszListIngestionTokensApi(t *testing.T) {
-	api := &dszapilistingestiontokens.DszListIngestionTokensApi{
-		Req: dszapilistingestiontokens.DszListIngestionTokensReq{
+	api := &dszapiingestiontokenslist.DszListIngestionTokensApi{
+		Req: dszapiingestiontokenslist.DszListIngestionTokensReq{
 			Dataset: lakedsz.MustParse("myds"),
 		},
 		Resp: []dsztoken.DatasetToken{
@@ -31,7 +31,7 @@ func TestUnitDszListIngestionTokensApi(t *testing.T) {
 		},
 	}
 
-	apiCopy := jsonz.MustCopy(api, &dszapilistingestiontokens.DszListIngestionTokensApi{})
+	apiCopy := jsonz.MustCopy(api, &dszapiingestiontokenslist.DszListIngestionTokensApi{})
 	require.Equal(t, api.Req, apiCopy.Req)
 	require.Equal(t, api.Resp, apiCopy.Resp)
 

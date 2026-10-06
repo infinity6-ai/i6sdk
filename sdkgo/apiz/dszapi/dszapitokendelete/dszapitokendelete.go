@@ -1,4 +1,4 @@
-package dszapideletetoken
+package dszapitokendelete
 
 import (
 	"github.com/infinity6-ai/gox/routez/apiz"

@@ -1,4 +1,4 @@
-package dszapicreateingestiontoken
+package dszapiingestiontokencreate
 
 import (
 	"github.com/infinity6-ai/gox/routez/apiz"

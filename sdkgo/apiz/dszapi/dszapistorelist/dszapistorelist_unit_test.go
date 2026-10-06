@@ -1,4 +1,4 @@
-package dszapiliststores_test
+package dszapistorelist_test
 
 import (
 	"testing"
@@ -6,17 +6,17 @@ import (
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
-	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapiliststores"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapistorelist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/dszstore"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
 
 func TestUnitDszListStoresApi(t *testing.T) {
-	api := &dszapiliststores.DszListStoresApi{
-		Req: &dszapiliststores.DszListStoresReq{
+	api := &dszapistorelist.DszListStoresApi{
+		Req: &dszapistorelist.DszListStoresReq{
 			Dataset: lakedsz.MustParse("myds"),
 		},
-		Resp: &dszapiliststores.DszListStoresResp{
+		Resp: &dszapistorelist.DszListStoresResp{
 			Dataset: lakedsz.MustParse("myds"),
 			Stores: []dszstore.DszStore{
 				{
@@ -27,7 +27,7 @@ func TestUnitDszListStoresApi(t *testing.T) {
 		},
 	}
 
-	apiCopy := jsonz.MustCopy(api, &dszapiliststores.DszListStoresApi{})
+	apiCopy := jsonz.MustCopy(api, &dszapistorelist.DszListStoresApi{})
 	require.Equal(t, api.Req, apiCopy.Req)
 	require.Equal(t, api.Resp, apiCopy.Resp)
 

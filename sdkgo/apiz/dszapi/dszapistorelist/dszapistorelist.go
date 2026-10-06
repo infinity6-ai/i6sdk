@@ -1,4 +1,4 @@
-package dszapiliststores
+package dszapistorelist
 
 import (
 	"github.com/infinity6-ai/gox/routez/apiz"

@@ -1,4 +1,4 @@
-package dszapicreaterecsystoken
+package dszapirecsystokencreate
 
 import (
 	"github.com/infinity6-ai/gox/routez/apiz"

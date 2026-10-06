@@ -1,4 +1,4 @@
-package dszapilistrecsystokens
+package dszapiingestiontokenslist
 
 import (
 	"github.com/infinity6-ai/gox/routez/apiz"
@@ -8,30 +8,30 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
 
-type DszListRecsysTokensReq struct {
+type DszListIngestionTokensReq struct {
 	Dataset lakedsz.Dataset `json:"dataset"`
 }
 
-type DszListRecsysTokensResp []dsztoken.DatasetToken
+type DszListIngestionTokensResp []dsztoken.DatasetToken
 
-func (*DszListRecsysTokensResp) JSType() string {
+func (*DszListIngestionTokensResp) JSType() string {
 	return jstypez.TypObject
 }
 
-type DszListRecsysTokensApi struct {
-	Req  DszListRecsysTokensReq  `json:"req"`
-	Resp DszListRecsysTokensResp `json:"resp"`
+type DszListIngestionTokensApi struct {
+	Req  DszListIngestionTokensReq  `json:"req"`
+	Resp DszListIngestionTokensResp `json:"resp"`
 }
 
-func (d *DszListRecsysTokensApi) ApiSpec() apiz.ApiSpec {
+func (d *DszListIngestionTokensApi) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id:     "dsz-list-recsys-tokens",
+		Id:     "dsz-list-ingestion-tokens",
 		Method: "GET",
-		Path:   "/api/ds/dataset/{dataset}/recsystoken/list",
+		Path:   "/api/ds/dataset/{dataset}/ingestiontoken/list",
 	}
 }
 
-func (d *DszListRecsysTokensApi) GetDataRefs() *apiz.DataRefs {
+func (d *DszListIngestionTokensApi) GetDataRefs() *apiz.DataRefs {
 	return &apiz.DataRefs{
 		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {

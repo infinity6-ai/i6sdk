@@ -1,4 +1,4 @@
-package dszapicreatestore
+package dszapistorecreate
 
 import (
 	"github.com/infinity6-ai/gox/routez/apiz"

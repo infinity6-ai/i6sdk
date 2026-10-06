@@ -1,4 +1,4 @@
-package dszapideletetoken_test
+package dszapitokendelete_test
 
 import (
 	"testing"
@@ -6,19 +6,19 @@ import (
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
-	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapideletetoken"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitokendelete"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
 
 func TestUnitDszDeleteTokenApi(t *testing.T) {
-	api := &dszapideletetoken.DszDeleteTokenApi{
-		Req: dszapideletetoken.DszDeleteTokenReq{
+	api := &dszapitokendelete.DszDeleteTokenApi{
+		Req: dszapitokendelete.DszDeleteTokenReq{
 			Dataset: lakedsz.MustParse("myds"),
 			Token:   "tok-123",
 		},
 	}
 
-	apiCopy := jsonz.MustCopy(api, &dszapideletetoken.DszDeleteTokenApi{})
+	apiCopy := jsonz.MustCopy(api, &dszapitokendelete.DszDeleteTokenApi{})
 	require.Equal(t, api.Req, apiCopy.Req)
 
 	parsed := jsparser.ParseApi(api)

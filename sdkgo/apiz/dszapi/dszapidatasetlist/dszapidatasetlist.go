@@ -1,4 +1,4 @@
-package dszapilistdatasets
+package dszapidatasetlist
 
 import (
 	"github.com/infinity6-ai/gox/routez/apiz"
