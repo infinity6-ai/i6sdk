@@ -3,7 +3,7 @@ import { I6Sdk } from '../../src/index.js'
 import { downloader } from '../../src/internal/downloader/downloader.js'
 import { fs } from '../../src/internal/fs/fs.js'
 import { sqlitez } from '../../src/internal/sqlitez/sqlitez.js'
-import { describeModel, loadModel, runModel } from '../../src/infer/infer.js'
+import { describeModel, loadModel, runModel } from '../../src/infer/litert.js'
 
 // infer.js prints what it does when this is set (the log panel below shows it)
 window.I6_DEBUG = true
