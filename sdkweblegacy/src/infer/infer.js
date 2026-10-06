@@ -46,7 +46,13 @@ class Infer {
    * Constructs an Infer client instance.
    * @param {Services} services - The services manager instance.
    */
-  constructor(services) { }
+  constructor(services) {
+    /**
+     * @private
+     * @type {Services}
+     */
+    this._services = services;
+  }
 
   /**
    * Runs the model for the given params and returns what the output query gives.
@@ -58,6 +64,29 @@ class Infer {
   async run(opts) {
     validate(opts)
     const { model, params, assets } = opts
+
+    //se não vier nada no assets
+    let bla = await this._services.apis().dszSignedUrl({
+      params: {
+        dataset: "dectest"
+      },
+      payload: {
+        paths: [
+          { 
+            method: "GET", 
+            path: "i6tb://results.relevance-fashion-fbt-sqlite/store_id=s1/version=v1/db.sqlite"
+          },
+          { 
+            method: "GET", 
+            path: "i6tb://results.relevance-fashion-fbt-model/store_id=s1/version=v1/model.tflite"
+          }
+        ]
+      },
+    })
+
+    //Se vier assets, usa o proprio assets
+    //Enviar sem assets é o padrão
+    //Asset é usado pra teste 
 
     // 1. Get the model files (cached by etag) and load the model
     const sqliteRef = await downloadFile(`infer-${model}-sqlite`, assets.sqlite)
