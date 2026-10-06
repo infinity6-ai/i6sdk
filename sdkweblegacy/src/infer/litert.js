@@ -104,14 +104,17 @@ function toTensorData(name, input, modelShape) {
   const fit = (rows, dims) => {
     if (dims.length === 0) return rows
     const n = dims[0] === -1 ? rows.length : dims[0]
+
     if (rows.length !== n && input.fill === undefined) throw invalid(`has ${rows.length} values where the model needs ${n} (give "fill" to pad)`)
     const fitted = rows.length > n ? rows.slice(rows.length - n) : [...rows, ...Array.from({ length: n - rows.length }, () => make(dims.slice(1)))]
+    
     return fitted.map((row) => fit(row, dims.slice(1)))
   }
   data = fit(data, modelShape)
 
   const shape = []
   for (let a = data; Array.isArray(a); a = a[0]) shape.push(a.length)
+    
   return { flat: data.flat(Infinity), shape }
 }
 
