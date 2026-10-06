@@ -12,6 +12,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapidomainsolutionget"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapidomainsolutionselect"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapisignedurl"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitableget"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitablelist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapiliststores"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapilistdatasets"
@@ -43,6 +44,7 @@ func init() {
 	}
 	add(&ingestzapigeturl.GetUrlApi{})
 	add(&dszapisignedurl.Api{})
+	add(&dszapitableget.Api{})
 	add(&dszapitablelist.Api{})
 	add(&pipezapi.PipezStartApi{})
 	add(&dszapidomainsolutionselect.DszSolutionDomainSelectApi{})
