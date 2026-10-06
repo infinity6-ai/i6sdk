@@ -5,6 +5,9 @@ import { fs } from '../../src/internal/fs/fs.js'
 import { sqlitez } from '../../src/internal/sqlitez/sqlitez.js'
 import { describeModel, loadModel, runModel } from '../../src/infer/infer.js'
 
+// infer.js prints what it does when this is set (the log panel below shows it)
+window.I6_DEBUG = true
+
 const $ = (id) => document.getElementById(id)
 $('sqlite').value = new URL('../../src/infer/gen/modeldb.sqlite', import.meta.url).href
 $('tflite').value = new URL('../../src/infer/gen/model.tflite', import.meta.url).href
@@ -114,18 +117,16 @@ const steps = {
       output[kind] = { result: before && before.version === refs[kind].version ? 'cache hit' : 'downloaded', file: refs[kind] }
     }
     state.dbPath = await fs.resolve(refs.sqlite)
-    state.modelBytes = await fs.read(refs.tflite)
+    state.tfliteRef = refs.tflite
     output.sqlite.path = state.dbPath
-    output.tflite.bytes = state.modelBytes.length
-    output.tflite.magic = new TextDecoder().decode(state.modelBytes.subarray(4, 8))
     return { input: { model, assets }, output }
   }),
 
   2: () => runStep(2, async () => {
-    need('modelBytes')
-    state.compiled = await loadModel(state.modelBytes)
+    need('tfliteRef')
+    state.compiled = await loadModel({ ref: state.tfliteRef })
     return {
-      input: { tflite: `${state.modelBytes.length} bytes`, accelerator: 'wasm' },
+      input: { ref: state.tfliteRef },
       output: describeModel(state.compiled),
     }
   }),

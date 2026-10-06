@@ -56,11 +56,12 @@
         })
 
         QUnit.test("runModel reports inputs that do not fit the model", async function (assert) {
-            const response = await fetch(assets.tflite)
-            if (!response.ok) return assert.ok(true, 'skipped: no assets in src/infer/gen')
+            if (!(await fetch(assets.tflite, { method: 'HEAD' })).ok) return assert.ok(true, 'skipped: no assets in src/infer/gen')
 
             const { loadModel, runModel } = await import('../src/infer/infer.js')
-            const model = await loadModel(new Uint8Array(await response.arrayBuffer()))
+            const { downloader } = await import('../src/internal/downloader/downloader.js')
+            const ref = await downloader.update({ name: 'infer-fbt-tflite', url: assets.tflite })
+            const model = await loadModel({ ref })
             const fields = { data: [[1, 2, 3, 4, 5, 6, 7]], fill: 0 }
             const padMask = { data: [1], fill: 0 }
 

@@ -4,6 +4,8 @@
  * Flow: download the model's sqlite + tflite, run the named query `model-${model}-input` (its result is
  * the `ctx`; its `inputs` are the model inputs), run the tflite model, and run the named query
  * `model-${model}-output` with the model outputs. Its result is returned as is. Nothing here is model specific.
+ *
+ * Set `window.I6_DEBUG = true` to see what happens in the console.
  */
 
 import { I6Error } from "../errors.js";
@@ -13,7 +15,7 @@ import { sqlitez } from "../internal/sqlitez/sqlitez.js";
 
 /**
  * @typedef {import("../services/services.js").Services} Services
- * @typedef {import("../internal/sqlitez/sqlitez.js").SqliteConn} SqliteConn
+ * @typedef {import("../internal/fs/fs.js").FileRef} FileRef
  */
 
 /**
@@ -25,14 +27,12 @@ import { sqlitez } from "../internal/sqlitez/sqlitez.js";
  */
 
 /**
- * One model input tensor, built by the caller.
+ * One model input, as nested rows (e.g. `[[1, 2], [3, 4]]`). The shape is read from the nesting and a missing
+ * leading batch dimension of 1 is added.
  * @typedef {Object} ModelInput
- * @property {ArrayLike<number>|Array} data - Flat values (then `shape` is needed, or the model's shape is used) or nested rows,
- *   e.g. `[[1, 2], [3, 4]]`; nested rows need no `shape`: it is read from the nesting, a missing leading batch dimension of 1 is
- *   added, and `fill` fits the data to the model's shape.
- * @property {number[]} [shape] - Tensor shape of flat `data`.
- * @property {number} [fill] - With nested `data`: value used to pad up to the model's shape. Too many rows are cut from
- *   the front (the last ones are kept). Without `fill`, data that does not match the model's shape is an error.
+ * @property {Array} data - Nested rows.
+ * @property {number} [fill] - Value used to pad up to the model's shape. Too many rows are cut from the front (the last
+ *   ones are kept). Without `fill`, data that does not match the model's shape is an error.
  */
 
 /**
@@ -43,12 +43,8 @@ import { sqlitez } from "../internal/sqlitez/sqlitez.js";
  * @property {InferAssets} assets - Where to download the model assets from.
  */
 
-/**
- * Downloaded model assets.
- * @typedef {Object} ModelAssets
- * @property {string} dbPath - OPFS path of the .sqlite file (open it with sqlitez).
- * @property {Uint8Array} modelBytes - Content of the .tflite file.
- */
+/** Prints only when `window.I6_DEBUG` is true. */
+const debug = (...args) => { if (globalThis.I6_DEBUG) console.log("infer:", ...args) }
 
 /**
  * Inference client.
@@ -64,8 +60,8 @@ class Infer {
    * Runs the model for the given params and returns what the output query gives.
    * @param {InferOptions} opts - Inference options.
    * @returns {Promise<*>} The `ret` of the named query `model-${model}-output`.
-   * @throws {I6Error} With code "invalid_argument" if opts is malformed, or "asset"/"model"/"query"
-   *   if downloading, running the model or reading the sqlite fails.
+   * @throws {I6Error} With code "invalid_argument" if opts is malformed or the model inputs do not fit the model,
+   *   "asset" if a download fails, "model" if loading or running the model fails, "query" if the sqlite fails.
    */
   async run(opts) {
     if (!opts || !opts.model) throw new I6Error("infer: opts.model is required", { code: "invalid_argument" })
@@ -73,30 +69,29 @@ class Infer {
 
     const { model, params, assets } = opts
 
-    // 1. Get the model files (cached by etag) and the runtimes
-    const { dbPath, modelBytes } = await downloadAssets(model, assets)
-    const compiled = await loadModel(modelBytes, assets.litertWasm)
+    // 1. Get the model files (cached by etag) and load the model
+    const sqliteRef = await download(`infer-${model}-sqlite`, assets.sqlite)
+    const tfliteRef = await download(`infer-${model}-tflite`, assets.tflite)
+    const compiled = await loadModel({ ref: tfliteRef, wasmUrl: assets.litertWasm })
 
     // The sqlite is only needed while the stages below run
-    const conn = await sqlitez.open({ path: dbPath })
+    const conn = await sqlitez.open({ path: await fs.resolve(sqliteRef) })
     try {
       // 2. Read what the model needs from the sqlite: the model inputs (`inputs`) and anything the output query needs
       const ctx = await conn.namedJsonQuery({ name: `model-${model}-input`, param: params })
-      console.log("infer: input query ->", Object.keys(ctx))
-      const inputs = ctx?.inputs
-      if (!inputs) throw new I6Error(`infer: model-${model}-input returned no "inputs"`, { code: "query" })
+      if (!ctx?.inputs) throw new I6Error(`infer: model-${model}-input returned no "inputs"`, { code: "query" })
+      debug("input query returned", Object.keys(ctx))
 
       // 3. Run the model
-      const outputs = await runModel(compiled, inputs)
+      const outputs = await runModel(compiled, ctx.inputs)
 
       // 4. The sqlite turns the outputs into the result
       const outputsJson = Object.fromEntries(Object.entries(outputs).map(([name, values]) => [name, Array.from(values)]))
       const result = await conn.namedJsonQuery({ name: `model-${model}-output`, param: { params, ctx, outputs: outputsJson } })
-      console.log("infer: output query ->", result)
+      debug("output query returned", result)
       return result
     } finally {
       await conn.close()
-      console.log("infer: sqlite closed")
     }
   }
 }
@@ -107,47 +102,26 @@ const LITERT_VERSION = "2.5.3"
 /** Where the LiteRT wasm files are loaded from when the caller does not say. */
 const LITERT_WASM_URL = `https://cdn.jsdelivr.net/npm/@litertjs/core@${LITERT_VERSION}/wasm/`
 
-/** Last compiled model, with the bytes it was compiled from. */
-let cachedModel = null
-
-/** The LiteRT module, once loaded. */
-let litertModule = null
+/** Typed array of each dtype the runner accepts. */
+const DTYPE_CTORS = { float32: Float32Array, int32: Int32Array, uint8: Uint8Array }
 
 /**
- * Downloads (or reuses from the browser cache, checking the etag) the model assets and validates them.
- * @param {string} model - Model name, used to name the cached files.
- * @param {InferAssets} assets - Asset URLs.
- * @returns {Promise<ModelAssets>} The path of the sqlite and the bytes of the tflite.
- * @throws {I6Error} With code "asset" if a download fails or a file is not a valid sqlite/tflite.
+ * The last loaded model: `key` is the name and version of its file, so it is reused until the file changes.
+ * @type {{key: string, litert: Object, compiled: Object}|null}
  */
-async function downloadAssets(model, assets) {
-  const dbRef = await downloadFile(`infer-${model}-sqlite`, assets.sqlite)
-  const modelRef = await downloadFile(`infer-${model}-tflite`, assets.tflite)
-
-  // sqlitez.open checks the sqlite header
-  const dbPath = await fs.resolve(dbRef)
-  const modelBytes = await fs.read(modelRef)
-
-  if (new TextDecoder().decode(modelBytes.subarray(4, 8)) !== "TFL3") {
-    throw new I6Error(`infer: ${assets.tflite} is not a tflite file`, { code: "asset" })
-  }
-  console.log(`infer: assets are ready (sqlite at ${dbPath}, tflite ${modelBytes.length} bytes, TFL3)`)
-
-  return { dbPath, modelBytes }
-}
+let loaded = null
 
 /**
  * Brings one remote file to the browser cache, downloading it only if its etag changed.
  * @param {string} name - Name of the cached file.
  * @param {string} url - URL of the file.
- * @returns {Promise<import("../internal/fs/fs.js").FileRef>} The cached file.
+ * @returns {Promise<FileRef>} The cached file.
  * @throws {I6Error} With code "asset" if the download fails.
  */
-async function downloadFile(name, url) {
+async function download(name, url) {
   try {
-    const before = await fs.get({ name })
     const ref = await downloader.update({ name, url })
-    console.log(`infer: ${name}: ${before && before.version === ref.version ? "cache hit" : "downloaded"}`, ref)
+    debug(`${name} is ready`, ref)
     return ref
   } catch (cause) {
     throw new I6Error(`infer: could not get ${url}: ${cause.message}`, { code: "asset", cause })
@@ -155,39 +129,43 @@ async function downloadFile(name, url) {
 }
 
 /**
- * Loads the bundled LiteRT runtime (wasm) once.
- * @param {string} [wasmUrl] - URL of the folder with the LiteRT wasm files. Defaults to the jsdelivr copy.
- * @returns {Promise<Object>} The LiteRT module.
- * @throws {I6Error} With code "model" if the runtime cannot be loaded.
+ * Loads the LiteRT runtime (once) and the tflite model. Everything LiteRT stays inside this file. The file is only
+ * read and compiled when its version changed since the last call.
+ * @param {Object} opts
+ * @param {FileRef} opts.ref - The downloaded .tflite file.
+ * @param {string} [opts.wasmUrl] - URL of the folder with the LiteRT wasm files. Defaults to the jsdelivr copy.
+ * @returns {Promise<Object>} The compiled model, to give to `runModel` and `describeModel`.
+ * @throws {I6Error} With code "asset" if the file is not a tflite file, "model" if the runtime or the model cannot be loaded.
  */
-async function loadLiteRt(wasmUrl = LITERT_WASM_URL) {
+async function loadModel(opts) {
+  const key = `${opts.ref.name}@${opts.ref.version}`
+  if (loaded?.key === key) return loaded.compiled
+
+  let bytes
+  try {
+    bytes = await fs.read(opts.ref)
+  } catch (cause) {
+    throw new I6Error(`infer: could not read the model: ${cause.message}`, { code: "asset", cause })
+  }
+  if (new TextDecoder().decode(bytes.subarray(4, 8)) !== "TFL3") {
+    throw new I6Error(`infer: ${opts.ref.name} is not a tflite file`, { code: "asset" })
+  }
+
   try {
     const litert = await import("@litertjs/core")
     const loading = litert.getGlobalLiteRtPromise()
-    if (loading) {
-      await loading
-      console.log("infer: litert: already loaded")
-    } else {
-      await litert.loadLiteRt(wasmUrl)
-      console.log(`infer: litert: loaded from ${wasmUrl}`)
-    }
-    litertModule = litert
-    return litert
-  } catch (cause) {
-    throw new I6Error(`infer: could not load LiteRT: ${cause.message}`, { code: "model", cause })
-  }
-}
+    if (loading) await loading
+    else await litert.loadLiteRt(opts.wasmUrl ?? LITERT_WASM_URL)
 
-/**
- * Loads the LiteRT runtime (once) and the tflite model. Everything LiteRT stays inside this file.
- * @param {Uint8Array} modelBytes - Content of the .tflite file.
- * @param {string} [wasmUrl] - URL of the folder with the LiteRT wasm files. Defaults to the jsdelivr copy.
- * @returns {Promise<Object>} The compiled model, to give to `runModel` and `describeModel`.
- * @throws {I6Error} With code "model" if the runtime cannot be loaded or the model cannot be compiled.
- */
-async function loadModel(modelBytes, wasmUrl) {
-  const litert = await loadLiteRt(wasmUrl)
-  return compileModel(litert, modelBytes)
+    const compiled = await litert.loadAndCompile(bytes, { accelerator: "wasm" })
+    if (loaded) loaded.compiled.delete()
+    loaded = { key, litert, compiled }
+
+    debug("model compiled", describeModel(compiled))
+    return compiled
+  } catch (cause) {
+    throw new I6Error(`infer: could not load the model: ${cause.message}`, { code: "model", cause })
+  }
 }
 
 /**
@@ -201,52 +179,17 @@ function describeModel(model) {
 }
 
 /**
- * Compiles the tflite model, reusing the previous compilation when the bytes are the same.
- * @param {Object} litert - The LiteRT module.
- * @param {Uint8Array} modelBytes - Content of the .tflite file.
- * @returns {Promise<Object>} The compiled model.
- */
-async function compileModel(litert, modelBytes) {
-  const sameBytes = (a, b) => a.length === b.length && a.every((v, i) => v === b[i])
-
-  if (cachedModel && sameBytes(cachedModel.bytes, modelBytes)) {
-    console.log("infer: model: reusing the compiled model")
-    return cachedModel.compiled
-  }
-
-  try {
-    const compiled = await litert.loadAndCompile(modelBytes, { accelerator: "wasm" })
-    if (cachedModel) cachedModel.compiled.delete()
-    cachedModel = { bytes: modelBytes, compiled }
-
-    console.log("infer: model: compiled", describeModel(compiled))
-    return compiled
-  } catch (cause) {
-    throw new I6Error(`infer: could not compile the model: ${cause.message}`, { code: "model", cause })
-  }
-}
-
-/** Typed array of each dtype the runner accepts. */
-const DTYPE_CTORS = { float32: Float32Array, int32: Int32Array, uint8: Uint8Array }
-
-/**
- * Flat values and shape of one input. Flat data with a `shape` is used as is. Nested data (or flat data
- * without a shape) is fitted to the model's shape: missing batch dimension added, padded with `fill`.
+ * Flat values and shape of one input, fitted to the model's shape: missing batch dimension added, padded with `fill`.
  * @param {string} name - Input name, for error messages.
  * @param {ModelInput} input - What the caller gave.
  * @param {number[]} modelShape - Shape of the model input (-1 is free).
- * @returns {{flat: ArrayLike<number>, shape: number[]}}
+ * @returns {{flat: number[], shape: number[]}}
  * @throws {I6Error} With code "invalid_argument" if the data does not fit the model's shape.
  */
 function toTensorData(name, input, modelShape) {
   const invalid = (msg) => new I6Error(`infer: input "${name}" ${msg}`, { code: "invalid_argument" })
-  const check = (flat, shape) => {
-    if (flat.length !== shape.reduce((a, b) => a * b, 1)) throw invalid(`has ${flat.length} values, does not fit shape [${shape}]`)
-    return { flat, shape }
-  }
-  if (input.shape) return check(input.data, input.shape)
 
-  let data = ArrayBuffer.isView(input.data) ? Array.from(input.data) : input.data
+  let data = input.data
   let rank = 0
   for (let a = data; Array.isArray(a); a = a[0]) rank++
   if (rank === modelShape.length - 1) data = [data]
@@ -264,16 +207,16 @@ function toTensorData(name, input, modelShape) {
 
   const shape = []
   for (let a = data; Array.isArray(a); a = a[0]) shape.push(a.length)
-  return check(data.flat(Infinity), shape)
+  return { flat: data.flat(Infinity), shape }
 }
 
 /**
- * Runs the model. The caller only gives data and shapes: every LiteRT tensor is created and freed here.
+ * Runs the model. The caller only gives data: every LiteRT tensor is created and freed here.
  * Every model input must be in `inputs` under its exact name.
  * @param {Object} model - The compiled model, from loadModel.
- * @param {Record<string, ModelInput>} inputs - Input name -> data and shape.
+ * @param {Record<string, ModelInput>} inputs - Input name -> data.
  * @returns {Promise<Record<string, ArrayLike<number>>>} Output name -> values, for every output of the model.
- * @throws {I6Error} With code "invalid_argument" if an input is missing or its data does not fit its shape.
+ * @throws {I6Error} With code "invalid_argument" if an input is missing or its data does not fit the model, "model" if the run fails.
  */
 async function runModel(model, inputs) {
   const tensors = {}
@@ -284,13 +227,17 @@ async function runModel(model, inputs) {
       if (!input) throw new I6Error(`infer: input "${detail.name}" is missing`, { code: "invalid_argument" })
 
       const { flat, shape } = toTensorData(detail.name, input, Array.from(detail.shape))
-      tensors[detail.name] = new litertModule.Tensor(new DTYPE_CTORS[detail.dtype](flat), shape)
+      tensors[detail.name] = new loaded.litert.Tensor(new DTYPE_CTORS[detail.dtype](flat), shape)
     }
 
-    raw = await model.run(tensors)
-    const outputs = {}
-    for (const [name, tensor] of Object.entries(raw)) outputs[name] = await tensor.data()
-    return outputs
+    try {
+      raw = await model.run(tensors)
+      const outputs = {}
+      for (const [name, tensor] of Object.entries(raw)) outputs[name] = await tensor.data()
+      return outputs
+    } catch (cause) {
+      throw new I6Error(`infer: could not run the model: ${cause.message}`, { code: "model", cause })
+    }
   } finally {
     Object.values(raw).forEach((t) => t.delete())
     Object.values(tensors).forEach((t) => t.delete())
