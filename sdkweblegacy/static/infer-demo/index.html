@@ -41,14 +41,20 @@
 
   <div class="card">
     <h2>Config <span class="badge">what an SDK user passes in opts</span></h2>
-    <label for="model">opts.model</label>
-    <input type="text" id="model" value="fbt">
-    <label for="productIds">opts.params.productIds (comma separated; repeats allowed, they count as items)</label>
-    <input type="text" id="productIds" value="9132438814883, 9132177490083, unknown-id">
-    <label for="sqlite">opts.assets.sqlite</label>
-    <input type="text" id="sqlite">
-    <label for="tflite">opts.assets.tflite</label>
-    <input type="text" id="tflite">
+    <label for="modelName">opts.modelName</label>
+    <input type="text" id="modelName" value="relevance-fashion-fbt">
+    <label for="modelVersion">opts.modelVersion</label>
+    <input type="text" id="modelVersion" value="v1">
+    <label for="storeId">opts.storeId</label>
+    <input type="text" id="storeId" value="s1">
+    <label for="dataset">opts.dataset</label>
+    <input type="text" id="dataset" value="dectest">
+    <label for="sku_ids">opts.params.sku_ids (comma separated; repeats allowed, they count as items)</label>
+    <input type="text" id="sku_ids" value="9132438814883, 9132177490083, unknown-id">
+    <label for="sqliteUrl">opts.sqliteUrl (tests only; empty = discovered with the API, which needs a signed-in SDK)</label>
+    <input type="text" id="sqliteUrl">
+    <label for="tfliteUrl">opts.tfliteUrl (tests only; empty = discovered with the API)</label>
+    <input type="text" id="tfliteUrl">
     <div class="row" style="margin-top:8px">
       <label style="margin:0"><input type="checkbox" id="full"> show full arrays (otherwise long arrays are cut)</label>
       <button id="clear">Clear OPFS cache</button>

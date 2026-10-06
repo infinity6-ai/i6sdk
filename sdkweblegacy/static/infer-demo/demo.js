@@ -9,8 +9,8 @@ import { describeModel, loadModel, runModel } from '../../src/infer/litert.js'
 window.I6_DEBUG = true
 
 const $ = (id) => document.getElementById(id)
-$('sqlite').value = new URL('../../src/infer/gen/modeldb.sqlite', import.meta.url).href
-$('tflite').value = new URL('../../src/infer/gen/model.tflite', import.meta.url).href
+$('sqliteUrl').value = new URL('../../src/infer/gen/modeldb.sqlite', import.meta.url).href
+$('tfliteUrl').value = new URL('../../src/infer/gen/model.tflite', import.meta.url).href
 
 // What every step leaves for the next one
 const state = {}
@@ -71,26 +71,26 @@ const need = (...keys) => {
 
 // --- what the SDK user passes in ---------------------------------------------------------------------
 const config = () => {
-  const productIds = $('productIds').value.split(/[\s,]+/).filter(Boolean)
-  return {
-    model: $('model').value.trim(),
-    productIds,
-    assets: { sqlite: $('sqlite').value.trim(), tflite: $('tflite').value.trim() },
+  const text = (id) => $(id).value.trim()
+  const opts = {
+    modelName: text('modelName'),
+    modelVersion: text('modelVersion'),
+    storeId: text('storeId'),
+    dataset: text('dataset'),
+    params: { sku_ids: text('sku_ids').split(/[\s,]+/).filter(Boolean) },
   }
+  if (text('sqliteUrl')) opts.sqliteUrl = text('sqliteUrl')
+  if (text('tfliteUrl')) opts.tfliteUrl = text('tfliteUrl')
+  return opts
 }
 
 // The code of the SDK user, written with the values of the config card. Shown at the top of the page and run by step 7
 function usage() {
-  const { model, productIds, assets } = config()
   return `import { I6Sdk } from './i6sdk-web.js'
 
-const result = await new I6Sdk().infer().run({
-  model: ${JSON.stringify(model)},
-  params: { productIds: ${JSON.stringify(productIds)} },
-  assets: ${JSON.stringify(assets, null, 4).replace(/\n/g, '\n  ')},
-})`
+const result = await new I6Sdk().infer().run(${JSON.stringify(config(), null, 2)})`
 }
-for (const id of ['model', 'productIds', 'sqlite', 'tflite']) $(id).addEventListener('input', () => { $('usage').textContent = usage() })
+for (const id of ['modelName', 'modelVersion', 'storeId', 'dataset', 'sku_ids', 'sqliteUrl', 'tfliteUrl']) $(id).addEventListener('input', () => { $('usage').textContent = usage() })
 
 // Opens the sqlite of step 1, runs a named query and always closes it. Returns the result and the SQL of the stored query.
 async function namedJsonQuery(name, param) {
@@ -107,19 +107,21 @@ async function namedJsonQuery(name, param) {
 // --- the steps ---------------------------------------------------------------------------------------
 const steps = {
   1: () => runStep(1, async () => {
-    const { model, assets } = config()
+    const opts = config()
+    const urls = { sqlite: opts.sqliteUrl, tflite: opts.tfliteUrl }
+    if (!urls.sqlite || !urls.tflite) throw new Error('steps 1-6 need opts.sqliteUrl and opts.tfliteUrl; step 7 can discover them')
     const output = {}
     const refs = {}
     for (const kind of ['sqlite', 'tflite']) {
-      const name = `infer-${model}-${kind}`
+      const name = `infer-${opts.modelName}-${opts.storeId}-${opts.modelVersion}-${kind}`
       const before = await fs.get({ name })
-      refs[kind] = await downloader.update({ name, url: assets[kind] })
+      refs[kind] = await downloader.update({ name, url: urls[kind] })
       output[kind] = { result: before && before.version === refs[kind].version ? 'cache hit' : 'downloaded', file: refs[kind] }
     }
     state.dbPath = await fs.resolve(refs.sqlite)
     state.tfliteRef = refs.tflite
     output.sqlite.path = state.dbPath
-    return { input: { model, assets }, output }
+    return { input: urls, output }
   }),
 
   2: () => runStep(2, async () => {
@@ -133,9 +135,8 @@ const steps = {
 
   3: () => runStep(3, async () => {
     need('dbPath')
-    const { model, productIds } = config()
-    const params = { productIds }
-    const name = `model-${model}-input`
+    const { modelName, params } = config()
+    const name = `model-${modelName}-input`
     const { ret, sql } = await namedJsonQuery(name, params)
     state.ctx = ret
     return {
@@ -167,9 +168,8 @@ const steps = {
 
   6: () => runStep(6, async () => {
     need('ctx', 'outputs')
-    const { model, productIds } = config()
-    const params = { productIds }
-    const name = `model-${model}-output`
+    const { modelName, params } = config()
+    const name = `model-${modelName}-output`
     const param = { params, ctx: state.ctx, outputs: state.outputs }
     const { ret, sql } = await namedJsonQuery(name, param)
     state.result = ret
@@ -177,8 +177,7 @@ const steps = {
   }),
 
   7: () => runStep(7, async () => {
-    const { model, productIds, assets } = config()
-    const opts = { model, params: { productIds }, assets }
+    const opts = config()
     const result = await new I6Sdk().infer().run(opts)
     return { input: opts, output: result }
   }),

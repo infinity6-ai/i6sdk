@@ -4,10 +4,11 @@
 
         // Test assets (gitignored): the test with the real model is skipped when they are not served
         const assets = {
-            sqlite: new URL('../src/infer/gen/modeldb.sqlite', location.href).href,
-            tflite: new URL('../src/infer/gen/model.tflite', location.href).href,
+            sqliteUrl: new URL('../src/infer/gen/modeldb.sqlite', location.href).href,
+            tfliteUrl: new URL('../src/infer/gen/model.tflite', location.href).href,
         }
-        const productIds = ['9132438814883', '9132177490083']
+        const base = { modelName: 'relevance-fashion-fbt', modelVersion: 'v1', storeId: 's1', dataset: 'dectest' }
+        const sku_ids = ['9132438814883', '9132177490083']
 
         /** @type {import('../src/infer/infer.js').Infer} */
         let infer
@@ -31,21 +32,22 @@
         })
 
         QUnit.test("run validates its opts", async function (assert) {
-            const ok = { model: 'fbt', params: { productIds }, assets }
-            await rejectsWithCode(assert, infer.run(), 'invalid_argument', /opts.model/)
-            await rejectsWithCode(assert, infer.run({ ...ok, model: '' }), 'invalid_argument', /opts.model/)
-            await rejectsWithCode(assert, infer.run({ ...ok, assets: { sqlite: assets.sqlite } }), 'invalid_argument', /opts.assets/)
+            const ok = { ...base, params: { sku_ids }, ...assets }
+            await rejectsWithCode(assert, infer.run(), 'invalid_argument', /opts.modelName/)
+            for (const key of Object.keys(base)) {
+                await rejectsWithCode(assert, infer.run({ ...ok, [key]: '' }), 'invalid_argument', new RegExp(`opts.${key}`))
+            }
         })
 
         QUnit.test("run reports an asset that cannot be downloaded", async function (assert) {
-            const opts = { model: 'nomodel', params: {}, assets: { sqlite: new URL('nope.sqlite', location.href).href, tflite: assets.tflite } }
+            const opts = { ...base, params: {}, sqliteUrl: new URL('nope.sqlite', location.href).href, tfliteUrl: assets.tfliteUrl }
             await rejectsWithCode(assert, infer.run(opts), 'asset', /could not get/)
         })
 
         QUnit.test("run with the real model", async function (assert) {
-            if (!(await fetch(assets.tflite, { method: 'HEAD' })).ok) return assert.ok(true, 'skipped: no assets in src/infer/gen')
+            if (!(await fetch(assets.tfliteUrl, { method: 'HEAD' })).ok) return assert.ok(true, 'skipped: no assets in src/infer/gen')
 
-            const opts = { model: 'fbt', params: { productIds }, assets }
+            const opts = { ...base, params: { sku_ids }, ...assets }
             const result = await infer.run(opts)
 
             assert.strictEqual(result.productIds.length, 20)
@@ -56,11 +58,11 @@
         })
 
         QUnit.test("runModel reports inputs that do not fit the model", async function (assert) {
-            if (!(await fetch(assets.tflite, { method: 'HEAD' })).ok) return assert.ok(true, 'skipped: no assets in src/infer/gen')
+            if (!(await fetch(assets.tfliteUrl, { method: 'HEAD' })).ok) return assert.ok(true, 'skipped: no assets in src/infer/gen')
 
             const { loadModel, runModel } = await import('../src/infer/litert.js')
             const { downloader } = await import('../src/internal/downloader/downloader.js')
-            const ref = await downloader.update({ name: 'infer-fbt-tflite', url: assets.tflite })
+            const ref = await downloader.update({ name: 'infer-relevance-fashion-fbt-tflite', url: assets.tfliteUrl })
             const model = await loadModel({ ref })
             const fields = { data: [[1, 2, 3, 4, 5, 6, 7]], fill: 0 }
             const padMask = { data: [1], fill: 0 }
