@@ -72,7 +72,7 @@ func (d *Api) GetDataRefs() *apiz.DataRefs {
 		RespHeaders: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"Location": {
+					"location": {
 						Desc: &schemaz.Desc{Summary: "Redirect URL for the file."},
 						Str:  schemaz.ParseStr(&d.Resp.Location),
 					},
