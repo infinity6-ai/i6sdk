@@ -13,7 +13,7 @@ import (
 )
 
 func TestUnitPipezApi(t *testing.T) {
-	api := &pipezapi.PipezStartApi{
+	api := &pipezapi.Api{
 		Req: &pipezapi.PipezStartReq{
 			Dataset: lakedsz.MustParse("myds"),
 			SolutionDomain: solutiondomain.MustParse(solutiondomain.Value{
@@ -23,7 +23,7 @@ func TestUnitPipezApi(t *testing.T) {
 		},
 	}
 
-	api2 := jsonz.MustCopy(api, &pipezapi.PipezStartApi{})
+	api2 := jsonz.MustCopy(api, &pipezapi.Api{})
 
 	require.Equal(t, *api.Req, *api2.Req)
 }

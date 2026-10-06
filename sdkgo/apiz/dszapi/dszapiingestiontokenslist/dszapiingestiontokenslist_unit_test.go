@@ -12,7 +12,7 @@ import (
 )
 
 func TestUnitDszListIngestionTokensApi(t *testing.T) {
-	api := &dszapiingestiontokenslist.DszListIngestionTokensApi{
+	api := &dszapiingestiontokenslist.Api{
 		Req: dszapiingestiontokenslist.DszListIngestionTokensReq{
 			Dataset: lakedsz.MustParse("myds"),
 		},
@@ -31,7 +31,7 @@ func TestUnitDszListIngestionTokensApi(t *testing.T) {
 		},
 	}
 
-	apiCopy := jsonz.MustCopy(api, &dszapiingestiontokenslist.DszListIngestionTokensApi{})
+	apiCopy := jsonz.MustCopy(api, &dszapiingestiontokenslist.Api{})
 	require.Equal(t, api.Req, apiCopy.Req)
 	require.Equal(t, api.Resp, apiCopy.Resp)
 

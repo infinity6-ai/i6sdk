@@ -18,12 +18,12 @@ func (*DszListRecsysTokensResp) JSType() string {
 	return jstypez.TypObject
 }
 
-type DszListRecsysTokensApi struct {
+type Api struct {
 	Req  DszListRecsysTokensReq  `json:"req"`
 	Resp DszListRecsysTokensResp `json:"resp"`
 }
 
-func (d *DszListRecsysTokensApi) ApiSpec() apiz.ApiSpec {
+func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
 		Id:     "dsz-list-recsys-tokens",
 		Method: "GET",
@@ -31,7 +31,7 @@ func (d *DszListRecsysTokensApi) ApiSpec() apiz.ApiSpec {
 	}
 }
 
-func (d *DszListRecsysTokensApi) GetDataRefs() *apiz.DataRefs {
+func (d *Api) GetDataRefs() *apiz.DataRefs {
 	return &apiz.DataRefs{
 		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {

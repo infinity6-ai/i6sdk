@@ -12,7 +12,7 @@ import (
 )
 
 func TestUnitDszCreateRecsysTokenApi(t *testing.T) {
-	api := &dszapirecsystokencreate.DszCreateRecsysTokenApi{
+	api := &dszapirecsystokencreate.Api{
 		Req: dszapirecsystokencreate.DszCreateRecsysTokenReq{
 			Dataset:    lakedsz.MustParse("myds"),
 			Annotation: "Annotation",
@@ -31,7 +31,7 @@ func TestUnitDszCreateRecsysTokenApi(t *testing.T) {
 		},
 	}
 
-	apiCopy := jsonz.MustCopy(api, &dszapirecsystokencreate.DszCreateRecsysTokenApi{})
+	apiCopy := jsonz.MustCopy(api, &dszapirecsystokencreate.Api{})
 	require.Equal(t, api.Req, apiCopy.Req)
 	require.Equal(t, api.Resp, apiCopy.Resp)
 

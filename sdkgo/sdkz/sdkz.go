@@ -42,21 +42,21 @@ func init() {
 	for _, svc := range routezsamplefraction.Services() {
 		add(svc.Api())
 	}
-	add(&ingestzapigeturl.GetUrlApi{})
+	add(&ingestzapigeturl.Api{})
 	add(&dszapisignedurl.Api{})
 	add(&dszapitableget.Api{})
 	add(&dszapitablelist.Api{})
-	add(&pipezapi.PipezStartApi{})
-	add(&dszapidomainsolutionselect.DszSolutionDomainSelectApi{})
-	add(&dszapidomainsolutionget.DszSolutionDomainGetApi{})
-	add(&dszapistorecreate.DszCreateStoreApi{})
-	add(&dszapistorelist.DszListStoresApi{})
-	add(&dszapidatasetlist.DszListDatasetsApi{})
-	add(&dszapiingestiontokenslist.DszListIngestionTokensApi{})
-	add(&dszapiingestiontokencreate.DszCreateIngestionTokenApi{})
-	add(&dszapirecsystokenslist.DszListRecsysTokensApi{})
-	add(&dszapirecsystokencreate.DszCreateRecsysTokenApi{})
-	add(&dszapitokendelete.DszDeleteTokenApi{})
+	add(&pipezapi.Api{})
+	add(&dszapidomainsolutionselect.Api{})
+	add(&dszapidomainsolutionget.Api{})
+	add(&dszapistorecreate.Api{})
+	add(&dszapistorelist.Api{})
+	add(&dszapidatasetlist.Api{})
+	add(&dszapiingestiontokenslist.Api{})
+	add(&dszapiingestiontokencreate.Api{})
+	add(&dszapirecsystokenslist.Api{})
+	add(&dszapirecsystokencreate.Api{})
+	add(&dszapitokendelete.Api{})
 }
 
 func All() []apiz.Api {

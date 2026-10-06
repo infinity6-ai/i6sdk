@@ -11,14 +11,14 @@ import (
 )
 
 func TestUnitDszDeleteTokenApi(t *testing.T) {
-	api := &dszapitokendelete.DszDeleteTokenApi{
+	api := &dszapitokendelete.Api{
 		Req: dszapitokendelete.DszDeleteTokenReq{
 			Dataset: lakedsz.MustParse("myds"),
 			Token:   "tok-123",
 		},
 	}
 
-	apiCopy := jsonz.MustCopy(api, &dszapitokendelete.DszDeleteTokenApi{})
+	apiCopy := jsonz.MustCopy(api, &dszapitokendelete.Api{})
 	require.Equal(t, api.Req, apiCopy.Req)
 
 	parsed := jsparser.ParseApi(api)

@@ -12,7 +12,7 @@ import (
 )
 
 func TestUnitDszCreateStoreApi(t *testing.T) {
-	api := &dszapistorecreate.DszCreateStoreApi{
+	api := &dszapistorecreate.Api{
 		Req: &dszapistorecreate.DszCreateStoreReq{
 			Dataset: lakedsz.MustParse("myds"),
 			Store: dszstore.DszStore{
@@ -22,7 +22,7 @@ func TestUnitDszCreateStoreApi(t *testing.T) {
 		},
 	}
 
-	apiCopy := jsonz.MustCopy(api, &dszapistorecreate.DszCreateStoreApi{})
+	apiCopy := jsonz.MustCopy(api, &dszapistorecreate.Api{})
 	require.Equal(t, api.Req, apiCopy.Req)
 
 	parsed := jsparser.ParseApi(api)

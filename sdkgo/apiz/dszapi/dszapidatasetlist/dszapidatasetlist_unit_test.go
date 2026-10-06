@@ -10,7 +10,7 @@ import (
 )
 
 func TestUnitDszListDatasetsApi(t *testing.T) {
-	api := &dszapidatasetlist.DszListDatasetsApi{
+	api := &dszapidatasetlist.Api{
 		Req: &dszapidatasetlist.DszListDatasetsReq{
 			User: "user1",
 		},
@@ -25,7 +25,7 @@ func TestUnitDszListDatasetsApi(t *testing.T) {
 		},
 	}
 
-	apiCopy := jsonz.MustCopy(api, &dszapidatasetlist.DszListDatasetsApi{})
+	apiCopy := jsonz.MustCopy(api, &dszapidatasetlist.Api{})
 	require.Equal(t, api.Req, apiCopy.Req)
 	require.Equal(t, api.Resp, apiCopy.Resp)
 

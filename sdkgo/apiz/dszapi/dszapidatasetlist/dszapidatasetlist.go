@@ -24,12 +24,12 @@ type DszListDatasetsResp struct {
 	Datasets []*Dataset `json:"datasets"`
 }
 
-type DszListDatasetsApi struct {
+type Api struct {
 	Req  *DszListDatasetsReq  `json:"req"`
 	Resp *DszListDatasetsResp `json:"resp"`
 }
 
-func (d *DszListDatasetsApi) ApiSpec() apiz.ApiSpec {
+func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
 		Id:     "dsz-list-datasets",
 		Desc:   nil,
@@ -38,7 +38,7 @@ func (d *DszListDatasetsApi) ApiSpec() apiz.ApiSpec {
 	}
 }
 
-func (d *DszListDatasetsApi) GetDataRefs() *apiz.DataRefs {
+func (d *Api) GetDataRefs() *apiz.DataRefs {
 	return &apiz.DataRefs{
 		PathParams: nil,
 		QueryParams: &schemaz.Schema{

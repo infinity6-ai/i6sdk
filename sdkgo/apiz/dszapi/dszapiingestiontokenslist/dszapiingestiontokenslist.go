@@ -18,12 +18,12 @@ func (*DszListIngestionTokensResp) JSType() string {
 	return jstypez.TypObject
 }
 
-type DszListIngestionTokensApi struct {
+type Api struct {
 	Req  DszListIngestionTokensReq  `json:"req"`
 	Resp DszListIngestionTokensResp `json:"resp"`
 }
 
-func (d *DszListIngestionTokensApi) ApiSpec() apiz.ApiSpec {
+func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
 		Id:     "dsz-list-ingestion-tokens",
 		Method: "GET",
@@ -31,7 +31,7 @@ func (d *DszListIngestionTokensApi) ApiSpec() apiz.ApiSpec {
 	}
 }
 
-func (d *DszListIngestionTokensApi) GetDataRefs() *apiz.DataRefs {
+func (d *Api) GetDataRefs() *apiz.DataRefs {
 	return &apiz.DataRefs{
 		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {

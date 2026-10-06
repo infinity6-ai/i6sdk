@@ -12,7 +12,7 @@ import (
 )
 
 func TestUnitDszApi(t *testing.T) {
-	productApi := &dszapidomainsolutionselect.DszSolutionDomainSelectApi{
+	productApi := &dszapidomainsolutionselect.Api{
 		Req: &dszapidomainsolutionselect.DszSolutionDomainSelectReq{
 			Dataset:  lakedsz.MustParse("myds"),
 			Solution: solution.MustParse("relevance"),
@@ -21,7 +21,7 @@ func TestUnitDszApi(t *testing.T) {
 		},
 	}
 
-	productApi2 := jsonz.MustCopy(productApi, &dszapidomainsolutionselect.DszSolutionDomainSelectApi{})
+	productApi2 := jsonz.MustCopy(productApi, &dszapidomainsolutionselect.Api{})
 
 	require.Equal(t, *productApi.Req, *productApi2.Req)
 }

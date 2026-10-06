@@ -13,12 +13,12 @@ type DszCreateRecsysTokenReq struct {
 	Channel    string          `json:"channel"`
 }
 
-type DszCreateRecsysTokenApi struct {
+type Api struct {
 	Req  DszCreateRecsysTokenReq `json:"req"`
 	Resp dsztoken.DatasetToken   `json:"resp"`
 }
 
-func (d *DszCreateRecsysTokenApi) ApiSpec() apiz.ApiSpec {
+func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
 		Id:     "dsz-create-recsys-token",
 		Method: "POST",
@@ -26,7 +26,7 @@ func (d *DszCreateRecsysTokenApi) ApiSpec() apiz.ApiSpec {
 	}
 }
 
-func (d *DszCreateRecsysTokenApi) GetDataRefs() *apiz.DataRefs {
+func (d *Api) GetDataRefs() *apiz.DataRefs {
 	return &apiz.DataRefs{
 		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {

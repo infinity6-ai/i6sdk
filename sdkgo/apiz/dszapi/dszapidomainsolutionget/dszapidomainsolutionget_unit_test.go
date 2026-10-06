@@ -13,7 +13,7 @@ import (
 )
 
 func TestUnitDszSolutionDomainGetApi(t *testing.T) {
-	api := &dszapidomainsolutionget.DszSolutionDomainGetApi{
+	api := &dszapidomainsolutionget.Api{
 		Req: &dszapidomainsolutionget.DszSolutionDomainGetReq{
 			Dataset: lakedsz.MustParse("myds"),
 			Store:   "store1",
@@ -30,7 +30,7 @@ func TestUnitDszSolutionDomainGetApi(t *testing.T) {
 		},
 	}
 
-	apiCopy := jsonz.MustCopy(api, &dszapidomainsolutionget.DszSolutionDomainGetApi{})
+	apiCopy := jsonz.MustCopy(api, &dszapidomainsolutionget.Api{})
 	require.Equal(t, api.Req, apiCopy.Req)
 	require.Equal(t, api.Resp, apiCopy.Resp)
 

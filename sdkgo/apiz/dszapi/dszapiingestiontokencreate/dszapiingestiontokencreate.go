@@ -12,12 +12,12 @@ type DszCreateIngestionTokenReq struct {
 	Annotation string          `json:"annotation"`
 }
 
-type DszCreateIngestionTokenApi struct {
+type Api struct {
 	Req  DszCreateIngestionTokenReq `json:"req"`
 	Resp dsztoken.DatasetToken      `json:"resp"`
 }
 
-func (d *DszCreateIngestionTokenApi) ApiSpec() apiz.ApiSpec {
+func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
 		Id:     "dsz-create-ingestion-token",
 		Method: "POST",
@@ -25,7 +25,7 @@ func (d *DszCreateIngestionTokenApi) ApiSpec() apiz.ApiSpec {
 	}
 }
 
-func (d *DszCreateIngestionTokenApi) GetDataRefs() *apiz.DataRefs {
+func (d *Api) GetDataRefs() *apiz.DataRefs {
 	return &apiz.DataRefs{
 		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {

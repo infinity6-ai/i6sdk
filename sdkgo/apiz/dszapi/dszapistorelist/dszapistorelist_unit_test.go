@@ -12,7 +12,7 @@ import (
 )
 
 func TestUnitDszListStoresApi(t *testing.T) {
-	api := &dszapistorelist.DszListStoresApi{
+	api := &dszapistorelist.Api{
 		Req: &dszapistorelist.DszListStoresReq{
 			Dataset: lakedsz.MustParse("myds"),
 		},
@@ -27,7 +27,7 @@ func TestUnitDszListStoresApi(t *testing.T) {
 		},
 	}
 
-	apiCopy := jsonz.MustCopy(api, &dszapistorelist.DszListStoresApi{})
+	apiCopy := jsonz.MustCopy(api, &dszapistorelist.Api{})
 	require.Equal(t, api.Req, apiCopy.Req)
 	require.Equal(t, api.Resp, apiCopy.Resp)
 

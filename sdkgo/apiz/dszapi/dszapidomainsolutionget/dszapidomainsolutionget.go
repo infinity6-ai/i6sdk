@@ -37,12 +37,12 @@ type DszSolutionDomainGetResp struct {
 	Store     string           `json:"store"`
 }
 
-type DszSolutionDomainGetApi struct {
+type Api struct {
 	Req  *DszSolutionDomainGetReq  `json:"req"`
 	Resp *DszSolutionDomainGetResp `json:"resp"`
 }
 
-func (d *DszSolutionDomainGetApi) ApiSpec() apiz.ApiSpec {
+func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
 		Id:     "dsz-domain-get",
 		Desc:   nil,
@@ -51,7 +51,7 @@ func (d *DszSolutionDomainGetApi) ApiSpec() apiz.ApiSpec {
 	}
 }
 
-func (d *DszSolutionDomainGetApi) GetDataRefs() *apiz.DataRefs {
+func (d *Api) GetDataRefs() *apiz.DataRefs {
 	return &apiz.DataRefs{
 		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {

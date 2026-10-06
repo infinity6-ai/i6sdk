@@ -16,12 +16,12 @@ type DszListStoresResp struct {
 	Stores  []dszstore.DszStore `json:"stores"`
 }
 
-type DszListStoresApi struct {
+type Api struct {
 	Req  *DszListStoresReq  `json:"req"`
 	Resp *DszListStoresResp `json:"resp"`
 }
 
-func (d *DszListStoresApi) ApiSpec() apiz.ApiSpec {
+func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
 		Id:     "dsz-list-stores",
 		Desc:   nil,
@@ -30,7 +30,7 @@ func (d *DszListStoresApi) ApiSpec() apiz.ApiSpec {
 	}
 }
 
-func (d *DszListStoresApi) GetDataRefs() *apiz.DataRefs {
+func (d *Api) GetDataRefs() *apiz.DataRefs {
 	return &apiz.DataRefs{
 		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {

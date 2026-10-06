@@ -25,12 +25,12 @@ func (*GetUrlResp) JSType() string {
 	return jstypez.TypObject
 }
 
-type GetUrlApi struct {
+type Api struct {
 	Req  GetUrlReq  `json:"req"`
 	Resp GetUrlResp `json:"resp"`
 }
 
-func (d *GetUrlApi) ApiSpec() apiz.ApiSpec {
+func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
 		Id: "ingestz-get-url",
 		Desc: func() *schemaz.Desc {
@@ -44,7 +44,7 @@ func (d *GetUrlApi) ApiSpec() apiz.ApiSpec {
 	}
 }
 
-func (d *GetUrlApi) GetDataRefs() *apiz.DataRefs {
+func (d *Api) GetDataRefs() *apiz.DataRefs {
 	return &apiz.DataRefs{
 		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
