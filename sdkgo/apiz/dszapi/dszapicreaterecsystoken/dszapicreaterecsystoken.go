@@ -44,33 +44,32 @@ type DszCreateRecsysTokenReq struct {
 }
 
 type DszCreateRecsysTokenApi struct {
-	Req  *DszCreateRecsysTokenReq `json:"req"`
-	Resp *DatasetToken            `json:"resp"`
+	Req  DszCreateRecsysTokenReq `json:"req"`
+	Resp DatasetToken            `json:"resp"`
 }
 
 func (d *DszCreateRecsysTokenApi) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
 		Id:     "dsz-create-recsys-token",
 		Method: "POST",
-		Path:   "/api/datasetmanager/dataset/recsystoken/create",
+		Path:   "/api/ds/dataset/{dataset}/recsystoken/create",
 	}
 }
 
 func (d *DszCreateRecsysTokenApi) GetDataRefs() *apiz.DataRefs {
 	return &apiz.DataRefs{
-		PathParams:  nil,
+		PathParams: &schemaz.Schema{
+			Object: func(read bool) map[string]*schemaz.Schema {
+				return map[string]*schemaz.Schema{
+					"dataset": {Str: schemaz.ParseStr(&d.Req.Dataset)},
+				}
+			},
+		},
 		QueryParams: nil,
 		ReqHeaders:  nil,
 		ReqBody: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && d.Req == nil {
-					return nil
-				}
-				if d.Req == nil {
-					d.Req = &DszCreateRecsysTokenReq{}
-				}
 				return map[string]*schemaz.Schema{
-					"dataset":    {Str: schemaz.ParseStr(&d.Req.Dataset)},
 					"annotation": {Str: schemaz.ParseStr(&d.Req.Annotation)},
 					"channel":    {Str: schemaz.ParseStr(&d.Req.Channel)},
 				}

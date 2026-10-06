@@ -11,7 +11,7 @@ import (
 
 func TestUnitDszListIngestionTokensApi(t *testing.T) {
 	api := &dszapilistingestiontokens.DszListIngestionTokensApi{
-		Req: &dszapilistingestiontokens.DszListIngestionTokensReq{
+		Req: dszapilistingestiontokens.DszListIngestionTokensReq{
 			Dataset: "myds",
 		},
 		Resp: []dszapilistingestiontokens.DatasetToken{

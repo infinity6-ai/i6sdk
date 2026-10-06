@@ -40,39 +40,36 @@ func (*DatasetToken) JSTypedef() (*jstypez.Typedef, *jstypez.Typedefs) {
 type DszCreateIngestionTokenReq struct {
 	Dataset    string `json:"dataset"`
 	Annotation string `json:"annotation"`
-	Channel    string `json:"channel"`
 }
 
 type DszCreateIngestionTokenApi struct {
-	Req  *DszCreateIngestionTokenReq `json:"req"`
-	Resp *DatasetToken               `json:"resp"`
+	Req  DszCreateIngestionTokenReq `json:"req"`
+	Resp DatasetToken               `json:"resp"`
 }
 
 func (d *DszCreateIngestionTokenApi) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
 		Id:     "dsz-create-ingestion-token",
 		Method: "POST",
-		Path:   "/api/datasetmanager/dataset/ingestiontoken/create",
+		Path:   "/api/ds/dataset/{dataset}/ingestiontoken/create",
 	}
 }
 
 func (d *DszCreateIngestionTokenApi) GetDataRefs() *apiz.DataRefs {
 	return &apiz.DataRefs{
-		PathParams:  nil,
+		PathParams: &schemaz.Schema{
+			Object: func(read bool) map[string]*schemaz.Schema {
+				return map[string]*schemaz.Schema{
+					"dataset": {Str: schemaz.ParseStr(&d.Req.Dataset)},
+				}
+			},
+		},
 		QueryParams: nil,
 		ReqHeaders:  nil,
 		ReqBody: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && d.Req == nil {
-					return nil
-				}
-				if d.Req == nil {
-					d.Req = &DszCreateIngestionTokenReq{}
-				}
 				return map[string]*schemaz.Schema{
-					"dataset":    {Str: schemaz.ParseStr(&d.Req.Dataset)},
 					"annotation": {Str: schemaz.ParseStr(&d.Req.Annotation)},
-					"channel":    {Str: schemaz.ParseStr(&d.Req.Channel)},
 				}
 			},
 		},

@@ -11,12 +11,12 @@ import (
 
 func TestUnitDszCreateRecsysTokenApi(t *testing.T) {
 	api := &dszapicreaterecsystoken.DszCreateRecsysTokenApi{
-		Req: &dszapicreaterecsystoken.DszCreateRecsysTokenReq{
+		Req: dszapicreaterecsystoken.DszCreateRecsysTokenReq{
 			Dataset:    "myds",
 			Annotation: "Annotation",
 			Channel:    "chan1",
 		},
-		Resp: &dszapicreaterecsystoken.DatasetToken{
+		Resp: dszapicreaterecsystoken.DatasetToken{
 			Id:             "token1",
 			Jti:            "jti1",
 			Dataset:        "myds",

@@ -17,14 +17,8 @@ func TestUnitDszListDatasetsApi(t *testing.T) {
 		Resp: &dszapilistdatasets.DszListDatasetsResp{
 			Datasets: []*dszapilistdatasets.Dataset{
 				{
-					Id:   "myds",
-					Name: "My Dataset",
-					Solutions: []*dszapilistdatasets.Solution{
-						{
-							Id:   "relevance",
-							Name: "Relevance Solution",
-						},
-					},
+					Id:     "myds",
+					Name:   "My Dataset",
 					Grants: []string{"read"},
 				},
 			},

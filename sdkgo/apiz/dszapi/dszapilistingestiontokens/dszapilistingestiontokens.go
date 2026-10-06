@@ -48,7 +48,7 @@ func (*DszListIngestionTokensResp) JSType() string {
 }
 
 type DszListIngestionTokensApi struct {
-	Req  *DszListIngestionTokensReq  `json:"req"`
+	Req  DszListIngestionTokensReq  `json:"req"`
 	Resp DszListIngestionTokensResp `json:"resp"`
 }
 
@@ -56,26 +56,20 @@ func (d *DszListIngestionTokensApi) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
 		Id:     "dsz-list-ingestion-tokens",
 		Method: "GET",
-		Path:   "/api/datasetmanager/dataset/ingestiontoken/list",
+		Path:   "/api/ds/dataset/{dataset}/ingestiontoken/list",
 	}
 }
 
 func (d *DszListIngestionTokensApi) GetDataRefs() *apiz.DataRefs {
 	return &apiz.DataRefs{
-		PathParams: nil,
-		QueryParams: &schemaz.Schema{
+		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && d.Req == nil {
-					return nil
-				}
-				if d.Req == nil {
-					d.Req = &DszListIngestionTokensReq{}
-				}
 				return map[string]*schemaz.Schema{
 					"dataset": {Str: schemaz.ParseStr(&d.Req.Dataset)},
 				}
 			},
 		},
+		QueryParams: nil,
 		ReqHeaders:  nil,
 		ReqBody:     nil,
 		RespHeaders: nil,

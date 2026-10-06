@@ -11,32 +11,30 @@ type DszDeleteTokenReq struct {
 }
 
 type DszDeleteTokenApi struct {
-	Req  *DszDeleteTokenReq `json:"req"`
-	Resp *any               `json:"resp"`
+	Req DszDeleteTokenReq `json:"req"`
 }
 
 func (d *DszDeleteTokenApi) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
 		Id:     "dsz-delete-token",
 		Method: "DELETE",
-		Path:   "/api/datasetmanager/dataset/token/delete",
+		Path:   "/api/ds/dataset/{dataset}/token/delete",
 	}
 }
 
 func (d *DszDeleteTokenApi) GetDataRefs() *apiz.DataRefs {
 	return &apiz.DataRefs{
-		PathParams: nil,
-		QueryParams: &schemaz.Schema{
+		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && d.Req == nil {
-					return nil
-				}
-				if d.Req == nil {
-					d.Req = &DszDeleteTokenReq{}
-				}
 				return map[string]*schemaz.Schema{
 					"dataset": {Str: schemaz.ParseStr(&d.Req.Dataset)},
-					"token":   {Str: schemaz.ParseStr(&d.Req.Token)},
+				}
+			},
+		},
+		QueryParams: &schemaz.Schema{
+			Object: func(read bool) map[string]*schemaz.Schema {
+				return map[string]*schemaz.Schema{
+					"token": {Str: schemaz.ParseStr(&d.Req.Token)},
 				}
 			},
 		},

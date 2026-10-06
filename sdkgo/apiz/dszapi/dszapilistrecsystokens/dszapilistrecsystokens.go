@@ -48,7 +48,7 @@ func (*DszListRecsysTokensResp) JSType() string {
 }
 
 type DszListRecsysTokensApi struct {
-	Req  *DszListRecsysTokensReq `json:"req"`
+	Req  DszListRecsysTokensReq  `json:"req"`
 	Resp DszListRecsysTokensResp `json:"resp"`
 }
 
@@ -56,26 +56,20 @@ func (d *DszListRecsysTokensApi) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
 		Id:     "dsz-list-recsys-tokens",
 		Method: "GET",
-		Path:   "/api/datasetmanager/dataset/recsystoken/list",
+		Path:   "/api/ds/dataset/{dataset}/recsystoken/list",
 	}
 }
 
 func (d *DszListRecsysTokensApi) GetDataRefs() *apiz.DataRefs {
 	return &apiz.DataRefs{
-		PathParams: nil,
-		QueryParams: &schemaz.Schema{
+		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && d.Req == nil {
-					return nil
-				}
-				if d.Req == nil {
-					d.Req = &DszListRecsysTokensReq{}
-				}
 				return map[string]*schemaz.Schema{
 					"dataset": {Str: schemaz.ParseStr(&d.Req.Dataset)},
 				}
 			},
 		},
+		QueryParams: nil,
 		ReqHeaders:  nil,
 		ReqBody:     nil,
 		RespHeaders: nil,

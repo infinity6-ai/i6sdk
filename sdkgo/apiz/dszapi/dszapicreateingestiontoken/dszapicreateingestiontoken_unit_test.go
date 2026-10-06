@@ -11,12 +11,11 @@ import (
 
 func TestUnitDszCreateIngestionTokenApi(t *testing.T) {
 	api := &dszapicreateingestiontoken.DszCreateIngestionTokenApi{
-		Req: &dszapicreateingestiontoken.DszCreateIngestionTokenReq{
+		Req: dszapicreateingestiontoken.DszCreateIngestionTokenReq{
 			Dataset:    "myds",
 			Annotation: "Annotation",
-			Channel:    "chan1",
 		},
-		Resp: &dszapicreateingestiontoken.DatasetToken{
+		Resp: dszapicreateingestiontoken.DatasetToken{
 			Id:             "token1",
 			Jti:            "jti1",
 			Dataset:        "myds",
@@ -24,7 +23,6 @@ func TestUnitDszCreateIngestionTokenApi(t *testing.T) {
 			ExpirationDate: 12345678,
 			Audience:       "aud",
 			Grants:         []string{"write"},
-			Channel:        "chan1",
 			Token:          "tok-1",
 		},
 	}

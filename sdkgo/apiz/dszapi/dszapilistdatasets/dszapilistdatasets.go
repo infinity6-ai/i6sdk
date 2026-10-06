@@ -11,10 +11,9 @@ type Solution struct {
 }
 
 type Dataset struct {
-	Id        string      `json:"id"`
-	Name      string      `json:"name"`
-	Solutions []*Solution `json:"solutions,omitempty"`
-	Grants    []string    `json:"grants,omitempty"`
+	Id     string   `json:"id"`
+	Name   string   `json:"name"`
+	Grants []string `json:"grants,omitempty"`
 }
 
 type DszListDatasetsReq struct {
@@ -80,26 +79,6 @@ func (d *DszListDatasetsApi) GetDataRefs() *apiz.DataRefs {
 											},
 											"name": {
 												Raw: func() any { return &(*element).Name },
-											},
-											"solutions": {
-												Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Solution, *Solution]{
-													Slice:      func() *[]*Solution { return &(*element).Solutions },
-													NewElement: func(idx int) *Solution { return &Solution{} },
-													Get: func(idx int, sol **Solution) *schemaz.Schema {
-														return &schemaz.Schema{
-															Object: func(_ bool) map[string]*schemaz.Schema {
-																return map[string]*schemaz.Schema{
-																	"id": {
-																		Raw: func() any { return &(*sol).Id },
-																	},
-																	"name": {
-																		Raw: func() any { return &(*sol).Name },
-																	},
-																}
-															},
-														}
-													},
-												}),
 											},
 											"grants": {
 												Array: schemaz.NewArray(schemaz.ArrayOptions[[]string, string]{

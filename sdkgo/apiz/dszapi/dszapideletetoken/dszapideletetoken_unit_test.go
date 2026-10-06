@@ -11,7 +11,7 @@ import (
 
 func TestUnitDszDeleteTokenApi(t *testing.T) {
 	api := &dszapideletetoken.DszDeleteTokenApi{
-		Req: &dszapideletetoken.DszDeleteTokenReq{
+		Req: dszapideletetoken.DszDeleteTokenReq{
 			Dataset: "myds",
 			Token:   "tok-123",
 		},

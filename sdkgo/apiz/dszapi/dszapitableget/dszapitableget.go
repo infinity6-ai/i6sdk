@@ -33,7 +33,7 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 			}
 		},
 		Method: "GET",
-		Path:   "/api/dsz/dataset/{dataset}/table-file/{path...}",
+		Path:   "/api/ds/dataset/{dataset}/table-file/{path...}",
 	}
 }
 

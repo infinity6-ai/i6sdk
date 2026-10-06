@@ -11,7 +11,7 @@ import (
 
 func TestUnitDszListRecsysTokensApi(t *testing.T) {
 	api := &dszapilistrecsystokens.DszListRecsysTokensApi{
-		Req: &dszapilistrecsystokens.DszListRecsysTokensReq{
+		Req: dszapilistrecsystokens.DszListRecsysTokensReq{
 			Dataset: "myds",
 		},
 		Resp: []dszapilistrecsystokens.DatasetToken{
