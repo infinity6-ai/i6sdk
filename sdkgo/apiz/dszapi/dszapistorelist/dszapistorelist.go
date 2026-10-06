@@ -1,44 +1,27 @@
-package dszapiliststores
+package dszapistorelist
 
 import (
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/dszstore"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
-
-type DszStore struct {
-	Id   string `json:"id"`
-	Name string `json:"name"`
-}
-
-func (*DszStore) JSTypedef() (*jstypez.Typedef, *jstypez.Typedefs) {
-	td := &jstypez.Typedef{
-		Head:       &jstypez.Tuple{Typ: jstypez.TypObject, Name: ""},
-		Properties: &jstypez.Tuples{},
-	}
-	td.Properties.Add(
-		jstypez.Tuple{Typ: jstypez.TypString, Name: "id"},
-		jstypez.Tuple{Typ: jstypez.TypString, Name: "name"},
-	)
-	return td, nil
-}
 
 type DszListStoresReq struct {
 	Dataset lakedsz.Dataset `json:"dataset"`
 }
 
 type DszListStoresResp struct {
-	Dataset lakedsz.Dataset `json:"dataset"`
-	Stores  []DszStore      `json:"stores"`
+	Dataset lakedsz.Dataset     `json:"dataset"`
+	Stores  []dszstore.DszStore `json:"stores"`
 }
 
-type DszListStoresApi struct {
+type Api struct {
 	Req  *DszListStoresReq  `json:"req"`
 	Resp *DszListStoresResp `json:"resp"`
 }
 
-func (d *DszListStoresApi) ApiSpec() apiz.ApiSpec {
+func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
 		Id:     "dsz-list-stores",
 		Desc:   nil,
@@ -47,7 +30,7 @@ func (d *DszListStoresApi) ApiSpec() apiz.ApiSpec {
 	}
 }
 
-func (d *DszListStoresApi) GetDataRefs() *apiz.DataRefs {
+func (d *Api) GetDataRefs() *apiz.DataRefs {
 	return &apiz.DataRefs{
 		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {

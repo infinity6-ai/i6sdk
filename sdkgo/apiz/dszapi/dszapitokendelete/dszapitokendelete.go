@@ -1,20 +1,21 @@
-package dszapideletetoken
+package dszapitokendelete
 
 import (
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
 
 type DszDeleteTokenReq struct {
-	Dataset string `json:"dataset"`
-	Token   string `json:"token"`
+	Dataset lakedsz.Dataset `json:"dataset"`
+	Token   string          `json:"token"`
 }
 
-type DszDeleteTokenApi struct {
+type Api struct {
 	Req DszDeleteTokenReq `json:"req"`
 }
 
-func (d *DszDeleteTokenApi) ApiSpec() apiz.ApiSpec {
+func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
 		Id:     "dsz-delete-token",
 		Method: "DELETE",
@@ -22,12 +23,12 @@ func (d *DszDeleteTokenApi) ApiSpec() apiz.ApiSpec {
 	}
 }
 
-func (d *DszDeleteTokenApi) GetDataRefs() *apiz.DataRefs {
+func (d *Api) GetDataRefs() *apiz.DataRefs {
 	return &apiz.DataRefs{
 		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"dataset": {Str: schemaz.ParseStr(&d.Req.Dataset)},
+					"dataset": {Str: lakedsz.ParseStr(&d.Req.Dataset)},
 				}
 			},
 		},

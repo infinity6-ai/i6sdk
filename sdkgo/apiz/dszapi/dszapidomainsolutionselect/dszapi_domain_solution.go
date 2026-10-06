@@ -15,11 +15,11 @@ type DszSolutionDomainSelectReq struct {
 	Store    string            `json:"store"`
 }
 
-type DszSolutionDomainSelectApi struct {
+type Api struct {
 	Req *DszSolutionDomainSelectReq `json:"req"`
 }
 
-func (d *DszSolutionDomainSelectApi) ApiSpec() apiz.ApiSpec {
+func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
 		Id:     "dsz-domain-select",
 		Desc:   nil,
@@ -28,7 +28,7 @@ func (d *DszSolutionDomainSelectApi) ApiSpec() apiz.ApiSpec {
 	}
 }
 
-func (d *DszSolutionDomainSelectApi) GetDataRefs() *apiz.DataRefs {
+func (d *Api) GetDataRefs() *apiz.DataRefs {
 	return &apiz.DataRefs{
 		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {

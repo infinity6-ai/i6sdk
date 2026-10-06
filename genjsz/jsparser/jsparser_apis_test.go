@@ -240,7 +240,7 @@ func TestUnitParseApis(t *testing.T) {
 		ingestz := expectedIngestzApi()
 		check(t, testScenario{
 			in: []apiz.Api{
-				&ingestzapigeturl.GetUrlApi{},
+				&ingestzapigeturl.Api{},
 			},
 			want: &jsparser.Apis{
 				Apis:     []*jsparser.Api{ingestz},
@@ -260,7 +260,7 @@ func TestUnitParseApis(t *testing.T) {
 		check(t, testScenario{
 			in: []apiz.Api{
 				routezsamplefraction.NewService().Api(),
-				&ingestzapigeturl.GetUrlApi{},
+				&ingestzapigeturl.Api{},
 			},
 			want: &jsparser.Apis{
 				Apis:     []*jsparser.Api{fraction, ingestz},

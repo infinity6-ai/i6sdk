@@ -8,19 +8,19 @@ import (
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
-	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapicreatestore"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapidatasetlist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapidomainsolutionget"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapidomainsolutionselect"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapiingestiontokencreate"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapiingestiontokenslist"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapirecsystokencreate"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapirecsystokenslist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapisignedurl"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapistorecreate"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapistorelist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitableget"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitablelist"
-	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapiliststores"
-	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapilistdatasets"
-	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapilistingestiontokens"
-	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapicreateingestiontoken"
-	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapilistrecsystokens"
-	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapicreaterecsystoken"
-	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapideletetoken"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitokendelete"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzapi/ingestzapigeturl"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/pipezapi"
 )
@@ -42,21 +42,21 @@ func init() {
 	for _, svc := range routezsamplefraction.Services() {
 		add(svc.Api())
 	}
-	add(&ingestzapigeturl.GetUrlApi{})
+	add(&ingestzapigeturl.Api{})
 	add(&dszapisignedurl.Api{})
 	add(&dszapitableget.Api{})
 	add(&dszapitablelist.Api{})
-	add(&pipezapi.PipezStartApi{})
-	add(&dszapidomainsolutionselect.DszSolutionDomainSelectApi{})
-	add(&dszapidomainsolutionget.DszSolutionDomainGetApi{})
-	add(&dszapicreatestore.DszCreateStoreApi{})
-	add(&dszapiliststores.DszListStoresApi{})
-	add(&dszapilistdatasets.DszListDatasetsApi{})
-	add(&dszapilistingestiontokens.DszListIngestionTokensApi{})
-	add(&dszapicreateingestiontoken.DszCreateIngestionTokenApi{})
-	add(&dszapilistrecsystokens.DszListRecsysTokensApi{})
-	add(&dszapicreaterecsystoken.DszCreateRecsysTokenApi{})
-	add(&dszapideletetoken.DszDeleteTokenApi{})
+	add(&pipezapi.Api{})
+	add(&dszapidomainsolutionselect.Api{})
+	add(&dszapidomainsolutionget.Api{})
+	add(&dszapistorecreate.Api{})
+	add(&dszapistorelist.Api{})
+	add(&dszapidatasetlist.Api{})
+	add(&dszapiingestiontokenslist.Api{})
+	add(&dszapiingestiontokencreate.Api{})
+	add(&dszapirecsystokenslist.Api{})
+	add(&dszapirecsystokencreate.Api{})
+	add(&dszapitokendelete.Api{})
 }
 
 func All() []apiz.Api {

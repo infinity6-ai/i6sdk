@@ -32,12 +32,12 @@ func (*PipezStartResp) JSType() string {
 	return jstypez.TypObject
 }
 
-type PipezStartApi struct {
+type Api struct {
 	Req  *PipezStartReq  `json:"req"`
 	Resp *PipezStartResp `json:"resp"`
 }
 
-func (d *PipezStartApi) ApiSpec() apiz.ApiSpec {
+func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
 		Id:     "pipez-start",
 		Desc:   nil,
@@ -46,7 +46,7 @@ func (d *PipezStartApi) ApiSpec() apiz.ApiSpec {
 	}
 }
 
-func (d *PipezStartApi) GetDataRefs() *apiz.DataRefs {
+func (d *Api) GetDataRefs() *apiz.DataRefs {
 	return &apiz.DataRefs{
 		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {

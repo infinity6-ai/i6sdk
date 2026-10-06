@@ -1,4 +1,4 @@
-package dszapicreateingestiontoken_test
+package dszapiingestiontokencreate_test
 
 import (
 	"testing"
@@ -6,19 +6,21 @@ import (
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
-	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapicreateingestiontoken"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapiingestiontokencreate"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/dsztoken"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
 
 func TestUnitDszCreateIngestionTokenApi(t *testing.T) {
-	api := &dszapicreateingestiontoken.DszCreateIngestionTokenApi{
-		Req: dszapicreateingestiontoken.DszCreateIngestionTokenReq{
-			Dataset:    "myds",
+	api := &dszapiingestiontokencreate.Api{
+		Req: dszapiingestiontokencreate.DszCreateIngestionTokenReq{
+			Dataset:    lakedsz.MustParse("myds"),
 			Annotation: "Annotation",
 		},
-		Resp: dszapicreateingestiontoken.DatasetToken{
+		Resp: dsztoken.DatasetToken{
 			Id:             "token1",
 			Jti:            "jti1",
-			Dataset:        "myds",
+			Dataset:        lakedsz.MustParse("myds"),
 			Annotation:     "Annotation",
 			ExpirationDate: 12345678,
 			Audience:       "aud",
@@ -27,7 +29,7 @@ func TestUnitDszCreateIngestionTokenApi(t *testing.T) {
 		},
 	}
 
-	apiCopy := jsonz.MustCopy(api, &dszapicreateingestiontoken.DszCreateIngestionTokenApi{})
+	apiCopy := jsonz.MustCopy(api, &dszapiingestiontokencreate.Api{})
 	require.Equal(t, api.Req, apiCopy.Req)
 	require.Equal(t, api.Resp, apiCopy.Resp)
 
