@@ -22,7 +22,7 @@ class Downloader {
      * @param {string} opts.url - required, URL of the file; must answer HEAD with an etag
      * @returns {Promise<FileRef>} the FileRef of the up-to-date file (basically to get the version)
      * @throws {TypeError} If name or url is missing.
-     * @throws {Error} If the HEAD or GET request fails, or the HEAD response has no etag.
+     * @throws {Error} If the HEAD or GET request fails (the error has the http `status`), or the HEAD response has no etag.
     */
     async update(opts) {
         if (!opts || !opts.name) throw new TypeError('downloader: opts.name is required')
@@ -30,7 +30,7 @@ class Downloader {
 
         // HEAD (gcs) to get the current etag
         const head = await fetch(opts.url, { method: 'HEAD' })
-        if (!head.ok) throw new Error(`downloader: HEAD ${opts.url} failed (${head.status})`)
+        if (!head.ok) throw Object.assign(new Error(`downloader: HEAD ${opts.url} failed (${head.status})`), { status: head.status })
             
         const etag = head.headers.get('etag')
         if (!etag) throw new Error('downloader: no etag in HEAD response')
@@ -43,7 +43,7 @@ class Downloader {
         const ref = await fs.create({ name: opts.name, etag, data: '' })
 
         const response = await fetch(opts.url)
-        if (!response.ok) throw new Error(`downloader: GET ${opts.url} failed (${response.status})`)
+        if (!response.ok) throw Object.assign(new Error(`downloader: GET ${opts.url} failed (${response.status})`), { status: response.status })
 
         // Stream the body straight into the opfs file, never held in memory
         let dir = await navigator.storage.getDirectory()
