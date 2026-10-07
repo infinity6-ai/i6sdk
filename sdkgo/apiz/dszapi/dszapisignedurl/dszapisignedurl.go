@@ -5,12 +5,12 @@ import (
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakepathz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbpathz"
 )
 
 type Path struct {
 	Method fszsignmethod.SignMethod `json:"method"`
-	Path   lakepathz.Path           `json:"path"`
+	Path   laketbpathz.Path         `json:"path"`
 }
 
 type Req struct {

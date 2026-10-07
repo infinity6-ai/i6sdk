@@ -9,14 +9,14 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitablelist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakepathz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbpathz"
 )
 
 func TestUnitDszApiTableList(t *testing.T) {
 	api := &dszapitablelist.Api{
 		Req: dszapitablelist.Req{
 			Dataset:    lakedsz.MustParse("myds"),
-			Path:       lakepathz.MustParse("i6tb://mydb.mytable"),
+			Path:       laketbpathz.MustParse("i6tb://mydb.mytable"),
 			SignMethod: fszsignmethod.SignMethodGet,
 			Recursive:  true,
 			Stat:       true,
@@ -26,7 +26,7 @@ func TestUnitDszApiTableList(t *testing.T) {
 		Resp: dszapitablelist.Resp{
 			Files: []*dszapitablelist.File{
 				{
-					Path:      lakepathz.MustParse("i6tb://mydb.mytable/part-1"),
+					Path:      laketbpathz.MustParse("i6tb://mydb.mytable/part-1"),
 					SignedUrl: "https://example.com/part-1",
 				},
 			},

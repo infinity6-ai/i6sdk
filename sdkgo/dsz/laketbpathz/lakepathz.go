@@ -1,4 +1,4 @@
-package lakepathz
+package laketbpathz
 
 import (
 	"fmt"
@@ -16,7 +16,7 @@ import (
 
 const schema = "i6tb://"
 
-type ParsePath interface {
+type ParsedPath interface {
 	Table() laketablez.Table
 	Partitions() *hivepartz.HiveParts
 	File() *pathz.Path
@@ -110,13 +110,13 @@ func (d *Path) UnmarshalJSON(data []byte) error {
 	return checked.Unmarshal(d, data)
 }
 
-func (d Path) MustParse() ParsePath {
+func (d Path) MustParse() ParsedPath {
 	ret, err := d.Parse()
 	errorz.Check(err)
 	return ret
 }
 
-func (d Path) Parse() (ParsePath, error) {
+func (d Path) Parse() (ParsedPath, error) {
 	var ret parsedPathImpl
 	err := ret.Parse(d.Get())
 	if err != nil {
@@ -142,7 +142,7 @@ func MustParse(name string) Path {
 	return ret
 }
 
-func From(p ParsePath) Path {
+func From(p ParsedPath) Path {
 	partitions := p.Partitions()
 	file := p.File()
 	ret, err := Build(p.Table(), partitions, file)

@@ -6,12 +6,12 @@ import (
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakepathz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbpathz"
 )
 
 type Req struct {
 	Dataset    lakedsz.Dataset          `json:"dataset"`
-	Path       lakepathz.Path           `json:"path"`
+	Path       laketbpathz.Path         `json:"path"`
 	SignMethod fszsignmethod.SignMethod `json:"sign_method"`
 	Recursive  bool                     `json:"recursive"`
 	Stat       bool                     `json:"stat"`
@@ -20,9 +20,9 @@ type Req struct {
 }
 
 type File struct {
-	Path      lakepathz.Path `json:"path"`
-	Stat      *fsz.FileStat  `json:"stat"`
-	SignedUrl string         `json:"signed_url"`
+	Path      laketbpathz.Path `json:"path"`
+	Stat      *fsz.FileStat    `json:"stat"`
+	SignedUrl string           `json:"signed_url"`
 }
 
 type Resp struct {
@@ -66,7 +66,7 @@ func (d *Api) GetDataRefs() *apiz.DataRefs {
 				return map[string]*schemaz.Schema{
 					"path": {
 						Desc: &schemaz.Desc{Summary: "Path to list."},
-						Str:  schemaz.ParseStrGet(&d.Req.Path, lakepathz.MustParse),
+						Str:  schemaz.ParseStrGet(&d.Req.Path, laketbpathz.MustParse),
 					},
 					"sign_method": {
 						Desc: &schemaz.Desc{Summary: "Whether to return signed URLs."},
