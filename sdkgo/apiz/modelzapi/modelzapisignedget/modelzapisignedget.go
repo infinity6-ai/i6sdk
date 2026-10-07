@@ -77,8 +77,18 @@ func (d *Api) GetDataRefs() *apiz.DataRefs {
 		QueryParams: nil,
 		ReqHeaders:  nil,
 		ReqBody: &schemaz.Schema{
+			Desc: &schemaz.Desc{Summary: "Model parameters including version and partitions."},
 			Object: func(read bool) map[string]*schemaz.Schema {
-				panic("implement it")
+				return map[string]*schemaz.Schema{
+					"model_version": {
+						Desc: &schemaz.Desc{Summary: "Model version"},
+						Raw:  func() any { return &d.Req.ModelVersion },
+					},
+					"model_partitions": {
+						Desc: &schemaz.Desc{Summary: "Model partition key/value pairs"},
+						Raw:  func() any { return &d.Req.ModelPartitions },
+					},
+				}
 			},
 		},
 		RespHeaders: nil,
