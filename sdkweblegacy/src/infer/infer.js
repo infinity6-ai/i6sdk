@@ -67,12 +67,13 @@ class Infer {
 
     // 1. Get the model files (cached by etag) and load the model
     const [sqliteUrl, tfliteUrl] = await this._assetUrls(opts)
-    const sqliteRef = await downloadFile(cacheName("sqlite"), sqliteUrl)
-    const tfliteRef = await downloadFile(cacheName("tflite"), tfliteUrl)
+    const [sqliteRef, tfliteRef] = await Promise.all([
+      downloadFile(cacheName("sqlite"), sqliteUrl),
+      downloadFile(cacheName("tflite"), tfliteUrl),
+    ])
     const compiled = await loadModel({ ref: tfliteRef, wasmUrl: opts.litertWasm })
     debug("model ready", describeModel(compiled))
 
-    // The sqlite is only needed while the stages below run
     const conn = await sqlitez.open({ path: await fs.resolve(sqliteRef) })
     try {
       // 2. Read what the model needs from the sqlite: the model inputs (`inputs`) and anything the output query needs
@@ -103,21 +104,32 @@ class Infer {
   async _assetUrls(opts) {
     const { modelName, modelVersion, storeId, dataset } = opts
     const dir = (kind) => `i6tb://results.${modelName}-${kind}/store_id=${storeId}/version=${modelVersion}`
-    const wanted = [opts.sqliteUrl ?? `${dir("sqlite")}/db.sqlite`, opts.tfliteUrl ?? `${dir("model")}/model.tflite`]
-    const toSign = wanted.filter((url) => url.startsWith("i6tb://"))
-    if (!toSign.length) return wanted
+
+    const locations = [
+      opts.sqliteUrl ?? `${dir("sqlite")}/db.sqlite`,
+      opts.tfliteUrl ?? `${dir("model")}/model.tflite`,
+    ]
+
+    const paths = locations.filter(isI6tbPath)
+    if (paths.length === 0) return locations
 
     const resp = await this._services.apis().dszSignedUrl({
       params: { dataset },
-      payload: { paths: toSign.map((path) => ({ method: "GET", path })) },
+      payload: { paths: paths.map((path) => ({ method: "GET", path })) },
     })
-    if (!resp.ok || resp.payload?.urls?.length !== toSign.length) {
-      throw new I6Error(`infer: could not get signed urls for ${toSign.join(", ")}: ${JSON.stringify(resp.error ?? resp.status)}`, { code: "asset" })
+    
+    const signedUrls = resp.payload?.urls
+    if (!resp.ok || signedUrls?.length !== paths.length) {
+      throw new I6Error(`infer: could not get signed urls for ${paths.join(", ")}: ${JSON.stringify(resp.error ?? resp.status)}`, { code: "asset" })
     }
-    const signed = [...resp.payload.urls]
-    return wanted.map((url) => (url.startsWith("i6tb://") ? signed.shift() : url))
+
+    let next = 0
+    return locations.map((location) => (isI6tbPath(location) ? signedUrls[next++] : location))
   }
 }
+
+/** @param {string} location - A URL or an "i6tb://" dataset path. */
+const isI6tbPath = (location) => location.startsWith("i6tb://")
 
 /**
  * @param {InferOptions} opts - Options given to `Infer.run`.
