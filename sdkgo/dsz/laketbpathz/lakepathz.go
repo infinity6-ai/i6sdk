@@ -14,7 +14,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketablez"
 )
 
-const schema = "i6tb://"
+const Schema = "i6tb://"
 
 type ParsedPath interface {
 	Table() laketablez.Table
@@ -41,7 +41,7 @@ func (v parsedPathImpl) Table() laketablez.Table {
 }
 
 func (v parsedPathImpl) format() string {
-	return schema + pathz.MustParse(v.table.String()).MustJoin(v.partitions.Format()).MustJoin(v.file).String()
+	return Schema + pathz.MustParse(v.table.String()).MustJoin(v.partitions.Format()).MustJoin(v.file).String()
 }
 
 func (v parsedPathImpl) String() string {
@@ -53,13 +53,13 @@ func (v *parsedPathImpl) Parse(s string) error {
 	if s == "" {
 		return fmt.Errorf("path must no be empty")
 	}
-	s, found := strings.CutPrefix(s, schema)
+	s, found := strings.CutPrefix(s, Schema)
 	if !found {
-		return fmt.Errorf("schema not found in %s, expected: %s", s, schema)
+		return fmt.Errorf("schema not found in %s, expected: %s", s, Schema)
 	}
 	p, err := pathz.Parse(s)
 	if err != nil {
-		return fmt.Errorf("error parsing %s path: %s: %w", schema, s, err)
+		return fmt.Errorf("error parsing %s path: %s: %w", Schema, s, err)
 	}
 	err = p.Validate(pathz.ValidateOptions{
 		Absolute:   new(false),
@@ -67,16 +67,16 @@ func (v *parsedPathImpl) Parse(s string) error {
 		MinPart:    1,
 	})
 	if err != nil {
-		return fmt.Errorf("error parsing %s path: %s: %w", schema, s, err)
+		return fmt.Errorf("error parsing %s path: %s: %w", Schema, s, err)
 	}
 	parts := p.Parts()
 	table, err := laketablez.New(parts[0])
 	if err != nil {
-		return fmt.Errorf("error parsing %s path: %s: %w", schema, s, err)
+		return fmt.Errorf("error parsing %s path: %s: %w", Schema, s, err)
 	}
 	hp, p, err := hivepartz.Parse(pathz.New(0, parts[1:], false))
 	if err != nil {
-		return fmt.Errorf("error parsing %s path: %s: %w", schema, s, err)
+		return fmt.Errorf("error parsing %s path: %s: %w", Schema, s, err)
 	}
 	v.table = table
 	v.partitions = hp
@@ -163,5 +163,5 @@ func Build(table laketablez.Table, hiveParts *hivepartz.HiveParts, file *pathz.P
 	if err != nil {
 		return zero, fmt.Errorf("error parsing path %s: %w", b, err)
 	}
-	return Parse(schema + p.String())
+	return Parse(Schema + p.String())
 }

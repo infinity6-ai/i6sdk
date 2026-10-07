@@ -16,7 +16,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbpathz"
 )
 
-const schema = "i6ds://"
+const Schema = "i6ds://"
 
 type ParsedPath interface {
 	Dataset() lakedsz.Dataset
@@ -49,7 +49,7 @@ func (v parsedPathImpl) Table() laketablez.Table {
 }
 
 func (v parsedPathImpl) format() string {
-	return schema + pathz.MustParse(v.dataset.String()).MustJoin(pathz.MustParse(v.table.String())).MustJoin(v.partitions.Format()).MustJoin(v.file).String()
+	return Schema + pathz.MustParse(v.dataset.String()).MustJoin(pathz.MustParse(v.table.String())).MustJoin(v.partitions.Format()).MustJoin(v.file).String()
 }
 
 func (v parsedPathImpl) String() string {
@@ -61,13 +61,13 @@ func (v *parsedPathImpl) Parse(s string) error {
 	if s == "" {
 		return fmt.Errorf("path must not be empty")
 	}
-	s, found := strings.CutPrefix(s, schema)
+	s, found := strings.CutPrefix(s, Schema)
 	if !found {
-		return fmt.Errorf("schema not found in %s, expected: %s", s, schema)
+		return fmt.Errorf("schema not found in %s, expected: %s", s, Schema)
 	}
 	p, err := pathz.Parse(s)
 	if err != nil {
-		return fmt.Errorf("error parsing %s path: %s: %w", schema, s, err)
+		return fmt.Errorf("error parsing %s path: %s: %w", Schema, s, err)
 	}
 	err = p.Validate(pathz.ValidateOptions{
 		Absolute:   new(false),
@@ -75,23 +75,23 @@ func (v *parsedPathImpl) Parse(s string) error {
 		MinPart:    2,
 	})
 	if err != nil {
-		return fmt.Errorf("error parsing %s path: %s: %w", schema, s, err)
+		return fmt.Errorf("error parsing %s path: %s: %w", Schema, s, err)
 	}
 	parts := p.Parts()
 
 	var dataset lakedsz.Dataset
 	if err := checked.Set(&dataset, parts[0]); err != nil {
-		return fmt.Errorf("error parsing dataset part from %s path: %s: %w", schema, s, err)
+		return fmt.Errorf("error parsing dataset part from %s path: %s: %w", Schema, s, err)
 	}
 
 	table, err := laketablez.New(parts[1])
 	if err != nil {
-		return fmt.Errorf("error parsing table part from %s path: %s: %w", schema, s, err)
+		return fmt.Errorf("error parsing table part from %s path: %s: %w", Schema, s, err)
 	}
 
 	hp, pFile, err := hivepartz.Parse(pathz.New(0, parts[2:], false))
 	if err != nil {
-		return fmt.Errorf("error parsing hive parts/file from %s path: %s: %w", schema, s, err)
+		return fmt.Errorf("error parsing hive parts/file from %s path: %s: %w", Schema, s, err)
 	}
 
 	v.dataset = dataset
@@ -186,5 +186,5 @@ func Build(dataset lakedsz.Dataset, table laketablez.Table, hiveParts *hivepartz
 	if err != nil {
 		return zero, fmt.Errorf("error parsing path %s: %w", b, err)
 	}
-	return Parse(schema + p.String())
+	return Parse(Schema + p.String())
 }
