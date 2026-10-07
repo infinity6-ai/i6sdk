@@ -107,6 +107,7 @@ func (d *Api) GetDataRefs() *apiz.DataRefs {
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
 					"urls": {
+						Desc: &schemaz.Desc{Summary: "Signed Urls"},
 						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Url, *Url]{
 							NewElement: func(idx int) *Url { return &Url{} },
 							Slice:      func() *[]*Url { return &d.Resp.Urls },
