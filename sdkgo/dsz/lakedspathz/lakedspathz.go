@@ -82,17 +82,17 @@ func (v *parsedPathImpl) Parse(s string) error {
 	if err := checked.Set(&dataset, parts[0]); err != nil {
 		return fmt.Errorf("error parsing dataset part from %s path: %s: %w", schema, s, err)
 	}
-	
+
 	table, err := laketablez.New(parts[1])
 	if err != nil {
 		return fmt.Errorf("error parsing table part from %s path: %s: %w", schema, s, err)
 	}
-	
+
 	hp, pFile, err := hivepartz.Parse(pathz.New(0, parts[2:], false))
 	if err != nil {
 		return fmt.Errorf("error parsing hive parts/file from %s path: %s: %w", schema, s, err)
 	}
-	
+
 	v.dataset = dataset
 	v.table = table
 	v.partitions = hp
