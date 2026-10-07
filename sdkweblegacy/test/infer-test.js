@@ -57,6 +57,24 @@
             assert.strictEqual(result.top[0].sig_index, 4611, 'best signature of this cart (from the first port run)')
         })
 
+        QUnit.test("run uses the fallback urls when the first one is 404", async function (assert) {
+            if (!(await fetch(assets.tfliteUrl, { method: 'HEAD' })).ok) return assert.ok(true, 'skipped: no assets in src/infer/gen')
+
+            const missing = (name) => new URL(name, location.href).href
+            const signed = [
+                { url: missing('nope1.sqlite'), fallbacks: [missing('nope2.sqlite'), assets.sqliteUrl] },
+                { url: assets.tfliteUrl, fallbacks: [] },
+            ]
+            const services = { apis: () => ({ dszSignedUrl: async () => ({ ok: true, payload: { urls: signed } }) }) }
+            const { Infer } = await import('../src/infer/infer.js')
+
+            const result = await new Infer(services).run({ ...base, params: { sku_ids } })
+            assert.strictEqual(result.productIds.length, 20)
+
+            signed[0].fallbacks = [missing('nope2.sqlite')]
+            await rejectsWithCode(assert, new Infer(services).run({ ...base, params: { sku_ids } }), 'asset', /nope2.sqlite/)
+        })
+
         QUnit.test("runModel reports inputs that do not fit the model", async function (assert) {
             if (!(await fetch(assets.tfliteUrl, { method: 'HEAD' })).ok) return assert.ok(true, 'skipped: no assets in src/infer/gen')
 

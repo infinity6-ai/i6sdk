@@ -66,10 +66,10 @@ class Infer {
     const cacheName = (kind) => `infer-${modelName}-${storeId}-${modelVersion}-${kind}`
 
     // 1. Get the model files (cached by etag) and load the model
-    const [sqliteUrl, tfliteUrl] = await this._assetUrls(opts)
+    const [sqliteUrls, tfliteUrls] = await this._assetUrls(opts)
     const [sqliteRef, tfliteRef] = await Promise.all([
-      downloadFile(cacheName("sqlite"), sqliteUrl),
-      downloadFile(cacheName("tflite"), tfliteUrl),
+      downloadFile(cacheName("sqlite"), sqliteUrls),
+      downloadFile(cacheName("tflite"), tfliteUrls),
     ])
     const compiled = await loadModel({ ref: tfliteRef, wasmUrl: opts.litertWasm })
     debug("model ready", describeModel(compiled))
@@ -98,7 +98,7 @@ class Infer {
    * the others are the model's default paths in the dataset, signed with one API call.
    * @private
    * @param {InferOptions} opts - Inference options.
-   * @returns {Promise<[string, string]>} Download URLs of the sqlite and the tflite.
+   * @returns {Promise<[string[], string[]]>} For the sqlite and the tflite: the URL to try first, then its fallbacks.
    * @throws {I6Error} With code "asset" if the API cannot sign them.
    */
   async _assetUrls(opts) {
@@ -111,20 +111,24 @@ class Infer {
     ]
 
     const paths = locations.filter(isI6tbPath)
-    if (paths.length === 0) return locations
+    if (paths.length === 0) return locations.map((url) => [url])
 
     const resp = await this._services.apis().dszSignedUrl({
       params: { dataset },
       payload: { paths: paths.map((path) => ({ method: "GET", path })) },
     })
     
-    const signedUrls = resp.payload?.urls
-    if (!resp.ok || signedUrls?.length !== paths.length) {
+    const signed = resp.payload?.urls
+    if (!resp.ok || signed?.length !== paths.length) {
       throw new I6Error(`infer: could not get signed urls for ${paths.join(", ")}: ${JSON.stringify(resp.error ?? resp.status)}`, { code: "asset" })
     }
 
     let next = 0
-    return locations.map((location) => (isI6tbPath(location) ? signedUrls[next++] : location))
+    return locations.map((location) => {
+      if (!isI6tbPath(location)) return [location]
+      const { url, fallbacks } = signed[next++]
+      return [url, ...(fallbacks ?? [])]
+    })
   }
 }
 
@@ -151,19 +155,25 @@ function asArrays(outputs) {
 
 /**
  * Brings one remote file to the browser cache, downloading it only if its etag changed.
+ * Tries the urls in order; the next one is used only when the previous answered 404.
  * @param {string} name - Name of the cached file.
- * @param {string} url - URL of the file.
+ * @param {string[]} urls - URL of the file, then its fallbacks.
  * @returns {Promise<FileRef>} The cached file.
  * @throws {I6Error} With code "asset" if the download fails.
  */
-async function downloadFile(name, url) {
-  try {
-    const ref = await downloader.update({ name, url })
-    debug(`${name} is ready`, ref)
-    return ref
-  } catch (cause) {
-    throw new I6Error(`infer: could not get ${url}: ${cause.message}`, { code: "asset", cause })
+async function downloadFile(name, urls) {
+  let failure
+  for (const url of urls) {
+    try {
+      const ref = await downloader.update({ name, url })
+      debug(`${name} is ready`, ref)
+      return ref
+    } catch (cause) {
+      failure = new I6Error(`infer: could not get ${url}: ${cause.message}`, { code: "asset", cause })
+      if (cause.status !== 404) break
+    }
   }
+  throw failure
 }
 
 export { Infer };
