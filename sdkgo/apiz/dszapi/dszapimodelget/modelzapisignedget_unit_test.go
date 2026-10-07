@@ -49,16 +49,16 @@ func TestUnitModelzApiSignedGetParseApi(t *testing.T) {
 	api := &dszapimodelget.Api{}
 	parsed := jsparser.ParseApi(api)
 	require.NotNil(t, parsed)
-	require.Equal(t, "modelz-signed-get", parsed.Spec.Id)
-	require.Equal(t, "apiModelzSignedGet", parsed.Spec.CamelId)
+	require.Equal(t, "dsz-model-get", parsed.Spec.Id)
+	require.Equal(t, "apiDszModelGet", parsed.Spec.CamelId)
 	require.Equal(t, "POST", parsed.Spec.Method)
 	require.Equal(t, "/api/model/dataset/{dataset}/signed-get/{model_name}", parsed.Spec.Path)
 
-	require.Equal(t, "apiModelzSignedGetParams", parsed.Req.Params.Head.Typ)
+	require.Equal(t, "apiDszModelGetParams", parsed.Req.Params.Head.Typ)
 	require.Equal(t, "params", parsed.Req.Params.Head.Name)
-	require.Equal(t, "apiModelzSignedGetReqPayload", parsed.Req.Payload.Head.Typ)
+	require.Equal(t, "apiDszModelGetReqPayload", parsed.Req.Payload.Head.Typ)
 	require.Equal(t, "reqPayload", parsed.Req.Payload.Head.Name)
-	require.Equal(t, "apiModelzSignedGetRespPayload", parsed.Resp.Payload.Head.Typ)
+	require.Equal(t, "apiDszModelGetRespPayload", parsed.Resp.Payload.Head.Typ)
 	require.Equal(t, "respPayload", parsed.Resp.Payload.Head.Name)
 
 	tdfMap := make(map[string]*jstypez.Typedef)
@@ -66,7 +66,7 @@ func TestUnitModelzApiSignedGetParseApi(t *testing.T) {
 		tdfMap[tdf.Head.Name] = tdf
 	}
 
-	reqPayloadTdf, ok := tdfMap["apiModelzSignedGetReqPayload"]
+	reqPayloadTdf, ok := tdfMap["apiDszModelGetReqPayload"]
 	require.True(t, ok)
 	require.NotNil(t, reqPayloadTdf)
 	require.NotNil(t, reqPayloadTdf.Properties)
@@ -78,9 +78,9 @@ func TestUnitModelzApiSignedGetParseApi(t *testing.T) {
 	require.Contains(t, propMap, "model_version")
 	require.Equal(t, "string", propMap["model_version"].Typ)
 	require.Contains(t, propMap, "model_partitions")
-	require.Equal(t, "Record<apiModelzSignedGetReqPayloadModelPartitionsKey, apiModelzSignedGetReqPayloadModelPartitionsValue>", propMap["model_partitions"].Typ)
+	require.Equal(t, "Record<apiDszModelGetReqPayloadModelPartitionsKey, apiDszModelGetReqPayloadModelPartitionsValue>", propMap["model_partitions"].Typ)
 
-	respPayloadTdf, ok := tdfMap["apiModelzSignedGetRespPayload"]
+	respPayloadTdf, ok := tdfMap["apiDszModelGetRespPayload"]
 	require.True(t, ok)
 	require.NotNil(t, respPayloadTdf)
 	require.NotNil(t, respPayloadTdf.Properties)
