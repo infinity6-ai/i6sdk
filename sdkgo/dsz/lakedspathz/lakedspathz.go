@@ -13,6 +13,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketablez"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbpathz"
 )
 
 const schema = "i6ds://"
@@ -166,6 +167,10 @@ func From(p ParsedPath) Path {
 	ret, err := Build(dataset, table, partitions, file)
 	errorz.Check(err)
 	return ret
+}
+
+func TablePath(ds lakedsz.Dataset, tp laketbpathz.ParsedPath) Path {
+	return MustBuild(ds, tp.Table(), tp.Partitions(), tp.File())
 }
 
 func MustBuild(dataset lakedsz.Dataset, table laketablez.Table, hiveParts *hivepartz.HiveParts, file *pathz.Path) Path {
