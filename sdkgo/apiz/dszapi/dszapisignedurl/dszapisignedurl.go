@@ -18,8 +18,37 @@ type Req struct {
 	Paths   []Path          `json:"paths"`
 }
 
+type Url struct {
+	Url       string   `json:"url"`
+	Fallbacks []string `json:"fallbacks"`
+}
+
+func (u *Url) Schema() *schemaz.Schema {
+	return &schemaz.Schema{
+		Object: func(read bool) map[string]*schemaz.Schema {
+			return map[string]*schemaz.Schema{
+				"url": {
+					Desc: &schemaz.Desc{Summary: "signed URL."},
+					Raw:  func() any { return &u.Url },
+				},
+				"fallbacks": {
+					Desc: &schemaz.Desc{Summary: "Fallback urls."},
+					Array: schemaz.NewArray(schemaz.ArrayOptions[[]string, string]{
+						Slice: func() *[]string { return &u.Fallbacks },
+						Get: func(idx int, element *string) *schemaz.Schema {
+							return &schemaz.Schema{
+								Desc: &schemaz.Desc{Summary: "fallback signed url"},
+								Raw:  func() any { return element },
+							}
+						},
+					})},
+			}
+		},
+	}
+}
+
 type Resp struct {
-	Urls []string `json:"urls"`
+	Urls []*Url `json:"urls"`
 }
 
 type Api struct {
@@ -90,16 +119,10 @@ func (d *Api) GetDataRefs() *apiz.DataRefs {
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
 					"urls": {
-						Array: schemaz.NewArray(schemaz.ArrayOptions[[]string, string]{
-							Slice: func() *[]string { return &d.Resp.Urls },
-							Get: func(idx int, element *string) *schemaz.Schema {
-								return &schemaz.Schema{
-									Desc: &schemaz.Desc{Summary: "signed url"},
-									Raw: func() any {
-										return element
-									},
-								}
-							},
+						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Url, *Url]{
+							NewElement: func(idx int) *Url { return &Url{} },
+							Slice:      func() *[]*Url { return &d.Resp.Urls },
+							Get:        func(idx int, element **Url) *schemaz.Schema { return (*element).Schema() },
 						}),
 					},
 				}
