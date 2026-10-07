@@ -1,4 +1,4 @@
-package modelzapisignedget
+package dszapimodelget
 
 import (
 	"github.com/infinity6-ai/gox/routez/apiz"
@@ -46,10 +46,10 @@ type Api struct {
 
 func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id: "modelz-signed-get",
+		Id: "dsz-model-get",
 		Desc: func() *schemaz.Desc {
 			return &schemaz.Desc{
-				Name:    "Get Dataset Signed URLs",
+				Name:    "Get Model Signed URLs",
 				Summary: "Generates presigned URLs for accessing model files in the specified dataset.",
 			}
 		},

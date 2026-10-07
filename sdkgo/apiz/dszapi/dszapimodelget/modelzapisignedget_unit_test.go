@@ -1,4 +1,4 @@
-package modelzapisignedget_test
+package dszapimodelget_test
 
 import (
 	"testing"
@@ -7,13 +7,13 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
-	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/modelzapi/modelzapisignedget"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapimodelget"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
 
 func TestUnitModelzApiSignedGet(t *testing.T) {
-	api := &modelzapisignedget.Api{
-		Req: modelzapisignedget.Req{
+	api := &dszapimodelget.Api{
+		Req: dszapimodelget.Req{
 			Dataset:      lakedsz.MustParse("myds"),
 			ModelName:    "embedding_model",
 			ModelVersion: "v1.0.0",
@@ -22,8 +22,8 @@ func TestUnitModelzApiSignedGet(t *testing.T) {
 				"locale":  "en-US",
 			},
 		},
-		Resp: modelzapisignedget.Resp{
-			Urls: []*modelzapisignedget.ModelFile{
+		Resp: dszapimodelget.Resp{
+			Urls: []*dszapimodelget.ModelFile{
 				{
 					Name: "model.onnx",
 					Url:  "https://example.com/models/embedding_model/model.onnx",
@@ -36,7 +36,7 @@ func TestUnitModelzApiSignedGet(t *testing.T) {
 		},
 	}
 
-	apiCopy := jsonz.MustCopy(api, &modelzapisignedget.Api{})
+	apiCopy := jsonz.MustCopy(api, &dszapimodelget.Api{})
 
 	require.Equal(t, api.Req, apiCopy.Req)
 	require.Equal(t, api.Resp, apiCopy.Resp)
@@ -46,7 +46,7 @@ func TestUnitModelzApiSignedGet(t *testing.T) {
 }
 
 func TestUnitModelzApiSignedGetParseApi(t *testing.T) {
-	api := &modelzapisignedget.Api{}
+	api := &dszapimodelget.Api{}
 	parsed := jsparser.ParseApi(api)
 	require.NotNil(t, parsed)
 	require.Equal(t, "modelz-signed-get", parsed.Spec.Id)
@@ -93,7 +93,7 @@ func TestUnitModelzApiSignedGetParseApi(t *testing.T) {
 }
 
 func TestUnitModelzApiSignedGetDataRefs(t *testing.T) {
-	api := &modelzapisignedget.Api{}
+	api := &dszapimodelget.Api{}
 	refs := api.GetDataRefs()
 
 	require.NotNil(t, refs.PathParams)
