@@ -190,6 +190,16 @@ for (const button of document.querySelectorAll('button[data-step]')) {
 }
 
 // --- tools -------------------------------------------------------------------------------------------
+// Redirects to the login page when nobody is signed in, and comes back here
+$('login').onclick = async () => {
+  try {
+    const user = await new I6Sdk().auth().requireUser()
+    if (user) log('logged in as', user)
+  } catch (e) {
+    log(`ERROR login: ${e.message}`)
+  }
+}
+
 $('clear').onclick = async () => {
   await (await navigator.storage.getDirectory()).removeEntry('i6', { recursive: true }).catch(() => {})
   for (const k of Object.keys(state)) delete state[k]

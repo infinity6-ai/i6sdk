@@ -1,7 +1,7 @@
 /**
  * @fileoverview Runs an i6 model (e.g. "relevance-fashion-fbt") in the browser and returns the result.
  *
- * Flow: get the model's sqlite + tflite (the URLs come from the dataset signed-url API, unless the caller passes
+ * Flow: get the model's sqlite + tflite (the URLs come from the model signed-get API, unless the caller passes
  * them, which is meant for tests), run the named query `model-${modelName}-input` (its result is
  * the `ctx`; its `inputs` are the model inputs), run the tflite model, and run the named query
  * `model-${modelName}-output` with the model outputs. Its result is returned as is. Nothing here is model specific.
@@ -28,9 +28,8 @@ import { describeModel, loadModel, runModel } from "./litert.js";
  * @property {string} storeId - Store the model was trained for (e.g. "s1").
  * @property {string} dataset - Dataset that holds the model files.
  * @property {*} params - Model input, any JSON (e.g. `{ sku_ids: [...] }`). It is the param of `model-${modelName}-input` and goes to `model-${modelName}-output`.
- * @property {string} [sqliteUrl] - Only for tests: URL of the model's .sqlite (must answer HEAD with an etag). An "i6tb://" path is signed first.
- *   Default: discovered with the API.
- * @property {string} [tfliteUrl] - Only for tests: URL of the model's .tflite (same rules as `sqliteUrl`). Default: discovered with the API.
+ * @property {string} [sqliteUrl] - Only for tests: URL of the model's .sqlite (must answer HEAD with an etag). Default: discovered with the API.
+ * @property {string} [tfliteUrl] - Only for tests: URL of the model's .tflite (same rules). Default: discovered with the API.
  * @property {string} [litertWasm] - URL of the folder with the LiteRT wasm files (ending in "/"). Defaults to the jsdelivr copy.
  */
 
@@ -66,10 +65,10 @@ class Infer {
     const cacheName = (kind) => `infer-${modelName}-${storeId}-${modelVersion}-${kind}`
 
     // 1. Get the model files (cached by etag) and load the model
-    const [sqliteUrls, tfliteUrls] = await this._assetUrls(opts)
+    const [sqliteUrl, tfliteUrl] = await this._assetUrls(opts)
     const [sqliteRef, tfliteRef] = await Promise.all([
-      downloadFile(cacheName("sqlite"), sqliteUrls),
-      downloadFile(cacheName("tflite"), tfliteUrls),
+      downloadFile(cacheName("sqlite"), sqliteUrl),
+      downloadFile(cacheName("tflite"), tfliteUrl),
     ])
     const compiled = await loadModel({ ref: tfliteRef, wasmUrl: opts.litertWasm })
     debug("model ready", describeModel(compiled))
@@ -94,46 +93,31 @@ class Infer {
   }
 
   /**
-   * Finds where the model files are. A URL given in opts is used as is (an "i6tb://" path is signed);
-   * the others are the model's default paths in the dataset, signed with one API call.
+   * Finds where the model files are: the signed urls of the model API, unless opts has both urls (tests).
    * @private
    * @param {InferOptions} opts - Inference options.
-   * @returns {Promise<[string[], string[]]>} For the sqlite and the tflite: the URL to try first, then its fallbacks.
+   * @returns {Promise<[string, string]>} Download URLs of the sqlite and the tflite.
    * @throws {I6Error} With code "asset" if the API cannot sign them.
    */
   async _assetUrls(opts) {
+    if (opts.sqliteUrl && opts.tfliteUrl) return [opts.sqliteUrl, opts.tfliteUrl]
+
     const { modelName, modelVersion, storeId, dataset } = opts
-    const dir = (kind) => `i6tb://results.${modelName}-${kind}/store_id=${storeId}/version=${modelVersion}`
-
-    const locations = [
-      opts.sqliteUrl ?? `${dir("sqlite")}/db.sqlite`,
-      opts.tfliteUrl ?? `${dir("model")}/model.tflite`,
-    ]
-
-    const paths = locations.filter(isI6tbPath)
-    if (paths.length === 0) return locations.map((url) => [url])
-
-    const resp = await this._services.apis().dszSignedUrl({
-      params: { dataset },
-      payload: { paths: paths.map((path) => ({ method: "GET", path })) },
+    const resp = await this._services.apis().modelzSignedGet({
+      params: { dataset, model_name: modelName },
+      payload: { model_version: modelVersion, model_partitions: { store_id: storeId } },
     })
-    
-    const signed = resp.payload?.urls
-    if (!resp.ok || signed?.length !== paths.length) {
-      throw new I6Error(`infer: could not get signed urls for ${paths.join(", ")}: ${JSON.stringify(resp.error ?? resp.status)}`, { code: "asset" })
+    const files = resp.payload?.urls ?? []
+    const find = (extension) => files.find((file) => file.name.endsWith(extension))?.url
+
+    const sqliteUrl = opts.sqliteUrl ?? find(".sqlite")
+    const tfliteUrl = opts.tfliteUrl ?? find(".tflite")
+    if (!sqliteUrl || !tfliteUrl) {
+      throw new I6Error(`infer: the model api gave no ${sqliteUrl ? ".tflite" : ".sqlite"} file: ${JSON.stringify(resp.error ?? files.map((f) => f.name))}`, { code: "asset" })
     }
-
-    let next = 0
-    return locations.map((location) => {
-      if (!isI6tbPath(location)) return [location]
-      const { url, fallbacks } = signed[next++]
-      return [url, ...(fallbacks ?? [])]
-    })
+    return [sqliteUrl, tfliteUrl]
   }
 }
-
-/** @param {string} location - A URL or an "i6tb://" dataset path. */
-const isI6tbPath = (location) => location.startsWith("i6tb://")
 
 /**
  * @param {InferOptions} opts - Options given to `Infer.run`.
@@ -155,25 +139,19 @@ function asArrays(outputs) {
 
 /**
  * Brings one remote file to the browser cache, downloading it only if its etag changed.
- * Tries the urls in order; the next one is used only when the previous answered 404.
  * @param {string} name - Name of the cached file.
- * @param {string[]} urls - URL of the file, then its fallbacks.
+ * @param {string} url - URL of the file.
  * @returns {Promise<FileRef>} The cached file.
  * @throws {I6Error} With code "asset" if the download fails.
  */
-async function downloadFile(name, urls) {
-  let failure
-  for (const url of urls) {
-    try {
-      const ref = await downloader.update({ name, url })
-      debug(`${name} is ready`, ref)
-      return ref
-    } catch (cause) {
-      failure = new I6Error(`infer: could not get ${url}: ${cause.message}`, { code: "asset", cause })
-      if (cause.status !== 404) break
-    }
+async function downloadFile(name, url) {
+  try {
+    const ref = await downloader.update({ name, url })
+    debug(`${name} is ready`, ref)
+    return ref
+  } catch (cause) {
+    throw new I6Error(`infer: could not get ${url}: ${cause.message}`, { code: "asset", cause })
   }
-  throw failure
 }
 
 export { Infer };

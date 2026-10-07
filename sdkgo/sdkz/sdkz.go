@@ -22,6 +22,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitablelist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitokendelete"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzapi/ingestzapigeturl"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/modelzapi/modelzapisignedget"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/pipezapi/pipezstart"
 )
 
@@ -57,6 +58,7 @@ func init() {
 	add(&dszapirecsystokenslist.Api{})
 	add(&dszapirecsystokencreate.Api{})
 	add(&dszapitokendelete.Api{})
+	add(&modelzapisignedget.Api{})
 }
 
 func All() []apiz.Api {
