@@ -59,6 +59,7 @@ func init() {
 	add(&dszapirecsystokencreate.Api{})
 	add(&dszapitokendelete.Api{})
 	add(&dszapimodelget.Api{})
+	add(&dszapimodelget.Api{})
 }
 
 func All() []apiz.Api {
