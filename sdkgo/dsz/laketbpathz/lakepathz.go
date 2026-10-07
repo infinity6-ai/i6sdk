@@ -1,4 +1,4 @@
-package lakepathz
+package laketbpathz
 
 import (
 	"fmt"

@@ -6,12 +6,12 @@ import (
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakepathz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbpathz"
 )
 
 type Req struct {
-	Dataset lakedsz.Dataset `json:"dataset"`
-	Path    lakepathz.Path  `json:"path"`
+	Dataset lakedsz.Dataset  `json:"dataset"`
+	Path    laketbpathz.Path `json:"path"`
 }
 
 type Resp struct {
@@ -51,7 +51,7 @@ func (d *Api) GetDataRefs() *apiz.DataRefs {
 						Str: func() *schemaz.Parser[string] {
 							return &schemaz.Parser[string]{
 								Parse: func(v string) {
-									d.Req.Path = lakepathz.MustParse("i6tb://" + v)
+									d.Req.Path = laketbpathz.MustParse("i6tb://" + v)
 								},
 								Format: func() (string, any) {
 									var v string

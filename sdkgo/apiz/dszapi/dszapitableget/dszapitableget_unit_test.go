@@ -8,14 +8,14 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitableget"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakepathz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbpathz"
 )
 
 func TestUnitDszApiTableGet(t *testing.T) {
 	api := &dszapitableget.Api{
 		Req: dszapitableget.Req{
 			Dataset: lakedsz.MustParse("myds"),
-			Path:    lakepathz.MustParse("i6tb://mydb.mytable/part-1"),
+			Path:    laketbpathz.MustParse("i6tb://mydb.mytable/part-1"),
 		},
 		Resp: dszapitableget.Resp{
 			Location: "https://example.com/part-1",
