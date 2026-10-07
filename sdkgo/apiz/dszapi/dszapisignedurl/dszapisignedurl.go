@@ -19,8 +19,7 @@ type Req struct {
 }
 
 type Url struct {
-	Url       string   `json:"url"`
-	Fallbacks []string `json:"fallbacks"`
+	Url string `json:"url"`
 }
 
 func (u *Url) Schema() *schemaz.Schema {
@@ -31,17 +30,6 @@ func (u *Url) Schema() *schemaz.Schema {
 					Desc: &schemaz.Desc{Summary: "signed URL."},
 					Raw:  func() any { return &u.Url },
 				},
-				"fallbacks": {
-					Desc: &schemaz.Desc{Summary: "Fallback urls."},
-					Array: schemaz.NewArray(schemaz.ArrayOptions[[]string, string]{
-						Slice: func() *[]string { return &u.Fallbacks },
-						Get: func(idx int, element *string) *schemaz.Schema {
-							return &schemaz.Schema{
-								Desc: &schemaz.Desc{Summary: "fallback signed url"},
-								Raw:  func() any { return element },
-							}
-						},
-					})},
 			}
 		},
 	}
