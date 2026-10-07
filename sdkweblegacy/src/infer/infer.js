@@ -103,18 +103,20 @@ class Infer {
     if (opts.sqliteUrl && opts.tfliteUrl) return [opts.sqliteUrl, opts.tfliteUrl]
 
     const { modelName, modelVersion, storeId, dataset } = opts
+
     const resp = await this._services.apis().modelzSignedGet({
       params: { dataset, model_name: modelName },
       payload: { model_version: modelVersion, model_partitions: { store_id: storeId } },
     })
-    const files = resp.payload?.urls ?? []
-    const find = (extension) => files.find((file) => file.name.endsWith(extension))?.url
 
-    const sqliteUrl = opts.sqliteUrl ?? find(".sqlite")
-    const tfliteUrl = opts.tfliteUrl ?? find(".tflite")
+    const urls = Object.fromEntries((resp.payload?.urls ?? []).map((file) => [file.name, file.url]))
+    const sqliteUrl = opts.sqliteUrl ?? urls.sqlite
+    const tfliteUrl = opts.tfliteUrl ?? urls.tflite
+
     if (!sqliteUrl || !tfliteUrl) {
-      throw new I6Error(`infer: the model api gave no ${sqliteUrl ? ".tflite" : ".sqlite"} file: ${JSON.stringify(resp.error ?? files.map((f) => f.name))}`, { code: "asset" })
+      throw new I6Error(`infer: the model api gave no "${sqliteUrl ? "tflite" : "sqlite"}" file: ${JSON.stringify(resp.error ?? Object.keys(urls))}`, { code: "asset" })
     }
+
     return [sqliteUrl, tfliteUrl]
   }
 }

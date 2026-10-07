@@ -63,7 +63,7 @@
             const requests = []
             const services = { apis: () => ({ modelzSignedGet: async (req) => {
                 requests.push(req)
-                return { ok: true, payload: { urls: [{ name: 'model.tflite', url: assets.tfliteUrl }, { name: 'db.sqlite', url: assets.sqliteUrl }] } }
+                return { ok: true, payload: { urls: [{ name: 'tflite', url: assets.tfliteUrl }, { name: 'sqlite', url: assets.sqliteUrl }] } }
             } }) }
             const { Infer } = await import('../src/infer/infer.js')
 
@@ -75,7 +75,7 @@
             }])
 
             const noSqlite = { apis: () => ({ modelzSignedGet: async () => ({ ok: true, payload: { urls: [] } }) }) }
-            await rejectsWithCode(assert, new Infer(noSqlite).run({ ...base, params: { sku_ids } }), 'asset', /no .sqlite file/)
+            await rejectsWithCode(assert, new Infer(noSqlite).run({ ...base, params: { sku_ids } }), 'asset', /no "sqlite" file/)
         })
 
         QUnit.test("runModel reports inputs that do not fit the model", async function (assert) {
