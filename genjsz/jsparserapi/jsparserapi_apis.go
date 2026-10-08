@@ -1,4 +1,4 @@
-package jsparser
+package jsparserapi
 
 import (
 	"context"

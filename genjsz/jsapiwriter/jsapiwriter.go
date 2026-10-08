@@ -9,6 +9,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/errorz"
 	"go.code.infinity6.ai/platform/logz"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
+	"go.code.infinity6.ai/sdkgo/genjsz/jsparserapi"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypedefwriter"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
@@ -26,7 +27,7 @@ func writeln(sb *strings.Builder, msg string, args ...any) {
 	errorz.Check(err)
 }
 
-func Write(ctx context.Context, apis *jsparser.Apis) string {
+func Write(ctx context.Context, apis *jsparserapi.Apis) string {
 	if apis == nil {
 		return ""
 	}
@@ -103,7 +104,7 @@ func indent(s, prefix string) string {
 	return strings.Join(lines, "\n")
 }
 
-func buildReqTypedef(apiId string, api *jsparser.Api) (jstypez.Typedef, bool) {
+func buildReqTypedef(apiId string, api *jsparserapi.Api) (jstypez.Typedef, bool) {
 	hasParams := api.Req.Params.Head != nil
 	hasQuery := api.Req.Query.Head != nil
 	hasReqHeaders := api.Req.Headers.Head != nil
@@ -130,7 +131,7 @@ func buildReqTypedef(apiId string, api *jsparser.Api) (jstypez.Typedef, bool) {
 	return reqTypedef, hasReq
 }
 
-func buildRespTypedef(apiId string, api *jsparser.Api) jstypez.Typedef {
+func buildRespTypedef(apiId string, api *jsparserapi.Api) jstypez.Typedef {
 	respTypedef := jstypez.Typedef{
 		Head:       &jstypez.Tuple{Typ: "object", Name: apiId + "Resp", Summary: apiId + " Response"},
 		Properties: &jstypez.Tuples{},
@@ -149,7 +150,7 @@ func funcName(apiId string) string {
 	return strings.ToLower(name[0:1]) + name[1:]
 }
 
-func writeApiDecl(b *strings.Builder, api *jsparser.Api) {
+func writeApiDecl(b *strings.Builder, api *jsparserapi.Api) {
 	apiId := api.Spec.CamelId
 
 	hasParams := api.Req.Params.Head != nil

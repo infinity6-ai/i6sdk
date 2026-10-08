@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 	"go.code.infinity6.ai/platform/logz"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsapiwriter"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
+	"go.code.infinity6.ai/sdkgo/genjsz/jsparserapi"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkz"
 )
 
@@ -37,7 +37,7 @@ func prepareGenerateJsCmd() *cobra.Command {
 			ctx := cmd.Context()
 			out := errorz.Check2(cmd.Flags().GetString("out"))
 			apis := sdkz.Apis()
-			parsedApis := jsparser.ParseApis(ctx, apis)
+			parsedApis := jsparserapi.ParseApis(ctx, apis)
 			code := []byte(jsapiwriter.Write(ctx, parsedApis))
 			errorz.Check(filez.CreateParentDirs(out))
 			err := os.WriteFile(out, []byte(code), os.ModePerm)
