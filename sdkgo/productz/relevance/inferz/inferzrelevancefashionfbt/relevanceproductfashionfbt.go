@@ -1,4 +1,4 @@
-package relevanceproductfashionfbt
+package inferzrelevancefashionfbt
 
 type Sku struct {
 	SkuId string `json:"sku_id"`
