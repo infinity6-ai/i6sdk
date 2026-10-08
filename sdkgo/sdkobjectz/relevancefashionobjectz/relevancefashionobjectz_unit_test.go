@@ -337,3 +337,102 @@ func TestUnitEventSchema(t *testing.T) {
 		require.Contains(t, tdfMap, "EventPurchaseSkusElement")
 	})
 }
+
+func TestUnitCatalogSerialization(t *testing.T) {
+	type testScenario struct {
+		jsonStr string
+		catalog relevancefashionobjectz.Catalog
+	}
+
+	check := func(t *testing.T, s testScenario) {
+		t.Helper()
+
+		// Test Deserialization (JSON -> Struct)
+		var got relevancefashionobjectz.Catalog
+		err := json.Unmarshal([]byte(s.jsonStr), &got)
+		require.NoError(t, err)
+		require.Equal(t, s.catalog, got)
+
+		// Test Serialization (Struct -> JSON -> Struct)
+		serialized, err := json.Marshal(s.catalog)
+		require.NoError(t, err)
+
+		var roundTrip relevancefashionobjectz.Catalog
+		err = json.Unmarshal(serialized, &roundTrip)
+		require.NoError(t, err)
+		require.Equal(t, s.catalog, roundTrip)
+	}
+
+	t.Run("Basic catalog fields", func(t *testing.T) {
+		check(t, testScenario{
+			jsonStr: `{
+				"id": "cat_123",
+				"store_id": "ABC",
+				"product_id": "prod_456",
+				"sku_id": "sku_789",
+				"sku_ds": "sku description",
+				"inactive": false
+			}`,
+			catalog: relevancefashionobjectz.Catalog{
+				Id:        "cat_123",
+				StoreId:   "ABC",
+				ProductId: "prod_456",
+				SkuId:     "sku_789",
+				SkuDs:     "sku description",
+				Inactive:  false,
+			},
+		})
+	})
+
+	t.Run("Inactive catalog item", func(t *testing.T) {
+		check(t, testScenario{
+			jsonStr: `{
+				"id": "cat_456",
+				"store_id": "XYZ",
+				"product_id": "prod_789",
+				"sku_id": "sku_012",
+				"sku_ds": "another description",
+				"inactive": true
+			}`,
+			catalog: relevancefashionobjectz.Catalog{
+				Id:        "cat_456",
+				StoreId:   "XYZ",
+				ProductId: "prod_789",
+				SkuId:     "sku_012",
+				SkuDs:     "another description",
+				Inactive:  true,
+			},
+		})
+	})
+}
+
+func TestUnitCatalogSchema(t *testing.T) {
+	t.Run("Catalog Schema", func(t *testing.T) {
+		s := (&relevancefashionobjectz.Catalog{}).Schema()
+		td, _ := jsparser.ParseSchema("Catalog", s)
+		require.Equal(t, "Catalog", td.Head.Name)
+
+		propMap := make(map[string]jstypez.Tuple)
+		for _, prop := range td.Properties.All() {
+			propMap[prop.Name] = prop
+		}
+
+		require.Contains(t, propMap, "id")
+		require.Equal(t, "string", propMap["id"].Typ)
+
+		require.Contains(t, propMap, "store_id")
+		require.Equal(t, "string", propMap["store_id"].Typ)
+
+		require.Contains(t, propMap, "product_id")
+		require.Equal(t, "string", propMap["product_id"].Typ)
+
+		require.Contains(t, propMap, "sku_id")
+		require.Equal(t, "string", propMap["sku_id"].Typ)
+
+		require.Contains(t, propMap, "sku_ds")
+		require.Equal(t, "string", propMap["sku_ds"].Typ)
+
+		require.Contains(t, propMap, "inactive")
+		require.Equal(t, "boolean", propMap["inactive"].Typ)
+	})
+}

@@ -1,5 +1,9 @@
 package relevancefashionobjectz
 
+import (
+	"github.com/infinity6-ai/gox/schemaz/schemaz"
+)
+
 type Catalog struct {
 	Id        string `json:"id" bigquery:"id"`
 	StoreId   string `json:"store_id" bigquery:"store_id"`
@@ -7,4 +11,31 @@ type Catalog struct {
 	SkuId     string `json:"sku_id" bigquery:"sku_id"`
 	SkuDs     string `json:"sku_ds" bigquery:"sku_ds"`
 	Inactive  bool   `json:"inactive" bigquery:"inactive"`
+}
+
+func (u *Catalog) Schema() *schemaz.Schema {
+	return &schemaz.Schema{
+		Object: func(read bool) map[string]*schemaz.Schema {
+			return map[string]*schemaz.Schema{
+				"id": {
+					Raw: func() any { return &u.Id },
+				},
+				"store_id": {
+					Raw: func() any { return &u.StoreId },
+				},
+				"product_id": {
+					Raw: func() any { return &u.ProductId },
+				},
+				"sku_id": {
+					Raw: func() any { return &u.SkuId },
+				},
+				"sku_ds": {
+					Raw: func() any { return &u.SkuDs },
+				},
+				"inactive": {
+					Raw: func() any { return &u.Inactive },
+				},
+			}
+		},
+	}
 }
