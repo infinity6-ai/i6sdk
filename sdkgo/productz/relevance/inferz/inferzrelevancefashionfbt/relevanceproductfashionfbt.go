@@ -41,6 +41,7 @@ func (d *Func) SdkFuncSpec() sdkfuncz.Spec {
 		Desc:     nil,
 	}
 }
+
 func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 	return &sdkfuncz.DataRefs{
 		Input: &schemaz.Schema{
