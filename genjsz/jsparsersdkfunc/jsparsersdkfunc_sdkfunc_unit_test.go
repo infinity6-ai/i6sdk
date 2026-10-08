@@ -1,8 +1,10 @@
 package jsparsersdkfunc_test
 
 import (
+	"os"
 	"testing"
 
+	"github.com/infinity6-ai/gox/commonz/errorz"
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparsersdkfunc"
@@ -102,6 +104,9 @@ func TestUnitAllSdkFuncs(t *testing.T) {
 	for _, fn := range funcs {
 		expected := jsparsersdkfunc.ParseSdkFunc(fn)
 		var actual *jsparsersdkfunc.SdkFunc
-		jsonz.MustParse(jsonz.MustFormat(expected).String(), &actual)
+		content := jsonz.MustFormat(expected)
+		jsonz.MustParse(content.String(), &actual)
+		errorz.Check(os.MkdirAll("target/jsparser/sdkfunc", os.ModePerm))
+		errorz.Check(os.WriteFile("target/jsparser/sdkfunc/"+fn.SdkFuncSpec().Id+".json", content.Bytes(), os.ModePerm))
 	}
 }
