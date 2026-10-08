@@ -1,4 +1,4 @@
-package jsapiwriter
+package jswriterapi
 
 import (
 	"context"

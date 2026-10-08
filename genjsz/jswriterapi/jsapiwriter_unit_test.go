@@ -1,4 +1,4 @@
-package jsapiwriter_test
+package jswriterapi_test
 
 import (
 	"testing"
@@ -6,8 +6,8 @@ import (
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsapiwriter"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparserapi"
+	"go.code.infinity6.ai/sdkgo/genjsz/jswriterapi"
 )
 
 func TestUnitWrite(t *testing.T) {
@@ -19,7 +19,7 @@ func TestUnitWrite(t *testing.T) {
 
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
-		got := jsapiwriter.Write(ctx, s.in)
+		got := jswriterapi.Write(ctx, s.in)
 		println(got)
 
 		require.Equal(t, s.want, got)
