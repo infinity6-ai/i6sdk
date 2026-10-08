@@ -7,13 +7,13 @@ type Event struct {
 	StoreId        string          `json:"store_id" bigquery:"store_id"`
 	SessionId      string          `json:"session_id" bigquery:"session_id"`
 	UserId         string          `json:"user_id" bigquery:"user_id"`
-	Click          *Click          `json:"click,omitempty" bigquery:"click"`
-	AddToCart      *AddToCart      `json:"add_to_cart,omitempty" bigquery:"add_to_cart"`
-	RemoveFromCart *RemoveFromCart `json:"remove_from_cart,omitempty" bigquery:"remove_from_cart"`
-	Search         *Search         `json:"search,omitempty" bigquery:"search"`
-	Purchase       *Purchase       `json:"purchase,omitempty" bigquery:"purchase"`
-	Recraw         *Recraw         `json:"recraw,omitempty" bigquery:"recraw"`
-	Recshow        *Recshow        `json:"recshow,omitempty" bigquery:"recshow"`
+	Click          *Click          `json:"click,omitempty" bigquery:"click,nullable"`
+	AddToCart      *AddToCart      `json:"add_to_cart,omitempty" bigquery:"add_to_cart,nullable"`
+	RemoveFromCart *RemoveFromCart `json:"remove_from_cart,omitempty" bigquery:"remove_from_cart,nullable"`
+	Search         *Search         `json:"search,omitempty" bigquery:"search,nullable"`
+	Purchase       *Purchase       `json:"purchase,omitempty" bigquery:"purchase,nullable"`
+	Recraw         *Recraw         `json:"recraw,omitempty" bigquery:"recraw,nullable"`
+	Recshow        *Recshow        `json:"recshow,omitempty" bigquery:"recshow,nullable"`
 	CreatedAt      time.Time       `json:"created_at" bigquery:"created_at"`
 }
 
