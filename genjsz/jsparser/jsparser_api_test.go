@@ -127,7 +127,7 @@ func TestUnitFractionSample(t *testing.T) {
 	require.Equal(t, expected, actual)
 }
 
-func TestUnitAll(t *testing.T) {
+func TestUnitAllApis(t *testing.T) {
 	// apis := []apiz.Api{
 	// &ingestzapigeturl.GetUrlApi{},
 	// &dszapisignedurl.Api{},
