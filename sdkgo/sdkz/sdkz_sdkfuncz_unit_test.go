@@ -19,9 +19,9 @@ func TestUnitSdkFuncs(t *testing.T) {
 	require.Equal(t, "fashionFbt", f.SdkFuncSpec().FuncName)
 
 	// Test aliases
-	infers := sdkz.Infers()
-	require.Equal(t, len(funcs), len(infers))
+	sdkFuncs := sdkz.SdkFuncs()
+	require.Equal(t, len(funcs), len(sdkFuncs))
 
-	infer := sdkz.Infer("product-relevance-fashion-fbt")
-	require.Equal(t, f, infer)
+	sdkFunc := sdkz.SdkFunc("product-relevance-fashion-fbt")
+	require.Equal(t, f, sdkFunc)
 }
