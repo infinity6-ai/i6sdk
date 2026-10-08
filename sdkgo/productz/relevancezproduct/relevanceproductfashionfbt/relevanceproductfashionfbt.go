@@ -1,10 +1,5 @@
 package relevanceproductfashionfbt
 
-import (
-	"github.com/infinity6-ai/gox/routez/apiz"
-	"github.com/infinity6-ai/gox/schemaz/schemaz"
-)
-
 type Sku struct {
 	SkuId string `json:"sku_id"`
 }
@@ -27,18 +22,18 @@ type Api struct {
 	Resp *Resp `json:"resp"`
 }
 
-func (d *Api) ApiSpec() apiz.ApiSpec {
-	return apiz.ApiSpec{
-		Id:     "product-relevance-fashion-fbt",
-		Desc:   nil,
-		Method: "GET",
-		Path:   "/api/remover/esse-treco",
-	}
-}
+// func (d *Api) ApiSpec() apiz.ApiSpec {
+// 	return apiz.ApiSpec{
+// 		Id:     "product-relevance-fashion-fbt",
+// 		Desc:   nil,
+// 		Method: "GET",
+// 		Path:   "/api/remover/esse-treco",
+// 	}
+// }
 
-func (d *Api) ApiDataRefs() *apiz.DataRefs {
-	return &apiz.DataRefs{
-		ReqBody:  &schemaz.Schema{},
-		RespBody: &schemaz.Schema{},
-	}
-}
+// func (d *Api) ApiDataRefs() *apiz.DataRefs {
+// 	return &apiz.DataRefs{
+// 		ReqBody:  &schemaz.Schema{},
+// 		RespBody: &schemaz.Schema{},
+// 	}
+// }
