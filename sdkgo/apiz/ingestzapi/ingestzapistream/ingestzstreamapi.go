@@ -56,11 +56,12 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 					},
 					"data": {
 						Desc: &schemaz.Desc{Summary: "Generic stream data to ingest."},
-						Array: func() *schemaz.Array {
-							return &schemaz.Array{
-								// implement it
-							}
-						},
+						Array: schemaz.NewArray(schemaz.ArrayOptions[[]T, T]{
+							Slice: func() *[]T { return &d.Req.Data },
+							Get: func(idx int, element *T) *schemaz.Schema {
+								return (*element).Schema()
+							},
+						}),
 					},
 				}
 			},
