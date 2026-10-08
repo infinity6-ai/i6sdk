@@ -17,10 +17,9 @@ import (
 func expectedFashionFbtSdkFunc() *jsparsersdkfunc.SdkFunc {
 	return &jsparsersdkfunc.SdkFunc{
 		Spec: jsparsersdkfunc.SdkFuncSpec{
-			Id:       "product-relevance-fashion-fbt",
-			CamelId:  "sdkFuncProductRelevanceFashionFbt",
-			Typ:      sdkfuncz.TypClientInfer,
-			FuncName: "fashionFbt",
+			Id:      "product-relevance-fashion-fbt",
+			CamelId: "sdkFuncProductRelevanceFashionFbt",
+			Typ:     sdkfuncz.TypClientInfer,
 		},
 		Typedefs: jstypez.NewTypedefs([]*jstypez.Typedef{
 			{
