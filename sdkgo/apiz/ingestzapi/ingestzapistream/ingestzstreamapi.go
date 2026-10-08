@@ -1,62 +1,45 @@
 package ingestzapistream
 
 import (
-	"encoding/json"
-
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
+	"go.code.infinity6.ai/sdkgo/sdkgo/sdkobjectz"
 )
 
-type Payload struct {
-	Value any
+type StreamReq[T sdkobjectz.SdkObject] struct {
+	Dataset lakedsz.Dataset
+	Table   laketbnamez.TableName
+	Data    []T
 }
 
-func (*Payload) JSType() string {
-	return jstypez.TypAny
+type Api[T sdkobjectz.SdkObject] struct {
+	Req StreamReq[T]
 }
 
-func (p *Payload) MarshalJSON() ([]byte, error) {
-	return json.Marshal(p.Value)
-}
-
-func (p *Payload) UnmarshalJSON(data []byte) error {
-	return json.Unmarshal(data, &p.Value)
-}
-
-type StreamReq struct {
-	Dataset  lakedsz.Dataset       `json:"dataset"`
-	Table    laketbnamez.TableName `json:"table"`
-	Payloads []Payload             `json:"payloads"`
-}
-
-type Api struct {
-	Req StreamReq `json:"req"`
-}
-
-func (d *Api) ApiSpec() apiz.ApiSpec {
+func (d *Api[T]) ApiSpec() apiz.ApiSpec {
+	var x T
 	return apiz.ApiSpec{
 		Id: "ingestz-stream",
 		Desc: func() *schemaz.Desc {
 			return &schemaz.Desc{
 				Name:    "Stream Ingestion",
-				Summary: "Ingests stream payloads into a target dataset table.",
+				Summary: "Ingests stream data into a target dataset table.",
 			}
 		},
 		Method: "POST",
-		Path:   "/api/ingest/dataset/{dataset}/stream",
+		Path:   "/api/ingest/dataset/{dataset}/stream/" + x.Id(),
 	}
 }
 
-func (d *Api) ApiDataRefs() *apiz.DataRefs {
+func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 	return &apiz.DataRefs{
 		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
 					"dataset": {
-						Desc: &schemaz.Desc{Summary: "Name of the dataset that receives the stream payloads."},
+						Desc: &schemaz.Desc{Summary: "Name of the dataset that receives the stream data."},
 						Str:  lakedsz.ParseStr(&d.Req.Dataset),
 					},
 				}
@@ -68,12 +51,16 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
 					"table": {
-						Desc: &schemaz.Desc{Summary: "Name of the table that receives the stream payloads."},
+						Desc: &schemaz.Desc{Summary: "Name of the table that receives the stream data."},
 						Raw:  func() any { return &d.Req.Table },
 					},
-					"payloads": {
-						Desc: &schemaz.Desc{Summary: "Generic stream payloads to ingest."},
-						Raw:  func() any { return &d.Req.Payloads },
+					"data": {
+						Desc: &schemaz.Desc{Summary: "Generic stream data to ingest."},
+						Array: func() *schemaz.Array {
+							return &schemaz.Array{
+								// implement it
+							}
+						},
 					},
 				}
 			},
