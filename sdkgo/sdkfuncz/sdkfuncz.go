@@ -18,10 +18,9 @@ type DataRefs struct {
 }
 
 type Spec struct {
-	Id       string
-	Desc     func() *schemaz.Desc
-	Typ      Typ
-	FuncName string
+	Id   string
+	Desc func() *schemaz.Desc
+	Typ  Typ
 }
 
 type Func interface {

@@ -48,10 +48,9 @@ func ParseSdkFunc(fn sdkfuncz.Func) *SdkFunc {
 	parseSpec := func() SdkFuncSpec {
 		s := fn.SdkFuncSpec()
 		ret := SdkFuncSpec{
-			Id:       s.Id,
-			CamelId:  funcId,
-			Typ:      s.Typ,
-			FuncName: s.FuncName,
+			Id:      s.Id,
+			CamelId: funcId,
+			Typ:     s.Typ,
 		}
 		if s.Desc != nil {
 			ret.Desc = s.Desc()

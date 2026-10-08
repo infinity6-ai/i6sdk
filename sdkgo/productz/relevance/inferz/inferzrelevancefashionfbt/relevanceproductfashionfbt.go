@@ -35,10 +35,9 @@ type Func struct {
 
 func (d *Func) SdkFuncSpec() sdkfuncz.Spec {
 	return sdkfuncz.Spec{
-		Id:       "product-relevance-fashion-fbt",
-		Typ:      sdkfuncz.TypClientInfer,
-		FuncName: "fashionFbt",
-		Desc:     nil,
+		Id:   "product-relevance-fashion-fbt",
+		Typ:  sdkfuncz.TypClientInfer,
+		Desc: nil,
 	}
 }
 

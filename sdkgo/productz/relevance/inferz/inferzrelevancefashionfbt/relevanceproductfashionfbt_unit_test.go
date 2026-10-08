@@ -62,7 +62,6 @@ func TestUnitInferzRelevanceFashionFbtSpec(t *testing.T) {
 	spec := fn.SdkFuncSpec()
 	require.Equal(t, "product-relevance-fashion-fbt", spec.Id)
 	require.Equal(t, sdkfuncz.TypClientInfer, spec.Typ)
-	require.Equal(t, "fashionFbt", spec.FuncName)
 	require.Nil(t, spec.Desc)
 }
 
