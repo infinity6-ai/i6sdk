@@ -16,7 +16,7 @@ type DataRefs struct {
 	Output *schemaz.Schema
 }
 
-type InferSpec struct {
+type Spec struct {
 	Id       string
 	Desc     func() *schemaz.Desc
 	Typ      Typ
@@ -24,9 +24,9 @@ type InferSpec struct {
 }
 
 type Infer interface {
-	InferSpec() InferSpec
+	InferSpec() Spec
 	InferDataRefs() *DataRefs
 }
 
 type SdkFunc = Infer
-type SdkFuncSpec = InferSpec
+type SdkFuncSpec = Spec

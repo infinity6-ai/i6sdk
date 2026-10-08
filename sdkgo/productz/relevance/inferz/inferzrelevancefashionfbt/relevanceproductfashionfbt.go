@@ -27,8 +27,8 @@ type Api struct {
 	Resp *Resp `json:"resp"`
 }
 
-func (d *Api) InferSpec() sdkfuncz.InferSpec {
-	return sdkfuncz.InferSpec{
+func (d *Api) InferSpec() sdkfuncz.Spec {
+	return sdkfuncz.Spec{
 		Id:       "product-relevance-fashion-fbt",
 		Typ:      sdkfuncz.TypClientInfer,
 		FuncName: "fashionFbt",
