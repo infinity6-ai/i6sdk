@@ -46,7 +46,7 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 			}
 		},
 		Method: "POST",
-		Path:   "/api/ingest/stream/dataset/{dataset}",
+		Path:   "/api/ingest/dataset/{dataset}/stream",
 	}
 }
 
