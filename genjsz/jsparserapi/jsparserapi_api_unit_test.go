@@ -1,8 +1,10 @@
 package jsparserapi_test
 
 import (
+	"os"
 	"testing"
 
+	"github.com/infinity6-ai/gox/commonz/errorz"
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
@@ -133,5 +135,7 @@ func TestUnitAllApis(t *testing.T) {
 		expected := jsparserapi.ParseApi(api)
 		var actual *jsparserapi.Api
 		jsonz.MustParse(jsonz.MustFormat(expected).String(), &actual)
+		errorz.Check(os.MkdirAll("target/jsparser/api", os.ModePerm))
+		errorz.Check(os.WriteFile("target/jsparser/api/"+api.ApiSpec().Id+".json", jsonz.MustFormatPretty(expected).Bytes(), os.ModePerm))
 	}
 }
