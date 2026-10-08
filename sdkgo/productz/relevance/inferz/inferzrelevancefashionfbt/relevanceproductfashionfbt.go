@@ -10,8 +10,8 @@ type Sku struct {
 }
 
 type Partitions struct {
-	Veresion string `json:"version"`
-	StoreId  string `json:"store_id"`
+	Version string `json:"version"`
+	StoreId string `json:"store_id"`
 }
 
 type Result struct {
@@ -60,6 +60,23 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 							},
 						}),
 					},
+				}
+			},
+		},
+		Partitions: &schemaz.Schema{
+			Object: func(read bool) map[string]*schemaz.Schema {
+				if read && (d.Req == nil || d.Req.Partitions == nil) {
+					return nil
+				}
+				if d.Req == nil {
+					d.Req = &Req{}
+				}
+				if d.Req.Partitions == nil {
+					d.Req.Partitions = &Partitions{}
+				}
+				return map[string]*schemaz.Schema{
+					"version":  {Str: schemaz.ParseStr(&d.Req.Partitions.Version)},
+					"store_id": {Str: schemaz.ParseStr(&d.Req.Partitions.StoreId)},
 				}
 			},
 		},
