@@ -21,6 +21,8 @@ type InferSpec struct {
 	Desc     func() *schemaz.Desc
 	Typ      Typ
 	FuncName string
+	StoreId  string
+	Version  string
 }
 
 type Infer interface {
