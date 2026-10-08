@@ -147,21 +147,24 @@ class SqliteConn {
     }
 
     /**
-     * Like `namedQuery`, but with JSON in and JSON out: the stored query gets ONE bound value, `opts.param`
-     * as a JSON string (read it in SQL with `json_extract(?, '$.field')`, `json_each(?)`, ...), and must
-     * return a row with a column `ret` holding a JSON string. That JSON is parsed and returned.
-     * The stored query must contain that `?`, otherwise sqlite rejects the bind ("column index out of range").
+     * Like `namedQuery`, but with JSON in and JSON out: each value of `opts.params`
+     * is bound as a JSON string to the positional `?1`, `?2`, ... of the stored query, in order (read them in SQL with
+     * `json_extract(?1, '$.field')`, `json_each(?2)`, ...). The stored query must return a row with a column `ret`
+     * holding a JSON string. That JSON is parsed and returned.
+     * The stored query must have a placeholder for every value, otherwise sqlite rejects the bind ("column index out of range").
      * @param {Object} opts
      * @param {string} opts.name - required, the `name` of the stored query (see `namedQuery`).
-     * @param {*} [opts.param] - any JSON-serializable value, bound as `?` (a single one) of the stored query.
+     * @param {Array<*>} [opts.params] - JSON-serializable values, bound in order as `?1`, `?2`, ... Default: none.
      * @returns {Promise<*>} The parsed `ret` of the first row, or null if there is no row or `ret` is null.
-     * @throws {TypeError} If opts.name is missing.
+     * @throws {TypeError} If opts.name is missing or opts.params is not an array.
      * @throws {I6Error} With code "query" if `namedQuery` fails, the rows have no `ret` column, or `ret` is not valid JSON.
      */
     async namedJsonQuery(opts) {
         if (!opts || !opts.name) throw new TypeError("sqlitez: opts.name is required")
 
-        const rows = await this.namedQuery({ name: opts.name, params: [JSON.stringify(opts.param ?? null)] })
+        if (opts.params !== undefined && !Array.isArray(opts.params)) throw new TypeError("sqlitez: opts.params must be an array")
+
+        const rows = await this.namedQuery({ name: opts.name, params: (opts.params ?? []).map((value) => JSON.stringify(value ?? null)) })
         if (rows.length === 0) return null
 
         if (!("ret" in rows[0])) {
