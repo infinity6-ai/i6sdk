@@ -7,7 +7,15 @@ import (
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz/relevancefashionobjectz"
 )
+
+func AllApis() []apiz.Api {
+	return []apiz.Api{
+		&Api[*relevancefashionobjectz.Catalog]{},
+		&Api[*relevancefashionobjectz.Event]{},
+	}
+}
 
 type StreamReq[T tabledataz.TableData] struct {
 	Dataset lakedsz.Dataset

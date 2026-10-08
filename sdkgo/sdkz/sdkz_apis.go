@@ -44,7 +44,6 @@ func init() {
 		add(svc.Api())
 	}
 	add(&ingestzapigeturl.Api{})
-	// add(&ingestzapistream.Api{})
 	add(&dszapisignedurl.Api{})
 	add(&dszapitableget.Api{})
 	add(&dszapitablelist.Api{})
