@@ -134,7 +134,7 @@ func expectedIngestzApi() *jsparserapi.Api {
 				Markdown: "",
 			},
 			Method: "POST",
-			Path:   "/api/ingest/get-url/dataset/{dataset}",
+			Path:   "/api/ingest/dataset/{dataset}/get-url",
 		},
 		Typedefs: jstypez.NewTypedefs([]*jstypez.Typedef{
 			{
