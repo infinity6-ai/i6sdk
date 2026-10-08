@@ -1,10 +1,10 @@
 /**
  * @fileoverview Runs an i6 model (e.g. "relevance-fashion-fbt") in the browser and returns the result.
  *
- * Flow: get the model's sqlite + tflite (the URLs come from the model signed-get API, unless the caller passes
- * them, which is meant for tests), run the named query `model-${modelName}-input` (its result is
- * the `ctx`; its `inputs` are the model inputs), run the tflite model, and run the named query
- * `model-${modelName}-output` with the model outputs. Its result is returned as is. Nothing here is model specific.
+ * Flow: get the model's sqlite + tflite (URLs from the model signed-get API, or from the caller in tests),
+ * run the named query `model-${modelName}-input` (its result is the `ctx`; its `inputs` are the model inputs),
+ * run the tflite model, and run the named query `model-${modelName}-output` with the model outputs.
+ * Its result is returned as is. Nothing here is model specific.
  *
  * Set `window.I6_DEBUG = true` to see what happens in the console.
  */
@@ -27,11 +27,14 @@ import { describeModel, loadModel, runModel } from "./litert.js";
  * @property {string} modelVersion - Model version (e.g. "v1").
  * @property {string} storeId - Store the model was trained for (e.g. "s1").
  * @property {string} dataset - Dataset that holds the model files.
- * @property {*} params - Model input, any JSON (e.g. `{ sku_ids: [...] }`). It is the param of `model-${modelName}-input` and goes to `model-${modelName}-output`.
- * @property {string} [sqliteUrl] - Only for tests: URL of the model's .sqlite (must answer HEAD with an etag). Default: discovered with the API.
- * @property {string} [tfliteUrl] - Only for tests: URL of the model's .tflite (same rules). Default: discovered with the API.
+ * @property {*} params - Model input, any JSON (e.g. `{ sku_ids: [...] }`). Param of the input query, also given to the output query.
+ * @property {string} [sqliteUrl] - Tests only, together with `tfliteUrl`: URL of the sqlite (must answer HEAD with an etag). Default: the model API.
+ * @property {string} [tfliteUrl] - Tests only, together with `sqliteUrl`: URL of the tflite.
  * @property {string} [litertWasm] - URL of the folder with the LiteRT wasm files (ending in "/"). Defaults to the jsdelivr copy.
  */
+
+/** Names of the model files in the model API response. */
+const FILES = { sqlite: "sqlite.bin", tflite: "tflite.bin" }
 
 /** Prints only when `window.I6_DEBUG` is true. */
 const debug = (...args) => { if (globalThis.I6_DEBUG) console.log("infer:", ...args) }
@@ -61,30 +64,26 @@ class Infer {
    */
   async run(opts) {
     validate(opts)
-    const { modelName, modelVersion, storeId, params } = opts
-    const cacheName = (kind) => `infer-${modelName}-${storeId}-${modelVersion}-${kind}`
+    const { modelName, params } = opts
+    const queryName = (kind) => `model-${modelName}-${kind}`
 
-    // 1. Get the model files (cached by etag) and load the model
-    const [sqliteUrl, tfliteUrl] = await this._assetUrls(opts)
-    const [sqliteRef, tfliteRef] = await Promise.all([
-      downloadFile(cacheName("sqlite"), sqliteUrl),
-      downloadFile(cacheName("tflite"), tfliteUrl),
-    ])
+    // 1. Get the model files and load the model
+    const { sqliteRef, tfliteRef } = await this._loadFiles(opts)
     const compiled = await loadModel({ ref: tfliteRef, wasmUrl: opts.litertWasm })
     debug("model ready", describeModel(compiled))
 
     const conn = await sqlitez.open({ path: await fs.resolve(sqliteRef) })
     try {
       // 2. Read what the model needs from the sqlite: the model inputs (`inputs`) and anything the output query needs
-      const ctx = await conn.namedJsonQuery({ name: `model-${modelName}-input`, param: params })
-      if (!ctx?.inputs) throw new I6Error(`infer: model-${modelName}-input returned no "inputs"`, { code: "query" })
+      const ctx = await conn.namedJsonQuery({ name: queryName("input"), param: params })
+      if (!ctx?.inputs) throw new I6Error(`infer: ${queryName("input")} returned no "inputs"`, { code: "query" })
       debug("input query returned", Object.keys(ctx))
 
       // 3. Run the model
       const outputs = await runModel(compiled, ctx.inputs)
 
       // 4. The sqlite turns the outputs into the result
-      const result = await conn.namedJsonQuery({ name: `model-${modelName}-output`, param: { params, ctx, outputs: asArrays(outputs) } })
+      const result = await conn.namedJsonQuery({ name: queryName("output"), param: { params, ctx, outputs: asArrays(outputs) } })
       debug("output query returned", result)
       return result
     } finally {
@@ -93,31 +92,46 @@ class Infer {
   }
 
   /**
-   * Finds where the model files are: the signed urls of the model API, unless opts has both urls (tests).
+   * Brings the model files to the browser cache (downloaded only if their etag changed).
    * @private
    * @param {InferOptions} opts - Inference options.
-   * @returns {Promise<[string, string]>} Download URLs of the sqlite and the tflite.
-   * @throws {I6Error} With code "asset" if the API cannot sign them.
+   * @returns {Promise<{sqliteRef: FileRef, tfliteRef: FileRef}>} The cached files.
+   * @throws {I6Error} With code "asset" if the URLs cannot be found or a download fails.
+   */
+  async _loadFiles(opts) {
+    const { modelName, modelVersion, storeId } = opts
+    const cacheName = (kind) => `infer-${modelName}-${storeId}-${modelVersion}-${kind}`
+
+    const urls = await this._assetUrls(opts)
+    const [sqliteRef, tfliteRef] = await Promise.all([
+      downloadFile(cacheName("sqlite"), urls.sqlite),
+      downloadFile(cacheName("tflite"), urls.tflite),
+    ])
+    return { sqliteRef, tfliteRef }
+  }
+
+  /**
+   * Finds where the model files are: the signed URLs of the model API, unless opts has both URLs (tests).
+   * @private
+   * @param {InferOptions} opts - Inference options.
+   * @returns {Promise<{sqlite: string, tflite: string}>} Download URLs of the files.
+   * @throws {I6Error} With code "asset" if the API gave no URL for a file.
    */
   async _assetUrls(opts) {
-    if (opts.sqliteUrl && opts.tfliteUrl) return [opts.sqliteUrl, opts.tfliteUrl]
+    if (opts.sqliteUrl) return { sqlite: opts.sqliteUrl, tflite: opts.tfliteUrl }
 
     const { modelName, modelVersion, storeId, dataset } = opts
-
     const resp = await this._services.apis().modelzSignedGet({
       params: { dataset, model_name: modelName },
       payload: { model_version: modelVersion, model_partitions: { store_id: storeId } },
     })
 
-    const urls = Object.fromEntries((resp.payload?.urls ?? []).map((file) => [file.name, file.url]))
-    const sqliteUrl = opts.sqliteUrl ?? urls["sqlite.bin"]
-    const tfliteUrl = opts.tfliteUrl ?? urls["tflite.bin"]
-
-    if (!sqliteUrl || !tfliteUrl) {
-      throw new I6Error(`infer: the model api gave no "${sqliteUrl ? "tflite.bin" : "sqlite.bin"}" file: ${JSON.stringify(resp.error ?? Object.keys(urls))}`, { code: "asset" })
+    const byName = Object.fromEntries((resp.payload?.urls ?? []).map((file) => [file.name, file.url]))
+    const missing = Object.values(FILES).find((name) => !byName[name])
+    if (missing) {
+      throw new I6Error(`infer: the model api gave no "${missing}" file: ${JSON.stringify(resp.error ?? Object.keys(byName))}`, { code: "asset" })
     }
-
-    return [sqliteUrl, tfliteUrl]
+    return { sqlite: byName[FILES.sqlite], tflite: byName[FILES.tflite] }
   }
 }
 
@@ -128,6 +142,10 @@ class Infer {
 function validate(opts) {
   for (const key of ["modelName", "modelVersion", "storeId", "dataset"]) {
     if (!opts || !opts[key]) throw new I6Error(`infer: opts.${key} is required`, { code: "invalid_argument" })
+  }
+  if (opts.params === undefined) throw new I6Error("infer: opts.params is required", { code: "invalid_argument" })
+  if (!opts.sqliteUrl !== !opts.tfliteUrl) {
+    throw new I6Error("infer: opts.sqliteUrl and opts.tfliteUrl go together", { code: "invalid_argument" })
   }
 }
 
