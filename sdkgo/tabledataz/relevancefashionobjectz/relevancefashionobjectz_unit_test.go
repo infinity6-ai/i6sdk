@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
-	"go.code.infinity6.ai/sdkgo/sdkgo/sdkobjectz/relevancefashionobjectz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz/relevancefashionobjectz"
 )
 
 func TestUnitEventSerialization(t *testing.T) {
