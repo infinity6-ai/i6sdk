@@ -12,21 +12,19 @@ const (
 )
 
 type DataRefs struct {
-	Input  *schemaz.Schema
-	Output *schemaz.Schema
+	Input      *schemaz.Schema
+	Partitions *schemaz.Schema
+	Output     *schemaz.Schema
 }
 
-type InferSpec struct {
+type Spec struct {
 	Id       string
 	Desc     func() *schemaz.Desc
 	Typ      Typ
 	FuncName string
 }
 
-type Infer interface {
-	InferSpec() InferSpec
-	InferDataRefs() *DataRefs
+type Func interface {
+	SdkFuncSpec() Spec
+	SdkFuncDataRefs() *DataRefs
 }
-
-type SdkFunc = Infer
-type SdkFuncSpec = InferSpec

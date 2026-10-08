@@ -127,7 +127,7 @@ func TestUnitFractionSample(t *testing.T) {
 	require.Equal(t, expected, actual)
 }
 
-func TestUnitAll(t *testing.T) {
+func TestUnitAllApis(t *testing.T) {
 	// apis := []apiz.Api{
 	// &ingestzapigeturl.GetUrlApi{},
 	// &dszapisignedurl.Api{},
@@ -142,5 +142,23 @@ func TestUnitAll(t *testing.T) {
 		// require.Equal(t, expected, actual)
 		// println(jsonz.MustFormatPretty(actual).String())
 	}
+	// t.Fail()
+}
+
+func TestUnitAllSdkFuncs(t *testing.T) {
+	// sdkFuncs := []apiz.Api{
+	// &ingestzapigeturl.GetUrlApi{},
+	// &dszapisignedurl.Api{},
+	// 	&pipezapi.PipezStartApi{},
+	// 	&dszapi.DszSolutionDomainSelectApi{},
+	// }
+	// sdkFuncs := sdkz.SdkFuncs()
+	// for _, sdkFunc := range sdkFuncs {
+	// expected := jsparser.ParseSdkFunc(sdkFunc)
+	// var actual *jsparser.Api
+	// jsonz.MustParse(jsonz.MustFormat(expected).String(), &actual)
+	// require.Equal(t, expected, actual)
+	// println(jsonz.MustFormatPretty(actual).String())
+	// }
 	// t.Fail()
 }

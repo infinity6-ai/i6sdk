@@ -9,26 +9,32 @@ type Sku struct {
 	SkuId string `json:"sku_id"`
 }
 
+type Partitions struct {
+	Version string `json:"version"`
+	StoreId string `json:"store_id"`
+}
+
 type Result struct {
 	SkuId  string `json:"sku_id"`
 	Rating string `json:"rating"`
 }
 
 type Req struct {
-	Skus []*Sku `json:"skus"`
+	Skus       []*Sku      `json:"skus"`
+	Partitions *Partitions `json:"partitions"`
 }
 
 type Resp struct {
 	Results []*Result `json:"results"`
 }
 
-type Api struct {
+type Func struct {
 	Req  *Req  `json:"req"`
 	Resp *Resp `json:"resp"`
 }
 
-func (d *Api) InferSpec() sdkfuncz.InferSpec {
-	return sdkfuncz.InferSpec{
+func (d *Func) SdkFuncSpec() sdkfuncz.Spec {
+	return sdkfuncz.Spec{
 		Id:       "product-relevance-fashion-fbt",
 		Typ:      sdkfuncz.TypClientInfer,
 		FuncName: "fashionFbt",
@@ -36,7 +42,7 @@ func (d *Api) InferSpec() sdkfuncz.InferSpec {
 	}
 }
 
-func (d *Api) InferDataRefs() *sdkfuncz.DataRefs {
+func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 	return &sdkfuncz.DataRefs{
 		Input: &schemaz.Schema{
 			Object: func(_ bool) map[string]*schemaz.Schema {
@@ -54,6 +60,23 @@ func (d *Api) InferDataRefs() *sdkfuncz.DataRefs {
 							},
 						}),
 					},
+				}
+			},
+		},
+		Partitions: &schemaz.Schema{
+			Object: func(read bool) map[string]*schemaz.Schema {
+				if read && (d.Req == nil || d.Req.Partitions == nil) {
+					return nil
+				}
+				if d.Req == nil {
+					d.Req = &Req{}
+				}
+				if d.Req.Partitions == nil {
+					d.Req.Partitions = &Partitions{}
+				}
+				return map[string]*schemaz.Schema{
+					"version":  {Str: schemaz.ParseStr(&d.Req.Partitions.Version)},
+					"store_id": {Str: schemaz.ParseStr(&d.Req.Partitions.StoreId)},
 				}
 			},
 		},
