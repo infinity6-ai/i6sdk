@@ -20,8 +20,8 @@ type Result struct {
 }
 
 type Req struct {
-	Skus       []*Sku      `json:"skus"`
-	Partitions *Partitions `json:"partitions"`
+	Skus       []*Sku     `json:"skus"`
+	Partitions Partitions `json:"partitions"`
 }
 
 type Resp struct {
@@ -29,8 +29,8 @@ type Resp struct {
 }
 
 type Func struct {
-	Req  *Req  `json:"req"`
-	Resp *Resp `json:"resp"`
+	Req  Req  `json:"req"`
+	Resp Resp `json:"resp"`
 }
 
 func (d *Func) SdkFuncSpec() sdkfuncz.Spec {
@@ -65,15 +65,6 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 		},
 		Partitions: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && (d.Req == nil || d.Req.Partitions == nil) {
-					return nil
-				}
-				if d.Req == nil {
-					d.Req = &Req{}
-				}
-				if d.Req.Partitions == nil {
-					d.Req.Partitions = &Partitions{}
-				}
 				return map[string]*schemaz.Schema{
 					"version":  {Str: schemaz.ParseStr(&d.Req.Partitions.Version)},
 					"store_id": {Str: schemaz.ParseStr(&d.Req.Partitions.StoreId)},
