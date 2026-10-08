@@ -2,7 +2,7 @@
  * @fileoverview Runs an i6 model (e.g. "relevance-fashion-fbt") in the browser and returns the result.
  *
  * Flow: get the model's sqlite + tflite (URLs from the model signed-get API, or from the caller in tests),
- * run the named query `model-${modelName}-input` (its result is the `ctx`; its `inputs` are the model inputs),
+ * run the named query `model-${modelName}-input` (its result is the model inputs, `{name: {data, shape}}`),
  * run the tflite model, and run the named query `model-${modelName}-output` with the model outputs.
  * Its result is returned as is. Nothing here is model specific.
  *
@@ -27,11 +27,15 @@ import { describeModel, loadModel, runModel } from "./litert.js";
  * @property {string} modelVersion - Model version (e.g. "v1").
  * @property {string} storeId - Store the model was trained for (e.g. "s1").
  * @property {string} dataset - Dataset that holds the model files.
- * @property {*} params - Model input, any JSON (e.g. `{ sku_ids: [...] }`). Param of the input query, also given to the output query.
+ * @property {*} params - Model input, any JSON (e.g. `{ cart_skus: [...] }`). Bound as `?1` of the input query.
+ * @property {number} [limit] - Max number of results asked from the output query (its `?2`). Default 20.
  * @property {string} [sqliteUrl] - Tests only, together with `tfliteUrl`: URL of the sqlite (must answer HEAD with an etag). Default: the model API.
  * @property {string} [tfliteUrl] - Tests only, together with `sqliteUrl`: URL of the tflite.
  * @property {string} [litertWasm] - URL of the folder with the LiteRT wasm files (ending in "/"). Defaults to the jsdelivr copy.
  */
+
+/** Default for `InferOptions.limit`. */
+const DEFAULT_LIMIT = 20
 
 /** Names of the model files in the model API response. */
 const FILES = { sqlite: "sqlite.bin", tflite: "tflite.bin" }
@@ -74,16 +78,16 @@ class Infer {
 
     const conn = await sqlitez.open({ path: await fs.resolve(sqliteRef) })
     try {
-      // 2. Read what the model needs from the sqlite: the model inputs (`inputs`) and anything the output query needs
-      const ctx = await conn.namedJsonQuery({ name: queryName("input"), param: params })
-      if (!ctx?.inputs) throw new I6Error(`infer: ${queryName("input")} returned no "inputs"`, { code: "query" })
-      debug("input query returned", Object.keys(ctx))
+      // 2. The input query gives the model inputs: {name: {data, shape}}
+      const inputs = await conn.namedJsonQuery({ name: queryName("input"), params: [params] })
+      if (!inputs || typeof inputs !== "object") throw new I6Error(`infer: ${queryName("input")} returned no model inputs`, { code: "query" })
+      debug("input query returned", Object.keys(inputs))
 
       // 3. Run the model
-      const outputs = await runModel(compiled, ctx.inputs)
+      const outputs = await runModel(compiled, inputs)
 
       // 4. The sqlite turns the outputs into the result
-      const result = await conn.namedJsonQuery({ name: queryName("output"), param: { params, ctx, outputs: asArrays(outputs) } })
+      const result = await conn.namedJsonQuery({ name: queryName("output"), params: outputQueryParams(outputs, opts) })
       debug("output query returned", result)
       return result
     } finally {
@@ -144,17 +148,24 @@ function validate(opts) {
     if (!opts || !opts[key]) throw new I6Error(`infer: opts.${key} is required`, { code: "invalid_argument" })
   }
   if (opts.params === undefined) throw new I6Error("infer: opts.params is required", { code: "invalid_argument" })
+  if (opts.limit !== undefined && !(Number.isInteger(opts.limit) && opts.limit > 0)) {
+    throw new I6Error("infer: opts.limit must be a positive integer", { code: "invalid_argument" })
+  }
   if (!opts.sqliteUrl !== !opts.tfliteUrl) {
     throw new I6Error("infer: opts.sqliteUrl and opts.tfliteUrl go together", { code: "invalid_argument" })
   }
 }
 
 /**
+ * The values bound to the output query: `?1` the model outputs as `{name: {values: [...]}}` (plain arrays, which JSON
+ * can hold), `?2` the limit.
  * @param {Record<string, ArrayLike<number>>} outputs - Model outputs (typed arrays).
- * @returns {Record<string, number[]>} The same outputs as plain arrays, which JSON can hold.
+ * @param {InferOptions} opts - Inference options.
+ * @returns {Array<*>} The params of `namedJsonQuery`.
  */
-function asArrays(outputs) {
-  return Object.fromEntries(Object.entries(outputs).map(([name, values]) => [name, Array.from(values)]))
+function outputQueryParams(outputs, opts) {
+  const named = Object.entries(outputs).map(([name, values]) => [name, { values: Array.from(values) }])
+  return [Object.fromEntries(named), opts.limit ?? DEFAULT_LIMIT]
 }
 
 /**
@@ -174,4 +185,4 @@ async function downloadFile(name, url) {
   }
 }
 
-export { Infer };
+export { Infer, outputQueryParams };
