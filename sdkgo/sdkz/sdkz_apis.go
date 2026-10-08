@@ -23,19 +23,22 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitablelist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitokendelete"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzapi/ingestzapigeturl"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzapi/ingestzapistream"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/pipezapi/pipezstart"
 )
 
 var apis map[string]apiz.Api
 
 func init() {
-	add := func(a apiz.Api) {
-		id := a.ApiSpec().Id
-		old, ok := apis[id]
-		if ok {
-			panic(fmt.Sprintf("api id collision %s: old %T, new %T", id, old, a))
+	add := func(as ...apiz.Api) {
+		for _, a := range as {
+			id := a.ApiSpec().Id
+			old, ok := apis[id]
+			if ok {
+				panic(fmt.Sprintf("api id collision %s: old %T, new %T", id, old, a))
+			}
+			apis[id] = a
 		}
-		apis[id] = a
 	}
 
 	samples := routezsamplefraction.Services()
@@ -44,6 +47,7 @@ func init() {
 		add(svc.Api())
 	}
 	add(&ingestzapigeturl.Api{})
+	add(ingestzapistream.AllApis()...)
 	add(&dszapisignedurl.Api{})
 	add(&dszapitableget.Api{})
 	add(&dszapitablelist.Api{})
