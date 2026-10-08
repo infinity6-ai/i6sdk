@@ -4,10 +4,11 @@ import (
 	"time"
 
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
 )
 
 type Event struct {
-	Id             string          `json:"id" bigquery:"id"`
+	ID             string          `json:"id" bigquery:"id"`
 	StoreId        string          `json:"store_id" bigquery:"store_id"`
 	SessionId      string          `json:"session_id" bigquery:"session_id"`
 	UserId         string          `json:"user_id" bigquery:"user_id"`
@@ -189,12 +190,16 @@ func (u *Recshow) Schema() *schemaz.Schema {
 	}
 }
 
+func (u *Event) Table() laketbnamez.TableName {
+	return laketbnamez.MustParse("event")
+}
+
 func (u *Event) Schema() *schemaz.Schema {
 	return &schemaz.Schema{
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"id": {
-					Raw: func() any { return &u.Id },
+					Raw: func() any { return &u.ID },
 				},
 				"store_id": {
 					Raw: func() any { return &u.StoreId },

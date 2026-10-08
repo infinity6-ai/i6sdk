@@ -54,7 +54,7 @@ func TestUnitEventSerialization(t *testing.T) {
 				"created_at": "2026-10-08T12:00:00Z"
 			}`,
 			event: relevancefashionobjectz.Event{
-				Id:        "evt_123",
+				ID:        "evt_123",
 				StoreId:   "ABC",
 				SessionId: "sess_456",
 				UserId:    "usr_789",
@@ -77,7 +77,7 @@ func TestUnitEventSerialization(t *testing.T) {
 				}
 			}`,
 			event: relevancefashionobjectz.Event{
-				Id:        "evt_123",
+				ID:        "evt_123",
 				StoreId:   "ABC",
 				SessionId: "sess_456",
 				UserId:    "usr_789",
@@ -104,7 +104,7 @@ func TestUnitEventSerialization(t *testing.T) {
 				}
 			}`,
 			event: relevancefashionobjectz.Event{
-				Id:        "evt_123",
+				ID:        "evt_123",
 				StoreId:   "ABC",
 				SessionId: "sess_456",
 				UserId:    "usr_789",
@@ -131,7 +131,7 @@ func TestUnitEventSerialization(t *testing.T) {
 				}
 			}`,
 			event: relevancefashionobjectz.Event{
-				Id:        "evt_123",
+				ID:        "evt_123",
 				StoreId:   "ABC",
 				SessionId: "sess_456",
 				UserId:    "usr_789",
@@ -157,7 +157,7 @@ func TestUnitEventSerialization(t *testing.T) {
 				}
 			}`,
 			event: relevancefashionobjectz.Event{
-				Id:        "evt_123",
+				ID:        "evt_123",
 				StoreId:   "ABC",
 				SessionId: "sess_456",
 				UserId:    "usr_789",
@@ -189,7 +189,7 @@ func TestUnitEventSerialization(t *testing.T) {
 				}
 			}`,
 			event: relevancefashionobjectz.Event{
-				Id:        "evt_123",
+				ID:        "evt_123",
 				StoreId:   "ABC",
 				SessionId: "sess_456",
 				UserId:    "usr_789",
@@ -223,7 +223,7 @@ func TestUnitEventSerialization(t *testing.T) {
 				}
 			}`,
 			event: relevancefashionobjectz.Event{
-				Id:        "evt_123",
+				ID:        "evt_123",
 				StoreId:   "ABC",
 				SessionId: "sess_456",
 				UserId:    "usr_789",
@@ -251,7 +251,7 @@ func TestUnitEventSerialization(t *testing.T) {
 				}
 			}`,
 			event: relevancefashionobjectz.Event{
-				Id:        "evt_123",
+				ID:        "evt_123",
 				StoreId:   "ABC",
 				SessionId: "sess_456",
 				UserId:    "usr_789",
@@ -374,7 +374,7 @@ func TestUnitCatalogSerialization(t *testing.T) {
 				"inactive": false
 			}`,
 			catalog: relevancefashionobjectz.Catalog{
-				Id:        "cat_123",
+				ID:        "cat_123",
 				StoreId:   "ABC",
 				ProductId: "prod_456",
 				SkuId:     "sku_789",
@@ -395,7 +395,7 @@ func TestUnitCatalogSerialization(t *testing.T) {
 				"inactive": true
 			}`,
 			catalog: relevancefashionobjectz.Catalog{
-				Id:        "cat_456",
+				ID:        "cat_456",
 				StoreId:   "XYZ",
 				ProductId: "prod_789",
 				SkuId:     "sku_012",

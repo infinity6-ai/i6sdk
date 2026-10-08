@@ -1,27 +1,27 @@
 package ingestzapistream
 
 import (
+	"reflect"
+
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
-	"go.code.infinity6.ai/sdkgo/sdkgo/sdkobjectz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz"
 )
 
-type StreamReq[T sdkobjectz.SdkObject] struct {
+type StreamReq[T tabledataz.TableData] struct {
 	Dataset lakedsz.Dataset
-	Table   laketbnamez.TableName
 	Data    []T
 }
 
-type Api[T sdkobjectz.SdkObject] struct {
+type Api[T tabledataz.TableData] struct {
 	Req StreamReq[T]
 }
 
 func (d *Api[T]) ApiSpec() apiz.ApiSpec {
 	var x T
 	return apiz.ApiSpec{
-		Id: "ingestz-stream",
+		Id: "ingestz-stream-" + x.Table().String(),
 		Desc: func() *schemaz.Desc {
 			return &schemaz.Desc{
 				Name:    "Stream Ingestion",
@@ -29,7 +29,7 @@ func (d *Api[T]) ApiSpec() apiz.ApiSpec {
 			}
 		},
 		Method: "POST",
-		Path:   "/api/ingest/dataset/{dataset}/stream/" + x.Id(),
+		Path:   "/api/ingest/dataset/{dataset}/stream/" + x.Table().String(),
 	}
 }
 
@@ -50,14 +50,18 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 		ReqBody: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"table": {
-						Desc: &schemaz.Desc{Summary: "Name of the table that receives the stream data."},
-						Raw:  func() any { return &d.Req.Table },
-					},
 					"data": {
 						Desc: &schemaz.Desc{Summary: "Generic stream data to ingest."},
 						Array: schemaz.NewArray(schemaz.ArrayOptions[[]T, T]{
 							Slice: func() *[]T { return &d.Req.Data },
+							NewElement: func(idx int) T {
+								typ := reflect.TypeFor[T]()
+								if typ.Kind() == reflect.Pointer {
+									return reflect.New(typ.Elem()).Interface().(T)
+								}
+								var x T
+								return x
+							},
 							Get: func(idx int, element *T) *schemaz.Schema {
 								return (*element).Schema()
 							},
