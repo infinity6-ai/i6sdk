@@ -38,7 +38,7 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 	}
 }
 
-func (d *Api) GetDataRefs() *apiz.DataRefs {
+func (d *Api) ApiDataRefs() *apiz.DataRefs {
 	return &apiz.DataRefs{
 		PathParams: nil,
 		QueryParams: &schemaz.Schema{

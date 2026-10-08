@@ -28,7 +28,7 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 	}
 }
 
-func (d *Api) GetDataRefs() *apiz.DataRefs {
+func (d *Api) ApiDataRefs() *apiz.DataRefs {
 	return &apiz.DataRefs{
 		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {

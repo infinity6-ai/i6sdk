@@ -36,7 +36,7 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 	}
 }
 
-func (d *Api) GetDataRefs() *apiz.DataRefs {
+func (d *Api) ApiDataRefs() *apiz.DataRefs {
 	return &apiz.DataRefs{
 		ReqBody:  &schemaz.Schema{},
 		RespBody: &schemaz.Schema{},
