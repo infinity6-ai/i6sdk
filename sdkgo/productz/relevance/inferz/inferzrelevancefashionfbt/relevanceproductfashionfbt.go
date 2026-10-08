@@ -6,31 +6,31 @@ import (
 )
 
 type Sku struct {
-	SkuId string `json:"sku_id"`
+	SkuId string
 }
 
 type Partitions struct {
-	Version string `json:"version"`
-	StoreId string `json:"store_id"`
+	Version string
+	StoreId string
 }
 
 type Result struct {
-	SkuId  string `json:"sku_id"`
-	Rating string `json:"rating"`
+	SkuId  string
+	Rating string
 }
 
 type Req struct {
-	Skus       []*Sku     `json:"skus"`
-	Partitions Partitions `json:"partitions"`
+	Skus       []*Sku
+	Partitions Partitions
 }
 
 type Resp struct {
-	Results []*Result `json:"results"`
+	Results []*Result
 }
 
 type Func struct {
-	Req  Req  `json:"req"`
-	Resp Resp `json:"resp"`
+	Req  Req
+	Resp Resp
 }
 
 func (d *Func) SdkFuncSpec() sdkfuncz.Spec {
