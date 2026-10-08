@@ -134,7 +134,7 @@ func TestUnitAll(t *testing.T) {
 	// 	&pipezapi.PipezStartApi{},
 	// 	&dszapi.DszSolutionDomainSelectApi{},
 	// }
-	apis := sdkz.All()
+	apis := sdkz.Apis()
 	for _, api := range apis {
 		expected := jsparser.ParseApi(api)
 		var actual *jsparser.Api
