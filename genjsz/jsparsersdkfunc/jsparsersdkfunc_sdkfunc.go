@@ -37,11 +37,6 @@ type SdkFuncSpec struct {
 	FuncName string        `json:"func_name,omitempty"`
 }
 
-type Func = SdkFunc
-type FuncSpec = SdkFuncSpec
-
-var ParseFunc = ParseSdkFunc
-
 func ParseSdkFunc(fn sdkfuncz.Func) *SdkFunc {
 	refs := fn.SdkFuncDataRefs()
 
