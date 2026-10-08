@@ -103,9 +103,8 @@ func TestUnitAllSdkFuncs(t *testing.T) {
 	for _, fn := range funcs {
 		expected := jsparsersdkfunc.ParseSdkFunc(fn)
 		var actual *jsparsersdkfunc.SdkFunc
-		content := jsonz.MustFormat(expected)
-		jsonz.MustParse(content.String(), &actual)
+		jsonz.MustParse(jsonz.MustFormat(expected).String(), &actual)
 		errorz.Check(os.MkdirAll("target/jsparser/sdkfunc", os.ModePerm))
-		errorz.Check(os.WriteFile("target/jsparser/sdkfunc/"+fn.SdkFuncSpec().Id+".json", content.Bytes(), os.ModePerm))
+		errorz.Check(os.WriteFile("target/jsparser/sdkfunc/"+fn.SdkFuncSpec().Id+".json", jsonz.MustFormatPretty(expected).Bytes(), os.ModePerm))
 	}
 }
