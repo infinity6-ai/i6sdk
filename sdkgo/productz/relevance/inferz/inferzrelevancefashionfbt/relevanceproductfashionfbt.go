@@ -9,13 +9,19 @@ type Sku struct {
 	SkuId string `json:"sku_id"`
 }
 
+type Partitions struct {
+	Veresion string `json:"version"`
+	StoreId  string `json:"store_id"`
+}
+
 type Result struct {
 	SkuId  string `json:"sku_id"`
 	Rating string `json:"rating"`
 }
 
 type Req struct {
-	Skus []*Sku `json:"skus"`
+	Skus       []*Sku      `json:"skus"`
+	Partitions *Partitions `json:"partitions"`
 }
 
 type Resp struct {
