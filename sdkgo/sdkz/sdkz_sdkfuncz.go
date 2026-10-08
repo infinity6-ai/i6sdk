@@ -10,13 +10,13 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
 )
 
-var sdkFuncs map[string]sdkfuncz.Infer
+var sdkFuncs map[string]sdkfuncz.Func
 
 func init() {
-	sdkFuncs = make(map[string]sdkfuncz.Infer)
+	sdkFuncs = make(map[string]sdkfuncz.Func)
 
-	add := func(i sdkfuncz.Infer) {
-		id := i.InferSpec().Id
+	add := func(i sdkfuncz.Func) {
+		id := i.SdkFuncSpec().Id
 		old, ok := sdkFuncs[id]
 		if ok {
 			panic(fmt.Sprintf("sdkfunc id collision %s: old %T, new %T", id, old, i))
@@ -24,23 +24,23 @@ func init() {
 		sdkFuncs[id] = i
 	}
 
-	add(&inferzrelevancefashionfbt.Api{})
+	add(&inferzrelevancefashionfbt.Func{})
 }
 
-func SdkFuncs() []sdkfuncz.Infer {
+func SdkFuncs() []sdkfuncz.Func {
 	return slices.Collect(maps.Values(sdkFuncs))
 }
 
-func SdkFunc(id string) sdkfuncz.Infer {
+func SdkFunc(id string) sdkfuncz.Func {
 	ret, ok := sdkFuncs[id]
 	checker.True(ok, "sdkfunc not found: %s", id)
 	return ret
 }
 
-func Infers() []sdkfuncz.Infer {
+func Infers() []sdkfuncz.Func {
 	return SdkFuncs()
 }
 
-func Infer(id string) sdkfuncz.Infer {
+func Infer(id string) sdkfuncz.Func {
 	return SdkFunc(id)
 }

@@ -14,9 +14,9 @@ func TestUnitSdkFuncs(t *testing.T) {
 
 	f := sdkz.SdkFunc("product-relevance-fashion-fbt")
 	require.NotNil(t, f)
-	require.Equal(t, "product-relevance-fashion-fbt", f.InferSpec().Id)
-	require.Equal(t, sdkfuncz.TypClientInfer, f.InferSpec().Typ)
-	require.Equal(t, "fashionFbt", f.InferSpec().FuncName)
+	require.Equal(t, "product-relevance-fashion-fbt", f.SdkFuncSpec().Id)
+	require.Equal(t, sdkfuncz.TypClientInfer, f.SdkFuncSpec().Typ)
+	require.Equal(t, "fashionFbt", f.SdkFuncSpec().FuncName)
 
 	// Test aliases
 	infers := sdkz.Infers()

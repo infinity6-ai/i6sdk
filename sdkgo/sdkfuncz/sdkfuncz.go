@@ -23,10 +23,7 @@ type Spec struct {
 	FuncName string
 }
 
-type Infer interface {
-	InferSpec() Spec
-	InferDataRefs() *DataRefs
+type Func interface {
+	SdkFuncSpec() Spec
+	SdkFuncDataRefs() *DataRefs
 }
-
-type SdkFunc = Infer
-type SdkFuncSpec = Spec

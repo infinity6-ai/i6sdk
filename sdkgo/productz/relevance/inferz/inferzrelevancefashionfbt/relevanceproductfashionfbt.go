@@ -22,12 +22,12 @@ type Resp struct {
 	Results []*Result `json:"results"`
 }
 
-type Api struct {
+type Func struct {
 	Req  *Req  `json:"req"`
 	Resp *Resp `json:"resp"`
 }
 
-func (d *Api) InferSpec() sdkfuncz.Spec {
+func (d *Func) SdkFuncSpec() sdkfuncz.Spec {
 	return sdkfuncz.Spec{
 		Id:       "product-relevance-fashion-fbt",
 		Typ:      sdkfuncz.TypClientInfer,
@@ -35,8 +35,7 @@ func (d *Api) InferSpec() sdkfuncz.Spec {
 		Desc:     nil,
 	}
 }
-
-func (d *Api) InferDataRefs() *sdkfuncz.DataRefs {
+func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 	return &sdkfuncz.DataRefs{
 		Input: &schemaz.Schema{
 			Object: func(_ bool) map[string]*schemaz.Schema {
