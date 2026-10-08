@@ -92,9 +92,9 @@ func TestUnitModelzApiSignedGetParseApi(t *testing.T) {
 	require.Contains(t, respPropMap, "urls")
 }
 
-func TestUnitModelzApiSignedGetDataRefs(t *testing.T) {
+func TestUnitModelzApiSignedApiDataRefs(t *testing.T) {
 	api := &dszapimodelget.Api{}
-	refs := api.GetDataRefs()
+	refs := api.ApiDataRefs()
 
 	require.NotNil(t, refs.PathParams)
 	require.Nil(t, refs.QueryParams)

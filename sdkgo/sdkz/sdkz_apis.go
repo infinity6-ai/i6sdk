@@ -27,20 +27,20 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/pipezapi/pipezstart"
 )
 
-var all map[string]apiz.Api
+var apis map[string]apiz.Api
 
 func init() {
 	add := func(a apiz.Api) {
 		id := a.ApiSpec().Id
-		old, ok := all[id]
+		old, ok := apis[id]
 		if ok {
 			panic(fmt.Sprintf("api id collision %s: old %T, new %T", id, old, a))
 		}
-		all[id] = a
+		apis[id] = a
 	}
 
 	samples := routezsamplefraction.Services()
-	all = make(map[string]apiz.Api, len(samples))
+	apis = make(map[string]apiz.Api, len(samples))
 	for _, svc := range routezsamplefraction.Services() {
 		add(svc.Api())
 	}
@@ -63,12 +63,12 @@ func init() {
 	add(&dszapimodelget.Api{})
 }
 
-func All() []apiz.Api {
-	return slices.Collect(maps.Values(all))
+func Apis() []apiz.Api {
+	return slices.Collect(maps.Values(apis))
 }
 
-func Get(id string) apiz.Api {
-	ret, ok := all[id]
+func Api(id string) apiz.Api {
+	ret, ok := apis[id]
 	checker.True(ok, "api not found: %s", id)
 	return ret
 }

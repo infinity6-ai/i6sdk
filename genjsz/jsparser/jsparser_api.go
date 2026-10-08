@@ -40,7 +40,7 @@ type ApiSpec struct {
 }
 
 func ParseApi(api apiz.Api) *Api {
-	refs := api.GetDataRefs()
+	refs := api.ApiDataRefs()
 
 	apiId := camelstring.ToCamel(api.ApiSpec().Id)
 	apiId = "api" + strings.ToUpper(apiId[0:1]) + apiId[1:]
