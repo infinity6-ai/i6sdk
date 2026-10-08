@@ -135,6 +135,3 @@ func TestUnitAllApis(t *testing.T) {
 		jsonz.MustParse(jsonz.MustFormat(expected).String(), &actual)
 	}
 }
-
-func TestUnitAllSdkFuncs(t *testing.T) {
-}
