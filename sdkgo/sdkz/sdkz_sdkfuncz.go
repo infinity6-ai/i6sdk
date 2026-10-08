@@ -36,11 +36,3 @@ func SdkFunc(id string) sdkfuncz.Func {
 	checker.True(ok, "sdkfunc not found: %s", id)
 	return ret
 }
-
-func Infers() []sdkfuncz.Func {
-	return SdkFuncs()
-}
-
-func Infer(id string) sdkfuncz.Func {
-	return SdkFunc(id)
-}
