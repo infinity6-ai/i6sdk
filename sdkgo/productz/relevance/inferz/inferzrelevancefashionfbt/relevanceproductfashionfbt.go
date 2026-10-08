@@ -49,6 +49,8 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 				return map[string]*schemaz.Schema{
 					"skus": {
 						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Sku, *Sku]{
+							Slice:      func() *[]*Sku { return &d.Req.Skus },
+							NewElement: func(idx int) *Sku { return &Sku{} },
 							Get: func(idx int, element **Sku) *schemaz.Schema {
 								return &schemaz.Schema{
 									Object: func(_ bool) map[string]*schemaz.Schema {
@@ -76,6 +78,8 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 				return map[string]*schemaz.Schema{
 					"results": {
 						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Result, *Result]{
+							Slice:      func() *[]*Result { return &d.Resp.Results },
+							NewElement: func(idx int) *Result { return &Result{} },
 							Get: func(idx int, element **Result) *schemaz.Schema {
 								return &schemaz.Schema{
 									Object: func(_ bool) map[string]*schemaz.Schema {
