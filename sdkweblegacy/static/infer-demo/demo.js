@@ -1,5 +1,6 @@
 // Serve: python static/infer-demo/serve.py -> http://localhost:8000/static/infer-demo/index.html
 import { I6Sdk } from '../../src/index.js'
+import { outputQueryParams } from '../../src/infer/infer.js'
 import { downloader } from '../../src/internal/downloader/downloader.js'
 import { fs } from '../../src/internal/fs/fs.js'
 import { sqlitez } from '../../src/internal/sqlitez/sqlitez.js'
@@ -9,8 +10,7 @@ import { describeModel, loadModel, runModel } from '../../src/infer/litert.js'
 window.I6_DEBUG = true
 
 const $ = (id) => document.getElementById(id)
-$('sqliteUrl').value = new URL('../../src/infer/gen/modeldb.sqlite', import.meta.url).href
-$('tfliteUrl').value = new URL('../../src/infer/gen/model.tflite', import.meta.url).href
+// The urls are empty: the model api gives them (fill them to use local files instead, both)
 
 // What every step leaves for the next one
 const state = {}
@@ -77,7 +77,7 @@ const config = () => {
     modelVersion: text('modelVersion'),
     storeId: text('storeId'),
     dataset: text('dataset'),
-    params: { sku_ids: text('sku_ids').split(/[\s,]+/).filter(Boolean) },
+    params: { cart_skus: text('sku_ids').split(/[\s,]+/).filter(Boolean).map((sku_id) => ({ sku_id })) },
   }
   if (text('sqliteUrl')) opts.sqliteUrl = text('sqliteUrl')
   if (text('tfliteUrl')) opts.tfliteUrl = text('tfliteUrl')
@@ -93,11 +93,11 @@ const result = await new I6Sdk().infer().run(${JSON.stringify(config(), null, 2)
 for (const id of ['modelName', 'modelVersion', 'storeId', 'dataset', 'sku_ids', 'sqliteUrl', 'tfliteUrl']) $(id).addEventListener('input', () => { $('usage').textContent = usage() })
 
 // Opens the sqlite of step 1, runs a named query and always closes it. Returns the result and the SQL of the stored query.
-async function namedJsonQuery(name, param) {
+async function namedJsonQuery(name, params) {
   const conn = await sqlitez.open({ path: state.dbPath })
   try {
     const [stored] = await conn.query({ query: 'SELECT query FROM namedqueries WHERE name = ?', params: [name] })
-    return { ret: await conn.namedJsonQuery({ name, param }), sql: stored?.query.trim() }
+    return { ret: await conn.namedJsonQuery({ name, params }), sql: stored?.query.trim() }
   } finally {
     await conn.close()
   }
@@ -108,8 +108,8 @@ async function namedJsonQuery(name, param) {
 const steps = {
   1: () => runStep(1, async () => {
     const opts = config()
-    const urls = { sqlite: opts.sqliteUrl, tflite: opts.tfliteUrl }
-    if (!urls.sqlite || !urls.tflite) throw new Error('steps 1-6 need opts.sqliteUrl and opts.tfliteUrl; step 7 can discover them')
+    // Like run(): the urls of the model api, unless both are filled
+    const urls = await new I6Sdk().infer()._assetUrls(opts)
     const output = {}
     const refs = {}
     for (const kind of ['sqlite', 'tflite']) {
@@ -137,18 +137,18 @@ const steps = {
     need('dbPath')
     const { modelName, params } = config()
     const name = `model-${modelName}-input`
-    const { ret, sql } = await namedJsonQuery(name, params)
+    const { ret, sql } = await namedJsonQuery(name, [params])
     state.ctx = ret
     return {
       sql,
-      input: { namedQuery: name, param: params },
+      input: { namedQuery: name, params: [params] },
       output: state.ctx,
     }
   }),
 
   4: () => runStep(4, async () => {
     need('ctx')
-    state.inputs = state.ctx.inputs
+    state.inputs = state.ctx
     return { input: { ctx: state.ctx }, output: state.inputs }
   }),
 
@@ -168,12 +168,12 @@ const steps = {
 
   6: () => runStep(6, async () => {
     need('ctx', 'outputs')
-    const { modelName, params } = config()
-    const name = `model-${modelName}-output`
-    const param = { params, ctx: state.ctx, outputs: state.outputs }
-    const { ret, sql } = await namedJsonQuery(name, param)
+    const opts = config()
+    const name = `model-${opts.modelName}-output`
+    const queryParams = outputQueryParams(state.outputs, opts)
+    const { ret, sql } = await namedJsonQuery(name, queryParams)
     state.result = ret
-    return { sql, input: { namedQuery: name, param }, output: state.result }
+    return { sql, input: { namedQuery: name, params: queryParams }, output: state.result }
   }),
 
   7: () => runStep(7, async () => {

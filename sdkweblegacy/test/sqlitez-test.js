@@ -219,22 +219,23 @@
             conn = await sqlitez.open({ path: await writeSqlite(namedQueries()) })
             await assert.rejects(conn.namedJsonQuery(), TypeError)
             await assert.rejects(conn.namedJsonQuery({}), /opts.name/)
+            await assert.rejects(conn.namedJsonQuery({ name: 'x', params: 'nope' }), /array/)
         })
 
-        QUnit.test("namedJsonQuery binds param as JSON and parses ret", async function (assert) {
+        QUnit.test("namedJsonQuery binds params as JSON, in order, and parses ret", async function (assert) {
             conn = await sqlitez.open({ path: await writeSqlite(namedQueries(
-                ['echo', "SELECT json_object('got', json(?)) AS ret"],
-                ['sum', "SELECT json_object('total', sum(value)) AS ret FROM json_each(json_extract(?, '$.numbers'))"],
+                ['echo', "SELECT json_object('got', json(?1), 'then', json(?2)) AS ret"],
+                ['sum', "SELECT json_object('total', sum(value)) AS ret FROM json_each(json_extract(?1, '$.numbers'))"],
             )) })
-            assert.deepEqual(await conn.namedJsonQuery({ name: 'echo', param: { a: [1, 2], b: 'x' } }), { got: { a: [1, 2], b: 'x' } })
-            assert.deepEqual(await conn.namedJsonQuery({ name: 'sum', param: { numbers: [1, 2, 3] } }), { total: 6 })
+            assert.deepEqual(await conn.namedJsonQuery({ name: 'echo', params: [{ a: [1, 2], b: 'x' }, 'y'] }), { got: { a: [1, 2], b: 'x' }, then: 'y' })
+            assert.deepEqual(await conn.namedJsonQuery({ name: 'sum', params: [{ numbers: [1, 2, 3] }] }), { total: 6 })
         })
 
-        QUnit.test("namedJsonQuery without param binds JSON null", async function (assert) {
+        QUnit.test("namedJsonQuery binds a null param as JSON null", async function (assert) {
             conn = await sqlitez.open({ path: await writeSqlite(namedQueries(
                 ['is_null', "SELECT json_object('type', json_type(?)) AS ret"],
             )) })
-            assert.deepEqual(await conn.namedJsonQuery({ name: 'is_null' }), { type: 'null' })
+            assert.deepEqual(await conn.namedJsonQuery({ name: 'is_null', params: [null] }), { type: 'null' })
         })
 
         QUnit.test("namedJsonQuery returns null when there is no row or ret is null", async function (assert) {
