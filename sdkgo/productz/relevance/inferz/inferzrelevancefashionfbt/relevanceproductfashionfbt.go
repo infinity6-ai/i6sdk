@@ -2,7 +2,7 @@ package inferzrelevancefashionfbt
 
 import (
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/inferz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
 )
 
 type Sku struct {
@@ -27,16 +27,17 @@ type Api struct {
 	Resp *Resp `json:"resp"`
 }
 
-func (d *Api) InferSpec() inferzspec.InferSpec {
-	return inferzspec.InferSpec{
-		Id:   "product-relevance-fashion-fbt",
-		Name: "Fashion FBT",
-		Desc: nil,
+func (d *Api) InferSpec() sdkfuncz.InferSpec {
+	return sdkfuncz.InferSpec{
+		Id:       "product-relevance-fashion-fbt",
+		Typ:      sdkfuncz.TypClientInfer,
+		FuncName: "fashionFbt",
+		Desc:     nil,
 	}
 }
 
-func (d *Api) InferDataRefs() *inferzspec.DataRefs {
-	return &inferzspec.DataRefs{
+func (d *Api) InferDataRefs() *sdkfuncz.DataRefs {
+	return &sdkfuncz.DataRefs{
 		Input: &schemaz.Schema{
 			Object: func(_ bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
