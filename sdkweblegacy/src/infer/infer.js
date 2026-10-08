@@ -110,11 +110,11 @@ class Infer {
     })
 
     const urls = Object.fromEntries((resp.payload?.urls ?? []).map((file) => [file.name, file.url]))
-    const sqliteUrl = opts.sqliteUrl ?? urls.sqlite
-    const tfliteUrl = opts.tfliteUrl ?? urls.tflite
+    const sqliteUrl = opts.sqliteUrl ?? urls["sqlite.bin"]
+    const tfliteUrl = opts.tfliteUrl ?? urls["tflite.bin"]
 
     if (!sqliteUrl || !tfliteUrl) {
-      throw new I6Error(`infer: the model api gave no "${sqliteUrl ? "tflite" : "sqlite"}" file: ${JSON.stringify(resp.error ?? Object.keys(urls))}`, { code: "asset" })
+      throw new I6Error(`infer: the model api gave no "${sqliteUrl ? "tflite.bin" : "sqlite.bin"}" file: ${JSON.stringify(resp.error ?? Object.keys(urls))}`, { code: "asset" })
     }
 
     return [sqliteUrl, tfliteUrl]
