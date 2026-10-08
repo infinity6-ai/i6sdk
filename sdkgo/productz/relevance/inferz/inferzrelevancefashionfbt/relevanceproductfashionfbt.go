@@ -6,39 +6,38 @@ import (
 )
 
 type Sku struct {
-	SkuId string `json:"sku_id"`
+	SkuId string
 }
 
 type Partitions struct {
-	Version string `json:"version"`
-	StoreId string `json:"store_id"`
+	Version string
+	StoreId string
 }
 
 type Result struct {
-	SkuId  string `json:"sku_id"`
-	Rating string `json:"rating"`
+	SkuId  string
+	Rating string
 }
 
 type Req struct {
-	Skus       []*Sku      `json:"skus"`
-	Partitions *Partitions `json:"partitions"`
+	Skus       []*Sku
+	Partitions Partitions
 }
 
 type Resp struct {
-	Results []*Result `json:"results"`
+	Results []*Result
 }
 
 type Func struct {
-	Req  *Req  `json:"req"`
-	Resp *Resp `json:"resp"`
+	Req  Req
+	Resp Resp
 }
 
 func (d *Func) SdkFuncSpec() sdkfuncz.Spec {
 	return sdkfuncz.Spec{
-		Id:       "product-relevance-fashion-fbt",
-		Typ:      sdkfuncz.TypClientInfer,
-		FuncName: "fashionFbt",
-		Desc:     nil,
+		Id:   "product-relevance-fashion-fbt",
+		Typ:  sdkfuncz.TypClientInfer,
+		Desc: nil,
 	}
 }
 
@@ -49,6 +48,8 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 				return map[string]*schemaz.Schema{
 					"skus": {
 						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Sku, *Sku]{
+							Slice:      func() *[]*Sku { return &d.Req.Skus },
+							NewElement: func(idx int) *Sku { return &Sku{} },
 							Get: func(idx int, element **Sku) *schemaz.Schema {
 								return &schemaz.Schema{
 									Object: func(_ bool) map[string]*schemaz.Schema {
@@ -65,15 +66,6 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 		},
 		Partitions: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && (d.Req == nil || d.Req.Partitions == nil) {
-					return nil
-				}
-				if d.Req == nil {
-					d.Req = &Req{}
-				}
-				if d.Req.Partitions == nil {
-					d.Req.Partitions = &Partitions{}
-				}
 				return map[string]*schemaz.Schema{
 					"version":  {Str: schemaz.ParseStr(&d.Req.Partitions.Version)},
 					"store_id": {Str: schemaz.ParseStr(&d.Req.Partitions.StoreId)},
@@ -85,6 +77,8 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 				return map[string]*schemaz.Schema{
 					"results": {
 						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Result, *Result]{
+							Slice:      func() *[]*Result { return &d.Resp.Results },
+							NewElement: func(idx int) *Result { return &Result{} },
 							Get: func(idx int, element **Result) *schemaz.Schema {
 								return &schemaz.Schema{
 									Object: func(_ bool) map[string]*schemaz.Schema {

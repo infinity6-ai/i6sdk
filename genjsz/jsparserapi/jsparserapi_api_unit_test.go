@@ -1,24 +1,26 @@
-package jsparser_test
+package jsparserapi_test
 
 import (
+	"os"
 	"testing"
 
+	"github.com/infinity6-ai/gox/commonz/errorz"
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
+	"go.code.infinity6.ai/sdkgo/genjsz/jsparserapi"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkz"
 )
 
 func TestUnitFractionSample(t *testing.T) {
 	api := routezsamplefraction.NewService().Api()
-	actual := jsparser.ParseApi(api)
+	actual := jsparserapi.ParseApi(api)
 	jsonz.MustParse(jsonz.MustFormat(actual).String(), &actual)
 	println(jsonz.MustFormatPretty(actual).String())
-	expected := &jsparser.Api{
-		Spec: jsparser.ApiSpec{
+	expected := &jsparserapi.Api{
+		Spec: jsparserapi.ApiSpec{
 			Id:      "sample-fraction",
 			CamelId: "apiSampleFraction",
 			Desc: &schemaz.Desc{
@@ -95,7 +97,7 @@ func TestUnitFractionSample(t *testing.T) {
 				Head: &jstypez.Tuple{Typ: "string", Name: "dszTime", Summary: "Missing Summary"},
 			},
 		}),
-		Req: jsparser.Req{
+		Req: jsparserapi.Req{
 			Params: jstypez.Typedef{
 				Head:       &jstypez.Tuple{Typ: "apiSampleFractionParams", Name: "params"},
 				Properties: jstypez.NewTuples(nil),
@@ -113,7 +115,7 @@ func TestUnitFractionSample(t *testing.T) {
 				Properties: jstypez.NewTuples(nil),
 			},
 		},
-		Resp: jsparser.Resp{
+		Resp: jsparserapi.Resp{
 			Headers: jstypez.Typedef{
 				Head:       &jstypez.Tuple{Typ: "apiSampleFractionRespHeaders", Name: "respHeaders"},
 				Properties: jstypez.NewTuples(nil),
@@ -128,37 +130,12 @@ func TestUnitFractionSample(t *testing.T) {
 }
 
 func TestUnitAllApis(t *testing.T) {
-	// apis := []apiz.Api{
-	// &ingestzapigeturl.GetUrlApi{},
-	// &dszapisignedurl.Api{},
-	// 	&pipezapi.PipezStartApi{},
-	// 	&dszapi.DszSolutionDomainSelectApi{},
-	// }
 	apis := sdkz.Apis()
 	for _, api := range apis {
-		expected := jsparser.ParseApi(api)
-		var actual *jsparser.Api
+		expected := jsparserapi.ParseApi(api)
+		var actual *jsparserapi.Api
 		jsonz.MustParse(jsonz.MustFormat(expected).String(), &actual)
-		// require.Equal(t, expected, actual)
-		// println(jsonz.MustFormatPretty(actual).String())
+		errorz.Check(os.MkdirAll("target/jsparser/api", os.ModePerm))
+		errorz.Check(os.WriteFile("target/jsparser/api/"+api.ApiSpec().Id+".json", jsonz.MustFormatPretty(expected).Bytes(), os.ModePerm))
 	}
-	// t.Fail()
-}
-
-func TestUnitAllSdkFuncs(t *testing.T) {
-	// sdkFuncs := []apiz.Api{
-	// &ingestzapigeturl.GetUrlApi{},
-	// &dszapisignedurl.Api{},
-	// 	&pipezapi.PipezStartApi{},
-	// 	&dszapi.DszSolutionDomainSelectApi{},
-	// }
-	// sdkFuncs := sdkz.SdkFuncs()
-	// for _, sdkFunc := range sdkFuncs {
-	// expected := jsparser.ParseSdkFunc(sdkFunc)
-	// var actual *jsparser.Api
-	// jsonz.MustParse(jsonz.MustFormat(expected).String(), &actual)
-	// require.Equal(t, expected, actual)
-	// println(jsonz.MustFormatPretty(actual).String())
-	// }
-	// t.Fail()
 }

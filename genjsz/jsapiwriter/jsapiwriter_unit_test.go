@@ -7,13 +7,13 @@ import (
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsapiwriter"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
+	"go.code.infinity6.ai/sdkgo/genjsz/jsparserapi"
 )
 
 func TestUnitWrite(t *testing.T) {
 	ctx := t.Context()
 	type testScenario struct {
-		in   *jsparser.Apis
+		in   *jsparserapi.Apis
 		want string
 	}
 
@@ -34,7 +34,7 @@ func TestUnitWrite(t *testing.T) {
 
 	t.Run("empty apis", func(t *testing.T) {
 		check(t, testScenario{
-			in: &jsparser.Apis{},
+			in: &jsparserapi.Apis{},
 			want: `/**
  * @typedef {import("../services/services.js").Services} Services
  */
@@ -44,7 +44,7 @@ func TestUnitWrite(t *testing.T) {
 	})
 
 	t.Run("with multiple path params and extra request fields", func(t *testing.T) {
-		apis := jsparser.ParseApis(ctx, []apiz.Api{routezsamplefraction.NewService().Api()})
+		apis := jsparserapi.ParseApis(ctx, []apiz.Api{routezsamplefraction.NewService().Api()})
 		want := `/**
  * @typedef {import("../services/services.js").Services} Services
  */

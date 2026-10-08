@@ -1,4 +1,4 @@
-package jsparser
+package jsparserapi
 
 import (
 	"fmt"
@@ -8,6 +8,7 @@ import (
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/camelstring"
+	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
@@ -76,7 +77,7 @@ func ParseApi(api apiz.Api) *Api {
 			return
 		}
 		fieldName := ret.Spec.CamelId + strings.ToUpper(suffix[0:1]) + suffix[1:]
-		p, tdfs := ParseSchema(fieldName, s)
+		p, tdfs := jsparser.ParseSchema(fieldName, s)
 		checker.Equal("object", p.Head.Typ, "must be object")
 		out.Properties = &jstypez.Tuples{}
 		out.Head = &jstypez.Tuple{Typ: fieldName, Name: suffix}
@@ -99,18 +100,4 @@ func validateDataRef(schema *schemaz.Schema, n string) {
 	if schema != nil {
 		checker.NotNil(schema.Object, "%s", n)
 	}
-}
-
-func DescName(d *schemaz.Desc) string {
-	if d == nil {
-		return ""
-	}
-	return d.Name
-}
-
-func DescSummary(d *schemaz.Desc) string {
-	if d == nil {
-		return ""
-	}
-	return d.Summary
 }

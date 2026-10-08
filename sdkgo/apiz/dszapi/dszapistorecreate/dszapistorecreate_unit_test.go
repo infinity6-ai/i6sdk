@@ -5,7 +5,7 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
+	"go.code.infinity6.ai/sdkgo/genjsz/jsparserapi"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapistorecreate"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/dszstore"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
@@ -25,7 +25,7 @@ func TestUnitDszCreateStoreApi(t *testing.T) {
 	apiCopy := jsonz.MustCopy(api, &dszapistorecreate.Api{})
 	require.Equal(t, api.Req, apiCopy.Req)
 
-	parsed := jsparser.ParseApi(api)
+	parsed := jsparserapi.ParseApi(api)
 	require.NotNil(t, parsed)
 	require.Equal(t, "dsz-create-store", parsed.Spec.Id)
 }

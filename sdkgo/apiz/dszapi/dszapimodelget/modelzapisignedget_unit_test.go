@@ -5,7 +5,7 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
+	"go.code.infinity6.ai/sdkgo/genjsz/jsparserapi"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapimodelget"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
@@ -47,7 +47,7 @@ func TestUnitModelzApiSignedGet(t *testing.T) {
 
 func TestUnitModelzApiSignedGetParseApi(t *testing.T) {
 	api := &dszapimodelget.Api{}
-	parsed := jsparser.ParseApi(api)
+	parsed := jsparserapi.ParseApi(api)
 	require.NotNil(t, parsed)
 	require.Equal(t, "dsz-model-get", parsed.Spec.Id)
 	require.Equal(t, "apiDszModelGet", parsed.Spec.CamelId)
