@@ -1,6 +1,10 @@
 package relevancefashionobjectz
 
-import "time"
+import (
+	"time"
+
+	"github.com/infinity6-ai/gox/schemaz/schemaz"
+)
 
 type Event struct {
 	Id             string          `json:"id" bigquery:"id"`
@@ -56,4 +60,232 @@ type Recraw struct {
 type Recshow struct {
 	RecId   string `json:"rec_id" bigquery:"rec_id"`
 	Payload string `json:"payload" bigquery:"payload"`
+}
+
+func (u *Click) Schema() *schemaz.Schema {
+	return &schemaz.Schema{
+		Object: func(read bool) map[string]*schemaz.Schema {
+			return map[string]*schemaz.Schema{
+				"price": {
+					Raw: func() any { return &u.Price },
+				},
+				"sku_id": {
+					Raw: func() any { return &u.SkuId },
+				},
+			}
+		},
+	}
+}
+
+func (u *AddToCart) Schema() *schemaz.Schema {
+	return &schemaz.Schema{
+		Object: func(read bool) map[string]*schemaz.Schema {
+			return map[string]*schemaz.Schema{
+				"price": {
+					Raw: func() any { return &u.Price },
+				},
+				"sku_id": {
+					Raw: func() any { return &u.SkuId },
+				},
+			}
+		},
+	}
+}
+
+func (u *RemoveFromCart) Schema() *schemaz.Schema {
+	return &schemaz.Schema{
+		Object: func(read bool) map[string]*schemaz.Schema {
+			return map[string]*schemaz.Schema{
+				"price": {
+					Raw: func() any { return &u.Price },
+				},
+				"sku_id": {
+					Raw: func() any { return &u.SkuId },
+				},
+			}
+		},
+	}
+}
+
+func (u *Search) Schema() *schemaz.Schema {
+	return &schemaz.Schema{
+		Object: func(read bool) map[string]*schemaz.Schema {
+			return map[string]*schemaz.Schema{
+				"text": {
+					Raw: func() any { return &u.Text },
+				},
+			}
+		},
+	}
+}
+
+func (u *PurchaseSku) Schema() *schemaz.Schema {
+	return &schemaz.Schema{
+		Object: func(read bool) map[string]*schemaz.Schema {
+			return map[string]*schemaz.Schema{
+				"qtty": {
+					Raw: func() any { return &u.Qtty },
+				},
+				"sku_id": {
+					Raw: func() any { return &u.SkuId },
+				},
+				"unit_price": {
+					Raw: func() any { return &u.UnitPrice },
+				},
+			}
+		},
+	}
+}
+
+func (u *Purchase) Schema() *schemaz.Schema {
+	return &schemaz.Schema{
+		Object: func(read bool) map[string]*schemaz.Schema {
+			return map[string]*schemaz.Schema{
+				"order_id": {
+					Raw: func() any { return &u.OrderId },
+				},
+				"skus": {
+					Array: schemaz.NewArray(schemaz.ArrayOptions[[]*PurchaseSku, *PurchaseSku]{
+						NewElement: func(idx int) *PurchaseSku { return &PurchaseSku{} },
+						Slice:      func() *[]*PurchaseSku { return &u.Skus },
+						Get:        func(idx int, element **PurchaseSku) *schemaz.Schema { return (*element).Schema() },
+					}),
+				},
+			}
+		},
+	}
+}
+
+func (u *Recraw) Schema() *schemaz.Schema {
+	return &schemaz.Schema{
+		Object: func(read bool) map[string]*schemaz.Schema {
+			return map[string]*schemaz.Schema{
+				"rec_id": {
+					Raw: func() any { return &u.RecId },
+				},
+				"model_id": {
+					Raw: func() any { return &u.ModelId },
+				},
+				"payload": {
+					Raw: func() any { return &u.Payload },
+				},
+			}
+		},
+	}
+}
+
+func (u *Recshow) Schema() *schemaz.Schema {
+	return &schemaz.Schema{
+		Object: func(read bool) map[string]*schemaz.Schema {
+			return map[string]*schemaz.Schema{
+				"rec_id": {
+					Raw: func() any { return &u.RecId },
+				},
+				"payload": {
+					Raw: func() any { return &u.Payload },
+				},
+			}
+		},
+	}
+}
+
+func (u *Event) Schema() *schemaz.Schema {
+	return &schemaz.Schema{
+		Object: func(read bool) map[string]*schemaz.Schema {
+			return map[string]*schemaz.Schema{
+				"id": {
+					Raw: func() any { return &u.Id },
+				},
+				"store_id": {
+					Raw: func() any { return &u.StoreId },
+				},
+				"session_id": {
+					Raw: func() any { return &u.SessionId },
+				},
+				"user_id": {
+					Raw: func() any { return &u.UserId },
+				},
+				"click": {
+					Object: func(read bool) map[string]*schemaz.Schema {
+						if read && u.Click == nil {
+							return nil
+						}
+						if u.Click == nil {
+							u.Click = &Click{}
+						}
+						return u.Click.Schema().Object(read)
+					},
+				},
+				"add_to_cart": {
+					Object: func(read bool) map[string]*schemaz.Schema {
+						if read && u.AddToCart == nil {
+							return nil
+						}
+						if u.AddToCart == nil {
+							u.AddToCart = &AddToCart{}
+						}
+						return u.AddToCart.Schema().Object(read)
+					},
+				},
+				"remove_from_cart": {
+					Object: func(read bool) map[string]*schemaz.Schema {
+						if read && u.RemoveFromCart == nil {
+							return nil
+						}
+						if u.RemoveFromCart == nil {
+							u.RemoveFromCart = &RemoveFromCart{}
+						}
+						return u.RemoveFromCart.Schema().Object(read)
+					},
+				},
+				"search": {
+					Object: func(read bool) map[string]*schemaz.Schema {
+						if read && u.Search == nil {
+							return nil
+						}
+						if u.Search == nil {
+							u.Search = &Search{}
+						}
+						return u.Search.Schema().Object(read)
+					},
+				},
+				"purchase": {
+					Object: func(read bool) map[string]*schemaz.Schema {
+						if read && u.Purchase == nil {
+							return nil
+						}
+						if u.Purchase == nil {
+							u.Purchase = &Purchase{}
+						}
+						return u.Purchase.Schema().Object(read)
+					},
+				},
+				"recraw": {
+					Object: func(read bool) map[string]*schemaz.Schema {
+						if read && u.Recraw == nil {
+							return nil
+						}
+						if u.Recraw == nil {
+							u.Recraw = &Recraw{}
+						}
+						return u.Recraw.Schema().Object(read)
+					},
+				},
+				"recshow": {
+					Object: func(read bool) map[string]*schemaz.Schema {
+						if read && u.Recshow == nil {
+							return nil
+						}
+						if u.Recshow == nil {
+							u.Recshow = &Recshow{}
+						}
+						return u.Recshow.Schema().Object(read)
+					},
+				},
+				"created_at": {
+					Raw: func() any { return &u.CreatedAt },
+				},
+			}
+		},
+	}
 }

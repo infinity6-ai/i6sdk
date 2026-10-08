@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
+	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
+	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkobjectz/relevancefashionobjectz"
 )
 
@@ -260,5 +262,78 @@ func TestUnitEventSerialization(t *testing.T) {
 				},
 			},
 		})
+	})
+}
+
+func TestUnitEventSchema(t *testing.T) {
+	t.Run("Click Schema", func(t *testing.T) {
+		s := (&relevancefashionobjectz.Click{}).Schema()
+		td, _ := jsparser.ParseSchema("Click", s)
+		require.Equal(t, "Click", td.Head.Name)
+	})
+	t.Run("AddToCart Schema", func(t *testing.T) {
+		s := (&relevancefashionobjectz.AddToCart{}).Schema()
+		td, _ := jsparser.ParseSchema("AddToCart", s)
+		require.Equal(t, "AddToCart", td.Head.Name)
+	})
+	t.Run("RemoveFromCart Schema", func(t *testing.T) {
+		s := (&relevancefashionobjectz.RemoveFromCart{}).Schema()
+		td, _ := jsparser.ParseSchema("RemoveFromCart", s)
+		require.Equal(t, "RemoveFromCart", td.Head.Name)
+	})
+	t.Run("Search Schema", func(t *testing.T) {
+		s := (&relevancefashionobjectz.Search{}).Schema()
+		td, _ := jsparser.ParseSchema("Search", s)
+		require.Equal(t, "Search", td.Head.Name)
+	})
+	t.Run("PurchaseSku Schema", func(t *testing.T) {
+		s := (&relevancefashionobjectz.PurchaseSku{}).Schema()
+		td, _ := jsparser.ParseSchema("PurchaseSku", s)
+		require.Equal(t, "PurchaseSku", td.Head.Name)
+	})
+	t.Run("Purchase Schema", func(t *testing.T) {
+		s := (&relevancefashionobjectz.Purchase{}).Schema()
+		td, _ := jsparser.ParseSchema("Purchase", s)
+		require.Equal(t, "Purchase", td.Head.Name)
+	})
+	t.Run("Recraw Schema", func(t *testing.T) {
+		s := (&relevancefashionobjectz.Recraw{}).Schema()
+		td, _ := jsparser.ParseSchema("Recraw", s)
+		require.Equal(t, "Recraw", td.Head.Name)
+	})
+	t.Run("Recshow Schema", func(t *testing.T) {
+		s := (&relevancefashionobjectz.Recshow{}).Schema()
+		td, _ := jsparser.ParseSchema("Recshow", s)
+		require.Equal(t, "Recshow", td.Head.Name)
+	})
+	t.Run("Event Schema", func(t *testing.T) {
+		s := (&relevancefashionobjectz.Event{}).Schema()
+		td, tds := jsparser.ParseSchema("Event", s)
+		require.Equal(t, "Event", td.Head.Name)
+
+		propMap := make(map[string]jstypez.Tuple)
+		for _, prop := range td.Properties.All() {
+			propMap[prop.Name] = prop
+		}
+
+		require.Contains(t, propMap, "id")
+		require.Equal(t, "string", propMap["id"].Typ)
+
+		require.Contains(t, propMap, "created_at")
+		require.Equal(t, jstypez.TypTime, propMap["created_at"].Typ)
+
+		require.Contains(t, propMap, "click")
+		require.Equal(t, "object", propMap["click"].Typ)
+
+		require.Contains(t, propMap, "purchase")
+		require.Equal(t, "object", propMap["purchase"].Typ)
+
+		// Check registered sub-typedefs
+		tdfMap := make(map[string]*jstypez.Typedef)
+		for _, tdf := range tds.All() {
+			tdfMap[tdf.Head.Name] = tdf
+		}
+
+		require.Contains(t, tdfMap, "EventPurchaseSkusElement")
 	})
 }
