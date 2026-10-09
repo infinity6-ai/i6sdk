@@ -8,12 +8,12 @@ import (
 )
 
 type DszCreateStoreReq struct {
-	Dataset lakedsz.Dataset   `json:"dataset"`
-	Store   dszstore.DszStore `json:"store"`
+	Dataset lakedsz.Dataset
+	StoreId dszstore.DszStore
 }
 
 type Api struct {
-	Req *DszCreateStoreReq `json:"req"`
+	Req *DszCreateStoreReq
 }
 
 func (d *Api) ApiSpec() apiz.ApiSpec {
@@ -51,8 +51,8 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Req = &DszCreateStoreReq{}
 				}
 				return map[string]*schemaz.Schema{
-					"store": {
-						Raw: func() any { return &d.Req.Store },
+					"store_id": {
+						Raw: func() any { return &d.Req.StoreId },
 					},
 				}
 			},

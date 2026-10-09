@@ -12,7 +12,7 @@ type DszSolutionDomainSelectReq struct {
 	Dataset  lakedsz.Dataset   `json:"dataset"`
 	Solution solution.Solution `json:"solution"`
 	Domain   domain.Domain     `json:"domain"`
-	Store    string            `json:"store"`
+	StoreId  string            `json:"store_id"`
 }
 
 type Api struct {
@@ -60,8 +60,8 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					"domain": {
 						Raw: func() any { return &d.Req.Domain },
 					},
-					"store": {
-						Raw: func() any { return &d.Req.Store },
+					"store_id": {
+						Raw: func() any { return &d.Req.StoreId },
 					},
 				}
 			},
