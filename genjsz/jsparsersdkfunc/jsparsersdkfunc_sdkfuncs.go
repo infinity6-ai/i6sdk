@@ -21,10 +21,6 @@ func (s *SdkFuncs) Funcs() []*SdkFunc {
 	return s.SdkFuncs
 }
 
-type Funcs = SdkFuncs
-
-var ParseFuncs = ParseSdkFuncs
-
 func ParseSdkFuncs(ctx context.Context, funcs []sdkfuncz.Func) *SdkFuncs {
 	ret := SdkFuncs{
 		SdkFuncs: make([]*SdkFunc, len(funcs)),

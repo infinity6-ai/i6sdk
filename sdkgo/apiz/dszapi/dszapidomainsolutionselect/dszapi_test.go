@@ -17,7 +17,7 @@ func TestUnitDszApi(t *testing.T) {
 			Dataset:  lakedsz.MustParse("myds"),
 			Solution: solution.MustParse("relevance"),
 			Domain:   domain.MustParse("fashion"),
-			Store:    "store1",
+			StoreId:  "store1",
 		},
 	}
 

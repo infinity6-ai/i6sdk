@@ -16,7 +16,7 @@ func TestUnitDszSolutionDomainGetApi(t *testing.T) {
 	api := &dszapidomainsolutionget.Api{
 		Req: &dszapidomainsolutionget.DszSolutionDomainGetReq{
 			Dataset: lakedsz.MustParse("myds"),
-			Store:   "store1",
+			StoreId: "store1",
 		},
 		Resp: &dszapidomainsolutionget.DszSolutionDomainGetResp{
 			Dataset: lakedsz.MustParse("myds"),
@@ -26,7 +26,7 @@ func TestUnitDszSolutionDomainGetApi(t *testing.T) {
 					Domain:   domain.MustParse("fashion"),
 				},
 			},
-			Store: "store1",
+			StoreId: "store1",
 		},
 	}
 

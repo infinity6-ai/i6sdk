@@ -1,4 +1,4 @@
-package relevancefashionobjectz
+package relevancefashiondataz
 
 import (
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
@@ -12,10 +12,11 @@ type Catalog struct {
 	SkuId     string `json:"sku_id" bigquery:"sku_id"`
 	SkuDs     string `json:"sku_ds" bigquery:"sku_ds"`
 	Inactive  bool   `json:"inactive" bigquery:"inactive"`
+	P         string `json:"p" bigquery:"p"`
 }
 
 func (u *Catalog) Table() laketbnamez.TableName {
-	return laketbnamez.MustParse("catalog")
+	return laketbnamez.MustParse("relevance-fashion-catalog")
 }
 
 func (u *Catalog) Schema() *schemaz.Schema {
@@ -39,6 +40,9 @@ func (u *Catalog) Schema() *schemaz.Schema {
 				},
 				"inactive": {
 					Raw: func() any { return &u.Inactive },
+				},
+				"p": {
+					Raw: func() any { return &u.P },
 				},
 			}
 		},

@@ -1,4 +1,4 @@
-package relevancefashionobjectz_test
+package relevancefashiondataz_test
 
 import (
 	"encoding/json"
@@ -8,20 +8,20 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
-	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz/relevancefashionobjectz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz/relevancefashiondataz"
 )
 
 func TestUnitEventSerialization(t *testing.T) {
 	type testScenario struct {
 		jsonStr string
-		event   relevancefashionobjectz.Event
+		event   relevancefashiondataz.Event
 	}
 
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
 
 		// Test Deserialization (JSON -> Struct)
-		var got relevancefashionobjectz.Event
+		var got relevancefashiondataz.Event
 		err := json.Unmarshal([]byte(s.jsonStr), &got)
 		require.NoError(t, err)
 
@@ -36,7 +36,7 @@ func TestUnitEventSerialization(t *testing.T) {
 		serialized, err := json.Marshal(s.event)
 		require.NoError(t, err)
 
-		var roundTrip relevancefashionobjectz.Event
+		var roundTrip relevancefashiondataz.Event
 		err = json.Unmarshal(serialized, &roundTrip)
 		require.NoError(t, err)
 
@@ -53,7 +53,7 @@ func TestUnitEventSerialization(t *testing.T) {
 				"user_id": "usr_789",
 				"created_at": "2026-10-08T12:00:00Z"
 			}`,
-			event: relevancefashionobjectz.Event{
+			event: relevancefashiondataz.Event{
 				ID:        "evt_123",
 				StoreId:   "ABC",
 				SessionId: "sess_456",
@@ -76,13 +76,13 @@ func TestUnitEventSerialization(t *testing.T) {
 					"sku_id": "146"
 				}
 			}`,
-			event: relevancefashionobjectz.Event{
+			event: relevancefashiondataz.Event{
 				ID:        "evt_123",
 				StoreId:   "ABC",
 				SessionId: "sess_456",
 				UserId:    "usr_789",
 				CreatedAt: time.Date(2026, 10, 8, 12, 0, 0, 0, time.UTC),
-				Click: &relevancefashionobjectz.Click{
+				Click: &relevancefashiondataz.Click{
 					Price: 166.4,
 					SkuId: "146",
 				},
@@ -103,13 +103,13 @@ func TestUnitEventSerialization(t *testing.T) {
 					"sku_id": "121"
 				}
 			}`,
-			event: relevancefashionobjectz.Event{
+			event: relevancefashiondataz.Event{
 				ID:        "evt_123",
 				StoreId:   "ABC",
 				SessionId: "sess_456",
 				UserId:    "usr_789",
 				CreatedAt: time.Date(2026, 10, 8, 12, 0, 0, 0, time.UTC),
-				AddToCart: &relevancefashionobjectz.AddToCart{
+				AddToCart: &relevancefashiondataz.AddToCart{
 					Price: 166.42,
 					SkuId: "121",
 				},
@@ -130,13 +130,13 @@ func TestUnitEventSerialization(t *testing.T) {
 					"sku_id": "113"
 				}
 			}`,
-			event: relevancefashionobjectz.Event{
+			event: relevancefashiondataz.Event{
 				ID:        "evt_123",
 				StoreId:   "ABC",
 				SessionId: "sess_456",
 				UserId:    "usr_789",
 				CreatedAt: time.Date(2026, 10, 8, 12, 0, 0, 0, time.UTC),
-				RemoveFromCart: &relevancefashionobjectz.RemoveFromCart{
+				RemoveFromCart: &relevancefashiondataz.RemoveFromCart{
 					Price: 61.81,
 					SkuId: "113",
 				},
@@ -156,13 +156,13 @@ func TestUnitEventSerialization(t *testing.T) {
 					"text": "camisa da barbie"
 				}
 			}`,
-			event: relevancefashionobjectz.Event{
+			event: relevancefashiondataz.Event{
 				ID:        "evt_123",
 				StoreId:   "ABC",
 				SessionId: "sess_456",
 				UserId:    "usr_789",
 				CreatedAt: time.Date(2026, 10, 8, 12, 0, 0, 0, time.UTC),
-				Search: &relevancefashionobjectz.Search{
+				Search: &relevancefashiondataz.Search{
 					Text: "camisa da barbie",
 				},
 			},
@@ -188,15 +188,15 @@ func TestUnitEventSerialization(t *testing.T) {
 					]
 				}
 			}`,
-			event: relevancefashionobjectz.Event{
+			event: relevancefashiondataz.Event{
 				ID:        "evt_123",
 				StoreId:   "ABC",
 				SessionId: "sess_456",
 				UserId:    "usr_789",
 				CreatedAt: time.Date(2026, 10, 8, 12, 0, 0, 0, time.UTC),
-				Purchase: &relevancefashionobjectz.Purchase{
+				Purchase: &relevancefashiondataz.Purchase{
 					OrderId: "8e37896a-7669-48b7-95fb-a661d6a1e597",
-					Skus: []*relevancefashionobjectz.PurchaseSku{
+					Skus: []*relevancefashiondataz.PurchaseSku{
 						{
 							Qtty:      1,
 							SkuId:     "164",
@@ -222,13 +222,13 @@ func TestUnitEventSerialization(t *testing.T) {
 					"payload": "{\"results\":[{\"skus\":[{\"sku_id\":\"28\"}],\"rating\":0.0726400166749954}]}"
 				}
 			}`,
-			event: relevancefashionobjectz.Event{
+			event: relevancefashiondataz.Event{
 				ID:        "evt_123",
 				StoreId:   "ABC",
 				SessionId: "sess_456",
 				UserId:    "usr_789",
 				CreatedAt: time.Date(2026, 10, 8, 12, 0, 0, 0, time.UTC),
-				Recraw: &relevancefashionobjectz.Recraw{
+				Recraw: &relevancefashiondataz.Recraw{
 					RecId:   "xpto",
 					ModelId: "relevance-fashion-fbt",
 					Payload: `{"results":[{"skus":[{"sku_id":"28"}],"rating":0.0726400166749954}]}`,
@@ -250,16 +250,37 @@ func TestUnitEventSerialization(t *testing.T) {
 					"payload": "{\"skus\":[{\"sku_id\":\"107\"}]}"
 				}
 			}`,
-			event: relevancefashionobjectz.Event{
+			event: relevancefashiondataz.Event{
 				ID:        "evt_123",
 				StoreId:   "ABC",
 				SessionId: "sess_456",
 				UserId:    "usr_789",
 				CreatedAt: time.Date(2026, 10, 8, 12, 0, 0, 0, time.UTC),
-				Recshow: &relevancefashionobjectz.Recshow{
+				Recshow: &relevancefashiondataz.Recshow{
 					RecId:   "xpto",
 					Payload: `{"skus":[{"sku_id":"107"}]}`,
 				},
+			},
+		})
+	})
+
+	t.Run("Event fields with optional property P", func(t *testing.T) {
+		check(t, testScenario{
+			jsonStr: `{
+				"id": "evt_123",
+				"store_id": "ABC",
+				"session_id": "sess_456",
+				"user_id": "usr_789",
+				"created_at": "2026-10-08T12:00:00Z",
+				"p": "custom_param"
+			}`,
+			event: relevancefashiondataz.Event{
+				ID:        "evt_123",
+				StoreId:   "ABC",
+				SessionId: "sess_456",
+				UserId:    "usr_789",
+				CreatedAt: time.Date(2026, 10, 8, 12, 0, 0, 0, time.UTC),
+				P:         "custom_param",
 			},
 		})
 	})
@@ -267,47 +288,47 @@ func TestUnitEventSerialization(t *testing.T) {
 
 func TestUnitEventSchema(t *testing.T) {
 	t.Run("Click Schema", func(t *testing.T) {
-		s := (&relevancefashionobjectz.Click{}).Schema()
+		s := (&relevancefashiondataz.Click{}).Schema()
 		td, _ := jsparser.ParseSchema("Click", s)
 		require.Equal(t, "Click", td.Head.Name)
 	})
 	t.Run("AddToCart Schema", func(t *testing.T) {
-		s := (&relevancefashionobjectz.AddToCart{}).Schema()
+		s := (&relevancefashiondataz.AddToCart{}).Schema()
 		td, _ := jsparser.ParseSchema("AddToCart", s)
 		require.Equal(t, "AddToCart", td.Head.Name)
 	})
 	t.Run("RemoveFromCart Schema", func(t *testing.T) {
-		s := (&relevancefashionobjectz.RemoveFromCart{}).Schema()
+		s := (&relevancefashiondataz.RemoveFromCart{}).Schema()
 		td, _ := jsparser.ParseSchema("RemoveFromCart", s)
 		require.Equal(t, "RemoveFromCart", td.Head.Name)
 	})
 	t.Run("Search Schema", func(t *testing.T) {
-		s := (&relevancefashionobjectz.Search{}).Schema()
+		s := (&relevancefashiondataz.Search{}).Schema()
 		td, _ := jsparser.ParseSchema("Search", s)
 		require.Equal(t, "Search", td.Head.Name)
 	})
 	t.Run("PurchaseSku Schema", func(t *testing.T) {
-		s := (&relevancefashionobjectz.PurchaseSku{}).Schema()
+		s := (&relevancefashiondataz.PurchaseSku{}).Schema()
 		td, _ := jsparser.ParseSchema("PurchaseSku", s)
 		require.Equal(t, "PurchaseSku", td.Head.Name)
 	})
 	t.Run("Purchase Schema", func(t *testing.T) {
-		s := (&relevancefashionobjectz.Purchase{}).Schema()
+		s := (&relevancefashiondataz.Purchase{}).Schema()
 		td, _ := jsparser.ParseSchema("Purchase", s)
 		require.Equal(t, "Purchase", td.Head.Name)
 	})
 	t.Run("Recraw Schema", func(t *testing.T) {
-		s := (&relevancefashionobjectz.Recraw{}).Schema()
+		s := (&relevancefashiondataz.Recraw{}).Schema()
 		td, _ := jsparser.ParseSchema("Recraw", s)
 		require.Equal(t, "Recraw", td.Head.Name)
 	})
 	t.Run("Recshow Schema", func(t *testing.T) {
-		s := (&relevancefashionobjectz.Recshow{}).Schema()
+		s := (&relevancefashiondataz.Recshow{}).Schema()
 		td, _ := jsparser.ParseSchema("Recshow", s)
 		require.Equal(t, "Recshow", td.Head.Name)
 	})
 	t.Run("Event Schema", func(t *testing.T) {
-		s := (&relevancefashionobjectz.Event{}).Schema()
+		s := (&relevancefashiondataz.Event{}).Schema()
 		td, tds := jsparser.ParseSchema("Event", s)
 		require.Equal(t, "Event", td.Head.Name)
 
@@ -328,6 +349,9 @@ func TestUnitEventSchema(t *testing.T) {
 		require.Contains(t, propMap, "purchase")
 		require.Equal(t, "object", propMap["purchase"].Typ)
 
+		require.Contains(t, propMap, "p")
+		require.Equal(t, "string", propMap["p"].Typ)
+
 		// Check registered sub-typedefs
 		tdfMap := make(map[string]*jstypez.Typedef)
 		for _, tdf := range tds.All() {
@@ -341,14 +365,14 @@ func TestUnitEventSchema(t *testing.T) {
 func TestUnitCatalogSerialization(t *testing.T) {
 	type testScenario struct {
 		jsonStr string
-		catalog relevancefashionobjectz.Catalog
+		catalog relevancefashiondataz.Catalog
 	}
 
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
 
 		// Test Deserialization (JSON -> Struct)
-		var got relevancefashionobjectz.Catalog
+		var got relevancefashiondataz.Catalog
 		err := json.Unmarshal([]byte(s.jsonStr), &got)
 		require.NoError(t, err)
 		require.Equal(t, s.catalog, got)
@@ -357,7 +381,7 @@ func TestUnitCatalogSerialization(t *testing.T) {
 		serialized, err := json.Marshal(s.catalog)
 		require.NoError(t, err)
 
-		var roundTrip relevancefashionobjectz.Catalog
+		var roundTrip relevancefashiondataz.Catalog
 		err = json.Unmarshal(serialized, &roundTrip)
 		require.NoError(t, err)
 		require.Equal(t, s.catalog, roundTrip)
@@ -373,7 +397,7 @@ func TestUnitCatalogSerialization(t *testing.T) {
 				"sku_ds": "sku description",
 				"inactive": false
 			}`,
-			catalog: relevancefashionobjectz.Catalog{
+			catalog: relevancefashiondataz.Catalog{
 				ID:        "cat_123",
 				StoreId:   "ABC",
 				ProductId: "prod_456",
@@ -394,7 +418,7 @@ func TestUnitCatalogSerialization(t *testing.T) {
 				"sku_ds": "another description",
 				"inactive": true
 			}`,
-			catalog: relevancefashionobjectz.Catalog{
+			catalog: relevancefashiondataz.Catalog{
 				ID:        "cat_456",
 				StoreId:   "XYZ",
 				ProductId: "prod_789",
@@ -404,11 +428,34 @@ func TestUnitCatalogSerialization(t *testing.T) {
 			},
 		})
 	})
+
+	t.Run("Catalog fields with optional property P", func(t *testing.T) {
+		check(t, testScenario{
+			jsonStr: `{
+				"id": "cat_123",
+				"store_id": "ABC",
+				"product_id": "prod_456",
+				"sku_id": "sku_789",
+				"sku_ds": "sku description",
+				"inactive": false,
+				"p": "custom_param_catalog"
+			}`,
+			catalog: relevancefashiondataz.Catalog{
+				ID:        "cat_123",
+				StoreId:   "ABC",
+				ProductId: "prod_456",
+				SkuId:     "sku_789",
+				SkuDs:     "sku description",
+				Inactive:  false,
+				P:         "custom_param_catalog",
+			},
+		})
+	})
 }
 
 func TestUnitCatalogSchema(t *testing.T) {
 	t.Run("Catalog Schema", func(t *testing.T) {
-		s := (&relevancefashionobjectz.Catalog{}).Schema()
+		s := (&relevancefashiondataz.Catalog{}).Schema()
 		td, _ := jsparser.ParseSchema("Catalog", s)
 		require.Equal(t, "Catalog", td.Head.Name)
 
@@ -434,5 +481,8 @@ func TestUnitCatalogSchema(t *testing.T) {
 
 		require.Contains(t, propMap, "inactive")
 		require.Equal(t, "boolean", propMap["inactive"].Typ)
+
+		require.Contains(t, propMap, "p")
+		require.Equal(t, "string", propMap["p"].Typ)
 	})
 }

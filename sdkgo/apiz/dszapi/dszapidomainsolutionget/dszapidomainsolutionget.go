@@ -10,13 +10,13 @@ import (
 )
 
 type DszSolutionDomainGetReq struct {
-	Dataset lakedsz.Dataset `json:"dataset"`
-	Store   string          `json:"store"`
+	Dataset lakedsz.Dataset
+	StoreId string
 }
 
 type SolutionDomain struct {
-	Solution solution.Solution `json:"solution"`
-	Domain   domain.Domain     `json:"domain"`
+	Solution solution.Solution
+	Domain   domain.Domain
 }
 
 func (*SolutionDomain) JSTypedef() (*jstypez.Typedef, *jstypez.Typedefs) {
@@ -34,7 +34,7 @@ func (*SolutionDomain) JSTypedef() (*jstypez.Typedef, *jstypez.Typedefs) {
 type DszSolutionDomainGetResp struct {
 	Dataset   lakedsz.Dataset  `json:"dataset"`
 	Solutions []SolutionDomain `json:"solutions"`
-	Store     string           `json:"store"`
+	StoreId   string           `json:"store_id"`
 }
 
 type Api struct {
@@ -75,7 +75,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Req = &DszSolutionDomainGetReq{}
 				}
 				return map[string]*schemaz.Schema{
-					"store": {Str: schemaz.ParseStr(&d.Req.Store)},
+					"store_id": {Str: schemaz.ParseStr(&d.Req.StoreId)},
 				}
 			},
 		},
@@ -95,8 +95,8 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					"solutions": {
 						Raw: func() any { return &d.Resp.Solutions },
 					},
-					"store": {
-						Raw: func() any { return &d.Resp.Store },
+					"store_id": {
+						Raw: func() any { return &d.Resp.StoreId },
 					},
 				}
 			},
