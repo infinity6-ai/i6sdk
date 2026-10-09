@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/infinity6-ai/gox/commonz/errorz"
+	"github.com/infinity6-ai/gox/commonz/validation/checker"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparsersdkfunc"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
@@ -33,7 +34,7 @@ func ExtractTypedefs(sdkFuncs []*jsparsersdkfunc.SdkFunc) jstypez.Typedefs {
 	tdfs := jstypez.Typedefs{}
 	for _, fn := range sdkFuncs {
 		funcId := fn.Spec.CamelId
-		
+
 		hasInput := fn.Req.Input.Head != nil
 		hasPartitions := fn.Req.Partitions.Head != nil
 		hasReq := hasInput || hasPartitions
@@ -98,7 +99,7 @@ func Write(ctx context.Context, sdkFuncs []*jsparsersdkfunc.SdkFunc) string {
 		}
 		var decl strings.Builder
 		funcId := fn.Spec.CamelId
-		
+
 		hasInput := fn.Req.Input.Head != nil
 		hasPartitions := fn.Req.Partitions.Head != nil
 		hasReq := hasInput || hasPartitions
@@ -122,12 +123,15 @@ func Write(ctx context.Context, sdkFuncs []*jsparsersdkfunc.SdkFunc) string {
 			writeln(&decl, "async %s() {", funcName(funcId))
 		}
 
+		modelName, ok := strings.CutPrefix(fn.Spec.Id, "product-")
+		checker.True(ok, "id does not start with 'product-': %s", fn.Spec.Id)
+
 		switch fn.Spec.Typ {
 		case sdkfuncz.TypClientInfer:
 			writeln(&decl, "  const infer = this._services.infer()")
 			writeln(&decl, "  const ret = await infer.run({")
 			writeln(&decl, "    dataset: req.input.dataset,")
-			writeln(&decl, "    modelName: \"%s\",", fn.Spec.Id)
+			writeln(&decl, "    modelName: \"%s\",", modelName)
 			writeln(&decl, "    params: req.input,")
 			writeln(&decl, "    partitions: req.partitions,")
 			writeln(&decl, "  })")
@@ -141,7 +145,7 @@ func Write(ctx context.Context, sdkFuncs []*jsparsersdkfunc.SdkFunc) string {
 			writeln(&decl, "  return {};")
 		}
 		writeln(&decl, "}")
-		
+
 		writeln(&b, "%s", indent(decl.String(), "  "))
 	}
 	writeln(&b, "}")
