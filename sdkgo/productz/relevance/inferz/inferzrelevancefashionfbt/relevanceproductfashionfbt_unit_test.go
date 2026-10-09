@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/inferz/inferzrelevancefashionfbt"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
 )
@@ -14,6 +15,8 @@ import (
 func TestUnitInferzRelevanceFashionFbt(t *testing.T) {
 	fn := &inferzrelevancefashionfbt.Func{
 		Req: inferzrelevancefashionfbt.Req{
+			Dataset:   lakedsz.MustParse("my-dataset"),
+			ModelName: "fbt-model",
 			Skus: []*inferzrelevancefashionfbt.Sku{
 				{
 					SkuId: "sku-1",
@@ -22,7 +25,7 @@ func TestUnitInferzRelevanceFashionFbt(t *testing.T) {
 					SkuId: "sku-2",
 				},
 			},
-			Partitions: inferzrelevancefashionfbt.Partitions{
+			ModelPartitions: inferzrelevancefashionfbt.Partitions{
 				Version: "v1",
 				StoreId: "store-123",
 			},
@@ -45,11 +48,13 @@ func TestUnitInferzRelevanceFashionFbt(t *testing.T) {
 
 	require.Equal(t, fn.Req, fnCopy.Req)
 	require.Equal(t, fn.Resp, fnCopy.Resp)
+	require.Equal(t, "my-dataset", fnCopy.Req.Dataset.String())
+	require.Equal(t, "fbt-model", fnCopy.Req.ModelName)
 	require.Len(t, fnCopy.Req.Skus, 2)
 	require.Equal(t, "sku-1", fnCopy.Req.Skus[0].SkuId)
 	require.Equal(t, "sku-2", fnCopy.Req.Skus[1].SkuId)
-	require.Equal(t, "v1", fnCopy.Req.Partitions.Version)
-	require.Equal(t, "store-123", fnCopy.Req.Partitions.StoreId)
+	require.Equal(t, "v1", fnCopy.Req.ModelPartitions.Version)
+	require.Equal(t, "store-123", fnCopy.Req.ModelPartitions.StoreId)
 	require.Len(t, fnCopy.Resp.Results, 2)
 	require.Equal(t, "sku-3", fnCopy.Resp.Results[0].SkuId)
 	require.Equal(t, "0.95", fnCopy.Resp.Results[0].Rating)
@@ -83,6 +88,10 @@ func TestUnitInferzRelevanceFashionFbtDataRefs(t *testing.T) {
 	for _, prop := range tdInput.Properties.All() {
 		inputProps[prop.Name] = prop
 	}
+	require.Contains(t, inputProps, "dataset")
+	require.Equal(t, "string", inputProps["dataset"].Typ)
+	require.Contains(t, inputProps, "model_name")
+	require.Equal(t, "string", inputProps["model_name"].Typ)
 	require.Contains(t, inputProps, "skus")
 	require.Equal(t, "Array<fbtInputSkusElement>", inputProps["skus"].Typ)
 

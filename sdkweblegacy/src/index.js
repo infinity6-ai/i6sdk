@@ -74,6 +74,14 @@ class I6Sdk {
   }
 
   /**
+   * Returns the Funcs service instance.
+   * @returns {SdkFuncs} An instance of the generated Apis client.
+   */
+  funcs() {
+    return this._service.funcs()
+  }
+
+  /**
    * Registers an event listener on the SDK's internal event dispatcher (an EventTarget).
    * @param {string} evt - The event type or name to listen for.
    * @param {EventListenerOrEventListenerObject|Function} fn - The callback function or event listener object invoked when the event occurs.

@@ -46,30 +46,22 @@ async function loadModel(opts) {
   const key = `${opts.ref.name}@${opts.ref.version}`
   if (loadedModel?.key === key) return loadedModel.compiled
 
-  let bytes
-  try {
-    bytes = await fs.read(opts.ref)
-  } catch (cause) {
-    throw new I6Error(`infer: could not read the model: ${cause.message}`, { code: "asset", cause })
-  }
+  const bytes = await fs.read(opts.ref)
+  
   if (new TextDecoder().decode(bytes.subarray(4, 8)) !== "TFL3") {
     throw new I6Error(`infer: ${opts.ref.name} is not a tflite file`, { code: "asset" })
   }
 
-  try {
-    const litert = await import("@litertjs/core")
-    const loading = litert.getGlobalLiteRtPromise()
-    if (loading) await loading
-    else await litert.loadLiteRt(opts.wasmUrl ?? LITERT_WASM_URL)
+  const litert = await import("@litertjs/core")
+  const loading = litert.getGlobalLiteRtPromise()
+  if (loading) await loading
+  else await litert.loadLiteRt(opts.wasmUrl ?? LITERT_WASM_URL)
 
-    const compiled = await litert.loadAndCompile(bytes, { accelerator: "wasm" })
-    if (loadedModel) loadedModel.compiled.delete()
-    loadedModel = { key, litert, compiled }
+  const compiled = await litert.loadAndCompile(bytes, { accelerator: "wasm" })
+  if (loadedModel) loadedModel.compiled.delete()
+  loadedModel = { key, litert, compiled }
 
-    return compiled
-  } catch (cause) {
-    throw new I6Error(`infer: could not load the model: ${cause.message}`, { code: "model", cause })
-  }
+  return compiled
 }
 
 /**
@@ -125,14 +117,10 @@ async function runModel(model, inputs) {
       tensors[detail.name] = new loadedModel.litert.Tensor(new DTYPE_CTORS[detail.dtype](flat), shape)
     }
 
-    try {
-      raw = await model.run(tensors)
-      const outputs = {}
-      for (const [name, tensor] of Object.entries(raw)) outputs[name] = await tensor.data()
-      return outputs
-    } catch (cause) {
-      throw new I6Error(`infer: could not run the model: ${cause.message}`, { code: "model", cause })
-    }
+    raw = await model.run(tensors)
+    const outputs = {}
+    for (const [name, tensor] of Object.entries(raw)) outputs[name] = await tensor.data()
+    return outputs
   } finally {
     Object.values(raw).forEach((t) => t.delete())
     Object.values(tensors).forEach((t) => t.delete())

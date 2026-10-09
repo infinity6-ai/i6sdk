@@ -2,6 +2,7 @@ package inferzrelevancefashionfbt
 
 import (
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
 )
 
@@ -20,8 +21,10 @@ type Result struct {
 }
 
 type Req struct {
-	Skus       []*Sku
-	Partitions Partitions
+	Dataset         lakedsz.Dataset
+	ModelName       string
+	Skus            []*Sku
+	ModelPartitions Partitions
 }
 
 type Resp struct {
@@ -46,6 +49,8 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 		Input: &schemaz.Schema{
 			Object: func(_ bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
+					"dataset":    {Str: lakedsz.ParseStr(&d.Req.Dataset)},
+					"model_name": {Str: schemaz.ParseStr(&d.Req.ModelName)},
 					"skus": {
 						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Sku, *Sku]{
 							Slice:      func() *[]*Sku { return &d.Req.Skus },
@@ -67,8 +72,8 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 		Partitions: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"version":  {Str: schemaz.ParseStr(&d.Req.Partitions.Version)},
-					"store_id": {Str: schemaz.ParseStr(&d.Req.Partitions.StoreId)},
+					"version":  {Str: schemaz.ParseStr(&d.Req.ModelPartitions.Version)},
+					"store_id": {Str: schemaz.ParseStr(&d.Req.ModelPartitions.StoreId)},
 				}
 			},
 		},

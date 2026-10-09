@@ -51,17 +51,11 @@ async function runStep(n, fn) {
   const sqlBox = card.querySelector('.sql')
   if (sqlBox) sqlBox.textContent = ''
   log(`\n==== step ${n}`)
-  try {
-    const { input, output, sql } = await fn()
-    if (sql) card.querySelector('.sql').textContent = sql
-    card.querySelector('.in').textContent = text(input)
-    card.querySelector('.out').textContent = text(output)
-    setStatus(card, 'ok')
-  } catch (e) {
-    card.querySelector('.out').textContent = `${e.name}${e.code ? ` [${e.code}]` : ''}: ${e.message}`
-    setStatus(card, 'error')
-    log(`ERROR ${e.name} [${e.code}] ${e.message}`)
-  }
+  const { input, output, sql } = await fn()
+  if (sql) card.querySelector('.sql').textContent = sql
+  card.querySelector('.in').textContent = text(input)
+  card.querySelector('.out').textContent = text(output)
+  setStatus(card, 'ok')
 }
 
 const need = (...keys) => {
@@ -84,11 +78,21 @@ const config = () => {
   return opts
 }
 
+// The request of sdk.funcs().productRelevanceFashionFbt, from the config card. The funcs method sends all of `input` as
+// the model params, and has no sqliteUrl / tfliteUrl / limit: those fields of the card are not used by step 7.
+function funcsRequest() {
+  const opts = config()
+  return {
+    input: { dataset: opts.dataset, model_name: opts.modelName, ...opts.params },
+    partitions: { store_id: opts.storeId, version: opts.modelVersion },
+  }
+}
+
 // The code of the SDK user, written with the values of the config card. Shown at the top of the page and run by step 7
 function usage() {
   return `import { I6Sdk } from './i6sdk-web.js'
 
-const result = await new I6Sdk().infer().run(${JSON.stringify(config(), null, 2)})`
+const result = await new I6Sdk().funcs().productRelevanceFashionFbt(${JSON.stringify(funcsRequest(), null, 2)})`
 }
 for (const id of ['modelName', 'modelVersion', 'storeId', 'dataset', 'sku_ids', 'sqliteUrl', 'tfliteUrl']) $(id).addEventListener('input', () => { $('usage').textContent = usage() })
 
@@ -177,9 +181,9 @@ const steps = {
   }),
 
   7: () => runStep(7, async () => {
-    const opts = config()
-    const result = await new I6Sdk().infer().run(opts)
-    return { input: opts, output: result }
+    const req = funcsRequest()
+    const result = await new I6Sdk().funcs().productRelevanceFashionFbt(req)
+    return { input: req, output: result }
   }),
 }
 
@@ -201,7 +205,7 @@ $('login').onclick = async () => {
 }
 
 $('clear').onclick = async () => {
-  await (await navigator.storage.getDirectory()).removeEntry('i6', { recursive: true }).catch(() => {})
+  await (await navigator.storage.getDirectory()).removeEntry('i6', { recursive: true }).catch(() => { })
   for (const k of Object.keys(state)) delete state[k]
   log('\nopfs cache removed, the steps start from the beginning')
 }

@@ -5,7 +5,7 @@
 import { Invoker } from "../invoker/invoker.js";
 import { Auth } from "../auth/auth.js";
 import { Ingest } from "../ingest/ingest.js";
-import { Apis } from "../sdkapis/sdkapis.js";
+import { Apis, SdkFuncs } from "../sdkapis/sdkapis.js";
 import { Infer } from "../infer/infer.js";
 
 /**
@@ -107,6 +107,18 @@ class Services {
             ret.prepare()
         }
         return ret
+    }
+
+     /**
+     * Creates and returns a Funcs service instance.
+     * @returns {SdkFuncs} An instance of the generated SdkFuncs client.
+     */
+    funcs() {
+        const ret = new SdkFuncs(this)
+        if (ret.prepare) {
+            ret.prepare()
+        }
+        return ret 
     }
 }
 
