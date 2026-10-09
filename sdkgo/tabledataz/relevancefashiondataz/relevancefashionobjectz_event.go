@@ -3,34 +3,38 @@ package relevancefashiondataz
 import (
 	"time"
 
+	"cloud.google.com/go/bigquery"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
 )
 
 type Event struct {
-	ID             string           `json:"id" bigquery:"id"`
-	Dataset        *lakedsz.Dataset `json:"dataset" bigquery:"dataset"`
-	StoreId        string           `json:"store_id" bigquery:"store_id"`
-	SessionId      string           `json:"session_id" bigquery:"session_id"`
-	UserId         string           `json:"user_id" bigquery:"user_id"`
-	Click          *Click           `json:"click,omitempty" bigquery:"click,nullable"`
-	AddToCart      *AddToCart       `json:"add_to_cart,omitempty" bigquery:"add_to_cart,nullable"`
-	RemoveFromCart *RemoveFromCart  `json:"remove_from_cart,omitempty" bigquery:"remove_from_cart,nullable"`
-	Search         *Search          `json:"search,omitempty" bigquery:"search,nullable"`
-	Purchase       *Purchase        `json:"purchase,omitempty" bigquery:"purchase,nullable"`
-	Recraw         *Recraw          `json:"recraw,omitempty" bigquery:"recraw,nullable"`
-	Recshow        *Recshow         `json:"recshow,omitempty" bigquery:"recshow,nullable"`
-	CreatedAt      time.Time        `json:"created_at" bigquery:"created_at"`
-	P              string           `json:"p" bigquery:"p"`
+	ID             string              `json:"id" bigquery:"id"`
+	Dataset        bigquery.NullString `json:"dataset" bigquery:"dataset,nullable"`
+	StoreId        string              `json:"store_id" bigquery:"store_id"`
+	SessionId      string              `json:"session_id" bigquery:"session_id"`
+	UserId         string              `json:"user_id" bigquery:"user_id"`
+	Click          *Click              `json:"click,omitempty" bigquery:"click,nullable"`
+	AddToCart      *AddToCart          `json:"add_to_cart,omitempty" bigquery:"add_to_cart,nullable"`
+	RemoveFromCart *RemoveFromCart     `json:"remove_from_cart,omitempty" bigquery:"remove_from_cart,nullable"`
+	Search         *Search             `json:"search,omitempty" bigquery:"search,nullable"`
+	Purchase       *Purchase           `json:"purchase,omitempty" bigquery:"purchase,nullable"`
+	Recraw         *Recraw             `json:"recraw,omitempty" bigquery:"recraw,nullable"`
+	Recshow        *Recshow            `json:"recshow,omitempty" bigquery:"recshow,nullable"`
+	CreatedAt      time.Time           `json:"created_at" bigquery:"created_at"`
+	P              string              `json:"p" bigquery:"p"`
 }
 
 func (e *Event) Table() laketbnamez.TableName {
 	return laketbnamez.MustParse("relevance-fashion-event")
 }
 
-func (e *Event) SetDataset(ds *lakedsz.Dataset) {
-	e.Dataset = ds
+func (e *Event) SetDataset(ds lakedsz.Dataset) {
+	e.Dataset = bigquery.NullString{
+		StringVal: ds.String(),
+		Valid:     true,
+	}
 }
 
 func (e *Event) SetP(p string) {
