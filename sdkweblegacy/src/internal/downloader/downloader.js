@@ -54,10 +54,12 @@ class Downloader {
                     : await dir.getDirectoryHandle(segment)
             }
             await response.body.pipeTo(await dir.createWritable())
-        } catch (e) {
-            // Do not leave a half-written version behind
-            await fs.discard(ref).catch(() => {})
-            throw e
+            success = true;
+        } finally {
+            if (!success) {
+                // Do not leave a half-written version behind
+                await fs.discard(ref).catch(() => {})
+            }
         }
 
         return fs.release(ref)
