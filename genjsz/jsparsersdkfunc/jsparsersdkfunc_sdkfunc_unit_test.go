@@ -67,6 +67,12 @@ func expectedFashionFbtSdkFunc() *jsparsersdkfunc.SdkFunc {
 				Head: &jstypez.Tuple{Typ: "object", Name: "sdkFuncProductRelevanceFashionFbtOutputResultsElement"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
 					{Typ: "string", Name: "rating"},
+					{Typ: "Array<sdkFuncProductRelevanceFashionFbtOutputResultsElementSkusElement>", Name: "skus"},
+				}),
+			},
+			{
+				Head: &jstypez.Tuple{Typ: "object", Name: "sdkFuncProductRelevanceFashionFbtOutputResultsElementSkusElement"},
+				Properties: jstypez.NewTuples([]jstypez.Tuple{
 					{Typ: "string", Name: "sku_id"},
 				}),
 			},

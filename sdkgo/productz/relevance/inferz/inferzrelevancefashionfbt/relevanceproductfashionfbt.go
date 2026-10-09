@@ -15,7 +15,7 @@ type Partitions struct {
 }
 
 type Result struct {
-	SkuId  string
+	Skus   []*Sku
 	Rating string
 }
 
@@ -85,7 +85,21 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 								return &schemaz.Schema{
 									Object: func(_ bool) map[string]*schemaz.Schema {
 										return map[string]*schemaz.Schema{
-											"sku_id": {Str: schemaz.ParseStr(&(*element).SkuId)},
+											"skus": {
+												Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Sku, *Sku]{
+													Slice:      func() *[]*Sku { return &(*element).Skus },
+													NewElement: func(idx int) *Sku { return &Sku{} },
+													Get: func(idx int, ele **Sku) *schemaz.Schema {
+														return &schemaz.Schema{
+															Object: func(_ bool) map[string]*schemaz.Schema {
+																return map[string]*schemaz.Schema{
+																	"sku_id": {Str: schemaz.ParseStr(&(*ele).SkuId)},
+																}
+															},
+														}
+													},
+												}),
+											},
 											"rating": {Str: schemaz.ParseStr(&(*element).Rating)},
 										}
 									},

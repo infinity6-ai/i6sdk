@@ -31,11 +31,11 @@ func TestUnitInferzRelevanceFashionFbt(t *testing.T) {
 		Resp: inferzrelevancefashionfbt.Resp{
 			Results: []*inferzrelevancefashionfbt.Result{
 				{
-					SkuId:  "sku-3",
+					Skus:   []*inferzrelevancefashionfbt.Sku{{SkuId: "sku-3"}},
 					Rating: "0.95",
 				},
 				{
-					SkuId:  "sku-4",
+					Skus:   []*inferzrelevancefashionfbt.Sku{{SkuId: "sku-4"}},
 					Rating: "0.85",
 				},
 			},
@@ -52,9 +52,9 @@ func TestUnitInferzRelevanceFashionFbt(t *testing.T) {
 	require.Equal(t, "sku-2", fnCopy.Req.Skus[1].SkuId)
 	require.Equal(t, "store-123", fnCopy.Req.ModelPartitions.StoreId)
 	require.Len(t, fnCopy.Resp.Results, 2)
-	require.Equal(t, "sku-3", fnCopy.Resp.Results[0].SkuId)
+	require.Equal(t, "sku-3", fnCopy.Resp.Results[0].Skus[0].SkuId)
 	require.Equal(t, "0.95", fnCopy.Resp.Results[0].Rating)
-	require.Equal(t, "sku-4", fnCopy.Resp.Results[1].SkuId)
+	require.Equal(t, "sku-4", fnCopy.Resp.Results[1].Skus[0].SkuId)
 	require.Equal(t, "0.85", fnCopy.Resp.Results[1].Rating)
 }
 
@@ -141,8 +141,18 @@ func TestUnitInferzRelevanceFashionFbtDataRefs(t *testing.T) {
 	for _, prop := range resultsElemTdf.Properties.All() {
 		resultsElemProps[prop.Name] = prop
 	}
-	require.Contains(t, resultsElemProps, "sku_id")
-	require.Equal(t, "string", resultsElemProps["sku_id"].Typ)
+	require.Contains(t, resultsElemProps, "skus")
+	require.Equal(t, "Array<fbtOutputResultsElementSkusElement>", resultsElemProps["skus"].Typ)
 	require.Contains(t, resultsElemProps, "rating")
 	require.Equal(t, "string", resultsElemProps["rating"].Typ)
+
+	skusElemOutputTdf, ok := tdfMapOutput["fbtOutputResultsElementSkusElement"]
+	require.True(t, ok)
+	require.NotNil(t, skusElemOutputTdf)
+	skusElemOutputProps := make(map[string]jstypez.Tuple)
+	for _, prop := range skusElemOutputTdf.Properties.All() {
+		skusElemOutputProps[prop.Name] = prop
+	}
+	require.Contains(t, skusElemOutputProps, "sku_id")
+	require.Equal(t, "string", skusElemOutputProps["sku_id"].Typ)
 }
