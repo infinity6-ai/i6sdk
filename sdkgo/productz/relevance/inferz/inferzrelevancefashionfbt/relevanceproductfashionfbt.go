@@ -16,7 +16,7 @@ type Partitions struct {
 
 type Result struct {
 	Skus   []*Sku
-	Rating string
+	Rating float64
 }
 
 type Req struct {
@@ -100,7 +100,7 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 													},
 												}),
 											},
-											"rating": {Str: schemaz.ParseStr(&(*element).Rating)},
+											"rating": {Raw: func() any { return &(*element).Rating }},
 										}
 									},
 								}

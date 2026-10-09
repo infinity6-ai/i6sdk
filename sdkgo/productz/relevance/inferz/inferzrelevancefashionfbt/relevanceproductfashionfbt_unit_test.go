@@ -32,11 +32,11 @@ func TestUnitInferzRelevanceFashionFbt(t *testing.T) {
 			Results: []*inferzrelevancefashionfbt.Result{
 				{
 					Skus:   []*inferzrelevancefashionfbt.Sku{{SkuId: "sku-3"}},
-					Rating: "0.95",
+					Rating: 0.95,
 				},
 				{
 					Skus:   []*inferzrelevancefashionfbt.Sku{{SkuId: "sku-4"}},
-					Rating: "0.85",
+					Rating: 0.85,
 				},
 			},
 		},
@@ -53,9 +53,9 @@ func TestUnitInferzRelevanceFashionFbt(t *testing.T) {
 	require.Equal(t, "store-123", fnCopy.Req.ModelPartitions.StoreId)
 	require.Len(t, fnCopy.Resp.Results, 2)
 	require.Equal(t, "sku-3", fnCopy.Resp.Results[0].Skus[0].SkuId)
-	require.Equal(t, "0.95", fnCopy.Resp.Results[0].Rating)
+	require.Equal(t, 0.95, fnCopy.Resp.Results[0].Rating)
 	require.Equal(t, "sku-4", fnCopy.Resp.Results[1].Skus[0].SkuId)
-	require.Equal(t, "0.85", fnCopy.Resp.Results[1].Rating)
+	require.Equal(t, 0.85, fnCopy.Resp.Results[1].Rating)
 }
 
 func TestUnitInferzRelevanceFashionFbtSpec(t *testing.T) {
@@ -144,7 +144,7 @@ func TestUnitInferzRelevanceFashionFbtDataRefs(t *testing.T) {
 	require.Contains(t, resultsElemProps, "skus")
 	require.Equal(t, "Array<fbtOutputResultsElementSkusElement>", resultsElemProps["skus"].Typ)
 	require.Contains(t, resultsElemProps, "rating")
-	require.Equal(t, "string", resultsElemProps["rating"].Typ)
+	require.Equal(t, "number", resultsElemProps["rating"].Typ)
 
 	skusElemOutputTdf, ok := tdfMapOutput["fbtOutputResultsElementSkusElement"]
 	require.True(t, ok)
