@@ -32,6 +32,7 @@ type SdkFunc struct {
 type SdkFuncSpec struct {
 	Id       string        `json:"id,omitempty"`
 	CamelId  string        `json:"camel_id"`
+	Version  string        `json:"version,omitempty"`
 	Desc     *schemaz.Desc `json:"desc,omitempty"`
 	Typ      sdkfuncz.Typ  `json:"typ,omitempty"`
 	FuncName string        `json:"func_name,omitempty"`
@@ -50,6 +51,7 @@ func ParseSdkFunc(fn sdkfuncz.Func) *SdkFunc {
 		ret := SdkFuncSpec{
 			Id:      s.Id,
 			CamelId: funcId,
+			Version: s.Version,
 			Typ:     s.Typ,
 		}
 		if s.Desc != nil {

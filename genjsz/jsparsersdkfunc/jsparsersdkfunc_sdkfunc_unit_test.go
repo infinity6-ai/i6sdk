@@ -19,6 +19,7 @@ func expectedFashionFbtSdkFunc() *jsparsersdkfunc.SdkFunc {
 		Spec: jsparsersdkfunc.SdkFuncSpec{
 			Id:      "product-relevance-fashion-fbt",
 			CamelId: "sdkFuncProductRelevanceFashionFbt",
+			Version: "v1",
 			Typ:     sdkfuncz.TypClientInfer,
 		},
 		Typedefs: jstypez.NewTypedefs([]*jstypez.Typedef{
@@ -54,7 +55,6 @@ func expectedFashionFbtSdkFunc() *jsparsersdkfunc.SdkFunc {
 				Head: &jstypez.Tuple{Typ: "object", Name: "sdkFuncProductRelevanceFashionFbtPartitions", Summary: "sdkFuncProductRelevanceFashionFbt partitions"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
 					{Typ: "string", Name: "store_id"},
-					{Typ: "string", Name: "version"},
 				}),
 			},
 			{
@@ -67,6 +67,12 @@ func expectedFashionFbtSdkFunc() *jsparsersdkfunc.SdkFunc {
 				Head: &jstypez.Tuple{Typ: "object", Name: "sdkFuncProductRelevanceFashionFbtOutputResultsElement"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
 					{Typ: "string", Name: "rating"},
+					{Typ: "Array<sdkFuncProductRelevanceFashionFbtOutputResultsElementSkusElement>", Name: "skus"},
+				}),
+			},
+			{
+				Head: &jstypez.Tuple{Typ: "object", Name: "sdkFuncProductRelevanceFashionFbtOutputResultsElementSkusElement"},
+				Properties: jstypez.NewTuples([]jstypez.Tuple{
 					{Typ: "string", Name: "sku_id"},
 				}),
 			},

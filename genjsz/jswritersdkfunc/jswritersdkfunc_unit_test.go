@@ -57,13 +57,13 @@ func TestUnitWrite(t *testing.T) {
    * @param {sdkFuncProductRelevanceFashionFbtReq} req
    * @returns {Promise<sdkFuncProductRelevanceFashionFbtResp>}
    */
-  async productRelevanceFashionFbt(req) {
+  async productRelevanceFashionFbtV1(req) {
     const infer = this._services.infer()
     const ret = await infer.run({
       dataset: req.input.dataset,
       modelName: "relevance-fashion-fbt",
       params: req.input,
-      partitions: req.partitions,
+      partitions: {"version": "v1", ...req.partitions},
     })
     return ret;
   }

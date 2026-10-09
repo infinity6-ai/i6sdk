@@ -11,12 +11,11 @@ type Sku struct {
 }
 
 type Partitions struct {
-	Version string
 	StoreId string
 }
 
 type Result struct {
-	SkuId  string
+	Skus   []*Sku
 	Rating string
 }
 
@@ -37,9 +36,10 @@ type Func struct {
 
 func (d *Func) SdkFuncSpec() sdkfuncz.Spec {
 	return sdkfuncz.Spec{
-		Id:   "product-relevance-fashion-fbt",
-		Typ:  sdkfuncz.TypClientInfer,
-		Desc: nil,
+		Id:      "product-relevance-fashion-fbt",
+		Version: "v1",
+		Typ:     sdkfuncz.TypClientInfer,
+		Desc:    nil,
 	}
 }
 
@@ -70,7 +70,6 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 		Partitions: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"version":  {Str: schemaz.ParseStr(&d.Req.ModelPartitions.Version)},
 					"store_id": {Str: schemaz.ParseStr(&d.Req.ModelPartitions.StoreId)},
 				}
 			},
@@ -86,7 +85,21 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 								return &schemaz.Schema{
 									Object: func(_ bool) map[string]*schemaz.Schema {
 										return map[string]*schemaz.Schema{
-											"sku_id": {Str: schemaz.ParseStr(&(*element).SkuId)},
+											"skus": {
+												Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Sku, *Sku]{
+													Slice:      func() *[]*Sku { return &(*element).Skus },
+													NewElement: func(idx int) *Sku { return &Sku{} },
+													Get: func(idx int, ele **Sku) *schemaz.Schema {
+														return &schemaz.Schema{
+															Object: func(_ bool) map[string]*schemaz.Schema {
+																return map[string]*schemaz.Schema{
+																	"sku_id": {Str: schemaz.ParseStr(&(*ele).SkuId)},
+																}
+															},
+														}
+													},
+												}),
+											},
 											"rating": {Str: schemaz.ParseStr(&(*element).Rating)},
 										}
 									},

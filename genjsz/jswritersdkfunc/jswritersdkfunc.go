@@ -7,6 +7,7 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/errorz"
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
+	"go.code.infinity6.ai/sdkgo/camelstring"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparsersdkfunc"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
@@ -66,9 +67,13 @@ func ExtractTypedefs(sdkFuncs []*jsparsersdkfunc.SdkFunc) jstypez.Typedefs {
 	return tdfs
 }
 
-func funcName(funcId string) string {
+func funcName(funcId string, version string) string {
 	name := strings.TrimPrefix(funcId, "sdkFunc")
-	return strings.ToLower(name[0:1]) + name[1:]
+	name = strings.ToLower(name[0:1]) + name[1:]
+	if version != "" {
+		name += camelstring.ToCamelUpper(version)
+	}
+	return name
 }
 
 func Write(ctx context.Context, sdkFuncs []*jsparsersdkfunc.SdkFunc) string {
@@ -118,9 +123,9 @@ func Write(ctx context.Context, sdkFuncs []*jsparsersdkfunc.SdkFunc) string {
 		writeln(&decl, " */")
 
 		if hasReq {
-			writeln(&decl, "async %s(req) {", funcName(funcId))
+			writeln(&decl, "async %s(req) {", funcName(funcId, fn.Spec.Version))
 		} else {
-			writeln(&decl, "async %s() {", funcName(funcId))
+			writeln(&decl, "async %s() {", funcName(funcId, fn.Spec.Version))
 		}
 
 		modelName, ok := strings.CutPrefix(fn.Spec.Id, "product-")
@@ -133,7 +138,11 @@ func Write(ctx context.Context, sdkFuncs []*jsparsersdkfunc.SdkFunc) string {
 			writeln(&decl, "    dataset: req.input.dataset,")
 			writeln(&decl, "    modelName: \"%s\",", modelName)
 			writeln(&decl, "    params: req.input,")
-			writeln(&decl, "    partitions: req.partitions,")
+			if fn.Spec.Version != "" {
+				writeln(&decl, "    partitions: {\"version\": \"%s\", ...req.partitions},", fn.Spec.Version)
+			} else {
+				writeln(&decl, "    partitions: req.partitions,")
+			}
 			writeln(&decl, "  })")
 			writeln(&decl, "  return ret;")
 		default:
