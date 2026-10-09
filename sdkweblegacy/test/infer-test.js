@@ -8,7 +8,7 @@
             tfliteUrl: new URL('../src/infer/gen/model.tflite', location.href).href,
         }
         const base = { modelName: 'relevance-fashion-fbt', partitions: { store_id: 's1', version: 'v1' }, dataset: 'dectest' }
-        const cart = { cart_skus: [{ sku_id: '150' }, { sku_id: '77' }] }
+        const cart = { skus: [{ sku_id: '150' }, { sku_id: '77' }] }
 
         /** @type {import('../src/infer/infer.js').Infer} */
         let infer

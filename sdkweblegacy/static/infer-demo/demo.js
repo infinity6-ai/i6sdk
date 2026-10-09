@@ -22,7 +22,7 @@ function funcsRequest() {
     input: {
       dataset: text('dataset'),
       model_name: text('modelName'),
-      cart_skus: text('sku_ids').split(/[\s,]+/).filter(Boolean).map((sku_id) => ({ sku_id })),
+      skus: text('sku_ids').split(/[\s,]+/).filter(Boolean).map((sku_id) => ({ sku_id })),
     },
     partitions: { store_id: text('storeId'), version: text('modelVersion') },
   }
