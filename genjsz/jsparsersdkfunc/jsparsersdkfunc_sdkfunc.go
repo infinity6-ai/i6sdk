@@ -67,7 +67,7 @@ func ParseSdkFunc(fn sdkfuncz.Func) *SdkFunc {
 
 	if refs != nil {
 		validateDataRef(refs.Input, "Input")
-		validateDataRef(refs.Partitions, "Partitions")
+		validateDataRef(refs.ModelPartitions, "Partitions")
 		validateDataRef(refs.Output, "Output")
 
 		parseRefsV2 := func(out *jstypez.Typedef, suffix string, s *schemaz.Schema) {
@@ -85,7 +85,7 @@ func ParseSdkFunc(fn sdkfuncz.Func) *SdkFunc {
 		}
 
 		parseRefsV2(&ret.Req.Input, "input", refs.Input)
-		parseRefsV2(&ret.Req.Partitions, "partitions", refs.Partitions)
+		parseRefsV2(&ret.Req.Partitions, "partitions", refs.ModelPartitions)
 		parseRefsV2(&ret.Resp.Output, "output", refs.Output)
 	}
 

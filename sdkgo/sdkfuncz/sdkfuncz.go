@@ -12,9 +12,9 @@ const (
 )
 
 type DataRefs struct {
-	Input      *schemaz.Schema
-	Partitions *schemaz.Schema
-	Output     *schemaz.Schema
+	Input           *schemaz.Schema
+	ModelPartitions *schemaz.Schema
+	Output          *schemaz.Schema
 }
 
 type Spec struct {

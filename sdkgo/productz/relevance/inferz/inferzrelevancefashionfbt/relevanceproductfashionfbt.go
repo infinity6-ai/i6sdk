@@ -21,10 +21,10 @@ type Result struct {
 }
 
 type Req struct {
-	Dataset    lakedsz.Dataset
-	ModelName  string
-	Skus       []*Sku
-	Partitions Partitions
+	Dataset         lakedsz.Dataset
+	ModelName       string
+	Skus            []*Sku
+	ModelPartitions Partitions
 }
 
 type Resp struct {
@@ -69,11 +69,11 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 				}
 			},
 		},
-		Partitions: &schemaz.Schema{
+		ModelPartitions: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"version":  {Str: schemaz.ParseStr(&d.Req.Partitions.Version)},
-					"store_id": {Str: schemaz.ParseStr(&d.Req.Partitions.StoreId)},
+					"version":  {Str: schemaz.ParseStr(&d.Req.ModelPartitions.Version)},
+					"store_id": {Str: schemaz.ParseStr(&d.Req.ModelPartitions.StoreId)},
 				}
 			},
 		},
