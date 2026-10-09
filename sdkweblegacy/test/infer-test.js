@@ -7,7 +7,7 @@
             sqliteUrl: new URL('../src/infer/gen/sqlite.bin', location.href).href,
             tfliteUrl: new URL('../src/infer/gen/model.tflite', location.href).href,
         }
-        const base = { modelName: 'relevance-fashion-fbt', modelVersion: 'v1', storeId: 's1', dataset: 'dectest' }
+        const base = { modelName: 'relevance-fashion-fbt', partitions: { store_id: 's1', version: 'v1' }, dataset: 'dectest' }
         const cart = { cart_skus: [{ sku_id: '150' }, { sku_id: '77' }] }
 
         /** @type {import('../src/infer/infer.js').Infer} */
@@ -34,8 +34,11 @@
         QUnit.test("run validates its opts", async function (assert) {
             const ok = { ...base, params: cart, ...assets }
             await rejectsWithCode(assert, infer.run(), 'invalid_argument', /opts.modelName/)
-            for (const key of Object.keys(base)) {
+            for (const key of ['modelName', 'dataset']) {
                 await rejectsWithCode(assert, infer.run({ ...ok, [key]: '' }), 'invalid_argument', new RegExp(`opts.${key}`))
+            }
+            for (const partitions of [undefined, 'x', ['a'], { store_id: 1 }]) {
+                await rejectsWithCode(assert, infer.run({ ...ok, partitions }), 'invalid_argument', /opts.partitions/)
             }
         })
 
@@ -60,7 +63,7 @@
             if (!(await fetch(assets.tfliteUrl, { method: 'HEAD' })).ok) return assert.ok(true, 'skipped: no assets in src/infer/gen')
 
             const requests = []
-            const services = { apis: () => ({ modelzSignedGet: async (req) => {
+            const services = { apis: () => ({ dszModelGet: async (req) => {
                 requests.push(req)
                 return { ok: true, payload: { urls: [{ name: 'tflite.bin', url: assets.tfliteUrl }, { name: 'sqlite.bin', url: assets.sqliteUrl }] } }
             } }) }
@@ -70,10 +73,10 @@
             assert.strictEqual(result.results.length, 20, 'default limit')
             assert.deepEqual(requests, [{
                 params: { dataset: 'dectest', model_name: 'relevance-fashion-fbt' },
-                payload: { model_version: 'v1', model_partitions: { store_id: 's1' } },
+                payload: { model_version: 'v1', model_partitions: { store_id: 's1', version: 'v1' } },
             }])
 
-            const noSqlite = { apis: () => ({ modelzSignedGet: async () => ({ ok: true, payload: { urls: [] } }) }) }
+            const noSqlite = { apis: () => ({ dszModelGet: async () => ({ ok: true, payload: { urls: [] } }) }) }
             await rejectsWithCode(assert, new Infer(noSqlite).run({ ...base, params: cart }), 'asset', /no "sqlite.bin" file/)
         })
 

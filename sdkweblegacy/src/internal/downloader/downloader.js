@@ -42,6 +42,7 @@ class Downloader {
         // Create the version in the fs, the blob is not written by it
         const ref = await fs.create({ name: opts.name, etag, data: '' })
 
+        let success = false
         try {
             const response = await fetch(opts.url)
             if (!response.ok) throw new Error(`downloader: GET ${opts.url} failed (${response.status})`)
@@ -54,7 +55,7 @@ class Downloader {
                     : await dir.getDirectoryHandle(segment)
             }
             await response.body.pipeTo(await dir.createWritable())
-            success = true;
+            success = true
         } finally {
             if (!success) {
                 // Do not leave a half-written version behind
