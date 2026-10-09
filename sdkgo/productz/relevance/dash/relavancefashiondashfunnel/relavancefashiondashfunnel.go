@@ -29,7 +29,7 @@ type Result struct {
 type Req struct {
 	Dataset        lakedsz.Dataset
 	DashPartitions Partitions
-	Params         []*Params
+	Params         Params
 }
 
 type Resp struct {
@@ -56,20 +56,12 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 				return map[string]*schemaz.Schema{
 					"dataset": {Str: lakedsz.ParseStr(&d.Req.Dataset)},
 					"params": {
-						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Params, *Params]{
-							Slice:      func() *[]*Params { return &d.Req.Params },
-							NewElement: func(idx int) *Params { return &Params{} },
-							Get: func(idx int, element **Params) *schemaz.Schema {
-								return &schemaz.Schema{
-									Object: func(_ bool) map[string]*schemaz.Schema {
-										return map[string]*schemaz.Schema{
-											"min_year_month": {Str: schemaz.ParseStr(&(*element).MinYearMonth)},
-											"max_year_month": {Str: schemaz.ParseStr(&(*element).MaxYearMonth)},
-										}
-									},
-								}
-							},
-						}),
+						Object: func(_ bool) map[string]*schemaz.Schema {
+							return map[string]*schemaz.Schema{
+								"min_year_month": {Str: schemaz.ParseStr(&d.Req.Params.MinYearMonth)},
+								"max_year_month": {Str: schemaz.ParseStr(&d.Req.Params.MaxYearMonth)},
+							}
+						},
 					},
 				}
 			},
