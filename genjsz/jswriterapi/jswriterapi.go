@@ -7,15 +7,10 @@ import (
 	"strings"
 
 	"github.com/infinity6-ai/gox/commonz/errorz"
-	"go.code.infinity6.ai/platform/logz"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparserapi"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
-
-type tlogger logz.Type
-
-var logger = logz.Create(tlogger(true))
 
 var pathParamRe = regexp.MustCompile(`\{([A-Za-z0-9_]+)\}`)
 
