@@ -31,7 +31,7 @@ func WriteV2(ctx context.Context, apis []*jsparserapi.Api) string {
 	panic("implement it")
 }
 
-func Write(ctx context.Context, apis *jsparserapi.Apis) string {
+func WriteOLD(ctx context.Context, apis *jsparserapi.Apis) string {
 	if apis == nil {
 		return ""
 	}

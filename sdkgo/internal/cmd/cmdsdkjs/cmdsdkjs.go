@@ -38,7 +38,7 @@ func prepareGenerateJsCmd() *cobra.Command {
 			out := errorz.Check2(cmd.Flags().GetString("out"))
 			apis := sdkz.Apis()
 			parsedApis := jsparserapi.ParseApis(ctx, apis)
-			code := []byte(jswriterapi.Write(ctx, parsedApis))
+			code := []byte(jswriterapi.WriteOLD(ctx, parsedApis))
 			errorz.Check(filez.CreateParentDirs(out))
 			err := os.WriteFile(out, []byte(code), os.ModePerm)
 			errorz.Check(err)

@@ -19,7 +19,7 @@ func TestUnitWrite(t *testing.T) {
 
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
-		got := jswriterapi.Write(ctx, s.in)
+		got := jswriterapi.WriteOLD(ctx, s.in)
 		println(got)
 
 		require.Equal(t, s.want, got)
