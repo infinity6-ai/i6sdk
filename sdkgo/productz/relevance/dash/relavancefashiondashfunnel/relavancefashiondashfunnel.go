@@ -1,6 +1,10 @@
 package relavancefashiondashfunnel
 
-import "go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
+import (
+	"github.com/infinity6-ai/gox/schemaz/schemaz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
+)
 
 type Params struct {
 	MinYearMonth string
@@ -35,4 +39,77 @@ type Resp struct {
 type Func struct {
 	Req  Req
 	Resp Resp
+}
+
+func (d *Func) SdkFuncSpec() sdkfuncz.Spec {
+	return sdkfuncz.Spec{
+		Id:   "product-relevance-fashion-dash-funnel",
+		Typ:  sdkfuncz.TypClientQuery,
+		Desc: nil,
+	}
+}
+
+func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
+	return &sdkfuncz.DataRefs{
+		Input: &schemaz.Schema{
+			Object: func(_ bool) map[string]*schemaz.Schema {
+				return map[string]*schemaz.Schema{
+					"dataset": {Str: lakedsz.ParseStr(&d.Req.Dataset)},
+					"params": {
+						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Params, *Params]{
+							Slice:      func() *[]*Params { return &d.Req.Params },
+							NewElement: func(idx int) *Params { return &Params{} },
+							Get: func(idx int, element **Params) *schemaz.Schema {
+								return &schemaz.Schema{
+									Object: func(_ bool) map[string]*schemaz.Schema {
+										return map[string]*schemaz.Schema{
+											"min_year_month": {Str: schemaz.ParseStr(&(*element).MinYearMonth)},
+											"max_year_month": {Str: schemaz.ParseStr(&(*element).MaxYearMonth)},
+										}
+									},
+								}
+							},
+						}),
+					},
+				}
+			},
+		},
+		Partitions: &schemaz.Schema{
+			Object: func(read bool) map[string]*schemaz.Schema {
+				return map[string]*schemaz.Schema{
+					"version":  {Str: schemaz.ParseStr(&d.Req.DashPartitions.Version)},
+					"store_id": {Str: schemaz.ParseStr(&d.Req.DashPartitions.StoreId)},
+				}
+			},
+		},
+		Output: &schemaz.Schema{
+			Object: func(_ bool) map[string]*schemaz.Schema {
+				return map[string]*schemaz.Schema{
+					"results": {
+						Object: func(_ bool) map[string]*schemaz.Schema {
+							return map[string]*schemaz.Schema{
+								"rows": {
+									Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Row, *Row]{
+										Slice:      func() *[]*Row { return &d.Resp.Results.Rows },
+										NewElement: func(idx int) *Row { return &Row{} },
+										Get: func(idx int, element **Row) *schemaz.Schema {
+											return &schemaz.Schema{
+												Object: func(_ bool) map[string]*schemaz.Schema {
+													return map[string]*schemaz.Schema{
+														"event_type": {Str: schemaz.ParseStr(&(*element).EventType)},
+														"from_rec":   {Str: schemaz.ParseStr(&(*element).FromRec)},
+														"qt_events":  {Str: schemaz.ParseStr(&(*element).QtEvents)},
+													}
+												},
+											}
+										},
+									}),
+								},
+							}
+						},
+					},
+				}
+			},
+		},
+	}
 }

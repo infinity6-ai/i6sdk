@@ -6,6 +6,7 @@ import (
 	"slices"
 
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
+	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relavancefashiondashfunnel"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/inferz/inferzrelevancefashionfbt"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
 )
@@ -25,6 +26,7 @@ func init() {
 	}
 
 	add(&inferzrelevancefashionfbt.Func{})
+	add(&relavancefashiondashfunnel.Func{})
 }
 
 func SdkFuncs() []sdkfuncz.Func {
