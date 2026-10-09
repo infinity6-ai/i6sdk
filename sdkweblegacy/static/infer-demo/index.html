@@ -40,88 +40,56 @@
   <h1>infer demo <span class="badge">uses the SDK: new I6Sdk().funcs().productRelevanceFashionFbt(req)</span></h1>
 
   <div class="card">
-    <h2>Config <span class="badge">what an SDK user passes in opts</span></h2>
-    <label for="modelName">opts.modelName</label>
+    <h2>Config <span class="badge">what an SDK user passes in the request</span></h2>
+    <label for="modelName">input.model_name</label>
     <input type="text" id="modelName" value="relevance-fashion-fbt">
-    <label for="modelVersion">opts.modelVersion</label>
+    <label for="modelVersion">partitions.version</label>
     <input type="text" id="modelVersion" value="v1">
-    <label for="storeId">opts.storeId</label>
+    <label for="storeId">partitions.store_id</label>
     <input type="text" id="storeId" value="s1">
-    <label for="dataset">opts.dataset</label>
+    <label for="dataset">input.dataset</label>
     <input type="text" id="dataset" value="dectest">
-    <label for="sku_ids">opts.params.cart_skus (sku ids, comma separated; each becomes {sku_id})</label>
+    <label for="sku_ids">input.cart_skus (sku ids, comma separated; each becomes {sku_id})</label>
     <input type="text" id="sku_ids" value="150, 77, unknown-id">
-    <label for="sqliteUrl">opts.sqliteUrl (tests only; empty = discovered with the API, which needs a signed-in SDK)</label>
-    <input type="text" id="sqliteUrl">
-    <label for="tfliteUrl">opts.tfliteUrl (tests only; empty = discovered with the API)</label>
-    <input type="text" id="tfliteUrl">
     <div class="row" style="margin-top:8px">
-      <label style="margin:0"><input type="checkbox" id="full"> show full arrays (otherwise long arrays are cut)</label>
       <button id="login">Login (auth().requireUser())</button>
       <button id="clear">Clear OPFS cache</button>
-      <button id="dump">Dump sqlite (to the log)</button>
     </div>
   </div>
 
   <div class="card">
     <h2>SDK usage <span class="badge">the code an SDK user writes</span></h2>
-    <p class="hint">Step 7 runs exactly this. It follows the config above (the sqlite / tflite URL fields are not used: funcs always uses the model api).</p>
+    <p class="hint">The button below runs exactly this. It follows the config above.</p>
     <pre id="usage"></pre>
   </div>
 
-  <div class="card" id="step1">
-    <h2><button data-step="1">1. Download assets</button><span class="badge">idle</span></h2>
-    <p class="hint">downloader.update for the sqlite and the tflite: HEAD, etag check, download only if changed.</p>
-    <div class="io"><div><h3>Input</h3><pre class="in"></pre></div><div><h3>Output</h3><pre class="out"></pre></div></div>
-    <details><summary class="sqlh">Code this step runs</summary><pre class="code"></pre></details>
-  </div>
-
-  <div class="card" id="step2">
-    <h2><button data-step="2">2. Load runtime + compile model</button><span class="badge">idle</span></h2>
-    <p class="hint">LiteRT wasm and the compiled model. Output: the inputs and outputs the model declares.</p>
-    <div class="io"><div><h3>Input</h3><pre class="in"></pre></div><div><h3>Output</h3><pre class="out"></pre></div></div>
-    <details><summary class="sqlh">Code this step runs</summary><pre class="code"></pre></details>
-  </div>
-
-  <div class="card" id="step3">
-    <h2><button data-step="3">3. Input query (sqlite)</button><span class="badge">idle</span></h2>
-    <p class="hint">namedJsonQuery model-X-input with the params. The result is the ctx.</p>
-    <div class="io"><div><h3>Input</h3><pre class="in"></pre></div><div><h3>Output (ctx)</h3><pre class="out"></pre></div></div>
-    <h3 class="sqlh">Stored query (namedqueries table of the sqlite)</h3><pre class="sql"></pre>
-    <details><summary class="sqlh">Code this step runs</summary><pre class="code"></pre></details>
-  </div>
-
-  <div class="card" id="step4">
-    <h2><button data-step="4">4. Model inputs</button><span class="badge">idle</span></h2>
-    <p class="hint">The inputs the input query returned: plain rows by exact model input name. The SDK pads them to the model's shape in step 5.</p>
-    <div class="io"><div><h3>Input (ctx)</h3><pre class="in"></pre></div><div><h3>Output (inputs)</h3><pre class="out"></pre></div></div>
-    <details><summary class="sqlh">Code this step runs</summary><pre class="code"></pre></details>
-  </div>
-
-  <div class="card" id="step5">
-    <h2><button data-step="5">5. Run the model</button><span class="badge">idle</span></h2>
-    <p class="hint">infer.js turns the data + shapes into LiteRT tensors, runs the model and reads every output.</p>
-    <div class="io"><div><h3>Input (data + shapes)</h3><pre class="in"></pre></div><div><h3>Output</h3><pre class="out"></pre></div></div>
-    <details><summary class="sqlh">Code this step runs</summary><pre class="code"></pre></details>
-  </div>
-
-  <div class="card" id="step6">
-    <h2><button data-step="6">6. Output query (sqlite)</button><span class="badge">idle</span></h2>
-    <p class="hint">namedJsonQuery model-X-output with {params, ctx, outputs}: ranking and mapping in SQL.</p>
-    <div class="io"><div><h3>Input</h3><pre class="in"></pre></div><div><h3>Output (result)</h3><pre class="out"></pre></div></div>
-    <h3 class="sqlh">Stored query (namedqueries table of the sqlite)</h3><pre class="sql"></pre>
-    <details><summary class="sqlh">Code this step runs</summary><pre class="code"></pre></details>
-  </div>
-
-  <div class="card" id="step7">
-    <h2><button data-step="7" class="primary">Run all with the SDK</button><span class="badge">idle</span></h2>
+  <div class="card" id="step">
+    <h2><button id="run" class="primary">Run with the SDK</button><span class="badge">idle</span></h2>
     <p class="hint">new I6Sdk().funcs().productRelevanceFashionFbt(req), the real code path.</p>
-    <div class="io"><div><h3>Input (opts)</h3><pre class="in"></pre></div><div><h3>Output (result)</h3><pre class="out"></pre></div></div>
-    <details><summary class="sqlh">Code this step runs</summary><pre class="code"></pre></details>
+    <div class="io"><div><h3>Input (req)</h3><pre class="in"></pre></div><div><h3>Output (result)</h3><pre class="out"></pre></div></div>
   </div>
 
   <div class="card">
-    <h2>Log <span class="badge">console.log of infer.js and the steps</span> <button id="clearlog">Clear</button></h2>
+    <h2>Dash <span class="badge">new I6Sdk().funcs().productRelevanceFashionDashFunnel(req)</span></h2>
+    <label for="dashDataset">input.dataset</label>
+    <input type="text" id="dashDataset" value="dectest">
+    <label for="dashStoreId">partitions.store_id</label>
+    <input type="text" id="dashStoreId" value="s1">
+    <label for="dashVersion">partitions.version</label>
+    <input type="text" id="dashVersion" value="v1">
+    <label for="minYearMonth">input.params.min_year_month</label>
+    <input type="text" id="minYearMonth" value="2024-01">
+    <label for="maxYearMonth">input.params.max_year_month</label>
+    <input type="text" id="maxYearMonth" value="2024-03">
+    <label for="dashSqliteUrl">sqlite url (demo only; the example sqlite is made by make_dash_example.py. Empty = discovered with the model API, which needs a signed-in SDK)</label>
+    <input type="text" id="dashSqliteUrl" value="/static/infer-demo/dash-example.sqlite">
+    <pre id="dashUsage" style="margin-top:8px"></pre>
+    <div class="row" style="margin-top:8px"><button id="dashRun" class="primary">Run the dash</button><span class="badge" id="dashBadge">idle</span></div>
+    <div class="io"><div><h3>Input (req)</h3><pre id="dashIn"></pre></div><div><h3>Output (result)</h3><pre id="dashOut"></pre></div></div>
+  </div>
+
+  <div class="card">
+    <h2>Log <span class="badge">console.log of infer.js and dash.js</span> <button id="clearlog">Clear</button></h2>
     <pre id="log" style="max-height:420px"></pre>
   </div>
 

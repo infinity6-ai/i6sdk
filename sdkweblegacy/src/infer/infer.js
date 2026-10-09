@@ -10,7 +10,7 @@
  */
 
 import { I6Error } from "../errors.js";
-import { downloader } from "../internal/downloader/downloader.js";
+import { downloadFile, isPartitions, partitionsKey } from "../internal/assets/assets.js";
 import { fs } from "../internal/fs/fs.js";
 import { sqlitez } from "../internal/sqlitez/sqlitez.js";
 import { describeModel, loadModel, runModel } from "./litert.js";
@@ -72,10 +72,8 @@ class Infer {
     const queryName = (kind) => `model-${modelName}-${kind}`
 
     // 1. Get the model files
-    const urls = await this.assetUrls(opts)
-    const partitions = Object.entries(opts.partitions).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
-      .map(([key, value]) => encodeURIComponent(`${key}=${value}`)).join("-")
-    const cacheName = (kind) => `infer-${modelName}-${partitions}-${opts.modelVersion}-${kind}`
+    const urls = await this._assetUrls(opts)
+    const cacheName = (kind) => `infer-${modelName}-${partitionsKey(opts.partitions)}-${kind}`
     const [sqliteRef, tfliteRef] = await Promise.all([
       downloadFile(cacheName("sqlite"), urls.sqlite),
       downloadFile(cacheName("tflite"), urls.tflite),
@@ -105,12 +103,12 @@ class Infer {
 
   /**
    * Finds where the model files are: the signed URLs of the model API, unless opts has both URLs (tests).
-   * Also used by the demo page, which runs the steps one by one.
+   * @private
    * @param {InferOptions} opts - Inference options.
    * @returns {Promise<{sqlite: string, tflite: string}>} Download URLs of the files.
    * @throws {I6Error} With code "asset" if the API gave no URL for a file.
    */
-  async assetUrls(opts) {
+  async _assetUrls(opts) {
     if (opts.sqliteUrl) return { sqlite: opts.sqliteUrl, tflite: opts.tfliteUrl }
 
     const { modelName, partitions, dataset } = opts
@@ -137,10 +135,7 @@ function validate(opts) {
     if (!opts || !opts[key]) throw new I6Error(`infer: opts.${key} is required`, { code: "invalid_argument" })
   }
 
-  console.log("opts", opts)
-  const parts = opts.partitions
-  console.log("parts", parts)
-  if (!parts || typeof parts !== "object" || Array.isArray(parts) || Object.values(parts).some((v) => typeof v !== "string")) {
+  if (!isPartitions(opts.partitions)) {
     throw new I6Error("infer: opts.partitions must be an object of string values", { code: "invalid_argument" })
   }
   if (opts.params === undefined) throw new I6Error("infer: opts.params is required", { code: "invalid_argument" })
@@ -153,7 +148,7 @@ function validate(opts) {
 }
 
 /**
- * The values bound to the output query (also used by the demo page): `?1` the model outputs as `{name: {values: [...]}}` (plain arrays, which JSON
+ * The values bound to the output query: `?1` the model outputs as `{name: {values: [...]}}` (plain arrays, which JSON
  * can hold), `?2` the limit.
  * @param {Record<string, ArrayLike<number>>} outputs - Model outputs (typed arrays).
  * @param {InferOptions} opts - Inference options.
@@ -164,21 +159,4 @@ function outputQueryParams(outputs, opts) {
   return [Object.fromEntries(named), opts.limit ?? DEFAULT_LIMIT]
 }
 
-/**
- * Brings one remote file to the browser cache, downloading it only if its etag changed.
- * @param {string} name - Name of the cached file.
- * @param {string} url - URL of the file.
- * @returns {Promise<FileRef>} The cached file.
- * @throws {I6Error} With code "asset" if the download fails.
- */
-async function downloadFile(name, url) {
-  try {
-    const ref = await downloader.update({ name, url })
-    debug(`${name} is ready`, ref)
-    return ref
-  } catch (cause) {
-    throw new I6Error(`infer: could not get ${url}: ${cause.message}`, { code: "asset", cause })
-  }
-}
-
-export { Infer, outputQueryParams };
+export { Infer };

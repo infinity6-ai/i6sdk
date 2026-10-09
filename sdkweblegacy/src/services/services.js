@@ -7,6 +7,7 @@ import { Auth } from "../auth/auth.js";
 import { Ingest } from "../ingest/ingest.js";
 import { Apis, SdkFuncs } from "../sdkapis/sdkapis.js";
 import { Infer } from "../infer/infer.js";
+import { Dash } from "../dash/dash.js";
 
 /**
  * @typedef {import("../index.js").I6SdkConfig} I6SdkConfig
@@ -91,6 +92,18 @@ class Services {
      */
     infer() {
         const ret = new Infer(this)
+        if (ret.prepare) {
+            ret.prepare()
+        }
+        return ret
+    }
+
+    /**
+     * Creates and returns a Dash service instance.
+     * @returns {Dash} An instance of the Dash client.
+     */
+    dash() {
+        const ret = new Dash(this)
         if (ret.prepare) {
             ret.prepare()
         }
