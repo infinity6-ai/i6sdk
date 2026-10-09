@@ -7,5 +7,5 @@ import (
 )
 
 func Write(ctx context.Context, apis *jsparsersdkfunc.SdkFuncs) string {
-	panic("hgdfhgudfuig")
+	panic("not implemented")
 }
