@@ -55,7 +55,7 @@ func TestUnitWrite(t *testing.T) {
 
   /**
    * @param {sdkFuncProductRelevanceFashionFbtReq} req
-   * @returns {Promise<sdkFuncProductRelevanceFashionFbtResp>}
+   * @returns {Promise<sdkFuncProductRelevanceFashionFbtOutput>}
    */
   async productRelevanceFashionFbtV1(req) {
     const infer = this._services.infer()

@@ -27,7 +27,7 @@ import { describeModel, loadModel, runModel } from "./litert.js";
  * @property {string} modelVersion - Model version (e.g. "v1").
  * @property {Object<string, string>} partitions - Partitions of the model, name -> value (e.g. `{ store_id: "s1" }`). Any partitions.
  * @property {string} dataset - Dataset that holds the model files.
- * @property {*} params - Model input, any JSON (e.g. `{ cart_skus: [...] }`). Bound as `?1` of the input query.
+ * @property {*} params - Model input, any JSON (e.g. `{ skus: [...] }`). Bound as `?1` of the input query.
  * @property {number} [limit] - Max number of results asked from the output query (its `?2`). Default 20.
  * @property {string} [sqliteUrl] - Tests only, together with `tfliteUrl`: URL of the sqlite (must answer HEAD with an etag). Default: the model API.
  * @property {string} [tfliteUrl] - Tests only, together with `sqliteUrl`: URL of the tflite.
