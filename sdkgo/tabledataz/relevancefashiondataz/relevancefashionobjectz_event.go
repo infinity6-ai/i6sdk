@@ -11,7 +11,7 @@ import (
 
 type Event struct {
 	ID             string              `json:"id" bigquery:"id"`
-	Dataset        bigquery.NullString `json:"dataset" bigquery:"dataset,nullable"`
+	Dataset        bigquery.NullString `json:"dataset" bigquery:"dataset"`
 	StoreId        string              `json:"store_id" bigquery:"store_id"`
 	SessionId      string              `json:"session_id" bigquery:"session_id"`
 	UserId         string              `json:"user_id" bigquery:"user_id"`

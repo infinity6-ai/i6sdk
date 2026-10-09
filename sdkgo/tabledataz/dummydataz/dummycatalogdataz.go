@@ -9,7 +9,7 @@ import (
 
 type Catalog struct {
 	Id          string              `json:"id" bigquery:"id"`
-	Dataset     bigquery.NullString `json:"dataset" bigquery:"dataset,nullable"`
+	Dataset     bigquery.NullString `json:"dataset" bigquery:"dataset"`
 	Product     string              `json:"product" bigquery:"product"`
 	Price       float64             `json:"price" bigquery:"price"`
 	QtInventory int64               `json:"qt_inventory" bigquery:"qt_inventory"`
