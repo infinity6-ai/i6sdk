@@ -42,14 +42,14 @@ func TestUnitDummyCatalogDataSerialization(t *testing.T) {
 				"product": "Dummy Shirt",
 				"price": 29.99,
 				"qt_inventory": 150,
-				"store": "Dummy Store A"
+				"store_id": "Dummy Store A"
 			}`,
 			catalog: dummydataz.Catalog{
 				Id:          "dummy_123",
 				Product:     "Dummy Shirt",
 				Price:       29.99,
 				QtInventory: 150,
-				Store:       "Dummy Store A",
+				StoreId:     "Dummy Store A",
 			},
 		})
 	})
@@ -61,14 +61,14 @@ func TestUnitDummyCatalogDataSerialization(t *testing.T) {
 				"product": "Free Sticker",
 				"price": 0.0,
 				"qt_inventory": 0,
-				"store": "Dummy Store B"
+				"store_id": "Dummy Store B"
 			}`,
 			catalog: dummydataz.Catalog{
 				Id:          "dummy_456",
 				Product:     "Free Sticker",
 				Price:       0.0,
 				QtInventory: 0,
-				Store:       "Dummy Store B",
+				StoreId:     "Dummy Store B",
 			},
 		})
 	})
@@ -97,7 +97,7 @@ func TestUnitDummyCatalogDataSchema(t *testing.T) {
 		require.Contains(t, propMap, "qt_inventory")
 		require.Equal(t, jstypez.TypNumber, propMap["qt_inventory"].Typ)
 
-		require.Contains(t, propMap, "store")
-		require.Equal(t, jstypez.TypString, propMap["store"].Typ)
+		require.Contains(t, propMap, "store_id")
+		require.Equal(t, jstypez.TypString, propMap["store_id"].Typ)
 	})
 }

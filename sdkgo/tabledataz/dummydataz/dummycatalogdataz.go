@@ -10,7 +10,7 @@ type Catalog struct {
 	Product     string  `json:"product" bigquery:"product"`
 	Price       float64 `json:"price" bigquery:"price"`
 	QtInventory int64   `json:"qt_inventory" bigquery:"qt_inventory"`
-	Store       string  `json:"store" bigquery:"store"`
+	StoreId     string  `json:"store_id" bigquery:"store_id"`
 }
 
 func (u *Catalog) Table() laketbnamez.TableName {
@@ -33,8 +33,8 @@ func (u *Catalog) Schema() *schemaz.Schema {
 				"qt_inventory": {
 					Raw: func() any { return &u.QtInventory },
 				},
-				"store": {
-					Raw: func() any { return &u.Store },
+				"store_id": {
+					Raw: func() any { return &u.StoreId },
 				},
 			}
 		},
