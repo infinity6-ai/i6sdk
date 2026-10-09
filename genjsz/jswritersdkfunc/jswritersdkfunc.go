@@ -9,6 +9,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparsersdkfunc"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
+	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
 )
 
 func writeln(sb *strings.Builder, msg string, args ...any) {
@@ -120,13 +121,26 @@ func Write(ctx context.Context, sdkFuncs []*jsparsersdkfunc.SdkFunc) string {
 		} else {
 			writeln(&decl, "async %s() {", funcName(funcId))
 		}
-		
-		if hasReq {
-			writeln(&decl, "  console.log(req);")
-		} else {
-			writeln(&decl, "  console.log(\"no req\");")
+
+		switch fn.Spec.Typ {
+		case sdkfuncz.TypClientInfer:
+			writeln(&decl, "  const infer = this._services.infer()")
+			writeln(&decl, "  const ret = await infer.run({")
+			writeln(&decl, "    dataset: req.input.dataset,")
+			writeln(&decl, "    modelName: req.input.model_name,")
+			writeln(&decl, "    modelVersion: req.partitions.version,")
+			writeln(&decl, "    params: req.input,")
+			writeln(&decl, "    storeId: req.partitions.store_id,")
+			writeln(&decl, "  })")
+			writeln(&decl, "  return ret;")
+		default:
+			if hasReq {
+				writeln(&decl, "  console.log(req);")
+			} else {
+				writeln(&decl, "  console.log(\"no req\");")
+			}
+			writeln(&decl, "  return {};")
 		}
-		writeln(&decl, "  return {};")
 		writeln(&decl, "}")
 		
 		writeln(&b, "%s", indent(decl.String(), "  "))
