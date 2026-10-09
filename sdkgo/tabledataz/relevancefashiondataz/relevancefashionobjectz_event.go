@@ -25,12 +25,16 @@ type Event struct {
 	P              string           `json:"p" bigquery:"p"`
 }
 
-func (u *Event) Table() laketbnamez.TableName {
+func (e *Event) Table() laketbnamez.TableName {
 	return laketbnamez.MustParse("relevance-fashion-event")
 }
 
-func (u *Event) SetDataset(ds *lakedsz.Dataset) {
-	u.Dataset = ds
+func (e *Event) SetDataset(ds *lakedsz.Dataset) {
+	e.Dataset = ds
+}
+
+func (e *Event) SetP(p string) {
+	e.P = p
 }
 
 type Click struct {
@@ -201,104 +205,104 @@ func (u *Recshow) Schema() *schemaz.Schema {
 	}
 }
 
-func (u *Event) Schema() *schemaz.Schema {
+func (e *Event) Schema() *schemaz.Schema {
 	return &schemaz.Schema{
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"id": {
-					Raw: func() any { return &u.ID },
+					Raw: func() any { return &e.ID },
 				},
 				"store_id": {
-					Raw: func() any { return &u.StoreId },
+					Raw: func() any { return &e.StoreId },
 				},
 				"session_id": {
-					Raw: func() any { return &u.SessionId },
+					Raw: func() any { return &e.SessionId },
 				},
 				"user_id": {
-					Raw: func() any { return &u.UserId },
+					Raw: func() any { return &e.UserId },
 				},
 				"click": {
 					Object: func(read bool) map[string]*schemaz.Schema {
-						if read && u.Click == nil {
+						if read && e.Click == nil {
 							return nil
 						}
-						if u.Click == nil {
-							u.Click = &Click{}
+						if e.Click == nil {
+							e.Click = &Click{}
 						}
-						return u.Click.Schema().Object(read)
+						return e.Click.Schema().Object(read)
 					},
 				},
 				"add_to_cart": {
 					Object: func(read bool) map[string]*schemaz.Schema {
-						if read && u.AddToCart == nil {
+						if read && e.AddToCart == nil {
 							return nil
 						}
-						if u.AddToCart == nil {
-							u.AddToCart = &AddToCart{}
+						if e.AddToCart == nil {
+							e.AddToCart = &AddToCart{}
 						}
-						return u.AddToCart.Schema().Object(read)
+						return e.AddToCart.Schema().Object(read)
 					},
 				},
 				"remove_from_cart": {
 					Object: func(read bool) map[string]*schemaz.Schema {
-						if read && u.RemoveFromCart == nil {
+						if read && e.RemoveFromCart == nil {
 							return nil
 						}
-						if u.RemoveFromCart == nil {
-							u.RemoveFromCart = &RemoveFromCart{}
+						if e.RemoveFromCart == nil {
+							e.RemoveFromCart = &RemoveFromCart{}
 						}
-						return u.RemoveFromCart.Schema().Object(read)
+						return e.RemoveFromCart.Schema().Object(read)
 					},
 				},
 				"search": {
 					Object: func(read bool) map[string]*schemaz.Schema {
-						if read && u.Search == nil {
+						if read && e.Search == nil {
 							return nil
 						}
-						if u.Search == nil {
-							u.Search = &Search{}
+						if e.Search == nil {
+							e.Search = &Search{}
 						}
-						return u.Search.Schema().Object(read)
+						return e.Search.Schema().Object(read)
 					},
 				},
 				"purchase": {
 					Object: func(read bool) map[string]*schemaz.Schema {
-						if read && u.Purchase == nil {
+						if read && e.Purchase == nil {
 							return nil
 						}
-						if u.Purchase == nil {
-							u.Purchase = &Purchase{}
+						if e.Purchase == nil {
+							e.Purchase = &Purchase{}
 						}
-						return u.Purchase.Schema().Object(read)
+						return e.Purchase.Schema().Object(read)
 					},
 				},
 				"recraw": {
 					Object: func(read bool) map[string]*schemaz.Schema {
-						if read && u.Recraw == nil {
+						if read && e.Recraw == nil {
 							return nil
 						}
-						if u.Recraw == nil {
-							u.Recraw = &Recraw{}
+						if e.Recraw == nil {
+							e.Recraw = &Recraw{}
 						}
-						return u.Recraw.Schema().Object(read)
+						return e.Recraw.Schema().Object(read)
 					},
 				},
 				"recshow": {
 					Object: func(read bool) map[string]*schemaz.Schema {
-						if read && u.Recshow == nil {
+						if read && e.Recshow == nil {
 							return nil
 						}
-						if u.Recshow == nil {
-							u.Recshow = &Recshow{}
+						if e.Recshow == nil {
+							e.Recshow = &Recshow{}
 						}
-						return u.Recshow.Schema().Object(read)
+						return e.Recshow.Schema().Object(read)
 					},
 				},
 				"created_at": {
-					Raw: func() any { return &u.CreatedAt },
+					Raw: func() any { return &e.CreatedAt },
 				},
 				"p": {
-					Raw: func() any { return &u.P },
+					Raw: func() any { return &e.P },
 				},
 			}
 		},

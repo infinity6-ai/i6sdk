@@ -13,6 +13,7 @@ type Catalog struct {
 	Price       float64          `json:"price" bigquery:"price"`
 	QtInventory int64            `json:"qt_inventory" bigquery:"qt_inventory"`
 	StoreId     string           `json:"store_id" bigquery:"store_id"`
+	P           string           `json:"p" bigquery:"p"`
 }
 
 func (c *Catalog) Table() laketbnamez.TableName {
@@ -21,6 +22,10 @@ func (c *Catalog) Table() laketbnamez.TableName {
 
 func (c *Catalog) SetDataset(ds *lakedsz.Dataset) {
 	c.Dataset = ds
+}
+
+func (c *Catalog) SetP(p string) {
+	c.P = p
 }
 
 func (c *Catalog) Schema() *schemaz.Schema {

@@ -25,6 +25,10 @@ func (c *Catalog) SetDataset(ds *lakedsz.Dataset) {
 	c.Dataset = ds
 }
 
+func (c *Catalog) SetP(p string) {
+	c.P = p
+}
+
 func (c *Catalog) Schema() *schemaz.Schema {
 	return &schemaz.Schema{
 		Object: func(read bool) map[string]*schemaz.Schema {
@@ -46,9 +50,6 @@ func (c *Catalog) Schema() *schemaz.Schema {
 				},
 				"inactive": {
 					Raw: func() any { return &c.Inactive },
-				},
-				"p": {
-					Raw: func() any { return &c.P },
 				},
 			}
 		},

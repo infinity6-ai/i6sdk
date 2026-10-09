@@ -5,6 +5,7 @@ import (
 
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
+	"go.code.infinity6.ai/platform/util/datez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz/relevancefashiondataz"
@@ -42,6 +43,7 @@ func (d *Api[T]) ApiSpec() apiz.ApiSpec {
 }
 
 func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
+	now := datez.NowTZ()
 	return &apiz.DataRefs{
 		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
@@ -72,6 +74,7 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 							},
 							Get: func(idx int, element *T) *schemaz.Schema {
 								(*element).SetDataset(&d.Req.Dataset)
+								(*element).SetP(now)
 								return (*element).Schema()
 							},
 						}),

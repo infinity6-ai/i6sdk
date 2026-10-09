@@ -481,8 +481,5 @@ func TestUnitCatalogSchema(t *testing.T) {
 
 		require.Contains(t, propMap, "inactive")
 		require.Equal(t, "boolean", propMap["inactive"].Typ)
-
-		require.Contains(t, propMap, "p")
-		require.Equal(t, "string", propMap["p"].Typ)
 	})
 }
