@@ -2,6 +2,7 @@ package jswriter
 
 import (
 	"context"
+	"strings"
 
 	"go.code.infinity6.ai/platform/logz"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparserapi"
@@ -43,7 +44,11 @@ func (js jsgenerator) Prepare(ctx context.Context, opts Options) {
 func Write(ctx context.Context, opts Options) {
 	var js jsgenerator
 	js.Prepare(ctx, opts)
-	jswritertypedef.Write(ctx, js.Typedefs)
-	jswriterapi.WriteV2(ctx, js.Apis)
-	jswritersdkfunc.Write(ctx, js.SdkFuncs)
+	var code strings.Builder
+	code.WriteString(" //\n // typedefs\n //\n")
+	code.WriteString(jswritertypedef.Write(ctx, js.Typedefs))
+	code.WriteString(" //\n // apis\n //\n")
+	code.WriteString(jswriterapi.WriteV2(ctx, js.Apis))
+	code.WriteString(" //\n // typedefs\n //\n")
+	code.WriteString(jswritersdkfunc.Write(ctx, js.SdkFuncs))
 }
