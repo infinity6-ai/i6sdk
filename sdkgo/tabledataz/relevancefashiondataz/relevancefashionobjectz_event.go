@@ -1,4 +1,4 @@
-package relevancefashionobjectz
+package relevancefashiondataz
 
 import (
 	"time"
@@ -20,6 +20,7 @@ type Event struct {
 	Recraw         *Recraw         `json:"recraw,omitempty" bigquery:"recraw,nullable"`
 	Recshow        *Recshow        `json:"recshow,omitempty" bigquery:"recshow,nullable"`
 	CreatedAt      time.Time       `json:"created_at" bigquery:"created_at"`
+	P              string          `json:"p" bigquery:"p"`
 }
 
 type Click struct {
@@ -289,6 +290,9 @@ func (u *Event) Schema() *schemaz.Schema {
 				},
 				"created_at": {
 					Raw: func() any { return &u.CreatedAt },
+				},
+				"p": {
+					Raw: func() any { return &u.P },
 				},
 			}
 		},
