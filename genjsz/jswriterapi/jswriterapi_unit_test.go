@@ -19,7 +19,11 @@ func TestUnitWrite(t *testing.T) {
 
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
-		got := jswriterapi.WriteOLD(ctx, s.in)
+		var apisList []*jsparserapi.Api
+		if s.in != nil {
+			apisList = s.in.Apis
+		}
+		got := jswriterapi.WriteV2(ctx, apisList)
 		println(got)
 
 		require.Equal(t, s.want, got)
@@ -35,103 +39,13 @@ func TestUnitWrite(t *testing.T) {
 	t.Run("empty apis", func(t *testing.T) {
 		check(t, testScenario{
 			in: &jsparserapi.Apis{},
-			want: `/**
- * @typedef {import("../services/services.js").Services} Services
- */
-
-`,
+			want: ``,
 		})
 	})
 
 	t.Run("with multiple path params and extra request fields", func(t *testing.T) {
 		apis := jsparserapi.ParseApis(ctx, []apiz.Api{routezsamplefraction.NewService().Api()})
-		want := `/**
- * @typedef {import("../services/services.js").Services} Services
- */
-
-/**
- * apiSampleFraction params
- * @typedef {object} apiSampleFractionParams
- * @property {number} denominator - Fraction Denominator
- * @property {number} numerator - Fraction Numerator
- */
-
-/**
- * apiSampleFraction query
- * @typedef {object} apiSampleFractionQuery
- * @property {number} precision - Fraction max precision
- */
-
-/**
- * apiSampleFraction Request
- * @typedef {object} apiSampleFractionReq
- * @property {apiSampleFractionParams} params
- * @property {apiSampleFractionQuery} query
- * @property {apiSampleFractionReqHeaders} headers
- * @property {apiSampleFractionReqPayload} payload
- */
-
-/**
- * apiSampleFraction reqHeaders
- * @typedef {object} apiSampleFractionReqHeaders
- * @property {string} x_i6_trace_id - Sample of Trace Id
- */
-
-/**
- * apiSampleFraction reqPayload
- * @typedef {object} apiSampleFractionReqPayload
- * @property {Array<apiSampleFractionReqPayloadMessagesElement>} messages
- * @property {string} reason - Sample reason of this fraction
- */
-
-/**
- * message
- * @typedef {object} apiSampleFractionReqPayloadMessagesElement
- * @property {string} message - message string
- */
-
-/**
- * apiSampleFraction Response
- * @typedef {object} apiSampleFractionResp
- * @property {apiSampleFractionRespHeaders} headers
- * @property {apiSampleFractionRespPayload} payload
- */
-
-/**
- * apiSampleFraction respHeaders
- * @typedef {object} apiSampleFractionRespHeaders
- * @property {string} x_i6_trace_message - Sample of any trace message
- */
-
-/**
- * apiSampleFraction respPayload
- * @typedef {object} apiSampleFractionRespPayload
- * @property {string} display - Human Fraction Representation
- * @property {Array<apiSampleFractionRespPayloadMessagesElement>} messages - Output Messages
- * @property {string} result - Fraction Result
- */
-
-/**
- * @typedef {string} apiSampleFractionRespPayloadMessagesElement
- */
-
-/**
- * @typedef {object} dszFileStat
- * @property {string} url - missing summary
- * @property {string} content_type - missing summary
- * @property {string} md5 - missing summary
- * @property {string} size - missing summary
- * @property {string} etag - missing summary
- * @property {dszTime} created_at - missing summary
- * @property {dszTime} updated_at - missing summary
- */
-
-/**
- * Missing Summary
- * @typedef {string} dszTime
- */
-
-class Apis {
+		want := `class Apis {
 
   /**
    * Constructs an Ingest client instance.

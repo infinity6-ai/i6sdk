@@ -10,7 +10,6 @@ import (
 	"go.code.infinity6.ai/platform/logz"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparserapi"
-	"go.code.infinity6.ai/sdkgo/genjsz/jstypedefwriter"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
@@ -27,49 +26,30 @@ func writeln(sb *strings.Builder, msg string, args ...any) {
 	errorz.Check(err)
 }
 
-func WriteV2(ctx context.Context, apis []*jsparserapi.Api) string {
-	panic("implement it")
-}
-
-func WriteOLD(ctx context.Context, apis *jsparserapi.Apis) string {
-	if apis == nil {
-		return ""
-	}
-
-	var b strings.Builder
-
-	allTdfs := &jstypez.Typedefs{}
-	allTdfs.Add(apis.Typedefs.All()...)
-
-	for _, api := range apis.Apis {
-		logger.Info(ctx, "genereating js sdk api", map[string]any{"api": api.Spec.Id})
-		allTdfs.Add(api.Typedefs.All()...)
-
+func ExtractTypedefs(apis []*jsparserapi.Api) jstypez.Typedefs {
+	tdfs := jstypez.Typedefs{}
+	for _, api := range apis {
 		apiId := api.Spec.CamelId
 		reqTypedef, hasReq := buildReqTypedef(apiId, api)
 		respTypedef := buildRespTypedef(apiId, api)
 
 		if hasReq {
-			allTdfs.Add(&reqTypedef)
+			tdfs.Add(&reqTypedef)
 		}
-		allTdfs.Add(&respTypedef)
+		tdfs.Add(&respTypedef)
+	}
+	return tdfs
+}
+
+func WriteV2(ctx context.Context, apis []*jsparserapi.Api) string {
+	if len(apis) == 0 {
+		return ""
 	}
 
-	writeln(&b, "/**")
-	writeln(&b, " * @typedef {import(\"../services/services.js\").Services} Services")
-	writeln(&b, " */")
-	writeln(&b, "")
-	if tdfs := jstypedefwriter.Write(allTdfs); tdfs != "" {
-		writeln(&b, "%s", strings.TrimSuffix(tdfs, "\n"))
-	}
-
-	if len(apis.Apis) == 0 {
-		return b.String()
-	}
+	var b strings.Builder
 
 	writeln(&b, "class Apis {")
 	writeln(&b, "")
-
 	writeln(&b, "  /**")
 	writeln(&b, "   * Constructs an Ingest client instance.")
 	writeln(&b, "   * @param {Services} services - The services manager instance.")
@@ -83,7 +63,7 @@ func WriteOLD(ctx context.Context, apis *jsparserapi.Apis) string {
 	writeln(&b, "  }")
 	writeln(&b, "")
 
-	for idx, api := range apis.Apis {
+	for idx, api := range apis {
 		if idx > 0 {
 			writeln(&b, "")
 		}
