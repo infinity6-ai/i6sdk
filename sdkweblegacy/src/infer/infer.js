@@ -113,10 +113,10 @@ class Infer {
   async assetUrls(opts) {
     if (opts.sqliteUrl) return { sqlite: opts.sqliteUrl, tflite: opts.tfliteUrl }
 
-    const { modelName, modelVersion, partitions, dataset } = opts
+    const { modelName, partitions, dataset } = opts
     const resp = await this._services.apis().dszModelGet({
       params: { dataset, model_name: modelName },
-      payload: { model_version: modelVersion, model_partitions: partitions },
+      payload: { model_version: opts.partitions.version, model_partitions: partitions },
     })
 
     const byName = Object.fromEntries((resp.payload?.urls ?? []).map((file) => [file.name, file.url]))
