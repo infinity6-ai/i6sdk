@@ -69,7 +69,7 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 				}
 			},
 		},
-		ModelPartitions: &schemaz.Schema{
+		Partitions: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
 					"version":  {Str: schemaz.ParseStr(&d.Req.ModelPartitions.Version)},

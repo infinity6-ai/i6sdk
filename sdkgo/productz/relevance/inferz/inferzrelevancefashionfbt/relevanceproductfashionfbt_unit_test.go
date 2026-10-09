@@ -75,7 +75,7 @@ func TestUnitInferzRelevanceFashionFbtDataRefs(t *testing.T) {
 	refs := fn.SdkFuncDataRefs()
 	require.NotNil(t, refs)
 	require.NotNil(t, refs.Input)
-	require.NotNil(t, refs.ModelPartitions)
+	require.NotNil(t, refs.Partitions)
 	require.NotNil(t, refs.Output)
 
 	tdInput, tdsInput := jsparser.ParseSchema("fbtInput", refs.Input)
@@ -109,7 +109,7 @@ func TestUnitInferzRelevanceFashionFbtDataRefs(t *testing.T) {
 	require.Contains(t, skusElemProps, "sku_id")
 	require.Equal(t, "string", skusElemProps["sku_id"].Typ)
 
-	tdPartitions, tdsPartitions := jsparser.ParseSchema("fbtPartitions", refs.ModelPartitions)
+	tdPartitions, tdsPartitions := jsparser.ParseSchema("fbtPartitions", refs.Partitions)
 	require.NotNil(t, tdPartitions)
 	require.Equal(t, "fbtPartitions", tdPartitions.Head.Name)
 	require.Equal(t, "object", tdPartitions.Head.Typ)
