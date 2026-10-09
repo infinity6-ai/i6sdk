@@ -28,11 +28,11 @@ func (js jsgenerator) Prepare(ctx context.Context, opts Options) {
 	js.Apis = opts.Apis
 	js.SdkFuncs = opts.SdkFuncs
 	for _, element := range js.Apis {
-		logger.Info(ctx, "parsing js api", map[string]any{"func": element.Spec.Id})
+		logger.Info(ctx, "parsing js api", map[string]any{"spec": element.Spec.Id})
 		js.Typedefs.Merge(element.Typedefs)
 	}
 	for _, element := range js.SdkFuncs {
-		logger.Info(ctx, "parsing js sdk func", map[string]any{"func": element.Spec.Id})
+		logger.Info(ctx, "parsing js sdk func", map[string]any{"spec": element.Spec.Id})
 		js.Typedefs.Merge(element.Typedefs)
 	}
 }
