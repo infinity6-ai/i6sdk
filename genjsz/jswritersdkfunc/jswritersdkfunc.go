@@ -119,7 +119,7 @@ func Write(ctx context.Context, sdkFuncs []*jsparsersdkfunc.SdkFunc) string {
 		if hasReq {
 			writeln(&decl, " * @param {%sReq} req", funcId)
 		}
-		writeln(&decl, " * @returns {Promise<%sResp>}", funcId)
+		writeln(&decl, " * @returns {Promise<%sOutput>}", funcId)
 		writeln(&decl, " */")
 
 		if hasReq {
