@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/inferz/inferzrelevancefashionfbt"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
 )
@@ -14,6 +15,8 @@ import (
 func TestUnitInferzRelevanceFashionFbt(t *testing.T) {
 	fn := &inferzrelevancefashionfbt.Func{
 		Req: inferzrelevancefashionfbt.Req{
+			Dataset:   lakedsz.MustParse("my-dataset"),
+			ModelName: "fbt-model",
 			Skus: []*inferzrelevancefashionfbt.Sku{
 				{
 					SkuId: "sku-1",
@@ -45,6 +48,8 @@ func TestUnitInferzRelevanceFashionFbt(t *testing.T) {
 
 	require.Equal(t, fn.Req, fnCopy.Req)
 	require.Equal(t, fn.Resp, fnCopy.Resp)
+	require.Equal(t, "my-dataset", fnCopy.Req.Dataset.String())
+	require.Equal(t, "fbt-model", fnCopy.Req.ModelName)
 	require.Len(t, fnCopy.Req.Skus, 2)
 	require.Equal(t, "sku-1", fnCopy.Req.Skus[0].SkuId)
 	require.Equal(t, "sku-2", fnCopy.Req.Skus[1].SkuId)

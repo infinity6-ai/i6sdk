@@ -2,6 +2,7 @@ package inferzrelevancefashionfbt
 
 import (
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
 )
 
@@ -20,6 +21,8 @@ type Result struct {
 }
 
 type Req struct {
+	Dataset    lakedsz.Dataset
+	ModelName  string
 	Skus       []*Sku
 	Partitions Partitions
 }
