@@ -112,7 +112,7 @@ class Infer {
     if (opts.sqliteUrl) return { sqlite: opts.sqliteUrl, tflite: opts.tfliteUrl }
 
     const { modelName, modelVersion, storeId, dataset } = opts
-    const resp = await this._services.apis().modelzSignedGet({
+    const resp = await this._services.apis().dszModelGet({
       params: { dataset, model_name: modelName },
       payload: { model_version: modelVersion, model_partitions: { store_id: storeId } },
     })
