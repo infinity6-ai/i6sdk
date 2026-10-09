@@ -84,11 +84,21 @@ const config = () => {
   return opts
 }
 
+// The request of sdk.funcs().productRelevanceFashionFbt, from the config card. The funcs method sends all of `input` as
+// the model params, and has no sqliteUrl / tfliteUrl / limit: those fields of the card are not used by step 7.
+function funcsRequest() {
+  const opts = config()
+  return {
+    input: { dataset: opts.dataset, model_name: opts.modelName, ...opts.params },
+    partitions: { store_id: opts.storeId, version: opts.modelVersion },
+  }
+}
+
 // The code of the SDK user, written with the values of the config card. Shown at the top of the page and run by step 7
 function usage() {
   return `import { I6Sdk } from './i6sdk-web.js'
 
-const result = await new I6Sdk().infer().run(${JSON.stringify(config(), null, 2)})`
+const result = await new I6Sdk().funcs().productRelevanceFashionFbt(${JSON.stringify(funcsRequest(), null, 2)})`
 }
 for (const id of ['modelName', 'modelVersion', 'storeId', 'dataset', 'sku_ids', 'sqliteUrl', 'tfliteUrl']) $(id).addEventListener('input', () => { $('usage').textContent = usage() })
 
@@ -177,9 +187,9 @@ const steps = {
   }),
 
   7: () => runStep(7, async () => {
-    const opts = config()
-    const result = await new I6Sdk().infer().run(opts)
-    return { input: opts, output: result }
+    const req = funcsRequest()
+    const result = await new I6Sdk().funcs().productRelevanceFashionFbt(req)
+    return { input: req, output: result }
   }),
 }
 

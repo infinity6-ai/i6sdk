@@ -37,7 +37,7 @@
   </style>
 </head>
 <body>
-  <h1>infer demo <span class="badge">uses the SDK: new I6Sdk().infer().run(opts)</span></h1>
+  <h1>infer demo <span class="badge">uses the SDK: new I6Sdk().funcs().productRelevanceFashionFbt(req)</span></h1>
 
   <div class="card">
     <h2>Config <span class="badge">what an SDK user passes in opts</span></h2>
@@ -65,7 +65,7 @@
 
   <div class="card">
     <h2>SDK usage <span class="badge">the code an SDK user writes</span></h2>
-    <p class="hint">Step 7 runs exactly this. It follows the config above.</p>
+    <p class="hint">Step 7 runs exactly this. It follows the config above (the sqlite / tflite URL fields are not used: funcs always uses the model api).</p>
     <pre id="usage"></pre>
   </div>
 
@@ -115,7 +115,7 @@
 
   <div class="card" id="step7">
     <h2><button data-step="7" class="primary">Run all with the SDK</button><span class="badge">idle</span></h2>
-    <p class="hint">new I6Sdk().infer().run(opts), the real code path.</p>
+    <p class="hint">new I6Sdk().funcs().productRelevanceFashionFbt(req), the real code path.</p>
     <div class="io"><div><h3>Input (opts)</h3><pre class="in"></pre></div><div><h3>Output (result)</h3><pre class="out"></pre></div></div>
     <details><summary class="sqlh">Code this step runs</summary><pre class="code"></pre></details>
   </div>
