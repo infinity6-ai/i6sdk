@@ -4,11 +4,11 @@
 
         // Test assets (gitignored): the test with the real model is skipped when they are not served
         const assets = {
-            sqliteUrl: new URL('../src/infer/gen/modeldb.sqlite', location.href).href,
+            sqliteUrl: new URL('../src/infer/gen/sqlite.bin', location.href).href,
             tfliteUrl: new URL('../src/infer/gen/model.tflite', location.href).href,
         }
         const base = { modelName: 'relevance-fashion-fbt', modelVersion: 'v1', storeId: 's1', dataset: 'dectest' }
-        const sku_ids = ['9132438814883', '9132177490083']
+        const cart = { cart_skus: [{ sku_id: '150' }, { sku_id: '77' }] }
 
         /** @type {import('../src/infer/infer.js').Infer} */
         let infer
@@ -32,7 +32,7 @@
         })
 
         QUnit.test("run validates its opts", async function (assert) {
-            const ok = { ...base, params: { sku_ids }, ...assets }
+            const ok = { ...base, params: cart, ...assets }
             await rejectsWithCode(assert, infer.run(), 'invalid_argument', /opts.modelName/)
             for (const key of Object.keys(base)) {
                 await rejectsWithCode(assert, infer.run({ ...ok, [key]: '' }), 'invalid_argument', new RegExp(`opts.${key}`))
@@ -47,14 +47,13 @@
         QUnit.test("run with the real model", async function (assert) {
             if (!(await fetch(assets.tfliteUrl, { method: 'HEAD' })).ok) return assert.ok(true, 'skipped: no assets in src/infer/gen')
 
-            const opts = { ...base, params: { sku_ids }, ...assets }
-            const result = await infer.run(opts)
+            const opts = { ...base, params: cart, ...assets }
+            const { results } = await infer.run({ ...opts, limit: 5 })
 
-            assert.strictEqual(result.productIds.length, 20)
-            assert.strictEqual(result.top.length, 20)
-            assert.deepEqual(result.productIds, result.top.map((t) => t.product_id))
-            assert.true(result.top.every((t, i) => i === 0 || result.top[i - 1].score >= t.score), 'best score first')
-            assert.strictEqual(result.top[0].sig_index, 4611, 'best signature of this cart (from the first port run)')
+            assert.strictEqual(results.length, 5, 'limit is honored')
+            assert.true(results.every((r) => Array.isArray(r.skus) && r.skus.every((k) => typeof k.sku_id === 'string')), 'skus are {sku_id}')
+            assert.true(results.every((r, i) => i === 0 || results[i - 1].rating >= r.rating), 'best rating first')
+            await rejectsWithCode(assert, infer.run({ ...opts, limit: 0 }), 'invalid_argument', /opts.limit/)
         })
 
         QUnit.test("run finds the model files with the model api", async function (assert) {
@@ -67,15 +66,15 @@
             } }) }
             const { Infer } = await import('../src/infer/infer.js')
 
-            const result = await new Infer(services).run({ ...base, params: { sku_ids } })
-            assert.strictEqual(result.productIds.length, 20)
+            const result = await new Infer(services).run({ ...base, params: cart })
+            assert.strictEqual(result.results.length, 20, 'default limit')
             assert.deepEqual(requests, [{
                 params: { dataset: 'dectest', model_name: 'relevance-fashion-fbt' },
                 payload: { model_version: 'v1', model_partitions: { store_id: 's1' } },
             }])
 
             const noSqlite = { apis: () => ({ modelzSignedGet: async () => ({ ok: true, payload: { urls: [] } }) }) }
-            await rejectsWithCode(assert, new Infer(noSqlite).run({ ...base, params: { sku_ids } }), 'asset', /no "sqlite.bin" file/)
+            await rejectsWithCode(assert, new Infer(noSqlite).run({ ...base, params: cart }), 'asset', /no "sqlite.bin" file/)
         })
 
         QUnit.test("runModel reports inputs that do not fit the model", async function (assert) {
@@ -85,12 +84,13 @@
             const { downloader } = await import('../src/internal/downloader/downloader.js')
             const ref = await downloader.update({ name: 'infer-relevance-fashion-fbt-tflite', url: assets.tfliteUrl })
             const model = await loadModel({ ref })
-            const fields = { data: [[1, 2, 3, 4, 5, 6, 7]], fill: 0 }
-            const padMask = { data: [1], fill: 0 }
+            const fields = { data: Array(70).fill(0), shape: [1, 10, 7] }
+            const padMask = { data: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0], shape: [1, 10] }
 
             await rejectsWithCode(assert, runModel(model, {}), 'invalid_argument', /is missing/)
-            await rejectsWithCode(assert, runModel(model, { fields: { data: [1, 2, 3] }, pad_mask: padMask }), 'invalid_argument', /dimensions/)
-            await rejectsWithCode(assert, runModel(model, { fields: { data: [[1, 2, 3, 4, 5, 6, 7]] }, pad_mask: padMask }), 'invalid_argument', /needs/)
+            await rejectsWithCode(assert, runModel(model, { fields: { data: [1, 2, 3] }, pad_mask: padMask }), 'invalid_argument', /no shape/)
+            await rejectsWithCode(assert, runModel(model, { fields: { data: [1, 2, 3], shape: [3] }, pad_mask: padMask }), 'invalid_argument', /the model needs/)
+            await rejectsWithCode(assert, runModel(model, { fields: { data: Array(69).fill(0), shape: [1, 10, 7] }, pad_mask: padMask }), 'invalid_argument', /69 values/)
 
             const outputs = await runModel(model, { fields, pad_mask: padMask })
             assert.strictEqual(outputs.signature_probs.length, 7185)

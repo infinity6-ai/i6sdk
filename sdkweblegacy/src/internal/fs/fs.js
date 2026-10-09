@@ -224,6 +224,28 @@ class FS {
 
     return ref
   }
+
+  /**
+   * Removes a version that was never released (e.g. its download failed). Does nothing if it does not exist.
+   * @param {Object} opts
+   * @param {string} opts.name - required
+   * @param {string} opts.version - required, must not be the released one
+   * @returns {Promise<void>}
+   */
+  async discard(opts) {
+    if (!opts || !opts.name) throw new TypeError('fs: opts.name is required')
+    if (!opts.version) throw new TypeError('fs: opts.version is required')
+
+    try {
+      const dir = await (await baseDir()).getDirectoryHandle(opts.name)
+      if (await readText(dir, 'version.txt').catch(() => null) === opts.version) {
+        throw new Error(`fs: version ${opts.version} of ${opts.name} is the released one`)
+      }
+      await dir.removeEntry('v' + opts.version, { recursive: true })
+    } catch (e) {
+      if (e.name !== 'NotFoundError') throw e
+    }
+  }
 }
 
 /** Shared FS instance. */

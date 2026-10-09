@@ -251,7 +251,7 @@
             conn = await sqlitez.open({ path: await writeSqlite(namedQueries(
                 ['two_rows', "SELECT '1' AS ret WHERE ? IS NOT NULL UNION ALL SELECT '2'"],
             )) })
-            assert.strictEqual(await conn.namedJsonQuery({ name: 'two_rows' }), 1)
+            assert.strictEqual(await conn.namedJsonQuery({ name: 'two_rows', params: [null] }), 1)
         })
 
         QUnit.test("namedJsonQuery with unknown name is a query error", async function (assert) {
@@ -266,12 +266,12 @@
 
         QUnit.test("namedJsonQuery with invalid JSON in ret is a query error", async function (assert) {
             conn = await sqlitez.open({ path: await writeSqlite(namedQueries(['bad_json', "SELECT 'not json' || substr(?, 1, 0) AS ret"])) })
-            await rejectsWithCode(assert, conn.namedJsonQuery({ name: 'bad_json' }), 'query', /not valid JSON/)
+            await rejectsWithCode(assert, conn.namedJsonQuery({ name: 'bad_json', params: [null] }), 'query', /not valid JSON/)
         })
 
-        QUnit.test("namedJsonQuery with a stored query without ? is a query error", async function (assert) {
+        QUnit.test("namedJsonQuery with a stored query without ? for a given param is a query error", async function (assert) {
             conn = await sqlitez.open({ path: await writeSqlite(namedQueries(['no_bind', "SELECT '1' AS ret"])) })
-            await rejectsWithCode(assert, conn.namedJsonQuery({ name: 'no_bind' }), 'query', /out of range/)
+            await rejectsWithCode(assert, conn.namedJsonQuery({ name: 'no_bind', params: [1] }), 'query', /out of range/)
         })
 
         // ---- close

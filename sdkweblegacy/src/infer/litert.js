@@ -11,14 +11,11 @@ import { fs } from "../internal/fs/fs.js";
  */
 
 /**
- * One model input: either flat `data` with its `shape` (what the sqlite gives, e.g. `{data: [1, 2, 3, 4], shape: [2, 2]}`),
- * or nested rows without `shape` (e.g. `[[1, 2], [3, 4]]`): the shape is then read from the nesting and a missing
- * leading batch dimension of 1 is added.
+ * One model input, as the sqlite gives it: flat `data` with its `shape` (e.g. `{data: [1, 2, 3, 4], shape: [2, 2]}`).
+ * Nothing is padded or guessed: the shape must be the model's (-1 is free).
  * @typedef {Object} ModelInput
- * @property {Array} data - Flat values (with `shape`) or nested rows.
- * @property {number[]} [shape] - Shape of the flat `data`. It must be the model's shape (-1 is free), no padding is done.
- * @property {number} [fill] - Value used to pad up to the model's shape. Too many rows are cut from the front (the last
- *   ones are kept). Without `fill`, data that does not match the model's shape is an error.
+ * @property {number[]} data - Flat values; their count must be the product of `shape`.
+ * @property {number[]} shape - Shape of `data`.
  */
 
 /** Must match the @litertjs/core version in package.json. */
@@ -86,7 +83,7 @@ function describeModel(model) {
 }
 
 /**
- * Flat values and shape of one input, fitted to the model's shape: missing batch dimension added, padded with `fill`.
+ * Checks one input against the model's shape.
  * @param {string} name - Input name, for error messages.
  * @param {ModelInput} input - What the caller gave.
  * @param {number[]} modelShape - Shape of the model input (-1 is free).
@@ -96,40 +93,16 @@ function describeModel(model) {
 function toTensorData(name, input, modelShape) {
   const invalid = (msg) => new I6Error(`infer: input "${name}" ${msg}`, { code: "invalid_argument" })
 
-  if (input.shape) {
-    const shape = input.shape
-    const flat = Array.isArray(input.data) ? input.data.flat(Infinity) : null
-    if (!flat) throw invalid("has no data array")
-    if (shape.length !== modelShape.length || shape.some((n, i) => modelShape[i] !== -1 && modelShape[i] !== n)) {
-      throw invalid(`has shape [${shape}], the model needs [${modelShape}]`)
-    }
-    const size = shape.reduce((a, n) => a * n, 1)
-    if (flat.length !== size) throw invalid(`has ${flat.length} values, its shape [${shape}] needs ${size}`)
-    return { flat, shape: [...shape] }
+  const { data, shape } = input
+  if (!Array.isArray(data)) throw invalid("has no data array")
+  if (!Array.isArray(shape)) throw invalid("has no shape")
+  if (shape.length !== modelShape.length || shape.some((n, i) => modelShape[i] !== -1 && modelShape[i] !== n)) {
+    throw invalid(`has shape [${shape}], the model needs [${modelShape}]`)
   }
+  const size = shape.reduce((a, n) => a * n, 1)
+  if (data.length !== size) throw invalid(`has ${data.length} values, its shape [${shape}] needs ${size}`)
 
-  let data = input.data
-  let rank = 0
-  for (let a = data; Array.isArray(a); a = a[0]) rank++
-  if (rank === modelShape.length - 1) data = [data]
-  else if (rank !== modelShape.length) throw invalid(`has ${rank} dimensions, the model needs ${modelShape.length}`)
-
-  const make = (dims) => (dims.length === 0 ? input.fill : Array.from({ length: dims[0] }, () => make(dims.slice(1))))
-  const fit = (rows, dims) => {
-    if (dims.length === 0) return rows
-    const n = dims[0] === -1 ? rows.length : dims[0]
-
-    if (rows.length !== n && input.fill === undefined) throw invalid(`has ${rows.length} values where the model needs ${n} (give "fill" to pad)`)
-    const fitted = rows.length > n ? rows.slice(rows.length - n) : [...rows, ...Array.from({ length: n - rows.length }, () => make(dims.slice(1)))]
-    
-    return fitted.map((row) => fit(row, dims.slice(1)))
-  }
-  data = fit(data, modelShape)
-
-  const shape = []
-  for (let a = data; Array.isArray(a); a = a[0]) shape.push(a.length)
-    
-  return { flat: data.flat(Infinity), shape }
+  return { flat: data, shape: [...shape] }
 }
 
 /**
