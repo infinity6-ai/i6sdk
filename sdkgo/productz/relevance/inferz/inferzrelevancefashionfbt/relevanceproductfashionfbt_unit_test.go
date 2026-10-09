@@ -15,8 +15,7 @@ import (
 func TestUnitInferzRelevanceFashionFbt(t *testing.T) {
 	fn := &inferzrelevancefashionfbt.Func{
 		Req: inferzrelevancefashionfbt.Req{
-			Dataset:   lakedsz.MustParse("my-dataset"),
-			ModelName: "fbt-model",
+			Dataset: lakedsz.MustParse("my-dataset"),
 			Skus: []*inferzrelevancefashionfbt.Sku{
 				{
 					SkuId: "sku-1",
@@ -49,7 +48,6 @@ func TestUnitInferzRelevanceFashionFbt(t *testing.T) {
 	require.Equal(t, fn.Req, fnCopy.Req)
 	require.Equal(t, fn.Resp, fnCopy.Resp)
 	require.Equal(t, "my-dataset", fnCopy.Req.Dataset.String())
-	require.Equal(t, "fbt-model", fnCopy.Req.ModelName)
 	require.Len(t, fnCopy.Req.Skus, 2)
 	require.Equal(t, "sku-1", fnCopy.Req.Skus[0].SkuId)
 	require.Equal(t, "sku-2", fnCopy.Req.Skus[1].SkuId)
@@ -90,8 +88,6 @@ func TestUnitInferzRelevanceFashionFbtDataRefs(t *testing.T) {
 	}
 	require.Contains(t, inputProps, "dataset")
 	require.Equal(t, "string", inputProps["dataset"].Typ)
-	require.Contains(t, inputProps, "model_name")
-	require.Equal(t, "string", inputProps["model_name"].Typ)
 	require.Contains(t, inputProps, "skus")
 	require.Equal(t, "Array<fbtInputSkusElement>", inputProps["skus"].Typ)
 

@@ -127,7 +127,7 @@ func Write(ctx context.Context, sdkFuncs []*jsparsersdkfunc.SdkFunc) string {
 			writeln(&decl, "  const infer = this._services.infer()")
 			writeln(&decl, "  const ret = await infer.run({")
 			writeln(&decl, "    dataset: req.input.dataset,")
-			writeln(&decl, "    modelName: req.input.model_name,")
+			writeln(&decl, "    modelName: \"%s\",", fn.Spec.Id)
 			writeln(&decl, "    params: req.input,")
 			writeln(&decl, "    partitions: req.partitions,")
 			writeln(&decl, "  })")
