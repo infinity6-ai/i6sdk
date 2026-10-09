@@ -51,17 +51,11 @@ async function runStep(n, fn) {
   const sqlBox = card.querySelector('.sql')
   if (sqlBox) sqlBox.textContent = ''
   log(`\n==== step ${n}`)
-  try {
-    const { input, output, sql } = await fn()
-    if (sql) card.querySelector('.sql').textContent = sql
-    card.querySelector('.in').textContent = text(input)
-    card.querySelector('.out').textContent = text(output)
-    setStatus(card, 'ok')
-  } catch (e) {
-    card.querySelector('.out').textContent = `${e.name}${e.code ? ` [${e.code}]` : ''}: ${e.message}`
-    setStatus(card, 'error')
-    log(`ERROR ${e.name} [${e.code}] ${e.message}`)
-  }
+  const { input, output, sql } = await fn()
+  if (sql) card.querySelector('.sql').textContent = sql
+  card.querySelector('.in').textContent = text(input)
+  card.querySelector('.out').textContent = text(output)
+  setStatus(card, 'ok')
 }
 
 const need = (...keys) => {
@@ -211,7 +205,7 @@ $('login').onclick = async () => {
 }
 
 $('clear').onclick = async () => {
-  await (await navigator.storage.getDirectory()).removeEntry('i6', { recursive: true }).catch(() => {})
+  await (await navigator.storage.getDirectory()).removeEntry('i6', { recursive: true }).catch(() => { })
   for (const k of Object.keys(state)) delete state[k]
   log('\nopfs cache removed, the steps start from the beginning')
 }
