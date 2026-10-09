@@ -1,4 +1,4 @@
-package dummycatalogdataz_test
+package dummydataz_test
 
 import (
 	"encoding/json"
@@ -7,20 +7,20 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
-	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz/dummycatalogdataz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz/dummydataz"
 )
 
 func TestUnitDummyCatalogDataSerialization(t *testing.T) {
 	type testScenario struct {
 		jsonStr string
-		catalog dummycatalogdataz.DummyCatalogData
+		catalog dummydataz.DummyCatalogData
 	}
 
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
 
 		// Test Deserialization (JSON -> Struct)
-		var got dummycatalogdataz.DummyCatalogData
+		var got dummydataz.DummyCatalogData
 		err := json.Unmarshal([]byte(s.jsonStr), &got)
 		require.NoError(t, err)
 		require.Equal(t, s.catalog, got)
@@ -29,7 +29,7 @@ func TestUnitDummyCatalogDataSerialization(t *testing.T) {
 		serialized, err := json.Marshal(s.catalog)
 		require.NoError(t, err)
 
-		var roundTrip dummycatalogdataz.DummyCatalogData
+		var roundTrip dummydataz.DummyCatalogData
 		err = json.Unmarshal(serialized, &roundTrip)
 		require.NoError(t, err)
 		require.Equal(t, s.catalog, roundTrip)
@@ -44,7 +44,7 @@ func TestUnitDummyCatalogDataSerialization(t *testing.T) {
 				"qt_inventory": 150,
 				"store": "Dummy Store A"
 			}`,
-			catalog: dummycatalogdataz.DummyCatalogData{
+			catalog: dummydataz.DummyCatalogData{
 				Id:          "dummy_123",
 				Product:     "Dummy Shirt",
 				Price:       29.99,
@@ -63,7 +63,7 @@ func TestUnitDummyCatalogDataSerialization(t *testing.T) {
 				"qt_inventory": 0,
 				"store": "Dummy Store B"
 			}`,
-			catalog: dummycatalogdataz.DummyCatalogData{
+			catalog: dummydataz.DummyCatalogData{
 				Id:          "dummy_456",
 				Product:     "Free Sticker",
 				Price:       0.0,
@@ -76,7 +76,7 @@ func TestUnitDummyCatalogDataSerialization(t *testing.T) {
 
 func TestUnitDummyCatalogDataSchema(t *testing.T) {
 	t.Run("DummyCatalogData Schema Check", func(t *testing.T) {
-		s := (&dummycatalogdataz.DummyCatalogData{}).Schema()
+		s := (&dummydataz.DummyCatalogData{}).Schema()
 		td, _ := jsparser.ParseSchema("DummyCatalogData", s)
 		require.Equal(t, "DummyCatalogData", td.Head.Name)
 

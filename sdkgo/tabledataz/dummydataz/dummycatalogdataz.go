@@ -1,4 +1,4 @@
-package dummycatalogdataz
+package dummydataz
 
 import (
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
