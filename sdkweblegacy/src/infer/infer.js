@@ -71,17 +71,23 @@ class Infer {
     const { modelName, params } = opts
     const queryName = (kind) => `model-${modelName}-${kind}`
 
-    // 1. Get the model files and load the model
-    const { sqliteRef, tfliteRef } = await this._loadFiles(opts)
-    const compiled = await loadModel({ ref: tfliteRef, wasmUrl: opts.litertWasm })
-    debug("model ready", describeModel(compiled))
+    // 1. Get the model files
+    const urls = await this.assetUrls(opts)
+    const cacheName = (kind) => `infer-${modelName}-${opts.storeId}-${opts.modelVersion}-${kind}`
+    const [sqliteRef, tfliteRef] = await Promise.all([
+      downloadFile(cacheName("sqlite"), urls.sqlite),
+      downloadFile(cacheName("tflite"), urls.tflite),
+    ])
 
     const conn = await sqlitez.open({ path: await fs.resolve(sqliteRef) })
     try {
-      // 2. The input query gives the model inputs: {name: {data, shape}}
-      const inputs = await conn.namedJsonQuery({ name: queryName("input"), params: [params] })
+      // 2. The input query gives the model inputs: {name: {data, shape}}. The model compiles meanwhile.
+      const [inputs, compiled] = await Promise.all([
+        conn.namedJsonQuery({ name: queryName("input"), params: [params] }),
+        loadModel({ ref: tfliteRef, wasmUrl: opts.litertWasm }),
+      ])
       if (!inputs || typeof inputs !== "object") throw new I6Error(`infer: ${queryName("input")} returned no model inputs`, { code: "query" })
-      debug("input query returned", Object.keys(inputs))
+      debug("input query returned", Object.keys(inputs), "model", describeModel(compiled))
 
       // 3. Run the model
       const outputs = await runModel(compiled, inputs)
@@ -96,32 +102,13 @@ class Infer {
   }
 
   /**
-   * Brings the model files to the browser cache (downloaded only if their etag changed).
-   * @private
-   * @param {InferOptions} opts - Inference options.
-   * @returns {Promise<{sqliteRef: FileRef, tfliteRef: FileRef}>} The cached files.
-   * @throws {I6Error} With code "asset" if the URLs cannot be found or a download fails.
-   */
-  async _loadFiles(opts) {
-    const { modelName, modelVersion, storeId } = opts
-    const cacheName = (kind) => `infer-${modelName}-${storeId}-${modelVersion}-${kind}`
-
-    const urls = await this._assetUrls(opts)
-    const [sqliteRef, tfliteRef] = await Promise.all([
-      downloadFile(cacheName("sqlite"), urls.sqlite),
-      downloadFile(cacheName("tflite"), urls.tflite),
-    ])
-    return { sqliteRef, tfliteRef }
-  }
-
-  /**
    * Finds where the model files are: the signed URLs of the model API, unless opts has both URLs (tests).
-   * @private
+   * Also used by the demo page, which runs the steps one by one.
    * @param {InferOptions} opts - Inference options.
    * @returns {Promise<{sqlite: string, tflite: string}>} Download URLs of the files.
    * @throws {I6Error} With code "asset" if the API gave no URL for a file.
    */
-  async _assetUrls(opts) {
+  async assetUrls(opts) {
     if (opts.sqliteUrl) return { sqlite: opts.sqliteUrl, tflite: opts.tfliteUrl }
 
     const { modelName, modelVersion, storeId, dataset } = opts
@@ -157,7 +144,7 @@ function validate(opts) {
 }
 
 /**
- * The values bound to the output query: `?1` the model outputs as `{name: {values: [...]}}` (plain arrays, which JSON
+ * The values bound to the output query (also used by the demo page): `?1` the model outputs as `{name: {values: [...]}}` (plain arrays, which JSON
  * can hold), `?2` the limit.
  * @param {Record<string, ArrayLike<number>>} outputs - Model outputs (typed arrays).
  * @param {InferOptions} opts - Inference options.

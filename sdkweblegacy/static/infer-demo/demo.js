@@ -109,7 +109,7 @@ const steps = {
   1: () => runStep(1, async () => {
     const opts = config()
     // Like run(): the urls of the model api, unless both are filled
-    const urls = await new I6Sdk().infer()._assetUrls(opts)
+    const urls = await new I6Sdk().infer().assetUrls(opts)
     const output = {}
     const refs = {}
     for (const kind of ['sqlite', 'tflite']) {

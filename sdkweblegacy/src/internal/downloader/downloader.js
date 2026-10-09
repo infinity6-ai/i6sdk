@@ -42,17 +42,23 @@ class Downloader {
         // Create the version in the fs, the blob is not written by it
         const ref = await fs.create({ name: opts.name, etag, data: '' })
 
-        const response = await fetch(opts.url)
-        if (!response.ok) throw new Error(`downloader: GET ${opts.url} failed (${response.status})`)
+        try {
+            const response = await fetch(opts.url)
+            if (!response.ok) throw new Error(`downloader: GET ${opts.url} failed (${response.status})`)
 
-        // Stream the body straight into the opfs file, never held in memory
-        let dir = await navigator.storage.getDirectory()
-        for (const segment of (await fs.resolve(ref)).split('/')) {
-            dir = segment === 'blob.bin'
-                ? await dir.getFileHandle(segment, { create: true })
-                : await dir.getDirectoryHandle(segment)
+            // Stream the body straight into the opfs file, never held in memory
+            let dir = await navigator.storage.getDirectory()
+            for (const segment of (await fs.resolve(ref)).split('/')) {
+                dir = segment === 'blob.bin'
+                    ? await dir.getFileHandle(segment, { create: true })
+                    : await dir.getDirectoryHandle(segment)
+            }
+            await response.body.pipeTo(await dir.createWritable())
+        } catch (e) {
+            // Do not leave a half-written version behind
+            await fs.discard(ref).catch(() => {})
+            throw e
         }
-        await response.body.pipeTo(await dir.createWritable())
 
         return fs.release(ref)
     }
