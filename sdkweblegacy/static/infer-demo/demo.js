@@ -15,7 +15,7 @@ console.log = (...args) => { consoleLog(...args); log(...args) }
 $('clearlog').onclick = () => { $('log').textContent = '' }
 
 // --- what the SDK user passes in ---------------------------------------------------------------------
-// The request of sdk.funcs().productRelevanceFashionFbt, from the config card.
+// The request of sdk.funcs().productRelevanceFashionFbtV1, from the config card.
 function funcsRequest() {
   const text = (id) => $(id).value.trim()
   return {
@@ -32,7 +32,7 @@ function funcsRequest() {
 function usage() {
   return `import { I6Sdk } from './i6sdk-web.js'
 
-const result = await new I6Sdk().funcs().productRelevanceFashionFbt(${JSON.stringify(funcsRequest(), null, 2)})`
+const result = await new I6Sdk().funcs().productRelevanceFashionFbtV1(${JSON.stringify(funcsRequest(), null, 2)})`
 }
 for (const id of ['modelName', 'modelVersion', 'storeId', 'dataset', 'sku_ids']) $(id).addEventListener('input', () => { $('usage').textContent = usage() })
 $('usage').textContent = usage()
@@ -51,7 +51,7 @@ $('run').onclick = async () => {
   card.querySelector('.in').textContent = JSON.stringify(req, null, 1)
   card.querySelector('.out').textContent = ''
   try {
-    const result = await new I6Sdk().funcs().productRelevanceFashionFbt(req)
+    const result = await new I6Sdk().funcs().productRelevanceFashionFbtV1(req)
     card.querySelector('.out').textContent = JSON.stringify(result, null, 1)
     setStatus('ok')
   } catch (e) {
