@@ -15,7 +15,7 @@ func TestUnitDszCreateStoreApi(t *testing.T) {
 	api := &dszapistorecreate.Api{
 		Req: &dszapistorecreate.DszCreateStoreReq{
 			Dataset: lakedsz.MustParse("myds"),
-			Store: dszstore.DszStore{
+			StoreId: dszstore.DszStore{
 				Id:   "store1",
 				Name: "Store One",
 			},
