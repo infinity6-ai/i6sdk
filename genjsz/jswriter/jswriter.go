@@ -7,6 +7,9 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparserapi"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparsersdkfunc"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
+	"go.code.infinity6.ai/sdkgo/genjsz/jswriterapi"
+	"go.code.infinity6.ai/sdkgo/genjsz/jswritersdkfunc"
+	"go.code.infinity6.ai/sdkgo/genjsz/jswritertypedef"
 )
 
 type tlogger logz.Type
@@ -40,5 +43,7 @@ func (js jsgenerator) Prepare(ctx context.Context, opts Options) {
 func Write(ctx context.Context, opts Options) {
 	var js jsgenerator
 	js.Prepare(ctx, opts)
-	panic("implement it")
+	jswritertypedef.Write(ctx, js.Typedefs)
+	jswriterapi.WriteV2(ctx, js.Apis)
+	jswritersdkfunc.Write(ctx, js.SdkFuncs)
 }

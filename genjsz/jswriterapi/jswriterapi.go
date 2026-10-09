@@ -27,6 +27,10 @@ func writeln(sb *strings.Builder, msg string, args ...any) {
 	errorz.Check(err)
 }
 
+func WriteV2(ctx context.Context, apis []*jsparserapi.Api) string {
+	panic("implement it")
+}
+
 func Write(ctx context.Context, apis *jsparserapi.Apis) string {
 	if apis == nil {
 		return ""
