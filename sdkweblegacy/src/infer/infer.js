@@ -133,10 +133,13 @@ class Infer {
  * @throws {I6Error} With code "invalid_argument" if a required option is missing.
  */
 function validate(opts) {
-  for (const key of ["modelName", "modelVersion", "dataset"]) {
+  for (const key of ["modelName", "dataset"]) {
     if (!opts || !opts[key]) throw new I6Error(`infer: opts.${key} is required`, { code: "invalid_argument" })
   }
+
+  console.log("opts", opts)
   const parts = opts.partitions
+  console.log("parts", parts)
   if (!parts || typeof parts !== "object" || Array.isArray(parts) || Object.values(parts).some((v) => typeof v !== "string")) {
     throw new I6Error("infer: opts.partitions must be an object of string values", { code: "invalid_argument" })
   }
