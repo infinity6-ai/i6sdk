@@ -9,6 +9,6 @@ import (
 type TableData interface {
 	Schema() *schemaz.Schema
 	Table() laketbnamez.TableName
-	SetDataset(dataset *lakedsz.Dataset)
+	SetDataset(dataset lakedsz.Dataset)
 	SetP(p string)
 }
