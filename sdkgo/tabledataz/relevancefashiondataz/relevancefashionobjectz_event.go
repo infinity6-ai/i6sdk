@@ -23,6 +23,10 @@ type Event struct {
 	P              string          `json:"p" bigquery:"p"`
 }
 
+func (u *Event) Table() laketbnamez.TableName {
+	return laketbnamez.MustParse("relevance-fashion-event")
+}
+
 type Click struct {
 	Price float64 `json:"price" bigquery:"price"`
 	SkuId string  `json:"sku_id" bigquery:"sku_id"`
@@ -189,10 +193,6 @@ func (u *Recshow) Schema() *schemaz.Schema {
 			}
 		},
 	}
-}
-
-func (u *Event) Table() laketbnamez.TableName {
-	return laketbnamez.MustParse("event")
 }
 
 func (u *Event) Schema() *schemaz.Schema {

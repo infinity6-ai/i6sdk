@@ -5,7 +5,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
 )
 
-type DummyCatalogData struct {
+type Catalog struct {
 	Id          string  `json:"id" bigquery:"id"`
 	Product     string  `json:"product" bigquery:"product"`
 	Price       float64 `json:"price" bigquery:"price"`
@@ -13,11 +13,11 @@ type DummyCatalogData struct {
 	Store       string  `json:"store" bigquery:"store"`
 }
 
-func (u *DummyCatalogData) Table() laketbnamez.TableName {
-	return laketbnamez.MustParse("dummy_catalog_data")
+func (u *Catalog) Table() laketbnamez.TableName {
+	return laketbnamez.MustParse("dummy-catalog")
 }
 
-func (u *DummyCatalogData) Schema() *schemaz.Schema {
+func (u *Catalog) Schema() *schemaz.Schema {
 	return &schemaz.Schema{
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{

@@ -16,7 +16,7 @@ type Catalog struct {
 }
 
 func (u *Catalog) Table() laketbnamez.TableName {
-	return laketbnamez.MustParse("catalog")
+	return laketbnamez.MustParse("relevance-fashion-catalog")
 }
 
 func (u *Catalog) Schema() *schemaz.Schema {

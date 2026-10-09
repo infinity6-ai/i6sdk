@@ -13,14 +13,14 @@ import (
 func TestUnitDummyCatalogDataSerialization(t *testing.T) {
 	type testScenario struct {
 		jsonStr string
-		catalog dummydataz.DummyCatalogData
+		catalog dummydataz.Catalog
 	}
 
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
 
 		// Test Deserialization (JSON -> Struct)
-		var got dummydataz.DummyCatalogData
+		var got dummydataz.Catalog
 		err := json.Unmarshal([]byte(s.jsonStr), &got)
 		require.NoError(t, err)
 		require.Equal(t, s.catalog, got)
@@ -29,7 +29,7 @@ func TestUnitDummyCatalogDataSerialization(t *testing.T) {
 		serialized, err := json.Marshal(s.catalog)
 		require.NoError(t, err)
 
-		var roundTrip dummydataz.DummyCatalogData
+		var roundTrip dummydataz.Catalog
 		err = json.Unmarshal(serialized, &roundTrip)
 		require.NoError(t, err)
 		require.Equal(t, s.catalog, roundTrip)
@@ -44,7 +44,7 @@ func TestUnitDummyCatalogDataSerialization(t *testing.T) {
 				"qt_inventory": 150,
 				"store": "Dummy Store A"
 			}`,
-			catalog: dummydataz.DummyCatalogData{
+			catalog: dummydataz.Catalog{
 				Id:          "dummy_123",
 				Product:     "Dummy Shirt",
 				Price:       29.99,
@@ -63,7 +63,7 @@ func TestUnitDummyCatalogDataSerialization(t *testing.T) {
 				"qt_inventory": 0,
 				"store": "Dummy Store B"
 			}`,
-			catalog: dummydataz.DummyCatalogData{
+			catalog: dummydataz.Catalog{
 				Id:          "dummy_456",
 				Product:     "Free Sticker",
 				Price:       0.0,
@@ -76,7 +76,7 @@ func TestUnitDummyCatalogDataSerialization(t *testing.T) {
 
 func TestUnitDummyCatalogDataSchema(t *testing.T) {
 	t.Run("DummyCatalogData Schema Check", func(t *testing.T) {
-		s := (&dummydataz.DummyCatalogData{}).Schema()
+		s := (&dummydataz.Catalog{}).Schema()
 		td, _ := jsparser.ParseSchema("DummyCatalogData", s)
 		require.Equal(t, "DummyCatalogData", td.Head.Name)
 
