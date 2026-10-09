@@ -25,7 +25,7 @@ import { describeModel, loadModel, runModel } from "./litert.js";
  * @typedef {Object} InferOptions
  * @property {string} modelName - Model name (e.g. "relevance-fashion-fbt"); names the cached assets and the named queries.
  * @property {string} modelVersion - Model version (e.g. "v1").
- * @property {Object<string, string>} modelPartitions - Partitions of the model, name -> value (e.g. `{ store_id: "s1" }`). Any partitions.
+ * @property {Object<string, string>} partitions - Partitions of the model, name -> value (e.g. `{ store_id: "s1" }`). Any partitions.
  * @property {string} dataset - Dataset that holds the model files.
  * @property {*} params - Model input, any JSON (e.g. `{ cart_skus: [...] }`). Bound as `?1` of the input query.
  * @property {number} [limit] - Max number of results asked from the output query (its `?2`). Default 20.
@@ -73,7 +73,7 @@ class Infer {
 
     // 1. Get the model files
     const urls = await this.assetUrls(opts)
-    const partitions = Object.entries(opts.modelPartitions).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+    const partitions = Object.entries(opts.partitions).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
       .map(([key, value]) => encodeURIComponent(`${key}=${value}`)).join("-")
     const cacheName = (kind) => `infer-${modelName}-${partitions}-${opts.modelVersion}-${kind}`
     const [sqliteRef, tfliteRef] = await Promise.all([
@@ -113,10 +113,10 @@ class Infer {
   async assetUrls(opts) {
     if (opts.sqliteUrl) return { sqlite: opts.sqliteUrl, tflite: opts.tfliteUrl }
 
-    const { modelName, modelVersion, modelPartitions, dataset } = opts
+    const { modelName, modelVersion, partitions, dataset } = opts
     const resp = await this._services.apis().dszModelGet({
       params: { dataset, model_name: modelName },
-      payload: { model_version: modelVersion, model_partitions: modelPartitions },
+      payload: { model_version: modelVersion, model_partitions: partitions },
     })
 
     const byName = Object.fromEntries((resp.payload?.urls ?? []).map((file) => [file.name, file.url]))
@@ -136,9 +136,9 @@ function validate(opts) {
   for (const key of ["modelName", "modelVersion", "dataset"]) {
     if (!opts || !opts[key]) throw new I6Error(`infer: opts.${key} is required`, { code: "invalid_argument" })
   }
-  const parts = opts.modelPartitions
+  const parts = opts.partitions
   if (!parts || typeof parts !== "object" || Array.isArray(parts) || Object.values(parts).some((v) => typeof v !== "string")) {
-    throw new I6Error("infer: opts.modelPartitions must be an object of string values", { code: "invalid_argument" })
+    throw new I6Error("infer: opts.partitions must be an object of string values", { code: "invalid_argument" })
   }
   if (opts.params === undefined) throw new I6Error("infer: opts.params is required", { code: "invalid_argument" })
   if (opts.limit !== undefined && !(Number.isInteger(opts.limit) && opts.limit > 0)) {
