@@ -9,7 +9,7 @@ import (
 
 type Catalog struct {
 	ID        string              `json:"id" bigquery:"id"`
-	Dataset   bigquery.NullString `json:"dataset" bigquery:"dataset,nullable"`
+	Dataset   bigquery.NullString `json:"dataset" bigquery:"dataset"`
 	StoreId   string              `json:"store_id" bigquery:"store_id"`
 	ProductId string              `json:"product_id" bigquery:"product_id"`
 	SkuId     string              `json:"sku_id" bigquery:"sku_id"`
