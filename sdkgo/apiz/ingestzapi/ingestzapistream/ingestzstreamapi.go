@@ -71,6 +71,9 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 								return x
 							},
 							Get: func(idx int, element *T) *schemaz.Schema {
+								if element != nil {
+									(*element).SetDataset(&d.Req.Dataset)
+								}
 								return (*element).Schema()
 							},
 						}),

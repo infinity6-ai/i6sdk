@@ -2,47 +2,53 @@ package relevancefashiondataz
 
 import (
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
 )
 
 type Catalog struct {
-	ID        string `json:"id" bigquery:"id"`
-	StoreId   string `json:"store_id" bigquery:"store_id"`
-	ProductId string `json:"product_id" bigquery:"product_id"`
-	SkuId     string `json:"sku_id" bigquery:"sku_id"`
-	SkuDs     string `json:"sku_ds" bigquery:"sku_ds"`
-	Inactive  bool   `json:"inactive" bigquery:"inactive"`
-	P         string `json:"p" bigquery:"p"`
+	ID        string           `json:"id" bigquery:"id"`
+	Dataset   *lakedsz.Dataset `json:"dataset" bigquery:"dataset"`
+	StoreId   string           `json:"store_id" bigquery:"store_id"`
+	ProductId string           `json:"product_id" bigquery:"product_id"`
+	SkuId     string           `json:"sku_id" bigquery:"sku_id"`
+	SkuDs     string           `json:"sku_ds" bigquery:"sku_ds"`
+	Inactive  bool             `json:"inactive" bigquery:"inactive"`
+	P         string           `json:"p" bigquery:"p"`
 }
 
-func (u *Catalog) Table() laketbnamez.TableName {
+func (c *Catalog) Table() laketbnamez.TableName {
 	return laketbnamez.MustParse("relevance-fashion-catalog")
 }
 
-func (u *Catalog) Schema() *schemaz.Schema {
+func (c *Catalog) SetDataset(ds *lakedsz.Dataset) {
+	c.Dataset = ds
+}
+
+func (c *Catalog) Schema() *schemaz.Schema {
 	return &schemaz.Schema{
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"id": {
-					Raw: func() any { return &u.ID },
+					Raw: func() any { return &c.ID },
 				},
 				"store_id": {
-					Raw: func() any { return &u.StoreId },
+					Raw: func() any { return &c.StoreId },
 				},
 				"product_id": {
-					Raw: func() any { return &u.ProductId },
+					Raw: func() any { return &c.ProductId },
 				},
 				"sku_id": {
-					Raw: func() any { return &u.SkuId },
+					Raw: func() any { return &c.SkuId },
 				},
 				"sku_ds": {
-					Raw: func() any { return &u.SkuDs },
+					Raw: func() any { return &c.SkuDs },
 				},
 				"inactive": {
-					Raw: func() any { return &u.Inactive },
+					Raw: func() any { return &c.Inactive },
 				},
 				"p": {
-					Raw: func() any { return &u.P },
+					Raw: func() any { return &c.P },
 				},
 			}
 		},
