@@ -25,7 +25,7 @@ func TestUnitInferzRelevanceFashionFbt(t *testing.T) {
 					SkuId: "sku-2",
 				},
 			},
-			Partitions: inferzrelevancefashionfbt.Partitions{
+			ModelPartitions: inferzrelevancefashionfbt.Partitions{
 				Version: "v1",
 				StoreId: "store-123",
 			},
@@ -53,8 +53,8 @@ func TestUnitInferzRelevanceFashionFbt(t *testing.T) {
 	require.Len(t, fnCopy.Req.Skus, 2)
 	require.Equal(t, "sku-1", fnCopy.Req.Skus[0].SkuId)
 	require.Equal(t, "sku-2", fnCopy.Req.Skus[1].SkuId)
-	require.Equal(t, "v1", fnCopy.Req.Partitions.Version)
-	require.Equal(t, "store-123", fnCopy.Req.Partitions.StoreId)
+	require.Equal(t, "v1", fnCopy.Req.ModelPartitions.Version)
+	require.Equal(t, "store-123", fnCopy.Req.ModelPartitions.StoreId)
 	require.Len(t, fnCopy.Resp.Results, 2)
 	require.Equal(t, "sku-3", fnCopy.Resp.Results[0].SkuId)
 	require.Equal(t, "0.95", fnCopy.Resp.Results[0].Rating)
