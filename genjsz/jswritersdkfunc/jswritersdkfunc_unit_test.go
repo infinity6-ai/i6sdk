@@ -62,9 +62,8 @@ func TestUnitWrite(t *testing.T) {
     const ret = await infer.run({
       dataset: req.input.dataset,
       modelName: req.input.model_name,
-      modelVersion: req.partitions.version,
       params: req.input,
-      storeId: req.partitions.store_id,
+      partitions: req.partitions,
     })
     return ret;
   }
