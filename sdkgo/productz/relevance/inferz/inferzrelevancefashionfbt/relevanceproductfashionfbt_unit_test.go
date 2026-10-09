@@ -25,7 +25,6 @@ func TestUnitInferzRelevanceFashionFbt(t *testing.T) {
 				},
 			},
 			ModelPartitions: inferzrelevancefashionfbt.Partitions{
-				Version: "v1",
 				StoreId: "store-123",
 			},
 		},
@@ -51,7 +50,6 @@ func TestUnitInferzRelevanceFashionFbt(t *testing.T) {
 	require.Len(t, fnCopy.Req.Skus, 2)
 	require.Equal(t, "sku-1", fnCopy.Req.Skus[0].SkuId)
 	require.Equal(t, "sku-2", fnCopy.Req.Skus[1].SkuId)
-	require.Equal(t, "v1", fnCopy.Req.ModelPartitions.Version)
 	require.Equal(t, "store-123", fnCopy.Req.ModelPartitions.StoreId)
 	require.Len(t, fnCopy.Resp.Results, 2)
 	require.Equal(t, "sku-3", fnCopy.Resp.Results[0].SkuId)
@@ -64,6 +62,7 @@ func TestUnitInferzRelevanceFashionFbtSpec(t *testing.T) {
 	fn := &inferzrelevancefashionfbt.Func{}
 	spec := fn.SdkFuncSpec()
 	require.Equal(t, "product-relevance-fashion-fbt", spec.Id)
+	require.Equal(t, "v1", spec.Version)
 	require.Equal(t, sdkfuncz.TypClientInfer, spec.Typ)
 	require.Nil(t, spec.Desc)
 }
@@ -115,8 +114,6 @@ func TestUnitInferzRelevanceFashionFbtDataRefs(t *testing.T) {
 	for _, prop := range tdPartitions.Properties.All() {
 		partitionProps[prop.Name] = prop
 	}
-	require.Contains(t, partitionProps, "version")
-	require.Equal(t, "string", partitionProps["version"].Typ)
 	require.Contains(t, partitionProps, "store_id")
 	require.Equal(t, "string", partitionProps["store_id"].Typ)
 

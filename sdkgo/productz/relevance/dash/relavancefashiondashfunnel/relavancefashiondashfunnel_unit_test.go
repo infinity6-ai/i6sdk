@@ -17,7 +17,6 @@ func TestUnitRelavanceFashionDashFunnel(t *testing.T) {
 		Req: relavancefashiondashfunnel.Req{
 			Dataset: lakedsz.MustParse("my-dataset"),
 			DashPartitions: relavancefashiondashfunnel.Partitions{
-				Version: "v1",
 				StoreId: "store-123",
 			},
 			Params: relavancefashiondashfunnel.Params{
@@ -48,7 +47,6 @@ func TestUnitRelavanceFashionDashFunnel(t *testing.T) {
 	require.Equal(t, fn.Req, fnCopy.Req)
 	require.Equal(t, fn.Resp, fnCopy.Resp)
 	require.Equal(t, "my-dataset", fnCopy.Req.Dataset.String())
-	require.Equal(t, "v1", fnCopy.Req.DashPartitions.Version)
 	require.Equal(t, "store-123", fnCopy.Req.DashPartitions.StoreId)
 	require.Equal(t, "2024-01", fnCopy.Req.Params.MinYearMonth)
 	require.Equal(t, "2024-12", fnCopy.Req.Params.MaxYearMonth)
@@ -65,6 +63,7 @@ func TestUnitRelavanceFashionDashFunnelSpec(t *testing.T) {
 	fn := &relavancefashiondashfunnel.Func{}
 	spec := fn.SdkFuncSpec()
 	require.Equal(t, "product-relevance-fashion-dash-funnel", spec.Id)
+	require.Equal(t, "v1", spec.Version)
 	require.Equal(t, sdkfuncz.TypClientQuery, spec.Typ)
 	require.Nil(t, spec.Desc)
 }
@@ -102,8 +101,6 @@ func TestUnitRelavanceFashionDashFunnelDataRefs(t *testing.T) {
 	for _, prop := range tdPartitions.Properties.All() {
 		partitionProps[prop.Name] = prop
 	}
-	require.Contains(t, partitionProps, "version")
-	require.Equal(t, "string", partitionProps["version"].Typ)
 	require.Contains(t, partitionProps, "store_id")
 	require.Equal(t, "string", partitionProps["store_id"].Typ)
 

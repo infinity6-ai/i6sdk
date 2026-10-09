@@ -11,7 +11,6 @@ type Sku struct {
 }
 
 type Partitions struct {
-	Version string
 	StoreId string
 }
 
@@ -37,9 +36,10 @@ type Func struct {
 
 func (d *Func) SdkFuncSpec() sdkfuncz.Spec {
 	return sdkfuncz.Spec{
-		Id:   "product-relevance-fashion-fbt",
-		Typ:  sdkfuncz.TypClientInfer,
-		Desc: nil,
+		Id:      "product-relevance-fashion-fbt",
+		Version: "v1",
+		Typ:     sdkfuncz.TypClientInfer,
+		Desc:    nil,
 	}
 }
 
@@ -70,7 +70,6 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 		Partitions: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"version":  {Str: schemaz.ParseStr(&d.Req.ModelPartitions.Version)},
 					"store_id": {Str: schemaz.ParseStr(&d.Req.ModelPartitions.StoreId)},
 				}
 			},
