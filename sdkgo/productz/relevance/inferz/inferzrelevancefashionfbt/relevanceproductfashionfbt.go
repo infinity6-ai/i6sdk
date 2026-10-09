@@ -49,6 +49,8 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 		Input: &schemaz.Schema{
 			Object: func(_ bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
+					"dataset":    {Str: lakedsz.ParseStr(&d.Req.Dataset)},
+					"model_name": {Str: schemaz.ParseStr(&d.Req.ModelName)},
 					"skus": {
 						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Sku, *Sku]{
 							Slice:      func() *[]*Sku { return &d.Req.Skus },

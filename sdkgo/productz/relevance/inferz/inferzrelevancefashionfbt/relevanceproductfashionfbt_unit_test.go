@@ -88,6 +88,10 @@ func TestUnitInferzRelevanceFashionFbtDataRefs(t *testing.T) {
 	for _, prop := range tdInput.Properties.All() {
 		inputProps[prop.Name] = prop
 	}
+	require.Contains(t, inputProps, "dataset")
+	require.Equal(t, "string", inputProps["dataset"].Typ)
+	require.Contains(t, inputProps, "model_name")
+	require.Equal(t, "string", inputProps["model_name"].Typ)
 	require.Contains(t, inputProps, "skus")
 	require.Equal(t, "Array<fbtInputSkusElement>", inputProps["skus"].Typ)
 
