@@ -136,6 +136,15 @@ func Write(ctx context.Context, sdkFuncs []*jsparsersdkfunc.SdkFunc) string {
 			writeln(&decl, "    partitions: req.partitions,")
 			writeln(&decl, "  })")
 			writeln(&decl, "  return ret;")
+		case sdkfuncz.TypClientQuery:
+			writeln(&decl, "  const dash = this._services.dash()")
+			writeln(&decl, "  const ret = await dash.query({")
+			writeln(&decl, "    dataset: req.input.dataset,")
+			writeln(&decl, "    dashName: \"%s\",", fn.Spec.Id)
+			writeln(&decl, "    params: req.input,")
+			writeln(&decl, "    partitions: req.partitions,")
+			writeln(&decl, "  })")
+			writeln(&decl, "  return ret;")
 		default:
 			if hasReq {
 				writeln(&decl, "  console.log(req);")

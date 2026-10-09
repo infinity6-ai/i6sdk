@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparsersdkfunc"
 	"go.code.infinity6.ai/sdkgo/genjsz/jswritersdkfunc"
+	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relavancefashiondashfunnel"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/inferz/inferzrelevancefashionfbt"
 )
 
@@ -62,6 +63,46 @@ func TestUnitWrite(t *testing.T) {
     const ret = await infer.run({
       dataset: req.input.dataset,
       modelName: "relevance-fashion-fbt",
+      params: req.input,
+      partitions: req.partitions,
+    })
+    return ret;
+  }
+}
+
+export { SdkFuncs };
+`
+		check(t, testScenario{
+			in:   []*jsparsersdkfunc.SdkFunc{parsed},
+			want: want,
+		})
+	})
+
+	t.Run("with client query sdk func", func(t *testing.T) {
+		parsed := jsparsersdkfunc.ParseSdkFunc(&relavancefashiondashfunnel.Func{})
+		want := `class SdkFuncs {
+
+  /**
+   * Constructs an SdkFuncs instance.
+   * @param {Services} services - The services manager instance.
+   */
+  constructor(services) {
+    /**
+     * @private
+     * @type {Services}
+     */
+    this._services = services;
+  }
+
+  /**
+   * @param {sdkFuncProductRelevanceFashionDashFunnelReq} req
+   * @returns {Promise<sdkFuncProductRelevanceFashionDashFunnelResp>}
+   */
+  async productRelevanceFashionDashFunnel(req) {
+    const dash = this._services.dash()
+    const ret = await dash.query({
+      dataset: req.input.dataset,
+      dashName: "product-relevance-fashion-dash-funnel",
       params: req.input,
       partitions: req.partitions,
     })
