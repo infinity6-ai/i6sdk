@@ -8,7 +8,7 @@ import (
 
 type Catalog struct {
 	ID        string           `json:"id" bigquery:"id"`
-	Dataset   *lakedsz.Dataset `json:"dataset" bigquery:"dataset"`
+	Dataset   *lakedsz.Dataset `json:"dataset" bigquery:"dataset,nullable"`
 	StoreId   string           `json:"store_id" bigquery:"store_id"`
 	ProductId string           `json:"product_id" bigquery:"product_id"`
 	SkuId     string           `json:"sku_id" bigquery:"sku_id"`
