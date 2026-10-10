@@ -3,7 +3,7 @@ module go.code.infinity6.ai/sdkgo
 go 1.26.1
 
 require (
-	cloud.google.com/go/bigquery v1.79.0
+	cloud.google.com/go/bigquery v1.84.0
 	github.com/infinity6-ai/gox/commonz v0.0.44
 	github.com/infinity6-ai/gox/fsz v0.0.44
 	github.com/infinity6-ai/gox/routez v0.0.44
