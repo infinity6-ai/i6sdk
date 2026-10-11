@@ -16,6 +16,6 @@ const (
 )
 
 type GoTyp struct {
-	Raw  Raw
-	Kind Kind
+	Raw  Raw  `json:"raw"`
+	Kind Kind `json:"kind"`
 }
