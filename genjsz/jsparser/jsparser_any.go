@@ -33,17 +33,17 @@ func ParseAny(baseId string, v any) (*jstypez.Typedef, *jstypez.Typedefs) {
 		panic(fmt.Sprintf("invalid value or nil pointer: %#v", v))
 	}
 
-	switch val.Kind() {
+	switch t := val.Kind(); t {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
 		reflect.Float32, reflect.Float64:
-		return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: jstypez.TypNumber}}, nil
+		return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: jstypez.TypNumber, GoTyp: t.String()}}, nil
 
 	case reflect.String:
-		return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: jstypez.TypString}}, nil
+		return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: jstypez.TypString, GoTyp: t.String()}}, nil
 
 	case reflect.Bool:
-		return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: jstypez.TypBoolean}}, nil
+		return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: jstypez.TypBoolean, GoTyp: t.String()}}, nil
 
 	case reflect.Slice, reflect.Array:
 		var allTdfs jstypez.Typedefs

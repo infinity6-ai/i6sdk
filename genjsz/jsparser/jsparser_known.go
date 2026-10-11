@@ -9,11 +9,12 @@ import (
 )
 
 func knownTypes(val reflect.Value) (*jstypez.Typedef, *jstypez.Typedefs) {
+	t := reflect.TypeOf(val.Interface()).String()
 	switch val.Interface().(type) {
 	case fsz.FileStat:
-		return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: jstypez.TypFileStat}}, nil
+		return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: jstypez.TypFileStat, GoTyp: t}}, nil
 	case time.Time:
-		return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: jstypez.TypTime}}, nil
+		return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: jstypez.TypTime, GoTyp: t}}, nil
 	default:
 		return nil, nil
 	}

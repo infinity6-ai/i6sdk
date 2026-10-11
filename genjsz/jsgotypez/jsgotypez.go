@@ -1,13 +1,12 @@
 package jsgotypez
 
-import "reflect"
-
 type GoTypKind string
 
 const (
-	GoTypKindNone  = ""
-	GoTypKindSlice = "slice"
-	GoTypKindMap   = "map"
+	GoTypKindRaw    = "raw"
+	GoTypKindSlice  = "slice"
+	GoTypKindMap    = "map"
+	GoTypKindObject = "object"
 )
 
 type GoTyp struct {
@@ -15,10 +14,23 @@ type GoTyp struct {
 	Raw  string    `json:"raw"`
 }
 
-func NewSlice(v any) *GoTyp {
-	val := reflect.ValueOf(v)
+func NewSlice(raw string) *GoTyp {
 	return &GoTyp{
 		Kind: GoTypKindSlice,
-		Raw:  val.String(),
+		Raw:  raw,
+	}
+}
+
+func NewObect(raw string) *GoTyp {
+	return &GoTyp{
+		Kind: GoTypKindObject,
+		Raw:  raw,
+	}
+}
+
+func NewMap(k string, v string) *GoTyp {
+	return &GoTyp{
+		Kind: GoTypKindMap,
+		Raw:  k + "," + v,
 	}
 }
