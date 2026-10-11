@@ -11,7 +11,7 @@ func ParseSchemaArray(baseId string, s *schemaz.Array) (*jstypez.Typedef, *jstyp
 	element := s.Get(0, false)
 	eTypedef, eTypedefs := ParseSchema(baseId+"Element", element)
 	typedef := &jstypez.Typedef{
-		Head: &jstypez.Tuple{Typ: fmt.Sprintf("Array<%s>", eTypedef.Head.Name), GoTyp: "slice"},
+		Head: &jstypez.Tuple{Typ: fmt.Sprintf("Array<%s>", eTypedef.Head.Name)},
 	}
 	typedefs := eTypedefs
 	if typedefs == nil {
