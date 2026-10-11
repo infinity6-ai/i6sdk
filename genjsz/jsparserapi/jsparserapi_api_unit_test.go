@@ -54,8 +54,8 @@ func TestUnitFractionSample(t *testing.T) {
 			{
 				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionReqPayload", Summary: "apiSampleFraction reqPayload"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "Array<apiSampleFractionReqPayloadMessagesElement>", Name: "messages"},
 					{Typ: "string", Name: "reason", Summary: "Sample reason of this fraction"},
+					{Typ: "Array<apiSampleFractionReqPayloadMessagesElement>", Name: "messages", GoTyp: "slice"},
 				}),
 			},
 			{
