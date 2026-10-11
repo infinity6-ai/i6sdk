@@ -41,20 +41,20 @@ func expectedFashionFbtSdkFunc() *jsparsersdkfunc.SdkFunc {
 			{
 				Head: &jstypez.Tuple{Typ: "object", Name: "sdkFuncProductRelevanceFashionFbtInput", Summary: "sdkFuncProductRelevanceFashionFbt input"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "string", Name: "dataset"},
+					{Typ: "string", GoTyp: "lakedsz.Dataset", Name: "dataset"},
 					{Typ: "Array<sdkFuncProductRelevanceFashionFbtInputSkusElement>", Name: "skus"},
 				}),
 			},
 			{
 				Head: &jstypez.Tuple{Typ: "object", Name: "sdkFuncProductRelevanceFashionFbtInputSkusElement"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "string", Name: "sku_id"},
+					{Typ: "string", GoTyp: "string", Name: "sku_id"},
 				}),
 			},
 			{
 				Head: &jstypez.Tuple{Typ: "object", Name: "sdkFuncProductRelevanceFashionFbtPartitions", Summary: "sdkFuncProductRelevanceFashionFbt partitions"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "string", Name: "store_id"},
+					{Typ: "string", GoTyp: "string", Name: "store_id"},
 				}),
 			},
 			{
@@ -66,14 +66,14 @@ func expectedFashionFbtSdkFunc() *jsparsersdkfunc.SdkFunc {
 			{
 				Head: &jstypez.Tuple{Typ: "object", Name: "sdkFuncProductRelevanceFashionFbtOutputResultsElement"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "number", Name: "rating"},
-					{Typ: "Array<sdkFuncProductRelevanceFashionFbtOutputResultsElementSkusElement>", GoTyp: "float64", Name: "skus"},
+					{Typ: "number", GoTyp: "float64", Name: "rating"},
+					{Typ: "Array<sdkFuncProductRelevanceFashionFbtOutputResultsElementSkusElement>", Name: "skus"},
 				}),
 			},
 			{
 				Head: &jstypez.Tuple{Typ: "object", Name: "sdkFuncProductRelevanceFashionFbtOutputResultsElementSkusElement"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "string", Name: "sku_id"},
+					{Typ: "string", GoTyp: "string", Name: "sku_id"},
 				}),
 			},
 		}),

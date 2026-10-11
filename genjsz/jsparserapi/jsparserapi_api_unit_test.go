@@ -35,51 +35,51 @@ func TestUnitFractionSample(t *testing.T) {
 			{
 				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionParams", Summary: "apiSampleFraction params"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "number", Name: "denominator", Summary: "Fraction Denominator"},
-					{Typ: "number", Name: "numerator", Summary: "Fraction Numerator"},
+					{Typ: "number", GoTyp: "float64", Name: "denominator", Summary: "Fraction Denominator"},
+					{Typ: "number", GoTyp: "float64", Name: "numerator", Summary: "Fraction Numerator"},
 				}),
 			},
 			{
 				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionQuery", Summary: "apiSampleFraction query"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "number", Name: "precision", Summary: "Fraction max precision"},
+					{Typ: "number", GoTyp: "int", Name: "precision", Summary: "Fraction max precision"},
 				}),
 			},
 			{
 				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionReqHeaders", Summary: "apiSampleFraction reqHeaders"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "string", Name: "x_i6_trace_id", Summary: "Sample of Trace Id"},
+					{Typ: "string", GoTyp: "string", Name: "x_i6_trace_id", Summary: "Sample of Trace Id"},
 				}),
 			},
 			{
 				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionReqPayload", Summary: "apiSampleFraction reqPayload"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
 					{Typ: "Array<apiSampleFractionReqPayloadMessagesElement>", Name: "messages"},
-					{Typ: "string", Name: "reason", Summary: "Sample reason of this fraction"},
+					{Typ: "string", GoTyp: "string", Name: "reason", Summary: "Sample reason of this fraction"},
 				}),
 			},
 			{
 				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionReqPayloadMessagesElement", Summary: "message"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "string", Name: "message", Summary: "message string"},
+					{Typ: "string", GoTyp: "string", Name: "message", Summary: "message string"},
 				}),
 			},
 			{
 				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionRespHeaders", Summary: "apiSampleFraction respHeaders"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "string", Name: "x_i6_trace_message", Summary: "Sample of any trace message"},
+					{Typ: "string", GoTyp: "string", Name: "x_i6_trace_message", Summary: "Sample of any trace message"},
 				}),
 			},
 			{
 				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionRespPayload", Summary: "apiSampleFraction respPayload"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "string", Name: "display", Summary: "Human Fraction Representation"},
+					{Typ: "string", GoTyp: "string", Name: "display", Summary: "Human Fraction Representation"},
 					{Typ: "Array<apiSampleFractionRespPayloadMessagesElement>", Name: "messages", Summary: "Output Messages"},
-					{Typ: "string", Name: "result", Summary: "Fraction Result"},
+					{Typ: "string", GoTyp: "string", Name: "result", Summary: "Fraction Result"},
 				}),
 			},
 			{
-				Head: &jstypez.Tuple{Typ: "string", Name: "apiSampleFractionRespPayloadMessagesElement"},
+				Head: &jstypez.Tuple{Typ: "string", GoTyp: "string", Name: "apiSampleFractionRespPayloadMessagesElement"},
 			},
 			{
 				Head: &jstypez.Tuple{Typ: "object", Name: "dszFileStat"},

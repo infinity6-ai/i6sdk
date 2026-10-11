@@ -79,4 +79,26 @@ func TestUnitWrite(t *testing.T) {
 			want: "/**\n * @typedef {object} ComplexType\n * @property {boolean} flag\n * @property {Array<boolean>} flags\n * @property {Record<string, object>} nested\n */\n\n",
 		})
 	})
+
+	t.Run("typedef and properties with gotyp comments", func(t *testing.T) {
+		var tds jstypez.Typedefs
+		td1 := &jstypez.Typedef{
+			Head: &jstypez.Tuple{Typ: jstypez.TypString, GoTyp: "time.Time", Name: "dszTime", Summary: "Timestamp"},
+		}
+		td2 := &jstypez.Typedef{
+			Head:       &jstypez.Tuple{Typ: jstypez.TypObject, GoTyp: "models.User", Name: "UserType"},
+			Properties: &jstypez.Tuples{},
+		}
+		td2.Properties.Add(
+			jstypez.Tuple{Typ: jstypez.TypString, GoTyp: "string", Name: "id"},
+			jstypez.Tuple{Typ: jstypez.TypNumber, GoTyp: "int64", Name: "age", Summary: "User age"},
+		)
+		tds.Add(td1, td2)
+
+		check(t, testScenario{
+			name: "typedef and properties with gotyp comments",
+			in:   tds,
+			want: "/**\n * [Go: models.User]\n * @typedef {object} UserType\n * @property {string} id - [Go: string]\n * @property {number} age - [Go: int64] User age\n */\n\n/**\n * [Go: time.Time] Timestamp\n * @typedef {string} dszTime\n */\n\n",
+		})
+	})
 }

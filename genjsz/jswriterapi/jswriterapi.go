@@ -96,16 +96,16 @@ func buildReqTypedef(apiId string, api *jsparserapi.Api) (jstypez.Typedef, bool)
 		Properties: &jstypez.Tuples{},
 	}
 	if hasParams {
-		reqTypedef.Properties.Add(jstypez.Tuple{Typ: api.Req.Params.Head.Typ, Name: "params"})
+		reqTypedef.Properties.Add(jstypez.Tuple{Typ: api.Req.Params.Head.Typ, GoTyp: api.Req.Params.Head.GoTyp, Name: "params"})
 	}
 	if hasQuery {
-		reqTypedef.Properties.Add(jstypez.Tuple{Typ: api.Req.Query.Head.Typ, Name: "query"})
+		reqTypedef.Properties.Add(jstypez.Tuple{Typ: api.Req.Query.Head.Typ, GoTyp: api.Req.Query.Head.GoTyp, Name: "query"})
 	}
 	if hasReqHeaders {
-		reqTypedef.Properties.Add(jstypez.Tuple{Typ: api.Req.Headers.Head.Typ, Name: "headers"})
+		reqTypedef.Properties.Add(jstypez.Tuple{Typ: api.Req.Headers.Head.Typ, GoTyp: api.Req.Headers.Head.GoTyp, Name: "headers"})
 	}
 	if hasPayload {
-		reqTypedef.Properties.Add(jstypez.Tuple{Typ: api.Req.Payload.Head.Typ, Name: "payload"})
+		reqTypedef.Properties.Add(jstypez.Tuple{Typ: api.Req.Payload.Head.Typ, GoTyp: api.Req.Payload.Head.GoTyp, Name: "payload"})
 	}
 	return reqTypedef, hasReq
 }
@@ -116,10 +116,10 @@ func buildRespTypedef(apiId string, api *jsparserapi.Api) jstypez.Typedef {
 		Properties: &jstypez.Tuples{},
 	}
 	if api.Resp.Headers.Head != nil {
-		respTypedef.Properties.Add(jstypez.Tuple{Typ: api.Resp.Headers.Head.Typ, Name: "headers"})
+		respTypedef.Properties.Add(jstypez.Tuple{Typ: api.Resp.Headers.Head.Typ, GoTyp: api.Resp.Headers.Head.GoTyp, Name: "headers"})
 	}
 	if api.Resp.Payload.Head != nil {
-		respTypedef.Properties.Add(jstypez.Tuple{Typ: api.Resp.Payload.Head.Typ, Name: "payload"})
+		respTypedef.Properties.Add(jstypez.Tuple{Typ: api.Resp.Payload.Head.Typ, GoTyp: api.Resp.Payload.Head.GoTyp, Name: "payload"})
 	}
 	return respTypedef
 }
@@ -145,9 +145,17 @@ func writeApiDecl(b *strings.Builder, api *jsparserapi.Api) {
 	writeln(b, " * %s", jsparser.DescSummary(api.Spec.Desc))
 	writeln(b, " * ")
 	if hasReq {
-		writeln(b, " * @param {%sReq} req", apiId)
+		paramDesc := ""
+		if api.Req.Payload.Head != nil && api.Req.Payload.Head.GoTyp != "" {
+			paramDesc = fmt.Sprintf(" - [Go: %s]", api.Req.Payload.Head.GoTyp)
+		}
+		writeln(b, " * @param {%sReq} req%s", apiId, paramDesc)
 	}
-	writeln(b, " * @returns {Promise<%sResp>}", apiId)
+	returnDesc := ""
+	if api.Resp.Payload.Head != nil && api.Resp.Payload.Head.GoTyp != "" {
+		returnDesc = fmt.Sprintf(" - [Go: %s]", api.Resp.Payload.Head.GoTyp)
+	}
+	writeln(b, " * @returns {Promise<%sResp>}%s", apiId, returnDesc)
 	writeln(b, " */")
 
 	if hasReq {

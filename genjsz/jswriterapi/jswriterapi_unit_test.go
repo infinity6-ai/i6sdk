@@ -7,6 +7,7 @@ import (
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparserapi"
+	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/genjsz/jswriterapi"
 )
 
@@ -99,4 +100,91 @@ export { Apis };
 		})
 	})
 
+	t.Run("with gotyp in request and response payload", func(t *testing.T) {
+		api := &jsparserapi.Api{
+			Spec: jsparserapi.ApiSpec{
+				CamelId: "apiCustomAction",
+				Method:  "POST",
+				Path:    "/api/custom/action",
+			},
+			Req: jsparserapi.Req{
+				Payload: jstypez.Typedef{
+					Head: &jstypez.Tuple{Typ: "apiCustomActionReqPayload", GoTyp: "models.CustomReq", Name: "payload"},
+				},
+			},
+			Resp: jsparserapi.Resp{
+				Payload: jstypez.Typedef{
+					Head: &jstypez.Tuple{Typ: "apiCustomActionRespPayload", GoTyp: "models.CustomResp", Name: "payload"},
+				},
+			},
+		}
+
+		tds := jswriterapi.ExtractTypedefs([]*jsparserapi.Api{api})
+		allTds := tds.All()
+		require.Len(t, allTds, 2)
+		var reqTd *jstypez.Typedef
+		for _, td := range allTds {
+			if td.Head.Name == "apiCustomActionReq" {
+				reqTd = td
+				break
+			}
+		}
+		require.NotNil(t, reqTd)
+		require.NotNil(t, reqTd.Properties)
+		props := reqTd.Properties.All()
+		require.Len(t, props, 1)
+		require.Equal(t, "models.CustomReq", props[0].GoTyp)
+
+		apis := &jsparserapi.Apis{Apis: []*jsparserapi.Api{api}}
+		want := `class Apis {
+
+  /**
+   * Constructs an Ingest client instance.
+   * @param {Services} services - The services manager instance.
+   */
+  constructor(services) {
+    /**
+     * @private
+     * @type {Services}
+     */
+    this._services = services;
+  }
+
+  /**
+   * 
+   * 
+   * 
+   * 
+   * @param {apiCustomActionReq} req - [Go: models.CustomReq]
+   * @returns {Promise<apiCustomActionResp>} - [Go: models.CustomResp]
+   */
+  async customAction(req) {
+    const resp = await this._services.invoker().invoke({
+      method: "POST",
+      path: ` + "`" + `api/custom/action` + "`" + `,
+      json: req.payload,
+    });
+    const result = {status: resp.status, ok: resp.ok};
+    if (resp.ok) {
+      result.payload = await resp.json();
+    }
+    if (!resp.ok) {
+      const text = await resp.text();
+      try {
+        result.error = JSON.parse(text);
+      } catch {
+        result.error = text;
+      }
+    }
+    return result;
+  }
+}
+
+export { Apis };
+`
+		check(t, testScenario{
+			in:   apis,
+			want: want,
+		})
+	})
 }

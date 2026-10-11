@@ -46,10 +46,10 @@ func ExtractTypedefs(sdkFuncs []*jsparsersdkfunc.SdkFunc) jstypez.Typedefs {
 				Properties: &jstypez.Tuples{},
 			}
 			if hasInput {
-				reqTypedef.Properties.Add(jstypez.Tuple{Typ: fn.Req.Input.Head.Typ, Name: "input"})
+				reqTypedef.Properties.Add(jstypez.Tuple{Typ: fn.Req.Input.Head.Typ, GoTyp: fn.Req.Input.Head.GoTyp, Name: "input"})
 			}
 			if hasPartitions {
-				reqTypedef.Properties.Add(jstypez.Tuple{Typ: fn.Req.Partitions.Head.Typ, Name: "partitions"})
+				reqTypedef.Properties.Add(jstypez.Tuple{Typ: fn.Req.Partitions.Head.Typ, GoTyp: fn.Req.Partitions.Head.GoTyp, Name: "partitions"})
 			}
 			tdfs.Add(&reqTypedef)
 		}
@@ -60,7 +60,7 @@ func ExtractTypedefs(sdkFuncs []*jsparsersdkfunc.SdkFunc) jstypez.Typedefs {
 			Properties: &jstypez.Tuples{},
 		}
 		if hasOutput {
-			respTypedef.Properties.Add(jstypez.Tuple{Typ: fn.Resp.Output.Head.Typ, Name: "output"})
+			respTypedef.Properties.Add(jstypez.Tuple{Typ: fn.Resp.Output.Head.Typ, GoTyp: fn.Resp.Output.Head.GoTyp, Name: "output"})
 		}
 		tdfs.Add(&respTypedef)
 	}
@@ -117,9 +117,17 @@ func Write(ctx context.Context, sdkFuncs []*jsparsersdkfunc.SdkFunc) string {
 			writeln(&decl, " * ")
 		}
 		if hasReq {
-			writeln(&decl, " * @param {%sReq} req", funcId)
+			paramDesc := ""
+			if fn.Req.Input.Head != nil && fn.Req.Input.Head.GoTyp != "" {
+				paramDesc = fmt.Sprintf(" - [Go: %s]", fn.Req.Input.Head.GoTyp)
+			}
+			writeln(&decl, " * @param {%sReq} req%s", funcId, paramDesc)
 		}
-		writeln(&decl, " * @returns {Promise<%sOutput>}", funcId)
+		returnDesc := ""
+		if fn.Resp.Output.Head != nil && fn.Resp.Output.Head.GoTyp != "" {
+			returnDesc = fmt.Sprintf(" - [Go: %s]", fn.Resp.Output.Head.GoTyp)
+		}
+		writeln(&decl, " * @returns {Promise<%sOutput>}%s", funcId, returnDesc)
 		writeln(&decl, " */")
 
 		if hasReq {
