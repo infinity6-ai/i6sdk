@@ -1,6 +1,8 @@
 package dsztoken
 
 import (
+	"reflect"
+
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
@@ -17,21 +19,22 @@ type DatasetToken struct {
 	Token          string          `json:"token,omitempty"`
 }
 
-func (*DatasetToken) JSTypedef() (*jstypez.Typedef, *jstypez.Typedefs) {
+func (d *DatasetToken) JSTypedef() (*jstypez.Typedef, *jstypez.Typedefs) {
+	t := reflect.TypeOf(*d).String()
 	td := &jstypez.Typedef{
-		Head:       &jstypez.Tuple{Typ: jstypez.TypObject, Name: ""},
+		Head:       &jstypez.Tuple{Typ: jstypez.TypObject, GoTyp: t, Name: ""},
 		Properties: &jstypez.Tuples{},
 	}
 	td.Properties.Add(
-		jstypez.Tuple{Typ: jstypez.TypString, Name: "id"},
-		jstypez.Tuple{Typ: jstypez.TypString, Name: "jti"},
-		jstypez.Tuple{Typ: jstypez.TypString, Name: "dataset"},
-		jstypez.Tuple{Typ: jstypez.TypString, Name: "annotation"},
-		jstypez.Tuple{Typ: jstypez.TypNumber, Name: "expiration_date"},
-		jstypez.Tuple{Typ: jstypez.TypString, Name: "audience"},
-		jstypez.Tuple{Typ: "Array<string>", Name: "grants"},
-		jstypez.Tuple{Typ: jstypez.TypString, Name: "channel"},
-		jstypez.Tuple{Typ: jstypez.TypString, Name: "token"},
+		jstypez.Tuple{Typ: jstypez.TypString, GoTyp: reflect.TypeOf(d.Id).String(), Name: "id"},
+		jstypez.Tuple{Typ: jstypez.TypString, GoTyp: reflect.TypeOf(d.Jti).String(), Name: "jti"},
+		jstypez.Tuple{Typ: jstypez.TypString, GoTyp: reflect.TypeOf(d.Dataset).String(), Name: "dataset"},
+		jstypez.Tuple{Typ: jstypez.TypString, GoTyp: reflect.TypeOf(d.Annotation).String(), Name: "annotation"},
+		jstypez.Tuple{Typ: jstypez.TypNumber, GoTyp: reflect.TypeOf(d.ExpirationDate).String(), Name: "expiration_date"},
+		jstypez.Tuple{Typ: jstypez.TypString, GoTyp: reflect.TypeOf(d.Audience).String(), Name: "audience"},
+		jstypez.Tuple{Typ: "Array<string>", GoTyp: reflect.TypeOf(d.Grants).String(), Name: "grants"},
+		jstypez.Tuple{Typ: jstypez.TypString, GoTyp: reflect.TypeOf(d.Channel).String(), Name: "channel"},
+		jstypez.Tuple{Typ: jstypez.TypString, GoTyp: reflect.TypeOf(d.Token).String(), Name: "token"},
 	)
 	return td, nil
 }

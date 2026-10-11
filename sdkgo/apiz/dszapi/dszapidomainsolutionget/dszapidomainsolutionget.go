@@ -1,6 +1,8 @@
 package dszapidomainsolutionget
 
 import (
+	"reflect"
+
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
@@ -19,14 +21,15 @@ type SolutionDomain struct {
 	Domain   domain.Domain
 }
 
-func (*SolutionDomain) JSTypedef() (*jstypez.Typedef, *jstypez.Typedefs) {
+func (s *SolutionDomain) JSTypedef() (*jstypez.Typedef, *jstypez.Typedefs) {
+	t := reflect.TypeOf(*s).String()
 	td := &jstypez.Typedef{
-		Head:       &jstypez.Tuple{Typ: jstypez.TypObject, Name: ""},
+		Head:       &jstypez.Tuple{Typ: jstypez.TypObject, GoTyp: t, Name: ""},
 		Properties: &jstypez.Tuples{},
 	}
 	td.Properties.Add(
-		jstypez.Tuple{Typ: jstypez.TypString, Name: "solution"},
-		jstypez.Tuple{Typ: jstypez.TypString, Name: "domain"},
+		jstypez.Tuple{Typ: jstypez.TypString, GoTyp: reflect.TypeOf(s.Solution).String(), Name: "solution"},
+		jstypez.Tuple{Typ: jstypez.TypString, GoTyp: reflect.TypeOf(s.Domain).String(), Name: "domain"},
 	)
 	return td, nil
 }
