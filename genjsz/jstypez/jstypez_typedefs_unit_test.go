@@ -44,76 +44,75 @@ func TestUnitTuples(t *testing.T) {
 		}
 	}
 
-	t.Run("tuples with GoTyp preserves field through creation and serialization", func(t *testing.T) {
+	t.Run("tuples preserves fields through creation and serialization", func(t *testing.T) {
 		check(t, testScenario{
 			tuples: []jstypez.Tuple{
-				{Typ: jstypez.TypString, GoTyp: "string", Name: "id", Summary: "Identifier"},
-				{Typ: jstypez.TypNumber, GoTyp: "int64", Name: "count", Summary: "Counter"},
+				{Typ: jstypez.TypString, Name: "id", Summary: "Identifier"},
+				{Typ: jstypez.TypNumber, Name: "count", Summary: "Counter"},
 			},
 			wantTuples: []jstypez.Tuple{
-				{Typ: jstypez.TypString, GoTyp: "string", Name: "id", Summary: "Identifier"},
-				{Typ: jstypez.TypNumber, GoTyp: "int64", Name: "count", Summary: "Counter"},
+				{Typ: jstypez.TypString, Name: "id", Summary: "Identifier"},
+				{Typ: jstypez.TypNumber, Name: "count", Summary: "Counter"},
 			},
 			wantJSON: `[
-				{"typ":"string","go_typ":"string","name":"id","summary":"Identifier"},
-				{"typ":"number","go_typ":"int64","name":"count","summary":"Counter"}
+				{"typ":"string","name":"id","summary":"Identifier"},
+				{"typ":"number","name":"count","summary":"Counter"}
 			]`,
 		})
 	})
 
-	t.Run("tuples unmarshal from json with go_typ", func(t *testing.T) {
+	t.Run("tuples unmarshal from json", func(t *testing.T) {
 		check(t, testScenario{
 			jsonInput: `[
-				{"typ":"object","go_typ":"dszFileStat","name":"file","summary":"File stat"}
+				{"typ":"object","name":"file","summary":"File stat"}
 			]`,
 			wantTuples: []jstypez.Tuple{
-				{Typ: "object", GoTyp: "dszFileStat", Name: "file", Summary: "File stat"},
+				{Typ: "object", Name: "file", Summary: "File stat"},
 			},
 		})
 	})
 
 	t.Run("tuples skip identical duplicate tuple", func(t *testing.T) {
 		tups := jstypez.NewTuples([]jstypez.Tuple{
-			{Typ: jstypez.TypString, GoTyp: "string", Name: "foo", Summary: "summary"},
+			{Typ: jstypez.TypString, Name: "foo", Summary: "summary"},
 		})
-		tups.Add(jstypez.Tuple{Typ: jstypez.TypString, GoTyp: "string", Name: "foo", Summary: "summary"})
+		tups.Add(jstypez.Tuple{Typ: jstypez.TypString, Name: "foo", Summary: "summary"})
 		require.Len(t, tups.All(), 1)
 	})
 
-	t.Run("tuples panic on collision with different GoTyp", func(t *testing.T) {
+	t.Run("tuples panic on collision with different tuple fields", func(t *testing.T) {
 		tups := jstypez.NewTuples([]jstypez.Tuple{
-			{Typ: jstypez.TypNumber, GoTyp: "int32", Name: "field", Summary: "desc"},
+			{Typ: jstypez.TypNumber, Name: "field", Summary: "desc"},
 		})
 		require.Panics(t, func() {
-			tups.Add(jstypez.Tuple{Typ: jstypez.TypNumber, GoTyp: "int64", Name: "field", Summary: "desc"})
+			tups.Add(jstypez.Tuple{Typ: jstypez.TypString, Name: "field", Summary: "desc"})
 		})
 	})
 }
 
 func TestUnitTypedefs(t *testing.T) {
-	t.Run("typedef with GoTyp in Head and Properties", func(t *testing.T) {
+	t.Run("typedef in Head and Properties", func(t *testing.T) {
 		td := &jstypez.Typedef{
 			Head: &jstypez.Tuple{
 				Typ:     jstypez.TypObject,
-				GoTyp:   "MyStruct",
 				Name:    "MyStruct",
 				Summary: "Sample struct",
 			},
 			Properties: jstypez.NewTuples([]jstypez.Tuple{
-				{Typ: jstypez.TypString, GoTyp: "string", Name: "name", Summary: "Name"},
-				{Typ: jstypez.TypNumber, GoTyp: "float64", Name: "ratio", Summary: "Ratio"},
+				{Typ: jstypez.TypString, Name: "name", Summary: "Name"},
+				{Typ: jstypez.TypNumber, Name: "ratio", Summary: "Ratio"},
 			}),
 		}
 
 		tds := jstypez.NewTypedefs([]*jstypez.Typedef{td})
 		all := tds.All()
 		require.Len(t, all, 1)
-		require.Equal(t, "MyStruct", all[0].Head.GoTyp)
+		require.Equal(t, "MyStruct", all[0].Head.Name)
 
 		props := all[0].Properties.All()
 		require.Len(t, props, 2)
-		require.Equal(t, "string", props[0].GoTyp)
-		require.Equal(t, "float64", props[1].GoTyp)
+		require.Equal(t, "string", props[0].Typ)
+		require.Equal(t, "number", props[1].Typ)
 
 		data, err := json.Marshal(&tds)
 		require.NoError(t, err)
@@ -124,19 +123,19 @@ func TestUnitTypedefs(t *testing.T) {
 
 		unmarshaledAll := unmarshaled.All()
 		require.Len(t, unmarshaledAll, 1)
-		require.Equal(t, "MyStruct", unmarshaledAll[0].Head.GoTyp)
+		require.Equal(t, "MyStruct", unmarshaledAll[0].Head.Name)
 		unmarshaledProps := unmarshaledAll[0].Properties.All()
 		require.Len(t, unmarshaledProps, 2)
-		require.Equal(t, "string", unmarshaledProps[0].GoTyp)
-		require.Equal(t, "float64", unmarshaledProps[1].GoTyp)
+		require.Equal(t, "string", unmarshaledProps[0].Typ)
+		require.Equal(t, "number", unmarshaledProps[1].Typ)
 	})
 
-	t.Run("typedefs panic on collision with different GoTyp", func(t *testing.T) {
+	t.Run("typedefs panic on collision with different tuple fields", func(t *testing.T) {
 		td1 := &jstypez.Typedef{
-			Head: &jstypez.Tuple{Typ: jstypez.TypObject, GoTyp: "TypeA", Name: "Item"},
+			Head: &jstypez.Tuple{Typ: jstypez.TypObject, Name: "Item", Summary: "Summary A"},
 		}
 		td2 := &jstypez.Typedef{
-			Head: &jstypez.Tuple{Typ: jstypez.TypObject, GoTyp: "TypeB", Name: "Item"},
+			Head: &jstypez.Tuple{Typ: jstypez.TypObject, Name: "Item", Summary: "Summary B"},
 		}
 		tds := jstypez.NewTypedefs([]*jstypez.Typedef{td1})
 		require.Panics(t, func() {

@@ -11,7 +11,6 @@ import (
 
 type Tuple struct {
 	Typ     string `json:"typ"`
-	GoTyp   string `json:"go_typ"`
 	Name    string `json:"name"`
 	Summary string `json:"summary"`
 }
