@@ -72,14 +72,17 @@ type PurchaseSku struct {
 }
 
 type Recraw struct {
-	RecId   string `json:"rec_id" bigquery:"rec_id"`
-	ModelId string `json:"model_id" bigquery:"model_id"`
-	Payload string `json:"payload" bigquery:"payload"`
+	RecId        string `json:"rec_id" bigquery:"rec_id"`
+	ModelId      string `json:"model_id" bigquery:"model_id"`
+	ModelVersion string `json:"model_version" bigquery:"model_version"`
+	Payload      string `json:"payload" bigquery:"payload"`
 }
 
 type Recshow struct {
-	RecId   string `json:"rec_id" bigquery:"rec_id"`
-	Payload string `json:"payload" bigquery:"payload"`
+	RecId        string `json:"rec_id" bigquery:"rec_id"`
+	ModelId      string `json:"model_id" bigquery:"model_id"`
+	ModelVersion string `json:"model_version" bigquery:"model_version"`
+	Payload      string `json:"payload" bigquery:"payload"`
 }
 
 func (u *Click) Schema() *schemaz.Schema {
