@@ -90,10 +90,7 @@ class Dash {
         ]
       }
     })
-    // const resp = await this._services.apis().dszModelGet({
-    //   params: { dataset, model_name: dashName },
-    //   payload: { model_version: partitions.version, model_partitions: partitions },
-    // })
+    
     const url = resp.payload?.urls?.[0]?.url
     if (!url) throw new I6Error(`dash: the api gave no "${SQLITE_FILE}" file: ${JSON.stringify(resp.error ?? null)}`, { code: "asset" })
 
