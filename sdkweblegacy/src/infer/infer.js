@@ -24,8 +24,7 @@ import { describeModel, loadModel, runModel } from "./litert.js";
  * Options of an inference run.
  * @typedef {Object} InferOptions
  * @property {string} modelName - Model name (e.g. "relevance-fashion-fbt"); names the cached assets and the named queries.
- * @property {string} modelVersion - Model version (e.g. "v1").
- * @property {Object<string, string>} partitions - Partitions of the model, name -> value (e.g. `{ store_id: "s1" }`). Any partitions.
+ * @property {Object<string, string>} partitions - Partitions of the model, name -> value (e.g. `{ version: "v1", store_id: "s1" }`). Any partitions.
  * @property {string} dataset - Dataset that holds the model files.
  * @property {*} params - Model input, any JSON (e.g. `{ skus: [...] }`). Bound as `?1` of the input query.
  * @property {number} [limit] - Max number of results asked from the output query (its `?2`). Default 20.
