@@ -7,6 +7,7 @@ import (
 	"go.code.infinity6.ai/platform/config"
 	"go.code.infinity6.ai/platform/httpz/httpzserver"
 	"go.code.infinity6.ai/sdkweb/internal/stfiles"
+	"go.code.infinity6.ai/sdkweb/internal/stripewebhook"
 	"go.code.infinity6.ai/sdkweb/version"
 	"go.code.infinity6.ai/web/api/webhandler"
 )
@@ -69,6 +70,7 @@ func (me *Server) AddHandlers() {
 	me.server.Health()
 
 	webhandler.Add(me.server)
+	stripewebhook.Add(me.server)
 	me.server.AddRestPrefix("GET", "/static", stfiles.Handle())
 	me.server.AddRestPrefix("GET", "/src", stfiles.Handle())
 	me.server.AddRestPrefix("GET", "/test", stfiles.Handle())
