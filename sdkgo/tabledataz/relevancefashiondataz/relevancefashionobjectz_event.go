@@ -37,7 +37,7 @@ func (e *Event) SetDataset(ds lakedsz.Dataset) {
 	}
 }
 
-func (e *Event) SetP(p string) {
+func (e *Event) SetIngestedAt(p string) {
 	e.IngestedAt = p
 }
 

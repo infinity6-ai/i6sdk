@@ -29,7 +29,7 @@ func (c *Catalog) SetDataset(ds lakedsz.Dataset) {
 	}
 }
 
-func (c *Catalog) SetP(p string) {
+func (c *Catalog) SetIngestedAt(p string) {
 	c.IngestedAt = p
 }
 
