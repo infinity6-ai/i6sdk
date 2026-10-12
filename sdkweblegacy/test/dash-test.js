@@ -111,21 +111,21 @@
             await rejectsWithCode(assert, new Dash().query({ ...base, dashName: 'other', sqliteUrl }), 'query', /./)
         })
 
-        QUnit.test("query finds the sqlite with the model api", async function (assert) {
+        QUnit.test("query finds the sqlite with the signed url api", async function (assert) {
             const requests = []
-            const services = { apis: () => ({ dszModelGet: async (req) => {
+            const services = { apis: () => ({ dszSignedUrl: async (req) => {
                 requests.push(req)
-                return { ok: true, payload: { urls: [{ name: 'other.bin', url: 'https://dash.test/other' }, { name: 'sqlite.bin', url: sqliteUrl }] } }
+                return { ok: true, payload: { urls: [{ url: sqliteUrl }] } }
             } }) }
 
             const result = await new Dash(services).query(base)
             assert.strictEqual(result.marker, 'first')
             assert.deepEqual(requests, [{
-                params: { dataset: 'dectest', model_name: dashName },
-                payload: { model_version: 'v1', model_partitions: { store_id: 's1', version: 'v1' } },
+                params: { dataset: 'dectest' },
+                payload: { paths: [{ method: 'GET', path: 'i6tb://results.relevance-fashion-store-dash/store_id=1/sqlite.bin' }] },
             }])
 
-            const noSqlite = { apis: () => ({ dszModelGet: async () => ({ ok: true, payload: { urls: [] } }) }) }
+            const noSqlite = { apis: () => ({ dszSignedUrl: async () => ({ ok: true, payload: { urls: [] } }) }) }
             await rejectsWithCode(assert, new Dash(noSqlite).query(base), 'asset', /no "sqlite.bin" file/)
         })
     })

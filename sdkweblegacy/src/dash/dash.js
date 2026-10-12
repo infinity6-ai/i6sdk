@@ -81,7 +81,8 @@ class Dash {
     if (opts.sqliteUrl) return opts.sqliteUrl
 
     const { dashName, partitions, dataset } = opts
-    const resp = await this._services.apis().dszSignedUrl({
+    const apis = await this._services.apis()
+    const resp = await apis.dszSignedUrl({
       params: { dataset: dataset },
       payload: {
         paths: [
@@ -93,7 +94,7 @@ class Dash {
     //   params: { dataset, model_name: dashName },
     //   payload: { model_version: partitions.version, model_partitions: partitions },
     // })
-    const url = resp.payload?.urls[0]
+    const url = resp.payload?.urls?.[0]?.url
     if (!url) throw new I6Error(`dash: the api gave no "${SQLITE_FILE}" file: ${JSON.stringify(resp.error ?? null)}`, { code: "asset" })
 
     return url
