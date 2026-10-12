@@ -272,15 +272,15 @@ func TestUnitEventSerialization(t *testing.T) {
 				"session_id": "sess_456",
 				"user_id": "usr_789",
 				"created_at": "2026-10-08T12:00:00Z",
-				"p": "custom_param"
+				"ingested_at": "custom_param"
 			}`,
 			event: relevancefashiondataz.Event{
-				ID:        "evt_123",
-				StoreId:   "ABC",
-				SessionId: "sess_456",
-				UserId:    "usr_789",
-				CreatedAt: time.Date(2026, 10, 8, 12, 0, 0, 0, time.UTC),
-				P:         "custom_param",
+				ID:         "evt_123",
+				StoreId:    "ABC",
+				SessionId:  "sess_456",
+				UserId:     "usr_789",
+				CreatedAt:  time.Date(2026, 10, 8, 12, 0, 0, 0, time.UTC),
+				IngestedAt: "custom_param",
 			},
 		})
 	})
@@ -349,8 +349,8 @@ func TestUnitEventSchema(t *testing.T) {
 		require.Contains(t, propMap, "purchase")
 		require.Equal(t, "object", propMap["purchase"].Typ)
 
-		require.Contains(t, propMap, "p")
-		require.Equal(t, "string", propMap["p"].Typ)
+		require.Contains(t, propMap, "ingested_at")
+		require.Equal(t, "string", propMap["ingested_at"].Typ)
 
 		// Check registered sub-typedefs
 		tdfMap := make(map[string]*jstypez.Typedef)
@@ -438,16 +438,16 @@ func TestUnitCatalogSerialization(t *testing.T) {
 				"sku_id": "sku_789",
 				"sku_ds": "sku description",
 				"inactive": false,
-				"p": "custom_param_catalog"
+				"ingested_at": "custom_param_catalog"
 			}`,
 			catalog: relevancefashiondataz.Catalog{
-				ID:        "cat_123",
-				StoreId:   "ABC",
-				ProductId: "prod_456",
-				SkuId:     "sku_789",
-				SkuDs:     "sku description",
-				Inactive:  false,
-				P:         "custom_param_catalog",
+				ID:         "cat_123",
+				StoreId:    "ABC",
+				ProductId:  "prod_456",
+				SkuId:      "sku_789",
+				SkuDs:      "sku description",
+				Inactive:   false,
+				IngestedAt: "custom_param_catalog",
 			},
 		})
 	})

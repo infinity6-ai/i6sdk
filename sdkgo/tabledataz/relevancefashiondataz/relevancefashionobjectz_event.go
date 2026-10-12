@@ -23,7 +23,7 @@ type Event struct {
 	Recraw         *Recraw             `json:"recraw,omitempty" bigquery:"recraw,nullable"`
 	Recshow        *Recshow            `json:"recshow,omitempty" bigquery:"recshow,nullable"`
 	CreatedAt      time.Time           `json:"created_at" bigquery:"created_at"`
-	P              string              `json:"p" bigquery:"p"`
+	IngestedAt     string              `json:"ingested_at" bigquery:"ingested_at"`
 }
 
 func (e *Event) Table() laketbnamez.TableName {
@@ -38,7 +38,7 @@ func (e *Event) SetDataset(ds lakedsz.Dataset) {
 }
 
 func (e *Event) SetP(p string) {
-	e.P = p
+	e.IngestedAt = p
 }
 
 type Click struct {
@@ -305,8 +305,8 @@ func (e *Event) Schema() *schemaz.Schema {
 				"created_at": {
 					Raw: func() any { return &e.CreatedAt },
 				},
-				"p": {
-					Raw: func() any { return &e.P },
+				"ingested_at": {
+					Raw: func() any { return &e.IngestedAt },
 				},
 			}
 		},

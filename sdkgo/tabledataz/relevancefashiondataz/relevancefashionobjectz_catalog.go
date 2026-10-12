@@ -8,14 +8,14 @@ import (
 )
 
 type Catalog struct {
-	ID        string              `json:"id" bigquery:"id"`
-	Dataset   bigquery.NullString `json:"dataset" bigquery:"dataset"`
-	StoreId   string              `json:"store_id" bigquery:"store_id"`
-	ProductId string              `json:"product_id" bigquery:"product_id"`
-	SkuId     string              `json:"sku_id" bigquery:"sku_id"`
-	SkuDs     string              `json:"sku_ds" bigquery:"sku_ds"`
-	Inactive  bool                `json:"inactive" bigquery:"inactive"`
-	P         string              `json:"p" bigquery:"p"`
+	ID         string              `json:"id" bigquery:"id"`
+	Dataset    bigquery.NullString `json:"dataset" bigquery:"dataset"`
+	StoreId    string              `json:"store_id" bigquery:"store_id"`
+	ProductId  string              `json:"product_id" bigquery:"product_id"`
+	SkuId      string              `json:"sku_id" bigquery:"sku_id"`
+	SkuDs      string              `json:"sku_ds" bigquery:"sku_ds"`
+	Inactive   bool                `json:"inactive" bigquery:"inactive"`
+	IngestedAt string              `json:"ingested_at" bigquery:"ingested_at"`
 }
 
 func (c *Catalog) Table() laketbnamez.TableName {
@@ -30,7 +30,7 @@ func (c *Catalog) SetDataset(ds lakedsz.Dataset) {
 }
 
 func (c *Catalog) SetP(p string) {
-	c.P = p
+	c.IngestedAt = p
 }
 
 func (c *Catalog) Schema() *schemaz.Schema {
