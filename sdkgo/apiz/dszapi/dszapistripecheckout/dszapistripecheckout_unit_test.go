@@ -63,16 +63,17 @@ func TestUnitStripeCheckoutParseApi(t *testing.T) {
 
 	req := props("apiDszStripeCheckoutReqPayload")
 	for _, name := range []string{
-		"mode", "payment_method_types", "line_items", "customer_email", "locale", "expires_at",
+		"line_items", "customer_email",
 		"success_url", "cancel_url", "subscription_data_trial_period_days", "cnpj_hub",
 		"responsible_name_hub", "responsible_email_hub", "id_solution_hub", "id_campanha_hub",
-		"terms_version", "contract_version", "terms_accepted_at", "allow_promotion_codes",
+		"terms_version", "contract_version", "terms_accepted_at",
 	} {
 		require.Contains(t, req, name)
 	}
-	require.Equal(t, "string", req["mode"].Typ)
+	require.NotContains(t, req, "mode")
+	require.NotContains(t, req, "locale")
+	require.NotContains(t, req, "allow_promotion_codes")
 	require.Equal(t, "number", req["subscription_data_trial_period_days"].Typ)
-	require.Equal(t, "boolean", req["allow_promotion_codes"].Typ)
 
 	item := props("apiDszStripeCheckoutReqPayloadLineItemsElement")
 	require.Equal(t, "string", item["price"].Typ)
@@ -101,12 +102,8 @@ func TestUnitStripeCheckoutApiDataRefs(t *testing.T) {
 	body, err := refs.ReqBody.MarshalJSON()
 	require.NoError(t, err)
 	require.JSONEq(t, `{
-		"mode": "subscription",
-		"payment_method_types": ["card"],
 		"line_items": [{"price": "price_1", "quantity": 2}],
 		"customer_email": "a@b.com",
-		"locale": "pt-BR",
-		"expires_at": "3600",
 		"success_url": "",
 		"cancel_url": "",
 		"subscription_data_trial_period_days": 0,
@@ -117,21 +114,16 @@ func TestUnitStripeCheckoutApiDataRefs(t *testing.T) {
 		"id_campanha_hub": "",
 		"terms_version": "",
 		"contract_version": "",
-		"terms_accepted_at": "",
-		"allow_promotion_codes": true
+		"terms_accepted_at": ""
 	}`, string(body))
 
-	// Reading a body fills Req and ignores the fixed values
+	// Reading a body fills Req
 	other := &dszapistripecheckout.Api{}
-	err = other.ApiDataRefs().ReqBody.UnmarshalJSON([]byte(`{"mode":"payment","locale":"en","line_items":[{"price":"p","quantity":1}],"customer_email":"c@d.com","subscription_data_trial_period_days":7}`))
+	err = other.ApiDataRefs().ReqBody.UnmarshalJSON([]byte(`{"line_items":[{"price":"p","quantity":1}],"customer_email":"c@d.com","subscription_data_trial_period_days":7}`))
 	require.NoError(t, err)
 	require.Equal(t, "c@d.com", other.Req.CustomerEmail)
 	require.Equal(t, 7, other.Req.SubscriptionDataTrialPeriodDays)
 	require.Len(t, other.Req.LineItems, 1)
-	body, err = other.ApiDataRefs().ReqBody.MarshalJSON()
-	require.NoError(t, err)
-	require.Contains(t, string(body), `"mode":"subscription"`)
-	require.Contains(t, string(body), `"locale":"pt-BR"`)
 
 	respJSON := []byte(`{"id":"cs_1","url":"https://checkout/cs_1"}`)
 	require.NoError(t, refs.RespBody.UnmarshalJSON(respJSON))

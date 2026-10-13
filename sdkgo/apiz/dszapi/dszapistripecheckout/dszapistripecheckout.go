@@ -5,15 +5,6 @@ import (
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 )
 
-const (
-	fixedMode                = "subscription"
-	fixedLocale              = "pt-BR"
-	fixedExpiresAt           = "3600"
-	fixedAllowPromotionCodes = true
-)
-
-var fixedPaymentMethodTypes = []string{"card"}
-
 type LineItem struct {
 	Price    string `json:"price"`
 	Quantity int    `json:"quantity"`
@@ -84,20 +75,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 		ReqBody: &schemaz.Schema{
 			Desc: &schemaz.Desc{Summary: "Checkout session parameters."},
 			Object: func(read bool) map[string]*schemaz.Schema {
-				mode := fixedMode
-				paymentMethodTypes := append([]string(nil), fixedPaymentMethodTypes...)
-				locale := fixedLocale
-				expiresAt := fixedExpiresAt
-				allowPromotionCodes := fixedAllowPromotionCodes
 				return map[string]*schemaz.Schema{
-					"mode": {
-						Desc: &schemaz.Desc{Summary: "Always subscription."},
-						Raw:  func() any { return &mode },
-					},
-					"payment_method_types": {
-						Desc: &schemaz.Desc{Summary: "Always card."},
-						Raw:  func() any { return &paymentMethodTypes },
-					},
 					"line_items": {
 						Desc: &schemaz.Desc{Summary: "Items being bought"},
 						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*LineItem, *LineItem]{
@@ -109,14 +87,6 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					"customer_email": {
 						Desc: &schemaz.Desc{Summary: "Customer email"},
 						Raw:  func() any { return &d.Req.CustomerEmail },
-					},
-					"locale": {
-						Desc: &schemaz.Desc{Summary: "Always pt-BR."},
-						Raw:  func() any { return &locale },
-					},
-					"expires_at": {
-						Desc: &schemaz.Desc{Summary: "Always 3600."},
-						Raw:  func() any { return &expiresAt },
 					},
 					"success_url": {
 						Desc: &schemaz.Desc{Summary: "Url to go after a successful checkout"},
@@ -153,10 +123,6 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					},
 					"terms_accepted_at": {
 						Raw: func() any { return &d.Req.TermsAcceptedAt },
-					},
-					"allow_promotion_codes": {
-						Desc: &schemaz.Desc{Summary: "Always true."},
-						Raw:  func() any { return &allowPromotionCodes },
 					},
 				}
 			},
