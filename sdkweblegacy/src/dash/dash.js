@@ -57,11 +57,11 @@ class Dash {
     validate(opts)
 
     const url = await this._sqliteUrl(opts)
-    const ref = await downloadFile(`dash-${opts.dashName}-${partitionsKey(opts.partitions)}-sqlite`, url)
+    const ref = await downloadFile(`${opts.dashName}-${partitionsKey(opts.partitions)}-sqlite`, url)
 
     const conn = await sqlitez.open({ path: await fs.resolve(ref) })
     try {
-      const name = `dash-${opts.dashName}`
+      const name = `${opts.dashName}`
       const result = await conn.namedJsonQuery({ name, params: [opts.params] })
       debug(`${name} returned`, result)
       return result
