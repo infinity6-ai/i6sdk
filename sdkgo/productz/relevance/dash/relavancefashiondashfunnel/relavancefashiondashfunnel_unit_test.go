@@ -89,7 +89,8 @@ func TestUnitRelavanceFashionDashFunnelDataRefs(t *testing.T) {
 	require.Contains(t, inputProps, "dataset")
 	require.Equal(t, "string", inputProps["dataset"].Typ)
 	require.Contains(t, inputProps, "params")
-	require.Equal(t, "object", inputProps["params"].Typ)
+	require.Equal(t, "funnelInputParams", inputProps["params"].Typ)
+	require.Contains(t, typedefNames(tdsInput), "funnelInputParams")
 
 	tdPartitions, tdsPartitions := jsparser.ParseSchema("funnelPartitions", refs.Partitions)
 	require.NotNil(t, tdPartitions)
@@ -115,7 +116,7 @@ func TestUnitRelavanceFashionDashFunnelDataRefs(t *testing.T) {
 		outputProps[prop.Name] = prop
 	}
 	require.Contains(t, outputProps, "results")
-	require.Equal(t, "object", outputProps["results"].Typ)
+	require.Equal(t, "funnelOutputResults", outputProps["results"].Typ)
 
 	tdfMapOutput := make(map[string]*jstypez.Typedef)
 	for _, tdf := range tdsOutput.All() {
@@ -134,4 +135,12 @@ func TestUnitRelavanceFashionDashFunnelDataRefs(t *testing.T) {
 	require.Equal(t, "string", rowsElemProps["from_rec"].Typ)
 	require.Contains(t, rowsElemProps, "qt_events")
 	require.Equal(t, "string", rowsElemProps["qt_events"].Typ)
+}
+
+func typedefNames(tds *jstypez.Typedefs) []string {
+	var ret []string
+	for _, td := range tds.All() {
+		ret = append(ret, td.Head.Name)
+	}
+	return ret
 }

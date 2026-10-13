@@ -19,9 +19,14 @@ func ParseSchemaObject(baseId string, obj map[string]*schemaz.Schema) (*jstypez.
 		schema := obj[field]
 		fieldId := baseId + camelstring.ToCamelUpper(field)
 		s, schemaTdfs := ParseSchema(fieldId, schema)
+		typ := s.Head.Typ
+		if s.Head.Typ == jstypez.TypObject && s.Properties != nil {
+			tdfs.Add(s)
+			typ = s.Head.Name
+		}
 		ret.Properties.Add(jstypez.Tuple{
 			Name:    field,
-			Typ:     s.Head.Typ,
+			Typ:     typ,
 			GoTyp:   s.Head.GoTyp,
 			Summary: DescSummary(schema.Desc),
 		})

@@ -30,3 +30,32 @@ func TestUnitDescHelpers(t *testing.T) {
 	require.Equal(t, "", jsparser.DescName(nil))
 	require.Equal(t, "", jsparser.DescSummary(nil))
 }
+
+func TestUnitParseSchemaNestedObject(t *testing.T) {
+	var s string
+	schema := &schemaz.Schema{
+		Object: func(_ bool) map[string]*schemaz.Schema {
+			return map[string]*schemaz.Schema{
+				"params": {
+					Object: func(_ bool) map[string]*schemaz.Schema {
+						return map[string]*schemaz.Schema{
+							"min": {Raw: func() any { return &s }},
+						}
+					},
+				},
+			}
+		},
+	}
+
+	td, tds := jsparser.ParseSchema("in", schema)
+	require.Equal(t, "inParams", td.Properties.All()[0].Typ, "nested object must be typed, not a bare object")
+
+	var found bool
+	for _, d := range tds.All() {
+		if d.Head.Name == "inParams" {
+			found = true
+			require.Equal(t, "string", d.Properties.All()[0].Typ)
+		}
+	}
+	require.True(t, found)
+}

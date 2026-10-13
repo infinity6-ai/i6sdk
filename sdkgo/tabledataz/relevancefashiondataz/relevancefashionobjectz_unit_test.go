@@ -344,10 +344,10 @@ func TestUnitEventSchema(t *testing.T) {
 		require.Equal(t, jstypez.TypTime, propMap["created_at"].Typ)
 
 		require.Contains(t, propMap, "click")
-		require.Equal(t, "object", propMap["click"].Typ)
+		require.Equal(t, "EventClick", propMap["click"].Typ)
 
 		require.Contains(t, propMap, "purchase")
-		require.Equal(t, "object", propMap["purchase"].Typ)
+		require.Equal(t, "EventPurchase", propMap["purchase"].Typ)
 
 		require.Contains(t, propMap, "ingested_at")
 		require.Equal(t, "string", propMap["ingested_at"].Typ)
@@ -358,6 +358,8 @@ func TestUnitEventSchema(t *testing.T) {
 			tdfMap[tdf.Head.Name] = tdf
 		}
 
+		require.Contains(t, tdfMap, "EventClick")
+		require.Contains(t, tdfMap, "EventPurchase")
 		require.Contains(t, tdfMap, "EventPurchaseSkusElement")
 	})
 }
