@@ -90,10 +90,11 @@ class Infer {
 
       // 3. Run the model
       const outputs = await runModel(compiled, inputs)
+      debug("output returned (before namedJsonQuery)", outputs)
 
       // 4. The sqlite turns the outputs into the result
       const result = await conn.namedJsonQuery({ name: queryName("output"), params: outputQueryParams(outputs, opts) })
-      debug("output query returned", result)
+      debug("output query returned (after namedJsonQuery)", result)
       return result
     } finally {
       await conn.close()
