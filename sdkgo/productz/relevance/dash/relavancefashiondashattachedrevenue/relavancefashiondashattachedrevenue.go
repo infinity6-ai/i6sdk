@@ -16,9 +16,10 @@ type Partitions struct {
 }
 
 type Row struct {
-	EventType string
-	FromRec   string
-	QtEvents  string
+	AttachedRevenue   float64
+	AttachedPurchases float64
+	AttachedSkus      float64
+	AvgTicket         float64
 }
 
 type Result struct {
@@ -58,8 +59,8 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 					"params": {
 						Object: func(_ bool) map[string]*schemaz.Schema {
 							return map[string]*schemaz.Schema{
-								"min_year_month": {Str: schemaz.ParseStr(&d.Req.Params.MinYearMonth)},
-								"max_year_month": {Str: schemaz.ParseStr(&d.Req.Params.MaxYearMonth)},
+								"min_year_month": {Raw: func() any { return &d.Req.Params.MinYearMonth }},
+								"max_year_month": {Raw: func() any { return &d.Req.Params.MaxYearMonth }},
 							}
 						},
 					},
@@ -76,28 +77,23 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 		Output: &schemaz.Schema{
 			Object: func(_ bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"results": {
-						Object: func(_ bool) map[string]*schemaz.Schema {
-							return map[string]*schemaz.Schema{
-								"rows": {
-									Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Row, *Row]{
-										Slice:      func() *[]*Row { return &d.Resp.Results.Rows },
-										NewElement: func(idx int) *Row { return &Row{} },
-										Get: func(idx int, element **Row) *schemaz.Schema {
-											return &schemaz.Schema{
-												Object: func(_ bool) map[string]*schemaz.Schema {
-													return map[string]*schemaz.Schema{
-														"event_type": {Str: schemaz.ParseStr(&(*element).EventType)},
-														"from_rec":   {Str: schemaz.ParseStr(&(*element).FromRec)},
-														"qt_events":  {Str: schemaz.ParseStr(&(*element).QtEvents)},
-													}
-												},
-											}
-										},
-									}),
-								},
-							}
-						},
+					"rows": {
+						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Row, *Row]{
+							Slice:      func() *[]*Row { return &d.Resp.Results.Rows },
+							NewElement: func(idx int) *Row { return &Row{} },
+							Get: func(idx int, element **Row) *schemaz.Schema {
+								return &schemaz.Schema{
+									Object: func(_ bool) map[string]*schemaz.Schema {
+										return map[string]*schemaz.Schema{
+											"attached_revenue":   {Raw: func() any { return &(*element).AttachedRevenue }},
+											"attached_purchases": {Raw: func() any { return &(*element).AttachedPurchases }},
+											"attached_skus":      {Raw: func() any { return &(*element).AttachedSkus }},
+											"avg_ticket":         {Raw: func() any { return &(*element).AvgTicket }},
+										}
+									},
+								}
+							},
+						}),
 					},
 				}
 			},

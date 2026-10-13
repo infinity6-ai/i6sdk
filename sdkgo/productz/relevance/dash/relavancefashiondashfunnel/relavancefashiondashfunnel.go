@@ -76,28 +76,22 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 		Output: &schemaz.Schema{
 			Object: func(_ bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"results": {
-						Object: func(_ bool) map[string]*schemaz.Schema {
-							return map[string]*schemaz.Schema{
-								"rows": {
-									Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Row, *Row]{
-										Slice:      func() *[]*Row { return &d.Resp.Results.Rows },
-										NewElement: func(idx int) *Row { return &Row{} },
-										Get: func(idx int, element **Row) *schemaz.Schema {
-											return &schemaz.Schema{
-												Object: func(_ bool) map[string]*schemaz.Schema {
-													return map[string]*schemaz.Schema{
-														"event_type": {Raw: func() any { return &(*element).EventType }},
-														"from_rec":   {Raw: func() any { return &(*element).FromRec }},
-														"qt_events":  {Raw: func() any { return &(*element).QtEvents }},
-													}
-												},
-											}
-										},
-									}),
-								},
-							}
-						},
+					"rows": {
+						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Row, *Row]{
+							Slice:      func() *[]*Row { return &d.Resp.Results.Rows },
+							NewElement: func(idx int) *Row { return &Row{} },
+							Get: func(idx int, element **Row) *schemaz.Schema {
+								return &schemaz.Schema{
+									Object: func(_ bool) map[string]*schemaz.Schema {
+										return map[string]*schemaz.Schema{
+											"event_type": {Raw: func() any { return &(*element).EventType }},
+											"from_rec":   {Raw: func() any { return &(*element).FromRec }},
+											"qt_events":  {Raw: func() any { return &(*element).QtEvents }},
+										}
+									},
+								}
+							},
+						}),
 					},
 				}
 			},
