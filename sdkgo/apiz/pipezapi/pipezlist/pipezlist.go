@@ -15,12 +15,12 @@ type PipeState struct {
 }
 
 type Pipeline struct {
-	Id           string       `json:"id"`
-	ConcurrentId string       `json:"concurrent_id"`
-	Angle        string       `json:"angle"`
-	Name         string       `json:"name"`
-	Dataset      string       `json:"dataset"`
-	States       []*PipeState `json:"states"`
+	Id             string                        `json:"id"`
+	ConcurrentId   string                        `json:"concurrent_id"`
+	SolutionDomain solutiondomain.SolutionDomain `json:"solution_domain"`
+	Name           string                        `json:"name"`
+	Dataset        string                        `json:"dataset"`
+	States         []*PipeState                  `json:"states"`
 }
 
 type PipezListReq struct {

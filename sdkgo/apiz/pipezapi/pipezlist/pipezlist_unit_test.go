@@ -28,11 +28,11 @@ func TestUnitPipezListApi(t *testing.T) {
 		Resp: &pipezlist.PipezListResp{
 			Pipelines: []*pipezlist.Pipeline{
 				{
-					Id:           "pipe-123",
-					ConcurrentId: "concurrent-123",
-					Angle:        "relevance_fashion",
-					Name:         "mypipe",
-					Dataset:      "myds",
+					Id:             "pipe-123",
+					ConcurrentId:   "concurrent-123",
+					SolutionDomain: solutiondomain.MustParseString("relevance_fashion"),
+					Name:           "mypipe",
+					Dataset:        "myds",
 					States: []*pipezlist.PipeState{
 						{
 							Status:    "CREATED",
