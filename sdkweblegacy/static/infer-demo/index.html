@@ -46,7 +46,7 @@
     <label for="modelVersion">partitions.version</label>
     <input type="text" id="modelVersion" value="v1">
     <label for="storeId">partitions.store_id</label>
-    <input type="text" id="storeId" value="s1">
+    <input type="text" id="storeId" value="1">
     <label for="dataset">input.dataset</label>
     <input type="text" id="dataset" value="dectest">
     <label for="sku_ids">input.skus (sku ids, comma separated; each becomes {sku_id})</label>
@@ -70,19 +70,22 @@
   </div>
 
   <div class="card">
-    <h2>Dash <span class="badge">new I6Sdk().funcs().productRelevanceFashionDashFunnelV1(req)</span></h2>
+    <h2>Dash <span class="badge">new I6Sdk().funcs().&lt;dash func&gt;(req)</span></h2>
+    <label for="dashFunc">dash query</label>
+    <select id="dashFunc">
+      <option value="productRelevanceFashionDashFunnelV1">product-relevance-fashion-dash-funnel</option>
+      <option value="productRelevanceFashionDashAttachedRevenueV1">product-relevance-fashion-dash-attached-revenue</option>
+    </select>
     <label for="dashDataset">input.dataset</label>
     <input type="text" id="dashDataset" value="dectest">
     <label for="dashStoreId">partitions.store_id</label>
-    <input type="text" id="dashStoreId" value="s1">
+    <input type="text" id="dashStoreId" value="1">
     <label for="dashVersion">partitions.version</label>
     <input type="text" id="dashVersion" value="v1">
     <label for="minYearMonth">input.params.min_year_month</label>
     <input type="text" id="minYearMonth" value="2024-01">
     <label for="maxYearMonth">input.params.max_year_month</label>
     <input type="text" id="maxYearMonth" value="2024-03">
-    <label for="dashSqliteUrl">sqlite url (demo only; the example sqlite is made by make_dash_example.py. Empty = discovered with the model API, which needs a signed-in SDK)</label>
-    <input type="text" id="dashSqliteUrl" value="/static/infer-demo/dash-example.sqlite">
     <pre id="dashUsage" style="margin-top:8px"></pre>
     <div class="row" style="margin-top:8px"><button id="dashRun" class="primary">Run the dash</button><span class="badge" id="dashBadge">idle</span></div>
     <div class="io"><div><h3>Input (req)</h3><pre id="dashIn"></pre></div><div><h3>Output (result)</h3><pre id="dashOut"></pre></div></div>

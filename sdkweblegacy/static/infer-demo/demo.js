@@ -69,8 +69,8 @@ function dashRequest() {
   }
 }
 
-const dashUsage = () => `const result = await new I6Sdk().funcs().productRelevanceFashionDashFunnelV1(${JSON.stringify(dashRequest(), null, 2)})`
-const dashIds = ['dashDataset', 'dashStoreId', 'dashVersion', 'minYearMonth', 'maxYearMonth']
+const dashUsage = () => `const result = await new I6Sdk().funcs().${$('dashFunc').value}(${JSON.stringify(dashRequest(), null, 2)})`
+const dashIds = ['dashFunc', 'dashDataset', 'dashStoreId', 'dashVersion', 'minYearMonth', 'maxYearMonth']
 for (const id of dashIds) $(id).addEventListener('input', () => { $('dashUsage').textContent = dashUsage() })
 $('dashUsage').textContent = dashUsage()
 
@@ -81,16 +81,11 @@ const setDashStatus = (status) => {
 
 $('dashRun').onclick = async () => {
   const req = dashRequest()
-  const sqliteUrl = $('dashSqliteUrl').value.trim()
   setDashStatus('running')
   $('dashIn').textContent = JSON.stringify(req, null, 1)
   $('dashOut').textContent = ''
   try {
-    const sdk = new I6Sdk()
-    // funcs always uses the model api; with a sqlite url the dash service is called directly, as funcs does
-    const result = sqliteUrl
-      ? await sdk.dash().query({ dataset: req.input.dataset, dashName: 'product-relevance-fashion-dash-funnel', params: req.input, partitions: req.partitions, sqliteUrl: new URL(sqliteUrl, location.href).href })
-      : await sdk.funcs().productRelevanceFashionDashFunnelV1(req)
+    const result = await new I6Sdk().funcs()[$('dashFunc').value](req)
     $('dashOut').textContent = JSON.stringify(result, null, 1)
     setDashStatus('ok')
   } catch (e) {
