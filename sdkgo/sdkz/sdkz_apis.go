@@ -19,6 +19,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapisignedurl"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapistorecreate"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapistorelist"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapistripecheckout"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitableget"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitablelist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitokendelete"
@@ -65,6 +66,7 @@ func init() {
 	add(&dszapirecsystokencreate.Api{})
 	add(&dszapitokendelete.Api{})
 	add(&dszapimodelget.Api{})
+	add(&dszapistripecheckout.Api{})
 }
 
 func Apis() []apiz.Api {
