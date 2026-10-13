@@ -115,14 +115,14 @@ func TestUnitRelavanceFashionDashFunnelDataRefs(t *testing.T) {
 	for _, prop := range tdOutput.Properties.All() {
 		outputProps[prop.Name] = prop
 	}
-	require.Contains(t, outputProps, "results")
-	require.Equal(t, "funnelOutputResults", outputProps["results"].Typ)
+	require.Contains(t, outputProps, "rows")
+	require.Equal(t, "Array<funnelOutputRowsElement>", outputProps["rows"].Typ)
 
 	tdfMapOutput := make(map[string]*jstypez.Typedef)
 	for _, tdf := range tdsOutput.All() {
 		tdfMapOutput[tdf.Head.Name] = tdf
 	}
-	rowsElemTdf, ok := tdfMapOutput["funnelOutputResultsRowsElement"]
+	rowsElemTdf, ok := tdfMapOutput["funnelOutputRowsElement"]
 	require.True(t, ok)
 	require.NotNil(t, rowsElemTdf)
 	rowsElemProps := make(map[string]jstypez.Tuple)

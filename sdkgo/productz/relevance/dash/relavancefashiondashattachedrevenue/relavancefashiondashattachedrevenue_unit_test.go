@@ -28,14 +28,16 @@ func TestUnitRelavanceFashionDashAttachedRevenue(t *testing.T) {
 			Results: relavancefashiondashattachedrevenue.Result{
 				Rows: []*relavancefashiondashattachedrevenue.Row{
 					{
-						EventType: "click",
-						FromRec:   "true",
-						QtEvents:  "150",
+						AttachedRevenue:   1500.5,
+						AttachedPurchases: 12,
+						AttachedSkus:      30,
+						AvgTicket:         125.04,
 					},
 					{
-						EventType: "purchase",
-						FromRec:   "false",
-						QtEvents:  "25",
+						AttachedRevenue:   10,
+						AttachedPurchases: 1,
+						AttachedSkus:      2,
+						AvgTicket:         10,
 					},
 				},
 			},
@@ -51,12 +53,12 @@ func TestUnitRelavanceFashionDashAttachedRevenue(t *testing.T) {
 	require.Equal(t, "2024-01", fnCopy.Req.Params.MinYearMonth)
 	require.Equal(t, "2024-12", fnCopy.Req.Params.MaxYearMonth)
 	require.Len(t, fnCopy.Resp.Results.Rows, 2)
-	require.Equal(t, "click", fnCopy.Resp.Results.Rows[0].EventType)
-	require.Equal(t, "true", fnCopy.Resp.Results.Rows[0].FromRec)
-	require.Equal(t, "150", fnCopy.Resp.Results.Rows[0].QtEvents)
-	require.Equal(t, "purchase", fnCopy.Resp.Results.Rows[1].EventType)
-	require.Equal(t, "false", fnCopy.Resp.Results.Rows[1].FromRec)
-	require.Equal(t, "25", fnCopy.Resp.Results.Rows[1].QtEvents)
+	require.Equal(t, 1500.5, fnCopy.Resp.Results.Rows[0].AttachedRevenue)
+	require.Equal(t, 12.0, fnCopy.Resp.Results.Rows[0].AttachedPurchases)
+	require.Equal(t, 30.0, fnCopy.Resp.Results.Rows[0].AttachedSkus)
+	require.Equal(t, 125.04, fnCopy.Resp.Results.Rows[0].AvgTicket)
+	require.Equal(t, 10.0, fnCopy.Resp.Results.Rows[1].AttachedRevenue)
+	require.Equal(t, 2.0, fnCopy.Resp.Results.Rows[1].AttachedSkus)
 }
 
 func TestUnitRelavanceFashionDashAttachedRevenueSpec(t *testing.T) {
@@ -115,26 +117,28 @@ func TestUnitRelavanceFashionDashAttachedRevenueDataRefs(t *testing.T) {
 	for _, prop := range tdOutput.Properties.All() {
 		outputProps[prop.Name] = prop
 	}
-	require.Contains(t, outputProps, "results")
-	require.Equal(t, "attachedRevenueOutputResults", outputProps["results"].Typ)
+	require.Contains(t, outputProps, "rows")
+	require.Equal(t, "Array<attachedRevenueOutputRowsElement>", outputProps["rows"].Typ)
 
 	tdfMapOutput := make(map[string]*jstypez.Typedef)
 	for _, tdf := range tdsOutput.All() {
 		tdfMapOutput[tdf.Head.Name] = tdf
 	}
-	rowsElemTdf, ok := tdfMapOutput["attachedRevenueOutputResultsRowsElement"]
+	rowsElemTdf, ok := tdfMapOutput["attachedRevenueOutputRowsElement"]
 	require.True(t, ok)
 	require.NotNil(t, rowsElemTdf)
 	rowsElemProps := make(map[string]jstypez.Tuple)
 	for _, prop := range rowsElemTdf.Properties.All() {
 		rowsElemProps[prop.Name] = prop
 	}
-	require.Contains(t, rowsElemProps, "event_type")
-	require.Equal(t, "string", rowsElemProps["event_type"].Typ)
-	require.Contains(t, rowsElemProps, "from_rec")
-	require.Equal(t, "string", rowsElemProps["from_rec"].Typ)
-	require.Contains(t, rowsElemProps, "qt_events")
-	require.Equal(t, "string", rowsElemProps["qt_events"].Typ)
+	require.Contains(t, rowsElemProps, "attached_revenue")
+	require.Equal(t, "number", rowsElemProps["attached_revenue"].Typ)
+	require.Contains(t, rowsElemProps, "attached_purchases")
+	require.Equal(t, "number", rowsElemProps["attached_purchases"].Typ)
+	require.Contains(t, rowsElemProps, "attached_skus")
+	require.Equal(t, "number", rowsElemProps["attached_skus"].Typ)
+	require.Contains(t, rowsElemProps, "avg_ticket")
+	require.Equal(t, "number", rowsElemProps["avg_ticket"].Typ)
 }
 
 func typedefNames(tds *jstypez.Typedefs) []string {
