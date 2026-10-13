@@ -94,7 +94,6 @@ func TestUnitStripeCheckoutApiDataRefs(t *testing.T) {
 	require.Nil(t, refs.RespHeaders)
 	require.NotNil(t, refs.RespBody)
 
-	// The fixed values are always sent, whatever the request holds
 	api.Req = dszapistripecheckout.Req{
 		LineItems:     []*dszapistripecheckout.LineItem{{Price: "price_1", Quantity: 2}},
 		CustomerEmail: "a@b.com",
