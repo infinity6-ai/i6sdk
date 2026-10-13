@@ -1,6 +1,7 @@
 package solutiondomain
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/infinity6-ai/gox/commonz/constraintz/optionalz"
@@ -8,6 +9,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/infinity6-ai/gox/commonz/validation"
 	"github.com/infinity6-ai/gox/commonz/validation/checked"
+	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/domain"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
@@ -109,4 +111,41 @@ func MustParse(name Value) SolutionDomain {
 	ret, err := Parse(name)
 	errorz.Check(err)
 	return ret
+}
+
+func ParseString(s string) (SolutionDomain, error) {
+	parts := strings.SplitN(s, "_", 2)
+	if len(parts) != 2 {
+		return SolutionDomain{}, fmt.Errorf("invalid solution domain: %s", s)
+	}
+
+	val := Value{
+		Solution: solution.MustParse(parts[0]),
+		Domain:   domain.MustParse(parts[1]),
+	}
+
+	return Parse(val)
+}
+
+func MustParseString(s string) SolutionDomain {
+	ret, err := ParseString(s)
+	errorz.Check(err)
+	return ret
+}
+
+func ParseStr(out *SolutionDomain) func() *schemaz.Parser[string] {
+	return func() *schemaz.Parser[string] {
+		return &schemaz.Parser[string]{
+			Parse: func(v string) {
+				*out = MustParseString(v)
+			},
+			Format: func() (string, any) {
+				var s string
+				if out.Optional().IsPresent() {
+					s = out.String()
+				}
+				return s, *out
+			},
+		}
+	}
 }

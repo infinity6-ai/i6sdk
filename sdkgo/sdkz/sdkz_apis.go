@@ -24,6 +24,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitokendelete"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzapi/ingestzapigeturl"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzapi/ingestzapistream"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/pipezapi/pipezlist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/pipezapi/pipezstart"
 )
 
@@ -52,6 +53,7 @@ func init() {
 	add(&dszapitableget.Api{})
 	add(&dszapitablelist.Api{})
 	add(&pipezstart.Api{})
+	add(&pipezlist.Api{})
 	add(&dszapidomainsolutionselect.Api{})
 	add(&dszapidomainsolutionget.Api{})
 	add(&dszapistorecreate.Api{})
