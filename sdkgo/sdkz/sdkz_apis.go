@@ -53,7 +53,7 @@ func init() {
 	add(&dszapisignedurl.Api{})
 	add(&dszapitableget.Api{})
 	add(&dszapitablelist.Api{})
-	add(&pipezstart.Api{})
+	add(pipezstart.AllApis()...)
 	add(&pipezlist.Api{})
 	add(&dszapidomainsolutionselect.Api{})
 	add(&dszapidomainsolutionget.Api{})
