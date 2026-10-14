@@ -56,7 +56,6 @@ func (d *Api[T]) ApiSpec() apiz.ApiSpec {
 }
 
 func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
-	p := newT[T]()
 	return &apiz.DataRefs{
 		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
@@ -73,7 +72,25 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 		},
 		QueryParams: nil,
 		ReqHeaders:  nil,
-		ReqBody:     p.Schema(),
+		ReqBody: &schemaz.Schema{
+			Object: func(read bool) map[string]*schemaz.Schema {
+				if read && d.Req == nil {
+					return nil
+				}
+				if d.Req == nil {
+					d.Req = &PipezStartReq[T]{}
+				}
+
+				d.Req.Params = newT[T]()
+				schema := d.Req.Params.Schema()
+				if schema == nil {
+					return map[string]*schemaz.Schema{}
+				}
+				return map[string]*schemaz.Schema{
+					"params": schema,
+				}
+			},
+		},
 		RespHeaders: nil,
 		RespBody: &schemaz.Schema{
 			Raw: func() any { return &d.Resp },
