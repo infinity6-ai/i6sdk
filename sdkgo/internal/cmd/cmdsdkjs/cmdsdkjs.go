@@ -5,8 +5,8 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/errorz"
 	"github.com/infinity6-ai/gox/commonz/filez"
+	"github.com/infinity6-ai/gox/commonz/logz"
 	"github.com/spf13/cobra"
-	"go.code.infinity6.ai/platform/logz"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparserapi"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparsersdkfunc"
 	"go.code.infinity6.ai/sdkgo/genjsz/jswriter"
@@ -37,7 +37,7 @@ func prepareGenerateJsCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
 			out := errorz.Check2(cmd.Flags().GetString("out"))
-			
+
 			apis := sdkz.Apis()
 			parsedApis := jsparserapi.ParseApis(ctx, apis)
 
@@ -48,7 +48,7 @@ func prepareGenerateJsCmd() *cobra.Command {
 				Apis:     parsedApis.Apis,
 				SdkFuncs: parsedSdkFuncs.SdkFuncs,
 			}))
-			
+
 			errorz.Check(filez.CreateParentDirs(out))
 			err := os.WriteFile(out, []byte(code), os.ModePerm)
 			errorz.Check(err)

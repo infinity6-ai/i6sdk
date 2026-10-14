@@ -4,9 +4,9 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/infinity6-ai/gox/commonz/logz"
 	"go.code.infinity6.ai/platform/httpz"
 	"go.code.infinity6.ai/platform/httpz/httpzserver"
-	"go.code.infinity6.ai/platform/logz"
 )
 
 type tlogger logz.Type

@@ -3,7 +3,7 @@ package jsparsersdkfunc
 import (
 	"context"
 
-	"go.code.infinity6.ai/platform/logz"
+	"github.com/infinity6-ai/gox/commonz/logz"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
 )
