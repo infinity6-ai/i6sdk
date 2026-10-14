@@ -6,7 +6,6 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/ioz"
 	"github.com/infinity6-ai/gox/commonz/logz"
-	"github.com/infinity6-ai/gox/commonz/logz/logzctx"
 	"go.code.infinity6.ai/sdkgo/sdkgo/logzinit/internal/logztracer"
 	"google.golang.org/grpc"
 )
@@ -26,8 +25,7 @@ func Init(ctx context.Context, app App, version Version, tracerOptions *logztrac
 	if version.Version == "" {
 		panic("version is required")
 	}
-	ctx = logzctx.Prepare(ctx)
-	logz.SetAttrs(ctx, map[string]string{
+	ctx = logz.SetAttrs(ctx, map[string]string{
 		"app.name":    app.App,
 		"app.version": version.Version,
 	})
