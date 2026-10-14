@@ -17,8 +17,8 @@ type DszSolutionDomainGetReq struct {
 }
 
 type SolutionDomain struct {
-	Solution solution.Solution
-	Domain   domain.Domain
+	Solution solution.Solution `json:"solution"`
+	Domain   domain.Domain     `json:"domain"`
 }
 
 func (s *SolutionDomain) JSTypedef() (*jstypez.Typedef, *jstypez.Typedefs) {
