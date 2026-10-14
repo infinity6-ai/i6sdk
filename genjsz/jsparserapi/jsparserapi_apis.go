@@ -3,8 +3,8 @@ package jsparserapi
 import (
 	"context"
 
+	"github.com/infinity6-ai/gox/commonz/logz"
 	"github.com/infinity6-ai/gox/routez/apiz"
-	"go.code.infinity6.ai/platform/logz"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 

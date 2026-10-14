@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/infinity6-ai/gox/commonz/logz"
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
-	"go.code.infinity6.ai/platform/logz"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparsercustom"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )

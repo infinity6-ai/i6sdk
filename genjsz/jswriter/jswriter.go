@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"go.code.infinity6.ai/platform/logz"
+	"github.com/infinity6-ai/gox/commonz/logz"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparserapi"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparsersdkfunc"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
