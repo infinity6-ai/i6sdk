@@ -68,6 +68,7 @@ func TestUnitInferzRelevanceFashionFbtSpec(t *testing.T) {
 }
 
 func TestUnitInferzRelevanceFashionFbtDataRefs(t *testing.T) {
+	ctx := t.Context()
 	fn := &inferzrelevancefashionfbt.Func{}
 	refs := fn.SdkFuncDataRefs()
 	require.NotNil(t, refs)
@@ -75,7 +76,7 @@ func TestUnitInferzRelevanceFashionFbtDataRefs(t *testing.T) {
 	require.NotNil(t, refs.Partitions)
 	require.NotNil(t, refs.Output)
 
-	tdInput, tdsInput := jsparser.ParseSchema("fbtInput", refs.Input)
+	tdInput, tdsInput := jsparser.ParseSchema(ctx, "fbtInput", refs.Input)
 	require.NotNil(t, tdInput)
 	require.Equal(t, "fbtInput", tdInput.Head.Name)
 	require.Equal(t, "object", tdInput.Head.Typ)
@@ -104,7 +105,7 @@ func TestUnitInferzRelevanceFashionFbtDataRefs(t *testing.T) {
 	require.Contains(t, skusElemProps, "sku_id")
 	require.Equal(t, "string", skusElemProps["sku_id"].Typ)
 
-	tdPartitions, tdsPartitions := jsparser.ParseSchema("fbtPartitions", refs.Partitions)
+	tdPartitions, tdsPartitions := jsparser.ParseSchema(ctx, "fbtPartitions", refs.Partitions)
 	require.NotNil(t, tdPartitions)
 	require.Equal(t, "fbtPartitions", tdPartitions.Head.Name)
 	require.Equal(t, "object", tdPartitions.Head.Typ)
@@ -117,7 +118,7 @@ func TestUnitInferzRelevanceFashionFbtDataRefs(t *testing.T) {
 	require.Contains(t, partitionProps, "store_id")
 	require.Equal(t, "string", partitionProps["store_id"].Typ)
 
-	tdOutput, tdsOutput := jsparser.ParseSchema("fbtOutput", refs.Output)
+	tdOutput, tdsOutput := jsparser.ParseSchema(ctx, "fbtOutput", refs.Output)
 	require.NotNil(t, tdOutput)
 	require.Equal(t, "fbtOutput", tdOutput.Head.Name)
 	require.Equal(t, "object", tdOutput.Head.Typ)

@@ -30,8 +30,9 @@ func TestUnitDszApiTableGet(t *testing.T) {
 }
 
 func TestUnitDszApiTableGetParseApi(t *testing.T) {
+	ctx := t.Context()
 	api := &dszapitableget.Api{}
-	parsed := jsparserapi.ParseApi(api)
+	parsed := jsparserapi.ParseApi(ctx, api)
 	require.NotNil(t, parsed)
 	require.Equal(t, "dsz-table-get", parsed.Spec.Id)
 }

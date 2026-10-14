@@ -28,7 +28,7 @@ func ParseSdkFuncs(ctx context.Context, funcs []sdkfuncz.Func) *SdkFuncs {
 	}
 	for idx, fn := range funcs {
 		logger.Info(ctx, "parsing js sdk func", map[string]any{"func": fn.SdkFuncSpec().Id})
-		parsed := ParseSdkFunc(fn)
+		parsed := ParseSdkFunc(ctx, fn)
 		ret.Typedefs.Merge(parsed.Typedefs)
 		ret.SdkFuncs[idx] = parsed
 	}

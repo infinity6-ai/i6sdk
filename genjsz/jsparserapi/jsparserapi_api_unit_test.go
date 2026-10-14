@@ -15,8 +15,9 @@ import (
 )
 
 func TestUnitFractionSample(t *testing.T) {
+	ctx := t.Context()
 	api := routezsamplefraction.NewService().Api()
-	actual := jsparserapi.ParseApi(api)
+	actual := jsparserapi.ParseApi(ctx, api)
 	jsonz.MustParse(jsonz.MustFormat(actual).String(), &actual)
 	println(jsonz.MustFormatPretty(actual).String())
 	expected := &jsparserapi.Api{
@@ -130,9 +131,10 @@ func TestUnitFractionSample(t *testing.T) {
 }
 
 func TestUnitAllApis(t *testing.T) {
+	ctx := t.Context()
 	apis := sdkz.Apis()
 	for _, api := range apis {
-		expected := jsparserapi.ParseApi(api)
+		expected := jsparserapi.ParseApi(ctx, api)
 		var actual *jsparserapi.Api
 		jsonz.MustParse(jsonz.MustFormat(expected).String(), &actual)
 		errorz.Check(os.MkdirAll("target/jsparser/api", os.ModePerm))

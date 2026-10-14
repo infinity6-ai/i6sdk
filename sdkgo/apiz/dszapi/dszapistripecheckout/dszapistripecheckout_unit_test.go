@@ -39,7 +39,8 @@ func TestUnitStripeCheckout(t *testing.T) {
 }
 
 func TestUnitStripeCheckoutParseApi(t *testing.T) {
-	parsed := jsparserapi.ParseApi(&dszapistripecheckout.Api{})
+	ctx := t.Context()
+	parsed := jsparserapi.ParseApi(ctx, &dszapistripecheckout.Api{})
 	require.NotNil(t, parsed)
 	require.Equal(t, "dsz-stripe-checkout", parsed.Spec.Id)
 	require.Equal(t, "apiDszStripeCheckout", parsed.Spec.CamelId)

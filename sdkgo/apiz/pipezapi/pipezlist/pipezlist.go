@@ -6,22 +6,8 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solutiondomain"
+	"go.code.infinity6.ai/sdkgo/sdkgo/pipez"
 )
-
-type PipeState struct {
-	Status    string         `json:"status"`
-	Params    map[string]any `json:"params"`
-	CreatedAt string         `json:"created_at"`
-}
-
-type Pipeline struct {
-	Id             string                        `json:"id"`
-	ConcurrentId   string                        `json:"concurrent_id"`
-	SolutionDomain solutiondomain.SolutionDomain `json:"solution_domain"`
-	Name           string                        `json:"name"`
-	Dataset        string                        `json:"dataset"`
-	States         []*PipeState                  `json:"states"`
-}
 
 type PipezListReq struct {
 	Dataset        lakedsz.Dataset               `json:"dataset"`
@@ -33,8 +19,8 @@ type PipezListReq struct {
 }
 
 type PipezListResp struct {
-	Pipelines []*Pipeline `json:"pipelines"`
-	Cursor    string      `json:"cursor"`
+	Pipelines []*pipez.Pipeline `json:"pipelines"`
+	Cursor    string            `json:"cursor"`
 }
 
 func (*PipezListResp) JSType() string {

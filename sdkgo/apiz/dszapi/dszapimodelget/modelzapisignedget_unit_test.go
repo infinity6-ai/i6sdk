@@ -46,8 +46,9 @@ func TestUnitModelzApiSignedGet(t *testing.T) {
 }
 
 func TestUnitModelzApiSignedGetParseApi(t *testing.T) {
+	ctx := t.Context()
 	api := &dszapimodelget.Api{}
-	parsed := jsparserapi.ParseApi(api)
+	parsed := jsparserapi.ParseApi(ctx, api)
 	require.NotNil(t, parsed)
 	require.Equal(t, "dsz-model-get", parsed.Spec.Id)
 	require.Equal(t, "apiDszModelGet", parsed.Spec.CamelId)

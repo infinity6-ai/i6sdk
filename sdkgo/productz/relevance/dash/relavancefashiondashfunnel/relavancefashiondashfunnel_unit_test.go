@@ -69,6 +69,7 @@ func TestUnitRelavanceFashionDashFunnelSpec(t *testing.T) {
 }
 
 func TestUnitRelavanceFashionDashFunnelDataRefs(t *testing.T) {
+	ctx := t.Context()
 	fn := &relavancefashiondashfunnel.Func{}
 	refs := fn.SdkFuncDataRefs()
 	require.NotNil(t, refs)
@@ -76,7 +77,7 @@ func TestUnitRelavanceFashionDashFunnelDataRefs(t *testing.T) {
 	require.NotNil(t, refs.Partitions)
 	require.NotNil(t, refs.Output)
 
-	tdInput, tdsInput := jsparser.ParseSchema("funnelInput", refs.Input)
+	tdInput, tdsInput := jsparser.ParseSchema(ctx, "funnelInput", refs.Input)
 	require.NotNil(t, tdInput)
 	require.Equal(t, "funnelInput", tdInput.Head.Name)
 	require.Equal(t, "object", tdInput.Head.Typ)
@@ -92,7 +93,7 @@ func TestUnitRelavanceFashionDashFunnelDataRefs(t *testing.T) {
 	require.Equal(t, "funnelInputParams", inputProps["params"].Typ)
 	require.Contains(t, typedefNames(tdsInput), "funnelInputParams")
 
-	tdPartitions, tdsPartitions := jsparser.ParseSchema("funnelPartitions", refs.Partitions)
+	tdPartitions, tdsPartitions := jsparser.ParseSchema(ctx, "funnelPartitions", refs.Partitions)
 	require.NotNil(t, tdPartitions)
 	require.Equal(t, "funnelPartitions", tdPartitions.Head.Name)
 	require.Equal(t, "object", tdPartitions.Head.Typ)
@@ -105,7 +106,7 @@ func TestUnitRelavanceFashionDashFunnelDataRefs(t *testing.T) {
 	require.Contains(t, partitionProps, "store_id")
 	require.Equal(t, "string", partitionProps["store_id"].Typ)
 
-	tdOutput, tdsOutput := jsparser.ParseSchema("funnelOutput", refs.Output)
+	tdOutput, tdsOutput := jsparser.ParseSchema(ctx, "funnelOutput", refs.Output)
 	require.NotNil(t, tdOutput)
 	require.Equal(t, "funnelOutput", tdOutput.Head.Name)
 	require.Equal(t, "object", tdOutput.Head.Typ)

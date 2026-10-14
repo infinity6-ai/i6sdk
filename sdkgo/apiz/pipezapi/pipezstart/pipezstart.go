@@ -1,27 +1,26 @@
 package pipezstart
 
 import (
+	"reflect"
+
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solutiondomain"
+	"go.code.infinity6.ai/sdkgo/sdkgo/pipez"
+	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/pipez/relevancefashionpipez"
 )
 
-type PipeParam struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
+func AllApis() []apiz.Api {
+	return []apiz.Api{
+		&Api[*relevancefashionpipez.BatchIngest]{},
+		&Api[*relevancefashionpipez.Main]{},
+	}
 }
 
-func (*PipeParam) JSType() string {
-	return jstypez.TypObject
-}
-
-type PipezStartReq struct {
-	Dataset        lakedsz.Dataset               `json:"dataset"`
-	SolutionDomain solutiondomain.SolutionDomain `json:"solution_domain"`
-	Pipename       string                        `json:"pipename"`
-	Params         []*PipeParam                  `json:"params"`
+type PipezStartReq[T pipez.Pipe] struct {
+	Dataset lakedsz.Dataset `json:"dataset"`
+	Params  T               `json:"params"`
 }
 
 type PipezStartResp struct {
@@ -32,21 +31,31 @@ func (*PipezStartResp) JSType() string {
 	return jstypez.TypObject
 }
 
-type Api struct {
-	Req  *PipezStartReq  `json:"req"`
-	Resp *PipezStartResp `json:"resp"`
+type Api[T pipez.Pipe] struct {
+	Req  *PipezStartReq[T] `json:"req"`
+	Resp *PipezStartResp   `json:"resp"`
 }
 
-func (d *Api) ApiSpec() apiz.ApiSpec {
+func newT[T any]() T {
+	typ := reflect.TypeFor[T]()
+	if typ.Kind() == reflect.Pointer {
+		return reflect.New(typ.Elem()).Interface().(T)
+	}
+	var x T
+	return x
+}
+
+func (d *Api[T]) ApiSpec() apiz.ApiSpec {
+	p := newT[T]()
 	return apiz.ApiSpec{
-		Id:     "pipez-start",
+		Id:     "pipez-start-" + p.SolutionDomain().String() + "-" + p.Pipename(),
 		Desc:   nil,
 		Method: "POST",
-		Path:   "/api/pipe/start/dataset/{dataset}",
+		Path:   "/api/pipe/dataset/{dataset}/start/" + p.SolutionDomain().String() + "/" + p.Pipename(),
 	}
 }
 
-func (d *Api) ApiDataRefs() *apiz.DataRefs {
+func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 	return &apiz.DataRefs{
 		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
@@ -54,7 +63,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					return nil
 				}
 				if d.Req == nil {
-					d.Req = &PipezStartReq{}
+					d.Req = &PipezStartReq[T]{}
 				}
 				return map[string]*schemaz.Schema{
 					"dataset": {Str: lakedsz.ParseStr(&d.Req.Dataset)},
@@ -65,10 +74,20 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 		ReqHeaders:  nil,
 		ReqBody: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
+				if read && d.Req == nil {
+					return nil
+				}
+				if d.Req == nil {
+					d.Req = &PipezStartReq[T]{}
+				}
+
+				d.Req.Params = newT[T]()
+				schema := d.Req.Params.Schema()
+				if schema == nil {
+					return map[string]*schemaz.Schema{}
+				}
 				return map[string]*schemaz.Schema{
-					"solution_domain": {Raw: func() any { return &d.Req.SolutionDomain }},
-					"pipename":        {Raw: func() any { return &d.Req.Pipename }},
-					"params":          {Raw: func() any { return &d.Req.Params }},
+					"params": schema,
 				}
 			},
 		},

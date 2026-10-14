@@ -12,6 +12,7 @@ import (
 )
 
 func TestUnitDszCreateStoreApi(t *testing.T) {
+	ctx := t.Context()
 	api := &dszapistorecreate.Api{
 		Req: &dszapistorecreate.DszCreateStoreReq{
 			Dataset: lakedsz.MustParse("myds"),
@@ -25,7 +26,7 @@ func TestUnitDszCreateStoreApi(t *testing.T) {
 	apiCopy := jsonz.MustCopy(api, &dszapistorecreate.Api{})
 	require.Equal(t, api.Req, apiCopy.Req)
 
-	parsed := jsparserapi.ParseApi(api)
+	parsed := jsparserapi.ParseApi(ctx, api)
 	require.NotNil(t, parsed)
 	require.Equal(t, "dsz-create-store", parsed.Spec.Id)
 }

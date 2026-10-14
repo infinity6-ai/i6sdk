@@ -1,6 +1,7 @@
 package jsparsersdkfunc
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -38,7 +39,7 @@ type SdkFuncSpec struct {
 	FuncName string        `json:"func_name,omitempty"`
 }
 
-func ParseSdkFunc(fn sdkfuncz.Func) *SdkFunc {
+func ParseSdkFunc(ctx context.Context, fn sdkfuncz.Func) *SdkFunc {
 	refs := fn.SdkFuncDataRefs()
 
 	funcId := camelstring.ToCamel(fn.SdkFuncSpec().Id)
@@ -77,7 +78,7 @@ func ParseSdkFunc(fn sdkfuncz.Func) *SdkFunc {
 				return
 			}
 			fieldName := ret.Spec.CamelId + strings.ToUpper(suffix[0:1]) + suffix[1:]
-			p, tdfs := jsparser.ParseSchema(fieldName, s)
+			p, tdfs := jsparser.ParseSchema(ctx, fieldName, s)
 			checker.Equal("object", p.Head.Typ, "must be object")
 			out.Properties = &jstypez.Tuples{}
 			out.Head = &jstypez.Tuple{Typ: fieldName, Name: suffix}

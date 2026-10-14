@@ -12,6 +12,7 @@ import (
 )
 
 func TestUnitDszListIngestionTokensApi(t *testing.T) {
+	ctx := t.Context()
 	api := &dszapiingestiontokenslist.Api{
 		Req: dszapiingestiontokenslist.DszListIngestionTokensReq{
 			Dataset: lakedsz.MustParse("myds"),
@@ -35,7 +36,7 @@ func TestUnitDszListIngestionTokensApi(t *testing.T) {
 	require.Equal(t, api.Req, apiCopy.Req)
 	require.Equal(t, api.Resp, apiCopy.Resp)
 
-	parsed := jsparserapi.ParseApi(api)
+	parsed := jsparserapi.ParseApi(ctx, api)
 	require.NotNil(t, parsed)
 	require.Equal(t, "dsz-list-ingestion-tokens", parsed.Spec.Id)
 }
