@@ -17,6 +17,7 @@ func TestUnitStripeCheckout(t *testing.T) {
 				{Price: "price_1", Quantity: 1},
 				{Price: "price_2", Quantity: 3},
 			},
+			User:                            "user-1",
 			DatasetName:                     "my-dataset",
 			CustomerEmail:                   "a@b.com",
 			SuccessUrl:                      "https://x/ok",
@@ -65,7 +66,7 @@ func TestUnitStripeCheckoutParseApi(t *testing.T) {
 
 	req := props("apiDszStripeCheckoutReqPayload")
 	for _, name := range []string{
-		"line_items", "dataset_name", "customer_email",
+		"line_items", "user", "dataset_name", "customer_email",
 		"success_url", "cancel_url", "subscription_data_trial_period_days", "cnpj_hub",
 		"responsible_name_hub", "responsible_email_hub", "id_solution_hub", "id_campanha_hub",
 		"terms_version", "contract_version", "terms_accepted_at",
@@ -105,6 +106,7 @@ func TestUnitStripeCheckoutApiDataRefs(t *testing.T) {
 	require.NoError(t, err)
 	require.JSONEq(t, `{
 		"line_items": [{"price": "price_1", "quantity": 2}],
+		"user": "",
 		"dataset_name": "",
 		"customer_email": "a@b.com",
 		"success_url": "",

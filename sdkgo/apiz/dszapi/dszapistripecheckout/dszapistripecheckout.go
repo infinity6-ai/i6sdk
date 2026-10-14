@@ -29,6 +29,7 @@ func (l *LineItem) Schema() *schemaz.Schema {
 
 type Req struct {
 	LineItems                       []*LineItem
+	User                            string
 	DatasetName                     string
 	CustomerEmail                   string
 	SuccessUrl                      string
@@ -84,6 +85,10 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 							Slice:      func() *[]*LineItem { return &d.Req.LineItems },
 							Get:        func(idx int, element **LineItem) *schemaz.Schema { return (*element).Schema() },
 						}),
+					},
+					"user": {
+						Desc: &schemaz.Desc{Summary: "User that is buying"},
+						Raw:  func() any { return &d.Req.User },
 					},
 					"dataset_name": {
 						Desc: &schemaz.Desc{Summary: "Dataset name"},
