@@ -12,26 +12,28 @@ import (
 
 var done = false
 
-type App struct{ App string }
-type Version struct{ Version string }
+type App struct {
+	App     string
+	Version string
+}
 
-func Init(ctx context.Context, app App, version Version, tracerOptions *logztracer.Options) (context.Context, io.Closer) {
+func Init(ctx context.Context, app App, tracerOptions *logztracer.Options) (context.Context, io.Closer) {
 	if done {
 		panic("already configured")
 	}
 	if app.App == "" {
 		panic("app is required")
 	}
-	if version.Version == "" {
+	if app.Version == "" {
 		panic("version is required")
 	}
 	ctx = logz.SetAttrs(ctx, map[string]string{
 		"app.name":    app.App,
-		"app.version": version.Version,
+		"app.version": app.Version,
 	})
 	grpc.EnableTracing = false
-	tracerClose := logztracer.InitTracer(ctx, app.App, version.Version, tracerOptions)
-	metricsClose := logztracer.InitMetric(ctx, app.App, version.Version, tracerOptions)
+	tracerClose := logztracer.InitTracer(ctx, app.App, app.Version, tracerOptions)
+	metricsClose := logztracer.InitMetric(ctx, app.App, app.Version, tracerOptions)
 	if tracerOptions.ProjectId != "" {
 		// tracerz.Init(app.App)
 		// meterz.Init(app.App)
