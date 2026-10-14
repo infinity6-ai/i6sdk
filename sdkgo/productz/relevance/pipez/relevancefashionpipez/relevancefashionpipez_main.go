@@ -35,5 +35,5 @@ func (m *Main) Params() map[string]string {
 }
 
 func (m *Main) Schema() *schemaz.Schema {
-	return &schemaz.Schema{}
+	return nil
 }
