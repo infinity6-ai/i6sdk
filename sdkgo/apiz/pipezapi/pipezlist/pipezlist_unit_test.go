@@ -10,6 +10,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solutiondomain"
+	"go.code.infinity6.ai/sdkgo/sdkgo/pipez"
 )
 
 func TestUnitPipezListApi(t *testing.T) {
@@ -26,14 +27,14 @@ func TestUnitPipezListApi(t *testing.T) {
 			Limit:  10,
 		},
 		Resp: &pipezlist.PipezListResp{
-			Pipelines: []*pipezlist.Pipeline{
+			Pipelines: []*pipez.Pipeline{
 				{
 					Id:             "pipe-123",
 					ConcurrentId:   "concurrent-123",
 					SolutionDomain: solutiondomain.MustParseString("relevance_fashion"),
 					Name:           "mypipe",
 					Dataset:        "myds",
-					States: []*pipezlist.PipeState{
+					States: []*pipez.PipeState{
 						{
 							Status:    "CREATED",
 							Params:    map[string]any{"foo": "bar"},
