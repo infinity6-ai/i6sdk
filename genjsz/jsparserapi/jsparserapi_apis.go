@@ -24,7 +24,7 @@ func ParseApis(ctx context.Context, apis []apiz.Api) *Apis {
 	}
 	for idx, api := range apis {
 		logger.Info(ctx, "parsring js sdk api", map[string]any{"api": api.ApiSpec().Id})
-		parsed := ParseApi(api)
+		parsed := ParseApi(ctx, api)
 		ret.Typedefs.Merge(parsed.Typedefs)
 		ret.Apis[idx] = parsed
 	}

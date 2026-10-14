@@ -11,6 +11,7 @@ import (
 )
 
 func TestUnitDszDeleteTokenApi(t *testing.T) {
+	ctx := t.Context()
 	api := &dszapitokendelete.Api{
 		Req: dszapitokendelete.DszDeleteTokenReq{
 			Dataset: lakedsz.MustParse("myds"),
@@ -21,7 +22,7 @@ func TestUnitDszDeleteTokenApi(t *testing.T) {
 	apiCopy := jsonz.MustCopy(api, &dszapitokendelete.Api{})
 	require.Equal(t, api.Req, apiCopy.Req)
 
-	parsed := jsparserapi.ParseApi(api)
+	parsed := jsparserapi.ParseApi(ctx, api)
 	require.NotNil(t, parsed)
 	require.Equal(t, "dsz-delete-token", parsed.Spec.Id)
 }

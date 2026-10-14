@@ -41,7 +41,7 @@ func TestUnitWrite(t *testing.T) {
 	})
 
 	t.Run("with client infer sdk func", func(t *testing.T) {
-		parsed := jsparsersdkfunc.ParseSdkFunc(&inferzrelevancefashionfbt.Func{})
+		parsed := jsparsersdkfunc.ParseSdkFunc(ctx, &inferzrelevancefashionfbt.Func{})
 		want := `class SdkFuncs {
 
   /**
@@ -159,7 +159,7 @@ export { SdkFuncs };
 	})
 
 	t.Run("with client query sdk func", func(t *testing.T) {
-		parsed := jsparsersdkfunc.ParseSdkFunc(&relavancefashiondashfunnel.Func{})
+		parsed := jsparsersdkfunc.ParseSdkFunc(ctx, &relavancefashiondashfunnel.Func{})
 		want := `class SdkFuncs {
 
   /**

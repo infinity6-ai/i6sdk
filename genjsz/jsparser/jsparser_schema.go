@@ -1,6 +1,7 @@
 package jsparser
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
@@ -8,24 +9,24 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
-func ParseSchema(baseId string, schema *schemaz.Schema) (*jstypez.Typedef, *jstypez.Typedefs) {
+func ParseSchema(ctx context.Context, baseId string, schema *schemaz.Schema) (*jstypez.Typedef, *jstypez.Typedefs) {
 	var typedef *jstypez.Typedef
 	var typedefs *jstypez.Typedefs
 	if schema.Object != nil {
 		s := schema.Object(false)
-		typedef, typedefs = ParseSchemaObject(baseId, s)
+		typedef, typedefs = ParseSchemaObject(ctx, baseId, s)
 	}
 	if schema.Str != nil {
 		s := schema.Str()
-		typedef, typedefs = ParseSchemaStr(baseId, s)
+		typedef, typedefs = ParseSchemaStr(ctx, baseId, s)
 	}
 	if schema.Raw != nil {
 		s := schema.Raw()
-		typedef, typedefs = ParseSchemaRaw(baseId, s)
+		typedef, typedefs = ParseSchemaRaw(ctx, baseId, s)
 	}
 	if schema.Array != nil {
 		s := schema.Array()
-		typedef, typedefs = ParseSchemaArray(baseId, s)
+		typedef, typedefs = ParseSchemaArray(ctx, baseId, s)
 	}
 	if typedef == nil {
 		panic(fmt.Sprintf("unsupported: %#v", schema))

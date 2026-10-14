@@ -13,6 +13,7 @@ import (
 )
 
 func TestUnitDszSolutionDomainGetApi(t *testing.T) {
+	ctx := t.Context()
 	api := &dszapidomainsolutionget.Api{
 		Req: &dszapidomainsolutionget.DszSolutionDomainGetReq{
 			Dataset: lakedsz.MustParse("myds"),
@@ -34,7 +35,7 @@ func TestUnitDszSolutionDomainGetApi(t *testing.T) {
 	require.Equal(t, api.Req, apiCopy.Req)
 	require.Equal(t, api.Resp, apiCopy.Resp)
 
-	parsed := jsparserapi.ParseApi(api)
+	parsed := jsparserapi.ParseApi(ctx, api)
 	require.NotNil(t, parsed)
 	require.Equal(t, "dsz-domain-get", parsed.Spec.Id)
 }
