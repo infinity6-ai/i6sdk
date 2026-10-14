@@ -12,6 +12,7 @@ import (
 )
 
 func TestUnitIngestzStreamApi(t *testing.T) {
+	ctx := t.Context()
 	api := &ingestzapistream.Api[*dummydataz.Catalog]{
 		Req: ingestzapistream.StreamReq[*dummydataz.Catalog]{
 			Dataset: lakedsz.MustParse("my-dataset"),
@@ -37,7 +38,7 @@ func TestUnitIngestzStreamApi(t *testing.T) {
 	require.Equal(t, "/api/ingest/dataset/{dataset}/stream/dummy-catalog", spec.Path)
 
 	// Verify Schema parsing and mapping
-	parsed := jsparserapi.ParseApi(api)
+	parsed := jsparserapi.ParseApi(ctx, api)
 	require.NotNil(t, parsed)
 	require.Equal(t, "ingestz-stream-dummy-catalog", parsed.Spec.Id)
 }

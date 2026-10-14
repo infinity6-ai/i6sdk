@@ -10,11 +10,12 @@ import (
 )
 
 func TestUnitParseSchema(t *testing.T) {
+	ctx := t.Context()
 	api := routezsamplefraction.NewService().Api()
 	params := api.ApiDataRefs().PathParams
 	require.NotNil(t, params)
 
-	td, tds := jsparser.ParseSchema("sampleParams", params)
+	td, tds := jsparser.ParseSchema(ctx, "sampleParams", params)
 	require.NotNil(t, td)
 	require.NotNil(t, tds)
 	require.Equal(t, "sampleParams", td.Head.Name)
@@ -32,6 +33,7 @@ func TestUnitDescHelpers(t *testing.T) {
 }
 
 func TestUnitParseSchemaNestedObject(t *testing.T) {
+	ctx := t.Context()
 	var s string
 	schema := &schemaz.Schema{
 		Object: func(_ bool) map[string]*schemaz.Schema {
@@ -47,7 +49,7 @@ func TestUnitParseSchemaNestedObject(t *testing.T) {
 		},
 	}
 
-	td, tds := jsparser.ParseSchema("in", schema)
+	td, tds := jsparser.ParseSchema(ctx, "in", schema)
 	require.Equal(t, "inParams", td.Properties.All()[0].Typ, "nested object must be typed, not a bare object")
 
 	var found bool

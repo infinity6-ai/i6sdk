@@ -75,9 +75,10 @@ func TestUnitDummyCatalogDataSerialization(t *testing.T) {
 }
 
 func TestUnitDummyCatalogDataSchema(t *testing.T) {
+	ctx := t.Context()
 	t.Run("DummyCatalogData Schema Check", func(t *testing.T) {
 		s := (&dummydataz.Catalog{}).Schema()
-		td, _ := jsparser.ParseSchema("DummyCatalogData", s)
+		td, _ := jsparser.ParseSchema(ctx, "DummyCatalogData", s)
 		require.Equal(t, "DummyCatalogData", td.Head.Name)
 
 		propMap := make(map[string]jstypez.Tuple)

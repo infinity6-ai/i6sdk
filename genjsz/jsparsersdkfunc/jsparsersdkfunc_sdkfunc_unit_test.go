@@ -97,18 +97,20 @@ func expectedFashionFbtSdkFunc() *jsparsersdkfunc.SdkFunc {
 }
 
 func TestUnitFashionFbtSdkFunc(t *testing.T) {
+	ctx := t.Context()
 	fn := &inferzrelevancefashionfbt.Func{}
-	actual := jsparsersdkfunc.ParseSdkFunc(fn)
+	actual := jsparsersdkfunc.ParseSdkFunc(ctx, fn)
 	jsonz.MustParse(jsonz.MustFormat(actual).String(), &actual)
 	expected := expectedFashionFbtSdkFunc()
 	require.Equal(t, expected, actual)
 }
 
 func TestUnitAllSdkFuncs(t *testing.T) {
+	ctx := t.Context()
 	funcs := sdkz.SdkFuncs()
 	require.NotEmpty(t, funcs)
 	for _, fn := range funcs {
-		expected := jsparsersdkfunc.ParseSdkFunc(fn)
+		expected := jsparsersdkfunc.ParseSdkFunc(ctx, fn)
 		var actual *jsparsersdkfunc.SdkFunc
 		jsonz.MustParse(jsonz.MustFormat(expected).String(), &actual)
 		errorz.Check(os.MkdirAll("target/jsparser/sdkfunc", os.ModePerm))

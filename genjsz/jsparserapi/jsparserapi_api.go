@@ -1,6 +1,7 @@
 package jsparserapi
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -40,7 +41,7 @@ type ApiSpec struct {
 	Path    string        `json:"path,omitempty"`
 }
 
-func ParseApi(api apiz.Api) *Api {
+func ParseApi(ctx context.Context, api apiz.Api) *Api {
 	refs := api.ApiDataRefs()
 
 	apiId := camelstring.ToCamel(api.ApiSpec().Id)
@@ -77,7 +78,7 @@ func ParseApi(api apiz.Api) *Api {
 			return
 		}
 		fieldName := ret.Spec.CamelId + strings.ToUpper(suffix[0:1]) + suffix[1:]
-		p, tdfs := jsparser.ParseSchema(fieldName, s)
+		p, tdfs := jsparser.ParseSchema(ctx, fieldName, s)
 		checker.Equal("object", p.Head.Typ, "must be object")
 		out.Properties = &jstypez.Tuples{}
 		out.Head = &jstypez.Tuple{Typ: fieldName, Name: suffix}

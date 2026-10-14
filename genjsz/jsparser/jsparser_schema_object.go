@@ -1,6 +1,7 @@
 package jsparser
 
 import (
+	"context"
 	"maps"
 	"slices"
 
@@ -9,7 +10,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
-func ParseSchemaObject(baseId string, obj map[string]*schemaz.Schema) (*jstypez.Typedef, *jstypez.Typedefs) {
+func ParseSchemaObject(ctx context.Context, baseId string, obj map[string]*schemaz.Schema) (*jstypez.Typedef, *jstypez.Typedefs) {
 	ret := jstypez.Typedef{
 		Head:       &jstypez.Tuple{Typ: jstypez.TypObject},
 		Properties: &jstypez.Tuples{},
@@ -18,7 +19,7 @@ func ParseSchemaObject(baseId string, obj map[string]*schemaz.Schema) (*jstypez.
 	for _, field := range slices.Sorted(maps.Keys(obj)) {
 		schema := obj[field]
 		fieldId := baseId + camelstring.ToCamelUpper(field)
-		s, schemaTdfs := ParseSchema(fieldId, schema)
+		s, schemaTdfs := ParseSchema(ctx, fieldId, schema)
 		typ := s.Head.Typ
 		if s.Head.Typ == jstypez.TypObject && s.Properties != nil {
 			tdfs.Add(s)

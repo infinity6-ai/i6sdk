@@ -1,16 +1,22 @@
 package jsparser
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"reflect"
 
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
+	"go.code.infinity6.ai/platform/logz"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparsercustom"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
-func ParseAny(baseId string, v any) (*jstypez.Typedef, *jstypez.Typedefs) {
+type tlogger logz.Type
+
+var logger = logz.Create(tlogger(true))
+
+func ParseAny(ctx context.Context, baseId string, v any) (*jstypez.Typedef, *jstypez.Typedefs) {
 	val := reflect.ValueOf(v)
 
 	for val.Kind() == reflect.Pointer || val.Kind() == reflect.Interface {
@@ -25,7 +31,7 @@ func ParseAny(baseId string, v any) (*jstypez.Typedef, *jstypez.Typedefs) {
 		return a, b
 	}
 
-	if a, b := checkCustom(baseId, val); a != nil {
+	if a, b := checkCustom(ctx, baseId, val); a != nil {
 		return a, b
 	}
 
@@ -60,7 +66,7 @@ func ParseAny(baseId string, v any) (*jstypez.Typedef, *jstypez.Typedefs) {
 		elemZeroVal := reflect.Zero(elemType).Interface()
 
 		// 3. Recursively parse the element type
-		elemTdf, eTdfs := ParseAny(baseId+"Element", elemZeroVal)
+		elemTdf, eTdfs := ParseAny(ctx, baseId+"Element", elemZeroVal)
 		checker.StrEmpty(elemTdf.Head.Name, "elemTdf.Head.Name")
 		elemTdf.Head.Name = baseId + "Element"
 
@@ -89,8 +95,8 @@ func ParseAny(baseId string, v any) (*jstypez.Typedef, *jstypez.Typedefs) {
 		elemZeroVal := reflect.Zero(elemType).Interface()
 
 		// 4. Recursively parse the key and value types
-		keyTdf, kTdfs := ParseAny(baseId+"Key", keyZeroVal)
-		valTdf, vTdfs := ParseAny(baseId+"Value", elemZeroVal)
+		keyTdf, kTdfs := ParseAny(ctx, baseId+"Key", keyZeroVal)
+		valTdf, vTdfs := ParseAny(ctx, baseId+"Value", elemZeroVal)
 
 		checker.StrEmpty(keyTdf.Head.Name, "keyTdf.Head.Name")
 		checker.StrEmpty(valTdf.Head.Name, "valTdf.Head.Name")
@@ -113,13 +119,14 @@ func ParseAny(baseId string, v any) (*jstypez.Typedef, *jstypez.Typedefs) {
 
 }
 
-func checkCustom(baseId string, val reflect.Value) (*jstypez.Typedef, *jstypez.Typedefs) {
+func checkCustom(ctx context.Context, baseId string, val reflect.Value) (*jstypez.Typedef, *jstypez.Typedefs) {
 	v := val.Interface()
 	if ret, tdfs := jsparsercustom.Resolve(v); ret != nil {
 		if tdfs != nil {
 			checker.Empty(tdfs.All(), "must be empty")
 		}
 		if ret.Head.Typ != jstypez.TypBoolean && ret.Head.Typ != jstypez.TypString && ret.Head.Typ != jstypez.TypNumber {
+			logger.Info(ctx, "non basic parser custom detected", map[string]any{"typ": ret.Head.Typ, "base": baseId})
 			log.Printf("non basic parser custom detected %s: %s", ret.Head.Typ, baseId)
 		}
 		return ret, tdfs

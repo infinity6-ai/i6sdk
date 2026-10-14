@@ -12,6 +12,7 @@ import (
 )
 
 func TestUnitDszCreateRecsysTokenApi(t *testing.T) {
+	ctx := t.Context()
 	api := &dszapirecsystokencreate.Api{
 		Req: dszapirecsystokencreate.DszCreateRecsysTokenReq{
 			Dataset:    lakedsz.MustParse("myds"),
@@ -35,7 +36,7 @@ func TestUnitDszCreateRecsysTokenApi(t *testing.T) {
 	require.Equal(t, api.Req, apiCopy.Req)
 	require.Equal(t, api.Resp, apiCopy.Resp)
 
-	parsed := jsparserapi.ParseApi(api)
+	parsed := jsparserapi.ParseApi(ctx, api)
 	require.NotNil(t, parsed)
 	require.Equal(t, "dsz-create-recsys-token", parsed.Spec.Id)
 }
