@@ -10,36 +10,16 @@ type Req struct {
 }
 
 type PendingPayment struct {
-	UserId      string
-	Dataset     string
-	DatasetName string
-	PaymentId   string
-	PaymentType string
+	Dataset string
 }
 
 func (p *PendingPayment) Schema() *schemaz.Schema {
 	return &schemaz.Schema{
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
-				"user_id": {
-					Desc: &schemaz.Desc{Summary: "User that is buying"},
-					Raw:  func() any { return &p.UserId },
-				},
 				"dataset": {
 					Desc: &schemaz.Desc{Summary: "Id of the dataset that is going to be created after the payment"},
 					Raw:  func() any { return &p.Dataset },
-				},
-				"dataset_name": {
-					Desc: &schemaz.Desc{Summary: "Name of the dataset"},
-					Raw:  func() any { return &p.DatasetName },
-				},
-				"payment_id": {
-					Desc: &schemaz.Desc{Summary: "Id of the payment on the payment provider"},
-					Raw:  func() any { return &p.PaymentId },
-				},
-				"payment_type": {
-					Desc: &schemaz.Desc{Summary: "Payment provider"},
-					Raw:  func() any { return &p.PaymentType },
 				},
 			}
 		},

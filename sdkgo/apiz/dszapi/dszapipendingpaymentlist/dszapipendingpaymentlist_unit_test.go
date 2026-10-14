@@ -15,7 +15,7 @@ func TestUnitPendingPaymentList(t *testing.T) {
 		Req: dszapipendingpaymentlist.Req{User: "user-1"},
 		Resp: dszapipendingpaymentlist.Resp{
 			PendingPayments: []*dszapipendingpaymentlist.PendingPayment{
-				{UserId: "user-1", Dataset: "ds1", DatasetName: "My dataset", PaymentId: "cs_1", PaymentType: "stripe"},
+				{Dataset: "ds1"},
 			},
 		},
 	}
@@ -56,9 +56,7 @@ func TestUnitPendingPaymentListParseApi(t *testing.T) {
 	require.Contains(t, resp, "pending_payments")
 
 	item := props("apiDszListPendingPaymentsRespPayloadPendingPaymentsElement")
-	for _, name := range []string{"user_id", "dataset", "dataset_name", "payment_id", "payment_type"} {
-		require.Equal(t, "string", item[name].Typ, name)
-	}
+	require.Equal(t, "string", item["dataset"].Typ, "dataset")
 }
 
 func TestUnitPendingPaymentListApiDataRefs(t *testing.T) {
@@ -72,10 +70,9 @@ func TestUnitPendingPaymentListApiDataRefs(t *testing.T) {
 	require.Nil(t, refs.RespHeaders)
 	require.NotNil(t, refs.RespBody)
 
-	respJSON := []byte(`{"pending_payments":[{"user_id":"user-1","dataset":"ds1","dataset_name":"My dataset","payment_id":"cs_1","payment_type":"stripe"}]}`)
+	respJSON := []byte(`{"pending_payments":[{"dataset":"ds1"}]}`)
 	require.NoError(t, refs.RespBody.UnmarshalJSON(respJSON))
 	require.Len(t, api.Resp.PendingPayments, 1)
-	require.Equal(t, "user-1", api.Resp.PendingPayments[0].UserId)
 	require.Equal(t, "ds1", api.Resp.PendingPayments[0].Dataset)
 	out, err := refs.RespBody.MarshalJSON()
 	require.NoError(t, err)
