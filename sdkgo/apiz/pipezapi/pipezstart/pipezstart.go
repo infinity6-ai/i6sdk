@@ -45,20 +45,8 @@ func newT[T any]() T {
 	return x
 }
 
-func getPipe[T pipez.Pipe]() pipez.Pipe {
-	var x T
-	var p pipez.Pipe
-	typ := reflect.TypeFor[T]()
-	if typ.Kind() == reflect.Pointer {
-		p = reflect.New(typ.Elem()).Interface().(pipez.Pipe)
-	} else {
-		p = any(x).(pipez.Pipe)
-	}
-	return p
-}
-
 func (d *Api[T]) ApiSpec() apiz.ApiSpec {
-	p := getPipe[T]()
+	p := newT[T]()
 	return apiz.ApiSpec{
 		Id:     "pipez-start-" + p.SolutionDomain().String() + "-" + p.Pipename(),
 		Desc:   nil,
@@ -68,7 +56,7 @@ func (d *Api[T]) ApiSpec() apiz.ApiSpec {
 }
 
 func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
-	p := getPipe[T]()
+	p := newT[T]()
 	return &apiz.DataRefs{
 		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
@@ -85,21 +73,7 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 		},
 		QueryParams: nil,
 		ReqHeaders:  nil,
-		ReqBody: &schemaz.Schema{
-			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && d.Req == nil {
-					return nil
-				}
-				if d.Req == nil {
-					d.Req = &PipezStartReq[T]{
-						Params: newT[T](),
-					}
-				}
-				return map[string]*schemaz.Schema{
-					"params": p.Schema(),
-				}
-			},
-		},
+		ReqBody:     p.Schema(),
 		RespHeaders: nil,
 		RespBody: &schemaz.Schema{
 			Raw: func() any { return &d.Resp },
