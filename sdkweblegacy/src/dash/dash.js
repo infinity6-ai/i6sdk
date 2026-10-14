@@ -82,11 +82,13 @@ class Dash {
 
     const { dashName, partitions, dataset } = opts
     const apis = await this._services.apis()
+    const storeId = partitions?.store_id ?? "1";
+
     const resp = await apis.dszSignedUrl({
       params: { dataset: dataset },
       payload: {
         paths: [
-          { method: "GET", path: "i6tb://results.relevance-fashion-store-dash/store_id=1/sqlite.bin" },
+          { method: "GET", path: `i6tb://results.relevance-fashion-store-dash/store_id=${storeId}/sqlite.bin` },
         ]
       }
     })
