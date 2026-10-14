@@ -85,6 +85,10 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 							Get:        func(idx int, element **LineItem) *schemaz.Schema { return (*element).Schema() },
 						}),
 					},
+					"dataset_name": {
+						Desc: &schemaz.Desc{Summary: "Dataset name"},
+						Raw:  func() any { return &d.Req.DatasetName },
+					},
 					"customer_email": {
 						Desc: &schemaz.Desc{Summary: "Customer email"},
 						Raw:  func() any { return &d.Req.CustomerEmail },
