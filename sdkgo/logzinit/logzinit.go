@@ -13,35 +13,36 @@ import (
 
 var done = false
 
-type App struct {
-	App     string
-	Version string
+type Options struct {
+	App       string
+	Version   string
+	ProjectId string
 }
 
-func Init(ctx context.Context, app App, tracerOptions *logztracer.Options) (context.Context, io.Closer) {
+func Init(ctx context.Context, opts Options) (context.Context, io.Closer) {
 	if done {
 		panic("already configured")
 	}
-	if app.App == "" {
+	if opts.App == "" {
 		panic("app is required")
 	}
-	if app.Version == "" {
+	if opts.Version == "" {
 		panic("version is required")
 	}
 	ctx = logz.SetAttrs(ctx, map[string]string{
-		"app.name":    app.App,
-		"app.version": app.Version,
+		"app.name":    opts.App,
+		"app.version": opts.Version,
 	})
 	grpc.EnableTracing = false
-	tracerClose := logztracer.InitTracer(ctx, app.App, app.Version, tracerOptions)
-	metricsClose := logztracer.InitMetric(ctx, app.App, app.Version, tracerOptions)
-	if tracerOptions.ProjectId != "" {
-		tracerz.Init(app.App)
+	tracerClose := logztracer.InitTracer(ctx, opts.App, opts.Version, &logztracer.Options{ProjectId: opts.ProjectId})
+	// metricsClose := logztracer.InitMetric(ctx, opts.App, opts.Version, tracerOptions)
+	if opts.ProjectId != "" {
+		tracerz.Init(opts.App)
 		// meterz.Init(app.App)
 	}
 	done = true
 	return ctx, ioz.Closer(func() error {
-		metricsClose.Close()
+		// metricsClose.Close()
 		return tracerClose.Close()
 	})
 }
