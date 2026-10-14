@@ -10,17 +10,17 @@ import (
 )
 
 type PipezListReq struct {
-	Dataset        lakedsz.Dataset               `json:"dataset"`
-	SolutionDomain solutiondomain.SolutionDomain `json:"solution_domain"`
-	Name           string                        `json:"name"`
-	Status         string                        `json:"status"`
-	Cursor         string                        `json:"cursor"`
-	Limit          int                           `json:"limit"`
+	Dataset        lakedsz.Dataset
+	SolutionDomain solutiondomain.SolutionDomain
+	Name           string
+	Status         string
+	Cursor         string
+	Limit          int
 }
 
 type PipezListResp struct {
-	Pipelines []*pipez.Pipeline `json:"pipelines"`
-	Cursor    string            `json:"cursor"`
+	Pipelines []*pipez.Pipeline
+	Cursor    string
 }
 
 func (*PipezListResp) JSType() string {
@@ -28,8 +28,8 @@ func (*PipezListResp) JSType() string {
 }
 
 type Api struct {
-	Req  *PipezListReq  `json:"req"`
-	Resp *PipezListResp `json:"resp"`
+	Req  *PipezListReq
+	Resp *PipezListResp
 }
 
 func (d *Api) ApiSpec() apiz.ApiSpec {
@@ -37,7 +37,7 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 		Id:     "pipez-list",
 		Desc:   nil,
 		Method: "GET",
-		Path:   "/api/pipe/list/dataset/{dataset}",
+		Path:   "/api/pipe/dataset/{dataset}/list",
 	}
 }
 
