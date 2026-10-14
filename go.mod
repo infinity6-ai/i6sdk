@@ -12,7 +12,6 @@ require (
 	github.com/infinity6-ai/gox/schemaz v0.0.44
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.12.1
-	go.code.infinity6.ai/platform v1.2.72
 	go.opentelemetry.io/otel v1.44.0
 	go.opentelemetry.io/otel/sdk v1.44.0
 	go.opentelemetry.io/otel/sdk/metric v1.44.0
