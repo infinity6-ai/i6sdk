@@ -28,29 +28,30 @@ func (l *LineItem) Schema() *schemaz.Schema {
 }
 
 type Req struct {
-	LineItems                       []*LineItem `json:"line_items"`
-	CustomerEmail                   string      `json:"customer_email"`
-	SuccessUrl                      string      `json:"success_url"`
-	CancelUrl                       string      `json:"cancel_url"`
-	SubscriptionDataTrialPeriodDays int         `json:"subscription_data_trial_period_days"`
-	CnpjHub                         string      `json:"cnpj_hub"`
-	ResponsibleNameHub              string      `json:"responsible_name_hub"`
-	ResponsibleEmailHub             string      `json:"responsible_email_hub"`
-	IdSolutionHub                   string      `json:"id_solution_hub"`
-	IdCampanhaHub                   string      `json:"id_campanha_hub"`
-	TermsVersion                    string      `json:"terms_version"`
-	ContractVersion                 string      `json:"contract_version"`
-	TermsAcceptedAt                 string      `json:"terms_accepted_at"`
+	LineItems                       []*LineItem
+	DatasetName                     string
+	CustomerEmail                   string
+	SuccessUrl                      string
+	CancelUrl                       string
+	SubscriptionDataTrialPeriodDays int
+	CnpjHub                         string
+	ResponsibleNameHub              string
+	ResponsibleEmailHub             string
+	IdSolutionHub                   string
+	IdCampanhaHub                   string
+	TermsVersion                    string
+	ContractVersion                 string
+	TermsAcceptedAt                 string
 }
 
 type Resp struct {
-	Id  string `json:"id"`
-	Url string `json:"url"`
+	Id  string
+	Url string
 }
 
 type Api struct {
-	Req  Req  `json:"req"`
-	Resp Resp `json:"resp"`
+	Req  Req
+	Resp Resp
 }
 
 func (d *Api) ApiSpec() apiz.ApiSpec {
