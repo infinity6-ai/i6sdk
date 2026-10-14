@@ -6,6 +6,7 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/ioz"
 	"github.com/infinity6-ai/gox/commonz/logz"
+	"github.com/infinity6-ai/gox/commonz/logz/tracerz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/logzinit/internal/logztracer"
 	"google.golang.org/grpc"
 )
@@ -35,7 +36,7 @@ func Init(ctx context.Context, app App, tracerOptions *logztracer.Options) (cont
 	tracerClose := logztracer.InitTracer(ctx, app.App, app.Version, tracerOptions)
 	metricsClose := logztracer.InitMetric(ctx, app.App, app.Version, tracerOptions)
 	if tracerOptions.ProjectId != "" {
-		// tracerz.Init(app.App)
+		tracerz.Init(app.App)
 		// meterz.Init(app.App)
 	}
 	done = true
