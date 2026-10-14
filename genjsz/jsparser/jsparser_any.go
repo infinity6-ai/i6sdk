@@ -126,7 +126,6 @@ func checkCustom(ctx context.Context, baseId string, val reflect.Value) (*jstype
 		}
 		if ret.Head.Typ != jstypez.TypBoolean && ret.Head.Typ != jstypez.TypString && ret.Head.Typ != jstypez.TypNumber {
 			logger.Info(ctx, "non basic parser custom detected", map[string]any{"typ": ret.Head.Typ, "base": baseId})
-			// log.Printf("non basic parser custom detected %s: %s", ret.Head.Typ, baseId)
 		}
 		return ret, tdfs
 	}
