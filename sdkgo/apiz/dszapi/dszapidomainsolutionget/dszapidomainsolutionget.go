@@ -94,7 +94,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Resp = &DszSolutionDomainGetResp{}
 				}
 				return map[string]*schemaz.Schema{
-					"dataset": {Str: lakedsz.ParseStr(&d.Resp.Dataset)},
+					"dataset": {Raw: func() any { return &d.Resp.Dataset }},
 					"solutions": {
 						Raw: func() any { return &d.Resp.Solutions },
 					},
