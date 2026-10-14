@@ -3,6 +3,7 @@ package dszapipendingpaymentlist
 import (
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
 
 type Req struct {
@@ -10,7 +11,7 @@ type Req struct {
 }
 
 type PendingPayment struct {
-	Dataset string
+	Dataset lakedsz.Dataset
 }
 
 func (p *PendingPayment) Schema() *schemaz.Schema {

@@ -8,6 +8,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparserapi"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapipendingpaymentlist"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
 
 func TestUnitPendingPaymentList(t *testing.T) {
@@ -15,7 +16,7 @@ func TestUnitPendingPaymentList(t *testing.T) {
 		Req: dszapipendingpaymentlist.Req{User: "user-1"},
 		Resp: dszapipendingpaymentlist.Resp{
 			PendingPayments: []*dszapipendingpaymentlist.PendingPayment{
-				{Dataset: "ds1"},
+				{Dataset: lakedsz.MustParse("ds1")},
 			},
 		},
 	}
@@ -73,7 +74,7 @@ func TestUnitPendingPaymentListApiDataRefs(t *testing.T) {
 	respJSON := []byte(`{"pending_payments":[{"dataset":"ds1"}]}`)
 	require.NoError(t, refs.RespBody.UnmarshalJSON(respJSON))
 	require.Len(t, api.Resp.PendingPayments, 1)
-	require.Equal(t, "ds1", api.Resp.PendingPayments[0].Dataset)
+	require.Equal(t, "ds1", api.Resp.PendingPayments[0].Dataset.String())
 	out, err := refs.RespBody.MarshalJSON()
 	require.NoError(t, err)
 	require.JSONEq(t, string(respJSON), string(out))
