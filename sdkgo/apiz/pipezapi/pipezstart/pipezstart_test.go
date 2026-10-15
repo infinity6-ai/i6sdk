@@ -17,9 +17,9 @@ func TestUnitPipezApi(t *testing.T) {
 			Req: &pipezstart.PipezStartReq[*relevancefashionpipez.BatchIngest]{
 				Dataset: lakedsz.MustParse("bla1234"),
 				Params: &relevancefashionpipez.BatchIngest{
-					Dataset:    "bla1234",
-					IngestedAt: "20261013T224538808Z",
-					Table:      laketbnamez.MustParse("relevance-fashion-catalog"),
+					Dataset:  "bla1234",
+					IngestId: "20261013T224538808Z",
+					Table:    laketbnamez.MustParse("relevance-fashion-catalog"),
 				},
 			},
 		}

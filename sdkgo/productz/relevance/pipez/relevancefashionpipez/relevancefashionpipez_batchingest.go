@@ -10,9 +10,9 @@ import (
 )
 
 type BatchIngest struct {
-	Dataset    string                `json:"dataset"`
-	IngestedAt string                `json:"ingested_at"`
-	Table      laketbnamez.TableName `json:"table"`
+	Dataset  string                `json:"dataset"`
+	IngestId string                `json:"ingest_id"`
+	Table    laketbnamez.TableName `json:"table"`
 }
 
 func (b *BatchIngest) SolutionDomain() solutiondomain.SolutionDomain {
@@ -24,7 +24,7 @@ func (b *BatchIngest) Pipename() string {
 }
 
 func (b *BatchIngest) Concurrent() string {
-	return fmt.Sprintf("d.%s.t.%s.i.%s", b.Dataset, b.Table, b.IngestedAt)
+	return fmt.Sprintf("d.%s.t.%s.i.%s", b.Dataset, b.Table, b.IngestId)
 }
 
 func (b *BatchIngest) SetDataset(ds lakedsz.Dataset) {
@@ -34,7 +34,7 @@ func (b *BatchIngest) SetDataset(ds lakedsz.Dataset) {
 func (b *BatchIngest) Params() map[string]string {
 	return map[string]string{
 		"dataset":     b.Dataset,
-		"ingested_at": b.IngestedAt,
+		"ingested_at": b.IngestId,
 		"table":       b.Table.String(),
 	}
 }
@@ -44,7 +44,7 @@ func (b *BatchIngest) Schema() *schemaz.Schema {
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"ingest_id": {
-					Raw: func() any { return &b.IngestedAt },
+					Raw: func() any { return &b.IngestId },
 				},
 				"table": {
 					Raw: func() any { return &b.Table },
