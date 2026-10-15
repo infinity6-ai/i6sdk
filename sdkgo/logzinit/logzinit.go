@@ -29,10 +29,12 @@ func Init(ctx context.Context, opts Options) (context.Context, io.Closer) {
 	if opts.Version == "" {
 		panic("version is required")
 	}
-	ctx = logz.SetAttrs(ctx, map[string]string{
-		"app.name":    opts.App,
-		"app.version": opts.Version,
-	})
+	m := map[string]string{
+		logz.CtxKeyAppName:        opts.App,
+		logz.CtxKeyAppVersion:     opts.Version,
+		logz.CtxKeyGaeProjectName: opts.ProjectId,
+	}
+	ctx = logz.SetAttrs(ctx, m)
 	grpc.EnableTracing = false
 	tracerClose := logztracer.InitTracer(ctx, opts.App, opts.Version, &logztracer.Options{ProjectId: opts.ProjectId})
 	// metricsClose := logztracer.InitMetric(ctx, opts.App, opts.Version, tracerOptions)
