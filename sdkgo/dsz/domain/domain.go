@@ -38,7 +38,7 @@ func (d Domain) Validate(v string) error {
 	if err := validation.StrNotEmpty(v, "Domain cannot be empty"); err != nil {
 		return err
 	}
-	if err := validation.OneOf([]string{"fashion"}, v, "Domain"); err != nil {
+	if err := validation.OneOf([]string{"fashion", "plat", "dummydomain"}, v, "Domain"); err != nil {
 		return err
 	}
 	return nil
