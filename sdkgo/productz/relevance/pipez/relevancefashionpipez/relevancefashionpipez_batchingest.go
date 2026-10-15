@@ -10,9 +10,9 @@ import (
 )
 
 type BatchIngest struct {
-	Dataset  string                `json:"dataset"`
-	IngestId string                `json:"ingest_id"`
-	Table    laketbnamez.TableName `json:"table"`
+	Dataset  string                
+	IngestId string                
+	Table    laketbnamez.TableName 
 }
 
 func (b *BatchIngest) SolutionDomain() solutiondomain.SolutionDomain {

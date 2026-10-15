@@ -13,7 +13,7 @@ func TestUnitSolutionChecked(t *testing.T) {
 			ret := solution.MustParse(v)
 			return &ret
 		},
-		Valids:   []string{"relevance", "forecast"},
+		Valids:   []string{"relevance", "dummysolution"},
 		Invalids: []string{"bla"},
 	})
 }

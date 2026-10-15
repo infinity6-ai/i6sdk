@@ -36,7 +36,7 @@ func TestUnitMutabilty(t *testing.T) {
 		Domain:   domain.MustParse("fashion"),
 	})
 	x := tb.Get()
-	x.Solution = solution.MustParse("forecast")
-	require.Equal(t, "forecast_fashion", x.String())
+	x.Solution = solution.MustParse("dummysolution")
+	require.Equal(t, "dummysolution_fashion", x.String())
 	require.Equal(t, "relevance_fashion", tb.Get().String())
 }
