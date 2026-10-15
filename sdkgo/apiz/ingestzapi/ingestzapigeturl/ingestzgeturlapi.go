@@ -10,15 +10,15 @@ import (
 )
 
 type GetUrlReq struct {
-	Dataset    lakedsz.Dataset       `json:"dataset"`
-	Table      laketbnamez.TableName `json:"table"`
-	Partitions map[string]string     `json:"partitions"`
-	Amount     int                   `json:"amount"`
+	Dataset    lakedsz.Dataset
+	Table      laketbnamez.TableName
+	Partitions map[string]string
+	Amount     int
 }
 
 type GetUrlResp struct {
-	Uploads    []string                 `json:"uploads"`
-	IngestedAt ingestztoken.IngestToken `json:"ingest_id"`
+	Uploads  []string
+	IngestId ingestztoken.IngestToken
 }
 
 func (*GetUrlResp) JSType() string {
@@ -26,8 +26,8 @@ func (*GetUrlResp) JSType() string {
 }
 
 type Api struct {
-	Req  GetUrlReq  `json:"req"`
-	Resp GetUrlResp `json:"resp"`
+	Req  GetUrlReq
+	Resp GetUrlResp
 }
 
 func (d *Api) ApiSpec() apiz.ApiSpec {
@@ -87,7 +87,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					},
 					"ingest_id": {
 						Desc: &schemaz.Desc{Name: "Ingest ID", Summary: "Ingestion token that identifies this ingestion and ties the uploaded files together."},
-						Raw:  func() any { return &d.Resp.IngestedAt },
+						Raw:  func() any { return &d.Resp.IngestId },
 					},
 				}
 			},
