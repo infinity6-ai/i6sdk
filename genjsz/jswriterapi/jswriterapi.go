@@ -196,12 +196,7 @@ func writeApiDecl(b *strings.Builder, api *jsparserapi.Api) {
 
 	writeln(b, "  }")
 	writeln(b, "  if (!resp.ok) {")
-	writeln(b, "    const text = await resp.text();")
-	writeln(b, "    try {")
-	writeln(b, "      result.error = JSON.parse(text);")
-	writeln(b, "    } catch {")
-	writeln(b, "      result.error = text;")
-	writeln(b, "    }")
+	writeln(b, "    result.error = await resp.text();")
 	writeln(b, "  }")
 	writeln(b, "  return result;")
 	writeln(b, "}")

@@ -81,12 +81,7 @@ func TestUnitWrite(t *testing.T) {
       result.payload = await resp.json();
     }
     if (!resp.ok) {
-      const text = await resp.text();
-      try {
-        result.error = JSON.parse(text);
-      } catch {
-        result.error = text;
-      }
+      result.error = await resp.text();
     }
     return result;
   }
@@ -169,12 +164,7 @@ export { Apis };
       result.payload = await resp.json();
     }
     if (!resp.ok) {
-      const text = await resp.text();
-      try {
-        result.error = JSON.parse(text);
-      } catch {
-        result.error = text;
-      }
+      result.error = await resp.text();
     }
     return result;
   }
