@@ -32,7 +32,8 @@ function isPartitions(partitions) {
  * @param {string} name - Name of the cached file.
  * @param {string} url - URL of the file.
  * @returns {Promise<FileRef>} The cached file.
- * @throws {I6Error} With code "asset" if the download fails.
+ * @throws {I6Error} With code "asset" if the download fails; `status` is the HTTP status when the server answered
+ *   (404 when the file does not exist, e.g. a store or month without data) and `cause` is the underlying error.
  */
 async function downloadFile(name, url) {
   try {
@@ -40,7 +41,7 @@ async function downloadFile(name, url) {
     if (globalThis.I6_DEBUG) console.log(`assets: ${name} is ready`, ref)
     return ref
   } catch (cause) {
-    throw new I6Error(`could not get ${url}: ${cause.message}`, { code: "asset", cause })
+    throw new I6Error(`could not get ${url}: ${cause.message}`, { code: "asset", status: cause.status, cause })
   }
 }
 

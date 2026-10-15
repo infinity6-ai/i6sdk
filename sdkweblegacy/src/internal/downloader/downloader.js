@@ -10,6 +10,15 @@ import { fs } from '../fs/fs.js'
  */
 
 /**
+ * @param {string} message
+ * @param {number} status - HTTP status code of the response.
+ * @returns {Error} An error with `status`.
+ */
+function httpError(message, status) {
+    return Object.assign(new Error(message), { status })
+}
+
+/**
  * Downloads remote files into the versioned file store. Use the `downloader` singleton.
  */
 class Downloader {
@@ -23,6 +32,7 @@ class Downloader {
      * @returns {Promise<FileRef>} the FileRef of the up-to-date file (basically to get the version)
      * @throws {TypeError} If name or url is missing.
      * @throws {Error} If the HEAD or GET request fails, or the HEAD response has no etag.
+     *   When the server answered, the error has `status` (the HTTP status code).
     */
     async update(opts) {
         if (!opts || !opts.name) throw new TypeError('downloader: opts.name is required')
@@ -30,7 +40,7 @@ class Downloader {
 
         // HEAD (gcs) to get the current etag
         const head = await fetch(opts.url, { method: 'HEAD' })
-        if (!head.ok) throw new Error(`downloader: HEAD ${opts.url} failed (${head.status})`)
+        if (!head.ok) throw httpError(`downloader: HEAD ${opts.url} failed (${head.status})`, head.status)
             
         const etag = head.headers.get('etag')
         if (!etag) throw new Error('downloader: no etag in HEAD response')
@@ -45,7 +55,7 @@ class Downloader {
         let success = false
         try {
             const response = await fetch(opts.url)
-            if (!response.ok) throw new Error(`downloader: GET ${opts.url} failed (${response.status})`)
+            if (!response.ok) throw httpError(`downloader: GET ${opts.url} failed (${response.status})`, response.status)
 
             // Stream the body straight into the opfs file, never held in memory
             let dir = await navigator.storage.getDirectory()

@@ -106,6 +106,18 @@
             await rejectsWithCode(assert, new Dash().query(opts), 'asset', /could not get/)
         })
 
+        QUnit.test("query reports the http status and cause of a missing asset", async function (assert) {
+            const opts = { ...base, sqliteUrl: new URL('nope.sqlite', location.href).href }
+            try {
+                await new Dash().query(opts)
+                assert.ok(false, 'should have been rejected')
+            } catch (e) {
+                assert.strictEqual(e.code, 'asset')
+                assert.strictEqual(e.status, 404)
+                assert.true(e.cause instanceof Error, 'has the underlying error as cause')
+            }
+        })
+
         QUnit.test("query reports a sqlite without the named query", async function (assert) {
             sqliteBytes = await buildSqlite('x')
             await rejectsWithCode(assert, new Dash().query({ ...base, dashName: 'other', sqliteUrl }), 'query', /./)
