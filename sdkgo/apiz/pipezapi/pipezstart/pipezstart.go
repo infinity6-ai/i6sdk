@@ -94,6 +94,12 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 		RespHeaders: nil,
 		RespBody: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
+				if read && d.Resp == nil {
+					return nil
+				}
+				if d.Resp == nil {
+					d.Resp = &PipezStartResp{}
+				}
 				return map[string]*schemaz.Schema{
 					"id": {Raw: func() any { return &d.Resp.Id }},
 				}

@@ -16,6 +16,10 @@ type tlogger logz.Type
 var logger = logz.Create(tlogger(true))
 
 func ParseAny(ctx context.Context, baseId string, v any) (*jstypez.Typedef, *jstypez.Typedefs) {
+	if v == nil {
+		return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: "any", GoTyp: "any"}}, nil
+	}
+
 	val := reflect.ValueOf(v)
 
 	for val.Kind() == reflect.Pointer || val.Kind() == reflect.Interface {

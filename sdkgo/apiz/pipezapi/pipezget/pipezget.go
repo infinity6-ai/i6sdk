@@ -56,7 +56,66 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 		ReqBody:     nil,
 		RespHeaders: nil,
 		RespBody: &schemaz.Schema{
-			Raw: func() any { return &d.Resp },
+			Object: func(read bool) map[string]*schemaz.Schema {
+				if read && d.Resp == nil {
+					return nil
+				}
+				if d.Resp == nil {
+					d.Resp = &PipezGetResp{}
+				}
+				return map[string]*schemaz.Schema{
+					"pipeline": {
+						Object: func(read bool) map[string]*schemaz.Schema {
+							if read && d.Resp.Pipeline == nil {
+								return nil
+							}
+							if d.Resp.Pipeline == nil {
+								d.Resp.Pipeline = &pipez.Pipeline{}
+							}
+							return map[string]*schemaz.Schema{
+								"id": {
+									Raw: func() any { return &d.Resp.Pipeline.Id },
+								},
+								"concurrent_id": {
+									Raw: func() any { return &d.Resp.Pipeline.ConcurrentId },
+								},
+								"solution_domain": {
+									Raw: func() any { return &d.Resp.Pipeline.SolutionDomain },
+								},
+								"name": {
+									Raw: func() any { return &d.Resp.Pipeline.Name },
+								},
+								"dataset": {
+									Raw: func() any { return &d.Resp.Pipeline.Dataset },
+								},
+								"states": {
+									Array: schemaz.NewArray(schemaz.ArrayOptions[[]*pipez.PipeState, *pipez.PipeState]{
+										Slice:      func() *[]*pipez.PipeState { return &d.Resp.Pipeline.States },
+										NewElement: func(idx int) *pipez.PipeState { return &pipez.PipeState{} },
+										Get: func(idx int, element **pipez.PipeState) *schemaz.Schema {
+											return &schemaz.Schema{
+												Object: func(_ bool) map[string]*schemaz.Schema {
+													return map[string]*schemaz.Schema{
+														"status": {
+															Raw: func() any { return &(*element).Status },
+														},
+														"params": {
+															Raw: func() any { return &(*element).Params },
+														},
+														"created_at": {
+															Raw: func() any { return &(*element).CreatedAt },
+														},
+													}
+												},
+											}
+										},
+									}),
+								},
+							}
+						},
+					},
+				}
+			},
 		},
 	}
 }
