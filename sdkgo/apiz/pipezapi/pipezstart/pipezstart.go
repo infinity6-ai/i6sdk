@@ -93,7 +93,11 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 		},
 		RespHeaders: nil,
 		RespBody: &schemaz.Schema{
-			Raw: func() any { return &d.Resp },
+			Object: func(read bool) map[string]*schemaz.Schema {
+				return map[string]*schemaz.Schema{
+					"id": {Raw: func() any { return &d.Resp.Id }},
+				}
+			},
 		},
 	}
 }
