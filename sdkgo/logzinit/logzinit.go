@@ -4,7 +4,7 @@ import (
 	"context"
 	"io"
 
-	"github.com/infinity6-ai/gox/commonz/ioz"
+	"github.com/infinity6-ai/gox/commonz/deferz"
 	"github.com/infinity6-ai/gox/commonz/logz"
 	"github.com/infinity6-ai/gox/commonz/logz/tracerz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/logzinit/internal/logztracer"
@@ -35,16 +35,15 @@ func Init(ctx context.Context, opts Options) (context.Context, io.Closer) {
 		logz.CtxKeyGaeProjectName: opts.ProjectId,
 	}
 	ctx = logz.SetAttrs(ctx, m)
+	done = true
 	grpc.EnableTracing = false
-	tracerClose := logztracer.InitTracer(ctx, opts.App, opts.Version, &logztracer.Options{ProjectId: opts.ProjectId})
+	dfz := deferz.New(ctx)
+	tracerCloser := logztracer.InitTracer(ctx, opts.App, opts.Version, &logztracer.Options{ProjectId: opts.ProjectId})
+	dfz.AddCloserS(tracerCloser)
 	// metricsClose := logztracer.InitMetric(ctx, opts.App, opts.Version, tracerOptions)
 	if opts.ProjectId != "" {
 		tracerz.Init(opts.App)
 		// meterz.Init(app.App)
 	}
-	done = true
-	return ctx, ioz.Closer(func() error {
-		// metricsClose.Close()
-		return tracerClose.Close()
-	})
+	return ctx, dfz.Detach()
 }
