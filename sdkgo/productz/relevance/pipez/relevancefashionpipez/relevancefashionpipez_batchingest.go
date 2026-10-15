@@ -43,7 +43,7 @@ func (b *BatchIngest) Schema() *schemaz.Schema {
 	return &schemaz.Schema{
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
-				"ingested_at": {
+				"ingest_id": {
 					Raw: func() any { return &b.IngestedAt },
 				},
 				"table": {
