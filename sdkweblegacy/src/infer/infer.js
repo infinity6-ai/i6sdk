@@ -107,6 +107,7 @@ class Infer {
       // 4. The sqlite turns the outputs into the result
       const result = await conn.namedJsonQuery({ name: queryName("output"), params: outputQueryParams(outputs, opts) })
       debug("output query returned (after namedJsonQuery)", result)
+      await this.#sendRecEvent(opts, "recraw", results)
       return result
     } finally {
       await conn.close()
@@ -126,7 +127,6 @@ class Infer {
     }
     const { req, results } = opts
 
-    await this.#sendRecEvent(opts, "recraw", results)
     const selected = await opts.selectResults(req, results)
     await this.#sendRecEvent(opts, "recshow", selected)
     return selected
