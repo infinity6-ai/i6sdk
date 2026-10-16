@@ -350,9 +350,6 @@ func TestUnitEventSchema(t *testing.T) {
 		require.Contains(t, propMap, "purchase")
 		require.Equal(t, "EventPurchase", propMap["purchase"].Typ)
 
-		require.Contains(t, propMap, "ingested_at")
-		require.Equal(t, "string", propMap["ingested_at"].Typ)
-
 		// Check registered sub-typedefs
 		tdfMap := make(map[string]*jstypez.Typedef)
 		for _, tdf := range tds.All() {

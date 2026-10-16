@@ -198,6 +198,7 @@ func Write(ctx context.Context, sdkFuncs []*jsparsersdkfunc.SdkFunc) string {
 			writeln(&decl, "    storeId: req.partitions.store_id,")
 			writeln(&decl, "    req,")
 			writeln(&decl, "    results,")
+			writeln(&decl, "    recId: results.rec_id,")
 			writeln(&decl, "    selectResults,")
 			writeln(&decl, "  })")
 		case sdkfuncz.TypClientQuery:

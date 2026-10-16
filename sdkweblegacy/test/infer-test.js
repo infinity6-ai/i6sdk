@@ -11,7 +11,7 @@
         const cart = { skus: [{ sku_id: '150' }, { sku_id: '77' }] }
 
         /** @type {import('../src/infer/infer.js').Infer} */
-        let infer
+        let infer, events
         let I6Error
 
         const rejectsWithCode = async (assert, promise, code, message) => {
@@ -25,10 +25,16 @@
             }
         }
 
+        const stubServices = (events, apis = {}) => ({
+            config: () => ({ sessionId: 'sess-1', userId: 'user-1' }),
+            apis: () => ({ ingestzStreamRelevanceFashionEvent: async (req) => { events.push(req); return { ok: true, status: 200 } }, ...apis }),
+        })
+
         hooks.beforeEach(async function () {
             const { Infer } = await import('../src/infer/infer.js');
             ({ I6Error } = await import('../src/errors.js'))
-            infer = new Infer()
+            events = []
+            infer = new Infer(stubServices(events))
         })
 
         QUnit.test("run validates its opts", async function (assert) {
@@ -51,9 +57,11 @@
             if (!(await fetch(assets.tfliteUrl, { method: 'HEAD' })).ok) return assert.ok(true, 'skipped: no assets in src/infer/gen')
 
             const opts = { ...base, params: cart, ...assets }
-            const { results } = await infer.run({ ...opts, limit: 5 })
+            const { results, rec_id } = await infer.run({ ...opts, limit: 5 })
 
             assert.strictEqual(results.length, 5, 'limit is honored')
+            assert.strictEqual(events.length, 1, 'run sends the recraw event')
+            assert.strictEqual(events[0].payload.data[0].recraw.rec_id, rec_id, 'with the rec_id it returns')
             assert.true(results.every((r) => Array.isArray(r.skus) && r.skus.every((k) => typeof k.sku_id === 'string')), 'skus are {sku_id}')
             assert.true(results.every((r, i) => i === 0 || results[i - 1].rating >= r.rating), 'best rating first')
             await rejectsWithCode(assert, infer.run({ ...opts, limit: 0 }), 'invalid_argument', /opts.limit/)
@@ -63,10 +71,10 @@
             if (!(await fetch(assets.tfliteUrl, { method: 'HEAD' })).ok) return assert.ok(true, 'skipped: no assets in src/infer/gen')
 
             const requests = []
-            const services = { apis: () => ({ dszModelGet: async (req) => {
+            const services = stubServices([], { dszModelGet: async (req) => {
                 requests.push(req)
                 return { ok: true, payload: { urls: [{ name: 'tflite.bin', url: assets.tfliteUrl }, { name: 'sqlite.bin', url: assets.sqliteUrl }] } }
-            } }) }
+            } })
             const { Infer } = await import('../src/infer/infer.js')
 
             const result = await new Infer(services).run({ ...base, params: cart })
@@ -76,13 +84,13 @@
                 payload: { model_version: 'v1', model_partitions: { store_id: 's1', version: 'v1' } },
             }])
 
-            const noSqlite = { apis: () => ({ dszModelGet: async () => ({ ok: true, payload: { urls: [] } }) }) }
+            const noSqlite = stubServices([], { dszModelGet: async () => ({ ok: true, payload: { urls: [] } }) })
             await rejectsWithCode(assert, new Infer(noSqlite).run({ ...base, params: cart }), 'asset', /no "sqlite.bin" file/)
         })
 
-        QUnit.test("selectResults sends recraw, returns the selection and sends it as recshow", async function (assert) {
+        QUnit.test("selectResults returns the selection and sends it as recshow", async function (assert) {
             const requests = []
-            const services = { apis: () => ({ ingestzStreamRelevanceFashionEvent: async (req) => {
+            const services = { config: () => ({ sessionId: 'sess-1', userId: 'user-1' }), apis: () => ({ ingestzStreamRelevanceFashionEvent: async (req) => {
                 requests.push(req)
                 return { ok: true, status: 200 }
             } }) }
@@ -92,27 +100,31 @@
             const selected = { results: [{ sku: { sku_id: '1' }, enriched: { name: 'shirt' } }] }
             const calls = []
             const opts = {
-                dataset: 'dectest', modelName: 'relevance-fashion-fbt', modelVersion: 'v1', storeId: 's1', req, results,
+                dataset: 'dectest', modelName: 'relevance-fashion-fbt', modelVersion: 'v1', storeId: 's1', req, results, recId: 'rec-1',
                 selectResults: async (...args) => { calls.push(args); return selected },
             }
 
             assert.deepEqual(await new Infer(services).selectResults(opts), selected)
             assert.deepEqual(calls, [[req, results]], 'selectResults gets req and results')
-            assert.strictEqual(requests.length, 2)
+            assert.strictEqual(requests.length, 1)
             const sent = requests.map((r) => {
                 assert.deepEqual(r.params, { dataset: 'dectest' })
                 const [event] = r.payload.data
                 assert.strictEqual(event.store_id, 's1')
+                assert.deepEqual([event.session_id, event.user_id], ['sess-1', 'user-1'])
+                assert.true(/^[0-9a-f-]{36}$/.test(event.id), 'id is a uuid')
                 const kind = event.recraw ? 'recraw' : 'recshow'
                 assert.strictEqual(event[kind === 'recraw' ? 'recshow' : 'recraw'], undefined, `${kind} only`)
                 return [kind, { ...event[kind], payload: JSON.parse(event[kind].payload) }]
             })
-            const rec = (payload) => ({ rec_id: 'BLA', model_id: 'relevance-fashion-fbt', model_version: 'v1', payload })
-            assert.deepEqual(sent, [['recraw', rec(results)], ['recshow', rec(selected)]], 'recraw first, then recshow')
+            const rec = (payload) => ({ rec_id: 'rec-1', model_id: 'relevance-fashion-fbt', model_version: 'v1', payload })
+            assert.deepEqual(sent, [['recshow', rec(selected)]], 'recshow only, recraw is sent by run')
 
             await rejectsWithCode(assert, new Infer(services).selectResults({ ...opts, selectResults: undefined }), 'invalid_argument', /opts.selectResults/)
-            const rejecting = { apis: () => ({ ingestzStreamRelevanceFashionEvent: async () => ({ ok: false, status: 500, error: 'boom' }) }) }
-            await rejectsWithCode(assert, new Infer(rejecting).selectResults(opts), 'event', /recraw event.*boom/)
+            await rejectsWithCode(assert, new Infer(services).selectResults({ ...opts, recId: undefined }), 'invalid_argument', /opts.recId/)
+            await rejectsWithCode(assert, new Infer({ apis: services.apis }).selectResults(opts), 'invalid_argument', /sessionId and userId/)
+            const rejecting = { config: services.config, apis: () => ({ ingestzStreamRelevanceFashionEvent: async () => ({ ok: false, status: 500, error: 'boom' }) }) }
+            await rejectsWithCode(assert, new Infer(rejecting).selectResults(opts), 'event', /recshow event.*boom/)
         })
 
         QUnit.test("runModel reports inputs that do not fit the model", async function (assert) {

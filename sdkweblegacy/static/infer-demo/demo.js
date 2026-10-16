@@ -14,6 +14,28 @@ const log = (...args) => {
 console.log = (...args) => { consoleLog(...args); log(...args) }
 $('clearlog').onclick = () => { $('log').textContent = '' }
 
+// --- session -----------------------------------------------------------------------------------------
+// What the SDK user passes to `new I6Sdk(...)`. The session lives as long as the tab; the user is kept across visits.
+const stored = (storage, key) => {
+  try {
+    return storage.getItem(key) ?? (storage.setItem(key, crypto.randomUUID()), storage.getItem(key))
+  } catch { return crypto.randomUUID() }
+}
+const sdkConfig = { sessionId: stored(sessionStorage, 'i6demo.sessionId'), userId: stored(localStorage, 'i6demo.userId') }
+// The config the SDK really runs with: the defaults (baseUrl) merged with ours
+// (the demo builds the SDK without ids, then gives them with setConfig, which can be called anytime)
+const sdk = new I6Sdk()
+sdk.setConfig(sdkConfig)
+window.i6sdk = sdk // try sdk.setConfig({ userId: 'x' }) in the console, then run
+const showConfig = () => { $('sdkConfig').textContent = JSON.stringify(sdk.config(), null, 2) }
+showConfig()
+log('sdk config', sdk.config())
+
+// What the SDK user passes as selectResults: picks the skus that are shown (here the first 5 of each result)
+const selectResults = async (req, { results }) => ({
+  results: results.slice(0, 5).flatMap((r) => r.skus.map((sku) => ({ sku, enriched: { rating: r.rating } }))),
+})
+
 // --- what the SDK user passes in ---------------------------------------------------------------------
 // The request of sdk.funcs().productRelevanceFashionFbtV1, from the config card.
 function funcsRequest() {
@@ -32,7 +54,9 @@ function funcsRequest() {
 function usage() {
   return `import { I6Sdk } from './i6sdk-web.js'
 
-const result = await new I6Sdk().funcs().productRelevanceFashionFbtV1(${JSON.stringify(funcsRequest(), null, 2)})`
+const sdk = new I6Sdk()
+sdk.setConfig(${JSON.stringify(sdkConfig)}) // anytime; overwrites only the given keys
+const result = await sdk.funcs().productRelevanceFashionFbtV1(${JSON.stringify(funcsRequest(), null, 2)}, selectResults)`
 }
 for (const id of ['modelName', 'modelVersion', 'storeId', 'dataset', 'sku_ids']) $(id).addEventListener('input', () => { $('usage').textContent = usage() })
 $('usage').textContent = usage()
@@ -51,7 +75,7 @@ $('run').onclick = async () => {
   card.querySelector('.in').textContent = JSON.stringify(req, null, 1)
   card.querySelector('.out').textContent = ''
   try {
-    const result = await new I6Sdk().funcs().productRelevanceFashionFbtV1(req)
+    const result = await sdk.funcs().productRelevanceFashionFbtV1(req, selectResults)
     card.querySelector('.out').textContent = JSON.stringify(result, null, 1)
     setStatus('ok')
   } catch (e) {
@@ -85,7 +109,7 @@ $('dashRun').onclick = async () => {
   $('dashIn').textContent = JSON.stringify(req, null, 1)
   $('dashOut').textContent = ''
   try {
-    const result = await new I6Sdk().funcs()[$('dashFunc').value](req)
+    const result = await sdk.funcs()[$('dashFunc').value](req)
     $('dashOut').textContent = JSON.stringify(result, null, 1)
     setDashStatus('ok')
   } catch (e) {
@@ -98,12 +122,7 @@ $('dashRun').onclick = async () => {
 // Redirects to the login page when nobody is signed in, and comes back here
 $('login').onclick = async () => {
   try {
-    let i6sdk = new I6Sdk({
-      //devemos ter um session, com id e user_id
-    })
-    window.i6sdk = i6sdk
-    
-    const user = await i6sdk.auth().requireUser()
+    const user = await sdk.auth().requireUser()
     if (user) log('logged in as', user)
   } catch (e) {
     log(`ERROR login: ${e.message}`)

@@ -41,7 +41,8 @@ import { describeModel, loadModel, runModel } from "./litert.js";
  * @property {string} modelVersion - Version of that model.
  * @property {string} storeId - Store of the event.
  * @property {*} req - What the caller asked for; given as is to `selectResults`.
- * @property {*} results - What `run` returned; given as is to `selectResults`.
+ * @property {*} results - What `run` returned (its `rec_id` is the id of the recommendation); given as is to `selectResults`.
+ * @property {string} recId - Id of the recommendation, the `rec_id` that `run` returned. Same as in the `recraw` event that `run` sent; sent in the `recshow` event.
  * @property {(req: *, results: *) => Promise<*>} selectResults - Picks which of the recommended skus are shown.
  */
 
@@ -73,12 +74,13 @@ class Infer {
   /**
    * Runs the model for the given params and returns what the output query gives.
    * @param {InferOptions} opts - Inference options.
-   * @returns {Promise<*>} The `ret` of the named query `model-${modelName}-output`.
-   * @throws {I6Error} With code "invalid_argument" if opts is malformed or the model inputs do not fit the model,
+   * @returns {Promise<*>} The `ret` of the named query `model-${modelName}-output`, plus a generated `rec_id` (uuid). Sends the `recraw` event with that id.
+   * @throws {I6Error} With code "invalid_argument" if opts is malformed, the sdk has no `sessionId` and `userId` or the model inputs do not fit the model,
    *   "asset" if a download fails, "model" if loading or running the model fails, "query" if the sqlite fails.
    */
   async run(opts) {
     validate(opts)
+    const ids = this.#sdkIds()
     const { modelName, params } = opts
     const queryName = (kind) => `model-${modelName}-${kind}`
 
@@ -107,52 +109,75 @@ class Infer {
       // 4. The sqlite turns the outputs into the result
       const result = await conn.namedJsonQuery({ name: queryName("output"), params: outputQueryParams(outputs, opts) })
       debug("output query returned (after namedJsonQuery)", result)
-      await this.#sendRecEvent(opts, "recraw", results)
-      return result
+      // The rec_id ties this run to the recshow event that selectResults sends later
+      const recId = crypto.randomUUID()
+      const results = { ...result, rec_id: recId }
+      const eventOpts = { dataset: opts.dataset, modelName, modelVersion: opts.partitions.version, storeId: opts.partitions.store_id }
+      await this.#sendRecEvent(eventOpts, ids, recId, "recraw", results)
+      return results
     } finally {
       await conn.close()
     }
   }
 
   /**
-   * Sends the recommended skus as the `recraw` event, asks `selectResults` which of them are shown and sends those as the
-   * `recshow` event.
+   * Asks `selectResults` which of the recommended skus are shown and sends those as the `recshow` event.
    * @param {SelectResultsOptions} opts - Select options.
    * @returns {Promise<*>} What `selectResults` returned.
-   * @throws {I6Error} With code "invalid_argument" if `selectResults` is not a function, "event" if an event is not accepted.
+   * @throws {I6Error} With code "invalid_argument" if `selectResults` is not a function, `recId` is missing or the sdk has no `sessionId` and
+   *   `userId`, "event" if an event is not accepted.
    */
   async selectResults(opts) {
     if (typeof opts?.selectResults !== "function") {
       throw new I6Error("infer: opts.selectResults must be a function", { code: "invalid_argument" })
     }
     const { req, results } = opts
+    const { recId } = opts
+    if (!recId) throw new I6Error("infer: opts.recId is required", { code: "invalid_argument" })
+    const ids = this.#sdkIds()
 
     const selected = await opts.selectResults(req, results)
-    await this.#sendRecEvent(opts, "recshow", selected)
+    await this.#sendRecEvent(opts, ids, recId, "recshow", selected)
     return selected
+  }
+
+  /**
+   * The session and user the sdk was created with (`new I6Sdk({ sessionId, userId })`).
+   * @private
+   * @returns {{sessionId: string, userId: string}}
+   * @throws {I6Error} With code "invalid_argument" if one of them is missing.
+   */
+  #sdkIds() {
+    const { sessionId, userId } = this._services?.config?.() ?? {}
+    if (!sessionId || !userId) {
+      throw new I6Error("infer: the sdk needs sessionId and userId, e.g. new I6Sdk({ sessionId, userId })", { code: "invalid_argument" })
+    }
+    return { sessionId, userId }
   }
 
   /**
    * Sends one recommendation event.
    * @private
-   * @param {SelectResultsOptions} opts - Select options.
+   * @param {{dataset: string, modelName: string, modelVersion: string, storeId: string}} opts - Event options.
+   * @param {{sessionId: string, userId: string}} ids - Session and user of the sdk.
+   * @param {string} recId - Id of the recommendation, the same in the recraw and recshow events.
    * @param {"recraw"|"recshow"} kind - Which event.
    * @param {*} payload - What the event carries, any JSON.
    * @returns {Promise<void>}
    * @throws {I6Error} With code "event" if the event is not accepted.
    */
-  async #sendRecEvent(opts, kind, payload) {
+  async #sendRecEvent(opts, ids, recId, kind, payload) {
     await this._services.apis().ingestzStreamRelevanceFashionEvent({
       params: { dataset: opts.dataset },
       payload: {
         data: [{
-          id: "BLA",// gerar aqui, usar uuid do js 
+          id: crypto.randomUUID(),
           store_id: opts.storeId,
-          session_id: "BLA", // QUando o cara der um New na sdk, ele deve passar
-          user_id: "BLA", // QUando o cara der um New na sdk, ele deve passar 
+          session_id: ids.sessionId,
+          user_id: ids.userId,
           created_at: new Date().toISOString(),
           [kind]: {
-            rec_id: "BLA", //Tem que ser o mesmo, vamos gerar (infer.run devolve e passa para a gente com o select) (uuid)
+            rec_id: recId,
             model_id: opts.modelName,
             model_version: opts.modelVersion,
             payload: JSON.stringify(payload),
