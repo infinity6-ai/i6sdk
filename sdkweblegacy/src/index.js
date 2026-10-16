@@ -36,10 +36,28 @@ class I6Sdk {
      * @private
      * @type {Services}
      */
-    this._service = new Services(this._config = {
+    this._service = new Services({
       ...DEFAULT_CONFIG,
       ...config,
     })
+  }
+
+  /**
+   * Returns a copy of the configuration the SDK is running with.
+   * @returns {I6SdkConfig} The current configuration.
+   */
+  config() {
+    return { ...this._service.config() }
+  }
+
+  /**
+   * Overwrites the given keys of the configuration (e.g. `{ sessionId, userId }`); the other keys are kept.
+   * Can be called at any time, the next call of the SDK uses the new values.
+   * @param {Partial<I6SdkConfig>} config - The keys to overwrite.
+   * @returns {void}
+   */
+  setConfig(config) {
+    this._service.setConfig(config)
   }
 
   /**

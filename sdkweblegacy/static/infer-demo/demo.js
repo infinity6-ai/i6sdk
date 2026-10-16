@@ -22,10 +22,14 @@ const stored = (storage, key) => {
   } catch { return crypto.randomUUID() }
 }
 const sdkConfig = { sessionId: stored(sessionStorage, 'i6demo.sessionId'), userId: stored(localStorage, 'i6demo.userId') }
-const newSdk = () => new I6Sdk(sdkConfig)
 // The config the SDK really runs with: the defaults (baseUrl) merged with ours
-$('sdkConfig').textContent = JSON.stringify(newSdk()._config, null, 2)
-log('sdk config', newSdk()._config)
+// (the demo builds the SDK without ids, then gives them with setConfig, which can be called anytime)
+const sdk = new I6Sdk()
+sdk.setConfig(sdkConfig)
+window.i6sdk = sdk // try sdk.setConfig({ userId: 'x' }) in the console, then run
+const showConfig = () => { $('sdkConfig').textContent = JSON.stringify(sdk.config(), null, 2) }
+showConfig()
+log('sdk config', sdk.config())
 
 // What the SDK user passes as selectResults: picks the skus that are shown (here the first 5 of each result)
 const selectResults = async (req, { results }) => ({
@@ -50,7 +54,8 @@ function funcsRequest() {
 function usage() {
   return `import { I6Sdk } from './i6sdk-web.js'
 
-const sdk = new I6Sdk(${JSON.stringify(sdkConfig)})
+const sdk = new I6Sdk()
+sdk.setConfig(${JSON.stringify(sdkConfig)}) // anytime; overwrites only the given keys
 const result = await sdk.funcs().productRelevanceFashionFbtV1(${JSON.stringify(funcsRequest(), null, 2)}, selectResults)`
 }
 for (const id of ['modelName', 'modelVersion', 'storeId', 'dataset', 'sku_ids']) $(id).addEventListener('input', () => { $('usage').textContent = usage() })
@@ -70,7 +75,7 @@ $('run').onclick = async () => {
   card.querySelector('.in').textContent = JSON.stringify(req, null, 1)
   card.querySelector('.out').textContent = ''
   try {
-    const result = await newSdk().funcs().productRelevanceFashionFbtV1(req, selectResults)
+    const result = await sdk.funcs().productRelevanceFashionFbtV1(req, selectResults)
     card.querySelector('.out').textContent = JSON.stringify(result, null, 1)
     setStatus('ok')
   } catch (e) {
@@ -104,7 +109,7 @@ $('dashRun').onclick = async () => {
   $('dashIn').textContent = JSON.stringify(req, null, 1)
   $('dashOut').textContent = ''
   try {
-    const result = await newSdk().funcs()[$('dashFunc').value](req)
+    const result = await sdk.funcs()[$('dashFunc').value](req)
     $('dashOut').textContent = JSON.stringify(result, null, 1)
     setDashStatus('ok')
   } catch (e) {
@@ -117,10 +122,7 @@ $('dashRun').onclick = async () => {
 // Redirects to the login page when nobody is signed in, and comes back here
 $('login').onclick = async () => {
   try {
-    let i6sdk = newSdk()
-    window.i6sdk = i6sdk
-    
-    const user = await i6sdk.auth().requireUser()
+    const user = await sdk.auth().requireUser()
     if (user) log('logged in as', user)
   } catch (e) {
     log(`ERROR login: ${e.message}`)
