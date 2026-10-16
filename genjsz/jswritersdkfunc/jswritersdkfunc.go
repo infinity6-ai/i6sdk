@@ -123,14 +123,22 @@ func Write(ctx context.Context, sdkFuncs []*jsparsersdkfunc.SdkFunc) string {
 			}
 			writeln(&decl, " * @param {%sReq} req%s", funcId, paramDesc)
 		}
-		returnDesc := ""
-		if fn.Resp.Output.Head != nil && fn.Resp.Output.Head.GoTyp != "" {
-			returnDesc = fmt.Sprintf(" - [Go: %s]", fn.Resp.Output.Head.GoTyp)
+		isInfer := fn.Spec.Typ == sdkfuncz.TypClientInfer
+		if isInfer {
+			writeln(&decl, " * @param {(req: %sReq, results: %sOutput) => Promise<%sSelected>} selectResults - picks which of the recommended skus are shown", funcId, funcId, funcId)
+			writeln(&decl, " * @returns {Promise<%sSelected>}", funcId)
+		} else {
+			returnDesc := ""
+			if fn.Resp.Output.Head != nil && fn.Resp.Output.Head.GoTyp != "" {
+				returnDesc = fmt.Sprintf(" - [Go: %s]", fn.Resp.Output.Head.GoTyp)
+			}
+			writeln(&decl, " * @returns {Promise<%sOutput>}%s", funcId, returnDesc)
 		}
-		writeln(&decl, " * @returns {Promise<%sOutput>}%s", funcId, returnDesc)
 		writeln(&decl, " */")
 
-		if hasReq {
+		if isInfer {
+			writeln(&decl, "async %s(req, selectResults) {", funcName(funcId, fn.Spec.Version))
+		} else if hasReq {
 			writeln(&decl, "async %s(req) {", funcName(funcId, fn.Spec.Version))
 		} else {
 			writeln(&decl, "async %s() {", funcName(funcId, fn.Spec.Version))
@@ -142,7 +150,7 @@ func Write(ctx context.Context, sdkFuncs []*jsparsersdkfunc.SdkFunc) string {
 		switch fn.Spec.Typ {
 		case sdkfuncz.TypClientInfer:
 			writeln(&decl, "  const infer = this._services.infer()")
-			writeln(&decl, "  const ret = await infer.run({")
+			writeln(&decl, "  const results = await infer.run({")
 			writeln(&decl, "    dataset: req.input.dataset,")
 			writeln(&decl, "    modelName: \"%s\",", modelName)
 			writeln(&decl, "    params: req.input,")
@@ -152,7 +160,15 @@ func Write(ctx context.Context, sdkFuncs []*jsparsersdkfunc.SdkFunc) string {
 				writeln(&decl, "    partitions: req.partitions,")
 			}
 			writeln(&decl, "  })")
-			writeln(&decl, "  return ret;")
+			writeln(&decl, "  return infer.selectResults({")
+			writeln(&decl, "    dataset: req.input.dataset,")
+			writeln(&decl, "    modelName: \"%s\",", modelName)
+			writeln(&decl, "    modelVersion: \"%s\",", fn.Spec.Version)
+			writeln(&decl, "    storeId: req.partitions.store_id,")
+			writeln(&decl, "    req,")
+			writeln(&decl, "    results,")
+			writeln(&decl, "    selectResults,")
+			writeln(&decl, "  })")
 		case sdkfuncz.TypClientQuery:
 			writeln(&decl, "  const dash = this._services.dash()")
 			writeln(&decl, "  const ret = await dash.query({")
