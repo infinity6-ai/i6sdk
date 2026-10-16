@@ -22,8 +22,13 @@ type StreamReq[T tabledataz.TableData] struct {
 	Data    []T
 }
 
+type StreamResp struct {
+	Count int
+}
+
 type Api[T tabledataz.TableData] struct {
-	Req StreamReq[T]
+	Req  StreamReq[T]
+	Resp StreamResp
 }
 
 func (d *Api[T]) ApiSpec() apiz.ApiSpec {
@@ -79,6 +84,12 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 			},
 		},
 		RespHeaders: nil,
-		RespBody:    nil,
+		RespBody: &schemaz.Schema{
+			Object: func(read bool) map[string]*schemaz.Schema {
+				return map[string]*schemaz.Schema{
+					"count": {Raw: func() any { return &d.Resp.Count }},
+				}
+			},
+		},
 	}
 }
