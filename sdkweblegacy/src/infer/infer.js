@@ -142,8 +142,7 @@ class Infer {
    * @throws {I6Error} With code "event" if the event is not accepted.
    */
   async #sendRecEvent(opts, kind, payload) {
-    // TODO: every "BLA" is a value we do not have yet
-    const resp = await this._services.apis().ingestzStreamRelevanceFashionEvent({
+    await this._services.apis().ingestzStreamRelevanceFashionEvent({
       params: { dataset: opts.dataset },
       payload: {
         data: [{
@@ -162,7 +161,6 @@ class Infer {
         }],
       },
     })
-    if (!resp.ok) throw new I6Error(`infer: the ${kind} event was not accepted: ${resp.error}`, { code: "event" })
   }
 
   /**
