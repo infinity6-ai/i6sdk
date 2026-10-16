@@ -175,7 +175,8 @@ class Infer {
           store_id: opts.storeId,
           session_id: ids.sessionId,
           user_id: ids.userId,
-          created_at: new Date().toISOString(),
+          dataset: opts.dataset,
+          created_at: new Date().toISOString().split('.')[0] + 'Z',
           [kind]: {
             rec_id: recId,
             model_id: opts.modelName,
