@@ -34,7 +34,7 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 		Id:     "dsz-list-datasets",
 		Desc:   nil,
 		Method: "GET",
-		Path:   "/api/dsz/datasets",
+		Path:   "/api/ds/datasets",
 	}
 }
 

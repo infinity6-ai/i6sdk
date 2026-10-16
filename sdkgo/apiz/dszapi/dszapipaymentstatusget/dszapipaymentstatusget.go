@@ -4,6 +4,7 @@ import (
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
 )
 
 type Req struct {
@@ -18,6 +19,7 @@ type Resp struct {
 	PaymentId     string
 	PaymentType   string
 	PaymentStatus string
+	Solution      solution.Solution
 }
 
 type Api struct {
@@ -86,6 +88,10 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					"payment_status": {
 						Desc: &schemaz.Desc{Summary: "paid, expired, open or unpaid. Only open and unpaid payments are still pending"},
 						Raw:  func() any { return &d.Resp.PaymentStatus },
+					},
+					"solution": {
+						Desc: &schemaz.Desc{Summary: "puchased solution"},
+						Raw:  func() any { return &d.Resp.Solution },
 					},
 				}
 			},
