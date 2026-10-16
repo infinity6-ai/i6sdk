@@ -58,17 +58,26 @@ func TestUnitWrite(t *testing.T) {
 
   /**
    * @param {sdkFuncProductRelevanceFashionFbtReq} req
-   * @returns {Promise<sdkFuncProductRelevanceFashionFbtOutput>}
+   * @param {(req: sdkFuncProductRelevanceFashionFbtReq, results: sdkFuncProductRelevanceFashionFbtOutput) => Promise<sdkFuncProductRelevanceFashionFbtSelected>} selectResults - picks which of the recommended skus are shown
+   * @returns {Promise<sdkFuncProductRelevanceFashionFbtSelected>}
    */
-  async productRelevanceFashionFbtV1(req) {
+  async productRelevanceFashionFbtV1(req, selectResults) {
     const infer = this._services.infer()
-    const ret = await infer.run({
+    const results = await infer.run({
       dataset: req.input.dataset,
       modelName: "relevance-fashion-fbt",
       params: req.input,
       partitions: {"version": "v1", ...req.partitions},
     })
-    return ret;
+    return infer.selectResults({
+      dataset: req.input.dataset,
+      modelName: "relevance-fashion-fbt",
+      modelVersion: "v1",
+      storeId: req.partitions.store_id,
+      req,
+      results,
+      selectResults,
+    })
   }
 }
 
@@ -105,7 +114,7 @@ export { SdkFuncs };
 
 		tds := jswritersdkfunc.ExtractTypedefs([]*jsparsersdkfunc.SdkFunc{fn})
 		allTds := tds.All()
-		require.Len(t, allTds, 2)
+		require.Len(t, allTds, 4) // req, resp, enriched, selected
 		var reqTd *jstypez.Typedef
 		for _, td := range allTds {
 			if td.Head.Name == "sdkFuncProductCustomTaskReq" {
@@ -136,17 +145,26 @@ export { SdkFuncs };
 
   /**
    * @param {sdkFuncProductCustomTaskReq} req - [Go: models.CustomInput]
-   * @returns {Promise<sdkFuncProductCustomTaskOutput>} - [Go: models.CustomOutput]
+   * @param {(req: sdkFuncProductCustomTaskReq, results: sdkFuncProductCustomTaskOutput) => Promise<sdkFuncProductCustomTaskSelected>} selectResults - picks which of the recommended skus are shown
+   * @returns {Promise<sdkFuncProductCustomTaskSelected>}
    */
-  async productCustomTaskV1(req) {
+  async productCustomTaskV1(req, selectResults) {
     const infer = this._services.infer()
-    const ret = await infer.run({
+    const results = await infer.run({
       dataset: req.input.dataset,
       modelName: "custom-task",
       params: req.input,
       partitions: {"version": "v1", ...req.partitions},
     })
-    return ret;
+    return infer.selectResults({
+      dataset: req.input.dataset,
+      modelName: "custom-task",
+      modelVersion: "v1",
+      storeId: req.partitions.store_id,
+      req,
+      results,
+      selectResults,
+    })
   }
 }
 

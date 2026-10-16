@@ -63,8 +63,39 @@ func ExtractTypedefs(sdkFuncs []*jsparsersdkfunc.SdkFunc) jstypez.Typedefs {
 			respTypedef.Properties.Add(jstypez.Tuple{Typ: fn.Resp.Output.Head.Typ, GoTyp: fn.Resp.Output.Head.GoTyp, Name: "output"})
 		}
 		tdfs.Add(&respTypedef)
+
+		if fn.Spec.Typ == sdkfuncz.TypClientInfer {
+			enriched, selected := buildSelectedTypedefs(fn)
+			tdfs.Add(&enriched, &selected)
+		}
 	}
 	return tdfs
+}
+
+func buildSelectedTypedefs(fn *jsparsersdkfunc.SdkFunc) (jstypez.Typedef, jstypez.Typedef) {
+	funcId := fn.Spec.CamelId
+	skuTyp := "*"
+	skuElement := funcId + "OutputResultsElementSkusElement"
+	for _, td := range fn.Typedefs.All() {
+		if td.Head.Name == skuElement {
+			skuTyp = skuElement
+		}
+	}
+	enrichedName := skuElement + "Enriched"
+	enriched := jstypez.Typedef{
+		Head: &jstypez.Tuple{Typ: "object", Name: enrichedName},
+		Properties: jstypez.NewTuples([]jstypez.Tuple{
+			{Typ: skuTyp, Name: "sku"},
+			{Typ: "*", Name: "enriched"},
+		}),
+	}
+	selected := jstypez.Typedef{
+		Head: &jstypez.Tuple{Typ: "object", Name: funcId + "Selected", Summary: funcId + " Selected"},
+		Properties: jstypez.NewTuples([]jstypez.Tuple{
+			{Typ: fmt.Sprintf("Array<%s>", enrichedName), Name: "results"},
+		}),
+	}
+	return enriched, selected
 }
 
 func funcName(funcId string, version string) string {
