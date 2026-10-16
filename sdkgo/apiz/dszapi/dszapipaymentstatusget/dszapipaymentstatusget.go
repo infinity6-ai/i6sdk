@@ -37,7 +37,7 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 			}
 		},
 		Method: "GET",
-		Path:   "/api/dsz/payment-status",
+		Path:   "/api/ds/payment-status",
 	}
 }
 

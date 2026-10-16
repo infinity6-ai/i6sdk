@@ -33,7 +33,7 @@ func TestUnitPendingPaymentListParseApi(t *testing.T) {
 	require.Equal(t, "dsz-list-pending-payments", parsed.Spec.Id)
 	require.Equal(t, "apiDszListPendingPayments", parsed.Spec.CamelId)
 	require.Equal(t, "GET", parsed.Spec.Method)
-	require.Equal(t, "/api/dsz/pending-payments", parsed.Spec.Path)
+	require.Equal(t, "/api/ds/pending-payments", parsed.Spec.Path)
 
 	tdfMap := make(map[string]*jstypez.Typedef)
 	for _, tdf := range parsed.Typedefs.All() {

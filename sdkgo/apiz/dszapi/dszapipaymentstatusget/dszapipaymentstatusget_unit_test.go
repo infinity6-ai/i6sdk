@@ -36,7 +36,7 @@ func TestUnitPaymentStatusGetParseApi(t *testing.T) {
 	require.Equal(t, "dsz-get-payment-status", parsed.Spec.Id)
 	require.Equal(t, "apiDszGetPaymentStatus", parsed.Spec.CamelId)
 	require.Equal(t, "GET", parsed.Spec.Method)
-	require.Equal(t, "/api/dsz/payment-status", parsed.Spec.Path)
+	require.Equal(t, "/api/ds/payment-status", parsed.Spec.Path)
 
 	tdfMap := make(map[string]*jstypez.Typedef)
 	for _, tdf := range parsed.Typedefs.All() {
