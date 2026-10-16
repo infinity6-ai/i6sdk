@@ -80,6 +80,41 @@
             await rejectsWithCode(assert, new Infer(noSqlite).run({ ...base, params: cart }), 'asset', /no "sqlite.bin" file/)
         })
 
+        QUnit.test("selectResults sends recraw, returns the selection and sends it as recshow", async function (assert) {
+            const requests = []
+            const services = { apis: () => ({ ingestzStreamRelevanceFashionEvent: async (req) => {
+                requests.push(req)
+                return { ok: true, status: 200 }
+            } }) }
+            const { Infer } = await import('../src/infer/infer.js')
+            const req = { input: { dataset: 'dectest' } }
+            const results = { results: [{ skus: [{ sku_id: '1' }] }] }
+            const selected = { results: [{ sku: { sku_id: '1' }, enriched: { name: 'shirt' } }] }
+            const calls = []
+            const opts = {
+                dataset: 'dectest', modelName: 'relevance-fashion-fbt', modelVersion: 'v1', storeId: 's1', req, results,
+                selectResults: async (...args) => { calls.push(args); return selected },
+            }
+
+            assert.deepEqual(await new Infer(services).selectResults(opts), selected)
+            assert.deepEqual(calls, [[req, results]], 'selectResults gets req and results')
+            assert.strictEqual(requests.length, 2)
+            const sent = requests.map((r) => {
+                assert.deepEqual(r.params, { dataset: 'dectest' })
+                const [event] = r.payload.data
+                assert.strictEqual(event.store_id, 's1')
+                const kind = event.recraw ? 'recraw' : 'recshow'
+                assert.strictEqual(event[kind === 'recraw' ? 'recshow' : 'recraw'], undefined, `${kind} only`)
+                return [kind, { ...event[kind], payload: JSON.parse(event[kind].payload) }]
+            })
+            const rec = (payload) => ({ rec_id: 'BLA', model_id: 'relevance-fashion-fbt', model_version: 'v1', payload })
+            assert.deepEqual(sent, [['recraw', rec(results)], ['recshow', rec(selected)]], 'recraw first, then recshow')
+
+            await rejectsWithCode(assert, new Infer(services).selectResults({ ...opts, selectResults: undefined }), 'invalid_argument', /opts.selectResults/)
+            const rejecting = { apis: () => ({ ingestzStreamRelevanceFashionEvent: async () => ({ ok: false, status: 500, error: 'boom' }) }) }
+            await rejectsWithCode(assert, new Infer(rejecting).selectResults(opts), 'event', /recraw event.*boom/)
+        })
+
         QUnit.test("runModel reports inputs that do not fit the model", async function (assert) {
             if (!(await fetch(assets.tfliteUrl, { method: 'HEAD' })).ok) return assert.ok(true, 'skipped: no assets in src/infer/gen')
 

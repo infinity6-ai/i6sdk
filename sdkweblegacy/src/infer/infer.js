@@ -33,6 +33,18 @@ import { describeModel, loadModel, runModel } from "./litert.js";
  * @property {string} [litertWasm] - URL of the folder with the LiteRT wasm files (ending in "/"). Defaults to the jsdelivr copy.
  */
 
+/**
+ * Options of `Infer.selectResults`.
+ * @typedef {Object} SelectResultsOptions
+ * @property {string} dataset - Dataset that receives the `recraw` and `recshow` events.
+ * @property {string} modelName - Model that made the recommendation (e.g. "relevance-fashion-fbt").
+ * @property {string} modelVersion - Version of that model.
+ * @property {string} storeId - Store of the event.
+ * @property {*} req - What the caller asked for; given as is to `selectResults`.
+ * @property {*} results - What `run` returned; given as is to `selectResults`.
+ * @property {(req: *, results: *) => Promise<*>} selectResults - Picks which of the recommended skus are shown.
+ */
+
 /** Default for `InferOptions.limit`. */
 const DEFAULT_LIMIT = 20
 
@@ -99,6 +111,58 @@ class Infer {
     } finally {
       await conn.close()
     }
+  }
+
+  /**
+   * Sends the recommended skus as the `recraw` event, asks `selectResults` which of them are shown and sends those as the
+   * `recshow` event.
+   * @param {SelectResultsOptions} opts - Select options.
+   * @returns {Promise<*>} What `selectResults` returned.
+   * @throws {I6Error} With code "invalid_argument" if `selectResults` is not a function, "event" if an event is not accepted.
+   */
+  async selectResults(opts) {
+    if (typeof opts?.selectResults !== "function") {
+      throw new I6Error("infer: opts.selectResults must be a function", { code: "invalid_argument" })
+    }
+    const { req, results } = opts
+
+    await this.#sendRecEvent(opts, "recraw", results)
+    const selected = await opts.selectResults(req, results)
+    await this.#sendRecEvent(opts, "recshow", selected)
+    return selected
+  }
+
+  /**
+   * Sends one recommendation event.
+   * @private
+   * @param {SelectResultsOptions} opts - Select options.
+   * @param {"recraw"|"recshow"} kind - Which event.
+   * @param {*} payload - What the event carries, any JSON.
+   * @returns {Promise<void>}
+   * @throws {I6Error} With code "event" if the event is not accepted.
+   */
+  async #sendRecEvent(opts, kind, payload) {
+    // TODO: every "BLA" is a value we do not have yet
+    const resp = await this._services.apis().ingestzStreamRelevanceFashionEvent({
+      params: { dataset: opts.dataset },
+      payload: {
+        data: [{
+          id: "BLA",
+          store_id: opts.storeId,
+          session_id: "BLA",
+          user_id: "BLA",
+          created_at: new Date().toISOString(),
+          ingested_at: "BLA",
+          [kind]: {
+            rec_id: "BLA",
+            model_id: opts.modelName,
+            model_version: opts.modelVersion,
+            payload: JSON.stringify(payload),
+          },
+        }],
+      },
+    })
+    if (!resp.ok) throw new I6Error(`infer: the ${kind} event was not accepted: ${resp.error}`, { code: "event" })
   }
 
   /**
