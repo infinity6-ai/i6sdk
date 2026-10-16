@@ -58,7 +58,7 @@ func TestUnitPaymentStatusGetParseApi(t *testing.T) {
 	require.Equal(t, "string", query["dataset"].Typ)
 
 	resp := props("apiDszGetPaymentStatusRespPayload")
-	for _, name := range []string{"user_id", "dataset", "dataset_name", "payment_id", "payment_type", "payment_status"} {
+	for _, name := range []string{"user_id", "dataset", "dataset_name", "payment_id", "payment_type", "payment_status", "solution"} {
 		require.Equal(t, "string", resp[name].Typ, name)
 	}
 }
@@ -74,7 +74,7 @@ func TestUnitPaymentStatusGetApiDataRefs(t *testing.T) {
 	require.Nil(t, refs.RespHeaders)
 	require.NotNil(t, refs.RespBody)
 
-	respJSON := []byte(`{"user_id":"user-1","dataset":"ds1","dataset_name":"My dataset","payment_id":"cs_1","payment_type":"stripe","payment_status":"paid"}`)
+	respJSON := []byte(`{"user_id":"user-1","dataset":"ds1","dataset_name":"My dataset","solution":"relevance","payment_id":"cs_1","payment_type":"stripe","payment_status":"paid"}`)
 	require.NoError(t, refs.RespBody.UnmarshalJSON(respJSON))
 	require.Equal(t, "paid", api.Resp.PaymentStatus)
 	require.Equal(t, "ds1", api.Resp.Dataset)
