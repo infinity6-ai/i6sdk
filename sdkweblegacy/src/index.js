@@ -16,7 +16,8 @@ import { I6Error } from "./errors.js";
  * @type {I6SdkConfig}
  */
 const DEFAULT_CONFIG = {
-  baseUrl: "https://decsuite.sandbox.rs.infinity6.ai",
+  // baseUrl: "https://decsuite.sandbox.rs.infinity6.ai",
+  baseUrl: "https://decsuite.app.rs.infinity6.ai",
   // baseUrl: "http://localhost:9021",
 }
 
