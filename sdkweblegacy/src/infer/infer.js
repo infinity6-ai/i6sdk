@@ -146,14 +146,13 @@ class Infer {
       params: { dataset: opts.dataset },
       payload: {
         data: [{
-          id: "BLA",
+          id: "BLA",// gerar aqui, usar uuid do js 
           store_id: opts.storeId,
-          session_id: "BLA",
-          user_id: "BLA",
+          session_id: "BLA", // QUando o cara der um New na sdk, ele deve passar
+          user_id: "BLA", // QUando o cara der um New na sdk, ele deve passar 
           created_at: new Date().toISOString(),
-          ingested_at: "BLA",
           [kind]: {
-            rec_id: "BLA",
+            rec_id: "BLA", //Tem que ser o mesmo, vamos gerar (infer.run devolve e passa para a gente com o select) (uuid)
             model_id: opts.modelName,
             model_version: opts.modelVersion,
             payload: JSON.stringify(payload),

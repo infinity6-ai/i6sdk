@@ -317,9 +317,6 @@ func (e *Event) Schema() *schemaz.Schema {
 				"created_at": {
 					Raw: func() any { return &e.CreatedAt },
 				},
-				"ingested_at": {
-					Raw: func() any { return &e.IngestedAt },
-				},
 			}
 		},
 	}

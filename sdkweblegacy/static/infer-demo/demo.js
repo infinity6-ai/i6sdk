@@ -98,7 +98,12 @@ $('dashRun').onclick = async () => {
 // Redirects to the login page when nobody is signed in, and comes back here
 $('login').onclick = async () => {
   try {
-    const user = await new I6Sdk().auth().requireUser()
+    let i6sdk = new I6Sdk({
+      //devemos ter um session, com id e user_id
+    })
+    window.i6sdk = i6sdk
+    
+    const user = await i6sdk.auth().requireUser()
     if (user) log('logged in as', user)
   } catch (e) {
     log(`ERROR login: ${e.message}`)
