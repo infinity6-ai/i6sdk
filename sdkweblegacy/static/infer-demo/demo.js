@@ -21,7 +21,7 @@ const stored = (storage, key) => {
     return storage.getItem(key) ?? (storage.setItem(key, crypto.randomUUID()), storage.getItem(key))
   } catch { return crypto.randomUUID() }
 }
-const sdkConfig = { sessionId: stored(sessionStorage, 'i6demo.sessionId'), userId: stored(localStorage, 'i6demo.userId') }
+const sdkConfig = { baseUrl: "https://decsuite.sandbox.rs.infinity6.ai", sessionId: stored(sessionStorage, 'i6demo.sessionId'), userId: stored(localStorage, 'i6demo.userId') }
 // The config the SDK really runs with: the defaults (baseUrl) merged with ours
 // (the demo builds the SDK without ids, then gives them with setConfig, which can be called anytime)
 const sdk = new I6Sdk()
