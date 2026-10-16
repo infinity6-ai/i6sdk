@@ -1,0 +1,147 @@
+package ingestzapibatchsummary
+
+import (
+	"github.com/infinity6-ai/gox/routez/apiz"
+	"github.com/infinity6-ai/gox/schemaz/schemaz"
+	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
+)
+
+type Req struct {
+	Dataset lakedsz.Dataset       `json:"dataset"`
+	Table   laketbnamez.TableName `json:"table"`
+	StoreId string                `json:"store_id"`
+}
+
+type Resp struct {
+	StoreId         string           `json:"store_id"`
+	RowCount        int              `json:"row_count"`
+	IngestedAt      string           `json:"ingested_at"`
+	ColumnSummaries []*ColumnSummary `json:"column_summaries"`
+}
+
+func (*Resp) JSType() string {
+	return jstypez.TypObject
+}
+
+type ColumnSummary struct {
+	ColumnName    string `json:"column_name"`
+	DistinctCount int    `json:"distinct_count"`
+	NullCount     int    `json:"null_count"`
+}
+
+type Api struct {
+	Req  *Req  `json:"req"`
+	Resp *Resp `json:"resp"`
+}
+
+func (d *Api) ApiSpec() apiz.ApiSpec {
+	return apiz.ApiSpec{
+		Id: "ingestz-last-batch-summary",
+		Desc: func() *schemaz.Desc {
+			return &schemaz.Desc{
+				Name:    "Get Last Successful Ingestion Data Summary",
+				Summary: "Returns the date of ingestion, rows count and distinct and null columns count",
+			}
+		},
+		Method: "GET",
+		Path:   "/api/ingest/dataset/{dataset}/last-batch",
+	}
+}
+
+func (d *Api) ApiDataRefs() *apiz.DataRefs {
+	return &apiz.DataRefs{
+		PathParams: &schemaz.Schema{
+			Object: func(read bool) map[string]*schemaz.Schema {
+				if read && d.Req == nil {
+					return nil
+				}
+				if d.Req == nil {
+					d.Req = &Req{}
+				}
+				return map[string]*schemaz.Schema{
+					"dataset": {
+						Desc: &schemaz.Desc{Summary: "Name of the dataset that receives the uploaded files."},
+						Str:  lakedsz.ParseStr(&d.Req.Dataset),
+					},
+				}
+			},
+		},
+		QueryParams: &schemaz.Schema{
+			Object: func(read bool) map[string]*schemaz.Schema {
+				if read && d.Req == nil {
+					return nil
+				}
+				if d.Req == nil {
+					d.Req = &Req{}
+				}
+				return map[string]*schemaz.Schema{
+					"table": {
+						Desc: &schemaz.Desc{Summary: "Name of the table inside the dataset."},
+						Str:  schemaz.ParseStrGet(&d.Req.Table, laketbnamez.MustParse),
+					},
+					"store_id": {
+						Desc: &schemaz.Desc{Summary: "Store ID associated with the ingestion."},
+						Str:  schemaz.ParseStr(&d.Req.StoreId),
+					},
+				}
+			},
+		},
+		ReqHeaders:  nil,
+		ReqBody:     nil,
+		RespHeaders: nil,
+		RespBody: &schemaz.Schema{
+			Desc: &schemaz.Desc{Name: "Get Last Successful Ingestion Data Summary Response", Summary: "Returns the date of ingestion, rows count and distinct and null columns count"},
+			Object: func(read bool) map[string]*schemaz.Schema {
+				if read && d.Resp == nil {
+					return nil
+				}
+				if d.Resp == nil {
+					d.Resp = &Resp{}
+				}
+				return map[string]*schemaz.Schema{
+					"store_id": {
+						Desc: &schemaz.Desc{Summary: "Store ID associated with the ingestion."},
+						Raw:  func() any { return &d.Resp.StoreId },
+					},
+					"row_count": {
+						Desc: &schemaz.Desc{Summary: "Total number of successfully ingested rows."},
+						Raw:  func() any { return &d.Resp.RowCount },
+					},
+					"ingested_at": {
+						Desc: &schemaz.Desc{Summary: "Timestamp when the batch was successfully ingested."},
+						Raw:  func() any { return &d.Resp.IngestedAt },
+					},
+					"column_summaries": {
+						Desc: &schemaz.Desc{Summary: "Summaries of distinct and null counts per column."},
+						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*ColumnSummary, *ColumnSummary]{
+							Slice:      func() *[]*ColumnSummary { return &d.Resp.ColumnSummaries },
+							NewElement: func(idx int) *ColumnSummary { return &ColumnSummary{} },
+							Get: func(idx int, element **ColumnSummary) *schemaz.Schema {
+								return &schemaz.Schema{
+									Object: func(_ bool) map[string]*schemaz.Schema {
+										return map[string]*schemaz.Schema{
+											"column_name": {
+												Desc: &schemaz.Desc{Summary: "Name of the column."},
+												Raw:  func() any { return &(*element).ColumnName },
+											},
+											"distinct_count": {
+												Desc: &schemaz.Desc{Summary: "Number of distinct values in the column."},
+												Raw:  func() any { return &(*element).DistinctCount },
+											},
+											"null_count": {
+												Desc: &schemaz.Desc{Summary: "Number of null values in the column."},
+												Raw:  func() any { return &(*element).NullCount },
+											},
+										}
+									},
+								}
+							},
+						}),
+					},
+				}
+			},
+		},
+	}
+}
