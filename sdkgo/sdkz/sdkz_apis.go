@@ -9,7 +9,7 @@ import (
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapidatasetlist"
-	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapiactivesolutionslist"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapidatasetsolutions"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapidomainsolutionget"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapidomainsolutionselect"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapiingestiontokencreate"
@@ -65,7 +65,7 @@ func init() {
 	add(&dszapistorecreate.Api{})
 	add(&dszapistorelist.Api{})
 	add(&dszapidatasetlist.Api{})
-	add(&dszapiactivesolutionslist.Api{})
+	add(&dszapidatasetsolutions.Api{})
 	add(&dszapiingestiontokenslist.Api{})
 	add(&dszapiingestiontokencreate.Api{})
 	add(&dszapirecsystokenslist.Api{})

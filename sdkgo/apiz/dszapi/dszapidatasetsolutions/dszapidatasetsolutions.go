@@ -1,4 +1,4 @@
-package dszapiactivesolutionslist
+package dszapidatasetsolutions
 
 import (
 	"github.com/infinity6-ai/gox/routez/apiz"
@@ -23,7 +23,7 @@ type Api struct {
 
 func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id:     "dsz-list-active-solutions",
+		Id:     "dsz-dataset-solutions",
 		Desc:   nil,
 		Method: "GET",
 		Path:   "/api/ds/dataset/{dataset}/solutions",
