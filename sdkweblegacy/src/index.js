@@ -9,6 +9,8 @@ import { I6Error } from "./errors.js";
  * Configuration options for the i6 SDK.
  * @typedef {Object} I6SdkConfig
  * @property {string} [baseUrl] - Base URL of the i6 server. Defaults to the sandbox environment.
+ * @property {string} [sessionId] - Id of the user session; sent in the recommendation events (required by `funcs()` inference).
+ * @property {string} [userId] - Id of the user; sent in the recommendation events (required by `funcs()` inference).
  */
 
 /**

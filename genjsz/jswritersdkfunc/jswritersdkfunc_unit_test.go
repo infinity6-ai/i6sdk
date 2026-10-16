@@ -76,6 +76,7 @@ func TestUnitWrite(t *testing.T) {
       storeId: req.partitions.store_id,
       req,
       results,
+      recId: results.rec_id,
       selectResults,
     })
   }
@@ -163,6 +164,7 @@ export { SdkFuncs };
       storeId: req.partitions.store_id,
       req,
       results,
+      recId: results.rec_id,
       selectResults,
     })
   }
