@@ -189,6 +189,9 @@ func (u *Recraw) Schema() *schemaz.Schema {
 				"model_id": {
 					Raw: func() any { return &u.ModelId },
 				},
+				"model_version": {
+					Raw: func() any { return &u.ModelVersion },
+				},
 				"payload": {
 					Raw: func() any { return &u.Payload },
 				},
@@ -203,6 +206,12 @@ func (u *Recshow) Schema() *schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"rec_id": {
 					Raw: func() any { return &u.RecId },
+				},
+				"model_id": {
+					Raw: func() any { return &u.ModelId },
+				},
+				"model_version": {
+					Raw: func() any { return &u.ModelVersion },
 				},
 				"payload": {
 					Raw: func() any { return &u.Payload },
