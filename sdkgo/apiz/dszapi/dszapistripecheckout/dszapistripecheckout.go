@@ -28,12 +28,18 @@ func (l *LineItem) Schema() *schemaz.Schema {
 }
 
 type Req struct {
+	User        string
+	DatasetName string
+	SuccessUrl  string
+	CancelUrl   string
+
+	// novos:
+	// Plan  string
+	// State string
+
+	// remover:
 	LineItems                       []*LineItem
-	User                            string
-	DatasetName                     string
 	CustomerEmail                   string
-	SuccessUrl                      string
-	CancelUrl                       string
 	SubscriptionDataTrialPeriodDays int
 	CnpjHub                         string
 	ResponsibleNameHub              string
