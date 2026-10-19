@@ -2,6 +2,8 @@
  * @fileoverview HTTP client for sending API requests to i6 services.
  */
 
+import { apiErrorFromResponse, apiErrorFromNetwork } from "../errors.js";
+
 /**
  * @typedef {import("../services/services.js").Services} Services
  */
@@ -84,6 +86,35 @@ class Invoker {
 
         const resp = await fetch(url, opts)
         return resp
+    }
+
+    /**
+     * Like `invoke`, but never throws: resolves with `{status, ok, <key>}` on success and with
+     * `{status, ok: false, error}` (see `I6ApiError`) on an HTTP error or a network failure.
+     * @param {InvokeOptions} opts - Same as `invoke`.
+     * @param {"payload"|"body"} [key] - Where the parsed JSON of a success is put.
+     * @returns {Promise<{status: number, ok: boolean, error?: import("../errors.js").I6ApiError} & Record<string, any>>}
+     */
+    async invokeResult(opts, key = "payload") {
+        let resp
+        try {
+            resp = await this.invoke(opts)
+        } catch (cause) {
+            return { status: 0, ok: false, error: apiErrorFromNetwork(cause) }
+        }
+
+        const result = { status: resp.status, ok: resp.ok }
+        try {
+            if (resp.ok) {
+                result[key] = await resp.json()
+            } else {
+                result.error = apiErrorFromResponse(resp.status, await resp.text())
+            }
+        } catch (cause) {
+            result.ok = false
+            result.error = apiErrorFromNetwork(cause)
+        }
+        return result
     }
 
 }

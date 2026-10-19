@@ -66,24 +66,16 @@ func TestUnitWrite(t *testing.T) {
    * Sample API that performs a fraction operation
    * 
    * @param {apiSampleFractionReq} req
-   * @returns {Promise<apiSampleFractionResp>}
+   * @returns {Promise<import("../errors.js").I6Result<apiSampleFractionResp>>}
    */
   async sampleFraction(req) {
-    const resp = await this._services.invoker().invoke({
+    return this._services.invoker().invokeResult({
       method: "POST",
       path: ` + "`" + `api/gox/routez/sample/fraction/${encodeURIComponent(String(req.params.numerator))}/${encodeURIComponent(String(req.params.denominator))}` + "`" + `,
       query: req.query,
       headers: req.headers,
       json: req.payload,
-    });
-    const result = {status: resp.status, ok: resp.ok};
-    if (resp.ok) {
-      result.payload = await resp.json();
-    }
-    if (!resp.ok) {
-      result.error = await resp.text();
-    }
-    return result;
+    }, "payload");
   }
 }
 
@@ -151,22 +143,14 @@ export { Apis };
    * 
    * 
    * @param {apiCustomActionReq} req - [Go: models.CustomReq]
-   * @returns {Promise<apiCustomActionResp>} - [Go: models.CustomResp]
+   * @returns {Promise<import("../errors.js").I6Result<apiCustomActionResp>>} - [Go: models.CustomResp]
    */
   async customAction(req) {
-    const resp = await this._services.invoker().invoke({
+    return this._services.invoker().invokeResult({
       method: "POST",
       path: ` + "`" + `api/custom/action` + "`" + `,
       json: req.payload,
-    });
-    const result = {status: resp.status, ok: resp.ok};
-    if (resp.ok) {
-      result.payload = await resp.json();
-    }
-    if (!resp.ok) {
-      result.error = await resp.text();
-    }
-    return result;
+    }, "payload");
   }
 }
 

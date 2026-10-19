@@ -155,7 +155,7 @@ func writeApiDecl(b *strings.Builder, api *jsparserapi.Api) {
 	if api.Resp.Payload.Head != nil && api.Resp.Payload.Head.GoTyp != "" {
 		returnDesc = fmt.Sprintf(" - [Go: %s]", api.Resp.Payload.Head.GoTyp)
 	}
-	writeln(b, " * @returns {Promise<%sResp>}%s", apiId, returnDesc)
+	writeln(b, " * @returns {Promise<import(\"../errors.js\").I6Result<%sResp>>}%s", apiId, returnDesc)
 	writeln(b, " */")
 
 	if hasReq {
@@ -169,7 +169,7 @@ func writeApiDecl(b *strings.Builder, api *jsparserapi.Api) {
 		jsPath = pathParamRe.ReplaceAllString(jsPath, "${encodeURIComponent(String(req.params.$1))}")
 	}
 
-	writeln(b, "  const resp = await this._services.invoker().invoke({")
+	writeln(b, "  return this._services.invoker().invokeResult({")
 	writeln(b, "    method: %q,", api.Spec.Method)
 
 	writeln(b, "    path: `%s`,", jsPath)
@@ -184,20 +184,10 @@ func writeApiDecl(b *strings.Builder, api *jsparserapi.Api) {
 		writeln(b, "    json: req.payload,")
 	}
 
-	writeln(b, "  });")
-	writeln(b, "  const result = {status: resp.status, ok: resp.ok};")
-	writeln(b, "  if (resp.ok) {")
-
-	if api.Resp.Payload.Head != nil {
-		writeln(b, "    result.payload = await resp.json();")
-	} else {
-		writeln(b, "    result.body = await resp.json();")
+	resultKey := "payload"
+	if api.Resp.Payload.Head == nil {
+		resultKey = "body"
 	}
-
-	writeln(b, "  }")
-	writeln(b, "  if (!resp.ok) {")
-	writeln(b, "    result.error = await resp.text();")
-	writeln(b, "  }")
-	writeln(b, "  return result;")
+	writeln(b, "  }, %q);", resultKey)
 	writeln(b, "}")
 }
