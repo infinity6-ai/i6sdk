@@ -13,21 +13,12 @@ import (
 func TestUnitStripeCheckout(t *testing.T) {
 	api := &dszapistripecheckout.Api{
 		Req: dszapistripecheckout.Req{
-			Plan:                            "pro_monthly",
-			User:                            "user-1",
-			DatasetName:                     "my-dataset",
-			CustomerEmail:                   "a@b.com",
-			SuccessUrl:                      "https://x/ok",
-			CancelUrl:                       "https://x/cancel",
-			SubscriptionDataTrialPeriodDays: 14,
-			CnpjHub:                         "12345678000199",
-			ResponsibleNameHub:              "Ana",
-			ResponsibleEmailHub:             "ana@b.com",
-			IdSolutionHub:                   "sol-1",
-			IdCampanhaHub:                   "camp-1",
-			TermsVersion:                    "v1",
-			ContractVersion:                 "v2",
-			TermsAcceptedAt:                 "2026-01-01T00:00:00Z",
+			User:        "user-1",
+			DatasetName: "my-dataset",
+			Plan:        "pro_monthly",
+			SuccessUrl:  "https://x/ok",
+			CancelUrl:   "https://x/cancel",
+			State:       "c3RhdGU",
 		},
 		Resp: dszapistripecheckout.Resp{Id: "cs_1", Url: "https://checkout/cs_1"},
 	}
@@ -62,20 +53,17 @@ func TestUnitStripeCheckoutParseApi(t *testing.T) {
 	}
 
 	req := props("apiDszStripeCheckoutReqPayload")
-	for _, name := range []string{
-		"plan", "user", "dataset_name", "customer_email",
-		"success_url", "cancel_url", "subscription_data_trial_period_days", "cnpj_hub",
-		"responsible_name_hub", "responsible_email_hub", "id_solution_hub", "id_campanha_hub",
-		"terms_version", "contract_version", "terms_accepted_at",
-	} {
+	for _, name := range []string{"user", "dataset_name", "plan", "success_url", "cancel_url", "state"} {
 		require.Contains(t, req, name)
 	}
-	require.NotContains(t, req, "mode")
-	require.NotContains(t, req, "locale")
-	require.NotContains(t, req, "allow_promotion_codes")
-	require.NotContains(t, req, "line_items")
-	require.Equal(t, "string", req["plan"].Typ)
-	require.Equal(t, "number", req["subscription_data_trial_period_days"].Typ)
+	for _, name := range []string{
+		"mode", "locale", "allow_promotion_codes", "line_items", "customer_email",
+		"subscription_data_trial_period_days", "cnpj_hub", "responsible_name_hub", "responsible_email_hub",
+		"id_solution_hub", "id_campanha_hub", "terms_version", "contract_version", "terms_accepted_at",
+	} {
+		require.NotContains(t, req, name)
+	}
+	require.Equal(t, "string", req["state"].Typ)
 
 	resp := props("apiDszStripeCheckoutRespPayload")
 	require.Equal(t, "string", resp["id"].Typ)
@@ -94,36 +82,28 @@ func TestUnitStripeCheckoutApiDataRefs(t *testing.T) {
 	require.NotNil(t, refs.RespBody)
 
 	api.Req = dszapistripecheckout.Req{
-		Plan:          "pro_monthly",
-		CustomerEmail: "a@b.com",
+		Plan:       "pro_monthly",
+		SuccessUrl: "https://x/ok",
+		State:      "c3RhdGU",
 	}
 	body, err := refs.ReqBody.MarshalJSON()
 	require.NoError(t, err)
 	require.JSONEq(t, `{
-		"plan": "pro_monthly",
 		"user": "",
 		"dataset_name": "",
-		"customer_email": "a@b.com",
-		"success_url": "",
+		"plan": "pro_monthly",
+		"success_url": "https://x/ok",
 		"cancel_url": "",
-		"subscription_data_trial_period_days": 0,
-		"cnpj_hub": "",
-		"responsible_name_hub": "",
-		"responsible_email_hub": "",
-		"id_solution_hub": "",
-		"id_campanha_hub": "",
-		"terms_version": "",
-		"contract_version": "",
-		"terms_accepted_at": ""
+		"state": "c3RhdGU"
 	}`, string(body))
 
 	// Reading a body fills Req
 	other := &dszapistripecheckout.Api{}
-	err = other.ApiDataRefs().ReqBody.UnmarshalJSON([]byte(`{"plan":"p","customer_email":"c@d.com","subscription_data_trial_period_days":7}`))
+	err = other.ApiDataRefs().ReqBody.UnmarshalJSON([]byte(`{"state":"abc","plan":"p","cancel_url":"https://x/cancel"}`))
 	require.NoError(t, err)
-	require.Equal(t, "c@d.com", other.Req.CustomerEmail)
-	require.Equal(t, 7, other.Req.SubscriptionDataTrialPeriodDays)
+	require.Equal(t, "abc", other.Req.State)
 	require.Equal(t, "p", other.Req.Plan)
+	require.Equal(t, "https://x/cancel", other.Req.CancelUrl)
 
 	respJSON := []byte(`{"id":"cs_1","url":"https://checkout/cs_1"}`)
 	require.NoError(t, refs.RespBody.UnmarshalJSON(respJSON))

@@ -8,24 +8,10 @@ import (
 type Req struct {
 	User        string
 	DatasetName string
+	Plan        string
 	SuccessUrl  string
 	CancelUrl   string
-
-	// novos:
-	// State string
-
-	// remover:
-	Plan                            string
-	CustomerEmail                   string
-	SubscriptionDataTrialPeriodDays int
-	CnpjHub                         string
-	ResponsibleNameHub              string
-	ResponsibleEmailHub             string
-	IdSolutionHub                   string
-	IdCampanhaHub                   string
-	TermsVersion                    string
-	ContractVersion                 string
-	TermsAcceptedAt                 string
+	State       string
 }
 
 type Resp struct {
@@ -61,10 +47,6 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 			Desc: &schemaz.Desc{Summary: "Checkout session parameters."},
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"plan": {
-						Desc: &schemaz.Desc{Summary: "Lookup key of the Stripe price of the plan to buy; the service gets the price id from the Stripe prices api"},
-						Raw:  func() any { return &d.Req.Plan },
-					},
 					"user": {
 						Desc: &schemaz.Desc{Summary: "User that is buying"},
 						Raw:  func() any { return &d.Req.User },
@@ -73,9 +55,9 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 						Desc: &schemaz.Desc{Summary: "Dataset name"},
 						Raw:  func() any { return &d.Req.DatasetName },
 					},
-					"customer_email": {
-						Desc: &schemaz.Desc{Summary: "Customer email"},
-						Raw:  func() any { return &d.Req.CustomerEmail },
+					"plan": {
+						Desc: &schemaz.Desc{Summary: "Lookup key of the Stripe price of the plan to buy; the service gets the price id from the Stripe prices api"},
+						Raw:  func() any { return &d.Req.Plan },
 					},
 					"success_url": {
 						Desc: &schemaz.Desc{Summary: "Url to go after a successful checkout"},
@@ -85,33 +67,9 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 						Desc: &schemaz.Desc{Summary: "Url to go after a canceled checkout"},
 						Raw:  func() any { return &d.Req.CancelUrl },
 					},
-					"subscription_data_trial_period_days": {
-						Desc: &schemaz.Desc{Summary: "Trial period in days"},
-						Raw:  func() any { return &d.Req.SubscriptionDataTrialPeriodDays },
-					},
-					"cnpj_hub": {
-						Raw: func() any { return &d.Req.CnpjHub },
-					},
-					"responsible_name_hub": {
-						Raw: func() any { return &d.Req.ResponsibleNameHub },
-					},
-					"responsible_email_hub": {
-						Raw: func() any { return &d.Req.ResponsibleEmailHub },
-					},
-					"id_solution_hub": {
-						Raw: func() any { return &d.Req.IdSolutionHub },
-					},
-					"id_campanha_hub": {
-						Raw: func() any { return &d.Req.IdCampanhaHub },
-					},
-					"terms_version": {
-						Raw: func() any { return &d.Req.TermsVersion },
-					},
-					"contract_version": {
-						Raw: func() any { return &d.Req.ContractVersion },
-					},
-					"terms_accepted_at": {
-						Raw: func() any { return &d.Req.TermsAcceptedAt },
+					"state": {
+						Desc: &schemaz.Desc{Summary: "Base64 state token with the trial days and the metadata of the checkout; the service parses it"},
+						Raw:  func() any { return &d.Req.State },
 					},
 				}
 			},
