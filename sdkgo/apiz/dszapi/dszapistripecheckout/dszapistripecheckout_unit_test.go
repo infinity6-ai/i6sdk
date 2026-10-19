@@ -13,10 +13,7 @@ import (
 func TestUnitStripeCheckout(t *testing.T) {
 	api := &dszapistripecheckout.Api{
 		Req: dszapistripecheckout.Req{
-			LineItems: []*dszapistripecheckout.LineItem{
-				{Price: "price_1", Quantity: 1},
-				{Price: "price_2", Quantity: 3},
-			},
+			Plan:                            "pro_monthly",
 			User:                            "user-1",
 			DatasetName:                     "my-dataset",
 			CustomerEmail:                   "a@b.com",
@@ -66,7 +63,7 @@ func TestUnitStripeCheckoutParseApi(t *testing.T) {
 
 	req := props("apiDszStripeCheckoutReqPayload")
 	for _, name := range []string{
-		"line_items", "user", "dataset_name", "customer_email",
+		"plan", "user", "dataset_name", "customer_email",
 		"success_url", "cancel_url", "subscription_data_trial_period_days", "cnpj_hub",
 		"responsible_name_hub", "responsible_email_hub", "id_solution_hub", "id_campanha_hub",
 		"terms_version", "contract_version", "terms_accepted_at",
@@ -76,11 +73,9 @@ func TestUnitStripeCheckoutParseApi(t *testing.T) {
 	require.NotContains(t, req, "mode")
 	require.NotContains(t, req, "locale")
 	require.NotContains(t, req, "allow_promotion_codes")
+	require.NotContains(t, req, "line_items")
+	require.Equal(t, "string", req["plan"].Typ)
 	require.Equal(t, "number", req["subscription_data_trial_period_days"].Typ)
-
-	item := props("apiDszStripeCheckoutReqPayloadLineItemsElement")
-	require.Equal(t, "string", item["price"].Typ)
-	require.Equal(t, "number", item["quantity"].Typ)
 
 	resp := props("apiDszStripeCheckoutRespPayload")
 	require.Equal(t, "string", resp["id"].Typ)
@@ -99,13 +94,13 @@ func TestUnitStripeCheckoutApiDataRefs(t *testing.T) {
 	require.NotNil(t, refs.RespBody)
 
 	api.Req = dszapistripecheckout.Req{
-		LineItems:     []*dszapistripecheckout.LineItem{{Price: "price_1", Quantity: 2}},
+		Plan:          "pro_monthly",
 		CustomerEmail: "a@b.com",
 	}
 	body, err := refs.ReqBody.MarshalJSON()
 	require.NoError(t, err)
 	require.JSONEq(t, `{
-		"line_items": [{"price": "price_1", "quantity": 2}],
+		"plan": "pro_monthly",
 		"user": "",
 		"dataset_name": "",
 		"customer_email": "a@b.com",
@@ -124,11 +119,11 @@ func TestUnitStripeCheckoutApiDataRefs(t *testing.T) {
 
 	// Reading a body fills Req
 	other := &dszapistripecheckout.Api{}
-	err = other.ApiDataRefs().ReqBody.UnmarshalJSON([]byte(`{"line_items":[{"price":"p","quantity":1}],"customer_email":"c@d.com","subscription_data_trial_period_days":7}`))
+	err = other.ApiDataRefs().ReqBody.UnmarshalJSON([]byte(`{"plan":"p","customer_email":"c@d.com","subscription_data_trial_period_days":7}`))
 	require.NoError(t, err)
 	require.Equal(t, "c@d.com", other.Req.CustomerEmail)
 	require.Equal(t, 7, other.Req.SubscriptionDataTrialPeriodDays)
-	require.Len(t, other.Req.LineItems, 1)
+	require.Equal(t, "p", other.Req.Plan)
 
 	respJSON := []byte(`{"id":"cs_1","url":"https://checkout/cs_1"}`)
 	require.NoError(t, refs.RespBody.UnmarshalJSON(respJSON))

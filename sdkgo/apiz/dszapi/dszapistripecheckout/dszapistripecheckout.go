@@ -5,28 +5,6 @@ import (
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 )
 
-type LineItem struct {
-	Price    string `json:"price"`
-	Quantity int    `json:"quantity"`
-}
-
-func (l *LineItem) Schema() *schemaz.Schema {
-	return &schemaz.Schema{
-		Object: func(read bool) map[string]*schemaz.Schema {
-			return map[string]*schemaz.Schema{
-				"price": {
-					Desc: &schemaz.Desc{Summary: "Price id"},
-					Raw:  func() any { return &l.Price },
-				},
-				"quantity": {
-					Desc: &schemaz.Desc{Summary: "Quantity"},
-					Raw:  func() any { return &l.Quantity },
-				},
-			}
-		},
-	}
-}
-
 type Req struct {
 	User        string
 	DatasetName string
@@ -34,11 +12,10 @@ type Req struct {
 	CancelUrl   string
 
 	// novos:
-	// Plan  string
 	// State string
 
 	// remover:
-	LineItems                       []*LineItem
+	Plan                            string
 	CustomerEmail                   string
 	SubscriptionDataTrialPeriodDays int
 	CnpjHub                         string
@@ -84,13 +61,9 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 			Desc: &schemaz.Desc{Summary: "Checkout session parameters."},
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"line_items": {
-						Desc: &schemaz.Desc{Summary: "Items being bought"},
-						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*LineItem, *LineItem]{
-							NewElement: func(idx int) *LineItem { return &LineItem{} },
-							Slice:      func() *[]*LineItem { return &d.Req.LineItems },
-							Get:        func(idx int, element **LineItem) *schemaz.Schema { return (*element).Schema() },
-						}),
+					"plan": {
+						Desc: &schemaz.Desc{Summary: "Lookup key of the Stripe price of the plan to buy; the service gets the price id from the Stripe prices api"},
+						Raw:  func() any { return &d.Req.Plan },
 					},
 					"user": {
 						Desc: &schemaz.Desc{Summary: "User that is buying"},
