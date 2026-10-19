@@ -3,6 +3,7 @@ package dszapistripecheckout
 import (
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
 
 type Req struct {
@@ -15,8 +16,9 @@ type Req struct {
 }
 
 type Resp struct {
-	Id  string
-	Url string
+	Id      string
+	Url     string
+	Dataset lakedsz.Dataset
 }
 
 type Api struct {
@@ -86,6 +88,10 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					"url": {
 						Desc: &schemaz.Desc{Summary: "Checkout session url"},
 						Raw:  func() any { return &d.Resp.Url },
+					},
+					"dataset": {
+						Desc: &schemaz.Desc{Summary: "Id of the dataset that is going to be created after the payment (starts with ds)"},
+						Raw:  func() any { return &d.Resp.Dataset },
 					},
 				}
 			},

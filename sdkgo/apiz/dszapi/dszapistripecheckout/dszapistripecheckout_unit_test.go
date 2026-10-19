@@ -8,6 +8,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparserapi"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapistripecheckout"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
 
 func TestUnitStripeCheckout(t *testing.T) {
@@ -20,7 +21,7 @@ func TestUnitStripeCheckout(t *testing.T) {
 			CancelUrl:   "https://x/cancel",
 			State:       "c3RhdGU",
 		},
-		Resp: dszapistripecheckout.Resp{Id: "cs_1", Url: "https://checkout/cs_1"},
+		Resp: dszapistripecheckout.Resp{Id: "cs_1", Url: "https://checkout/cs_1", Dataset: lakedsz.MustParse("dsabcdefghijklmnopq")},
 	}
 
 	apiCopy := jsonz.MustCopy(api, &dszapistripecheckout.Api{})
@@ -68,6 +69,7 @@ func TestUnitStripeCheckoutParseApi(t *testing.T) {
 	resp := props("apiDszStripeCheckoutRespPayload")
 	require.Equal(t, "string", resp["id"].Typ)
 	require.Equal(t, "string", resp["url"].Typ)
+	require.Contains(t, resp, "dataset")
 }
 
 func TestUnitStripeCheckoutApiDataRefs(t *testing.T) {
@@ -105,10 +107,11 @@ func TestUnitStripeCheckoutApiDataRefs(t *testing.T) {
 	require.Equal(t, "p", other.Req.Plan)
 	require.Equal(t, "https://x/cancel", other.Req.CancelUrl)
 
-	respJSON := []byte(`{"id":"cs_1","url":"https://checkout/cs_1"}`)
+	respJSON := []byte(`{"id":"cs_1","url":"https://checkout/cs_1","dataset":"dsabcdefghijklmnopq"}`)
 	require.NoError(t, refs.RespBody.UnmarshalJSON(respJSON))
 	require.Equal(t, "cs_1", api.Resp.Id)
 	require.Equal(t, "https://checkout/cs_1", api.Resp.Url)
+	require.Equal(t, "dsabcdefghijklmnopq", api.Resp.Dataset.String())
 	out, err := refs.RespBody.MarshalJSON()
 	require.NoError(t, err)
 	require.JSONEq(t, string(respJSON), string(out))
