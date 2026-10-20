@@ -21,6 +21,21 @@ type SolutionDomain struct {
 	Domain   domain.Domain     `json:"domain"`
 }
 
+func (s *SolutionDomain) Schema() *schemaz.Schema {
+	return &schemaz.Schema{
+		Object: func(read bool) map[string]*schemaz.Schema {
+			return map[string]*schemaz.Schema{
+				"solution": {
+					Raw: func() any { return &s.Solution },
+				},
+				"domain": {
+					Raw: func() any { return &s.Domain },
+				},
+			}
+		},
+	}
+}
+
 func (s *SolutionDomain) JSTypedef() (*jstypez.Typedef, *jstypez.Typedefs) {
 	t := reflect.TypeOf(*s).String()
 	td := &jstypez.Typedef{
@@ -96,7 +111,12 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				return map[string]*schemaz.Schema{
 					"dataset": {Raw: func() any { return &d.Resp.Dataset }},
 					"solutions": {
-						Raw: func() any { return &d.Resp.Solutions },
+						Array: schemaz.NewArray(schemaz.ArrayOptions[[]SolutionDomain, SolutionDomain]{
+							Slice: func() *[]SolutionDomain { return &d.Resp.Solutions },
+							Get: func(idx int, element *SolutionDomain) *schemaz.Schema {
+								return element.Schema()
+							},
+						}),
 					},
 					"store_id": {
 						Raw: func() any { return &d.Resp.StoreId },

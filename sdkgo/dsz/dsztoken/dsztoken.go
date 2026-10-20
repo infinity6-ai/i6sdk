@@ -1,9 +1,7 @@
 package dsztoken
 
 import (
-	"reflect"
-
-	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
 
@@ -19,22 +17,45 @@ type DatasetToken struct {
 	Token          string          `json:"token,omitempty"`
 }
 
-func (d *DatasetToken) JSTypedef() (*jstypez.Typedef, *jstypez.Typedefs) {
-	t := reflect.TypeOf(*d).String()
-	td := &jstypez.Typedef{
-		Head:       &jstypez.Tuple{Typ: jstypez.TypObject, GoTyp: t, Name: ""},
-		Properties: &jstypez.Tuples{},
+func (d *DatasetToken) Schema() *schemaz.Schema {
+	return &schemaz.Schema{
+		Object: func(read bool) map[string]*schemaz.Schema {
+			return map[string]*schemaz.Schema{
+				"id": {
+					Raw: func() any { return &d.Id },
+				},
+				"jti": {
+					Raw: func() any { return &d.Jti },
+				},
+				"dataset": {
+					Raw: func() any { return &d.Dataset },
+				},
+				"annotation": {
+					Raw: func() any { return &d.Annotation },
+				},
+				"expiration_date": {
+					Raw: func() any { return &d.ExpirationDate },
+				},
+				"audience": {
+					Raw: func() any { return &d.Audience },
+				},
+				"grants": {
+					Array: schemaz.NewArray(schemaz.ArrayOptions[[]string, string]{
+						Slice: func() *[]string { return &d.Grants },
+						Get: func(idx int, element *string) *schemaz.Schema {
+							return &schemaz.Schema{
+								Raw: func() any { return element },
+							}
+						},
+					}),
+				},
+				"channel": {
+					Raw: func() any { return &d.Channel },
+				},
+				"token": {
+					Raw: func() any { return &d.Token },
+				},
+			}
+		},
 	}
-	td.Properties.Add(
-		jstypez.Tuple{Typ: jstypez.TypString, GoTyp: reflect.TypeOf(d.Id).String(), Name: "id"},
-		jstypez.Tuple{Typ: jstypez.TypString, GoTyp: reflect.TypeOf(d.Jti).String(), Name: "jti"},
-		jstypez.Tuple{Typ: jstypez.TypString, GoTyp: reflect.TypeOf(d.Dataset).String(), Name: "dataset"},
-		jstypez.Tuple{Typ: jstypez.TypString, GoTyp: reflect.TypeOf(d.Annotation).String(), Name: "annotation"},
-		jstypez.Tuple{Typ: jstypez.TypNumber, GoTyp: reflect.TypeOf(d.ExpirationDate).String(), Name: "expiration_date"},
-		jstypez.Tuple{Typ: jstypez.TypString, GoTyp: reflect.TypeOf(d.Audience).String(), Name: "audience"},
-		jstypez.Tuple{Typ: "Array<string>", GoTyp: reflect.TypeOf(d.Grants).String(), Name: "grants"},
-		jstypez.Tuple{Typ: jstypez.TypString, GoTyp: reflect.TypeOf(d.Channel).String(), Name: "channel"},
-		jstypez.Tuple{Typ: jstypez.TypString, GoTyp: reflect.TypeOf(d.Token).String(), Name: "token"},
-	)
-	return td, nil
 }
