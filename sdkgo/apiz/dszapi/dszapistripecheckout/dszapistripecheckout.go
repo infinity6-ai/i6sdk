@@ -7,12 +7,17 @@ import (
 )
 
 type Req struct {
-	User        string
-	DatasetName string
-	Plan        string
-	SuccessUrl  string
-	CancelUrl   string
-	State       string
+	// Temporary, after the changes we'll remove it.
+	User string
+
+	DatasetName  string
+	Plan         string
+	SuccessUrl   string
+	CancelUrl    string
+	State        string
+	PaymentPhone string
+	PaymentEmail string
+	Document     string
 }
 
 type Resp struct {
@@ -49,10 +54,6 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 			Desc: &schemaz.Desc{Summary: "Checkout session parameters."},
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"user": {
-						Desc: &schemaz.Desc{Summary: "User that is buying"},
-						Raw:  func() any { return &d.Req.User },
-					},
 					"dataset_name": {
 						Desc: &schemaz.Desc{Summary: "Dataset name"},
 						Raw:  func() any { return &d.Req.DatasetName },
@@ -72,6 +73,18 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					"state": {
 						Desc: &schemaz.Desc{Summary: "Base64 state token with the trial days and the metadata of the checkout; the service parses it"},
 						Raw:  func() any { return &d.Req.State },
+					},
+					"payment_phone": {
+						Desc: &schemaz.Desc{Summary: "Phone of the buyer"},
+						Raw:  func() any { return &d.Req.PaymentPhone },
+					},
+					"payment_email": {
+						Desc: &schemaz.Desc{Summary: "Email of the buyer used in Stripe"},
+						Raw:  func() any { return &d.Req.PaymentEmail },
+					},
+					"document": {
+						Desc: &schemaz.Desc{Summary: "Document of the buyer"},
+						Raw:  func() any { return &d.Req.Document },
 					},
 				}
 			},
