@@ -8,6 +8,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzapi/ingestzapibatchsummary"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
+	"go.code.infinity6.ai/sdkgo/sdkgo/storeid"
 )
 
 func TestUnitIngestzBatchSummaryApi(t *testing.T) {
@@ -15,10 +16,10 @@ func TestUnitIngestzBatchSummaryApi(t *testing.T) {
 		Req: &ingestzapibatchsummary.Req{
 			Dataset: lakedsz.MustParse("my-dataset"),
 			Table:   laketbnamez.MustParse("my-table"),
-			StoreId: "store-123",
+			StoreId: storeid.MustParse("store-123"),
 		},
 		Resp: &ingestzapibatchsummary.Resp{
-			StoreId:    "store-123",
+			StoreId:    storeid.MustParse("store-123"),
 			RowCount:   5000,
 			IngestedAt: "2026-10-16T12:00:00Z",
 			ColumnSummaries: []*ingestzapibatchsummary.ColumnSummary{

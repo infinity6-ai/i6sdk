@@ -6,13 +6,14 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/domain"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
+	"go.code.infinity6.ai/sdkgo/sdkgo/storeid"
 )
 
 type DszSolutionDomainSelectReq struct {
 	Dataset  lakedsz.Dataset   `json:"dataset"`
 	Solution solution.Solution `json:"solution"`
 	Domain   domain.Domain     `json:"domain"`
-	StoreId  string            `json:"store_id"`
+	StoreId  storeid.StoreId   `json:"store_id"`
 }
 
 type Api struct {
@@ -61,7 +62,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 						Raw: func() any { return &d.Req.Domain },
 					},
 					"store_id": {
-						Raw: func() any { return &d.Req.StoreId },
+						Str: schemaz.ParseStrGet(&d.Req.StoreId, storeid.MustParse),
 					},
 				}
 			},

@@ -1,10 +1,13 @@
 package dszstore
 
-import "go.code.infinity6.ai/sdkgo/sdkgo/storedisplayid"
+import (
+	"go.code.infinity6.ai/sdkgo/sdkgo/storedisplayid"
+	"go.code.infinity6.ai/sdkgo/sdkgo/storeid"
+)
 
 type DszStore struct {
-	Id   string `json:"id"`
-	Name string `json:"name"`
+	Id   storeid.StoreId `json:"id"`
+	Name string          `json:"name"`
 }
 
 type DszStoreDisplay struct {

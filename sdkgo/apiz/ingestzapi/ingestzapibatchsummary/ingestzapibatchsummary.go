@@ -6,16 +6,17 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
+	"go.code.infinity6.ai/sdkgo/sdkgo/storeid"
 )
 
 type Req struct {
 	Dataset lakedsz.Dataset       `json:"dataset"`
 	Table   laketbnamez.TableName `json:"table"`
-	StoreId string                `json:"store_id"`
+	StoreId storeid.StoreId       `json:"store_id"`
 }
 
 type Resp struct {
-	StoreId         string           `json:"store_id"`
+	StoreId         storeid.StoreId  `json:"store_id"`
 	RowCount        int              `json:"row_count"`
 	IngestedAt      string           `json:"ingested_at"`
 	ColumnSummaries []*ColumnSummary `json:"column_summaries"`
@@ -83,7 +84,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					},
 					"store_id": {
 						Desc: &schemaz.Desc{Summary: "Store ID associated with the ingestion."},
-						Str:  schemaz.ParseStr(&d.Req.StoreId),
+						Str:  schemaz.ParseStrGet(&d.Req.StoreId, storeid.MustParse),
 					},
 				}
 			},
@@ -103,7 +104,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				return map[string]*schemaz.Schema{
 					"store_id": {
 						Desc: &schemaz.Desc{Summary: "Store ID associated with the ingestion."},
-						Raw:  func() any { return &d.Resp.StoreId },
+						Str:  schemaz.ParseStrGet(&d.Resp.StoreId, storeid.MustParse),
 					},
 					"row_count": {
 						Desc: &schemaz.Desc{Summary: "Total number of successfully ingested rows."},

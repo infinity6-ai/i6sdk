@@ -6,16 +6,17 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/dszstore"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/storedisplayid"
+	"go.code.infinity6.ai/sdkgo/sdkgo/storeid"
 )
 
 type DszStoreDisplayListReq struct {
 	Dataset lakedsz.Dataset `json:"dataset"`
-	StoreId string          `json:"store_id"`
+	StoreId storeid.StoreId `json:"store_id"`
 }
 
 type DszStoreDisplayListResp struct {
 	Dataset  lakedsz.Dataset            `json:"dataset"`
-	StoreId  string                     `json:"store_id"`
+	StoreId  storeid.StoreId            `json:"store_id"`
 	Displays []dszstore.DszStoreDisplay `json:"displays"`
 }
 
@@ -57,7 +58,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Req = &DszStoreDisplayListReq{}
 				}
 				return map[string]*schemaz.Schema{
-					"store_id": {Str: schemaz.ParseStr(&d.Req.StoreId)},
+					"store_id": {Str: schemaz.ParseStrGet(&d.Req.StoreId, storeid.MustParse)},
 				}
 			},
 		},
@@ -80,7 +81,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 						Raw: func() any { return &d.Resp.Dataset },
 					},
 					"store_id": {
-						Raw: func() any { return &d.Resp.StoreId },
+						Str: schemaz.ParseStrGet(&d.Resp.StoreId, storeid.MustParse),
 					},
 					"displays": {
 						Array: schemaz.NewArray(schemaz.ArrayOptions[[]dszstore.DszStoreDisplay, dszstore.DszStoreDisplay]{

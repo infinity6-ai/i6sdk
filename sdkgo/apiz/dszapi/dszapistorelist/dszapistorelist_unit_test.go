@@ -9,6 +9,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapistorelist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/dszstore"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/storeid"
 )
 
 func TestUnitDszListStoresApi(t *testing.T) {
@@ -21,7 +22,7 @@ func TestUnitDszListStoresApi(t *testing.T) {
 			Dataset: lakedsz.MustParse("myds"),
 			Stores: []dszstore.DszStore{
 				{
-					Id:   "store1",
+					Id:   storeid.MustParse("store1"),
 					Name: "Store One",
 				},
 			},

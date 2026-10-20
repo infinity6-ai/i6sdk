@@ -9,6 +9,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/domain"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
+	"go.code.infinity6.ai/sdkgo/sdkgo/storeid"
 )
 
 func TestUnitDszApi(t *testing.T) {
@@ -17,7 +18,7 @@ func TestUnitDszApi(t *testing.T) {
 			Dataset:  lakedsz.MustParse("myds"),
 			Solution: solution.MustParse("relevance"),
 			Domain:   domain.MustParse("fashion"),
-			StoreId:  "store1",
+			StoreId:  storeid.MustParse("store1"),
 		},
 	}
 

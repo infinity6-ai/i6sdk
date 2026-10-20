@@ -9,11 +9,12 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/domain"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
+	"go.code.infinity6.ai/sdkgo/sdkgo/storeid"
 )
 
 type DszSolutionDomainGetReq struct {
 	Dataset lakedsz.Dataset
-	StoreId string
+	StoreId storeid.StoreId
 }
 
 type SolutionDomain struct {
@@ -52,7 +53,7 @@ func (s *SolutionDomain) JSTypedef() (*jstypez.Typedef, *jstypez.Typedefs) {
 type DszSolutionDomainGetResp struct {
 	Dataset   lakedsz.Dataset  `json:"dataset"`
 	Solutions []SolutionDomain `json:"solutions"`
-	StoreId   string           `json:"store_id"`
+	StoreId   storeid.StoreId  `json:"store_id"`
 }
 
 type Api struct {
@@ -93,7 +94,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Req = &DszSolutionDomainGetReq{}
 				}
 				return map[string]*schemaz.Schema{
-					"store_id": {Str: schemaz.ParseStr(&d.Req.StoreId)},
+					"store_id": {Str: schemaz.ParseStrGet(&d.Req.StoreId, storeid.MustParse)},
 				}
 			},
 		},
@@ -119,7 +120,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 						}),
 					},
 					"store_id": {
-						Raw: func() any { return &d.Resp.StoreId },
+						Str: schemaz.ParseStrGet(&d.Resp.StoreId, storeid.MustParse),
 					},
 				}
 			},

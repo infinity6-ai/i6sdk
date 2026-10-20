@@ -6,11 +6,12 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/dszstore"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/storedisplayid"
+	"go.code.infinity6.ai/sdkgo/sdkgo/storeid"
 )
 
 type DszStoreDisplayCreateReq struct {
 	Dataset lakedsz.Dataset          `json:"dataset"`
-	StoreId string                   `json:"store_id"`
+	StoreId storeid.StoreId          `json:"store_id"`
 	Display dszstore.DszStoreDisplay `json:"display"`
 }
 
@@ -59,7 +60,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				}
 				return map[string]*schemaz.Schema{
 					"store_id": {
-						Raw: func() any { return &d.Req.StoreId },
+						Str: schemaz.ParseStrGet(&d.Req.StoreId, storeid.MustParse),
 					},
 					"display": {
 						Object: func(read bool) map[string]*schemaz.Schema {

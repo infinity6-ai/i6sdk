@@ -10,6 +10,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/domain"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
+	"go.code.infinity6.ai/sdkgo/sdkgo/storeid"
 )
 
 func TestUnitDszSolutionDomainGetApi(t *testing.T) {
@@ -17,7 +18,7 @@ func TestUnitDszSolutionDomainGetApi(t *testing.T) {
 	api := &dszapidomainsolutionget.Api{
 		Req: &dszapidomainsolutionget.DszSolutionDomainGetReq{
 			Dataset: lakedsz.MustParse("myds"),
-			StoreId: "store1",
+			StoreId: storeid.MustParse("store1"),
 		},
 		Resp: &dszapidomainsolutionget.DszSolutionDomainGetResp{
 			Dataset: lakedsz.MustParse("myds"),
@@ -27,7 +28,7 @@ func TestUnitDszSolutionDomainGetApi(t *testing.T) {
 					Domain:   domain.MustParse("fashion"),
 				},
 			},
-			StoreId: "store1",
+			StoreId: storeid.MustParse("store1"),
 		},
 	}
 
