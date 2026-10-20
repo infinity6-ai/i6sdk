@@ -14,8 +14,8 @@ func TestUnitStoreDisplayIdChecked(t *testing.T) {
 			ret := storedisplayid.MustParse(v)
 			return &ret
 		},
-		Valids:   []string{"a1a", "b/b", "c2c", "a", "1", "/", "display/123/abc"},
-		Invalids: []string{"", "a_a", "a-a", "A", "a!", "display-123"},
+		Valids:   []string{"a1a", "b/b", "c2c", "a", "1", "/", "display/123/abc", ""},
+		Invalids: []string{"a_a", "a-a", "A", "a!", "display-123"},
 	})
 }
 
@@ -52,10 +52,10 @@ func TestUnitStoreDisplayIdValidation(t *testing.T) {
 		})
 	})
 
-	t.Run("Empty display id returns error", func(t *testing.T) {
+	t.Run("Empty display id is valid", func(t *testing.T) {
 		check(t, testScenario{
-			input:  "",
-			errMsg: "StoreDisplayId cannot be empty",
+			input: "",
+			want:  "",
 		})
 	})
 

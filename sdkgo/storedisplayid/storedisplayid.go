@@ -39,8 +39,8 @@ func (d *StoreDisplayId) UnmarshalJSON(data []byte) error {
 }
 
 func (d StoreDisplayId) Validate(v string) error {
-	if err := validation.StrNotEmpty(v, "StoreDisplayId cannot be empty"); err != nil {
-		return err
+	if v == "" {
+		return nil
 	}
 	if err := validation.RegexMatch(displayIdValidator, v, "StoreDisplayId"); err != nil {
 		return err
