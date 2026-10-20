@@ -60,7 +60,23 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				return map[string]*schemaz.Schema{
 					"dataset": {Str: lakedsz.ParseStr(&d.Resp.Dataset)},
 					"stores": {
-						Raw: func() any { return &d.Resp.Stores },
+						Array: schemaz.NewArray(schemaz.ArrayOptions[[]dszstore.DszStore, dszstore.DszStore]{
+							Slice: func() *[]dszstore.DszStore { return &d.Resp.Stores },
+							Get: func(idx int, element *dszstore.DszStore) *schemaz.Schema {
+								return &schemaz.Schema{
+									Object: func(_ bool) map[string]*schemaz.Schema {
+										return map[string]*schemaz.Schema{
+											"id": {
+												Raw: func() any { return &element.Id },
+											},
+											"name": {
+												Raw: func() any { return &element.Name },
+											},
+										}
+									},
+								}
+							},
+						}),
 					},
 				}
 			},

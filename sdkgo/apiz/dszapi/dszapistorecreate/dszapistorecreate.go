@@ -52,7 +52,16 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				}
 				return map[string]*schemaz.Schema{
 					"store_id": {
-						Raw: func() any { return &d.Req.StoreId },
+						Object: func(read bool) map[string]*schemaz.Schema {
+							return map[string]*schemaz.Schema{
+								"id": {
+									Raw: func() any { return &d.Req.StoreId.Id },
+								},
+								"name": {
+									Raw: func() any { return &d.Req.StoreId.Name },
+								},
+							}
+						},
 					},
 				}
 			},
