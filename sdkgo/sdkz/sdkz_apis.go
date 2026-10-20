@@ -20,6 +20,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapirecsystokencreate"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapirecsystokenslist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapisignedurl"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapistoredisplaycreate"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapistorecreate"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapistorelist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapistripecheckout"
@@ -64,6 +65,7 @@ func init() {
 	add(&pipezget.Api{})
 	add(&dszapidomainsolutionselect.Api{})
 	add(&dszapidomainsolutionget.Api{})
+	add(&dszapistoredisplaycreate.Api{})
 	add(&dszapistorecreate.Api{})
 	add(&dszapistorelist.Api{})
 	add(&dszapidatasetlist.Api{})
