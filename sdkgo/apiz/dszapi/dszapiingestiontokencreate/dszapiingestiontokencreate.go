@@ -44,6 +44,6 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 			},
 		},
 		RespHeaders: nil,
-		RespBody: d.Resp.Schema(),
+		RespBody:    d.Resp.Schema(),
 	}
 }

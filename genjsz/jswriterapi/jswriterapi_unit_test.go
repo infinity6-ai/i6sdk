@@ -39,7 +39,7 @@ func TestUnitWrite(t *testing.T) {
 
 	t.Run("empty apis", func(t *testing.T) {
 		check(t, testScenario{
-			in: &jsparserapi.Apis{},
+			in:   &jsparserapi.Apis{},
 			want: ``,
 		})
 	})

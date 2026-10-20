@@ -9,6 +9,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapistoredisplaycreate"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/dszstore"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/storedisplayid"
 )
 
 func TestUnitDszStoreDisplayCreateApi(t *testing.T) {
@@ -18,13 +19,13 @@ func TestUnitDszStoreDisplayCreateApi(t *testing.T) {
 			Dataset: lakedsz.MustParse("myds"),
 			StoreId: "store1",
 			Display: dszstore.DszStoreDisplay{
-				Id:   "display1",
+				Id:   storedisplayid.MustParse("display1"),
 				Name: "Display One",
 			},
 		},
 		Resp: &dszapistoredisplaycreate.DszStoreDisplayCreateResp{
 			Display: dszstore.DszStoreDisplay{
-				Id:   "display1",
+				Id:   storedisplayid.MustParse("display1"),
 				Name: "Display One",
 			},
 		},
