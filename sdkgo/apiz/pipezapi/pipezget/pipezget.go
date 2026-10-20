@@ -72,46 +72,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 							if d.Resp.Pipeline == nil {
 								d.Resp.Pipeline = &pipez.Pipeline{}
 							}
-							return map[string]*schemaz.Schema{
-								"id": {
-									Raw: func() any { return &d.Resp.Pipeline.Id },
-								},
-								"concurrent_id": {
-									Raw: func() any { return &d.Resp.Pipeline.ConcurrentId },
-								},
-								"solution_domain": {
-									Raw: func() any { return &d.Resp.Pipeline.SolutionDomain },
-								},
-								"name": {
-									Raw: func() any { return &d.Resp.Pipeline.Name },
-								},
-								"dataset": {
-									Raw: func() any { return &d.Resp.Pipeline.Dataset },
-								},
-								"states": {
-									Array: schemaz.NewArray(schemaz.ArrayOptions[[]*pipez.PipeState, *pipez.PipeState]{
-										Slice:      func() *[]*pipez.PipeState { return &d.Resp.Pipeline.States },
-										NewElement: func(idx int) *pipez.PipeState { return &pipez.PipeState{} },
-										Get: func(idx int, element **pipez.PipeState) *schemaz.Schema {
-											return &schemaz.Schema{
-												Object: func(_ bool) map[string]*schemaz.Schema {
-													return map[string]*schemaz.Schema{
-														"status": {
-															Raw: func() any { return &(*element).Status },
-														},
-														"params": {
-															Raw: func() any { return &(*element).Params },
-														},
-														"created_at": {
-															Raw: func() any { return &(*element).CreatedAt },
-														},
-													}
-												},
-											}
-										},
-									}),
-								},
-							}
+							return d.Resp.Pipeline.Schema().Object(read)
 						},
 					},
 				}

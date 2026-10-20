@@ -77,7 +77,38 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 		ReqBody:     nil,
 		RespHeaders: nil,
 		RespBody: &schemaz.Schema{
-			Raw: func() any { return &d.Resp },
+			Object: func(read bool) map[string]*schemaz.Schema {
+				if read && d.Resp == nil {
+					return nil
+				}
+				if d.Resp == nil {
+					d.Resp = &PipezListResp{}
+				}
+				return map[string]*schemaz.Schema{
+					"cursor": {
+						Raw: func() any { return &d.Resp.Cursor },
+					},
+					"pipelines": {
+						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*pipez.Pipeline, *pipez.Pipeline]{
+							Slice:      func() *[]*pipez.Pipeline { return &d.Resp.Pipelines },
+							NewElement: func(idx int) *pipez.Pipeline { return &pipez.Pipeline{} },
+							Get: func(idx int, element **pipez.Pipeline) *schemaz.Schema {
+								return &schemaz.Schema{
+									Object: func(read bool) map[string]*schemaz.Schema {
+										if read && *element == nil {
+											return nil
+										}
+										if *element == nil {
+											*element = &pipez.Pipeline{}
+										}
+										return (*element).Schema().Object(read)
+									},
+								}
+							},
+						}),
+					},
+				}
+			},
 		},
 	}
 }
