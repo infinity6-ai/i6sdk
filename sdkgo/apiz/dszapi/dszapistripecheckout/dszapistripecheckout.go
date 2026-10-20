@@ -7,6 +7,9 @@ import (
 )
 
 type Req struct {
+	// Temporary, after the changes we'll remove it.
+	User string
+
 	DatasetName  string
 	Plan         string
 	SuccessUrl   string
