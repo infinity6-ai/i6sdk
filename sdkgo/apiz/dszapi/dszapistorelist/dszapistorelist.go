@@ -57,6 +57,9 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				if d.Resp == nil {
 					d.Resp = &DszListStoresResp{}
 				}
+				if d.Resp.Stores == nil {
+					d.Resp.Stores = []dszstore.DszStore{}
+				}
 				return map[string]*schemaz.Schema{
 					"dataset": {Str: lakedsz.ParseStr(&d.Resp.Dataset)},
 					"stores": {
