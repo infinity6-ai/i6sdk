@@ -9,6 +9,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapistoredisplaylist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/dszstore"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/storedisplayid"
 )
 
 func TestUnitDszStoreDisplayListApi(t *testing.T) {
@@ -23,7 +24,7 @@ func TestUnitDszStoreDisplayListApi(t *testing.T) {
 			StoreId: "store1",
 			Displays: []dszstore.DszStoreDisplay{
 				{
-					Id:   "display1",
+					Id:   storedisplayid.MustParse("display1"),
 					Name: "Display One",
 				},
 			},
