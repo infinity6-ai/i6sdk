@@ -14,12 +14,14 @@ import (
 func TestUnitStripeCheckout(t *testing.T) {
 	api := &dszapistripecheckout.Api{
 		Req: dszapistripecheckout.Req{
-			User:        "user-1",
-			DatasetName: "my-dataset",
-			Plan:        "pro_monthly",
-			SuccessUrl:  "https://x/ok",
-			CancelUrl:   "https://x/cancel",
-			State:       "c3RhdGU",
+			DatasetName:  "my-dataset",
+			Plan:         "pro_monthly",
+			SuccessUrl:   "https://x/ok",
+			CancelUrl:    "https://x/cancel",
+			State:        "c3RhdGU",
+			PaymentPhone: "+5511999999999",
+			PaymentEmail: "pay@x.com",
+			Document:     "12345678900",
 		},
 		Resp: dszapistripecheckout.Resp{Id: "cs_1", Url: "https://checkout/cs_1", Dataset: lakedsz.MustParse("dsabcdefghijklmnopq")},
 	}
@@ -54,11 +56,11 @@ func TestUnitStripeCheckoutParseApi(t *testing.T) {
 	}
 
 	req := props("apiDszStripeCheckoutReqPayload")
-	for _, name := range []string{"user", "dataset_name", "plan", "success_url", "cancel_url", "state"} {
+	for _, name := range []string{"dataset_name", "plan", "success_url", "cancel_url", "state", "payment_phone", "payment_email", "document"} {
 		require.Contains(t, req, name)
 	}
 	for _, name := range []string{
-		"mode", "locale", "allow_promotion_codes", "line_items", "customer_email",
+		"user", "mode", "locale", "allow_promotion_codes", "line_items", "customer_email",
 		"subscription_data_trial_period_days", "cnpj_hub", "responsible_name_hub", "responsible_email_hub",
 		"id_solution_hub", "id_campanha_hub", "terms_version", "contract_version", "terms_accepted_at",
 	} {
@@ -91,12 +93,14 @@ func TestUnitStripeCheckoutApiDataRefs(t *testing.T) {
 	body, err := refs.ReqBody.MarshalJSON()
 	require.NoError(t, err)
 	require.JSONEq(t, `{
-		"user": "",
 		"dataset_name": "",
 		"plan": "pro_monthly",
 		"success_url": "https://x/ok",
 		"cancel_url": "",
-		"state": "c3RhdGU"
+		"state": "c3RhdGU",
+		"payment_phone": "",
+		"payment_email": "",
+		"document": ""
 	}`, string(body))
 
 	// Reading a body fills Req
@@ -106,6 +110,12 @@ func TestUnitStripeCheckoutApiDataRefs(t *testing.T) {
 	require.Equal(t, "abc", other.Req.State)
 	require.Equal(t, "p", other.Req.Plan)
 	require.Equal(t, "https://x/cancel", other.Req.CancelUrl)
+
+	err = other.ApiDataRefs().ReqBody.UnmarshalJSON([]byte(`{"payment_phone":"1","payment_email":"a@b.c","document":"2"}`))
+	require.NoError(t, err)
+	require.Equal(t, "1", other.Req.PaymentPhone)
+	require.Equal(t, "a@b.c", other.Req.PaymentEmail)
+	require.Equal(t, "2", other.Req.Document)
 
 	respJSON := []byte(`{"id":"cs_1","url":"https://checkout/cs_1","dataset":"dsabcdefghijklmnopq"}`)
 	require.NoError(t, refs.RespBody.UnmarshalJSON(respJSON))
