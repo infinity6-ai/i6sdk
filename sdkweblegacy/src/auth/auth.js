@@ -48,6 +48,12 @@ class Auth {
     location = loginUrl
   }
 
+  #redirectToLogout(backurl) {
+    const encoded = encodeURIComponent(backurl)
+    const logoutUrl = `${this._services.config().baseUrl}/api/decsuite/auth/logout?backurl=${encoded}`
+    location = logoutUrl
+  }
+
   /**
    * Fetches the current authenticated user profile (`GET api/auth/me`).
    * Does not redirect; use {@link Auth#requireUser} to force a login.
@@ -78,6 +84,10 @@ class Auth {
       return null;
     }
     return user
+  }
+
+  async logout(callback) {
+    this.#redirectToLogout(callback)
   }
 
 }
