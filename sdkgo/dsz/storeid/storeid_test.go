@@ -14,8 +14,8 @@ func TestUnitStoreIdChecked(t *testing.T) {
 			ret := storeid.MustParse(v)
 			return &ret
 		},
-		Valids:   []string{"store1", "store-123", "ABC_XYZ", "12345", ""},
-		Invalids: []string{"store!", "store space", "a@b", "store.123"},
+		Valids:   []string{"store1", "store-123", "a1"},
+		Invalids: []string{"store!", "store space", "a@b", "store.123", "store_xx", "1store", "UPPERSTORE"},
 	})
 }
 
@@ -49,13 +49,6 @@ func TestUnitStoreIdValidation(t *testing.T) {
 		check(t, testScenario{
 			input: "store-123",
 			want:  "store-123",
-		})
-	})
-
-	t.Run("Valid store id with underscores", func(t *testing.T) {
-		check(t, testScenario{
-			input: "store_abc",
-			want:  "store_abc",
 		})
 	})
 

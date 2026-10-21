@@ -14,8 +14,8 @@ func TestUnitStoreDisplayIdChecked(t *testing.T) {
 			ret := storedisplayid.MustParse(v)
 			return &ret
 		},
-		Valids:   []string{"a1a", "b/b", "c2c", "a", "1", "/", "display/123/abc", ""},
-		Invalids: []string{"a_a", "a-a", "A", "a!", "display-123"},
+		Valids:   []string{"display1", "display-123", "a1"},
+		Invalids: []string{"display!", "display space", "a@b", "display.123", "display_xx", "1display", "UPPERdisplay"},
 	})
 }
 
@@ -45,13 +45,6 @@ func TestUnitStoreDisplayIdValidation(t *testing.T) {
 		})
 	})
 
-	t.Run("Valid display id with slashes", func(t *testing.T) {
-		check(t, testScenario{
-			input: "display/one/123",
-			want:  "display/one/123",
-		})
-	})
-
 	t.Run("Empty display id is valid", func(t *testing.T) {
 		check(t, testScenario{
 			input: "",
@@ -61,7 +54,7 @@ func TestUnitStoreDisplayIdValidation(t *testing.T) {
 
 	t.Run("Display id with invalid characters returns error", func(t *testing.T) {
 		check(t, testScenario{
-			input:  "display-one",
+			input:  "display_one",
 			errMsg: "StoreDisplayId does not match displayIdValidator",
 		})
 	})
