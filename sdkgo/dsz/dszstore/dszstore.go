@@ -23,11 +23,16 @@ func (dss *DszStore) Schema() *schemaz.Schema {
 				"name": {
 					Field: func() any { return &dss.Name },
 				},
-				// "solution_domains": {
-				// 	Array: func() *schemaz.Array {
-				// 		panic("implement me")
-				// 	},
-				// },
+				"solution_domains": {
+					Array: schemaz.NewArray(schemaz.ArrayOptions[[]solutiondomain.SolutionDomain, solutiondomain.SolutionDomain]{
+						Slice: func() *[]solutiondomain.SolutionDomain { return &dss.SolutionDomains },
+						Get: func(idx int, element *solutiondomain.SolutionDomain) *schemaz.Schema {
+							return &schemaz.Schema{
+								Field: func() any { return element },
+							}
+						},
+					}),
+				},
 			}
 		},
 	}
