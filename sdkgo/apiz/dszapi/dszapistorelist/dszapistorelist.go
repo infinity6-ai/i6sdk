@@ -66,18 +66,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 						Array: schemaz.NewArray(schemaz.ArrayOptions[[]dszstore.DszStore, dszstore.DszStore]{
 							Slice: func() *[]dszstore.DszStore { return &d.Resp.Stores },
 							Get: func(idx int, element *dszstore.DszStore) *schemaz.Schema {
-								return &schemaz.Schema{
-									Object: func(_ bool) map[string]*schemaz.Schema {
-										return map[string]*schemaz.Schema{
-											"id": {
-												Field: func() any { return &element.Id },
-											},
-											"name": {
-												Field: func() any { return &element.Name },
-											},
-										}
-									},
-								}
+								return element.Schema()
 							},
 						}),
 					},
