@@ -5,7 +5,6 @@ import (
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/dszstore"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/storeid"
 )
 
 type DszListStoresReq struct {
@@ -62,7 +61,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Resp.Stores = []dszstore.DszStore{}
 				}
 				return map[string]*schemaz.Schema{
-					"dataset": {Str: schemaz.ParseStrGet(&d.Resp.Dataset, lakedsz.MustParse)},
+					"dataset": {Raw: func() any { return &d.Resp.Dataset }},
 					"stores": {
 						Array: schemaz.NewArray(schemaz.ArrayOptions[[]dszstore.DszStore, dszstore.DszStore]{
 							Slice: func() *[]dszstore.DszStore { return &d.Resp.Stores },
@@ -71,7 +70,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 									Object: func(_ bool) map[string]*schemaz.Schema {
 										return map[string]*schemaz.Schema{
 											"id": {
-												Str: schemaz.ParseStrGet(&element.Id, storeid.MustParse),
+												Raw: func() any { return &element.Id },
 											},
 											"name": {
 												Raw: func() any { return &element.Name },
