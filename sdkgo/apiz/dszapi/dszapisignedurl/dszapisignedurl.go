@@ -28,7 +28,7 @@ func (u *Url) Schema() *schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"url": {
 					Desc: &schemaz.Desc{Summary: "signed URL."},
-					Raw:  func() any { return &u.Url },
+					Field:  func() any { return &u.Url },
 				},
 			}
 		},
@@ -65,7 +65,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				return map[string]*schemaz.Schema{
 					"dataset": {
 						Desc: &schemaz.Desc{Summary: "Name of the dataset to generate signed URLs for."},
-						Str:  schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
+						UrlValue:  schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
 					},
 				}
 			},
@@ -86,11 +86,11 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 										return map[string]*schemaz.Schema{
 											"method": {
 												Desc: &schemaz.Desc{Summary: "HTTP method (e.g. GET, PUT) for the signed URL."},
-												Raw:  func() any { return &d.Req.Paths[idx].Method },
+												Field:  func() any { return &d.Req.Paths[idx].Method },
 											},
 											"path": {
 												Desc: &schemaz.Desc{Summary: "File path within the dataset."},
-												Raw:  func() any { return &d.Req.Paths[idx].Path },
+												Field:  func() any { return &d.Req.Paths[idx].Path },
 											},
 										}
 									},

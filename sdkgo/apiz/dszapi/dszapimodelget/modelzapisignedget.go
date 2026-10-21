@@ -24,11 +24,11 @@ func (u *ModelFile) Schema() *schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"name": {
 					Desc: &schemaz.Desc{Summary: "File Name"},
-					Raw:  func() any { return &u.Name },
+					Field:  func() any { return &u.Name },
 				},
 				"url": {
 					Desc: &schemaz.Desc{Summary: "signed URL."},
-					Raw:  func() any { return &u.Url },
+					Field:  func() any { return &u.Url },
 				},
 			}
 		},
@@ -65,11 +65,11 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				return map[string]*schemaz.Schema{
 					"dataset": {
 						Desc: &schemaz.Desc{Summary: "Name of the dataset to generate signed URLs for."},
-						Str:  schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
+						UrlValue:  schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
 					},
 					"model_name": {
 						Desc: &schemaz.Desc{Summary: "Model name"},
-						Str:  schemaz.ParseStr(&d.Req.ModelName),
+						UrlValue:  schemaz.ParseStr(&d.Req.ModelName),
 					},
 				}
 			},
@@ -82,11 +82,11 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				return map[string]*schemaz.Schema{
 					"model_version": {
 						Desc: &schemaz.Desc{Summary: "Model version"},
-						Raw:  func() any { return &d.Req.ModelVersion },
+						Field:  func() any { return &d.Req.ModelVersion },
 					},
 					"model_partitions": {
 						Desc: &schemaz.Desc{Summary: "Model partition key/value pairs"},
-						Raw:  func() any { return &d.Req.ModelPartitions },
+						Field:  func() any { return &d.Req.ModelPartitions },
 					},
 				}
 			},

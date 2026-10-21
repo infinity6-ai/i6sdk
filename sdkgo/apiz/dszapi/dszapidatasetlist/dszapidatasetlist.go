@@ -50,7 +50,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Req = &DszListDatasetsReq{}
 				}
 				return map[string]*schemaz.Schema{
-					"user": {Str: schemaz.ParseStr(&d.Req.User)},
+					"user": {UrlValue: schemaz.ParseStr(&d.Req.User)},
 				}
 			},
 		},
@@ -75,17 +75,17 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 									Object: func(_ bool) map[string]*schemaz.Schema {
 										return map[string]*schemaz.Schema{
 											"id": {
-												Raw: func() any { return &(*element).Id },
+												Field: func() any { return &(*element).Id },
 											},
 											"name": {
-												Raw: func() any { return &(*element).Name },
+												Field: func() any { return &(*element).Name },
 											},
 											"grants": {
 												Array: schemaz.NewArray(schemaz.ArrayOptions[[]string, string]{
 													Slice: func() *[]string { return &(*element).Grants },
 													Get: func(idx int, grant *string) *schemaz.Schema {
 														return &schemaz.Schema{
-															Raw: func() any { return grant },
+															Field: func() any { return grant },
 														}
 													},
 												}),

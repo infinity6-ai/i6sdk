@@ -35,19 +35,19 @@ func (p *Pipeline) Schema() *schemaz.Schema {
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"id": {
-					Raw: func() any { return &p.Id },
+					Field: func() any { return &p.Id },
 				},
 				"concurrent_id": {
-					Raw: func() any { return &p.ConcurrentId },
+					Field: func() any { return &p.ConcurrentId },
 				},
 				"solution_domain": {
-					Raw: func() any { return &p.SolutionDomain },
+					Field: func() any { return &p.SolutionDomain },
 				},
 				"name": {
-					Raw: func() any { return &p.Name },
+					Field: func() any { return &p.Name },
 				},
 				"dataset": {
-					Raw: func() any { return &p.Dataset },
+					Field: func() any { return &p.Dataset },
 				},
 				"states": {
 					Array: schemaz.NewArray(schemaz.ArrayOptions[[]*PipeState, *PipeState]{
@@ -58,13 +58,13 @@ func (p *Pipeline) Schema() *schemaz.Schema {
 								Object: func(_ bool) map[string]*schemaz.Schema {
 									return map[string]*schemaz.Schema{
 										"status": {
-											Raw: func() any { return &(*element).Status },
+											Field: func() any { return &(*element).Status },
 										},
 										"params": {
-											Raw: func() any { return &(*element).Params },
+											Field: func() any { return &(*element).Params },
 										},
 										"created_at": {
-											Raw: func() any { return &(*element).CreatedAt },
+											Field: func() any { return &(*element).CreatedAt },
 										},
 									}
 								},

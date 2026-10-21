@@ -51,7 +51,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				return map[string]*schemaz.Schema{
 					"dataset": {
 						Desc: &schemaz.Desc{Summary: "Name of the dataset that receives the uploaded files."},
-						Str:  schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
+						UrlValue:  schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
 					},
 				}
 			},
@@ -63,15 +63,15 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				return map[string]*schemaz.Schema{
 					"table": {
 						Desc: &schemaz.Desc{Summary: "Name of the table, inside the dataset, that receives the uploaded files."},
-						Raw:  func() any { return &d.Req.Table },
+						Field:  func() any { return &d.Req.Table },
 					},
 					"partitions": {
 						Desc: &schemaz.Desc{Summary: "Partition key/value pairs that select the table partition the files are ingested into."},
-						Raw:  func() any { return &d.Req.Partitions },
+						Field:  func() any { return &d.Req.Partitions },
 					},
 					"amount": {
 						Desc: &schemaz.Desc{Summary: "Number of presigned upload URLs to generate."},
-						Raw:  func() any { return &d.Req.Amount },
+						Field:  func() any { return &d.Req.Amount },
 					},
 				}
 			},
@@ -83,11 +83,11 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				return map[string]*schemaz.Schema{
 					"uploads": {
 						Desc: &schemaz.Desc{Summary: "Presigned PUT URLs, one per requested file; upload each file to its URL."},
-						Raw:  func() any { return &d.Resp.Uploads },
+						Field:  func() any { return &d.Resp.Uploads },
 					},
 					"ingest_id": {
 						Desc: &schemaz.Desc{Name: "Ingest ID", Summary: "Ingestion token that identifies this ingestion and ties the uploaded files together."},
-						Raw:  func() any { return &d.Resp.IngestId },
+						Field:  func() any { return &d.Resp.IngestId },
 					},
 				}
 			},

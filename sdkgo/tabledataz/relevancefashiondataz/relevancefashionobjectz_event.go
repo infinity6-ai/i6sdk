@@ -90,10 +90,10 @@ func (u *Click) Schema() *schemaz.Schema {
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"price": {
-					Raw: func() any { return &u.Price },
+					Field: func() any { return &u.Price },
 				},
 				"sku_id": {
-					Raw: func() any { return &u.SkuId },
+					Field: func() any { return &u.SkuId },
 				},
 			}
 		},
@@ -105,10 +105,10 @@ func (u *AddToCart) Schema() *schemaz.Schema {
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"price": {
-					Raw: func() any { return &u.Price },
+					Field: func() any { return &u.Price },
 				},
 				"sku_id": {
-					Raw: func() any { return &u.SkuId },
+					Field: func() any { return &u.SkuId },
 				},
 			}
 		},
@@ -120,10 +120,10 @@ func (u *RemoveFromCart) Schema() *schemaz.Schema {
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"price": {
-					Raw: func() any { return &u.Price },
+					Field: func() any { return &u.Price },
 				},
 				"sku_id": {
-					Raw: func() any { return &u.SkuId },
+					Field: func() any { return &u.SkuId },
 				},
 			}
 		},
@@ -135,7 +135,7 @@ func (u *Search) Schema() *schemaz.Schema {
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"text": {
-					Raw: func() any { return &u.Text },
+					Field: func() any { return &u.Text },
 				},
 			}
 		},
@@ -147,13 +147,13 @@ func (u *PurchaseSku) Schema() *schemaz.Schema {
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"qtty": {
-					Raw: func() any { return &u.Qtty },
+					Field: func() any { return &u.Qtty },
 				},
 				"sku_id": {
-					Raw: func() any { return &u.SkuId },
+					Field: func() any { return &u.SkuId },
 				},
 				"unit_price": {
-					Raw: func() any { return &u.UnitPrice },
+					Field: func() any { return &u.UnitPrice },
 				},
 			}
 		},
@@ -165,7 +165,7 @@ func (u *Purchase) Schema() *schemaz.Schema {
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"order_id": {
-					Raw: func() any { return &u.OrderId },
+					Field: func() any { return &u.OrderId },
 				},
 				"skus": {
 					Array: schemaz.NewArray(schemaz.ArrayOptions[[]*PurchaseSku, *PurchaseSku]{
@@ -184,16 +184,16 @@ func (u *Recraw) Schema() *schemaz.Schema {
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"rec_id": {
-					Raw: func() any { return &u.RecId },
+					Field: func() any { return &u.RecId },
 				},
 				"model_id": {
-					Raw: func() any { return &u.ModelId },
+					Field: func() any { return &u.ModelId },
 				},
 				"model_version": {
-					Raw: func() any { return &u.ModelVersion },
+					Field: func() any { return &u.ModelVersion },
 				},
 				"payload": {
-					Raw: func() any { return &u.Payload },
+					Field: func() any { return &u.Payload },
 				},
 			}
 		},
@@ -205,16 +205,16 @@ func (u *Recshow) Schema() *schemaz.Schema {
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"rec_id": {
-					Raw: func() any { return &u.RecId },
+					Field: func() any { return &u.RecId },
 				},
 				"model_id": {
-					Raw: func() any { return &u.ModelId },
+					Field: func() any { return &u.ModelId },
 				},
 				"model_version": {
-					Raw: func() any { return &u.ModelVersion },
+					Field: func() any { return &u.ModelVersion },
 				},
 				"payload": {
-					Raw: func() any { return &u.Payload },
+					Field: func() any { return &u.Payload },
 				},
 			}
 		},
@@ -226,16 +226,16 @@ func (e *Event) Schema() *schemaz.Schema {
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"id": {
-					Raw: func() any { return &e.ID },
+					Field: func() any { return &e.ID },
 				},
 				"store_id": {
-					Raw: func() any { return &e.StoreId },
+					Field: func() any { return &e.StoreId },
 				},
 				"session_id": {
-					Raw: func() any { return &e.SessionId },
+					Field: func() any { return &e.SessionId },
 				},
 				"user_id": {
-					Raw: func() any { return &e.UserId },
+					Field: func() any { return &e.UserId },
 				},
 				"click": {
 					Object: func(read bool) map[string]*schemaz.Schema {
@@ -315,7 +315,7 @@ func (e *Event) Schema() *schemaz.Schema {
 					},
 				},
 				"created_at": {
-					Raw: func() any { return &e.CreatedAt },
+					Field: func() any { return &e.CreatedAt },
 				},
 			}
 		},

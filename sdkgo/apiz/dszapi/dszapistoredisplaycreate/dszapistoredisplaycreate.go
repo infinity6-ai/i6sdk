@@ -5,7 +5,6 @@ import (
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/dszstore"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/storedisplayid"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/storeid"
 )
 
@@ -44,7 +43,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Req = &DszStoreDisplayCreateReq{}
 				}
 				return map[string]*schemaz.Schema{
-					"dataset": {Str: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse)},
+					"dataset": {UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse)},
 				}
 			},
 		},
@@ -60,16 +59,16 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				}
 				return map[string]*schemaz.Schema{
 					"store_id": {
-						Str: schemaz.ParseStrGet(&d.Req.StoreId, storeid.MustParse),
+						Field: func() any { return &d.Req.StoreId },
 					},
 					"display": {
 						Object: func(read bool) map[string]*schemaz.Schema {
 							return map[string]*schemaz.Schema{
 								"id": {
-									Str: schemaz.ParseStrGet(&d.Req.Display.Id, storedisplayid.MustParse),
+									Field: func() any { return &d.Req.Display.Id },
 								},
 								"name": {
-									Raw: func() any { return &d.Req.Display.Name },
+									Field: func() any { return &d.Req.Display.Name },
 								},
 							}
 						},
@@ -91,10 +90,10 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 						Object: func(read bool) map[string]*schemaz.Schema {
 							return map[string]*schemaz.Schema{
 								"id": {
-									Str: schemaz.ParseStrGet(&d.Resp.Display.Id, storedisplayid.MustParse),
+									Field: func() any { return &d.Resp.Display.Id },
 								},
 								"name": {
-									Raw: func() any { return &d.Resp.Display.Name },
+									Field: func() any { return &d.Resp.Display.Name },
 								},
 							}
 						},

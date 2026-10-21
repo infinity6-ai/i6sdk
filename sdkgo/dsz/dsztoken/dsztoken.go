@@ -22,38 +22,38 @@ func (d *DatasetToken) Schema() *schemaz.Schema {
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"id": {
-					Raw: func() any { return &d.Id },
+					Field: func() any { return &d.Id },
 				},
 				"jti": {
-					Raw: func() any { return &d.Jti },
+					Field: func() any { return &d.Jti },
 				},
 				"dataset": {
-					Raw: func() any { return &d.Dataset },
+					Field: func() any { return &d.Dataset },
 				},
 				"annotation": {
-					Raw: func() any { return &d.Annotation },
+					Field: func() any { return &d.Annotation },
 				},
 				"expiration_date": {
-					Raw: func() any { return &d.ExpirationDate },
+					Field: func() any { return &d.ExpirationDate },
 				},
 				"audience": {
-					Raw: func() any { return &d.Audience },
+					Field: func() any { return &d.Audience },
 				},
 				"grants": {
 					Array: schemaz.NewArray(schemaz.ArrayOptions[[]string, string]{
 						Slice: func() *[]string { return &d.Grants },
 						Get: func(idx int, element *string) *schemaz.Schema {
 							return &schemaz.Schema{
-								Raw: func() any { return element },
+								Field: func() any { return element },
 							}
 						},
 					}),
 				},
 				"channel": {
-					Raw: func() any { return &d.Channel },
+					Field: func() any { return &d.Channel },
 				},
 				"token": {
-					Raw: func() any { return &d.Token },
+					Field: func() any { return &d.Token },
 				},
 			}
 		},

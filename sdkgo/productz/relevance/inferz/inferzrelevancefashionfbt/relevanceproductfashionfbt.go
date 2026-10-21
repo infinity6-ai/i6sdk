@@ -48,7 +48,7 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 		Input: &schemaz.Schema{
 			Object: func(_ bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"dataset": {Str: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse)},
+					"dataset": {Field: func() any { return &d.Req.Dataset }},
 					"skus": {
 						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Sku, *Sku]{
 							Slice:      func() *[]*Sku { return &d.Req.Skus },
@@ -57,7 +57,7 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 								return &schemaz.Schema{
 									Object: func(_ bool) map[string]*schemaz.Schema {
 										return map[string]*schemaz.Schema{
-											"sku_id": {Str: schemaz.ParseStr(&(*element).SkuId)},
+											"sku_id": {Field: func() any { return &(*element).SkuId }},
 										}
 									},
 								}
@@ -70,7 +70,7 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 		Partitions: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"store_id": {Str: schemaz.ParseStr(&d.Req.ModelPartitions.StoreId)},
+					"store_id": {Field: func() any { return &d.Req.ModelPartitions.StoreId }},
 				}
 			},
 		},
@@ -93,14 +93,14 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 														return &schemaz.Schema{
 															Object: func(_ bool) map[string]*schemaz.Schema {
 																return map[string]*schemaz.Schema{
-																	"sku_id": {Str: schemaz.ParseStr(&(*ele).SkuId)},
+																	"sku_id": {Field: func() any { return &(*ele).SkuId }},
 																}
 															},
 														}
 													},
 												}),
 											},
-											"rating": {Raw: func() any { return &(*element).Rating }},
+											"rating": {Field: func() any { return &(*element).Rating }},
 										}
 									},
 								}

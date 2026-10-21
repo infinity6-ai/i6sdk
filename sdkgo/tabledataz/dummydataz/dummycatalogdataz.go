@@ -37,19 +37,19 @@ func (c *Catalog) Schema() *schemaz.Schema {
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"id": {
-					Raw: func() any { return &c.Id },
+					Field: func() any { return &c.Id },
 				},
 				"product": {
-					Raw: func() any { return &c.Product },
+					Field: func() any { return &c.Product },
 				},
 				"price": {
-					Raw: func() any { return &c.Price },
+					Field: func() any { return &c.Price },
 				},
 				"qt_inventory": {
-					Raw: func() any { return &c.QtInventory },
+					Field: func() any { return &c.QtInventory },
 				},
 				"store_id": {
-					Raw: func() any { return &c.StoreId },
+					Field: func() any { return &c.StoreId },
 				},
 			}
 		},

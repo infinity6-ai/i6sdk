@@ -30,7 +30,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"dataset": {Str: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse)},
+					"dataset": {UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse)},
 				}
 			},
 		},
@@ -39,7 +39,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 		ReqBody: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"annotation": {Str: schemaz.ParseStr(&d.Req.Annotation)},
+					"annotation": {Field: func() any { return &d.Req.Annotation }},
 				}
 			},
 		},
