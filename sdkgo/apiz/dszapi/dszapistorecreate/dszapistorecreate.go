@@ -51,18 +51,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Req = &DszCreateStoreReq{}
 				}
 				return map[string]*schemaz.Schema{
-					"store_id": {
-						Object: func(read bool) map[string]*schemaz.Schema {
-							return map[string]*schemaz.Schema{
-								"id": {
-									Field: func() any { return &d.Req.Store.Id },
-								},
-								"name": {
-									Field: func() any { return &d.Req.Store.Name },
-								},
-							}
-						},
-					},
+					"store": d.Req.Store.Schema(),
 				}
 			},
 		},
