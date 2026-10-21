@@ -56,7 +56,7 @@ func TestUnitStripeCheckoutParseApi(t *testing.T) {
 	}
 
 	req := props("apiDszStripeCheckoutReqPayload")
-	for _, name := range []string{"dataset_name", "plan", "success_url", "cancel_url", "state", "payment_phone", "payment_email", "document"} {
+	for _, name := range []string{"dataset_name", "plan", "success_url", "cancel_url", "campaign_state", "payment_phone", "payment_email", "document"} {
 		require.Contains(t, req, name)
 	}
 	for _, name := range []string{
@@ -66,7 +66,7 @@ func TestUnitStripeCheckoutParseApi(t *testing.T) {
 	} {
 		require.NotContains(t, req, name)
 	}
-	require.Equal(t, "string", req["state"].Typ)
+	require.Equal(t, "string", req["campaign_state"].Typ)
 
 	resp := props("apiDszStripeCheckoutRespPayload")
 	require.Equal(t, "string", resp["id"].Typ)
@@ -97,7 +97,7 @@ func TestUnitStripeCheckoutApiDataRefs(t *testing.T) {
 		"plan": "pro_monthly",
 		"success_url": "https://x/ok",
 		"cancel_url": "",
-		"state": "c3RhdGU",
+		"campaign_state": "c3RhdGU",
 		"payment_phone": "",
 		"payment_email": "",
 		"document": ""
@@ -105,7 +105,7 @@ func TestUnitStripeCheckoutApiDataRefs(t *testing.T) {
 
 	// Reading a body fills Req
 	other := &dszapistripecheckout.Api{}
-	err = other.ApiDataRefs().ReqBody.UnmarshalJSON([]byte(`{"state":"abc","plan":"p","cancel_url":"https://x/cancel"}`))
+	err = other.ApiDataRefs().ReqBody.UnmarshalJSON([]byte(`{"campaign_state":"abc","plan":"p","cancel_url":"https://x/cancel"}`))
 	require.NoError(t, err)
 	require.Equal(t, "abc", other.Req.CampaignState)
 	require.Equal(t, "p", other.Req.Plan)
