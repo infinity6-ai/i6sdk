@@ -10,7 +10,7 @@ import (
 
 type DszCreateStoreReq struct {
 	Dataset lakedsz.Dataset
-	StoreId dszstore.DszStore
+	Store   dszstore.DszStore
 }
 
 type Api struct {
@@ -56,10 +56,10 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 						Object: func(read bool) map[string]*schemaz.Schema {
 							return map[string]*schemaz.Schema{
 								"id": {
-									Str: schemaz.ParseStrGet(&d.Req.StoreId.Id, storeid.MustParse),
+									Str: schemaz.ParseStrGet(&d.Req.Store.Id, storeid.MustParse),
 								},
 								"name": {
-									Raw: func() any { return &d.Req.StoreId.Name },
+									Raw: func() any { return &d.Req.Store.Name },
 								},
 							}
 						},
