@@ -84,8 +84,8 @@ github.com/infinity6-ai/gox/fsz v0.0.51 h1:ksFMfio2SrpKn7oInfdryZNu8hcdIB21y1Q7b
 github.com/infinity6-ai/gox/fsz v0.0.51/go.mod h1:eVzos2r/IAAYupnmC1F/Kl27boOB+sQ8HUrNgLbfYKI=
 github.com/infinity6-ai/gox/httpz v0.0.51 h1:bXc91tdnXGJ7edmLoSpWrvDG2FgoE0UzAvTkZIytkiU=
 github.com/infinity6-ai/gox/httpz v0.0.51/go.mod h1:1snbdyg/YwcRWNQmQAjDwrt37Gfyxtj/QND81jRm9Us=
-github.com/infinity6-ai/gox/routez v0.0.50 h1:55P+33PgCyb+EjnpVx8fQ5ViCHqWJK4fVj/I/xruruc=
-github.com/infinity6-ai/gox/routez v0.0.50/go.mod h1:y46dR6mloAgSHD7AQTMUUqA4KgERkVhNlhBcZqbrdDc=
+github.com/infinity6-ai/gox/routez v0.0.51 h1:CTIdiFbCozEPt2j2jRAVJwBU9bKHLZOybKtRaVcyn+o=
+github.com/infinity6-ai/gox/routez v0.0.51/go.mod h1:XrCTC0F4uk0rHlfW1gGeT54TYjkDi0iMFCbTfxOPS+0=
 github.com/infinity6-ai/gox/schemaz v0.0.51 h1:Zi5Al0/SOOAnc4fr0Gr+PwbFEQWmxhWOOVPdEn84XDE=
 github.com/infinity6-ai/gox/schemaz v0.0.51/go.mod h1:O2lJLipzpSaKwcSCy4iJZSKQf1DuN/Big2M15g5Neec=
 github.com/klauspost/compress v1.17.9 h1:6KIumPrER1LHsvBVuDa0r5xaG0Es51mhhB9BQB2qeMA=
