@@ -10,7 +10,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
-var storeIdValidator = regexp.MustCompile(`^[a-z][a-z0-9\-]+$`)
+var storeIdValidator = regexp.MustCompile(`^[a-z0-9\-]+$`)
 
 type StoreId checked.Value[string]
 

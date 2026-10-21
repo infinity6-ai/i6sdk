@@ -14,8 +14,8 @@ func TestUnitStoreIdChecked(t *testing.T) {
 			ret := storeid.MustParse(v)
 			return &ret
 		},
-		Valids:   []string{"store1", "store-123", "a1"},
-		Invalids: []string{"store!", "store space", "a@b", "store.123", "store_xx", "1store", "UPPERSTORE"},
+		Valids:   []string{"store1", "store-123", "a1", "1store"},
+		Invalids: []string{"store!", "store space", "a@b", "store.123", "store_xx", "UPPERSTORE"},
 	})
 }
 

@@ -7,17 +7,14 @@ import (
 )
 
 type Req struct {
-	// Temporary, after the changes we'll remove it.
-	User string
-
-	DatasetName  string
-	Plan         string
-	SuccessUrl   string
-	CancelUrl    string
-	State        string
-	PaymentPhone string
-	PaymentEmail string
-	Document     string
+	DatasetName   string
+	Plan          string
+	SuccessUrl    string
+	CancelUrl     string
+	CampaignState string
+	PaymentPhone  string
+	PaymentEmail  string
+	Document      string
 }
 
 type Resp struct {
@@ -70,9 +67,9 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 						Desc: &schemaz.Desc{Summary: "Url to go after a canceled checkout"},
 						Raw:  func() any { return &d.Req.CancelUrl },
 					},
-					"state": {
+					"campaign_state": {
 						Desc: &schemaz.Desc{Summary: "Base64 state token with the trial days and the metadata of the checkout; the service parses it"},
-						Raw:  func() any { return &d.Req.State },
+						Raw:  func() any { return &d.Req.CampaignState },
 					},
 					"payment_phone": {
 						Desc: &schemaz.Desc{Summary: "Phone of the buyer"},
