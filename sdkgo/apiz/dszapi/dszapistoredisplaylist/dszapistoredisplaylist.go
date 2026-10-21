@@ -57,7 +57,13 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Req = &DszStoreDisplayListReq{}
 				}
 				return map[string]*schemaz.Schema{
-					"store_id": {Field: func() any { return &d.Req.StoreId }},
+					// An empty store_id stays unset, the service answers it with a bad request
+					"store_id": {UrlValue: schemaz.ParseStrGet(&d.Req.StoreId, func(v string) storeid.StoreId {
+						if v == "" {
+							return storeid.StoreId{}
+						}
+						return storeid.MustParse(v)
+					})},
 				}
 			},
 		},
