@@ -15,7 +15,7 @@ func TestUnitStoreIdChecked(t *testing.T) {
 			return &ret
 		},
 		Valids:   []string{"store1", "store-123", "a1", "1store"},
-		Invalids: []string{"store!", "store space", "a@b", "store.123", "store_xx", "UPPERSTORE"},
+		Invalids: []string{"store!", "store space", "a@b", "store.123", "store_xx", "UPPERSTORE", ""},
 	})
 }
 
@@ -49,13 +49,6 @@ func TestUnitStoreIdValidation(t *testing.T) {
 		check(t, testScenario{
 			input: "store-123",
 			want:  "store-123",
-		})
-	})
-
-	t.Run("Empty store id is valid", func(t *testing.T) {
-		check(t, testScenario{
-			input: "",
-			want:  "",
 		})
 	})
 
