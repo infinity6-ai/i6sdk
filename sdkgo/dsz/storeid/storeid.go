@@ -39,9 +39,6 @@ func (d *StoreId) UnmarshalJSON(data []byte) error {
 }
 
 func (d StoreId) Validate(v string) error {
-	// if v == "" {
-	// 	return nil
-	// }
 	if err := validation.RegexMatch(storeIdValidator, v, "StoreId"); err != nil {
 		return err
 	}

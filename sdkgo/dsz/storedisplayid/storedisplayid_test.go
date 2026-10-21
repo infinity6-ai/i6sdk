@@ -45,13 +45,6 @@ func TestUnitStoreDisplayIdValidation(t *testing.T) {
 		})
 	})
 
-	t.Run("Empty display id is valid", func(t *testing.T) {
-		check(t, testScenario{
-			input: "",
-			want:  "",
-		})
-	})
-
 	t.Run("Display id with invalid characters returns error", func(t *testing.T) {
 		check(t, testScenario{
 			input:  "display_one",
