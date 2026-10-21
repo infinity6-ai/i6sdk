@@ -14,8 +14,8 @@ func TestUnitStoreDisplayIdChecked(t *testing.T) {
 			ret := storedisplayid.MustParse(v)
 			return &ret
 		},
-		Valids:   []string{"display1", "display-123", "a1"},
-		Invalids: []string{"display!", "display space", "a@b", "display.123", "display_xx", "1display", "UPPERdisplay"},
+		Valids:   []string{"display1", "display-123", "1display", "a1"},
+		Invalids: []string{"display!", "display space", "a@b", "display.123", "display_xx", "UPPERdisplay", ""},
 	})
 }
 
