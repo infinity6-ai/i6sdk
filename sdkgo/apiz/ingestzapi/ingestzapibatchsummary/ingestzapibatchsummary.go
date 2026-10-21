@@ -6,7 +6,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
-	"go.code.infinity6.ai/sdkgo/sdkgo/storeid"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/storeid"
 )
 
 type Req struct {

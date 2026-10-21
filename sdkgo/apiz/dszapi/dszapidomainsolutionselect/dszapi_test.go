@@ -9,7 +9,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/domain"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
-	"go.code.infinity6.ai/sdkgo/sdkgo/storeid"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/storeid"
 )
 
 func TestUnitDszApi(t *testing.T) {

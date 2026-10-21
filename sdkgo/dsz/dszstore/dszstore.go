@@ -1,8 +1,8 @@
 package dszstore
 
 import (
-	"go.code.infinity6.ai/sdkgo/sdkgo/storedisplayid"
-	"go.code.infinity6.ai/sdkgo/sdkgo/storeid"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/storedisplayid"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/storeid"
 )
 
 type DszStore struct {

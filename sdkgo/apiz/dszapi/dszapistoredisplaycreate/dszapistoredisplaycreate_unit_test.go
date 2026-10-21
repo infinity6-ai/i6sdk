@@ -9,8 +9,8 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapistoredisplaycreate"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/dszstore"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/storedisplayid"
-	"go.code.infinity6.ai/sdkgo/sdkgo/storeid"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/storedisplayid"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/storeid"
 )
 
 func TestUnitDszStoreDisplayCreateApi(t *testing.T) {

@@ -5,7 +5,7 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/validation/checked/tuchecked"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/sdkgo/storedisplayid"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/storedisplayid"
 )
 
 func TestUnitStoreDisplayIdChecked(t *testing.T) {

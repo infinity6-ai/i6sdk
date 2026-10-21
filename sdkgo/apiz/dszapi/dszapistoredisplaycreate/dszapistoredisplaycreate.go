@@ -5,8 +5,8 @@ import (
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/dszstore"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/storedisplayid"
-	"go.code.infinity6.ai/sdkgo/sdkgo/storeid"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/storedisplayid"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/storeid"
 )
 
 type DszStoreDisplayCreateReq struct {
