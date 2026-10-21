@@ -6,7 +6,6 @@ import (
 	"github.com/infinity6-ai/gox/commonz/constraintz/optionalz"
 	"github.com/infinity6-ai/gox/commonz/validation"
 	"github.com/infinity6-ai/gox/commonz/validation/checked"
-	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
@@ -52,17 +51,4 @@ func MustParse(id string) Dataset {
 	var ret Dataset
 	checked.MustSet(&ret, id)
 	return ret
-}
-
-func ParseStr(out *Dataset) func() *schemaz.Parser[string] {
-	return func() *schemaz.Parser[string] {
-		return &schemaz.Parser[string]{
-			Parse: func(v string) {
-				*out = MustParse(v)
-			},
-			Format: func() (string, any) {
-				return out.Optional().Or(), *out
-			},
-		}
-	}
 }

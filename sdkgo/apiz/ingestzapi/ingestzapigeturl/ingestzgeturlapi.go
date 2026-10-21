@@ -51,7 +51,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				return map[string]*schemaz.Schema{
 					"dataset": {
 						Desc: &schemaz.Desc{Summary: "Name of the dataset that receives the uploaded files."},
-						Str:  lakedsz.ParseStr(&d.Req.Dataset),
+						Str:  schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
 					},
 				}
 			},

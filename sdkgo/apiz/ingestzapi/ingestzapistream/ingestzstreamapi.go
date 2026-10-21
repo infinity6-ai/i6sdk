@@ -53,7 +53,7 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 				return map[string]*schemaz.Schema{
 					"dataset": {
 						Desc: &schemaz.Desc{Summary: "Name of the dataset that receives the stream data."},
-						Str:  lakedsz.ParseStr(&d.Req.Dataset),
+						Str:  schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
 					},
 				}
 			},

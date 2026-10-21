@@ -28,7 +28,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"dataset": {Str: lakedsz.ParseStr(&d.Req.Dataset)},
+					"dataset": {Str: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse)},
 				}
 			},
 		},

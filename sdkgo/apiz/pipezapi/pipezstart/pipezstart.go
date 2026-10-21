@@ -66,7 +66,7 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 					d.Req = &PipezStartReq[T]{}
 				}
 				return map[string]*schemaz.Schema{
-					"dataset": {Str: lakedsz.ParseStr(&d.Req.Dataset)},
+					"dataset": {Str: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse)},
 				}
 			},
 		},
