@@ -53,7 +53,7 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 				return map[string]*schemaz.Schema{
 					"dataset": {
 						Desc: &schemaz.Desc{Summary: "Name of the dataset that receives the stream data."},
-						Str:  schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
+						UrlValue:  schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
 					},
 				}
 			},
@@ -87,7 +87,7 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 		RespBody: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"count": {Raw: func() any { return &d.Resp.Count }},
+					"count": {Field: func() any { return &d.Resp.Count }},
 				}
 			},
 		},

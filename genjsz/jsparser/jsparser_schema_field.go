@@ -6,6 +6,6 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
-func ParseSchemaRaw(ctx context.Context, baseId string, s any) (*jstypez.Typedef, *jstypez.Typedefs) {
+func ParseSchemaField(ctx context.Context, baseId string, s any) (*jstypez.Typedef, *jstypez.Typedefs) {
 	return ParseAny(ctx, baseId, s)
 }

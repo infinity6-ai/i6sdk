@@ -55,12 +55,12 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 		Input: &schemaz.Schema{
 			Object: func(_ bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"dataset": {Str: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse)},
+					"dataset": {Field: func() any { return &d.Req.Dataset }},
 					"params": {
 						Object: func(_ bool) map[string]*schemaz.Schema {
 							return map[string]*schemaz.Schema{
-								"min_year_month": {Raw: func() any { return &d.Req.Params.MinYearMonth }},
-								"max_year_month": {Raw: func() any { return &d.Req.Params.MaxYearMonth }},
+								"min_year_month": {Field: func() any { return &d.Req.Params.MinYearMonth }},
+								"max_year_month": {Field: func() any { return &d.Req.Params.MaxYearMonth }},
 							}
 						},
 					},
@@ -70,7 +70,7 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 		Partitions: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"store_id": {Str: schemaz.ParseStr(&d.Req.DashPartitions.StoreId)},
+					"store_id": {Field: func() any { return &d.Req.DashPartitions.StoreId }},
 				}
 			},
 		},
@@ -85,10 +85,10 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 								return &schemaz.Schema{
 									Object: func(_ bool) map[string]*schemaz.Schema {
 										return map[string]*schemaz.Schema{
-											"attached_revenue":   {Raw: func() any { return &(*element).AttachedRevenue }},
-											"attached_purchases": {Raw: func() any { return &(*element).AttachedPurchases }},
-											"attached_skus":      {Raw: func() any { return &(*element).AttachedSkus }},
-											"avg_ticket":         {Raw: func() any { return &(*element).AvgTicket }},
+											"attached_revenue":   {Field: func() any { return &(*element).AttachedRevenue }},
+											"attached_purchases": {Field: func() any { return &(*element).AttachedPurchases }},
+											"attached_skus":      {Field: func() any { return &(*element).AttachedSkus }},
+											"avg_ticket":         {Field: func() any { return &(*element).AvgTicket }},
 										}
 									},
 								}

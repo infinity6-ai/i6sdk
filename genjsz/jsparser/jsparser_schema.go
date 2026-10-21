@@ -16,13 +16,13 @@ func ParseSchema(ctx context.Context, baseId string, schema *schemaz.Schema) (*j
 		s := schema.Object(false)
 		typedef, typedefs = ParseSchemaObject(ctx, baseId, s)
 	}
-	if schema.Str != nil {
-		s := schema.Str()
-		typedef, typedefs = ParseSchemaStr(ctx, baseId, s)
+	if schema.UrlValue != nil {
+		s := schema.UrlValue()
+		typedef, typedefs = ParseSchemaUrlValue(ctx, baseId, s)
 	}
-	if schema.Raw != nil {
-		s := schema.Raw()
-		typedef, typedefs = ParseSchemaRaw(ctx, baseId, s)
+	if schema.Field != nil {
+		s := schema.Field()
+		typedef, typedefs = ParseSchemaField(ctx, baseId, s)
 	}
 	if schema.Array != nil {
 		s := schema.Array()

@@ -44,11 +44,11 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				return map[string]*schemaz.Schema{
 					"dataset": {
 						Desc: &schemaz.Desc{Summary: "Name of the dataset."},
-						Str:  schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
+						UrlValue:  schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
 					},
 					"path": {
 						Desc: &schemaz.Desc{Summary: "Path to the file without schema."},
-						Str: func() *schemaz.Parser[string] {
+						UrlValue: func() *schemaz.Parser[string] {
 							return &schemaz.Parser[string]{
 								Parse: func(v string) {
 									d.Req.Path = laketbpathz.MustParse("i6tb://" + v)
@@ -74,7 +74,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				return map[string]*schemaz.Schema{
 					"location": {
 						Desc: &schemaz.Desc{Summary: "Redirect URL for the file."},
-						Str:  schemaz.ParseStr(&d.Resp.Location),
+						UrlValue:  schemaz.ParseStr(&d.Resp.Location),
 					},
 				}
 			},

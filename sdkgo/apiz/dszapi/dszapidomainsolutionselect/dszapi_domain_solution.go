@@ -40,7 +40,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Req = &DszSolutionDomainSelectReq{}
 				}
 				return map[string]*schemaz.Schema{
-					"dataset": {Str: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse)},
+					"dataset": {UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse)},
 				}
 			},
 		},
@@ -56,13 +56,13 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				}
 				return map[string]*schemaz.Schema{
 					"solution": {
-						Raw: func() any { return &d.Req.Solution },
+						Field: func() any { return &d.Req.Solution },
 					},
 					"domain": {
-						Raw: func() any { return &d.Req.Domain },
+						Field: func() any { return &d.Req.Domain },
 					},
 					"store_id": {
-						Str: schemaz.ParseStrGet(&d.Req.StoreId, storeid.MustParse),
+						Field: func() any { return &d.Req.StoreId },
 					},
 				}
 			},

@@ -53,35 +53,35 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				return map[string]*schemaz.Schema{
 					"dataset_name": {
 						Desc: &schemaz.Desc{Summary: "Dataset name"},
-						Raw:  func() any { return &d.Req.DatasetName },
+						Field:  func() any { return &d.Req.DatasetName },
 					},
 					"plan": {
 						Desc: &schemaz.Desc{Summary: "Lookup key of the Stripe price of the plan to buy; the service gets the price id from the Stripe prices api"},
-						Raw:  func() any { return &d.Req.Plan },
+						Field:  func() any { return &d.Req.Plan },
 					},
 					"success_url": {
 						Desc: &schemaz.Desc{Summary: "Url to go after a successful checkout"},
-						Raw:  func() any { return &d.Req.SuccessUrl },
+						Field:  func() any { return &d.Req.SuccessUrl },
 					},
 					"cancel_url": {
 						Desc: &schemaz.Desc{Summary: "Url to go after a canceled checkout"},
-						Raw:  func() any { return &d.Req.CancelUrl },
+						Field:  func() any { return &d.Req.CancelUrl },
 					},
 					"campaign_state": {
 						Desc: &schemaz.Desc{Summary: "Base64 state token with the trial days and the metadata of the checkout; the service parses it"},
-						Raw:  func() any { return &d.Req.CampaignState },
+						Field:  func() any { return &d.Req.CampaignState },
 					},
 					"payment_phone": {
 						Desc: &schemaz.Desc{Summary: "Phone of the buyer"},
-						Raw:  func() any { return &d.Req.PaymentPhone },
+						Field:  func() any { return &d.Req.PaymentPhone },
 					},
 					"payment_email": {
 						Desc: &schemaz.Desc{Summary: "Email of the buyer used in Stripe"},
-						Raw:  func() any { return &d.Req.PaymentEmail },
+						Field:  func() any { return &d.Req.PaymentEmail },
 					},
 					"document": {
 						Desc: &schemaz.Desc{Summary: "Document of the buyer"},
-						Raw:  func() any { return &d.Req.Document },
+						Field:  func() any { return &d.Req.Document },
 					},
 				}
 			},
@@ -93,15 +93,15 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				return map[string]*schemaz.Schema{
 					"id": {
 						Desc: &schemaz.Desc{Summary: "Checkout session id"},
-						Raw:  func() any { return &d.Resp.Id },
+						Field:  func() any { return &d.Resp.Id },
 					},
 					"url": {
 						Desc: &schemaz.Desc{Summary: "Checkout session url"},
-						Raw:  func() any { return &d.Resp.Url },
+						Field:  func() any { return &d.Resp.Url },
 					},
 					"dataset": {
 						Desc: &schemaz.Desc{Summary: "Id of the dataset that is going to be created after the payment (starts with ds)"},
-						Raw:  func() any { return &d.Resp.Dataset },
+						Field:  func() any { return &d.Resp.Dataset },
 					},
 				}
 			},

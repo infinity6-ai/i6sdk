@@ -54,12 +54,12 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 		Input: &schemaz.Schema{
 			Object: func(_ bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"dataset": {Str: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse)},
+					"dataset": {Field: func() any { return &d.Req.Dataset }},
 					"params": {
 						Object: func(_ bool) map[string]*schemaz.Schema {
 							return map[string]*schemaz.Schema{
-								"min_year_month": {Raw: func() any { return &d.Req.Params.MinYearMonth }},
-								"max_year_month": {Raw: func() any { return &d.Req.Params.MaxYearMonth }},
+								"min_year_month": {Field: func() any { return &d.Req.Params.MinYearMonth }},
+								"max_year_month": {Field: func() any { return &d.Req.Params.MaxYearMonth }},
 							}
 						},
 					},
@@ -69,7 +69,7 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 		Partitions: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"store_id": {Str: schemaz.ParseStr(&d.Req.DashPartitions.StoreId)},
+					"store_id": {Field: func() any { return &d.Req.DashPartitions.StoreId }},
 				}
 			},
 		},
@@ -84,9 +84,9 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 								return &schemaz.Schema{
 									Object: func(_ bool) map[string]*schemaz.Schema {
 										return map[string]*schemaz.Schema{
-											"event_type": {Raw: func() any { return &(*element).EventType }},
-											"from_rec":   {Raw: func() any { return &(*element).FromRec }},
-											"qt_events":  {Raw: func() any { return &(*element).QtEvents }},
+											"event_type": {Field: func() any { return &(*element).EventType }},
+											"from_rec":   {Field: func() any { return &(*element).FromRec }},
+											"qt_events":  {Field: func() any { return &(*element).QtEvents }},
 										}
 									},
 								}

@@ -27,10 +27,10 @@ func (s *SolutionDomain) Schema() *schemaz.Schema {
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"solution": {
-					Raw: func() any { return &s.Solution },
+					Field: func() any { return &s.Solution },
 				},
 				"domain": {
-					Raw: func() any { return &s.Domain },
+					Field: func() any { return &s.Domain },
 				},
 			}
 		},
@@ -81,7 +81,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Req = &DszSolutionDomainGetReq{}
 				}
 				return map[string]*schemaz.Schema{
-					"dataset": {Str: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse)},
+					"dataset": {UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse)},
 				}
 			},
 		},
@@ -94,7 +94,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Req = &DszSolutionDomainGetReq{}
 				}
 				return map[string]*schemaz.Schema{
-					"store_id": {Str: schemaz.ParseStrGet(&d.Req.StoreId, storeid.MustParse)},
+					"store_id": {Field: func() any { return &d.Req.StoreId }},
 				}
 			},
 		},
@@ -110,7 +110,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Resp = &DszSolutionDomainGetResp{}
 				}
 				return map[string]*schemaz.Schema{
-					"dataset": {Raw: func() any { return &d.Resp.Dataset }},
+					"dataset": {Field: func() any { return &d.Resp.Dataset }},
 					"solutions": {
 						Array: schemaz.NewArray(schemaz.ArrayOptions[[]SolutionDomain, SolutionDomain]{
 							Slice: func() *[]SolutionDomain { return &d.Resp.Solutions },
@@ -120,7 +120,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 						}),
 					},
 					"store_id": {
-						Str: schemaz.ParseStrGet(&d.Resp.StoreId, storeid.MustParse),
+						Field: func() any { return &d.Resp.StoreId },
 					},
 				}
 			},

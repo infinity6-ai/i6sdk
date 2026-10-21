@@ -38,22 +38,22 @@ func (c *Catalog) Schema() *schemaz.Schema {
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"id": {
-					Raw: func() any { return &c.ID },
+					Field: func() any { return &c.ID },
 				},
 				"store_id": {
-					Raw: func() any { return &c.StoreId },
+					Field: func() any { return &c.StoreId },
 				},
 				"product_id": {
-					Raw: func() any { return &c.ProductId },
+					Field: func() any { return &c.ProductId },
 				},
 				"sku_id": {
-					Raw: func() any { return &c.SkuId },
+					Field: func() any { return &c.SkuId },
 				},
 				"sku_ds": {
-					Raw: func() any { return &c.SkuDs },
+					Field: func() any { return &c.SkuDs },
 				},
 				"inactive": {
-					Raw: func() any { return &c.Inactive },
+					Field: func() any { return &c.Inactive },
 				},
 			}
 		},

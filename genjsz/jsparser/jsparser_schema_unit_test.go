@@ -41,7 +41,7 @@ func TestUnitParseSchemaNestedObject(t *testing.T) {
 				"params": {
 					Object: func(_ bool) map[string]*schemaz.Schema {
 						return map[string]*schemaz.Schema{
-							"min": {Raw: func() any { return &s }},
+							"min": {Field: func() any { return &s }},
 						}
 					},
 				},

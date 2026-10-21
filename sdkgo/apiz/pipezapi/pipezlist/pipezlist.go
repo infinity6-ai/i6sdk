@@ -52,7 +52,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Req = &PipezListReq{}
 				}
 				return map[string]*schemaz.Schema{
-					"dataset": {Str: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse)},
+					"dataset": {UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse)},
 				}
 			},
 		},
@@ -65,11 +65,11 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Req = &PipezListReq{}
 				}
 				return map[string]*schemaz.Schema{
-					"solution_domain": {Str: solutiondomain.ParseStr(&d.Req.SolutionDomain)},
-					"name":            {Str: schemaz.ParseStr(&d.Req.Name)},
-					"status":          {Str: schemaz.ParseStr(&d.Req.Status)},
-					"cursor":          {Str: schemaz.ParseStr(&d.Req.Cursor)},
-					"limit":           {Str: schemaz.ParseStrNumber(&d.Req.Limit)},
+					"solution_domain": {UrlValue: solutiondomain.ParseStr(&d.Req.SolutionDomain)},
+					"name":            {UrlValue: schemaz.ParseStr(&d.Req.Name)},
+					"status":          {UrlValue: schemaz.ParseStr(&d.Req.Status)},
+					"cursor":          {UrlValue: schemaz.ParseStr(&d.Req.Cursor)},
+					"limit":           {UrlValue: schemaz.ParseStrNumber(&d.Req.Limit)},
 				}
 			},
 		},
@@ -86,7 +86,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				}
 				return map[string]*schemaz.Schema{
 					"cursor": {
-						Raw: func() any { return &d.Resp.Cursor },
+						Field: func() any { return &d.Resp.Cursor },
 					},
 					"pipelines": {
 						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*pipez.Pipeline, *pipez.Pipeline]{

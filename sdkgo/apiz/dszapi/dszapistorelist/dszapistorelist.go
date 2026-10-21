@@ -41,7 +41,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Req = &DszListStoresReq{}
 				}
 				return map[string]*schemaz.Schema{
-					"dataset": {Str: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse)},
+					"dataset": {UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse)},
 				}
 			},
 		},
@@ -61,7 +61,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Resp.Stores = []dszstore.DszStore{}
 				}
 				return map[string]*schemaz.Schema{
-					"dataset": {Raw: func() any { return &d.Resp.Dataset }},
+					"dataset": {Field: func() any { return &d.Resp.Dataset }},
 					"stores": {
 						Array: schemaz.NewArray(schemaz.ArrayOptions[[]dszstore.DszStore, dszstore.DszStore]{
 							Slice: func() *[]dszstore.DszStore { return &d.Resp.Stores },
@@ -70,10 +70,10 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 									Object: func(_ bool) map[string]*schemaz.Schema {
 										return map[string]*schemaz.Schema{
 											"id": {
-												Raw: func() any { return &element.Id },
+												Field: func() any { return &element.Id },
 											},
 											"name": {
-												Raw: func() any { return &element.Name },
+												Field: func() any { return &element.Name },
 											},
 										}
 									},
