@@ -7,6 +7,7 @@ import (
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
+	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz"
 )
 
 type Event struct {
@@ -14,7 +15,8 @@ type Event struct {
 	Dataset        bigquery.NullString `json:"dataset" bigquery:"dataset"`
 	StoreId        string              `json:"store_id" bigquery:"store_id"`
 	SessionId      string              `json:"session_id" bigquery:"session_id"`
-	UserId         string              `json:"user_id" bigquery:"user_id"`
+	DisplayId      bigquery.NullString `json:"display_id" bigquery:"display_id"`
+	UserId         bigquery.NullString `json:"user_id" bigquery:"user_id"`
 	Click          *Click              `json:"click,omitempty" bigquery:"click,nullable"`
 	AddToCart      *AddToCart          `json:"add_to_cart,omitempty" bigquery:"add_to_cart,nullable"`
 	RemoveFromCart *RemoveFromCart     `json:"remove_from_cart,omitempty" bigquery:"remove_from_cart,nullable"`
@@ -31,10 +33,7 @@ func (e *Event) Table() laketbnamez.TableName {
 }
 
 func (e *Event) SetDataset(ds lakedsz.Dataset) {
-	e.Dataset = bigquery.NullString{
-		StringVal: ds.String(),
-		Valid:     true,
-	}
+	e.Dataset = tabledataz.NewBqNullString(ds.Get())
 }
 
 func (e *Event) SetIngestedAt(p string) {
@@ -233,6 +232,9 @@ func (e *Event) Schema() *schemaz.Schema {
 				},
 				"session_id": {
 					Field: func() any { return &e.SessionId },
+				},
+				"display_id": {
+					Field: func() any { return &e.DisplayId },
 				},
 				"user_id": {
 					Field: func() any { return &e.UserId },
