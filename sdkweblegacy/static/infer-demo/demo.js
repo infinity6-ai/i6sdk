@@ -31,10 +31,21 @@ const showConfig = () => { $('sdkConfig').textContent = JSON.stringify(sdk.confi
 showConfig()
 log('sdk config', sdk.config())
 
-// What the SDK user passes as selectResults: picks the skus that are shown (here the first 5 of each result)
-const selectResults = async (req, { results }) => ({
-  results: results.slice(0, 5).flatMap((r) => r.skus.map((sku) => ({ sku, enriched: { rating: r.rating } }))),
-})
+// What the SDK user passes as selectResults: picks the skus that are shown. Shown in the usage card as is.
+// Here: best rated results first, no sku that is already in the cart, no sku twice, at most 4, with their slot in the carousel.
+// The SDK adds the rating of each sku. Without selectResults, the SDK shows one random sku.
+async function selectResults(req, { results }) {
+  const inCart = new Set(req.input.skus.map((sku) => sku.sku_id))
+  const shown = new Set()
+  for (const result of [...results].sort((a, b) => b.rating - a.rating)) {
+    for (const { sku_id } of result.skus) {
+      if (!inCart.has(sku_id)) shown.add(sku_id)
+    }
+  }
+  return {
+    results: [...shown].slice(0, 4).map((sku_id, slot) => ({ sku_id, enriched: { slot } })),
+  }
+}
 
 // --- what the SDK user passes in ---------------------------------------------------------------------
 // The request of sdk.funcs().productRelevanceFashionFbtV1, from the config card.
@@ -56,6 +67,9 @@ function usage() {
 
 const sdk = new I6Sdk()
 sdk.setConfig(${JSON.stringify(sdkConfig)}) // anytime; overwrites only the given keys
+
+${selectResults}
+
 const result = await sdk.funcs().productRelevanceFashionFbtV1(${JSON.stringify(funcsRequest(), null, 2)}, selectResults)`
 }
 for (const id of ['modelName', 'modelVersion', 'storeId', 'dataset', 'sku_ids']) $(id).addEventListener('input', () => { $('usage').textContent = usage() })
@@ -76,6 +90,7 @@ $('run').onclick = async () => {
   card.querySelector('.out').textContent = ''
   try {
     const result = await sdk.funcs().productRelevanceFashionFbtV1(req, selectResults)
+    // const result = await sdk.funcs().productRelevanceFashionFbtV1(req)
     card.querySelector('.out').textContent = JSON.stringify(result, null, 1)
     setStatus('ok')
   } catch (e) {

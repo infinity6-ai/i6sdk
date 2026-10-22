@@ -43,7 +43,8 @@ import { describeModel, loadModel, runModel } from "./litert.js";
  * @property {*} req - What the caller asked for; given as is to `selectResults`.
  * @property {*} results - What `run` returned (its `rec_id` is the id of the recommendation); given as is to `selectResults`.
  * @property {string} recId - Id of the recommendation, the `rec_id` that `run` returned. Same as in the `recraw` event that `run` sent; sent in the `recshow` event.
- * @property {(req: *, results: *) => Promise<*>} selectResults - Picks which of the recommended skus are shown.
+ * @property {(req: *, results: *) => Promise<*>} [selectResults] - Picks which of the recommended skus are shown: returns
+ *   `{ results: [{ sku_id, ... }] }`. Default: one random sku of the results, with the rating of the result it was picked from.
  */
 
 /** Default for `InferOptions.limit`. */
@@ -121,31 +122,40 @@ class Infer {
   }
 
   /**
-   * Asks `selectResults` which of the recommended skus are shown and sends those as the `recshow` event.
+   * Asks `selectResults` which of the recommended skus are shown and sends their sku ids as the `recshow` event.
    * @param {SelectResultsOptions} opts - Select options.
-   * @returns {Promise<*>} What `selectResults` returned.
-   * @throws {I6Error} With code "invalid_argument" if `selectResults` is not a function, `recId` is missing or the sdk has no `sessionId` and
-   *   `userId`, "event" if an event is not accepted.
+   * @returns {Promise<*>} What `selectResults` returned, with the `rating` of each sku added to its item (its best rating; with the
+   *   default, the rating of the result it was picked from).
+   * @throws {I6Error} With code "invalid_argument" if `selectResults` is not a function, `recId` is missing, the sdk has no `sessionId` and
+   *   `userId`, or `selectResults` returned an item with no `sku_id` or a sku not in the results; "event" if an event is not accepted.
    */
   async selectResults(opts) {
-    // Se vier vazio, devemos ter um função default que seleciona um sku aleatório por rating
-    // Devemos colocar o rating em cada sku antes de devolver
-    // sdkFuncProductRelevanceFashionFbtOutputResultsElementSkusElementEnriched deve conter rating.
-    if (typeof opts?.selectResults !== "function") {
+    const selectResults = opts?.selectResults ?? defaultSelectResults
+    if (typeof selectResults !== "function") {
       throw new I6Error("infer: opts.selectResults must be a function", { code: "invalid_argument" })
     }
 
     const { req, results } = opts
     const { recId } = opts
-    
+
     if (!recId) throw new I6Error("infer: opts.recId is required", { code: "invalid_argument" })
     const ids = this.#sdkIds()
 
-    const selected = await opts.selectResults(req, results)
+    const selected = await selectResults(req, results)
+    if (!Array.isArray(selected?.results)) {
+      throw new I6Error("infer: selectResults must return { results: [...] }", { code: "invalid_argument" })
+    }
 
-    // Devemos colocar no evento apenas os skuids, não tudo que o select results receber
-    // Se nao conseguir pegar os skuids deve dar pau
-    await this.#sendRecEvent(opts, ids, recId, "recshow", selected)
+    // The event carries only the sku ids
+    const shown = {
+      skus: selected.results.map((item) => {
+        const skuId = item?.sku_id
+        if (!skuId) throw new I6Error(`infer: selectResults returned an item with no sku_id: ${JSON.stringify(item)}`, { code: "invalid_argument" })
+        return { sku_id: skuId }
+      })
+    }
+    
+    await this.#sendRecEvent(opts, ids, recId, "recshow", shown)
 
     return selected
   }
@@ -253,6 +263,47 @@ function validate(opts) {
 function outputQueryParams(outputs, opts) {
   const named = Object.entries(outputs).map(([name, values]) => [name, { values: Array.from(values) }])
   return [Object.fromEntries(named), opts.limit ?? DEFAULT_LIMIT]
+}
+
+/**
+ * The best rating of each sku in the results of `run`.
+ * @param {*} results - What `run` returned: `{ results: [{ skus: [{ sku_id }], rating }] }`.
+ * @returns {Map<string, number>} sku_id -> rating.
+ */
+function ratingsBySku(results) {
+  const ratings = new Map()
+  for (const { skus, rating } of results?.results ?? []) {
+    for (const { sku_id } of skus ?? []) {
+      if (!ratings.has(sku_id) || rating > ratings.get(sku_id)) ratings.set(sku_id, rating)
+    }
+  }
+  return ratings
+}
+
+/**
+ * Default of `SelectResultsOptions.selectResults`: one random sku of the results, with its rating.
+ * @param {*} req - What the caller asked for (unused).
+ * @param {*} results - What `run` returned.
+ * @returns {Promise<{results: Array<{sku_id: string, rating: number}>}>}
+ */
+async function defaultSelectResults(req, results) {
+  const inCart = new Set(req.input.skus.map((sku) => sku.sku_id))
+  const shown = []
+
+  for (const result of [...results.results]) {
+    console.log(result.skus)
+    for (const { sku_id } of result.skus) {
+      console.log("SKUID", sku_id)
+      if (!inCart.has(sku_id)) {
+        shown.push({sku_id: sku_id, rating: result.rating})
+        break;
+      }
+    }
+  }
+
+  return {
+    results: shown
+  }
 }
 
 export { Infer };

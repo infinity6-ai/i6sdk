@@ -88,7 +88,7 @@
             await rejectsWithCode(assert, new Infer(noSqlite).run({ ...base, params: cart }), 'asset', /no "sqlite.bin" file/)
         })
 
-        QUnit.test("selectResults returns the selection and sends it as recshow", async function (assert) {
+        QUnit.test("selectResults returns the selection with ratings and sends its sku ids as recshow", async function (assert) {
             const requests = []
             const services = { config: () => ({ sessionId: 'sess-1', userId: 'user-1' }), apis: () => ({ ingestzStreamRelevanceFashionEvent: async (req) => {
                 requests.push(req)
@@ -96,15 +96,16 @@
             } }) }
             const { Infer } = await import('../src/infer/infer.js')
             const req = { input: { dataset: 'dectest' } }
-            const results = { results: [{ skus: [{ sku_id: '1' }] }] }
-            const selected = { results: [{ sku: { sku_id: '1' }, enriched: { name: 'shirt' } }] }
+            const results = { results: [{ skus: [{ sku_id: '1' }, { sku_id: '2' }], rating: 0.5 }, { skus: [{ sku_id: '1' }], rating: 0.8 }] }
+            const selected = { results: [{ sku_id: '1', enriched: { name: 'shirt' } }] }
             const calls = []
             const opts = {
                 dataset: 'dectest', modelName: 'relevance-fashion-fbt', modelVersion: 'v1', storeId: 's1', req, results, recId: 'rec-1',
                 selectResults: async (...args) => { calls.push(args); return selected },
             }
 
-            assert.deepEqual(await new Infer(services).selectResults(opts), selected)
+            assert.deepEqual(await new Infer(services).selectResults(opts),
+                { results: [{ sku_id: '1', enriched: { name: 'shirt' }, rating: 0.8 }] }, 'best rating of the sku added')
             assert.deepEqual(calls, [[req, results]], 'selectResults gets req and results')
             assert.strictEqual(requests.length, 1)
             const sent = requests.map((r) => {
@@ -118,9 +119,20 @@
                 return [kind, { ...event[kind], payload: JSON.parse(event[kind].payload) }]
             })
             const rec = (payload) => ({ rec_id: 'rec-1', model_id: 'relevance-fashion-fbt', model_version: 'v1', payload })
-            assert.deepEqual(sent, [['recshow', rec(selected)]], 'recshow only, recraw is sent by run')
+            assert.deepEqual(sent, [['recshow', rec({ skus: [{ sku_id: '1' }] })]], 'recshow only, with only the sku ids')
 
-            await rejectsWithCode(assert, new Infer(services).selectResults({ ...opts, selectResults: undefined }), 'invalid_argument', /opts.selectResults/)
+            // Default: one random sku with its rating
+                        const picked = await new Infer(services).selectResults({ ...opts, selectResults: undefined })
+            assert.strictEqual(picked.results.length, 1, 'default picks one sku')
+            const [{ sku_id, rating }] = picked.results
+            assert.true(['1', '2'].includes(sku_id), 'default sku is in the results')
+            assert.true(results.results.some((r) => r.rating === rating && r.skus.some((s) => s.sku_id === sku_id)), 'default sku has the rating of the result it was picked from')
+
+            const returning = (ret) => ({ ...opts, selectResults: async () => ret })
+            await rejectsWithCode(assert, new Infer(services).selectResults({ ...opts, selectResults: 'x' }), 'invalid_argument', /opts.selectResults/)
+            await rejectsWithCode(assert, new Infer(services).selectResults(returning([])), 'invalid_argument', /must return/)
+            await rejectsWithCode(assert, new Infer(services).selectResults(returning({ results: [{}] })), 'invalid_argument', /no sku_id/)
+            await rejectsWithCode(assert, new Infer(services).selectResults(returning({ results: [{ sku_id: '9' }] })), 'invalid_argument', /"9", which is not in the results/)
             await rejectsWithCode(assert, new Infer(services).selectResults({ ...opts, recId: undefined }), 'invalid_argument', /opts.recId/)
             await rejectsWithCode(assert, new Infer({ apis: services.apis }).selectResults(opts), 'invalid_argument', /sessionId and userId/)
             const rejecting = { config: services.config, apis: () => ({ ingestzStreamRelevanceFashionEvent: async () => ({ ok: false, status: 500, error: 'boom' }) }) }

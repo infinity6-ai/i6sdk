@@ -74,18 +74,12 @@ func ExtractTypedefs(sdkFuncs []*jsparsersdkfunc.SdkFunc) jstypez.Typedefs {
 
 func buildSelectedTypedefs(fn *jsparsersdkfunc.SdkFunc) (jstypez.Typedef, jstypez.Typedef) {
 	funcId := fn.Spec.CamelId
-	skuTyp := "*"
-	skuElement := funcId + "OutputResultsElementSkusElement"
-	for _, td := range fn.Typedefs.All() {
-		if td.Head.Name == skuElement {
-			skuTyp = skuElement
-		}
-	}
-	enrichedName := skuElement + "Enriched"
+	enrichedName := funcId + "OutputResultsElementSkusElementEnriched"
 	enriched := jstypez.Typedef{
 		Head: &jstypez.Tuple{Typ: "object", Name: enrichedName},
 		Properties: jstypez.NewTuples([]jstypez.Tuple{
-			{Typ: skuTyp, Name: "sku"},
+			{Typ: "string", Name: "sku_id"},
+			{Typ: "number", Name: "rating"},
 			{Typ: "*", Name: "enriched"},
 		}),
 	}
@@ -156,7 +150,7 @@ func Write(ctx context.Context, sdkFuncs []*jsparsersdkfunc.SdkFunc) string {
 		}
 		isInfer := fn.Spec.Typ == sdkfuncz.TypClientInfer
 		if isInfer {
-			writeln(&decl, " * @param {(req: %sReq, results: %sOutput) => Promise<%sSelected>} selectResults - picks which of the recommended skus are shown", funcId, funcId, funcId)
+			writeln(&decl, " * @param {(req: %sReq, results: %sOutput) => Promise<%sSelected>} [selectResults] - picks which of the recommended skus are shown; default: one random sku", funcId, funcId, funcId)
 			writeln(&decl, " * @returns {Promise<%sSelected>}", funcId)
 		} else {
 			returnDesc := ""
