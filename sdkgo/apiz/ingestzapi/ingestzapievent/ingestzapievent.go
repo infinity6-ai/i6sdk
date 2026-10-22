@@ -43,7 +43,7 @@ func (d *Api[T]) ApiSpec() apiz.ApiSpec {
 			}
 		},
 		Method: "GET",
-		Path:   "/api/ingest/dataset/{dataset}/event-send/{suffix}" + x.Table().String(),
+		Path:   "/api/ingest/dataset/{dataset}/event/" + x.Table().String() + "/text.txt",
 	}
 }
 
