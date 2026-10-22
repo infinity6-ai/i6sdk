@@ -56,10 +56,6 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 						Desc:     &schemaz.Desc{Summary: "Name of the dataset that receives the stream data."},
 						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
 					},
-					"suffix": {
-						Desc:     &schemaz.Desc{Summary: "Name filename with ending with .png or .txt."},
-						UrlValue: schemaz.ParseStr(&d.Req.Suffix),
-					},
 				}
 			},
 		},
