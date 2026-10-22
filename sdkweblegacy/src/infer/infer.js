@@ -128,16 +128,25 @@ class Infer {
    *   `userId`, "event" if an event is not accepted.
    */
   async selectResults(opts) {
+    // Se vier vazio, devemos ter um função default que seleciona um sku aleatório por rating
+    // Devemos colocar o rating em cada sku antes de devolver
+    // sdkFuncProductRelevanceFashionFbtOutputResultsElementSkusElementEnriched deve conter rating.
     if (typeof opts?.selectResults !== "function") {
       throw new I6Error("infer: opts.selectResults must be a function", { code: "invalid_argument" })
     }
+
     const { req, results } = opts
     const { recId } = opts
+    
     if (!recId) throw new I6Error("infer: opts.recId is required", { code: "invalid_argument" })
     const ids = this.#sdkIds()
 
     const selected = await opts.selectResults(req, results)
+
+    // Devemos colocar no evento apenas os skuids, não tudo que o select results receber
+    // Se nao conseguir pegar os skuids deve dar pau
     await this.#sendRecEvent(opts, ids, recId, "recshow", selected)
+
     return selected
   }
 
