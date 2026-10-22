@@ -7,6 +7,12 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
 )
 
+type CatalogSimple struct {
+	StoreId string `json:"store_id" bigquery:"store_id"`
+	SkuId   string `json:"sku_id" bigquery:"sku_id"`
+	SkuDs   string `json:"sku_ds" bigquery:"sku_ds"`
+}
+
 type Catalog struct {
 	ID         string              `json:"id" bigquery:"id"`
 	Dataset    bigquery.NullString `json:"dataset" bigquery:"dataset"`
