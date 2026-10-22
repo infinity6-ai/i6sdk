@@ -17,17 +17,19 @@ func TestUnitDszListRecsysTokensApi(t *testing.T) {
 		Req: dszapirecsystokenslist.DszListRecsysTokensReq{
 			Dataset: lakedsz.MustParse("myds"),
 		},
-		Resp: []dsztoken.DatasetToken{
-			{
-				Id:             "token1",
-				Jti:            "jti1",
-				Dataset:        lakedsz.MustParse("myds"),
-				Annotation:     "Annotation",
-				ExpirationDate: 12345678,
-				Audience:       "aud",
-				Grants:         []string{"read"},
-				Channel:        "chan1",
-				Token:          "tok-1",
+		Resp: dszapirecsystokenslist.DszListRecsysTokensResp{
+			Tokens: []dsztoken.DatasetToken{
+				{
+					Id:             "token1",
+					Jti:            "jti1",
+					Dataset:        lakedsz.MustParse("myds"),
+					Annotation:     "Annotation",
+					ExpirationDate: 12345678,
+					Audience:       "aud",
+					Grants:         []string{"read"},
+					Channel:        "chan1",
+					Token:          "tok-1",
+				},
 			},
 		},
 	}
