@@ -66,22 +66,28 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 		QueryParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"data": {
-						Desc: &schemaz.Desc{Summary: "Generic even data to ingest."},
-						Array: schemaz.NewArray(schemaz.ArrayOptions[[]T, T]{
-							Slice: func() *[]T { return &d.Req.Data },
-							NewElement: func(idx int) T {
-								typ := reflect.TypeFor[T]()
-								if typ.Kind() == reflect.Pointer {
-									return reflect.New(typ.Elem()).Interface().(T)
-								}
-								var x T
-								return x
-							},
-							Get: func(idx int, element *T) *schemaz.Schema {
-								return (*element).Schema()
-							},
-						}),
+					"payload": {
+						Object: func(read bool) map[string]*schemaz.Schema {
+							return map[string]*schemaz.Schema{
+								"data": {
+									Desc: &schemaz.Desc{Summary: "Generic stream data to ingest."},
+									Array: schemaz.NewArray(schemaz.ArrayOptions[[]T, T]{
+										Slice: func() *[]T { return &d.Req.Data },
+										NewElement: func(idx int) T {
+											typ := reflect.TypeFor[T]()
+											if typ.Kind() == reflect.Pointer {
+												return reflect.New(typ.Elem()).Interface().(T)
+											}
+											var x T
+											return x
+										},
+										Get: func(idx int, element *T) *schemaz.Schema {
+											return (*element).Schema()
+										},
+									}),
+								},
+							}
+						},
 					},
 				}
 			},
