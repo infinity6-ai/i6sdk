@@ -65,7 +65,12 @@ class Invoker {
                 }
                 // A list becomes one repeated key per item (?a=1&a=2), not "1,2".
                 for (const item of Array.isArray(value) ? value : [value]) {
-                    search.append(key, String(item))
+                    // Check if the item is a valid object/array, otherwise use String coercion
+                    const serializedValue = (typeof item === 'object' && item !== null) 
+                        ? JSON.stringify(item) 
+                        : String(item);
+
+                    search.append(key, serializedValue);
                 }
             }
             const queryString = search.toString()
