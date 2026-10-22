@@ -17,19 +17,19 @@ func AllApis() []apiz.Api {
 	}
 }
 
-type StreamReq[T tabledataz.TableData] struct {
+type Req[T tabledataz.TableData] struct {
 	Dataset lakedsz.Dataset
 	Suffix  string
 	Data    []T
 }
 
-type StreamResp struct {
+type Resp struct {
 	Count int
 }
 
 type Api[T tabledataz.TableData] struct {
-	Req  StreamReq[T]
-	Resp StreamResp
+	Req  Req[T]
+	Resp Resp
 }
 
 func (d *Api[T]) ApiSpec() apiz.ApiSpec {

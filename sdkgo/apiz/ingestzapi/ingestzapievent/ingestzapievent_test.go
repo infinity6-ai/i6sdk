@@ -14,7 +14,7 @@ import (
 func TestUnitIngestzStreamApi(t *testing.T) {
 	ctx := t.Context()
 	api := &ingestzapievent.Api[*dummydataz.Catalog]{
-		Req: ingestzapievent.StreamReq[*dummydataz.Catalog]{
+		Req: ingestzapievent.Req[*dummydataz.Catalog]{
 			Dataset: lakedsz.MustParse("my-dataset"),
 			Data: []*dummydataz.Catalog{
 				{
