@@ -3,7 +3,6 @@ package dszapirecsystokenslist
 import (
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/dsztoken"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
@@ -12,10 +11,8 @@ type DszListRecsysTokensReq struct {
 	Dataset lakedsz.Dataset `json:"dataset"`
 }
 
-type DszListRecsysTokensResp []dsztoken.DatasetToken
-
-func (*DszListRecsysTokensResp) JSType() string {
-	return jstypez.TypObject
+type DszListRecsysTokensResp struct {
+	Tokens []dsztoken.DatasetToken `json:"tokens"`
 }
 
 type Api struct {
@@ -45,7 +42,18 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 		ReqBody:     nil,
 		RespHeaders: nil,
 		RespBody: &schemaz.Schema{
-			Field: func() any { return &d.Resp },
+			Object: func(read bool) map[string]*schemaz.Schema {
+				return map[string]*schemaz.Schema{
+					"tokens": {
+						Array: schemaz.NewArray(schemaz.ArrayOptions[[]dsztoken.DatasetToken, dsztoken.DatasetToken]{
+							Slice: func() *[]dsztoken.DatasetToken { return &d.Resp.Tokens },
+							Get: func(idx int, element *dsztoken.DatasetToken) *schemaz.Schema {
+								return element.Schema()
+							},
+						}),
+					},
+				}
+			},
 		},
 	}
 }
