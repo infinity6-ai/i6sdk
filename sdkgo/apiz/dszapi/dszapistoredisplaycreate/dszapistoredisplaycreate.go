@@ -70,6 +70,9 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 								"name": {
 									Field: func() any { return &d.Req.Display.Name },
 								},
+								"model_name": {
+									Field: func() any { return &d.Req.Display.ModelName },
+								},
 							}
 						},
 					},

@@ -39,6 +39,7 @@ func (dss *DszStore) Schema() *schemaz.Schema {
 }
 
 type DszStoreDisplay struct {
-	Id   storedisplayid.StoreDisplayId
-	Name string
+	Id        storedisplayid.StoreDisplayId
+	Name      string
+	ModelName string
 }
