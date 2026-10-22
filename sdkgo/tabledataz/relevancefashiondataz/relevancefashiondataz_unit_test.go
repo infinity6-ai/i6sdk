@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
+	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz/relevancefashiondataz"
 )
 
@@ -57,7 +58,7 @@ func TestUnitEventSerialization(t *testing.T) {
 				ID:        "evt_123",
 				StoreId:   "ABC",
 				SessionId: "sess_456",
-				UserId:    "usr_789",
+				UserId:    tabledataz.NewBqNullString("usr_789"),
 				CreatedAt: time.Date(2026, 10, 8, 12, 0, 0, 0, time.UTC),
 			},
 		})
@@ -80,7 +81,7 @@ func TestUnitEventSerialization(t *testing.T) {
 				ID:        "evt_123",
 				StoreId:   "ABC",
 				SessionId: "sess_456",
-				UserId:    "usr_789",
+				UserId:    tabledataz.NewBqNullString("usr_789"),
 				CreatedAt: time.Date(2026, 10, 8, 12, 0, 0, 0, time.UTC),
 				Click: &relevancefashiondataz.Click{
 					Price: 166.4,
@@ -107,7 +108,7 @@ func TestUnitEventSerialization(t *testing.T) {
 				ID:        "evt_123",
 				StoreId:   "ABC",
 				SessionId: "sess_456",
-				UserId:    "usr_789",
+				UserId:    tabledataz.NewBqNullString("usr_789"),
 				CreatedAt: time.Date(2026, 10, 8, 12, 0, 0, 0, time.UTC),
 				AddToCart: &relevancefashiondataz.AddToCart{
 					Price: 166.42,
@@ -134,7 +135,7 @@ func TestUnitEventSerialization(t *testing.T) {
 				ID:        "evt_123",
 				StoreId:   "ABC",
 				SessionId: "sess_456",
-				UserId:    "usr_789",
+				UserId:    tabledataz.NewBqNullString("usr_789"),
 				CreatedAt: time.Date(2026, 10, 8, 12, 0, 0, 0, time.UTC),
 				RemoveFromCart: &relevancefashiondataz.RemoveFromCart{
 					Price: 61.81,
@@ -160,7 +161,7 @@ func TestUnitEventSerialization(t *testing.T) {
 				ID:        "evt_123",
 				StoreId:   "ABC",
 				SessionId: "sess_456",
-				UserId:    "usr_789",
+				UserId:    tabledataz.NewBqNullString("usr_789"),
 				CreatedAt: time.Date(2026, 10, 8, 12, 0, 0, 0, time.UTC),
 				Search: &relevancefashiondataz.Search{
 					Text: "camisa da barbie",
@@ -192,7 +193,7 @@ func TestUnitEventSerialization(t *testing.T) {
 				ID:        "evt_123",
 				StoreId:   "ABC",
 				SessionId: "sess_456",
-				UserId:    "usr_789",
+				UserId:    tabledataz.NewBqNullString("usr_789"),
 				CreatedAt: time.Date(2026, 10, 8, 12, 0, 0, 0, time.UTC),
 				Purchase: &relevancefashiondataz.Purchase{
 					OrderId: "8e37896a-7669-48b7-95fb-a661d6a1e597",
@@ -226,7 +227,7 @@ func TestUnitEventSerialization(t *testing.T) {
 				ID:        "evt_123",
 				StoreId:   "ABC",
 				SessionId: "sess_456",
-				UserId:    "usr_789",
+				UserId:    tabledataz.NewBqNullString("usr_789"),
 				CreatedAt: time.Date(2026, 10, 8, 12, 0, 0, 0, time.UTC),
 				Recraw: &relevancefashiondataz.Recraw{
 					RecId:   "xpto",
@@ -254,7 +255,7 @@ func TestUnitEventSerialization(t *testing.T) {
 				ID:        "evt_123",
 				StoreId:   "ABC",
 				SessionId: "sess_456",
-				UserId:    "usr_789",
+				UserId:    tabledataz.NewBqNullString("usr_789"),
 				CreatedAt: time.Date(2026, 10, 8, 12, 0, 0, 0, time.UTC),
 				Recshow: &relevancefashiondataz.Recshow{
 					RecId:   "xpto",
@@ -278,7 +279,7 @@ func TestUnitEventSerialization(t *testing.T) {
 				ID:         "evt_123",
 				StoreId:    "ABC",
 				SessionId:  "sess_456",
-				UserId:     "usr_789",
+				UserId:     tabledataz.NewBqNullString("usr_789"),
 				CreatedAt:  time.Date(2026, 10, 8, 12, 0, 0, 0, time.UTC),
 				IngestedAt: "custom_param",
 			},
