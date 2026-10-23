@@ -1,6 +1,7 @@
 package ingestzapievent
 
 import (
+	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
@@ -19,7 +20,7 @@ type Req[T tabledataz.TableData] struct {
 	Dataset lakedsz.Dataset
 	Suffix  string
 	Data    []T
-	DataV2  T
+	DataV2  jsonz.Embedded[T]
 }
 
 type Resp struct {

@@ -19,10 +19,6 @@ func knownTypes(ctx context.Context, baseId string, val reflect.Value) (*jstypez
 		return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: jstypez.TypTime, GoTyp: t}}, nil
 	case bigquery.NullString:
 		return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: jstypez.TypString, GoTyp: t}}, nil
-	// case schemaz.Schema:
-	// 	a, b := ParseSchema(ctx, baseId, &v)
-	// 	a.Head.Name = ""
-	// 	return a, b
 	default:
 		return nil, nil
 	}
