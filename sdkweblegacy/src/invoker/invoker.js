@@ -9,6 +9,11 @@ import { apiErrorFromResponse, apiErrorFromNetwork } from "../errors.js";
  */
 
 /**
+ * @typedef {object} ServiceOptions
+ * @property {string} datasetToken - [Go: string]
+ */
+
+/**
  * Options for sending HTTP requests via the Invoker.
  * @typedef {Object} InvokeOptions
  * @property {string} [url] - The full URL to request. If omitted, defaults to `${baseUrl}/${path}`.

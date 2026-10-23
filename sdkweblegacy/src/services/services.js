@@ -2,16 +2,6 @@
  * @fileoverview Service container managing SDK service instances and configuration.
  */
 
-/**
- * @template T
- * @typedef {T} i6JsonEmbedded
- */
-
-/**
- * @typedef {object} i6ServiceOptions
- * @property {string} datasetToken - [Go: string]
- */
-
 import { Invoker } from "../invoker/invoker.js";
 import { Auth } from "../auth/auth.js";
 import { Ingest } from "../ingest/ingest.js";
