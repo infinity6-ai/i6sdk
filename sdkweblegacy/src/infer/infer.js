@@ -291,9 +291,7 @@ async function defaultSelectResults(req, results) {
   const shown = []
 
   for (const result of [...results.results]) {
-    console.log(result.skus)
     for (const { sku_id } of result.skus) {
-      console.log("SKUID", sku_id)
       if (!inCart.has(sku_id)) {
         shown.push({sku_id: sku_id, rating: result.rating})
         break;
