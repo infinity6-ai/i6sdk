@@ -39,8 +39,7 @@ func (p *Payload[T]) Schema() *schemaz.Schema {
 type Req[T tabledataz.TableData] struct {
 	Dataset lakedsz.Dataset
 	Suffix  string
-	Data    []T
-	DataV2  jsonz.Embedded[*Payload[T]]
+	Payload jsonz.Embedded[*Payload[T]]
 }
 
 type Resp struct {
@@ -88,7 +87,7 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 				// d.Req.DataV2 = reflect.New(typ.Elem()).Interface().(T)
 				return map[string]*schemaz.Schema{
 					"payload": {
-						UrlValue: schemaz.ParseJson(d.Req.DataV2),
+						UrlValue: schemaz.ParseJson(d.Req.Payload),
 						// Object: func(read bool) map[string]*schemaz.Schema {
 						// 	return map[string]*schemaz.Schema{
 						// 		"data": {

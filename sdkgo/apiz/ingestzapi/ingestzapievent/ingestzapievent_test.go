@@ -16,10 +16,14 @@ func TestUnitIngestzStreamApi(t *testing.T) {
 	api := &ingestzapievent.Api[*dummydataz.Catalog]{
 		Req: ingestzapievent.Req[*dummydataz.Catalog]{
 			Dataset: lakedsz.MustParse("my-dataset"),
-			Data: []*dummydataz.Catalog{
-				{
-					Id:      "obj1",
-					Product: "Object 1",
+			Payload: jsonz.Embedded[*ingestzapievent.Payload[*dummydataz.Catalog]]{
+				Ref: &ingestzapievent.Payload[*dummydataz.Catalog]{
+					Rows: []*dummydataz.Catalog{
+						{
+							Id:      "obj1",
+							Product: "Object 1",
+						},
+					},
 				},
 			},
 		},
@@ -28,9 +32,9 @@ func TestUnitIngestzStreamApi(t *testing.T) {
 	// Verify standard JSON copy / two-way binding
 	apiCopy := jsonz.MustCopy(api, &ingestzapievent.Api[*dummydataz.Catalog]{})
 	require.Equal(t, api.Req.Dataset.Get(), apiCopy.Req.Dataset.Get())
-	require.Len(t, apiCopy.Req.Data, 1)
-	require.Equal(t, api.Req.Data[0].Id, apiCopy.Req.Data[0].Id)
-	require.Equal(t, api.Req.Data[0].Product, apiCopy.Req.Data[0].Product)
+	require.Len(t, apiCopy.Req.Payload.Ref.Rows, 1)
+	require.Equal(t, api.Req.Payload.Ref.Rows[0].Id, apiCopy.Req.Payload.Ref.Rows[0].Id)
+	require.Equal(t, api.Req.Payload.Ref.Rows[0].Product, apiCopy.Req.Payload.Ref.Rows[0].Product)
 
 	// Verify API specifications
 	spec := api.ApiSpec()
