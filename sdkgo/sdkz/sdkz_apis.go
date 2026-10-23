@@ -23,6 +23,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapistripecheckout"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitableget"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitablelist"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitablefileload"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitokendelete"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzapi/ingestzapibatchsummary"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzapi/ingestzapievent"
@@ -59,6 +60,7 @@ func init() {
 	add(&dszapisignedurl.Api{})
 	add(&dszapitableget.Api{})
 	add(&dszapitablelist.Api{})
+	add(dszapitablefileload.AllApis()...)
 	add(pipezstart.AllApis()...)
 	add(&pipezlist.Api{})
 	add(&pipezget.Api{})
