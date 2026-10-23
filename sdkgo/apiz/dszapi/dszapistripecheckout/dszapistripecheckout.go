@@ -100,7 +100,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 						Field:  func() any { return &d.Resp.Url },
 					},
 					"dataset": {
-						Desc: &schemaz.Desc{Summary: "Id of the dataset that is going to be created after the payment (starts with ds)"},
+						Desc: &schemaz.Desc{Summary: "Dataset that is going to be created after the payment; its id starts with ds"},
 						Field:  func() any { return &d.Resp.Dataset },
 					},
 				}

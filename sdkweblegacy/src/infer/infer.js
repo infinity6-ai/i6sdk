@@ -148,9 +148,9 @@ class Infer {
 
     // The event carries only the sku ids
     const shown = {
-      skus: selected.results.map((item) => {
+      skus: selected.results.map((item, i) => {
         const skuId = item?.sku_id
-        if (!skuId) throw new I6Error(`infer: selectResults returned an item with no sku_id: ${JSON.stringify(item)}`, { code: "invalid_argument" })
+        if (!skuId) throw new I6Error(`infer: selectResults returned an item with no sku_id at results[${i}]`, { code: "invalid_argument" })
         return { sku_id: skuId }
       })
     }
