@@ -26,6 +26,7 @@ import { apiErrorFromResponse, apiErrorFromNetwork } from "../errors.js";
  * @property {RequestCredentials} [credentials] - Request credentials mode (e.g., 'include', 'same-origin', 'omit').
  * @property {RequestMode} [mode] - Request mode (e.g., 'cors', 'no-cors', 'same-origin').
  * @property {AbortSignal|null} [signal] - An AbortSignal to cancel the request.
+ * @property {ServiceOptions} [opts]
  */
 
 /**
