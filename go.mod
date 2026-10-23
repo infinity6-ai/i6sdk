@@ -8,7 +8,7 @@ require (
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.30.0
 	github.com/infinity6-ai/gox/commonz v0.0.54
 	github.com/infinity6-ai/gox/fsz v0.0.54
-	github.com/infinity6-ai/gox/routez v0.0.53
+	github.com/infinity6-ai/gox/routez v0.0.54
 	github.com/infinity6-ai/gox/schemaz v0.0.54
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.12.1
@@ -46,7 +46,6 @@ require (
 	github.com/googleapis/enterprise-certificate-proxy v0.3.22 // indirect
 	github.com/googleapis/gax-go/v2 v2.24.1 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
-	github.com/infinity6-ai/gox/httpz v0.0.54 // indirect
 	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.5 // indirect
 	github.com/pierrec/lz4/v4 v4.1.21 // indirect
