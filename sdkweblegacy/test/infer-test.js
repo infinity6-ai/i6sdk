@@ -136,7 +136,7 @@
             const returning = (ret) => ({ ...opts, selectResults: async () => ret })
             await rejectsWithCode(assert, new Infer(services).selectResults({ ...opts, selectResults: 'x' }), 'invalid_argument', /opts.selectResults/)
             await rejectsWithCode(assert, new Infer(services).selectResults(returning([])), 'invalid_argument', /must return/)
-            await rejectsWithCode(assert, new Infer(services).selectResults(returning({ results: [{}] })), 'invalid_argument', /no sku_id/)
+            await rejectsWithCode(assert, new Infer(services).selectResults(returning({ results: [{ sku_id: '2' }, {}] })), 'invalid_argument', /no sku_id at results\[1\]$/)
             await rejectsWithCode(assert, new Infer(services).selectResults(returning({ results: [{ sku_id: '9' }] })), 'invalid_argument', /"9", which is not in the results/)
             await rejectsWithCode(assert, new Infer(services).selectResults({ ...opts, recId: undefined }), 'invalid_argument', /opts.recId/)
             await rejectsWithCode(assert, new Infer({ apis: services.apis }).selectResults(opts), 'invalid_argument', /sessionId and userId/)
