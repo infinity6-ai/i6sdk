@@ -54,4 +54,17 @@ func TestUnitDszTableFileLoadApi(t *testing.T) {
 	parsed := jsparserapi.ParseApi(ctx, api)
 	require.NotNil(t, parsed)
 	require.Equal(t, "dsz-result-relevance-fashion-catalog", parsed.Spec.Id)
+
+	// Verify ApiDataRefs does not overwrite existing query
+	refs := api.ApiDataRefs()
+	require.NotNil(t, refs)
+	require.NotNil(t, api.Req.Query)
+	require.Equal(t, store, api.Req.Query.StoreId)
+
+	// Verify ApiDataRefs initializes query when nil
+	emptyApi := &dszapiloadresult.Api[*relevancefashionresultz.CatalogSimple]{}
+	require.Nil(t, emptyApi.Req.Query)
+	emptyRefs := emptyApi.ApiDataRefs()
+	require.NotNil(t, emptyRefs)
+	require.NotNil(t, emptyApi.Req.Query)
 }

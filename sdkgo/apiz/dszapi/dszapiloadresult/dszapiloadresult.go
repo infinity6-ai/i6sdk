@@ -39,6 +39,19 @@ func newT[T resultz.Result]() T {
 	return x
 }
 
+func isNil(v any) bool {
+	if v == nil {
+		return true
+	}
+	val := reflect.ValueOf(v)
+	switch val.Kind() {
+	case reflect.Chan, reflect.Func, reflect.Map, reflect.Pointer, reflect.Interface, reflect.Slice:
+		return val.IsNil()
+	default:
+		return false
+	}
+}
+
 func (d *Api[T]) ApiSpec() apiz.ApiSpec {
 	var x T
 	return apiz.ApiSpec{
@@ -55,7 +68,9 @@ func (d *Api[T]) ApiSpec() apiz.ApiSpec {
 }
 
 func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
-	d.Req.Query = newT[T]()
+	if isNil(d.Req.Query) {
+		d.Req.Query = newT[T]()
+	}
 	return &apiz.DataRefs{
 		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
