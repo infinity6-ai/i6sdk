@@ -81,11 +81,14 @@ class Invoker {
             }
         }
 
+        // Keep the caller's headers; only Content-Type is forced.
+        opts.headers = new Headers(opts.headers)
+        if (!opts.opts?.datasetToken) {
+            opts.hedaers.set('Authorization', 'Dataset ' + opts.opts?.datasetToken)
+        }
+
         if (opts.json) {
-            // Keep the caller's headers; only Content-Type is forced.
-            const headers = new Headers(opts.headers)
-            headers.set('Content-Type', 'application/json')
-            opts.headers = headers
+            opts.headers.set('Content-Type', 'application/json')
             opts.body = JSON.stringify(opts.json)
         }
 
