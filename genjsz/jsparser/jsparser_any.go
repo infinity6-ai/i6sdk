@@ -7,6 +7,7 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/logz"
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
+	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparsercustom"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
@@ -31,6 +32,10 @@ func ParseAny(ctx context.Context, baseId string, v any) (*jstypez.Typedef, *jst
 	}
 
 	if a, b := knownTypes(ctx, baseId, val); a != nil {
+		return a, b
+	}
+
+	if a, b := checkSchema(ctx, baseId, val); a != nil {
 		return a, b
 	}
 
@@ -120,6 +125,31 @@ func ParseAny(ctx context.Context, baseId string, v any) (*jstypez.Typedef, *jst
 		panic(fmt.Sprintf("unsupported type %T / %s: %#v", v, val.Kind(), v))
 	}
 
+}
+
+func checkSchema(ctx context.Context, baseId string, val reflect.Value) (*jstypez.Typedef, *jstypez.Typedefs) {
+	type S interface {
+		Schema() *schemaz.Schema
+	}
+	v := val.Interface()
+	var s *schemaz.Schema
+	if v, ok := v.(S); ok {
+		s = v.Schema()
+	}
+	rv := reflect.ValueOf(v)
+	if s == nil && rv.IsValid() && rv.Kind() != reflect.Ptr {
+		ptr := reflect.New(rv.Type())
+		ptr.Elem().Set(rv)
+		if ct, ok := ptr.Interface().(S); ok {
+			s = ct.Schema()
+		}
+	}
+	if s == nil {
+		return nil, nil
+	}
+	a, b := ParseSchema(ctx, baseId, s)
+	a.Head.Name = ""
+	return a, b
 }
 
 func checkCustom(ctx context.Context, baseId string, val reflect.Value) (*jstypez.Typedef, *jstypez.Typedefs) {
