@@ -1,7 +1,6 @@
 package dszapitablefileload
 
 import (
-	"encoding/json"
 	"reflect"
 
 	"github.com/infinity6-ai/gox/routez/apiz"
@@ -18,35 +17,32 @@ func AllApis() []apiz.Api {
 }
 
 type Req[T resultz.Result] struct {
-	Dataset lakedsz.Dataset `json:"dataset"`
-	Query   any             `json:"query"`
-}
-
-func (r *Req[T]) UnmarshalJSON(data []byte) error {
-	type Alias Req[T]
-	var temp Alias
-	var x T
-	temp.Query = x.NewQuery()
-	if err := json.Unmarshal(data, &temp); err != nil {
-		return err
-	}
-	*r = Req[T](temp)
-	return nil
+	Dataset lakedsz.Dataset
+	Query   T
 }
 
 type Resp[T resultz.Result] struct {
-	Data []T `json:"data"`
+	Data []T
 }
 
 type Api[T resultz.Result] struct {
-	Req  Req[T]  `json:"req"`
-	Resp Resp[T] `json:"resp"`
+	Req  Req[T]
+	Resp Resp[T]
+}
+
+func newT[T resultz.Result]() T {
+	typ := reflect.TypeFor[T]()
+	if typ.Kind() == reflect.Pointer {
+		return reflect.New(typ.Elem()).Interface().(T)
+	}
+	var x T
+	return x
 }
 
 func (d *Api[T]) ApiSpec() apiz.ApiSpec {
 	var x T
 	return apiz.ApiSpec{
-		Id: "dsz-table-file-load-" + x.ResultName(),
+		Id: "dsz-result-" + x.ResultName(),
 		Desc: func() *schemaz.Desc {
 			return &schemaz.Desc{
 				Name:    "Load Table File as JSON",
@@ -54,7 +50,7 @@ func (d *Api[T]) ApiSpec() apiz.ApiSpec {
 			}
 		},
 		Method: "GET",
-		Path:   "/api/ds/dataset/{dataset}/table-file-load/" + x.ResultName(),
+		Path:   "/api/ds/dataset/{dataset}/results/" + x.ResultName(),
 	}
 }
 
@@ -64,23 +60,15 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
 					"dataset": {
-						Desc: &schemaz.Desc{Summary: "Name of the dataset."},
-						UrlValue:  schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
+						Desc:     &schemaz.Desc{Summary: "Name of the dataset."},
+						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
 					},
 				}
 			},
 		},
 		QueryParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && d.Req.Query == nil {
-					return nil
-				}
-				if d.Req.Query == nil {
-					var x T
-					d.Req.Query = x.NewQuery()
-				}
-				var x T
-				return x.QuerySchema(d.Req.Query).Object(read)
+				return newT[T]().QuerySchema().Object(read)
 			},
 		},
 		ReqHeaders:  nil,
@@ -94,12 +82,7 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 						Array: schemaz.NewArray(schemaz.ArrayOptions[[]T, T]{
 							Slice: func() *[]T { return &d.Resp.Data },
 							NewElement: func(idx int) T {
-								typ := reflect.TypeFor[T]()
-								if typ.Kind() == reflect.Pointer {
-									return reflect.New(typ.Elem()).Interface().(T)
-								}
-								var x T
-								return x
+								return newT[T]()
 							},
 							Get: func(idx int, element *T) *schemaz.Schema {
 								return (*element).Schema()
