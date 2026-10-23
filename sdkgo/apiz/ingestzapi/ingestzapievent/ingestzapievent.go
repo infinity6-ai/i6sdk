@@ -1,8 +1,6 @@
 package ingestzapievent
 
 import (
-	"reflect"
-
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
@@ -62,11 +60,11 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 		},
 		QueryParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
-				typ := reflect.TypeFor[T]()
-				if typ.Kind() != reflect.Pointer {
-					panic("no")
-				}
-				d.Req.DataV2 = reflect.New(typ.Elem()).Interface().(T)
+				// typ := reflect.TypeFor[T]()
+				// if typ.Kind() != reflect.Pointer {
+				// 	panic("no")
+				// }
+				// d.Req.DataV2 = reflect.New(typ.Elem()).Interface().(T)
 				return map[string]*schemaz.Schema{
 					"payload": {
 						UrlValue: schemaz.ParseJson(d.Req.DataV2),
