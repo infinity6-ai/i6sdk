@@ -32,8 +32,15 @@ func ParseAny(ctx context.Context, baseId string, v any) (*jstypez.Typedef, *jst
 		val = val.Elem()
 	}
 
-	if a, ok := jsonz.Unembed(val.Interface()); ok {
-		return ParseAny(ctx, baseId, a)
+	if v, ok := jsonz.Unembed(val.Interface()); ok {
+		a, b := ParseAny(ctx, baseId, v)
+		a.Head.Name = baseId + "Embedded"
+		if b == nil {
+			b = &jstypez.Typedefs{}
+		}
+		b.Add(a)
+		a = &jstypez.Typedef{Head: &jstypez.Tuple{Typ: "jsonEmbedded<" + a.Head.Typ + ">", GoTyp: ""}}
+		return a, b
 	}
 
 	if a, b := knownTypes(ctx, baseId, val); a != nil {
