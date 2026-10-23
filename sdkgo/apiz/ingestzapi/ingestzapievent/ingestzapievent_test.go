@@ -42,6 +42,6 @@ func TestUnitIngestzStreamApi(t *testing.T) {
 	require.NotNil(t, parsed)
 	require.Equal(t, "ingestz-event-dummy-catalog", parsed.Spec.Id)
 
-	// println(jsonz.MustFormatPretty(parsed).String())
-	// t.Fail()
+	println(jsonz.MustFormatPretty(parsed).String())
+	t.Fail()
 }
