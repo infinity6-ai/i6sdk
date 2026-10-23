@@ -17,8 +17,31 @@ func (c *CatalogSimple) ResultName() string {
 	return "catalog-simple"
 }
 
-func (c *CatalogSimple) Path() laketbpathz.Path {
-	return laketbpathz.MustParse(fmt.Sprintf("i6tb://results.relevance-fashion-catalog/store_id=%s/part.json.gz", c.StoreId))
+type CatalogSimpleQuery struct {
+	StoreId string `json:"store_id"`
+}
+
+func (c *CatalogSimple) NewQuery() any {
+	return &CatalogSimpleQuery{}
+}
+
+func (c *CatalogSimple) QuerySchema(q any) *schemaz.Schema {
+	query := q.(*CatalogSimpleQuery)
+	return &schemaz.Schema{
+		Object: func(read bool) map[string]*schemaz.Schema {
+			return map[string]*schemaz.Schema{
+				"store_id": {
+					Desc:     &schemaz.Desc{Summary: "Store ID to query."},
+					UrlValue: schemaz.ParseStr(&query.StoreId),
+				},
+			}
+		},
+	}
+}
+
+func (c *CatalogSimple) Path(q any) laketbpathz.Path {
+	query := q.(*CatalogSimpleQuery)
+	return laketbpathz.MustParse(fmt.Sprintf("i6tb://results.relevance-fashion-catalog/store_id=%s/part.json.gz", query.StoreId))
 }
 
 func (c *CatalogSimple) Schema() *schemaz.Schema {

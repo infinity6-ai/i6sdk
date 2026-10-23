@@ -1,6 +1,7 @@
 package dszapitablefileload
 
 import (
+	"encoding/json"
 	"reflect"
 
 	"github.com/infinity6-ai/gox/routez/apiz"
@@ -18,6 +19,19 @@ func AllApis() []apiz.Api {
 
 type Req[T resultz.Result] struct {
 	Dataset lakedsz.Dataset `json:"dataset"`
+	Query   any             `json:"query"`
+}
+
+func (r *Req[T]) UnmarshalJSON(data []byte) error {
+	type Alias Req[T]
+	var temp Alias
+	var x T
+	temp.Query = x.NewQuery()
+	if err := json.Unmarshal(data, &temp); err != nil {
+		return err
+	}
+	*r = Req[T](temp)
+	return nil
 }
 
 type Resp[T resultz.Result] struct {
@@ -56,7 +70,19 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 				}
 			},
 		},
-		QueryParams: nil,
+		QueryParams: &schemaz.Schema{
+			Object: func(read bool) map[string]*schemaz.Schema {
+				if read && d.Req.Query == nil {
+					return nil
+				}
+				if d.Req.Query == nil {
+					var x T
+					d.Req.Query = x.NewQuery()
+				}
+				var x T
+				return x.QuerySchema(d.Req.Query).Object(read)
+			},
+		},
 		ReqHeaders:  nil,
 		ReqBody:     nil,
 		RespHeaders: nil,

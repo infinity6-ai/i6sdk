@@ -16,6 +16,9 @@ func TestUnitDszTableFileLoadApi(t *testing.T) {
 	api := &dszapitablefileload.Api[*relevancefashionresultz.CatalogSimple]{
 		Req: dszapitablefileload.Req[*relevancefashionresultz.CatalogSimple]{
 			Dataset: lakedsz.MustParse("my-dataset"),
+			Query: &relevancefashionresultz.CatalogSimpleQuery{
+				StoreId: "store-1",
+			},
 		},
 		Resp: dszapitablefileload.Resp[*relevancefashionresultz.CatalogSimple]{
 			Data: []*relevancefashionresultz.CatalogSimple{
@@ -35,6 +38,11 @@ func TestUnitDszTableFileLoadApi(t *testing.T) {
 	require.Equal(t, api.Resp.Data[0].StoreId, apiCopy.Resp.Data[0].StoreId)
 	require.Equal(t, api.Resp.Data[0].SkuId, apiCopy.Resp.Data[0].SkuId)
 	require.Equal(t, api.Resp.Data[0].SkuDs, apiCopy.Resp.Data[0].SkuDs)
+
+	// Verify query fields are copied correctly
+	require.NotNil(t, apiCopy.Req.Query)
+	query := apiCopy.Req.Query.(*relevancefashionresultz.CatalogSimpleQuery)
+	require.Equal(t, "store-1", query.StoreId)
 
 	// Verify API specifications
 	spec := api.ApiSpec()
