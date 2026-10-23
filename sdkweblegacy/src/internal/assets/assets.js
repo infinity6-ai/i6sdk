@@ -4,6 +4,10 @@
 
 import { I6Error } from "../../errors.js";
 import { downloader } from "../downloader/downloader.js";
+import { debugLogger } from "../debug/debug.js";
+
+/** Prints only when `window.I6_DEBUG` is true. */
+const debug = debugLogger("assets")
 
 /**
  * @typedef {import("../fs/fs.js").FileRef} FileRef
@@ -38,7 +42,7 @@ function isPartitions(partitions) {
 async function downloadFile(name, url) {
   try {
     const ref = await downloader.update({ name, url })
-    if (globalThis.I6_DEBUG) console.log(`assets: ${name} is ready`, ref)
+    debug(`${name} is ready`, ref)
     return ref
   } catch (cause) {
     throw new I6Error(`could not get ${url}: ${cause.message}`, { code: "asset", status: cause.status, cause })
