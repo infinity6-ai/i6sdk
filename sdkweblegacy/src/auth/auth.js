@@ -14,6 +14,7 @@
  * @property {string} [sub_type] - 
  * @property {string} [sub] - user id
  * @property {string} [ext] - 
+ * @property {string} [display] - display name
  */
 
 /**
