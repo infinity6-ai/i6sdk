@@ -3,7 +3,7 @@ module go.code.infinity6.ai/sdkweb
 go 1.26.1
 
 require (
-	github.com/infinity6-ai/gox/commonz v0.0.50
+	github.com/infinity6-ai/gox/commonz v0.0.53
 	github.com/spf13/cobra v1.10.2
 	go.code.infinity6.ai/platform v1.2.70
 	go.code.infinity6.ai/web v1.2.57
