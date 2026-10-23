@@ -39,7 +39,7 @@ func ParseAny(ctx context.Context, baseId string, v any) (*jstypez.Typedef, *jst
 			b = &jstypez.Typedefs{}
 		}
 		b.Add(a)
-		a = &jstypez.Typedef{Head: &jstypez.Tuple{Typ: "jsonEmbedded<" + a.Head.Typ + ">", GoTyp: ""}}
+		a = &jstypez.Typedef{Head: &jstypez.Tuple{Typ: "i6JsonEmbedded<" + a.Head.Name + ">", GoTyp: ""}}
 		return a, b
 	}
 
