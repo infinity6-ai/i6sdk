@@ -150,5 +150,5 @@ class Services {
     }
 }
 
-export { Services };
+export { Services, Apis, SdkFuncs };
 
