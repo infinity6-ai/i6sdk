@@ -44,7 +44,8 @@ import { describeModel, loadModel, runModel } from "./litert.js";
  * @property {*} results - What `run` returned (its `rec_id` is the id of the recommendation); given as is to `selectResults`.
  * @property {string} recId - Id of the recommendation, the `rec_id` that `run` returned. Same as in the `recraw` event that `run` sent; sent in the `recshow` event.
  * @property {(req: *, results: *) => Promise<*>} [selectResults] - Picks which of the recommended skus are shown: returns
- *   `{ results: [{ sku_id, ... }] }`. Default: one random sku of the results, with the rating of the result it was picked from.
+ *   `{ results: [{ sku_id, rating?, enriched? }] }`. Only `sku_id` is sent (in the `recshow` event); `enriched` is any data of
+ *   your own for the sku (e.g. name, price, image), returned to you as is. Default: `defaultSelectResults`.
  */
 
 /** Default for `InferOptions.limit`. */
@@ -124,8 +125,7 @@ class Infer {
   /**
    * Asks `selectResults` which of the recommended skus are shown and sends their sku ids as the `recshow` event.
    * @param {SelectResultsOptions} opts - Select options.
-   * @returns {Promise<*>} What `selectResults` returned, with the `rating` of each sku added to its item (its best rating; with the
-   *   default, the rating of the result it was picked from).
+   * @returns {Promise<*>} What `selectResults` returned, as is (the default sets the `rating` of each sku; see `defaultSelectResults`).
    * @throws {I6Error} With code "invalid_argument" if `selectResults` is not a function, `recId` is missing, the sdk has no `sessionId` and
    *   `userId`, or `selectResults` returned an item with no `sku_id` or a sku not in the results; "event" if an event is not accepted.
    */
@@ -281,18 +281,30 @@ function ratingsBySku(results) {
 }
 
 /**
- * Default of `SelectResultsOptions.selectResults`: one random sku of the results, with its rating.
- * @param {*} req - What the caller asked for (unused).
- * @param {*} results - What `run` returned.
+ * Default of `SelectResultsOptions.selectResults`: one sku per result, skipping the skus already in the cart, with no
+ * duplicates.
+ *
+ * Goes through `results.results` in the order the model returned them and, for each result, takes the first of its skus
+ * that is not in `req.input.skus` (the cart) and was not already picked, with the `rating` of that result. A result with
+ * no such sku gives nothing. All picks are returned (no limit; slice them if you show fewer). No `enriched` is set: pass
+ * your own `selectResults` to attach your catalog data or to choose differently.
+ *
+ * @example
+ * // cart: [{ sku_id: "1" }]
+ * // results: [{ skus: [{ sku_id: "1" }, { sku_id: "2" }], rating: 0.9 }, { skus: [{ sku_id: "2" }, { sku_id: "3" }], rating: 0.7 }, { skus: [{ sku_id: "3" }], rating: 0.5 }]
+ * // returns: { results: [{ sku_id: "2", rating: 0.9 }, { sku_id: "3", rating: 0.7 }] }
+ * @param {*} req - What the caller asked for; its `input.skus` (the cart) is required.
+ * @param {*} results - What `run` returned: `{ results: [{ skus: [{ sku_id }], rating }] }`.
  * @returns {Promise<{results: Array<{sku_id: string, rating: number}>}>}
  */
 async function defaultSelectResults(req, results) {
-  const inCart = new Set(req.input.skus.map((sku) => sku.sku_id))
+  const taken = new Set(req.input.skus.map((sku) => sku.sku_id))
   const shown = []
 
   for (const result of [...results.results]) {
     for (const { sku_id } of result.skus) {
-      if (!inCart.has(sku_id)) {
+      if (!taken.has(sku_id)) {
+        taken.add(sku_id)
         shown.push({sku_id: sku_id, rating: result.rating})
         break;
       }

@@ -88,7 +88,7 @@
             await rejectsWithCode(assert, new Infer(noSqlite).run({ ...base, params: cart }), 'asset', /no "sqlite.bin" file/)
         })
 
-        QUnit.test("selectResults returns the selection with ratings and sends its sku ids as recshow", async function (assert) {
+        QUnit.test("selectResults returns the selection as is and sends its sku ids as recshow", async function (assert) {
             const requests = []
             const services = { config: () => ({ sessionId: 'sess-1', userId: 'user-1' }), apis: () => ({ ingestzStreamRelevanceFashionEvent: async (req) => {
                 requests.push(req)
@@ -105,7 +105,7 @@
             }
 
             assert.deepEqual(await new Infer(services).selectResults(opts),
-                { results: [{ sku_id: '1', enriched: { name: 'shirt' }, rating: 0.8 }] }, 'best rating of the sku added')
+                selected, 'returned as is')
             assert.deepEqual(calls, [[req, results]], 'selectResults gets req and results')
             assert.strictEqual(requests.length, 1)
             const sent = requests.map((r) => {
@@ -121,12 +121,17 @@
             const rec = (payload) => ({ rec_id: 'rec-1', model_id: 'relevance-fashion-fbt', model_version: 'v1', payload })
             assert.deepEqual(sent, [['recshow', rec({ skus: [{ sku_id: '1' }] })]], 'recshow only, with only the sku ids')
 
-            // Default: one random sku with its rating
-                        const picked = await new Infer(services).selectResults({ ...opts, selectResults: undefined })
-            assert.strictEqual(picked.results.length, 1, 'default picks one sku')
-            const [{ sku_id, rating }] = picked.results
-            assert.true(['1', '2'].includes(sku_id), 'default sku is in the results')
-            assert.true(results.results.some((r) => r.rating === rating && r.skus.some((s) => s.sku_id === sku_id)), 'default sku has the rating of the result it was picked from')
+            // Default: per result, the first sku not in the cart nor already picked, with the rating of that result
+            const defaults = {
+                ...opts, selectResults: undefined, req: { input: { dataset: 'dectest', skus: [{ sku_id: '1' }] } },
+                results: { results: [
+                    { skus: [{ sku_id: '1' }, { sku_id: '2' }], rating: 0.9 },
+                    { skus: [{ sku_id: '2' }, { sku_id: '3' }], rating: 0.7 },
+                    { skus: [{ sku_id: '1' }, { sku_id: '3' }], rating: 0.5 },
+                ] },
+            }
+            assert.deepEqual(await new Infer(services).selectResults(defaults),
+                { results: [{ sku_id: '2', rating: 0.9 }, { sku_id: '3', rating: 0.7 }] }, 'default skips the cart and duplicates')
 
             const returning = (ret) => ({ ...opts, selectResults: async () => ret })
             await rejectsWithCode(assert, new Infer(services).selectResults({ ...opts, selectResults: 'x' }), 'invalid_argument', /opts.selectResults/)

@@ -76,17 +76,17 @@ func buildSelectedTypedefs(fn *jsparsersdkfunc.SdkFunc) (jstypez.Typedef, jstype
 	funcId := fn.Spec.CamelId
 	enrichedName := funcId + "OutputResultsElementSkusElementEnriched"
 	enriched := jstypez.Typedef{
-		Head: &jstypez.Tuple{Typ: "object", Name: enrichedName},
+		Head: &jstypez.Tuple{Typ: "object", Name: enrichedName, Summary: "One recommended sku to show, as picked by selectResults"},
 		Properties: jstypez.NewTuples([]jstypez.Tuple{
-			{Typ: "string", Name: "sku_id"},
-			{Typ: "number", Name: "rating"},
-			{Typ: "*", Name: "enriched"},
+			{Typ: "string", Name: "sku_id", Summary: "Id of the sku. Required; the only field sent to i6 (in the recshow event)"},
+			{Typ: "number", Name: "rating", Summary: "Model rating, higher is more relevant. The default selectResults sets the rating of the result the sku was picked from"},
+			{Typ: "*", Name: "enriched", Summary: "Optional: any data your selectResults attaches to the sku (e.g. name, price, image). Returned to you as is, never sent to i6. The default selectResults does not set it"},
 		}),
 	}
 	selected := jstypez.Typedef{
-		Head: &jstypez.Tuple{Typ: "object", Name: funcId + "Selected", Summary: funcId + " Selected"},
+		Head: &jstypez.Tuple{Typ: "object", Name: funcId + "Selected", Summary: funcId + " Selected: the skus to show, as returned by selectResults"},
 		Properties: jstypez.NewTuples([]jstypez.Tuple{
-			{Typ: fmt.Sprintf("Array<%s>", enrichedName), Name: "results"},
+			{Typ: fmt.Sprintf("Array<%s>", enrichedName), Name: "results", Summary: "Skus to show, in the order selectResults returned them"},
 		}),
 	}
 	return enriched, selected
@@ -150,7 +150,7 @@ func Write(ctx context.Context, sdkFuncs []*jsparsersdkfunc.SdkFunc) string {
 		}
 		isInfer := fn.Spec.Typ == sdkfuncz.TypClientInfer
 		if isInfer {
-			writeln(&decl, " * @param {(req: %sReq, results: %sOutput) => Promise<%sSelected>} [selectResults] - picks which of the recommended skus are shown; default: one random sku", funcId, funcId, funcId)
+			writeln(&decl, " * @param {(req: %sReq, results: %sOutput) => Promise<%sSelected>} [selectResults] - picks which of the recommended skus are shown and may attach your own data to each in enriched; default: for each result, in order, the first sku not in req.input.skus (the cart) and not already picked, with the rating of that result; no duplicates, and results with no such sku are skipped", funcId, funcId, funcId)
 			writeln(&decl, " * @returns {Promise<%sSelected>}", funcId)
 		} else {
 			returnDesc := ""

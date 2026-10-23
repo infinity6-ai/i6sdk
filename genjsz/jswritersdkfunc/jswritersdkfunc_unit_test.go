@@ -58,7 +58,7 @@ func TestUnitWrite(t *testing.T) {
 
   /**
    * @param {sdkFuncProductRelevanceFashionFbtReq} req
-   * @param {(req: sdkFuncProductRelevanceFashionFbtReq, results: sdkFuncProductRelevanceFashionFbtOutput) => Promise<sdkFuncProductRelevanceFashionFbtSelected>} [selectResults] - picks which of the recommended skus are shown; default: one random sku
+   * @param {(req: sdkFuncProductRelevanceFashionFbtReq, results: sdkFuncProductRelevanceFashionFbtOutput) => Promise<sdkFuncProductRelevanceFashionFbtSelected>} [selectResults] - picks which of the recommended skus are shown and may attach your own data to each in enriched; default: for each result, in order, the first sku not in req.input.skus (the cart) and not already picked, with the rating of that result; no duplicates, and results with no such sku are skipped
    * @returns {Promise<sdkFuncProductRelevanceFashionFbtSelected>}
    */
   async productRelevanceFashionFbtV1(req, selectResults) {
@@ -146,7 +146,7 @@ export { SdkFuncs };
 
   /**
    * @param {sdkFuncProductCustomTaskReq} req - [Go: models.CustomInput]
-   * @param {(req: sdkFuncProductCustomTaskReq, results: sdkFuncProductCustomTaskOutput) => Promise<sdkFuncProductCustomTaskSelected>} [selectResults] - picks which of the recommended skus are shown; default: one random sku
+   * @param {(req: sdkFuncProductCustomTaskReq, results: sdkFuncProductCustomTaskOutput) => Promise<sdkFuncProductCustomTaskSelected>} [selectResults] - picks which of the recommended skus are shown and may attach your own data to each in enriched; default: for each result, in order, the first sku not in req.input.skus (the cart) and not already picked, with the rating of that result; no duplicates, and results with no such sku are skipped
    * @returns {Promise<sdkFuncProductCustomTaskSelected>}
    */
   async productCustomTaskV1(req, selectResults) {
