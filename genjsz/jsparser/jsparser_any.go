@@ -34,7 +34,7 @@ func ParseAny(ctx context.Context, baseId string, v any) (*jstypez.Typedef, *jst
 
 	if v, ok := jsonz.Unembed(val.Interface()); ok {
 		a, b := ParseAny(ctx, baseId, v)
-		a.Head.Name = baseId + "Embedded"
+		a.Head.Name = baseId // + "Embedded"
 		if b == nil {
 			b = &jstypez.Typedefs{}
 		}
