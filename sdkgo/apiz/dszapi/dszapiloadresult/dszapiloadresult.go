@@ -55,6 +55,7 @@ func (d *Api[T]) ApiSpec() apiz.ApiSpec {
 }
 
 func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
+	d.Req.Query = newT[T]()
 	return &apiz.DataRefs{
 		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
@@ -66,11 +67,7 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 				}
 			},
 		},
-		QueryParams: &schemaz.Schema{
-			Object: func(read bool) map[string]*schemaz.Schema {
-				return newT[T]().QuerySchema().Object(read)
-			},
-		},
+		QueryParams: d.Req.Query.QuerySchema(),
 		ReqHeaders:  nil,
 		ReqBody:     nil,
 		RespHeaders: nil,
