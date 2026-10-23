@@ -151,6 +151,7 @@ func writeApiDecl(b *strings.Builder, api *jsparserapi.Api) {
 		}
 		writeln(b, " * @param {%sReq} req%s", apiId, paramDesc)
 	}
+	writeln(b, " * @param {ServiceOptions} [opts]")
 	returnDesc := ""
 	if api.Resp.Payload.Head != nil && api.Resp.Payload.Head.GoTyp != "" {
 		returnDesc = fmt.Sprintf(" - [Go: %s]", api.Resp.Payload.Head.GoTyp)
@@ -159,9 +160,9 @@ func writeApiDecl(b *strings.Builder, api *jsparserapi.Api) {
 	writeln(b, " */")
 
 	if hasReq {
-		writeln(b, "async %s(req) {", funcName(apiId))
+		writeln(b, "async %s(req, opts) {", funcName(apiId))
 	} else {
-		writeln(b, "async %s() {", funcName(apiId))
+		writeln(b, "async %s(opts) {", funcName(apiId))
 	}
 
 	jsPath := strings.TrimPrefix(api.Spec.Path, "/")
@@ -183,6 +184,8 @@ func writeApiDecl(b *strings.Builder, api *jsparserapi.Api) {
 	if hasPayload {
 		writeln(b, "    json: req.payload,")
 	}
+
+	writeln(b, "    opts: opts,")
 
 	resultKey := "payload"
 	if api.Resp.Payload.Head == nil {

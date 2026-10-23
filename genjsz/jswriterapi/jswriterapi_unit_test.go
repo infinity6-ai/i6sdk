@@ -66,15 +66,17 @@ func TestUnitWrite(t *testing.T) {
    * Sample API that performs a fraction operation
    * 
    * @param {apiSampleFractionReq} req
+   * @param {ServiceOptions} [opts]
    * @returns {Promise<import("../errors.js").I6Result<apiSampleFractionResp>>}
    */
-  async sampleFraction(req) {
+  async sampleFraction(req, opts) {
     return this._services.invoker().invokeResult({
       method: "POST",
       path: ` + "`" + `api/gox/routez/sample/fraction/${encodeURIComponent(String(req.params.numerator))}/${encodeURIComponent(String(req.params.denominator))}` + "`" + `,
       query: req.query,
       headers: req.headers,
       json: req.payload,
+      opts: opts,
     }, "payload");
   }
 }
@@ -143,13 +145,15 @@ export { Apis };
    * 
    * 
    * @param {apiCustomActionReq} req - [Go: models.CustomReq]
+   * @param {ServiceOptions} [opts]
    * @returns {Promise<import("../errors.js").I6Result<apiCustomActionResp>>} - [Go: models.CustomResp]
    */
-  async customAction(req) {
+  async customAction(req, opts) {
     return this._services.invoker().invokeResult({
       method: "POST",
       path: ` + "`" + `api/custom/action` + "`" + `,
       json: req.payload,
+      opts: opts,
     }, "payload");
   }
 }

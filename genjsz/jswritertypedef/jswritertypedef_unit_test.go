@@ -24,7 +24,7 @@ func TestUnitWrite(t *testing.T) {
 	t.Run("empty typedefs", func(t *testing.T) {
 		check(t, testScenario{
 			in:   jstypez.NewTypedefs(nil),
-			want: "/**\n * @typedef {import(\"../services/services.js\").Services} Services\n */\n\n",
+			want: "/**\n * @typedef {import(\"../services/services.js\").Services} Services\n */\n\n/**\n * @typedef {import(\"../invoker/invoker.js\").ServiceOptions} ServiceOptions\n */\n\n/**\n * @template T\n * @typedef {T} i6JsonEmbedded\n */\n\n",
 		})
 	})
 
@@ -40,7 +40,7 @@ func TestUnitWrite(t *testing.T) {
 
 		check(t, testScenario{
 			in:   tds,
-			want: "/**\n * @typedef {import(\"../services/services.js\").Services} Services\n */\n\n/**\n * [Go: models.Item] Item definition\n * @typedef {object} Item\n * @property {string} id - [Go: string] Item ID\n */\n\n",
+			want: "/**\n * @typedef {import(\"../services/services.js\").Services} Services\n */\n\n/**\n * @typedef {import(\"../invoker/invoker.js\").ServiceOptions} ServiceOptions\n */\n\n/**\n * @template T\n * @typedef {T} i6JsonEmbedded\n */\n\n/**\n * [Go: models.Item] Item definition\n * @typedef {object} Item\n * @property {string} id - [Go: string] Item ID\n */\n\n",
 		})
 	})
 }
