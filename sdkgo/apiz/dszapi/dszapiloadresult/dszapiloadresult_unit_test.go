@@ -1,4 +1,4 @@
-package dszapitablefileload_test
+package dszapiloadresult_test
 
 import (
 	"testing"
@@ -6,7 +6,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparserapi"
-	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitablefileload"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapiloadresult"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/storeid"
 	"go.code.infinity6.ai/sdkgo/sdkgo/resultz/relevancefashionresultz"
@@ -15,14 +15,14 @@ import (
 func TestUnitDszTableFileLoadApi(t *testing.T) {
 	ctx := t.Context()
 	store := storeid.MustParse("store-1")
-	api := &dszapitablefileload.Api[*relevancefashionresultz.CatalogSimple]{
-		Req: dszapitablefileload.Req[*relevancefashionresultz.CatalogSimple]{
+	api := &dszapiloadresult.Api[*relevancefashionresultz.CatalogSimple]{
+		Req: dszapiloadresult.Req[*relevancefashionresultz.CatalogSimple]{
 			Dataset: lakedsz.MustParse("my-dataset"),
 			Query: &relevancefashionresultz.CatalogSimple{
 				StoreId: store,
 			},
 		},
-		Resp: dszapitablefileload.Resp[*relevancefashionresultz.CatalogSimple]{
+		Resp: dszapiloadresult.Resp[*relevancefashionresultz.CatalogSimple]{
 			Data: []*relevancefashionresultz.CatalogSimple{
 				{
 					StoreId: store,
@@ -34,7 +34,7 @@ func TestUnitDszTableFileLoadApi(t *testing.T) {
 	}
 
 	// Verify standard JSON copy / two-way binding
-	apiCopy := jsonz.MustCopy(api, &dszapitablefileload.Api[*relevancefashionresultz.CatalogSimple]{})
+	apiCopy := jsonz.MustCopy(api, &dszapiloadresult.Api[*relevancefashionresultz.CatalogSimple]{})
 	require.Equal(t, api.Req.Dataset.Get(), apiCopy.Req.Dataset.Get())
 	require.Len(t, apiCopy.Resp.Data, 1)
 	require.Equal(t, api.Resp.Data[0].StoreId, apiCopy.Resp.Data[0].StoreId)

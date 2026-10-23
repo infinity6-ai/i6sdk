@@ -1,4 +1,4 @@
-package dszapitablefileload
+package dszapiloadresult
 
 import (
 	"reflect"
