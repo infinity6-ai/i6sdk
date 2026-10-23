@@ -24,6 +24,13 @@
             assert.deepEqual(await invoker.invokeResult({ path: 'x' }, 'body'), { status: 200, ok: true, body: { id: 'a' } })
         })
 
+        QUnit.test("a 204 or an empty success body is ok with no payload", async function (assert) {
+            answer(null, 204)
+            assert.deepEqual(await invoker.invokeResult({ path: 'x' }, 'body'), { status: 204, ok: true })
+            answer('', 200)
+            assert.deepEqual(await invoker.invokeResult({ path: 'x' }), { status: 200, ok: true })
+        })
+
         QUnit.test("http errors keep the server text and get a code from the status", async function (assert) {
             const cases = [
                 [400, 'email_invalid', 'bad_request'],
