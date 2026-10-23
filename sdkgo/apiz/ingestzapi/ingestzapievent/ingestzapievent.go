@@ -87,7 +87,7 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 				// d.Req.DataV2 = reflect.New(typ.Elem()).Interface().(T)
 				return map[string]*schemaz.Schema{
 					"payload": {
-						UrlValue: schemaz.ParseJson(d.Req.Payload),
+						UrlValue: schemaz.ParseJson(&d.Req.Payload),
 						// Object: func(read bool) map[string]*schemaz.Schema {
 						// 	return map[string]*schemaz.Schema{
 						// 		"data": {
