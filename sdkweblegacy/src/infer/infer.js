@@ -14,6 +14,7 @@ import { downloadFile, isPartitions, partitionsKey } from "../internal/assets/as
 import { fs } from "../internal/fs/fs.js";
 import { sqlitez } from "../internal/sqlitez/sqlitez.js";
 import { describeModel, loadModel, runModel } from "./litert.js";
+import { debugLogger } from "../internal/debug/debug.js";
 
 /**
  * @typedef {import("../services/services.js").Services} Services
@@ -55,7 +56,7 @@ const DEFAULT_LIMIT = 20
 const FILES = { sqlite: "sqlite.bin", tflite: "tflite.bin" }
 
 /** Prints only when `window.I6_DEBUG` is true. */
-const debug = (...args) => { if (globalThis.I6_DEBUG) console.log("infer:", ...args) }
+const debug = debugLogger("infer")
 
 /**
  * Inference client.
@@ -135,8 +136,7 @@ class Infer {
       throw new I6Error("infer: opts.selectResults must be a function", { code: "invalid_argument" })
     }
 
-    const { req, results } = opts
-    const { recId } = opts
+    const { req, results, recId } = opts
 
     if (!recId) throw new I6Error("infer: opts.recId is required", { code: "invalid_argument" })
     const ids = this.#sdkIds()
@@ -154,7 +154,7 @@ class Infer {
         return { sku_id: skuId }
       })
     }
-    
+
     await this.#sendRecEvent(opts, ids, recId, "recshow", shown)
 
     return selected
@@ -266,21 +266,6 @@ function outputQueryParams(outputs, opts) {
 }
 
 /**
- * The best rating of each sku in the results of `run`.
- * @param {*} results - What `run` returned: `{ results: [{ skus: [{ sku_id }], rating }] }`.
- * @returns {Map<string, number>} sku_id -> rating.
- */
-function ratingsBySku(results) {
-  const ratings = new Map()
-  for (const { skus, rating } of results?.results ?? []) {
-    for (const { sku_id } of skus ?? []) {
-      if (!ratings.has(sku_id) || rating > ratings.get(sku_id)) ratings.set(sku_id, rating)
-    }
-  }
-  return ratings
-}
-
-/**
  * Default of `SelectResultsOptions.selectResults`: one sku per result, skipping the skus already in the cart, with no
  * duplicates.
  *
@@ -301,12 +286,12 @@ async function defaultSelectResults(req, results) {
   const taken = new Set(req.input.skus.map((sku) => sku.sku_id))
   const shown = []
 
-  for (const result of [...results.results]) {
+  for (const result of results.results) {
     for (const { sku_id } of result.skus) {
       if (!taken.has(sku_id)) {
         taken.add(sku_id)
-        shown.push({sku_id: sku_id, rating: result.rating})
-        break;
+        shown.push({ sku_id, rating: result.rating })
+        break
       }
     }
   }
