@@ -83,8 +83,8 @@ class Invoker {
 
         // Keep the caller's headers; only Content-Type is forced.
         opts.headers = new Headers(opts.headers)
-        if (!opts.opts?.datasetToken) {
-            opts.hedaers.set('Authorization', 'Dataset ' + opts.opts?.datasetToken)
+        if (opts.opts?.datasetToken) {
+            opts.headers.set('Authorization', 'Dataset ' + opts.opts?.datasetToken)
         }
 
         if (opts.json) {
