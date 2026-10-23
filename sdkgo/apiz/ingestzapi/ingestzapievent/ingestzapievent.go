@@ -3,7 +3,7 @@ package ingestzapievent
 import (
 	"reflect"
 
-	"github.com/infinity6-ai/gox/commonz/jsonz"
+	"github.com/infinity6-ai/gox/commonz/jsonz/jsonzembedded"
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
@@ -22,7 +22,7 @@ type Payload[T tabledataz.TableData] struct {
 	Rows []T
 }
 
-func (p *Payload[T]) Schema() *schemaz.Schema {
+func (p Payload[T]) Schema() *schemaz.Schema {
 	return &schemaz.Schema{
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
@@ -39,7 +39,7 @@ func (p *Payload[T]) Schema() *schemaz.Schema {
 type Req[T tabledataz.TableData] struct {
 	Dataset lakedsz.Dataset
 	Suffix  string
-	Payload jsonz.Embedded[*Payload[T]]
+	Payload jsonzembedded.Embedded[*Payload[T]]
 }
 
 type Resp struct {

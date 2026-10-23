@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/infinity6-ai/gox/commonz/jsonz"
+	"github.com/infinity6-ai/gox/commonz/jsonz/jsonzembedded"
 	"github.com/infinity6-ai/gox/commonz/logz"
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
@@ -32,7 +32,7 @@ func ParseAny(ctx context.Context, baseId string, v any) (*jstypez.Typedef, *jst
 		val = val.Elem()
 	}
 
-	if v, ok := jsonz.Unembed(val.Interface()); ok {
+	if v, ok := jsonzembedded.Unembed(val.Interface()); ok {
 		a, b := ParseAny(ctx, baseId, v)
 		a.Head.Name = baseId // + "Embedded"
 		if b == nil {

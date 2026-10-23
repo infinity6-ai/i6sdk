@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
+	"github.com/infinity6-ai/gox/commonz/jsonz/jsonzembedded"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparserapi"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzapi/ingestzapievent"
@@ -16,7 +17,7 @@ func TestUnitIngestzStreamApi(t *testing.T) {
 	api := &ingestzapievent.Api[*dummydataz.Catalog]{
 		Req: ingestzapievent.Req[*dummydataz.Catalog]{
 			Dataset: lakedsz.MustParse("my-dataset"),
-			Payload: jsonz.Embedded[*ingestzapievent.Payload[*dummydataz.Catalog]]{
+			Payload: jsonzembedded.Embedded[*ingestzapievent.Payload[*dummydataz.Catalog]]{
 				Ref: &ingestzapievent.Payload[*dummydataz.Catalog]{
 					Rows: []*dummydataz.Catalog{
 						{
