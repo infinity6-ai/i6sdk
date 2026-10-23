@@ -2,7 +2,7 @@
  * @fileoverview Main entry point for the i6 Web Legacy SDK.
  */
 
-import { Services } from "./services/services.js";
+import { Services, Apis, SdkFuncs } from "./services/services.js";
 import { I6Error } from "./errors.js";
 
 /**
