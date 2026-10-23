@@ -9,7 +9,6 @@ type Result interface {
 	Schema() *schemaz.Schema
 	ResultName() string
 
-	NewQuery() any
-	QuerySchema(q any) *schemaz.Schema
-	Path(q any) laketbpathz.Path
+	QuerySchema() *schemaz.Schema
+	Path() laketbpathz.Path
 }
