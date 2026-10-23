@@ -44,6 +44,13 @@ func TestUnitFractionSample(t *testing.T) {
 				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionQuery", Summary: "apiSampleFraction query"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
 					{Typ: "number", GoTyp: "int", Name: "precision", Summary: "Fraction max precision"},
+					{Typ: "apiSampleFractionQuerySmsg", Name: "smsg"},
+				}),
+			},
+			{
+				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionQuerySmsg"},
+				Properties: jstypez.NewTuples([]jstypez.Tuple{
+					{Typ: "string", GoTyp: "string", Name: "message", Summary: "message string"},
 				}),
 			},
 			{
@@ -68,7 +75,14 @@ func TestUnitFractionSample(t *testing.T) {
 			{
 				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionRespHeaders", Summary: "apiSampleFraction respHeaders"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
+					{Typ: "apiSampleFractionRespHeadersXI6Smsg", Name: "x_i6_smsg"},
 					{Typ: "string", GoTyp: "string", Name: "x_i6_trace_message", Summary: "Sample of any trace message"},
+				}),
+			},
+			{
+				Head: &jstypez.Tuple{Typ: "object", Name: "apiSampleFractionRespHeadersXI6Smsg"},
+				Properties: jstypez.NewTuples([]jstypez.Tuple{
+					{Typ: "string", GoTyp: "string", Name: "message", Summary: "message string"},
 				}),
 			},
 			{
