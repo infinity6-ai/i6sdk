@@ -30,7 +30,7 @@ func ParseAny(ctx context.Context, baseId string, v any) (*jstypez.Typedef, *jst
 		val = val.Elem()
 	}
 
-	if a, b := knownTypes(val); a != nil {
+	if a, b := knownTypes(ctx, baseId, val); a != nil {
 		return a, b
 	}
 
