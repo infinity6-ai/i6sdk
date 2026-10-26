@@ -16,18 +16,9 @@ func AllApis() []apiz.Api {
 	}
 }
 
-type Req[T resultz.Result] struct {
-	Dataset lakedsz.Dataset
-	Query   T
-}
-
-type Resp[T resultz.Result] struct {
-	Data []T
-}
-
 type Api[T resultz.Result] struct {
-	Req  Req[T]
-	Resp Resp[T]
+	ReqDataset  lakedsz.Dataset
+	ReqRespData T
 }
 
 func newT[T resultz.Result]() T {
@@ -68,8 +59,8 @@ func (d *Api[T]) ApiSpec() apiz.ApiSpec {
 }
 
 func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
-	if isNil(d.Req.Query) {
-		d.Req.Query = newT[T]()
+	if isNil(d.ReqRespData) {
+		d.ReqRespData = newT[T]()
 	}
 	return &apiz.DataRefs{
 		PathParams: &schemaz.Schema{
@@ -77,30 +68,19 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 				return map[string]*schemaz.Schema{
 					"dataset": {
 						Desc:     &schemaz.Desc{Summary: "Name of the dataset."},
-						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
+						UrlValue: schemaz.ParseStrGet(&d.ReqDataset, lakedsz.MustParse),
 					},
 				}
 			},
 		},
-		QueryParams: d.Req.Query.QuerySchema(),
+		QueryParams: d.ReqRespData.QuerySchema(),
 		ReqHeaders:  nil,
 		ReqBody:     nil,
 		RespHeaders: nil,
 		RespBody: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"data": {
-						Desc: &schemaz.Desc{Summary: "Generic table data loaded from the datalake file."},
-						Array: schemaz.NewArray(schemaz.ArrayOptions[[]T, T]{
-							Slice: func() *[]T { return &d.Resp.Data },
-							NewElement: func(idx int) T {
-								return newT[T]()
-							},
-							Get: func(idx int, element *T) *schemaz.Schema {
-								return (*element).Schema()
-							},
-						}),
-					},
+					"data": d.ReqRespData.Schema(),
 				}
 			},
 		},

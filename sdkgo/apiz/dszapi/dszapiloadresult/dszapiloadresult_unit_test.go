@@ -15,15 +15,14 @@ import (
 func TestUnitDszTableFileLoadApi(t *testing.T) {
 	ctx := t.Context()
 	store := storeid.MustParse("store-1")
+
 	api := &dszapiloadresult.Api[*relevancefashionresultz.CatalogSimple]{
-		Req: dszapiloadresult.Req[*relevancefashionresultz.CatalogSimple]{
-			Dataset: lakedsz.MustParse("my-dataset"),
-			Query: &relevancefashionresultz.CatalogSimple{
+		ReqDataset: lakedsz.MustParse("my-dataset"),
+		ReqRespData: &relevancefashionresultz.CatalogSimple{
+			Req: relevancefashionresultz.CatalogSimpleReq{
 				StoreId: store,
 			},
-		},
-		Resp: dszapiloadresult.Resp[*relevancefashionresultz.CatalogSimple]{
-			Data: []*relevancefashionresultz.CatalogSimple{
+			Resp: []*relevancefashionresultz.CatalogSimpleData{
 				{
 					StoreId: store,
 					SkuId:   "sku-1",
@@ -35,15 +34,14 @@ func TestUnitDszTableFileLoadApi(t *testing.T) {
 
 	// Verify standard JSON copy / two-way binding
 	apiCopy := jsonz.MustCopy(api, &dszapiloadresult.Api[*relevancefashionresultz.CatalogSimple]{})
-	require.Equal(t, api.Req.Dataset.Get(), apiCopy.Req.Dataset.Get())
-	require.Len(t, apiCopy.Resp.Data, 1)
-	require.Equal(t, api.Resp.Data[0].StoreId, apiCopy.Resp.Data[0].StoreId)
-	require.Equal(t, api.Resp.Data[0].SkuId, apiCopy.Resp.Data[0].SkuId)
-	require.Equal(t, api.Resp.Data[0].SkuDs, apiCopy.Resp.Data[0].SkuDs)
+	require.Equal(t, api.ReqDataset.Get(), apiCopy.ReqDataset.Get())
+	require.Len(t, apiCopy.ReqRespData.Resp, 1)
+	require.Equal(t, api.ReqRespData.Resp[0].StoreId, apiCopy.ReqRespData.Resp[0].StoreId)
+	require.Equal(t, api.ReqRespData.Resp[0].SkuId, apiCopy.ReqRespData.Resp[0].SkuId)
+	require.Equal(t, api.ReqRespData.Resp[0].SkuDs, apiCopy.ReqRespData.Resp[0].SkuDs)
 
 	// Verify query fields are copied correctly
-	require.NotNil(t, apiCopy.Req.Query)
-	require.Equal(t, store, apiCopy.Req.Query.StoreId)
+	require.Equal(t, store, apiCopy.ReqRespData.Req.StoreId)
 
 	// Verify API specifications
 	spec := api.ApiSpec()
@@ -58,13 +56,10 @@ func TestUnitDszTableFileLoadApi(t *testing.T) {
 	// Verify ApiDataRefs does not overwrite existing query
 	refs := api.ApiDataRefs()
 	require.NotNil(t, refs)
-	require.NotNil(t, api.Req.Query)
-	require.Equal(t, store, api.Req.Query.StoreId)
+	require.Equal(t, store, api.ReqRespData.Req.StoreId)
 
 	// Verify ApiDataRefs initializes query when nil
 	emptyApi := &dszapiloadresult.Api[*relevancefashionresultz.CatalogSimple]{}
-	require.Nil(t, emptyApi.Req.Query)
 	emptyRefs := emptyApi.ApiDataRefs()
 	require.NotNil(t, emptyRefs)
-	require.NotNil(t, emptyApi.Req.Query)
 }
