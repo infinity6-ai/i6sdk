@@ -3,7 +3,6 @@ package ingestzapibatchsummary
 import (
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/storeid"
@@ -20,10 +19,6 @@ type Resp struct {
 	RowCount        int              `json:"row_count"`
 	IngestedAt      string           `json:"ingested_at"`
 	ColumnSummaries []*ColumnSummary `json:"column_summaries"`
-}
-
-func (*Resp) JSType() string {
-	return jstypez.TypObject
 }
 
 type ColumnSummary struct {
@@ -63,8 +58,8 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				}
 				return map[string]*schemaz.Schema{
 					"dataset": {
-						Desc: &schemaz.Desc{Summary: "Name of the dataset that receives the uploaded files."},
-						UrlValue:  schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
+						Desc:     &schemaz.Desc{Summary: "Name of the dataset that receives the uploaded files."},
+						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
 					},
 				}
 			},
@@ -79,12 +74,12 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				}
 				return map[string]*schemaz.Schema{
 					"table": {
-						Desc: &schemaz.Desc{Summary: "Name of the table inside the dataset."},
-						UrlValue:  schemaz.ParseStrGet(&d.Req.Table, laketbnamez.MustParse),
+						Desc:     &schemaz.Desc{Summary: "Name of the table inside the dataset."},
+						UrlValue: schemaz.ParseStrGet(&d.Req.Table, laketbnamez.MustParse),
 					},
 					"store_id": {
-						Desc: &schemaz.Desc{Summary: "Store ID associated with the ingestion."},
-						UrlValue:  schemaz.ParseStrGet(&d.Req.StoreId, storeid.MustParse),
+						Desc:     &schemaz.Desc{Summary: "Store ID associated with the ingestion."},
+						UrlValue: schemaz.ParseStrGet(&d.Req.StoreId, storeid.MustParse),
 					},
 				}
 			},
@@ -103,16 +98,16 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				}
 				return map[string]*schemaz.Schema{
 					"store_id": {
-						Desc: &schemaz.Desc{Summary: "Store ID associated with the ingestion."},
-						Field:  func() any { return &d.Resp.StoreId },
+						Desc:  &schemaz.Desc{Summary: "Store ID associated with the ingestion."},
+						Field: func() any { return &d.Resp.StoreId },
 					},
 					"row_count": {
-						Desc: &schemaz.Desc{Summary: "Total number of successfully ingested rows."},
-						Field:  func() any { return &d.Resp.RowCount },
+						Desc:  &schemaz.Desc{Summary: "Total number of successfully ingested rows."},
+						Field: func() any { return &d.Resp.RowCount },
 					},
 					"ingested_at": {
-						Desc: &schemaz.Desc{Summary: "Timestamp when the batch was successfully ingested."},
-						Field:  func() any { return &d.Resp.IngestedAt },
+						Desc:  &schemaz.Desc{Summary: "Timestamp when the batch was successfully ingested."},
+						Field: func() any { return &d.Resp.IngestedAt },
 					},
 					"column_summaries": {
 						Desc: &schemaz.Desc{Summary: "Summaries of distinct and null counts per column."},
@@ -124,16 +119,16 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 									Object: func(_ bool) map[string]*schemaz.Schema {
 										return map[string]*schemaz.Schema{
 											"column_name": {
-												Desc: &schemaz.Desc{Summary: "Name of the column."},
-												Field:  func() any { return &(*element).ColumnName },
+												Desc:  &schemaz.Desc{Summary: "Name of the column."},
+												Field: func() any { return &(*element).ColumnName },
 											},
 											"distinct_count": {
-												Desc: &schemaz.Desc{Summary: "Number of distinct values in the column."},
-												Field:  func() any { return &(*element).DistinctCount },
+												Desc:  &schemaz.Desc{Summary: "Number of distinct values in the column."},
+												Field: func() any { return &(*element).DistinctCount },
 											},
 											"null_count": {
-												Desc: &schemaz.Desc{Summary: "Number of null values in the column."},
-												Field:  func() any { return &(*element).NullCount },
+												Desc:  &schemaz.Desc{Summary: "Number of null values in the column."},
+												Field: func() any { return &(*element).NullCount },
 											},
 										}
 									},

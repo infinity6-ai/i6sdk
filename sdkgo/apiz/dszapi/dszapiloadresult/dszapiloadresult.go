@@ -7,12 +7,14 @@ import (
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/resultz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/resultz/platformresultz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/resultz/relevancefashionresultz"
 )
 
 func AllApis() []apiz.Api {
 	return []apiz.Api{
 		&Api[*relevancefashionresultz.CatalogSimple]{},
+		&Api[*platformresultz.BatchSummary]{},
 	}
 }
 
