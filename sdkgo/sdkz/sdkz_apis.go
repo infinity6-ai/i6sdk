@@ -28,7 +28,6 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzapi/ingestzapibatchsummary"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzapi/ingestzapievent"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzapi/ingestzapigeturl"
-	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzapi/ingestzapistream"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/pipezapi/pipezget"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/pipezapi/pipezlist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/pipezapi/pipezstart"
@@ -54,7 +53,10 @@ func init() {
 		add(svc.Api())
 	}
 	add(&ingestzapigeturl.Api{})
-	add(ingestzapistream.AllApis()...)
+
+	// disabled in favor of ingestzapievent
+	// add(ingestzapistream.AllApis()...)
+
 	add(ingestzapievent.AllApis()...)
 	add(&ingestzapibatchsummary.Api{})
 	add(&dszapisignedurl.Api{})
