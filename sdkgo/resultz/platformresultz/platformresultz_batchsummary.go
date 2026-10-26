@@ -37,7 +37,10 @@ type BatchSummary struct {
 }
 
 func (c *BatchSummary) Download(ctx context.Context, u *urlz.Url) bool {
-	found, _, err := fszjson.DownloadJson(ctx, u, c.Resp)
+	found, _, err := fszjson.Download(ctx, func(item *BatchSummaryData) (bool, error) {
+		c.Resp = item
+		return false, nil
+	}, fszjson.DownloadOptions{Url: u, Gzip: true})
 	errorz.Check(err)
 	return found
 }
@@ -49,6 +52,13 @@ func (c *BatchSummary) ResultName() string {
 func (c *BatchSummary) QuerySchema() *schemaz.Schema {
 	return &schemaz.Schema{
 		Object: func(read bool) map[string]*schemaz.Schema {
+			if read && c.Req == nil {
+				return nil
+			}
+			if c.Req == nil {
+				c.Req = &BatchSummaryReq{}
+			}
+
 			return map[string]*schemaz.Schema{
 				"store_id": {
 					Desc:     &schemaz.Desc{Summary: "Store ID to query."},
@@ -71,6 +81,13 @@ func (c *BatchSummary) Schema() *schemaz.Schema {
 	return &schemaz.Schema{
 		Desc: &schemaz.Desc{Summary: "Generic table data loaded from the datalake file."},
 		Object: func(read bool) map[string]*schemaz.Schema {
+			if read && c.Resp == nil {
+				return nil
+			}
+			if c.Resp == nil {
+				c.Resp = &BatchSummaryData{}
+			}
+
 			return map[string]*schemaz.Schema{
 				"store_id": {
 					Field: func() any { return &c.Resp.StoreId },
