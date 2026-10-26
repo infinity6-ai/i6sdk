@@ -67,6 +67,24 @@
             await rejectsWithCode(assert, infer.run({ ...opts, limit: 0 }), 'invalid_argument', /opts.limit/)
         })
 
+        QUnit.test("run and selectResults give serviceOpts to the api calls", async function (assert) {
+            const serviceOpts = { datasetToken: 'tok-1' }
+            const calls = []
+            const services = stubServices([], {
+                dszModelGet: async (req, opts) => { calls.push(['dszModelGet', opts]); return { ok: true, payload: { urls: [] } } },
+                ingestzStreamRelevanceFashionEvent: async (req, opts) => { calls.push(['event', opts]); return { ok: true, status: 200 } },
+            })
+            const { Infer } = await import('../src/infer/infer.js')
+
+            await rejectsWithCode(assert, new Infer(services).run({ ...base, params: cart, serviceOpts }), 'asset', /no "sqlite.bin" file/)
+            const opts = {
+                dataset: 'dectest', modelName: 'relevance-fashion-fbt', modelVersion: 'v1', storeId: 's1', req: { input: cart },
+                results: { results: [{ skus: [{ sku_id: '1' }], rating: 0.5 }] }, recId: 'rec-1', serviceOpts,
+            }
+            await new Infer(services).selectResults(opts)
+            assert.deepEqual(calls, [['dszModelGet', serviceOpts], ['event', serviceOpts]])
+        })
+
         QUnit.test("run finds the model files with the model api", async function (assert) {
             if (!(await fetch(assets.tfliteUrl, { method: 'HEAD' })).ok) return assert.ok(true, 'skipped: no assets in src/infer/gen')
 

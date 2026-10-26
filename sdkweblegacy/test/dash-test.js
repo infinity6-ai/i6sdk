@@ -125,8 +125,10 @@
 
         QUnit.test("query finds the sqlite with the signed url api", async function (assert) {
             const requests = []
-            const services = { apis: () => ({ dszSignedUrl: async (req) => {
+            const optsSeen = []
+            const services = { apis: () => ({ dszSignedUrl: async (req, opts) => {
                 requests.push(req)
+                optsSeen.push(opts)
                 return { ok: true, payload: { urls: [{ url: sqliteUrl }] } }
             } }) }
 
@@ -136,6 +138,10 @@
                 params: { dataset: 'dectest' },
                 payload: { paths: [{ method: 'GET', path: 'i6tb://results.relevance-fashion-store-dash/store_id=1/sqlite.bin' }] },
             }])
+
+            const serviceOpts = { datasetToken: 'tok-1' }
+            await new Dash(services).query({ ...base, serviceOpts })
+            assert.deepEqual(optsSeen, [undefined, serviceOpts], 'serviceOpts given to the api call')
 
             const noSqlite = { apis: () => ({ dszSignedUrl: async () => ({ ok: true, payload: { urls: [] } }) }) }
             await rejectsWithCode(assert, new Dash(noSqlite).query(base), 'asset', /no "sqlite.bin" file/)

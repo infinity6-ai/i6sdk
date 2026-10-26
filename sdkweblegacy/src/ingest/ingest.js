@@ -6,6 +6,7 @@ import { I6Error } from "../errors.js";
 
 /**
  * @typedef {import("../services/services.js").Services} Services
+ * @typedef {import("../invoker/invoker.js").ServiceOptions} ServiceOptions
  */
 
 /**
@@ -19,6 +20,7 @@ import { I6Error } from "../errors.js";
  * @property {string} dataset - Dataset name.
  * @property {string} table - Inbox table name.
  * @property {Partitions} partitions - Values for the table partitions, except the ingest id one.
+ * @property {ServiceOptions} [serviceOpts] - Given to the ingestz-get-url API call.
  */
 
 /**
@@ -39,6 +41,7 @@ import { I6Error } from "../errors.js";
  * @property {(progress: UploadProgress) => void} [onProgress] - Called as the file is sent.
  * @property {AbortSignal} [signal] - Aborts the upload; the promise then rejects with the signal's reason (an AbortError by default).
  * @property {string} [contentType] - Content-Type of the PUT. Defaults to the file's own type.
+ * @property {ServiceOptions} [serviceOpts] - Given to the ingestz-get-url API call (the PUT to the signed URL needs none).
  */
 
 /**
@@ -70,13 +73,13 @@ class Ingest {
    * @throws {I6Error} With code "invalid_argument" if file is not a single File, "http" or
    *   "network" if a request fails. Rejects with an AbortError if `signal` aborts.
    */
-  async upload({ dataset, table, partitions, file, onProgress, signal, contentType }) {
+  async upload({ dataset, table, partitions, file, onProgress, signal, contentType, serviceOpts }) {
     if (!(file instanceof File)) {
       throw new I6Error("file must be a single File.", { code: "invalid_argument" });
     }
     signal?.throwIfAborted();
 
-    const { ingestId, url } = await this.#getUrl({ dataset, table, partitions });
+    const { ingestId, url } = await this.#getUrl({ dataset, table, partitions, serviceOpts });
     signal?.throwIfAborted();
 
     await this.#put(url, file, { onProgress, signal, contentType });
@@ -90,11 +93,11 @@ class Ingest {
    * @returns {Promise<{ingestId: string, url: string}>} The ingest id and the signed PUT URL.
    * @throws {I6Error} If the request fails or no upload URL is returned.
    */
-  async #getUrl({ dataset, table, partitions }) {
+  async #getUrl({ dataset, table, partitions, serviceOpts }) {
     const resp = await this._services.apis().ingestzGetUrl({
       params: { dataset },
       payload: { table, partitions, amount: 1 },
-    })
+    }, serviceOpts)
     if (!resp.ok) {
       throw I6Error.fromResult("Get upload URL failed", resp);
     }
