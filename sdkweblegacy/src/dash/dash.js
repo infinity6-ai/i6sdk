@@ -13,6 +13,7 @@ import { debugLogger } from "../internal/debug/debug.js";
 
 /**
  * @typedef {import("../services/services.js").Services} Services
+ * @typedef {import("../invoker/invoker.js").ServiceOptions} ServiceOptions
  */
 
 /**
@@ -23,6 +24,7 @@ import { debugLogger } from "../internal/debug/debug.js";
  * @property {string} dataset - Dataset that holds the dash file.
  * @property {*} params - Query input, any JSON. Bound as `?1` of the named query.
  * @property {string} [sqliteUrl] - Tests only: URL of the sqlite (must answer HEAD with an etag). Default: the model API.
+ * @property {ServiceOptions} [serviceOpts] - Given to the API call that signs the sqlite URL.
  */
 
 /** Name of the sqlite in the model API response. */
@@ -92,7 +94,7 @@ class Dash {
           { method: "GET", path: `i6tb://results.relevance-fashion-store-dash/store_id=${storeId}/sqlite.bin` },
         ]
       }
-    })
+    }, opts.serviceOpts)
     
     const url = resp.payload?.urls?.[0]?.url
     if (!url) throw new I6Error(`dash: the api gave no "${SQLITE_FILE}" file: ${resp.error?.message ?? "empty answer"}`, { code: "asset", status: resp.error?.status, cause: resp.error })

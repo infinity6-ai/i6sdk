@@ -61,6 +61,14 @@ function funcsRequest() {
   }
 }
 
+// The opts of sdk.funcs().*, from the config card: the dataset token, or none
+function serviceOpts() {
+  const datasetToken = $('datasetToken').value.trim()
+  return datasetToken ? { datasetToken } : undefined
+}
+// The opts as written in the usage code; the token itself is not shown on the page
+const usageOpts = () => (serviceOpts() ? ', { datasetToken: "<your token>" }' : '')
+
 // The code of the SDK user, written with the values of the config card. Shown at the top of the page and run by the button
 function usage() {
   return `import { I6Sdk } from './i6sdk-web.js'
@@ -70,9 +78,9 @@ sdk.setConfig(${JSON.stringify(sdkConfig)}) // anytime; overwrites only the give
 
 ${selectResults}
 
-const result = await sdk.funcs().productRelevanceFashionFbtV1(${JSON.stringify(funcsRequest(), null, 2)}, selectResults)`
+const result = await sdk.funcs().productRelevanceFashionFbtV1(${JSON.stringify(funcsRequest(), null, 2)}, selectResults${usageOpts()})`
 }
-for (const id of ['modelName', 'modelVersion', 'storeId', 'dataset', 'sku_ids']) $(id).addEventListener('input', () => { $('usage').textContent = usage() })
+for (const id of ['modelName', 'modelVersion', 'storeId', 'dataset', 'sku_ids', 'datasetToken']) $(id).addEventListener('input', () => { $('usage').textContent = usage() })
 $('usage').textContent = usage()
 
 // --- run ---------------------------------------------------------------------------------------------
@@ -89,7 +97,7 @@ $('run').onclick = async () => {
   card.querySelector('.in').textContent = JSON.stringify(req, null, 1)
   card.querySelector('.out').textContent = ''
   try {
-    const result = await sdk.funcs().productRelevanceFashionFbtV1(req, selectResults)
+    const result = await sdk.funcs().productRelevanceFashionFbtV1(req, selectResults, serviceOpts())
     // const result = await sdk.funcs().productRelevanceFashionFbtV1(req)
     card.querySelector('.out').textContent = JSON.stringify(result, null, 1)
     setStatus('ok')
@@ -108,9 +116,9 @@ function dashRequest() {
   }
 }
 
-const dashUsage = () => `const result = await new I6Sdk().funcs().${$('dashFunc').value}(${JSON.stringify(dashRequest(), null, 2)})`
+const dashUsage = () => `const result = await new I6Sdk().funcs().${$('dashFunc').value}(${JSON.stringify(dashRequest(), null, 2)}${usageOpts()})`
 const dashIds = ['dashFunc', 'dashDataset', 'dashStoreId', 'dashVersion', 'minYearMonth', 'maxYearMonth']
-for (const id of dashIds) $(id).addEventListener('input', () => { $('dashUsage').textContent = dashUsage() })
+for (const id of [...dashIds, 'datasetToken']) $(id).addEventListener('input', () => { $('dashUsage').textContent = dashUsage() })
 $('dashUsage').textContent = dashUsage()
 
 const setDashStatus = (status) => {
@@ -124,7 +132,7 @@ $('dashRun').onclick = async () => {
   $('dashIn').textContent = JSON.stringify(req, null, 1)
   $('dashOut').textContent = ''
   try {
-    const result = await sdk.funcs()[$('dashFunc').value](req)
+    const result = await sdk.funcs()[$('dashFunc').value](req, serviceOpts())
     $('dashOut').textContent = JSON.stringify(result, null, 1)
     setDashStatus('ok')
   } catch (e) {

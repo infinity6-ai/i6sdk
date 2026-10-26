@@ -19,6 +19,7 @@ import { debugLogger } from "../internal/debug/debug.js";
 /**
  * @typedef {import("../services/services.js").Services} Services
  * @typedef {import("../internal/fs/fs.js").FileRef} FileRef
+ * @typedef {import("../invoker/invoker.js").ServiceOptions} ServiceOptions
  */
 
 /**
@@ -32,6 +33,7 @@ import { debugLogger } from "../internal/debug/debug.js";
  * @property {string} [sqliteUrl] - Tests only, together with `tfliteUrl`: URL of the sqlite (must answer HEAD with an etag). Default: the model API.
  * @property {string} [tfliteUrl] - Tests only, together with `sqliteUrl`: URL of the tflite.
  * @property {string} [litertWasm] - URL of the folder with the LiteRT wasm files (ending in "/"). Defaults to the jsdelivr copy.
+ * @property {ServiceOptions} [serviceOpts] - Given to the API calls (the model API and the `recraw` event).
  */
 
 /**
@@ -47,6 +49,7 @@ import { debugLogger } from "../internal/debug/debug.js";
  * @property {(req: *, results: *) => Promise<*>} [selectResults] - Picks which of the recommended skus are shown: returns
  *   `{ results: [{ sku_id, rating?, enriched? }] }`. Only `sku_id` is sent (in the `recshow` event); `enriched` is any data of
  *   your own for the sku (e.g. name, price, image), returned to you as is. Default: `defaultSelectResults`.
+ * @property {ServiceOptions} [serviceOpts] - Given to the API call of the `recshow` event.
  */
 
 /** Default for `InferOptions.limit`. */
@@ -115,7 +118,7 @@ class Infer {
       // The rec_id ties this run to the recshow event that selectResults sends later
       const recId = crypto.randomUUID()
       const results = { ...result, rec_id: recId }
-      const eventOpts = { dataset: opts.dataset, modelName, modelVersion: opts.partitions.version, storeId: opts.partitions.store_id }
+      const eventOpts = { dataset: opts.dataset, modelName, modelVersion: opts.partitions.version, storeId: opts.partitions.store_id, serviceOpts: opts.serviceOpts }
       await this.#sendRecEvent(eventOpts, ids, recId, "recraw", results)
       return results
     } finally {
@@ -177,7 +180,7 @@ class Infer {
   /**
    * Sends one recommendation event.
    * @private
-   * @param {{dataset: string, modelName: string, modelVersion: string, storeId: string}} opts - Event options.
+   * @param {{dataset: string, modelName: string, modelVersion: string, storeId: string, serviceOpts?: ServiceOptions}} opts - Event options.
    * @param {{sessionId: string, userId: string}} ids - Session and user of the sdk.
    * @param {string} recId - Id of the recommendation, the same in the recraw and recshow events.
    * @param {"recraw"|"recshow"} kind - Which event.
@@ -204,7 +207,7 @@ class Infer {
           },
         }],
       },
-    })
+    }, opts.serviceOpts)
   }
 
   /**
@@ -221,7 +224,7 @@ class Infer {
     const resp = await this._services.apis().dszModelGet({
       params: { dataset, model_name: modelName },
       payload: { model_version: opts.partitions.version, model_partitions: partitions },
-    })
+    }, opts.serviceOpts)
 
     const byName = Object.fromEntries((resp.payload?.urls ?? []).map((file) => [file.name, file.url]))
     const missing = Object.values(FILES).find((name) => !byName[name])

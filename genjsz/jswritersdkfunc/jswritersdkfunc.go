@@ -151,18 +151,24 @@ func Write(ctx context.Context, sdkFuncs []*jsparsersdkfunc.SdkFunc) string {
 		isInfer := fn.Spec.Typ == sdkfuncz.TypClientInfer
 		if isInfer {
 			writeln(&decl, " * @param {(req: %sReq, results: %sOutput) => Promise<%sSelected>} [selectResults] - picks which of the recommended skus are shown and may attach your own data to each in enriched; default: for each result, in order, the first sku not in req.input.skus (the cart) and not already picked, with the rating of that result; no duplicates, and results with no such sku are skipped", funcId, funcId, funcId)
+			writeln(&decl, " * @param {ServiceOptions} [opts]")
 			writeln(&decl, " * @returns {Promise<%sSelected>}", funcId)
 		} else {
 			returnDesc := ""
 			if fn.Resp.Output.Head != nil && fn.Resp.Output.Head.GoTyp != "" {
 				returnDesc = fmt.Sprintf(" - [Go: %s]", fn.Resp.Output.Head.GoTyp)
 			}
+			if fn.Spec.Typ == sdkfuncz.TypClientQuery {
+				writeln(&decl, " * @param {ServiceOptions} [opts]")
+			}
 			writeln(&decl, " * @returns {Promise<%sOutput>}%s", funcId, returnDesc)
 		}
 		writeln(&decl, " */")
 
 		if isInfer {
-			writeln(&decl, "async %s(req, selectResults) {", funcName(funcId, fn.Spec.Version))
+			writeln(&decl, "async %s(req, selectResults, opts) {", funcName(funcId, fn.Spec.Version))
+		} else if fn.Spec.Typ == sdkfuncz.TypClientQuery {
+			writeln(&decl, "async %s(req, opts) {", funcName(funcId, fn.Spec.Version))
 		} else if hasReq {
 			writeln(&decl, "async %s(req) {", funcName(funcId, fn.Spec.Version))
 		} else {
@@ -184,6 +190,7 @@ func Write(ctx context.Context, sdkFuncs []*jsparsersdkfunc.SdkFunc) string {
 			} else {
 				writeln(&decl, "    partitions: req.partitions,")
 			}
+			writeln(&decl, "    serviceOpts: opts,")
 			writeln(&decl, "  })")
 			writeln(&decl, "  return infer.selectResults({")
 			writeln(&decl, "    dataset: req.input.dataset,")
@@ -194,6 +201,7 @@ func Write(ctx context.Context, sdkFuncs []*jsparsersdkfunc.SdkFunc) string {
 			writeln(&decl, "    results,")
 			writeln(&decl, "    recId: results.rec_id,")
 			writeln(&decl, "    selectResults,")
+			writeln(&decl, "    serviceOpts: opts,")
 			writeln(&decl, "  })")
 		case sdkfuncz.TypClientQuery:
 			writeln(&decl, "  const dash = this._services.dash()")
@@ -206,6 +214,7 @@ func Write(ctx context.Context, sdkFuncs []*jsparsersdkfunc.SdkFunc) string {
 			} else {
 				writeln(&decl, "    partitions: req.partitions,")
 			}
+			writeln(&decl, "    serviceOpts: opts,")
 			writeln(&decl, "  })")
 			writeln(&decl, "  return ret;")
 		default:

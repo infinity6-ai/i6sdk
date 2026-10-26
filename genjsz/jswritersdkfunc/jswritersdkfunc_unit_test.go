@@ -59,15 +59,17 @@ func TestUnitWrite(t *testing.T) {
   /**
    * @param {sdkFuncProductRelevanceFashionFbtReq} req
    * @param {(req: sdkFuncProductRelevanceFashionFbtReq, results: sdkFuncProductRelevanceFashionFbtOutput) => Promise<sdkFuncProductRelevanceFashionFbtSelected>} [selectResults] - picks which of the recommended skus are shown and may attach your own data to each in enriched; default: for each result, in order, the first sku not in req.input.skus (the cart) and not already picked, with the rating of that result; no duplicates, and results with no such sku are skipped
+   * @param {ServiceOptions} [opts]
    * @returns {Promise<sdkFuncProductRelevanceFashionFbtSelected>}
    */
-  async productRelevanceFashionFbtV1(req, selectResults) {
+  async productRelevanceFashionFbtV1(req, selectResults, opts) {
     const infer = this._services.infer()
     const results = await infer.run({
       dataset: req.input.dataset,
       modelName: "relevance-fashion-fbt",
       params: req.input,
       partitions: {"version": "v1", ...req.partitions},
+      serviceOpts: opts,
     })
     return infer.selectResults({
       dataset: req.input.dataset,
@@ -78,6 +80,7 @@ func TestUnitWrite(t *testing.T) {
       results,
       recId: results.rec_id,
       selectResults,
+      serviceOpts: opts,
     })
   }
 }
@@ -147,15 +150,17 @@ export { SdkFuncs };
   /**
    * @param {sdkFuncProductCustomTaskReq} req - [Go: models.CustomInput]
    * @param {(req: sdkFuncProductCustomTaskReq, results: sdkFuncProductCustomTaskOutput) => Promise<sdkFuncProductCustomTaskSelected>} [selectResults] - picks which of the recommended skus are shown and may attach your own data to each in enriched; default: for each result, in order, the first sku not in req.input.skus (the cart) and not already picked, with the rating of that result; no duplicates, and results with no such sku are skipped
+   * @param {ServiceOptions} [opts]
    * @returns {Promise<sdkFuncProductCustomTaskSelected>}
    */
-  async productCustomTaskV1(req, selectResults) {
+  async productCustomTaskV1(req, selectResults, opts) {
     const infer = this._services.infer()
     const results = await infer.run({
       dataset: req.input.dataset,
       modelName: "custom-task",
       params: req.input,
       partitions: {"version": "v1", ...req.partitions},
+      serviceOpts: opts,
     })
     return infer.selectResults({
       dataset: req.input.dataset,
@@ -166,6 +171,7 @@ export { SdkFuncs };
       results,
       recId: results.rec_id,
       selectResults,
+      serviceOpts: opts,
     })
   }
 }
@@ -196,15 +202,17 @@ export { SdkFuncs };
 
   /**
    * @param {sdkFuncProductRelevanceFashionDashFunnelReq} req
+   * @param {ServiceOptions} [opts]
    * @returns {Promise<sdkFuncProductRelevanceFashionDashFunnelOutput>}
    */
-  async productRelevanceFashionDashFunnelV1(req) {
+  async productRelevanceFashionDashFunnelV1(req, opts) {
     const dash = this._services.dash()
     const ret = await dash.query({
       dataset: req.input.dataset,
       dashName: "product-relevance-fashion-dash-funnel",
       params: req.input,
       partitions: {"version": "v1", ...req.partitions},
+      serviceOpts: opts,
     })
     return ret;
   }
