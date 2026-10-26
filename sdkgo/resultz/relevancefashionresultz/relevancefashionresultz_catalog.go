@@ -70,13 +70,13 @@ func (c *CatalogSimple) Schema() *schemaz.Schema {
 					Object: func(read bool) map[string]*schemaz.Schema {
 						return map[string]*schemaz.Schema{
 							"store_id": {
-								Field: func() any { return (*element).StoreId },
+								Field: func() any { return &(*element).StoreId },
 							},
 							"sku_id": {
-								Field: func() any { return (*element).SkuId },
+								Field: func() any { return &(*element).SkuId },
 							},
 							"sku_ds": {
-								Field: func() any { return (*element).SkuDs },
+								Field: func() any { return &(*element).SkuDs },
 							},
 						}
 					},
