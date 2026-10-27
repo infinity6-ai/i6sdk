@@ -109,6 +109,10 @@ func (e *Event) Validate() error {
 	return nil
 }
 
+func (c *Event) GetCreatedAt() *time.Time {
+	return &c.CreatedAt
+}
+
 func (e *Event) Table() laketbnamez.TableName {
 	return laketbnamez.MustParse("relevance-fashion-event")
 }

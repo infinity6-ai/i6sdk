@@ -2,6 +2,7 @@ package dummydataz
 
 import (
 	"fmt"
+	"time"
 
 	"cloud.google.com/go/bigquery"
 	"github.com/infinity6-ai/gox/commonz/validation"
@@ -36,6 +37,10 @@ func (c *Catalog) Validate() error {
 	if err := validation.GreaterOrEqual(c.QtInventory, int64(0), "qt_inventory must be non-negative"); err != nil {
 		return fmt.Errorf("failed to validate qt_inventory: %w", err)
 	}
+	return nil
+}
+
+func (c *Catalog) GetCreatedAt() *time.Time {
 	return nil
 }
 

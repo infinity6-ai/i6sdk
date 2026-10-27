@@ -2,6 +2,7 @@ package relevancefashiondataz
 
 import (
 	"fmt"
+	"time"
 
 	"cloud.google.com/go/bigquery"
 	"github.com/infinity6-ai/gox/commonz/validation"
@@ -34,6 +35,10 @@ func (c *Catalog) Validate() error {
 	if err := validation.StrNotEmpty(c.SkuId, "sku_id is required"); err != nil {
 		return fmt.Errorf("failed to validate sku_id: %w", err)
 	}
+	return nil
+}
+
+func (c *Catalog) GetCreatedAt() *time.Time {
 	return nil
 }
 

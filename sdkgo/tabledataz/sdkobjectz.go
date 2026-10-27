@@ -1,6 +1,8 @@
 package tabledataz
 
 import (
+	"time"
+
 	"cloud.google.com/go/bigquery"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
@@ -13,6 +15,7 @@ type TableData interface {
 	SetDataset(dataset lakedsz.Dataset)
 	SetIngestedAt(ingestedAt string)
 	Validate() error
+	GetCreatedAt() *time.Time
 }
 
 func NewBqNullString(val string) bigquery.NullString {
