@@ -1,7 +1,10 @@
 package relevancefashiondataz
 
 import (
+	"fmt"
+
 	"cloud.google.com/go/bigquery"
+	"github.com/infinity6-ai/gox/commonz/validation"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
@@ -16,6 +19,22 @@ type Catalog struct {
 	SkuDs      string              `json:"sku_ds" bigquery:"sku_ds"`
 	Inactive   bool                `json:"inactive" bigquery:"inactive"`
 	IngestedAt string              `json:"ingested_at" bigquery:"ingested_at"`
+}
+
+func (c *Catalog) Validate() error {
+	if err := validation.StrNotEmpty(c.ID, "id is required"); err != nil {
+		return fmt.Errorf("failed to validate id: %w", err)
+	}
+	if err := validation.StrNotEmpty(c.StoreId, "store_id is required"); err != nil {
+		return fmt.Errorf("failed to validate store_id: %w", err)
+	}
+	if err := validation.StrNotEmpty(c.ProductId, "product_id is required"); err != nil {
+		return fmt.Errorf("failed to validate product_id: %w", err)
+	}
+	if err := validation.StrNotEmpty(c.SkuId, "sku_id is required"); err != nil {
+		return fmt.Errorf("failed to validate sku_id: %w", err)
+	}
+	return nil
 }
 
 func (c *Catalog) Table() laketbnamez.TableName {

@@ -12,6 +12,7 @@ type TableData interface {
 	Table() laketbnamez.TableName
 	SetDataset(dataset lakedsz.Dataset)
 	SetIngestedAt(ingestedAt string)
+	Validate() error
 }
 
 func NewBqNullString(val string) bigquery.NullString {

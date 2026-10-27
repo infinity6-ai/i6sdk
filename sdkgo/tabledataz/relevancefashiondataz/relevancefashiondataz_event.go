@@ -1,9 +1,11 @@
 package relevancefashiondataz
 
 import (
+	"fmt"
 	"time"
 
 	"cloud.google.com/go/bigquery"
+	"github.com/infinity6-ai/gox/commonz/validation"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
@@ -28,6 +30,57 @@ type Event struct {
 	IngestedAt     string              `json:"ingested_at" bigquery:"ingested_at"`
 }
 
+func (e *Event) Validate() error {
+	if err := validation.StrNotEmpty(e.ID, "id is required"); err != nil {
+		return fmt.Errorf("failed to validate id: %w", err)
+	}
+	if err := validation.StrNotEmpty(e.StoreId, "store_id is required"); err != nil {
+		return fmt.Errorf("failed to validate store_id: %w", err)
+	}
+	if err := validation.StrNotEmpty(e.SessionId, "session_id is required"); err != nil {
+		return fmt.Errorf("failed to validate session_id: %w", err)
+	}
+	if err := validation.False(e.CreatedAt.IsZero(), "created_at is required"); err != nil {
+		return fmt.Errorf("failed to validate created_at: %w", err)
+	}
+	if e.Click != nil {
+		if err := e.Click.Validate(); err != nil {
+			return fmt.Errorf("failed to validate click: %w", err)
+		}
+	}
+	if e.AddToCart != nil {
+		if err := e.AddToCart.Validate(); err != nil {
+			return fmt.Errorf("failed to validate add_to_cart: %w", err)
+		}
+	}
+	if e.RemoveFromCart != nil {
+		if err := e.RemoveFromCart.Validate(); err != nil {
+			return fmt.Errorf("failed to validate remove_from_cart: %w", err)
+		}
+	}
+	if e.Search != nil {
+		if err := e.Search.Validate(); err != nil {
+			return fmt.Errorf("failed to validate search: %w", err)
+		}
+	}
+	if e.Purchase != nil {
+		if err := e.Purchase.Validate(); err != nil {
+			return fmt.Errorf("failed to validate purchase: %w", err)
+		}
+	}
+	if e.Recraw != nil {
+		if err := e.Recraw.Validate(); err != nil {
+			return fmt.Errorf("failed to validate recraw: %w", err)
+		}
+	}
+	if e.Recshow != nil {
+		if err := e.Recshow.Validate(); err != nil {
+			return fmt.Errorf("failed to validate recshow: %w", err)
+		}
+	}
+	return nil
+}
+
 func (e *Event) Table() laketbnamez.TableName {
 	return laketbnamez.MustParse("relevance-fashion-event")
 }
@@ -45,9 +98,29 @@ type Click struct {
 	SkuId string  `json:"sku_id" bigquery:"sku_id"`
 }
 
+func (u *Click) Validate() error {
+	if err := validation.StrNotEmpty(u.SkuId, "sku_id is required"); err != nil {
+		return fmt.Errorf("failed to validate sku_id: %w", err)
+	}
+	if err := validation.GreaterOrEqual(u.Price, 0.0, "price must be non-negative"); err != nil {
+		return fmt.Errorf("failed to validate price: %w", err)
+	}
+	return nil
+}
+
 type AddToCart struct {
 	Price float64 `json:"price" bigquery:"price"`
 	SkuId string  `json:"sku_id" bigquery:"sku_id"`
+}
+
+func (u *AddToCart) Validate() error {
+	if err := validation.StrNotEmpty(u.SkuId, "sku_id is required"); err != nil {
+		return fmt.Errorf("failed to validate sku_id: %w", err)
+	}
+	if err := validation.GreaterOrEqual(u.Price, 0.0, "price must be non-negative"); err != nil {
+		return fmt.Errorf("failed to validate price: %w", err)
+	}
+	return nil
 }
 
 type RemoveFromCart struct {
@@ -55,8 +128,25 @@ type RemoveFromCart struct {
 	SkuId string  `json:"sku_id" bigquery:"sku_id"`
 }
 
+func (u *RemoveFromCart) Validate() error {
+	if err := validation.StrNotEmpty(u.SkuId, "sku_id is required"); err != nil {
+		return fmt.Errorf("failed to validate sku_id: %w", err)
+	}
+	if err := validation.GreaterOrEqual(u.Price, 0.0, "price must be non-negative"); err != nil {
+		return fmt.Errorf("failed to validate price: %w", err)
+	}
+	return nil
+}
+
 type Search struct {
 	Text string `json:"text" bigquery:"text"`
+}
+
+func (u *Search) Validate() error {
+	if err := validation.StrNotEmpty(u.Text, "text is required"); err != nil {
+		return fmt.Errorf("failed to validate text: %w", err)
+	}
+	return nil
 }
 
 type Purchase struct {
@@ -64,10 +154,41 @@ type Purchase struct {
 	Skus    []*PurchaseSku `json:"skus" bigquery:"skus"`
 }
 
+func (u *Purchase) Validate() error {
+	if err := validation.StrNotEmpty(u.OrderId, "order_id is required"); err != nil {
+		return fmt.Errorf("failed to validate order_id: %w", err)
+	}
+	if err := validation.NotEmpty(u.Skus, "skus must not be empty"); err != nil {
+		return fmt.Errorf("failed to validate skus: %w", err)
+	}
+	for i, sku := range u.Skus {
+		if sku == nil {
+			return fmt.Errorf("failed to validate sku at index %d: sku cannot be nil", i)
+		}
+		if err := sku.Validate(); err != nil {
+			return fmt.Errorf("failed to validate sku at index %d: %w", i, err)
+		}
+	}
+	return nil
+}
+
 type PurchaseSku struct {
 	Qtty      int64   `json:"qtty" bigquery:"qtty"`
 	SkuId     string  `json:"sku_id" bigquery:"sku_id"`
 	UnitPrice float64 `json:"unit_price" bigquery:"unit_price"`
+}
+
+func (u *PurchaseSku) Validate() error {
+	if err := validation.StrNotEmpty(u.SkuId, "sku_id is required"); err != nil {
+		return fmt.Errorf("failed to validate sku_id: %w", err)
+	}
+	if err := validation.GreaterOrEqual(u.UnitPrice, 0.0, "unit_price must be non-negative"); err != nil {
+		return fmt.Errorf("failed to validate unit_price: %w", err)
+	}
+	if err := validation.Greater(u.Qtty, int64(0), "qtty must be greater than 0"); err != nil {
+		return fmt.Errorf("failed to validate qtty: %w", err)
+	}
+	return nil
 }
 
 type Recraw struct {
@@ -77,11 +198,34 @@ type Recraw struct {
 	Payload      string `json:"payload" bigquery:"payload"`
 }
 
+func (u *Recraw) Validate() error {
+	if err := validation.StrNotEmpty(u.RecId, "rec_id is required"); err != nil {
+		return fmt.Errorf("failed to validate rec_id: %w", err)
+	}
+	if err := validation.StrNotEmpty(u.ModelId, "model_id is required"); err != nil {
+		return fmt.Errorf("failed to validate model_id: %w", err)
+	}
+	if err := validation.StrNotEmpty(u.Payload, "payload is required"); err != nil {
+		return fmt.Errorf("failed to validate payload: %w", err)
+	}
+	return nil
+}
+
 type Recshow struct {
 	RecId        string `json:"rec_id" bigquery:"rec_id"`
 	ModelId      string `json:"model_id" bigquery:"model_id"`
 	ModelVersion string `json:"model_version" bigquery:"model_version"`
 	Payload      string `json:"payload" bigquery:"payload"`
+}
+
+func (u *Recshow) Validate() error {
+	if err := validation.StrNotEmpty(u.RecId, "rec_id is required"); err != nil {
+		return fmt.Errorf("failed to validate rec_id: %w", err)
+	}
+	if err := validation.StrNotEmpty(u.Payload, "payload is required"); err != nil {
+		return fmt.Errorf("failed to validate payload: %w", err)
+	}
+	return nil
 }
 
 func (u *Click) Schema() *schemaz.Schema {
