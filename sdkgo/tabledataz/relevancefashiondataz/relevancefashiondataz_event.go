@@ -43,6 +43,34 @@ func (e *Event) Validate() error {
 	if err := validation.False(e.CreatedAt.IsZero(), "created_at is required"); err != nil {
 		return fmt.Errorf("failed to validate created_at: %w", err)
 	}
+
+	payloadCount := 0
+	if e.Click != nil {
+		payloadCount++
+	}
+	if e.AddToCart != nil {
+		payloadCount++
+	}
+	if e.RemoveFromCart != nil {
+		payloadCount++
+	}
+	if e.Search != nil {
+		payloadCount++
+	}
+	if e.Purchase != nil {
+		payloadCount++
+	}
+	if e.Recraw != nil {
+		payloadCount++
+	}
+	if e.Recshow != nil {
+		payloadCount++
+	}
+
+	if err := validation.Equal(1, payloadCount, "exactly one event payload (Click, AddToCart, RemoveFromCart, Search, Purchase, Recraw, Recshow) must be set"); err != nil {
+		return fmt.Errorf("failed to validate event payload: %w", err)
+	}
+
 	if e.Click != nil {
 		if err := e.Click.Validate(); err != nil {
 			return fmt.Errorf("failed to validate click: %w", err)

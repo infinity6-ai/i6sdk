@@ -485,3 +485,137 @@ func TestUnitCatalogSchema(t *testing.T) {
 		require.Equal(t, "boolean", propMap["inactive"].Typ)
 	})
 }
+
+func TestUnitEventValidation(t *testing.T) {
+	validBaseEvent := func() relevancefashiondataz.Event {
+		return relevancefashiondataz.Event{
+			ID:        "evt_123",
+			StoreId:   "store_abc",
+			SessionId: "sess_xyz",
+			CreatedAt: time.Date(2026, 10, 8, 12, 0, 0, 0, time.UTC),
+		}
+	}
+
+	type testScenario struct {
+		event  relevancefashiondataz.Event
+		errMsg string
+	}
+
+	check := func(t *testing.T, s testScenario) {
+		t.Helper()
+		err := s.event.Validate()
+		if s.errMsg != "" {
+			require.Error(t, err)
+			require.Contains(t, err.Error(), s.errMsg)
+			return
+		}
+		require.NoError(t, err)
+	}
+
+	t.Run("Valid event with Click only", func(t *testing.T) {
+		evt := validBaseEvent()
+		evt.Click = &relevancefashiondataz.Click{Price: 10.5, SkuId: "sku_1"}
+		check(t, testScenario{event: evt})
+	})
+
+	t.Run("Valid event with AddToCart only", func(t *testing.T) {
+		evt := validBaseEvent()
+		evt.AddToCart = &relevancefashiondataz.AddToCart{Price: 20.0, SkuId: "sku_2"}
+		check(t, testScenario{event: evt})
+	})
+
+	t.Run("Valid event with RemoveFromCart only", func(t *testing.T) {
+		evt := validBaseEvent()
+		evt.RemoveFromCart = &relevancefashiondataz.RemoveFromCart{Price: 15.0, SkuId: "sku_3"}
+		check(t, testScenario{event: evt})
+	})
+
+	t.Run("Valid event with Search only", func(t *testing.T) {
+		evt := validBaseEvent()
+		evt.Search = &relevancefashiondataz.Search{Text: "shoes"}
+		check(t, testScenario{event: evt})
+	})
+
+	t.Run("Valid event with Purchase only", func(t *testing.T) {
+		evt := validBaseEvent()
+		evt.Purchase = &relevancefashiondataz.Purchase{
+			OrderId: "ord_1",
+			Skus: []*relevancefashiondataz.PurchaseSku{
+				{SkuId: "sku_1", UnitPrice: 10.0, Qtty: 1},
+			},
+		}
+		check(t, testScenario{event: evt})
+	})
+
+	t.Run("Valid event with Recraw only", func(t *testing.T) {
+		evt := validBaseEvent()
+		evt.Recraw = &relevancefashiondataz.Recraw{
+			RecId:   "rec_1",
+			ModelId: "model_a",
+			Payload: "{}",
+		}
+		check(t, testScenario{event: evt})
+	})
+
+	t.Run("Valid event with Recshow only", func(t *testing.T) {
+		evt := validBaseEvent()
+		evt.Recshow = &relevancefashiondataz.Recshow{
+			RecId:   "rec_2",
+			Payload: "{}",
+		}
+		check(t, testScenario{event: evt})
+	})
+
+	t.Run("Invalid: No payload set", func(t *testing.T) {
+		evt := validBaseEvent()
+		check(t, testScenario{
+			event:  evt,
+			errMsg: "failed to validate event payload",
+		})
+	})
+
+	t.Run("Invalid: Multiple payloads set (Click and AddToCart)", func(t *testing.T) {
+		evt := validBaseEvent()
+		evt.Click = &relevancefashiondataz.Click{Price: 10.5, SkuId: "sku_1"}
+		evt.AddToCart = &relevancefashiondataz.AddToCart{Price: 20.0, SkuId: "sku_2"}
+		check(t, testScenario{
+			event:  evt,
+			errMsg: "failed to validate event payload",
+		})
+	})
+
+	t.Run("Invalid: Multiple payloads set (Purchase and Search)", func(t *testing.T) {
+		evt := validBaseEvent()
+		evt.Search = &relevancefashiondataz.Search{Text: "shoes"}
+		evt.Purchase = &relevancefashiondataz.Purchase{
+			OrderId: "ord_1",
+			Skus: []*relevancefashiondataz.PurchaseSku{
+				{SkuId: "sku_1", UnitPrice: 10.0, Qtty: 1},
+			},
+		}
+		check(t, testScenario{
+			event:  evt,
+			errMsg: "failed to validate event payload",
+		})
+	})
+
+	t.Run("Invalid: Missing ID", func(t *testing.T) {
+		evt := validBaseEvent()
+		evt.ID = ""
+		evt.Click = &relevancefashiondataz.Click{Price: 10.5, SkuId: "sku_1"}
+		check(t, testScenario{
+			event:  evt,
+			errMsg: "failed to validate id",
+		})
+	})
+
+	t.Run("Invalid: Invalid nested Click payload (missing SkuId)", func(t *testing.T) {
+		evt := validBaseEvent()
+		evt.Click = &relevancefashiondataz.Click{Price: 10.5, SkuId: ""}
+		check(t, testScenario{
+			event:  evt,
+			errMsg: "failed to validate click",
+		})
+	})
+}
+
