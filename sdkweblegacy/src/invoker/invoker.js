@@ -50,13 +50,14 @@ import { apiErrorFromResponse, apiErrorFromNetwork } from "../errors.js";
  * 1. Define your expiration time (`exp`) in ISO8601BasicMillis (e.g., `20261027T150000000Z`).
  * 2. Build the canonical message:
  *    `METHOD\nPATH\nEXP\nOPEN_PARAMS_SORTED_COMMA_SEPARATED\nFIXED_PARAMS_KEY_SORTED_COMMA_SEPARATED`
+ *    Note: The values of fixed params are Base64URL-encoded without padding: `key=b64url(value)`.
  *    Example:
  *    ```text
  *    GET
  *    /api/ingest/dataset/my-dataset/event/relevance-fashion-event/text.txt
  *    20261027T150000000Z
  *    payload
- *    dataset=my-dataset,sessionid=abc,userid=123
+ *    dataset=bXktZGF0YXNldA,sessionid=YWJj,userid=MTIz
  *    ```
  * 3. Sign the message bytes with the Ed25519 private key. To make it using openssl (like in `@cryptz/cryptz25519/cryptz25519openssl`):
  *    ```bash
