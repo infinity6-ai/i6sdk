@@ -212,8 +212,8 @@ func (u *Purchase) Validate() error {
 }
 
 type PurchaseSku struct {
-	Qtty      int64   `json:"qtty" bigquery:"qtty"`
 	SkuId     string  `json:"sku_id" bigquery:"sku_id"`
+	Qtty      int64   `json:"qtty" bigquery:"qtty"`
 	UnitPrice float64 `json:"unit_price" bigquery:"unit_price"`
 }
 
