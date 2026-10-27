@@ -398,24 +398,33 @@ func (u *Recshow) Schema() *schemaz.Schema {
 
 func (e *Event) Schema() *schemaz.Schema {
 	return &schemaz.Schema{
+		Desc: &schemaz.Desc{
+			Summary: "Event represents an interaction. ID, StoreId, SessionId, and CreatedAt are required. Exactly one payload (Click, AddToCart, RemoveFromCart, Search, Purchase, Recraw, Recshow) must be set.",
+		},
 		Object: func(read bool) map[string]*schemaz.Schema {
-			return map[string]*schemaz.Schema{
+			m := map[string]*schemaz.Schema{
 				"id": {
+					Desc:  &schemaz.Desc{Summary: "Event ID (required)."},
 					Field: func() any { return &e.ID },
 				},
 				"store_id": {
+					Desc:  &schemaz.Desc{Summary: "Store ID (required)."},
 					Field: func() any { return &e.StoreId },
 				},
 				"session_id": {
+					Desc:  &schemaz.Desc{Summary: "Session ID (required)."},
 					Field: func() any { return &e.SessionId },
 				},
 				"display_id": {
+					Desc:  &schemaz.Desc{Summary: "Optional display identifier."},
 					Field: func() any { return &e.DisplayId },
 				},
 				"user_id": {
+					Desc:  &schemaz.Desc{Summary: "Optional user identifier."},
 					Field: func() any { return &e.UserId },
 				},
 				"click": {
+					Desc: &schemaz.Desc{Summary: "Click event payload. Exactly one payload must be set."},
 					Object: func(read bool) map[string]*schemaz.Schema {
 						if read && e.Click == nil {
 							return nil
@@ -427,6 +436,7 @@ func (e *Event) Schema() *schemaz.Schema {
 					},
 				},
 				"add_to_cart": {
+					Desc: &schemaz.Desc{Summary: "AddToCart event payload. Exactly one payload must be set."},
 					Object: func(read bool) map[string]*schemaz.Schema {
 						if read && e.AddToCart == nil {
 							return nil
@@ -438,6 +448,7 @@ func (e *Event) Schema() *schemaz.Schema {
 					},
 				},
 				"remove_from_cart": {
+					Desc: &schemaz.Desc{Summary: "RemoveFromCart event payload. Exactly one payload must be set."},
 					Object: func(read bool) map[string]*schemaz.Schema {
 						if read && e.RemoveFromCart == nil {
 							return nil
@@ -449,6 +460,7 @@ func (e *Event) Schema() *schemaz.Schema {
 					},
 				},
 				"search": {
+					Desc: &schemaz.Desc{Summary: "Search event payload. Exactly one payload must be set."},
 					Object: func(read bool) map[string]*schemaz.Schema {
 						if read && e.Search == nil {
 							return nil
@@ -460,6 +472,7 @@ func (e *Event) Schema() *schemaz.Schema {
 					},
 				},
 				"purchase": {
+					Desc: &schemaz.Desc{Summary: "Purchase event payload. Exactly one payload must be set."},
 					Object: func(read bool) map[string]*schemaz.Schema {
 						if read && e.Purchase == nil {
 							return nil
@@ -471,6 +484,7 @@ func (e *Event) Schema() *schemaz.Schema {
 					},
 				},
 				"recraw": {
+					Desc: &schemaz.Desc{Summary: "Recraw event payload. Exactly one payload must be set."},
 					Object: func(read bool) map[string]*schemaz.Schema {
 						if read && e.Recraw == nil {
 							return nil
@@ -482,6 +496,7 @@ func (e *Event) Schema() *schemaz.Schema {
 					},
 				},
 				"recshow": {
+					Desc: &schemaz.Desc{Summary: "Recshow event payload. Exactly one payload must be set."},
 					Object: func(read bool) map[string]*schemaz.Schema {
 						if read && e.Recshow == nil {
 							return nil
@@ -493,9 +508,21 @@ func (e *Event) Schema() *schemaz.Schema {
 					},
 				},
 				"created_at": {
+					Desc:  &schemaz.Desc{Summary: "Timestamp of event creation (required)."},
 					Field: func() any { return &e.CreatedAt },
 				},
 			}
+			if read {
+				m["dataset"] = &schemaz.Schema{
+					Desc:  &schemaz.Desc{Summary: "Dataset name (read-only)."},
+					Field: func() any { return &e.Dataset },
+				}
+				m["ingested_at"] = &schemaz.Schema{
+					Desc:  &schemaz.Desc{Summary: "Ingestion timestamp (read-only)."},
+					Field: func() any { return &e.IngestedAt },
+				}
+			}
+			return m
 		},
 	}
 }

@@ -59,27 +59,47 @@ func (c *Catalog) SetIngestedAt(p string) {
 
 func (c *Catalog) Schema() *schemaz.Schema {
 	return &schemaz.Schema{
+		Desc: &schemaz.Desc{
+			Summary: "Catalog represents a product SKU in the store. ID, StoreId, ProductId, and SkuId are required.",
+		},
 		Object: func(read bool) map[string]*schemaz.Schema {
-			return map[string]*schemaz.Schema{
+			m := map[string]*schemaz.Schema{
 				"id": {
+					Desc:  &schemaz.Desc{Summary: "Catalog item ID (required)."},
 					Field: func() any { return &c.ID },
 				},
 				"store_id": {
+					Desc:  &schemaz.Desc{Summary: "Store ID (required)."},
 					Field: func() any { return &c.StoreId },
 				},
 				"product_id": {
+					Desc:  &schemaz.Desc{Summary: "Product ID (required)."},
 					Field: func() any { return &c.ProductId },
 				},
 				"sku_id": {
+					Desc:  &schemaz.Desc{Summary: "SKU ID (required)."},
 					Field: func() any { return &c.SkuId },
 				},
 				"sku_ds": {
+					Desc:  &schemaz.Desc{Summary: "Optional SKU description."},
 					Field: func() any { return &c.SkuDs },
 				},
 				"inactive": {
+					Desc:  &schemaz.Desc{Summary: "Indicates if the SKU is inactive."},
 					Field: func() any { return &c.Inactive },
 				},
 			}
+			if read {
+				m["dataset"] = &schemaz.Schema{
+					Desc:  &schemaz.Desc{Summary: "Dataset name (read-only)."},
+					Field: func() any { return &c.Dataset },
+				}
+				m["ingested_at"] = &schemaz.Schema{
+					Desc:  &schemaz.Desc{Summary: "Ingestion timestamp (read-only)."},
+					Field: func() any { return &c.IngestedAt },
+				}
+			}
+			return m
 		},
 	}
 }

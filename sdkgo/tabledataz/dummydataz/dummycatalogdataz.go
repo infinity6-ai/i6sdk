@@ -61,24 +61,43 @@ func (c *Catalog) SetIngestedAt(p string) {
 
 func (c *Catalog) Schema() *schemaz.Schema {
 	return &schemaz.Schema{
+		Desc: &schemaz.Desc{
+			Summary: "Dummy Catalog represents a product in the dummy store. Id, Product, and StoreId are required. Price and QtInventory must be non-negative.",
+		},
 		Object: func(read bool) map[string]*schemaz.Schema {
-			return map[string]*schemaz.Schema{
+			m := map[string]*schemaz.Schema{
 				"id": {
+					Desc:  &schemaz.Desc{Summary: "Catalog item ID (required)."},
 					Field: func() any { return &c.Id },
 				},
 				"product": {
+					Desc:  &schemaz.Desc{Summary: "Product name or identifier (required)."},
 					Field: func() any { return &c.Product },
 				},
 				"price": {
+					Desc:  &schemaz.Desc{Summary: "Product price (non-negative)."},
 					Field: func() any { return &c.Price },
 				},
 				"qt_inventory": {
+					Desc:  &schemaz.Desc{Summary: "Quantity in inventory (non-negative)."},
 					Field: func() any { return &c.QtInventory },
 				},
 				"store_id": {
+					Desc:  &schemaz.Desc{Summary: "Store ID (required)."},
 					Field: func() any { return &c.StoreId },
 				},
 			}
+			if read {
+				m["dataset"] = &schemaz.Schema{
+					Desc:  &schemaz.Desc{Summary: "Dataset name (read-only)."},
+					Field: func() any { return &c.Dataset },
+				}
+				m["ingested_at"] = &schemaz.Schema{
+					Desc:  &schemaz.Desc{Summary: "Ingestion timestamp (read-only)."},
+					Field: func() any { return &c.IngestedAt },
+				}
+			}
+			return m
 		},
 	}
 }
