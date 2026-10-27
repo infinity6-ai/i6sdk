@@ -9,11 +9,15 @@ import { apiErrorFromResponse, apiErrorFromNetwork } from "../errors.js";
  */
 
 /**
+ * @typedef {(url: string, opts: InvokeOptions) => Promise<Response>} Fetcher
+ */
+
+/**
  * @typedef {object} ServiceOptions
  * @property {string} [datasetToken] - [Go: string]
  * @property {string} [sessionId] - Id of the user session; sent in the recommendation events.
  * @property {string} [userId] - Id of the user; sent in the recommendation events.
- * @property {function(string, InvokeOptions): Promise<Response>} [fetcher] - Custom fetch implementation.
+ * @property {Fetcher} [fetcher] - Custom fetch implementation.
  */
 
 /**
