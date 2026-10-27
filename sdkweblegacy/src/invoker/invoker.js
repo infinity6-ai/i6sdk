@@ -13,6 +13,7 @@ import { apiErrorFromResponse, apiErrorFromNetwork } from "../errors.js";
  * @property {string} [datasetToken] - [Go: string]
  * @property {string} [sessionId] - Id of the user session; sent in the recommendation events.
  * @property {string} [userId] - Id of the user; sent in the recommendation events.
+ * @property {function(string, InvokeOptions): Promise<Response>} [fetcher] - Custom fetch implementation.
  */
 
 /**
@@ -94,6 +95,10 @@ class Invoker {
         }
 
         opts.credentials = "include";
+
+        if (opts.opts?.fetcher) {
+            return opts.opts.fetcher(url, opts)
+        }
 
         return fetch(url, opts)
     }

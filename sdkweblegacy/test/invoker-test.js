@@ -62,6 +62,14 @@
             assert.strictEqual(r.status, 0)
             assert.deepEqual(r.error, { status: 0, code: 'network', message: 'Failed to fetch', cause })
         })
+
+        QUnit.test("uses custom fetcher from ServiceOptions if provided", async function (assert) {
+            globalThis.fetch = async () => new Response('global', { status: 200 })
+            const fetcher = async (url, opts) => new Response('{"id":"custom"}', { status: 200 })
+            
+            const r = await invoker.invokeResult({ path: 'x', opts: { fetcher } })
+            assert.deepEqual(r, { status: 200, ok: true, payload: { id: 'custom' } })
+        })
     })
 
 })(QUnit)
