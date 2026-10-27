@@ -455,16 +455,19 @@ func (e *Event) Schema() *schemaz.Schema {
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"id": {
-					Desc:  &schemaz.Desc{Summary: "Unique identifier for the event (required)."},
-					Field: func() any { return &e.ID },
+					Desc:     &schemaz.Desc{Summary: "Unique identifier for the event (required)."},
+					Field:    func() any { return &e.ID },
+					UrlValue: schemaz.ParseStr(&e.ID),
 				},
 				"store_id": {
-					Desc:  &schemaz.Desc{Summary: "Identifier of the store (required)."},
-					Field: func() any { return &e.StoreId },
+					Desc:     &schemaz.Desc{Summary: "Identifier of the store (required)."},
+					Field:    func() any { return &e.StoreId },
+					UrlValue: schemaz.ParseStr(&e.StoreId),
 				},
 				"session_id": {
-					Desc:  &schemaz.Desc{Summary: "Identifier of the user session (required)."},
-					Field: func() any { return &e.SessionId },
+					Desc:     &schemaz.Desc{Summary: "Identifier of the user session (required)."},
+					Field:    func() any { return &e.SessionId },
+					UrlValue: schemaz.ParseStr(&e.SessionId),
 				},
 				"display_id": {
 					Desc:  &schemaz.Desc{Summary: "Optional display identifier."},
@@ -475,7 +478,8 @@ func (e *Event) Schema() *schemaz.Schema {
 					Field: func() any { return &e.UserId },
 				},
 				"click": {
-					Desc: &schemaz.Desc{Summary: "Click event payload. Mutually exclusive with other payloads."},
+					Desc:     &schemaz.Desc{Summary: "Click event payload. Mutually exclusive with other payloads."},
+					UrlValue: schemaz.ParseJson(&e.Click),
 					Object: func(read bool) map[string]*schemaz.Schema {
 						if read && e.Click == nil {
 							return nil
@@ -487,7 +491,8 @@ func (e *Event) Schema() *schemaz.Schema {
 					},
 				},
 				"add_to_cart": {
-					Desc: &schemaz.Desc{Summary: "AddToCart event payload. Mutually exclusive with other payloads."},
+					Desc:     &schemaz.Desc{Summary: "AddToCart event payload. Mutually exclusive with other payloads."},
+					UrlValue: schemaz.ParseJson(&e.AddToCart),
 					Object: func(read bool) map[string]*schemaz.Schema {
 						if read && e.AddToCart == nil {
 							return nil
@@ -499,7 +504,8 @@ func (e *Event) Schema() *schemaz.Schema {
 					},
 				},
 				"remove_from_cart": {
-					Desc: &schemaz.Desc{Summary: "RemoveFromCart event payload. Mutually exclusive with other payloads."},
+					Desc:     &schemaz.Desc{Summary: "RemoveFromCart event payload. Mutually exclusive with other payloads."},
+					UrlValue: schemaz.ParseJson(&e.RemoveFromCart),
 					Object: func(read bool) map[string]*schemaz.Schema {
 						if read && e.RemoveFromCart == nil {
 							return nil
@@ -511,7 +517,8 @@ func (e *Event) Schema() *schemaz.Schema {
 					},
 				},
 				"search": {
-					Desc: &schemaz.Desc{Summary: "Search event payload. Mutually exclusive with other payloads."},
+					Desc:     &schemaz.Desc{Summary: "Search event payload. Mutually exclusive with other payloads."},
+					UrlValue: schemaz.ParseJson(&e.Search),
 					Object: func(read bool) map[string]*schemaz.Schema {
 						if read && e.Search == nil {
 							return nil
@@ -523,7 +530,8 @@ func (e *Event) Schema() *schemaz.Schema {
 					},
 				},
 				"purchase": {
-					Desc: &schemaz.Desc{Summary: "Purchase event payload. Mutually exclusive with other payloads."},
+					Desc:     &schemaz.Desc{Summary: "Purchase event payload. Mutually exclusive with other payloads."},
+					UrlValue: schemaz.ParseJson(&e.Purchase),
 					Object: func(read bool) map[string]*schemaz.Schema {
 						if read && e.Purchase == nil {
 							return nil
@@ -535,7 +543,8 @@ func (e *Event) Schema() *schemaz.Schema {
 					},
 				},
 				"recraw": {
-					Desc: &schemaz.Desc{Summary: "Recraw event payload. Mutually exclusive with other payloads."},
+					Desc:     &schemaz.Desc{Summary: "Recraw event payload. Mutually exclusive with other payloads."},
+					UrlValue: schemaz.ParseJson(&e.Recraw),
 					Object: func(read bool) map[string]*schemaz.Schema {
 						if read && e.Recraw == nil {
 							return nil
@@ -547,7 +556,8 @@ func (e *Event) Schema() *schemaz.Schema {
 					},
 				},
 				"recshow": {
-					Desc: &schemaz.Desc{Summary: "Recshow event payload. Mutually exclusive with other payloads."},
+					Desc:     &schemaz.Desc{Summary: "Recshow event payload. Mutually exclusive with other payloads."},
+					UrlValue: schemaz.ParseJson(&e.Recshow),
 					Object: func(read bool) map[string]*schemaz.Schema {
 						if read && e.Recshow == nil {
 							return nil

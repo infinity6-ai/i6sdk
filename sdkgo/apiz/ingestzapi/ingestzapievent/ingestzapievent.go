@@ -57,15 +57,7 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 				}
 			},
 		},
-		QueryParams: &schemaz.Schema{
-			Object: func(read bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"payload": {
-						UrlValue: schemaz.ParseJson(&d.Req.Payload),
-					},
-				}
-			},
-		},
+		QueryParams: d.Req.Payload.Schema(),
 		ReqHeaders:  nil,
 		ReqBody:     nil,
 		RespHeaders: nil,

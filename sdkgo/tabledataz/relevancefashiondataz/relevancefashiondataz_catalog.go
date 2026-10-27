@@ -62,22 +62,28 @@ func (c *Catalog) Schema() *schemaz.Schema {
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"id": {
-					Field: func() any { return &c.ID },
+					Field:    func() any { return &c.ID },
+					UrlValue: schemaz.ParseStr(&c.ID),
 				},
 				"store_id": {
-					Field: func() any { return &c.StoreId },
+					Field:    func() any { return &c.StoreId },
+					UrlValue: schemaz.ParseStr(&c.StoreId),
 				},
 				"product_id": {
-					Field: func() any { return &c.ProductId },
+					Field:    func() any { return &c.ProductId },
+					UrlValue: schemaz.ParseStr(&c.ProductId),
 				},
 				"sku_id": {
-					Field: func() any { return &c.SkuId },
+					Field:    func() any { return &c.SkuId },
+					UrlValue: schemaz.ParseStr(&c.SkuId),
 				},
 				"sku_ds": {
-					Field: func() any { return &c.SkuDs },
+					Field:    func() any { return &c.SkuDs },
+					UrlValue: schemaz.ParseStr(&c.SkuDs),
 				},
 				"inactive": {
-					Field: func() any { return &c.Inactive },
+					Field:    func() any { return &c.Inactive },
+					UrlValue: schemaz.ParseStrBool(&c.Inactive),
 				},
 			}
 		},
