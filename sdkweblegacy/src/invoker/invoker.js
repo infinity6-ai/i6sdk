@@ -9,6 +9,63 @@ import { apiErrorFromResponse, apiErrorFromNetwork } from "../errors.js";
  */
 
 /**
+ * A custom fetch implementation.
+ *
+ * This is primarily used to implement URL signing for secure requests so that the
+ * `DatasetToken` never comes to the browser.
+ *
+ * ### Using Fetcher to sign URLs
+ * Instead of setting `datasetToken` in the browser SDK, you can provide a custom `fetcher`
+ * that calls your backend server to sign the request.
+ *
+ * Example:
+ * ```js
+ * const fetcher = async (url, opts) => {
+ *   // Ask your backend to sign the URL
+ *   const res = await fetch('/api/sign-i6-url', {
+ *     method: 'POST',
+ *     body: JSON.stringify({ url, method: opts.method })
+ *   });
+ *   const { signedUrl } = await res.json();
+ *   // Send the actual request to i6 using the signed URL
+ *   return fetch(signedUrl, opts);
+ * };
+ * ```
+ *
+ * ### How the backend signs the URL
+ * The `DatasetToken` is a JWT securely stored on your backend. The Ed25519 private key is located inside
+ * the JWT payload's `ext.priv_key` field (Base64URL encoded). The public key `jti` is registered in our storage.
+ * Signed URLs will work while this specific `jti` is not revoked.
+ *
+ * Nowadays, we can sign only:
+ * - `GET` requests
+ * - Path
+ * - Expiration timestamp (`exp`)
+ * - Allowed open query params
+ * - Allowed query params with specific fixed values
+ *
+ * **Example using `ingestzEventRelevanceFashionEvent`:**
+ * The browser sends some fixed values (like `userid`, `sessionid`, `dataset`) and some open values (like `click` or `purchase` inside `payload`).
+ *
+ * 1. Define your expiration time (`exp`) in ISO8601BasicMillis (e.g., `20261027T150000000Z`).
+ * 2. Build the canonical message:
+ *    `METHOD\nPATH\nEXP\nOPEN_PARAMS_SORTED_COMMA_SEPARATED\nFIXED_PARAMS_KEY_SORTED_COMMA_SEPARATED`
+ *    Example:
+ *    ```text
+ *    GET
+ *    /api/ingest/dataset/my-dataset/event/relevance-fashion-event/text.txt
+ *    20261027T150000000Z
+ *    payload
+ *    dataset=my-dataset,sessionid=abc,userid=123
+ *    ```
+ * 3. Sign the message bytes with the Ed25519 private key. To make it using openssl (like in `@cryptz/cryptz25519/cryptz25519openssl`):
+ *    ```bash
+ *    openssl pkeyutl -sign -inkey private_key.pem -rawin -in message.txt -out signature.bin
+ *    ```
+ * 4. Encode the signature and public key in Base64URL.
+ * 5. Append the `sig` query parameter: `?sig=v1.<exp>.<open_params_pipe_separated>.<pub_key>.<signature>`
+ *    (e.g., `sig=v1.20261027T150000000Z.payload.PubKeyBase64...SigBase64...`)
+ *
  * @typedef {(url: string, opts: InvokeOptions) => Promise<Response>} Fetcher
  */
 
