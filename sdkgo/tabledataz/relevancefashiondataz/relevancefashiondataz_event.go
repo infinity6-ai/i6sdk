@@ -12,6 +12,13 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz"
 )
 
+// Event represents an interaction event in the Relevance Fashion domain.
+//
+// Validation rules:
+//   - ID, StoreId, SessionId, and CreatedAt are required.
+//   - Exactly one event payload (Click, AddToCart, RemoveFromCart, Search, Purchase, Recraw, Recshow) must be set.
+//   - DisplayId and UserId are optional.
+//   - Dataset and IngestedAt are read-only fields populated by the system during ingestion.
 type Event struct {
 	ID             string              `json:"id" bigquery:"id"`
 	Dataset        bigquery.NullString `json:"dataset" bigquery:"dataset"`
@@ -262,12 +269,17 @@ func (u *Recshow) Validate() error {
 
 func (u *Click) Schema() *schemaz.Schema {
 	return &schemaz.Schema{
+		Desc: &schemaz.Desc{
+			Summary: "Click event payload. SkuId is required; price must be non-negative.",
+		},
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"price": {
+					Desc:  &schemaz.Desc{Summary: "Price of the clicked SKU (non-negative)."},
 					Field: func() any { return &u.Price },
 				},
 				"sku_id": {
+					Desc:  &schemaz.Desc{Summary: "SKU identifier (required)."},
 					Field: func() any { return &u.SkuId },
 				},
 			}
@@ -277,12 +289,17 @@ func (u *Click) Schema() *schemaz.Schema {
 
 func (u *AddToCart) Schema() *schemaz.Schema {
 	return &schemaz.Schema{
+		Desc: &schemaz.Desc{
+			Summary: "AddToCart event payload. SkuId is required; price must be non-negative.",
+		},
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"price": {
+					Desc:  &schemaz.Desc{Summary: "Price of the added SKU (non-negative)."},
 					Field: func() any { return &u.Price },
 				},
 				"sku_id": {
+					Desc:  &schemaz.Desc{Summary: "SKU identifier (required)."},
 					Field: func() any { return &u.SkuId },
 				},
 			}
@@ -292,12 +309,17 @@ func (u *AddToCart) Schema() *schemaz.Schema {
 
 func (u *RemoveFromCart) Schema() *schemaz.Schema {
 	return &schemaz.Schema{
+		Desc: &schemaz.Desc{
+			Summary: "RemoveFromCart event payload. SkuId is required; price must be non-negative.",
+		},
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"price": {
+					Desc:  &schemaz.Desc{Summary: "Price of the removed SKU (non-negative)."},
 					Field: func() any { return &u.Price },
 				},
 				"sku_id": {
+					Desc:  &schemaz.Desc{Summary: "SKU identifier (required)."},
 					Field: func() any { return &u.SkuId },
 				},
 			}
@@ -307,9 +329,13 @@ func (u *RemoveFromCart) Schema() *schemaz.Schema {
 
 func (u *Search) Schema() *schemaz.Schema {
 	return &schemaz.Schema{
+		Desc: &schemaz.Desc{
+			Summary: "Search event payload. Text is required.",
+		},
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"text": {
+					Desc:  &schemaz.Desc{Summary: "Search query text (required)."},
 					Field: func() any { return &u.Text },
 				},
 			}
@@ -319,15 +345,21 @@ func (u *Search) Schema() *schemaz.Schema {
 
 func (u *PurchaseSku) Schema() *schemaz.Schema {
 	return &schemaz.Schema{
+		Desc: &schemaz.Desc{
+			Summary: "PurchaseSku represents an individual item in a purchase. SkuId is required, unit_price must be non-negative, and qtty must be greater than 0.",
+		},
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"qtty": {
+					Desc:  &schemaz.Desc{Summary: "Quantity of the purchased item (must be greater than 0)."},
 					Field: func() any { return &u.Qtty },
 				},
 				"sku_id": {
+					Desc:  &schemaz.Desc{Summary: "SKU identifier (required)."},
 					Field: func() any { return &u.SkuId },
 				},
 				"unit_price": {
+					Desc:  &schemaz.Desc{Summary: "Unit price of the item (non-negative)."},
 					Field: func() any { return &u.UnitPrice },
 				},
 			}
@@ -337,12 +369,17 @@ func (u *PurchaseSku) Schema() *schemaz.Schema {
 
 func (u *Purchase) Schema() *schemaz.Schema {
 	return &schemaz.Schema{
+		Desc: &schemaz.Desc{
+			Summary: "Purchase event payload. OrderId is required and skus must not be empty.",
+		},
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"order_id": {
+					Desc:  &schemaz.Desc{Summary: "Order identifier (required)."},
 					Field: func() any { return &u.OrderId },
 				},
 				"skus": {
+					Desc: &schemaz.Desc{Summary: "List of purchased SKUs (must not be empty)."},
 					Array: schemaz.NewArray(schemaz.ArrayOptions[[]*PurchaseSku, *PurchaseSku]{
 						NewElement: func(idx int) *PurchaseSku { return &PurchaseSku{} },
 						Slice:      func() *[]*PurchaseSku { return &u.Skus },
@@ -356,18 +393,25 @@ func (u *Purchase) Schema() *schemaz.Schema {
 
 func (u *Recraw) Schema() *schemaz.Schema {
 	return &schemaz.Schema{
+		Desc: &schemaz.Desc{
+			Summary: "Recraw event payload representing raw recommendations. RecId, ModelId, and Payload are required.",
+		},
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"rec_id": {
+					Desc:  &schemaz.Desc{Summary: "Recommendation identifier (required)."},
 					Field: func() any { return &u.RecId },
 				},
 				"model_id": {
+					Desc:  &schemaz.Desc{Summary: "Model identifier (required)."},
 					Field: func() any { return &u.ModelId },
 				},
 				"model_version": {
+					Desc:  &schemaz.Desc{Summary: "Model version string."},
 					Field: func() any { return &u.ModelVersion },
 				},
 				"payload": {
+					Desc:  &schemaz.Desc{Summary: "Raw recommendation payload (required)."},
 					Field: func() any { return &u.Payload },
 				},
 			}
@@ -377,18 +421,25 @@ func (u *Recraw) Schema() *schemaz.Schema {
 
 func (u *Recshow) Schema() *schemaz.Schema {
 	return &schemaz.Schema{
+		Desc: &schemaz.Desc{
+			Summary: "Recshow event payload representing displayed recommendations. RecId and Payload are required.",
+		},
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"rec_id": {
+					Desc:  &schemaz.Desc{Summary: "Recommendation identifier (required)."},
 					Field: func() any { return &u.RecId },
 				},
 				"model_id": {
+					Desc:  &schemaz.Desc{Summary: "Model identifier."},
 					Field: func() any { return &u.ModelId },
 				},
 				"model_version": {
+					Desc:  &schemaz.Desc{Summary: "Model version string."},
 					Field: func() any { return &u.ModelVersion },
 				},
 				"payload": {
+					Desc:  &schemaz.Desc{Summary: "Displayed recommendation payload (required)."},
 					Field: func() any { return &u.Payload },
 				},
 			}
@@ -399,20 +450,20 @@ func (u *Recshow) Schema() *schemaz.Schema {
 func (e *Event) Schema() *schemaz.Schema {
 	return &schemaz.Schema{
 		Desc: &schemaz.Desc{
-			Summary: "Event represents an interaction. ID, StoreId, SessionId, and CreatedAt are required. Exactly one payload (Click, AddToCart, RemoveFromCart, Search, Purchase, Recraw, Recshow) must be set.",
+			Summary: "Event represents an interaction in the Relevance Fashion domain. ID, StoreId, SessionId, and CreatedAt are required. Exactly one payload (Click, AddToCart, RemoveFromCart, Search, Purchase, Recraw, Recshow) must be set. Read-only fields like dataset and ingested_at are set by the system.",
 		},
 		Object: func(read bool) map[string]*schemaz.Schema {
-			m := map[string]*schemaz.Schema{
+			return map[string]*schemaz.Schema{
 				"id": {
-					Desc:  &schemaz.Desc{Summary: "Event ID (required)."},
+					Desc:  &schemaz.Desc{Summary: "Unique identifier for the event (required)."},
 					Field: func() any { return &e.ID },
 				},
 				"store_id": {
-					Desc:  &schemaz.Desc{Summary: "Store ID (required)."},
+					Desc:  &schemaz.Desc{Summary: "Identifier of the store (required)."},
 					Field: func() any { return &e.StoreId },
 				},
 				"session_id": {
-					Desc:  &schemaz.Desc{Summary: "Session ID (required)."},
+					Desc:  &schemaz.Desc{Summary: "Identifier of the user session (required)."},
 					Field: func() any { return &e.SessionId },
 				},
 				"display_id": {
@@ -424,7 +475,7 @@ func (e *Event) Schema() *schemaz.Schema {
 					Field: func() any { return &e.UserId },
 				},
 				"click": {
-					Desc: &schemaz.Desc{Summary: "Click event payload. Exactly one payload must be set."},
+					Desc: &schemaz.Desc{Summary: "Click event payload. Mutually exclusive with other payloads."},
 					Object: func(read bool) map[string]*schemaz.Schema {
 						if read && e.Click == nil {
 							return nil
@@ -436,7 +487,7 @@ func (e *Event) Schema() *schemaz.Schema {
 					},
 				},
 				"add_to_cart": {
-					Desc: &schemaz.Desc{Summary: "AddToCart event payload. Exactly one payload must be set."},
+					Desc: &schemaz.Desc{Summary: "AddToCart event payload. Mutually exclusive with other payloads."},
 					Object: func(read bool) map[string]*schemaz.Schema {
 						if read && e.AddToCart == nil {
 							return nil
@@ -448,7 +499,7 @@ func (e *Event) Schema() *schemaz.Schema {
 					},
 				},
 				"remove_from_cart": {
-					Desc: &schemaz.Desc{Summary: "RemoveFromCart event payload. Exactly one payload must be set."},
+					Desc: &schemaz.Desc{Summary: "RemoveFromCart event payload. Mutually exclusive with other payloads."},
 					Object: func(read bool) map[string]*schemaz.Schema {
 						if read && e.RemoveFromCart == nil {
 							return nil
@@ -460,7 +511,7 @@ func (e *Event) Schema() *schemaz.Schema {
 					},
 				},
 				"search": {
-					Desc: &schemaz.Desc{Summary: "Search event payload. Exactly one payload must be set."},
+					Desc: &schemaz.Desc{Summary: "Search event payload. Mutually exclusive with other payloads."},
 					Object: func(read bool) map[string]*schemaz.Schema {
 						if read && e.Search == nil {
 							return nil
@@ -472,7 +523,7 @@ func (e *Event) Schema() *schemaz.Schema {
 					},
 				},
 				"purchase": {
-					Desc: &schemaz.Desc{Summary: "Purchase event payload. Exactly one payload must be set."},
+					Desc: &schemaz.Desc{Summary: "Purchase event payload. Mutually exclusive with other payloads."},
 					Object: func(read bool) map[string]*schemaz.Schema {
 						if read && e.Purchase == nil {
 							return nil
@@ -484,7 +535,7 @@ func (e *Event) Schema() *schemaz.Schema {
 					},
 				},
 				"recraw": {
-					Desc: &schemaz.Desc{Summary: "Recraw event payload. Exactly one payload must be set."},
+					Desc: &schemaz.Desc{Summary: "Recraw event payload. Mutually exclusive with other payloads."},
 					Object: func(read bool) map[string]*schemaz.Schema {
 						if read && e.Recraw == nil {
 							return nil
@@ -496,7 +547,7 @@ func (e *Event) Schema() *schemaz.Schema {
 					},
 				},
 				"recshow": {
-					Desc: &schemaz.Desc{Summary: "Recshow event payload. Exactly one payload must be set."},
+					Desc: &schemaz.Desc{Summary: "Recshow event payload. Mutually exclusive with other payloads."},
 					Object: func(read bool) map[string]*schemaz.Schema {
 						if read && e.Recshow == nil {
 							return nil
@@ -512,17 +563,6 @@ func (e *Event) Schema() *schemaz.Schema {
 					Field: func() any { return &e.CreatedAt },
 				},
 			}
-			if read {
-				m["dataset"] = &schemaz.Schema{
-					Desc:  &schemaz.Desc{Summary: "Dataset name (read-only)."},
-					Field: func() any { return &e.Dataset },
-				}
-				m["ingested_at"] = &schemaz.Schema{
-					Desc:  &schemaz.Desc{Summary: "Ingestion timestamp (read-only)."},
-					Field: func() any { return &e.IngestedAt },
-				}
-			}
-			return m
 		},
 	}
 }
