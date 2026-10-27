@@ -1,9 +1,6 @@
 package ingestzapievent
 
 import (
-	"reflect"
-
-	"github.com/infinity6-ai/gox/commonz/jsonz/jsonzembedded"
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
@@ -18,28 +15,10 @@ func AllApis() []apiz.Api {
 	}
 }
 
-type Payload[T tabledataz.TableData] struct {
-	Rows []T
-}
-
-func (p Payload[T]) Schema() *schemaz.Schema {
-	return &schemaz.Schema{
-		Object: func(read bool) map[string]*schemaz.Schema {
-			return map[string]*schemaz.Schema{
-				"rows": {Array: schemaz.NewArray(schemaz.ArrayOptions[[]T, T]{
-					NewElement: func(idx int) T { return reflect.New(reflect.TypeFor[T]().Elem()).Interface().(T) },
-					Slice:      func() *[]T { return &p.Rows },
-					Get:        func(idx int, element *T) *schemaz.Schema { return (*element).Schema() },
-				})},
-			}
-		},
-	}
-}
-
 type Req[T tabledataz.TableData] struct {
 	Dataset lakedsz.Dataset
 	Suffix  string
-	Payload jsonzembedded.Embedded[*Payload[T]]
+	Payload T
 }
 
 type Resp struct {
