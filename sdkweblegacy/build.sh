@@ -66,10 +66,10 @@ function cmd_bundle() {
     find dist/types -name "*.d.ts" -exec cat {} + > dist/bundle/i6sdk-web.d.ts
 
     # 3. Build the JavaScript
-    esbuild src/index.js --bundle --sourcemap --outfile=dist/bundle/i6sdk-web.js
-    esbuild src/index.js --bundle --minify --sourcemap --outfile=dist/bundle/i6sdk-web.min.js
-    esbuild "src/**/*.js" --minify --outdir=dist/module-min
-    esbuild "src/**/*.js" --outdir=dist/module
+    npx esbuild src/index.js --bundle --sourcemap --outfile=dist/bundle/i6sdk-web.js
+    npx esbuild src/index.js --bundle --minify --sourcemap --outfile=dist/bundle/i6sdk-web.min.js
+    npx esbuild "src/**/*.js" --minify --outdir=dist/module-min
+    npx esbuild "src/**/*.js" --outdir=dist/module
 }
 
 function cmd_release() {

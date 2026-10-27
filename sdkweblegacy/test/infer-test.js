@@ -7,7 +7,7 @@
             sqliteUrl: new URL('../src/infer/gen/sqlite.bin', location.href).href,
             tfliteUrl: new URL('../src/infer/gen/model.tflite', location.href).href,
         }
-        const base = { modelName: 'relevance-fashion-fbt', partitions: { store_id: 's1', version: 'v1' }, dataset: 'dectest' }
+        const base = { modelName: 'relevance-fashion-fbt', partitions: { store_id: 's1', version: 'v1' }, dataset: 'dectest', sessionId: 'sess-1', userId: 'user-1' }
         const cart = { skus: [{ sku_id: '150' }, { sku_id: '77' }] }
 
         /** @type {import('../src/infer/infer.js').Infer} */
@@ -26,7 +26,7 @@
         }
 
         const stubServices = (events, apis = {}) => ({
-            config: () => ({ sessionId: 'sess-1', userId: 'user-1' }),
+            config: () => ({}),
             apis: () => ({ ingestzStreamRelevanceFashionEvent: async (req) => { events.push(req); return { ok: true, status: 200 } }, ...apis }),
         })
 
@@ -40,7 +40,7 @@
         QUnit.test("run validates its opts", async function (assert) {
             const ok = { ...base, params: cart, ...assets }
             await rejectsWithCode(assert, infer.run(), 'invalid_argument', /opts.modelName/)
-            for (const key of ['modelName', 'dataset']) {
+            for (const key of ['modelName', 'dataset', 'sessionId', 'userId']) {
                 await rejectsWithCode(assert, infer.run({ ...ok, [key]: '' }), 'invalid_argument', new RegExp(`opts.${key}`))
             }
             for (const partitions of [undefined, 'x', ['a'], { store_id: 1 }]) {
@@ -108,7 +108,7 @@
 
         QUnit.test("selectResults returns the selection as is and sends its sku ids as recshow", async function (assert) {
             const requests = []
-            const services = { config: () => ({ sessionId: 'sess-1', userId: 'user-1' }), apis: () => ({ ingestzStreamRelevanceFashionEvent: async (req) => {
+            const services = { config: () => ({}), apis: () => ({ ingestzStreamRelevanceFashionEvent: async (req) => {
                 requests.push(req)
                 return { ok: true, status: 200 }
             } }) }
@@ -119,6 +119,7 @@
             const calls = []
             const opts = {
                 dataset: 'dectest', modelName: 'relevance-fashion-fbt', modelVersion: 'v1', storeId: 's1', req, results, recId: 'rec-1',
+                sessionId: 'sess-1', userId: 'user-1',
                 selectResults: async (...args) => { calls.push(args); return selected },
             }
 
@@ -157,7 +158,8 @@
             await rejectsWithCode(assert, new Infer(services).selectResults(returning({ results: [{ sku_id: '2' }, {}] })), 'invalid_argument', /no sku_id at results\[1\]$/)
             await rejectsWithCode(assert, new Infer(services).selectResults(returning({ results: [{ sku_id: '9' }] })), 'invalid_argument', /"9", which is not in the results/)
             await rejectsWithCode(assert, new Infer(services).selectResults({ ...opts, recId: undefined }), 'invalid_argument', /opts.recId/)
-            await rejectsWithCode(assert, new Infer({ apis: services.apis }).selectResults(opts), 'invalid_argument', /sessionId and userId/)
+            await rejectsWithCode(assert, new Infer(services).selectResults({ ...opts, sessionId: undefined }), 'invalid_argument', /sessionId and userId/)
+            await rejectsWithCode(assert, new Infer(services).selectResults({ ...opts, userId: undefined }), 'invalid_argument', /sessionId and userId/)
             const rejecting = { config: services.config, apis: () => ({ ingestzStreamRelevanceFashionEvent: async () => ({ ok: false, status: 500, error: 'boom' }) }) }
             await rejectsWithCode(assert, new Infer(rejecting).selectResults(opts), 'event', /recshow event.*boom/)
         })

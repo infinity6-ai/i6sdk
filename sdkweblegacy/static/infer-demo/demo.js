@@ -21,12 +21,15 @@ const stored = (storage, key) => {
     return storage.getItem(key) ?? (storage.setItem(key, crypto.randomUUID()), storage.getItem(key))
   } catch { return crypto.randomUUID() }
 }
-const sdkConfig = { baseUrl: "https://decsuite.sandbox.rs.infinity6.ai", sessionId: stored(sessionStorage, 'i6demo.sessionId'), userId: stored(localStorage, 'i6demo.userId') }
+const sdkConfig = { baseUrl: "https://decsuite.sandbox.rs.infinity6.ai" }
 // The config the SDK really runs with: the defaults (baseUrl) merged with ours
-// (the demo builds the SDK without ids, then gives them with setConfig, which can be called anytime)
 const sdk = new I6Sdk()
 sdk.setConfig(sdkConfig)
-window.i6sdk = sdk // try sdk.setConfig({ userId: 'x' }) in the console, then run
+window.i6sdk = sdk
+
+// The session lives as long as the tab; the user is kept across visits.
+const sessionId = stored(sessionStorage, 'i6demo.sessionId')
+const userId = stored(localStorage, 'i6demo.userId')
 const showConfig = () => { $('sdkConfig').textContent = JSON.stringify(sdk.config(), null, 2) }
 showConfig()
 log('sdk config', sdk.config())

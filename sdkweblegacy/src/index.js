@@ -9,8 +9,6 @@ import { I6Error } from "./errors.js";
  * Configuration options for the i6 SDK.
  * @typedef {Object} I6SdkConfig
  * @property {string} [baseUrl] - Base URL of the i6 server. Defaults to the sandbox environment.
- * @property {string} [sessionId] - Id of the user session; sent in the recommendation events (required by `funcs()` inference).
- * @property {string} [userId] - Id of the user; sent in the recommendation events (required by `funcs()` inference).
  */
 
 /**
@@ -52,7 +50,7 @@ class I6Sdk {
   }
 
   /**
-   * Overwrites the given keys of the configuration (e.g. `{ sessionId, userId }`); the other keys are kept.
+   * Overwrites the given keys of the configuration; the other keys are kept.
    * Can be called at any time, the next call of the SDK uses the new values.
    * @param {Partial<I6SdkConfig>} config - The keys to overwrite.
    * @returns {void}
