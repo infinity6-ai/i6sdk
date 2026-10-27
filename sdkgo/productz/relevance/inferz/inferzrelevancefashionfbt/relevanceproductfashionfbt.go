@@ -21,6 +21,8 @@ type Result struct {
 
 type Req struct {
 	Dataset         lakedsz.Dataset
+	SessionId       string
+	UserId          string
 	Skus            []*Sku
 	ModelPartitions Partitions
 }
@@ -48,7 +50,9 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 		Input: &schemaz.Schema{
 			Object: func(_ bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"dataset": {Field: func() any { return &d.Req.Dataset }},
+					"dataset":    {Field: func() any { return &d.Req.Dataset }},
+					"session_id": {Field: func() any { return &d.Req.SessionId }},
+					"user_id":    {Field: func() any { return &d.Req.UserId }},
 					"skus": {
 						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Sku, *Sku]{
 							Slice:      func() *[]*Sku { return &d.Req.Skus },

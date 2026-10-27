@@ -69,8 +69,8 @@ func TestUnitWrite(t *testing.T) {
       modelName: "relevance-fashion-fbt",
       params: req.input,
       partitions: {"version": "v1", ...req.partitions},
-      sessionId: opts?.sessionId,
-      userId: opts?.userId,
+      sessionId: req.input.session_id,
+      userId: req.input.user_id,
       serviceOpts: opts,
     })
     return infer.selectResults({
@@ -81,8 +81,8 @@ func TestUnitWrite(t *testing.T) {
       req,
       results,
       recId: results.rec_id,
-      sessionId: opts?.sessionId,
-      userId: opts?.userId,
+      sessionId: req.input.session_id,
+      userId: req.input.user_id,
       selectResults,
       serviceOpts: opts,
     })
@@ -164,8 +164,8 @@ export { SdkFuncs };
       modelName: "custom-task",
       params: req.input,
       partitions: {"version": "v1", ...req.partitions},
-      sessionId: opts?.sessionId,
-      userId: opts?.userId,
+      sessionId: req.input.session_id,
+      userId: req.input.user_id,
       serviceOpts: opts,
     })
     return infer.selectResults({
@@ -176,8 +176,8 @@ export { SdkFuncs };
       req,
       results,
       recId: results.rec_id,
-      sessionId: opts?.sessionId,
-      userId: opts?.userId,
+      sessionId: req.input.session_id,
+      userId: req.input.user_id,
       selectResults,
       serviceOpts: opts,
     })

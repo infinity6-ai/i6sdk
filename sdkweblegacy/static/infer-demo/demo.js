@@ -57,7 +57,8 @@ function funcsRequest() {
   return {
     input: {
       dataset: text('dataset'),
-      model_name: text('modelName'),
+      session_id: sessionId,
+      user_id: userId,
       skus: text('sku_ids').split(/[\s,]+/).filter(Boolean).map((sku_id) => ({ sku_id })),
     },
     partitions: { store_id: text('storeId'), version: text('modelVersion') },
