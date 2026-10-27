@@ -190,8 +190,8 @@ func Write(ctx context.Context, sdkFuncs []*jsparsersdkfunc.SdkFunc) string {
 			} else {
 				writeln(&decl, "    partitions: req.partitions,")
 			}
-			writeln(&decl, "    sessionId: opts?.sessionId,")
-			writeln(&decl, "    userId: opts?.userId,")
+			writeln(&decl, "    sessionId: req.input.session_id,")
+			writeln(&decl, "    userId: req.input.user_id,")
 			writeln(&decl, "    serviceOpts: opts,")
 			writeln(&decl, "  })")
 			writeln(&decl, "  return infer.selectResults({")
@@ -202,8 +202,8 @@ func Write(ctx context.Context, sdkFuncs []*jsparsersdkfunc.SdkFunc) string {
 			writeln(&decl, "    req,")
 			writeln(&decl, "    results,")
 			writeln(&decl, "    recId: results.rec_id,")
-			writeln(&decl, "    sessionId: opts?.sessionId,")
-			writeln(&decl, "    userId: opts?.userId,")
+			writeln(&decl, "    sessionId: req.input.session_id,")
+			writeln(&decl, "    userId: req.input.user_id,")
 			writeln(&decl, "    selectResults,")
 			writeln(&decl, "    serviceOpts: opts,")
 			writeln(&decl, "  })")

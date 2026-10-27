@@ -109,8 +109,6 @@ import { apiErrorFromResponse, apiErrorFromNetwork } from "../errors.js";
 /**
  * @typedef {object} ServiceOptions
  * @property {string} [datasetToken] - [Go: string]
- * @property {string} [sessionId] - Id of the user session; sent in the recommendation events.
- * @property {string} [userId] - Id of the user; sent in the recommendation events.
  * @property {Fetcher} [fetcher] - Custom fetch implementation.
  */
 
