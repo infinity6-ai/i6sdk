@@ -11,12 +11,48 @@ import { apiErrorFromResponse, apiErrorFromNetwork } from "../errors.js";
 /**
  * A custom fetch implementation.
  *
- * This is primarily used to implement URL signing for secure requests so that the
- * `DatasetToken` never comes to the browser.
+ * It intercepts requests made by the SDK. This is essential when the `DatasetToken` must
+ * never be exposed to the browser.
  *
- * ### Using Fetcher to sign URLs
- * Instead of setting `datasetToken` in the browser SDK, you can provide a custom `fetcher`
- * that calls your backend server to sign the request.
+ * There are two main approaches to keep the `DatasetToken` safe on your backend:
+ *
+ * ---
+ * ### Approach 1: Backend Reverse Proxy (Recommended for simplicity)
+ * To avoid all signature complexity ("signature hell"), you can simply proxy requests through
+ * your own backend server. The browser sends the request to your backend, and your server forwards
+ * it to i6 while attaching the `Authorization: Dataset <datasetToken>` header. This also works for
+ * all HTTP methods and request bodies without any signing restrictions.
+ *
+ * Browser Fetcher example:
+ * ```js
+ * const fetcher = async (url, opts) => {
+ *   // Route the request to your own server proxy endpoint
+ *   const proxyUrl = url.replace('https://api.i6.ai', '/api/i6-proxy');
+ *   return fetch(proxyUrl, opts);
+ * };
+ * ```
+ *
+ * Backend server handler example:
+ * ```js
+ * // Express / Node.js backend
+ * app.all('/api/i6-proxy/*', async (req, res) => {
+ *   const targetUrl = req.originalUrl.replace('/api/i6-proxy', 'https://api.i6.ai');
+ *   const resp = await fetch(targetUrl, {
+ *     method: req.method,
+ *     headers: {
+ *       ...req.headers,
+ *       'Authorization': `Dataset ${process.env.I6_DATASET_TOKEN}`,
+ *     },
+ *     body: ['GET', 'HEAD'].includes(req.method) ? undefined : req.body,
+ *   });
+ *   res.status(resp.status).send(await resp.text());
+ * });
+ * ```
+ *
+ * ---
+ * ### Approach 2: URL Signing (Direct browser-to-i6 calls)
+ * If you prefer requests to go directly from the browser to i6 (e.g. to offload traffic from your servers),
+ * provide a custom `fetcher` that calls your backend server to pre-sign the URL before forwarding it to i6.
  *
  * Example:
  * ```js
@@ -27,12 +63,12 @@ import { apiErrorFromResponse, apiErrorFromNetwork } from "../errors.js";
  *     body: JSON.stringify({ url, method: opts.method })
  *   });
  *   const { signedUrl } = await res.json();
- *   // Send the actual request to i6 using the signed URL
+ *   // Send the actual request directly to i6 using the signed URL
  *   return fetch(signedUrl, opts);
  * };
  * ```
  *
- * ### How the backend signs the URL
+ * #### How the backend signs the URL
  * The `DatasetToken` is a JWT securely stored on your backend. The Ed25519 private key is located inside
  * the JWT payload's `ext.priv_key` field (Base64URL encoded). The public key `jti` is registered in our storage.
  * Signed URLs will work while this specific `jti` is not revoked.
