@@ -60,27 +60,25 @@ func (c *Catalog) SetIngestedAt(p string) {
 }
 
 func (c *Catalog) Schema() *schemaz.Schema {
+	if c == nil {
+		c = &Catalog{}
+	}
 	return &schemaz.Schema{
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"id": {
-					Field:    func() any { return &c.Id },
 					UrlValue: schemaz.ParseStr(&c.Id),
 				},
 				"product": {
-					Field:    func() any { return &c.Product },
 					UrlValue: schemaz.ParseStr(&c.Product),
 				},
 				"price": {
-					Field:    func() any { return &c.Price },
 					UrlValue: schemaz.ParseStrNumber(&c.Price),
 				},
 				"qt_inventory": {
-					Field:    func() any { return &c.QtInventory },
 					UrlValue: schemaz.ParseStrNumber(&c.QtInventory),
 				},
 				"store_id": {
-					Field:    func() any { return &c.StoreId },
 					UrlValue: schemaz.ParseStr(&c.StoreId),
 				},
 			}

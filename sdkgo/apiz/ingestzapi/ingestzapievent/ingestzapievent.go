@@ -1,6 +1,8 @@
 package ingestzapievent
 
 import (
+	"reflect"
+
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
@@ -46,6 +48,10 @@ func (d *Api[T]) ApiSpec() apiz.ApiSpec {
 }
 
 func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
+	val := reflect.ValueOf(&d.Req.Payload).Elem()
+	if val.Kind() == reflect.Pointer && val.IsNil() {
+		val.Set(reflect.New(val.Type().Elem()))
+	}
 	return &apiz.DataRefs{
 		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {

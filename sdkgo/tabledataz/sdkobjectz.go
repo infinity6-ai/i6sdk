@@ -24,3 +24,41 @@ func NewBqNullString(val string) bigquery.NullString {
 		Valid:     true,
 	}
 }
+
+func ParseBqNullString(out *bigquery.NullString) func() *schemaz.Parser[string] {
+	return func() *schemaz.Parser[string] {
+		return &schemaz.Parser[string]{
+			Parse: func(v string) {
+				*out = bigquery.NullString{
+					StringVal: v,
+					Valid:     v != "",
+				}
+			},
+			Format: func() (string, any) {
+				if !out.Valid {
+					return "", *out
+				}
+				return out.StringVal, *out
+			},
+		}
+	}
+}
+
+func ParseTime(out *time.Time) func() *schemaz.Parser[string] {
+	return func() *schemaz.Parser[string] {
+		return &schemaz.Parser[string]{
+			Parse: func(v string) {
+				t, err := time.Parse(time.RFC3339, v)
+				if err == nil {
+					*out = t
+				}
+			},
+			Format: func() (string, any) {
+				if out.IsZero() {
+					return "", *out
+				}
+				return out.Format(time.RFC3339), *out
+			},
+		}
+	}
+}
