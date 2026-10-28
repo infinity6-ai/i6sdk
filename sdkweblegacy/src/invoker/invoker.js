@@ -202,7 +202,6 @@ class Invoker {
         if (opts.sinkable) {
             if (opts.method?.toUpperCase() != "GET") throw 'Unsupported: sinkable must be GET'
             if (opts.body) throw 'Unsupported: sinkable must not have body'
-            console.log('xxxx', url)
             const u = new URL(url)
             let search = u.search.startsWith('?') ? u.search.substring(1) : u.search
             if (search) {
