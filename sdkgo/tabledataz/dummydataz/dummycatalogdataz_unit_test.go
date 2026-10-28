@@ -7,8 +7,11 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
+	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz/dummydataz"
 )
+
+var _ tabledataz.TableData = (*dummydataz.Catalog)(nil)
 
 func TestUnitDummyCatalogDataSerialization(t *testing.T) {
 	type testScenario struct {
@@ -77,7 +80,7 @@ func TestUnitDummyCatalogDataSerialization(t *testing.T) {
 func TestUnitDummyCatalogDataSchema(t *testing.T) {
 	ctx := t.Context()
 	t.Run("DummyCatalogData Schema Check", func(t *testing.T) {
-		s := (&dummydataz.Catalog{}).Schema()
+		s := (&dummydataz.Catalog{}).SchemaQuery()
 		td, _ := jsparser.ParseSchema(ctx, "DummyCatalogData", s)
 		require.Equal(t, "DummyCatalogData", td.Head.Name)
 

@@ -10,7 +10,7 @@ import (
 )
 
 type TableData interface {
-	Schema() *schemaz.Schema
+	SchemaQuery() *schemaz.Schema
 	Table() laketbnamez.TableName
 	SetDataset(dataset lakedsz.Dataset)
 	SetIngestedAt(ingestedAt string)

@@ -76,7 +76,7 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 								return x
 							},
 							Get: func(idx int, element *T) *schemaz.Schema {
-								return (*element).Schema()
+								return (*element).SchemaQuery()
 							},
 						}),
 					},

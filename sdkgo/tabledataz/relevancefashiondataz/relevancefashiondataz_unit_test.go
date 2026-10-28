@@ -12,6 +12,11 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz/relevancefashiondataz"
 )
 
+var (
+	_ tabledataz.TableData = (*relevancefashiondataz.Catalog)(nil)
+	_ tabledataz.TableData = (*relevancefashiondataz.Event)(nil)
+)
+
 func TestUnitEventSerialization(t *testing.T) {
 	type testScenario struct {
 		jsonStr string
@@ -330,7 +335,7 @@ func TestUnitEventSchema(t *testing.T) {
 		require.Equal(t, "Recshow", td.Head.Name)
 	})
 	t.Run("Event Schema", func(t *testing.T) {
-		s := (&relevancefashiondataz.Event{}).Schema()
+		s := (&relevancefashiondataz.Event{}).SchemaQuery()
 		td, tds := jsparser.ParseSchema(ctx, "Event", s)
 		require.Equal(t, "Event", td.Head.Name)
 
@@ -457,7 +462,7 @@ func TestUnitCatalogSerialization(t *testing.T) {
 func TestUnitCatalogSchema(t *testing.T) {
 	ctx := t.Context()
 	t.Run("Catalog Schema", func(t *testing.T) {
-		s := (&relevancefashiondataz.Catalog{}).Schema()
+		s := (&relevancefashiondataz.Catalog{}).SchemaQuery()
 		td, _ := jsparser.ParseSchema(ctx, "Catalog", s)
 		require.Equal(t, "Catalog", td.Head.Name)
 

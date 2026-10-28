@@ -447,7 +447,7 @@ func (u *Recshow) Schema() *schemaz.Schema {
 	}
 }
 
-func (e *Event) Schema() *schemaz.Schema {
+func (e *Event) SchemaQuery() *schemaz.Schema {
 	if e == nil {
 		e = &Event{}
 	}
