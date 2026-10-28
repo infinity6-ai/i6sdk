@@ -4,6 +4,9 @@
 
 import { apiErrorFromResponse, apiErrorFromNetwork } from "../errors.js";
 
+import * as b64 from "../internal/b64/b64.js";
+import * as gzip from "../internal/gzip/gzip.js";
+
 /**
  * @typedef {import("../services/services.js").Services} Services
  */
@@ -194,7 +197,6 @@ class Invoker {
 
         // if (opts.sinkable) {
         //     if (opts.body || opts.json) throw 'Unsupported: sinkable must not have body'
-            
         // }
 
         if (opts.opts?.fetcher) {
