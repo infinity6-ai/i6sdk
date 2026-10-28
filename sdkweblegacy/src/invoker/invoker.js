@@ -195,9 +195,18 @@ class Invoker {
 
         opts.credentials = "include";
 
-        // if (opts.sinkable) {
-        //     if (opts.body || opts.json) throw 'Unsupported: sinkable must not have body'
-        // }
+        if (opts.sinkable) {
+            if (opts.body) throw 'Unsupported: sinkable must not have body'
+            const u = new URL(opts.url)
+            let search = u.search.startsWith('?') ? u.search.substring(1) : u.search
+            if (search) {
+                search = b64.encodeUrlSafe(gzip.gzip((search)))        
+            }
+            const method = (opts.method || 'GET').toLowerCase()
+            if (encodedQuery.length < 1900) {
+                url = `${this._services.config().baseUrl}/api/sinkable/${method}/${u.pathname}?s=${search}`
+            }
+        }
 
         if (opts.opts?.fetcher) {
             return opts.opts.fetcher(url, opts)
