@@ -183,23 +183,20 @@ class Infer {
    * @throws {I6Error} With code "event" if the event is not accepted.
    */
   async #sendRecEvent(opts, ids, recId, kind, payload) {
-    await this._services.apis().ingestzStreamRelevanceFashionEvent({
+    await this._services.apis().ingestzEventRelevanceFashionEvent({
       params: { dataset: opts.dataset },
-      payload: {
-        data: [{
-          id: crypto.randomUUID(),
-          store_id: opts.storeId,
-          session_id: ids.sessionId,
-          user_id: ids.userId,
-          dataset: opts.dataset,
-          created_at: new Date().toISOString().split('.')[0] + 'Z',
-          [kind]: {
-            rec_id: recId,
-            model_id: opts.modelName,
-            model_version: opts.modelVersion,
-            payload: JSON.stringify(payload),
-          },
-        }],
+      query: {
+        id: crypto.randomUUID(),
+        store_id: opts.storeId,
+        session_id: ids.sessionId,
+        user_id: ids.userId,
+        created_at: new Date().toISOString().split('.')[0] + 'Z',
+        [kind]: {
+          rec_id: recId,
+          model_id: opts.modelName,
+          model_version: opts.modelVersion,
+          payload: JSON.stringify(payload),
+        },
       },
     }, opts.serviceOpts)
   }
