@@ -195,18 +195,22 @@ class Invoker {
 
         opts.credentials = "include";
 
-        // if (opts.sinkable || true) {
-        //     if (opts.method?.toUpperCase() != "GET") throw 'Unsupported: sinkable must be GET'
-        //     if (opts.body) throw 'Unsupported: sinkable must not have body'
-        //     console.log('xxxx', url)
-        //     const u = new URL(url)
-        //     let search = u.search.startsWith('?') ? u.search.substring(1) : u.search
-        //     if (search) {
-        //         search = b64.encodeUrlSafe(await gzip.gzip((search)))        
-        //     }
-        //     if (search.length > 1900) throw `It is too large to sink: ${search.length}: ${search}`
-        //     url = `${this._services.config().baseUrl}/api/sink/${u.pathname}?s=${search}`
-        // }
+        if (opts.opts?.prepareRequest) {
+            await opts.opts.prepareRequest(opts)
+        }
+
+        if (opts.sinkable) {
+            if (opts.method?.toUpperCase() != "GET") throw 'Unsupported: sinkable must be GET'
+            if (opts.body) throw 'Unsupported: sinkable must not have body'
+            console.log('xxxx', url)
+            const u = new URL(url)
+            let search = u.search.startsWith('?') ? u.search.substring(1) : u.search
+            if (search) {
+                search = b64.encodeUrlSafe(await gzip.gzip((search)))        
+            }
+            if (search.length > 1900) throw `It is too large to sink: ${search.length}: ${search}`
+            url = `${this._services.config().baseUrl}/api/sink/${u.pathname}?s=${search}`
+        }
 
         if (opts.opts?.fetcher) {
             return opts.opts.fetcher(opts.url, opts)
