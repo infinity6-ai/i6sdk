@@ -192,6 +192,11 @@ class Invoker {
 
         opts.credentials = "include";
 
+        // if (opts.sinkable) {
+        //     if (opts.body || opts.json) throw 'Unsupported: sinkable must not have body'
+            
+        // }
+
         if (opts.opts?.fetcher) {
             return opts.opts.fetcher(url, opts)
         }
