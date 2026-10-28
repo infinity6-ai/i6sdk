@@ -63,7 +63,7 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 				}
 			},
 		},
-		QueryParams: d.Req.Payload.Schema(),
+		QueryParams: d.Req.Payload.SchemaQuery(),
 		ReqHeaders:  nil,
 		ReqBody:     nil,
 		RespHeaders: nil,

@@ -57,7 +57,7 @@ func (c *Catalog) SetIngestedAt(p string) {
 	c.IngestedAt = p
 }
 
-func (c *Catalog) Schema() *schemaz.Schema {
+func (c *Catalog) SchemaQuery() *schemaz.Schema {
 	if c == nil {
 		c = &Catalog{}
 	}
