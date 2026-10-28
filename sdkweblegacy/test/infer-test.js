@@ -27,7 +27,7 @@
 
         const stubServices = (events, apis = {}) => ({
             config: () => ({}),
-            apis: () => ({ ingestzStreamRelevanceFashionEvent: async (req) => { events.push(req); return { ok: true, status: 200 } }, ...apis }),
+            apis: () => ({ ingestzEventRelevanceFashionEvent: async (req) => { events.push(req); return { ok: true, status: 200 } }, ...apis }),
         })
 
         hooks.beforeEach(async function () {
@@ -61,7 +61,7 @@
 
             assert.strictEqual(results.length, 5, 'limit is honored')
             assert.strictEqual(events.length, 1, 'run sends the recraw event')
-            assert.strictEqual(events[0].payload.data[0].recraw.rec_id, rec_id, 'with the rec_id it returns')
+            assert.strictEqual(events[0].query.recraw.rec_id, rec_id, 'with the rec_id it returns')
             assert.true(results.every((r) => Array.isArray(r.skus) && r.skus.every((k) => typeof k.sku_id === 'string')), 'skus are {sku_id}')
             assert.true(results.every((r, i) => i === 0 || results[i - 1].rating >= r.rating), 'best rating first')
             await rejectsWithCode(assert, infer.run({ ...opts, limit: 0 }), 'invalid_argument', /opts.limit/)
@@ -72,7 +72,7 @@
             const calls = []
             const services = stubServices([], {
                 dszModelGet: async (req, opts) => { calls.push(['dszModelGet', opts]); return { ok: true, payload: { urls: [] } } },
-                ingestzStreamRelevanceFashionEvent: async (req, opts) => { calls.push(['event', opts]); return { ok: true, status: 200 } },
+                ingestzEventRelevanceFashionEvent: async (req, opts) => { calls.push(['event', opts]); return { ok: true, status: 200 } },
             })
             const { Infer } = await import('../src/infer/infer.js')
 
@@ -108,7 +108,7 @@
 
         QUnit.test("selectResults returns the selection as is and sends its sku ids as recshow", async function (assert) {
             const requests = []
-            const services = { config: () => ({}), apis: () => ({ ingestzStreamRelevanceFashionEvent: async (req) => {
+            const services = { config: () => ({}), apis: () => ({ ingestzEventRelevanceFashionEvent: async (req) => {
                 requests.push(req)
                 return { ok: true, status: 200 }
             } }) }
@@ -129,7 +129,7 @@
             assert.strictEqual(requests.length, 1)
             const sent = requests.map((r) => {
                 assert.deepEqual(r.params, { dataset: 'dectest' })
-                const [event] = r.payload.data
+                const event = r.query
                 assert.strictEqual(event.store_id, 's1')
                 assert.deepEqual([event.session_id, event.user_id], ['sess-1', 'user-1'])
                 assert.true(/^[0-9a-f-]{36}$/.test(event.id), 'id is a uuid')
@@ -160,7 +160,7 @@
             await rejectsWithCode(assert, new Infer(services).selectResults({ ...opts, recId: undefined }), 'invalid_argument', /opts.recId/)
             await rejectsWithCode(assert, new Infer(services).selectResults({ ...opts, sessionId: undefined }), 'invalid_argument', /sessionId and userId/)
             await rejectsWithCode(assert, new Infer(services).selectResults({ ...opts, userId: undefined }), 'invalid_argument', /sessionId and userId/)
-            const rejecting = { config: services.config, apis: () => ({ ingestzStreamRelevanceFashionEvent: async () => ({ ok: false, status: 500, error: 'boom' }) }) }
+            const rejecting = { config: services.config, apis: () => ({ ingestzEventRelevanceFashionEvent: async () => ({ ok: false, status: 500, error: 'boom' }) }) }
             await rejectsWithCode(assert, new Infer(rejecting).selectResults(opts), 'event', /recshow event.*boom/)
         })
 

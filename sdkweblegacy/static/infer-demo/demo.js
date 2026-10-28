@@ -111,6 +111,25 @@ $('run').onclick = async () => {
   }
 }
 
+// --- tensors -----------------------------------------------------------------------------------------
+// infer.js announces what went into and came out of the model when I6_DEBUG is set
+let lastTensors = null
+const describeTensors = (declared, values) =>
+  Object.entries(values).map(([name, value]) => {
+    const detail = declared.find((d) => d.name === name)
+    const data = value.data ?? value // inputs are {data, shape}; outputs are the values
+    return `${name}  dtype=${detail?.dtype}  shape=[${value.shape ?? detail?.shape}]  values=${data.length}\n${JSON.stringify(data)}`
+  }).join('\n\n')
+
+window.addEventListener('i6:infer-tensors', ({ detail }) => {
+  lastTensors = detail
+  $('tensorsBadge').textContent = `${detail.modelName} ${JSON.stringify(detail.partitions)}`
+  $('tensorsModel').textContent = `model declares: ${JSON.stringify(detail.model)}`
+  $('tensorsIn').textContent = describeTensors(detail.model.inputs, detail.inputs)
+  $('tensorsOut').textContent = describeTensors(detail.model.outputs, detail.outputs)
+})
+$('copyTensors').onclick = () => navigator.clipboard?.writeText(JSON.stringify(lastTensors, null, 1))
+
 // --- dash --------------------------------------------------------------------------------------------
 function dashRequest() {
   const text = (id) => $(id).value.trim()
