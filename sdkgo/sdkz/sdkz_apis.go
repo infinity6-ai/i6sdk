@@ -22,6 +22,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapistoredisplaylist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapistorelist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapistripecheckout"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapisubscriptionget"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitableget"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitablelist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitokendelete"
@@ -79,6 +80,7 @@ func init() {
 	add(&dszapitokendelete.Api{})
 	add(&dszapimodelget.Api{})
 	add(&dszapistripecheckout.Api{})
+	add(&dszapisubscriptionget.Api{})
 }
 
 func Apis() []apiz.Api {

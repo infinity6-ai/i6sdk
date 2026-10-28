@@ -77,6 +77,13 @@
     <div class="io"><div><h3>Input (req)</h3><pre class="in"></pre></div><div><h3>Output (result)</h3><pre class="out"></pre></div></div>
   </div>
 
+  <div class="card" id="tensors">
+    <h2>Model tensors <span class="badge" id="tensorsBadge">run first</span> <button id="copyTensors">Copy JSON</button></h2>
+    <p class="hint">What the input query gave the model and what the model gave back, of the last run: name, dtype, shape and every value.</p>
+    <pre id="tensorsModel"></pre>
+    <div class="io"><div><h3>Inputs</h3><pre id="tensorsIn" style="max-height:420px"></pre></div><div><h3>Outputs</h3><pre id="tensorsOut" style="max-height:420px"></pre></div></div>
+  </div>
+
   <div class="card">
     <h2>Dash <span class="badge">new I6Sdk().funcs().&lt;dash func&gt;(req)</span></h2>
     <label for="dashFunc">dash query</label>

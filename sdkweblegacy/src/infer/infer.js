@@ -6,7 +6,7 @@
  * run the tflite model, and run the named query `model-${modelName}-output` with the model outputs.
  * Its result is returned as is. Nothing here is model specific.
  *
- * Set `window.I6_DEBUG = true` to see what happens in the console.
+ * Set `window.I6_DEBUG = true` to see what happens in the console, and to get the model tensors in the "i6:infer-tensors" event.
  */
 
 import { I6Error } from "../errors.js";
@@ -115,6 +115,7 @@ class Infer {
       // 3. Run the model
       const outputs = await runModel(compiled, inputs)
       debug("output returned (before namedJsonQuery)", outputs)
+      announceTensors({ modelName, partitions: opts.partitions, model: describeModel(compiled), inputs, outputs })
 
       // 4. The sqlite turns the outputs into the result
       const result = await conn.namedJsonQuery({ name: queryName("output"), params: outputQueryParams(outputs, opts) })
@@ -226,6 +227,17 @@ class Infer {
     }
     return { sqlite: byName[FILES.sqlite], tflite: byName[FILES.tflite] }
   }
+}
+
+/**
+ * With `window.I6_DEBUG` set, tells the page what went into and came out of the model, as the "i6:infer-tensors" event
+ * (`detail`: modelName, partitions, model, inputs, outputs). The demo shows it on screen. Outputs are copied to plain arrays.
+ * @param {{modelName: string, partitions: Object<string, string>, model: Object, inputs: Object, outputs: Object<string, ArrayLike<number>>}} tensors
+ */
+function announceTensors({ outputs, ...rest }) {
+  if (!globalThis.I6_DEBUG || typeof globalThis.dispatchEvent !== "function") return
+  const plain = Object.fromEntries(Object.entries(outputs).map(([name, values]) => [name, Array.from(values)]))
+  globalThis.dispatchEvent(new CustomEvent("i6:infer-tensors", { detail: { ...rest, outputs: plain } }))
 }
 
 /**
