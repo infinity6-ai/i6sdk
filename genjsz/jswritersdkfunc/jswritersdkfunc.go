@@ -212,7 +212,9 @@ func Write(ctx context.Context, sdkFuncs []*jsparsersdkfunc.SdkFunc) string {
 			writeln(&decl, "  const ret = await dash.query({")
 			writeln(&decl, "    dataset: req.input.dataset,")
 			writeln(&decl, "    dashName: \"%s\",", fn.Spec.Id)
-			writeln(&decl, "    params: req.input,")
+			if hasInputParams(fn) {
+				writeln(&decl, "    params: req.input,")
+			}
 			if fn.Spec.Version != "" {
 				writeln(&decl, "    partitions: {\"version\": \"%s\", ...req.partitions},", fn.Spec.Version)
 			} else {
@@ -238,4 +240,22 @@ func Write(ctx context.Context, sdkFuncs []*jsparsersdkfunc.SdkFunc) string {
 	writeln(&b, "export { SdkFuncs };")
 
 	return b.String()
+}
+
+// hasInputParams tells if the input of fn has a "params" property, the query input of a client query.
+func hasInputParams(fn *jsparsersdkfunc.SdkFunc) bool {
+	if fn.Req.Input.Head == nil {
+		return false
+	}
+	for _, td := range fn.Typedefs.All() {
+		if td.Head.Name != fn.Req.Input.Head.Typ || td.Properties == nil {
+			continue
+		}
+		for _, prop := range td.Properties.All() {
+			if prop.Name == "params" {
+				return true
+			}
+		}
+	}
+	return false
 }

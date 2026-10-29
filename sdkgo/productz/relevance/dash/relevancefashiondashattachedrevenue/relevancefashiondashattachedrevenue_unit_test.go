@@ -1,4 +1,4 @@
-package relavancefashiondashattachedrevenue_test
+package relevancefashiondashattachedrevenue_test
 
 import (
 	"testing"
@@ -8,25 +8,25 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relavancefashiondashattachedrevenue"
+	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashattachedrevenue"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
 )
 
-func TestUnitRelavanceFashionDashAttachedRevenue(t *testing.T) {
-	fn := &relavancefashiondashattachedrevenue.Func{
-		Req: relavancefashiondashattachedrevenue.Req{
+func TestUnitRelevanceFashionDashAttachedRevenue(t *testing.T) {
+	fn := &relevancefashiondashattachedrevenue.Func{
+		Req: relevancefashiondashattachedrevenue.Req{
 			Dataset: lakedsz.MustParse("my-dataset"),
-			DashPartitions: relavancefashiondashattachedrevenue.Partitions{
+			DashPartitions: relevancefashiondashattachedrevenue.Partitions{
 				StoreId: "store-123",
 			},
-			Params: relavancefashiondashattachedrevenue.Params{
+			Params: relevancefashiondashattachedrevenue.Params{
 				MinYearMonth: "2024-01",
 				MaxYearMonth: "2024-12",
 			},
 		},
-		Resp: relavancefashiondashattachedrevenue.Resp{
-			Results: relavancefashiondashattachedrevenue.Result{
-				Rows: []*relavancefashiondashattachedrevenue.Row{
+		Resp: relevancefashiondashattachedrevenue.Resp{
+			Results: relevancefashiondashattachedrevenue.Result{
+				Rows: []*relevancefashiondashattachedrevenue.Row{
 					{
 						AttachedRevenue:   1500.5,
 						AttachedPurchases: 12,
@@ -44,7 +44,7 @@ func TestUnitRelavanceFashionDashAttachedRevenue(t *testing.T) {
 		},
 	}
 
-	fnCopy := jsonz.MustCopy(fn, &relavancefashiondashattachedrevenue.Func{})
+	fnCopy := jsonz.MustCopy(fn, &relevancefashiondashattachedrevenue.Func{})
 
 	require.Equal(t, fn.Req, fnCopy.Req)
 	require.Equal(t, fn.Resp, fnCopy.Resp)
@@ -61,8 +61,8 @@ func TestUnitRelavanceFashionDashAttachedRevenue(t *testing.T) {
 	require.Equal(t, 2.0, fnCopy.Resp.Results.Rows[1].AttachedSkus)
 }
 
-func TestUnitRelavanceFashionDashAttachedRevenueSpec(t *testing.T) {
-	fn := &relavancefashiondashattachedrevenue.Func{}
+func TestUnitRelevanceFashionDashAttachedRevenueSpec(t *testing.T) {
+	fn := &relevancefashiondashattachedrevenue.Func{}
 	spec := fn.SdkFuncSpec()
 	require.Equal(t, "product-relevance-fashion-dash-attached-revenue", spec.Id)
 	require.Equal(t, "v1", spec.Version)
@@ -70,9 +70,9 @@ func TestUnitRelavanceFashionDashAttachedRevenueSpec(t *testing.T) {
 	require.Nil(t, spec.Desc)
 }
 
-func TestUnitRelavanceFashionDashAttachedRevenueDataRefs(t *testing.T) {
+func TestUnitRelevanceFashionDashAttachedRevenueDataRefs(t *testing.T) {
 	ctx := t.Context()
-	fn := &relavancefashiondashattachedrevenue.Func{}
+	fn := &relevancefashiondashattachedrevenue.Func{}
 	refs := fn.SdkFuncDataRefs()
 	require.NotNil(t, refs)
 	require.NotNil(t, refs.Input)

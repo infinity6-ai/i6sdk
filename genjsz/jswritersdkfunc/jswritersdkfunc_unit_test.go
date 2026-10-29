@@ -7,7 +7,8 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparsersdkfunc"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/genjsz/jswritersdkfunc"
-	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relavancefashiondashfunnel"
+	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashfunnel"
+	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashlistshowcasecategories"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/inferz/inferzrelevancefashionfbt"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
 )
@@ -193,7 +194,7 @@ export { SdkFuncs };
 	})
 
 	t.Run("with client query sdk func", func(t *testing.T) {
-		parsed := jsparsersdkfunc.ParseSdkFunc(ctx, &relavancefashiondashfunnel.Func{})
+		parsed := jsparsersdkfunc.ParseSdkFunc(ctx, &relevancefashiondashfunnel.Func{})
 		want := `class SdkFuncs {
 
   /**
@@ -219,6 +220,47 @@ export { SdkFuncs };
       dataset: req.input.dataset,
       dashName: "product-relevance-fashion-dash-funnel",
       params: req.input,
+      partitions: {"version": "v1", ...req.partitions},
+      serviceOpts: opts,
+    })
+    return ret;
+  }
+}
+
+export { SdkFuncs };
+`
+		check(t, testScenario{
+			in:   []*jsparsersdkfunc.SdkFunc{parsed},
+			want: want,
+		})
+	})
+
+	t.Run("with client query sdk func without params", func(t *testing.T) {
+		parsed := jsparsersdkfunc.ParseSdkFunc(ctx, &relevancefashiondashlistshowcasecategories.Func{})
+		want := `class SdkFuncs {
+
+  /**
+   * Constructs an SdkFuncs instance.
+   * @param {Services} services - The services manager instance.
+   */
+  constructor(services) {
+    /**
+     * @private
+     * @type {Services}
+     */
+    this._services = services;
+  }
+
+  /**
+   * @param {sdkFuncProductRelevanceFashionDashListShowcaseCategoriesReq} req
+   * @param {ServiceOptions} [opts]
+   * @returns {Promise<sdkFuncProductRelevanceFashionDashListShowcaseCategoriesOutput>}
+   */
+  async productRelevanceFashionDashListShowcaseCategoriesV1(req, opts) {
+    const dash = this._services.dash()
+    const ret = await dash.query({
+      dataset: req.input.dataset,
+      dashName: "product-relevance-fashion-dash-list-showcase-categories",
       partitions: {"version": "v1", ...req.partitions},
       serviceOpts: opts,
     })

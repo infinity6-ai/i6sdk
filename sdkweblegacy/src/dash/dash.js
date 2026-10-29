@@ -22,7 +22,7 @@ import { debugLogger } from "../internal/debug/debug.js";
  * @property {string} dashName - Dash name (e.g. "product-relevance-fashion-dash-funnel"); names the cached sqlite and the named query.
  * @property {Object<string, string>} partitions - Partitions of the dash, name -> value (e.g. `{ store_id: "s1", version: "v1" }`).
  * @property {string} dataset - Dataset that holds the dash file.
- * @property {*} params - Query input, any JSON. Bound as `?1` of the named query.
+ * @property {*} [params] - Query input, any JSON. Bound as `?1` of the named query. Omit it for a query that takes none.
  * @property {string} [sqliteUrl] - Tests only: URL of the sqlite (must answer HEAD with an etag). Default: the model API.
  * @property {ServiceOptions} [serviceOpts] - Given to the API call that signs the sqlite URL.
  */
@@ -65,7 +65,7 @@ class Dash {
     const conn = await sqlitez.open({ path: await fs.resolve(ref) })
     try {
       const name = `${opts.dashName}`
-      const result = await conn.namedJsonQuery({ name, params: [opts.params] })
+      const result = await conn.namedJsonQuery({ name, params: opts.params === undefined ? [] : [opts.params] })
       debug(`${name} returned`, result)
       return result
     } finally {
@@ -114,7 +114,6 @@ function validate(opts) {
   if (!isPartitions(opts.partitions)) {
     throw new I6Error("dash: opts.partitions must be an object of string values", { code: "invalid_argument" })
   }
-  if (opts.params === undefined) throw new I6Error("dash: opts.params is required", { code: "invalid_argument" })
 }
 
 export { Dash };

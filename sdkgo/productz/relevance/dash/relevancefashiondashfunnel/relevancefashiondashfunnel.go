@@ -1,4 +1,4 @@
-package relavancefashiondashattachedrevenue
+package relevancefashiondashfunnel
 
 import (
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
@@ -16,10 +16,9 @@ type Partitions struct {
 }
 
 type Row struct {
-	AttachedRevenue   float64
-	AttachedPurchases float64
-	AttachedSkus      float64
-	AvgTicket         float64
+	EventType string
+	FromRec   string
+	QtEvents  string
 }
 
 type Result struct {
@@ -43,7 +42,7 @@ type Func struct {
 
 func (d *Func) SdkFuncSpec() sdkfuncz.Spec {
 	return sdkfuncz.Spec{
-		Id:      "product-relevance-fashion-dash-attached-revenue",
+		Id:      "product-relevance-fashion-dash-funnel",
 		Version: "v1",
 		Typ:     sdkfuncz.TypClientQuery,
 		Desc:    nil,
@@ -85,10 +84,9 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 								return &schemaz.Schema{
 									Object: func(_ bool) map[string]*schemaz.Schema {
 										return map[string]*schemaz.Schema{
-											"attached_revenue":   {Field: func() any { return &(*element).AttachedRevenue }},
-											"attached_purchases": {Field: func() any { return &(*element).AttachedPurchases }},
-											"attached_skus":      {Field: func() any { return &(*element).AttachedSkus }},
-											"avg_ticket":         {Field: func() any { return &(*element).AvgTicket }},
+											"event_type": {Field: func() any { return &(*element).EventType }},
+											"from_rec":   {Field: func() any { return &(*element).FromRec }},
+											"qt_events":  {Field: func() any { return &(*element).QtEvents }},
 										}
 									},
 								}

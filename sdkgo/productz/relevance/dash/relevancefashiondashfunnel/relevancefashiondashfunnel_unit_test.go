@@ -1,4 +1,4 @@
-package relavancefashiondashfunnel_test
+package relevancefashiondashfunnel_test
 
 import (
 	"testing"
@@ -8,25 +8,25 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relavancefashiondashfunnel"
+	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashfunnel"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
 )
 
-func TestUnitRelavanceFashionDashFunnel(t *testing.T) {
-	fn := &relavancefashiondashfunnel.Func{
-		Req: relavancefashiondashfunnel.Req{
+func TestUnitRelevanceFashionDashFunnel(t *testing.T) {
+	fn := &relevancefashiondashfunnel.Func{
+		Req: relevancefashiondashfunnel.Req{
 			Dataset: lakedsz.MustParse("my-dataset"),
-			DashPartitions: relavancefashiondashfunnel.Partitions{
+			DashPartitions: relevancefashiondashfunnel.Partitions{
 				StoreId: "store-123",
 			},
-			Params: relavancefashiondashfunnel.Params{
+			Params: relevancefashiondashfunnel.Params{
 				MinYearMonth: "2024-01",
 				MaxYearMonth: "2024-12",
 			},
 		},
-		Resp: relavancefashiondashfunnel.Resp{
-			Results: relavancefashiondashfunnel.Result{
-				Rows: []*relavancefashiondashfunnel.Row{
+		Resp: relevancefashiondashfunnel.Resp{
+			Results: relevancefashiondashfunnel.Result{
+				Rows: []*relevancefashiondashfunnel.Row{
 					{
 						EventType: "click",
 						FromRec:   "true",
@@ -42,7 +42,7 @@ func TestUnitRelavanceFashionDashFunnel(t *testing.T) {
 		},
 	}
 
-	fnCopy := jsonz.MustCopy(fn, &relavancefashiondashfunnel.Func{})
+	fnCopy := jsonz.MustCopy(fn, &relevancefashiondashfunnel.Func{})
 
 	require.Equal(t, fn.Req, fnCopy.Req)
 	require.Equal(t, fn.Resp, fnCopy.Resp)
@@ -59,8 +59,8 @@ func TestUnitRelavanceFashionDashFunnel(t *testing.T) {
 	require.Equal(t, "25", fnCopy.Resp.Results.Rows[1].QtEvents)
 }
 
-func TestUnitRelavanceFashionDashFunnelSpec(t *testing.T) {
-	fn := &relavancefashiondashfunnel.Func{}
+func TestUnitRelevanceFashionDashFunnelSpec(t *testing.T) {
+	fn := &relevancefashiondashfunnel.Func{}
 	spec := fn.SdkFuncSpec()
 	require.Equal(t, "product-relevance-fashion-dash-funnel", spec.Id)
 	require.Equal(t, "v1", spec.Version)
@@ -68,9 +68,9 @@ func TestUnitRelavanceFashionDashFunnelSpec(t *testing.T) {
 	require.Nil(t, spec.Desc)
 }
 
-func TestUnitRelavanceFashionDashFunnelDataRefs(t *testing.T) {
+func TestUnitRelevanceFashionDashFunnelDataRefs(t *testing.T) {
 	ctx := t.Context()
-	fn := &relavancefashiondashfunnel.Func{}
+	fn := &relevancefashiondashfunnel.Func{}
 	refs := fn.SdkFuncDataRefs()
 	require.NotNil(t, refs)
 	require.NotNil(t, refs.Input)

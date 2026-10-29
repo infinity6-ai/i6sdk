@@ -77,13 +77,25 @@
             for (const partitions of [undefined, 'x', ['a'], { store_id: 1 }]) {
                 await rejectsWithCode(assert, dash.query({ ...ok, partitions }), 'invalid_argument', /opts.partitions/)
             }
-            await rejectsWithCode(assert, dash.query({ ...ok, params: undefined }), 'invalid_argument', /opts.params/)
         })
 
         QUnit.test("query runs the named query of the downloaded sqlite", async function (assert) {
             const result = await new Dash().query({ ...base, sqliteUrl })
             assert.deepEqual(result, { marker: 'first', params: base.params })
             assert.deepEqual(fetches, ['HEAD', 'GET'], 'downloaded once')
+        })
+
+        QUnit.test("query binds no parameter when there are no params", async function (assert) {
+            // the stock query binds ?1, so this one uses a query that binds nothing
+            const SQL = await (await import('sql.js')).default({ locateFile: (file) => sqlJsWasmUrl + file })
+            const noParams = new SQL.Database()
+            noParams.run('CREATE TABLE namedqueries (name TEXT PRIMARY KEY, query TEXT)')
+            noParams.run('INSERT INTO namedqueries VALUES (?, ?)', [`dash-${dashName}`, "SELECT json_object('marker', 'none') AS ret"])
+            sqliteBytes = noParams.export()
+            noParams.close()
+
+            const result = await new Dash().query({ ...base, params: undefined, sqliteUrl })
+            assert.deepEqual(result, { marker: 'none' })
         })
 
         QUnit.test("query downloads again only when the etag changes", async function (assert) {
