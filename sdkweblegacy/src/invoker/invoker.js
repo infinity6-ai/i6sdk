@@ -13,10 +13,18 @@ import * as gzip from "../internal/gzip/gzip.js";
 
 /**
  * A custom fetch implementation.
+ * @typedef {(url: string, opts: InvokeOptions) => Promise<Response>} Fetcher
+ */
+
+/**
+ * Hook to prepare or mutate request options before the request is sent (e.g., adding `sig` query parameter).
+ * @typedef {(opts: InvokeOptions) => Promise<void> | void} PrepareRequest
+ */
+
+/**
+ * Service options configuring SDK network requests.
  *
- * It intercepts requests made by the SDK. This is essential when the `DatasetToken` must
- * never be exposed to the browser.
- *
+ * This is essential when the `DatasetToken` must never be exposed to the browser.
  * There are two main approaches to keep the `DatasetToken` safe on your backend:
  *
  * ---
@@ -55,19 +63,19 @@ import * as gzip from "../internal/gzip/gzip.js";
  * ---
  * ### Approach 2: URL Signing (Direct browser-to-i6 calls)
  * If you prefer requests to go directly from the browser to i6 (e.g. to offload traffic from your servers),
- * provide a custom `fetcher` that calls your backend server to pre-sign the URL before forwarding it to i6.
+ * provide a `prepareRequest` hook that calls your backend server to pre-sign the URL before forwarding it to i6.
  *
  * Example:
  * ```js
- * const fetcher = async (url, opts) => {
+ * const prepareRequest = async (opts) => {
  *   // Ask your backend to sign the URL
  *   const res = await fetch('/api/sign-i6-url', {
  *     method: 'POST',
- *     body: JSON.stringify({ url, method: opts.method })
+ *     body: JSON.stringify({ url: opts.url, method: opts.method })
  *   });
- *   const { signedUrl } = await res.json();
- *   // Send the actual request directly to i6 using the signed URL
- *   return fetch(signedUrl, opts);
+ *   const { sig } = await res.json();
+ *   // Append the sig query parameter to opts.url
+ *   opts.url += (opts.url.includes('?') ? '&' : '?') + `sig=${encodeURIComponent(sig)}`;
  * };
  * ```
  *
@@ -106,13 +114,10 @@ import * as gzip from "../internal/gzip/gzip.js";
  * 5. Append the `sig` query parameter: `?sig=v1.<exp>.<open_params_pipe_separated>.<pub_key>.<signature>`
  *    (e.g., `sig=v1.20261027T150000000Z.payload.PubKeyBase64...SigBase64...`)
  *
- * @typedef {(url: string, opts: InvokeOptions) => Promise<Response>} Fetcher
- */
-
-/**
  * @typedef {object} ServiceOptions
  * @property {string} [datasetToken] - [Go: string]
  * @property {Fetcher} [fetcher] - Custom fetch implementation.
+ * @property {PrepareRequest} [prepareRequest] - Hook to mutate request options before sending (e.g., adding `sig` query parameter).
  */
 
 /**
@@ -129,6 +134,7 @@ import * as gzip from "../internal/gzip/gzip.js";
  * @property {RequestMode} [mode] - Request mode (e.g., 'cors', 'no-cors', 'same-origin').
  * @property {AbortSignal|null} [signal] - An AbortSignal to cancel the request.
  * @property {ServiceOptions} [opts]
+ * @property {boolean} [sinkable]
  */
 
 /**
@@ -199,17 +205,19 @@ class Invoker {
             await opts.opts.prepareRequest(opts)
         }
 
-        if (opts.sinkable) {
-            if (opts.method?.toUpperCase() != "GET") throw 'Unsupported: sinkable must be GET'
-            if (opts.body) throw 'Unsupported: sinkable must not have body'
-            const u = new URL(url)
-            let search = u.search.startsWith('?') ? u.search.substring(1) : u.search
-            if (search) {
-                search = b64.encodeUrlSafe(await gzip.gzip((search)))        
-            }
-            if (search.length > 1900) throw `It is too large to sink: ${search.length}: ${search}`
-            url = `${this._services.config().baseUrl}/api/sink/${u.pathname}?s=${search}`
-        }
+        // if (opts.sinkable) {
+        //     if (opts.method?.toUpperCase() != "GET") throw new I6Error('Unsupported: sinkable must be GET')
+        //     if (opts.body) throw new I6Error('Unsupported: sinkable must not have body')
+        //     const u = new URL(opts.url)
+        //     const pathname = u.pathname.replace(/^\/+/, '')
+        //     let search = u.search.startsWith('?') ? u.search.substring(1) : u.search
+        //     if (search) {
+        //         search = b64.encodeUrlSafe(await gzip.gzip((search)))        
+        //     }
+        //     if (search.length <= 1900) {
+        //         opts.url = `${this._services.config().baseUrl}/api/sink/${pathname}?s=${search}`
+        //     }
+        // }
 
         if (opts.opts?.fetcher) {
             return opts.opts.fetcher(opts.url, opts)

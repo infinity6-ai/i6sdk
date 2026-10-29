@@ -187,6 +187,10 @@ func writeApiDecl(b *strings.Builder, api *jsparserapi.Api) {
 
 	writeln(b, "    opts: opts,")
 
+	if api.Spec.Desc != nil && api.Spec.Desc.Labels != nil && api.Spec.Desc.Labels["sinkable"] == "true" {
+		writeln(b, "    sinkable: true,")
+	}
+
 	resultKey := "payload"
 	if api.Resp.Payload.Head == nil {
 		resultKey = "body"

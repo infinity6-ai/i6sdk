@@ -70,6 +70,22 @@
             const r = await invoker.invokeResult({ path: 'x', opts: { fetcher } })
             assert.deepEqual(r, { status: 200, ok: true, payload: { id: 'custom' } })
         })
+
+        QUnit.test("calls prepareRequest from ServiceOptions if provided", async function (assert) {
+            let fetchedUrl = ""
+            globalThis.fetch = async (url, opts) => {
+                fetchedUrl = url
+                return new Response('{"id":"prep"}', { status: 200 })
+            }
+            
+            const prepareRequest = async (opts) => {
+                opts.url += "?sig=test"
+            }
+            
+            const r = await invoker.invokeResult({ path: 'x', opts: { prepareRequest } })
+            assert.deepEqual(r, { status: 200, ok: true, payload: { id: 'prep' } })
+            assert.strictEqual(fetchedUrl, 'https://api.test/x?sig=test')
+        })
     })
 
 })(QUnit)

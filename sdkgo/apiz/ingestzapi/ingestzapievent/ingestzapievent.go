@@ -40,6 +40,7 @@ func (d *Api[T]) ApiSpec() apiz.ApiSpec {
 			return &schemaz.Desc{
 				Name:    "Event Ingestion",
 				Summary: "Ingests events data into a target dataset table.",
+				Labels:  map[string]string{"sinkable": "true"},
 			}
 		},
 		Method: "GET",
