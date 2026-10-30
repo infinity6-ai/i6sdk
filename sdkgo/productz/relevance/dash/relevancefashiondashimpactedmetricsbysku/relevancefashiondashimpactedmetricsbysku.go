@@ -24,6 +24,8 @@ type Row struct {
 	CartAdds         float64
 	Purchases        float64
 	Revenue          float64
+	Participation    float64
+	ConversionRate   float64
 }
 
 type Result struct {
@@ -97,6 +99,8 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 											"cart_adds":         {Field: func() any { return &(*element).CartAdds }},
 											"purchases":         {Field: func() any { return &(*element).Purchases }},
 											"revenue":           {Field: func() any { return &(*element).Revenue }},
+											"participation":     {Field: func() any { return &(*element).Participation }},
+											"conversion_rate":   {Field: func() any { return &(*element).ConversionRate }},
 										}
 									},
 								}

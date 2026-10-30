@@ -34,6 +34,8 @@ func TestUnitRelevanceFashionDashImpactedMetricsByShowcaseCategory(t *testing.T)
 						CartAdds:         3,
 						Purchases:        3,
 						Revenue:          1368.01,
+						Participation:    0.12,
+						ConversionRate:   0.6,
 					},
 					{
 						ShowcaseCategory: nil,
@@ -42,6 +44,8 @@ func TestUnitRelevanceFashionDashImpactedMetricsByShowcaseCategory(t *testing.T)
 						CartAdds:         5,
 						Purchases:        3,
 						Revenue:          103.5,
+						Participation:    0.08,
+						ConversionRate:   0.5,
 					},
 				},
 			},
@@ -145,6 +149,10 @@ func TestUnitRelevanceFashionDashImpactedMetricsByShowcaseCategoryDataRefs(t *te
 	require.Equal(t, "number", rowsElemProps["purchases"].Typ)
 	require.Contains(t, rowsElemProps, "revenue")
 	require.Equal(t, "number", rowsElemProps["revenue"].Typ)
+	require.Contains(t, rowsElemProps, "participation")
+	require.Equal(t, "number", rowsElemProps["participation"].Typ)
+	require.Contains(t, rowsElemProps, "conversion_rate")
+	require.Equal(t, "number", rowsElemProps["conversion_rate"].Typ)
 }
 
 func typedefNames(tds *jstypez.Typedefs) []string {
