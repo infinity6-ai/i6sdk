@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"time"
 
-	"github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric"
 	traceExporter "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace"
 	"github.com/infinity6-ai/gox/commonz/configz"
 	"github.com/infinity6-ai/gox/commonz/errorz"
@@ -16,7 +14,6 @@ import (
 	"github.com/infinity6-ai/gox/commonz/strconvz"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
-	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
 
@@ -82,37 +79,37 @@ func InitTracer(ctx context.Context, app string, version string, opts *Options) 
 	})
 }
 
-func initMetricExporterGcp(opts *Options) sdkmetric.Exporter {
-	ret, err := metric.New(metric.WithProjectID(opts.ProjectId))
-	errorz.Check(err)
-	return ret
-}
+// func initMetricExporterGcp(opts *Options) sdkmetric.Exporter {
+// 	ret, err := metric.New(metric.WithProjectID(opts.ProjectId))
+// 	errorz.Check(err)
+// 	return ret
+// }
 
-func initMetricExporter(ctx context.Context, opts *Options) sdkmetric.Exporter {
-	providerName := os.Getenv("I6_LOGZ_TRACER_PROVIDER")
-	logger.Info(ctx, "logzmetric init", map[string]any{"providerName": providerName, "opts": opts})
-	switch providerName {
-	case "":
-		return nil
-	case "gcp":
-		return initMetricExporterGcp(opts)
-	}
-	panic(fmt.Sprintf("unknown providerName: %s", providerName))
-}
+// func initMetricExporter(ctx context.Context, opts *Options) sdkmetric.Exporter {
+// 	providerName := os.Getenv("I6_LOGZ_TRACER_PROVIDER")
+// 	logger.Info(ctx, "logzmetric init", map[string]any{"providerName": providerName, "opts": opts})
+// 	switch providerName {
+// 	case "":
+// 		return nil
+// 	case "gcp":
+// 		return initMetricExporterGcp(opts)
+// 	}
+// 	panic(fmt.Sprintf("unknown providerName: %s", providerName))
+// }
 
-func InitMetric(ctx context.Context, app string, version string, opts *Options) io.Closer {
-	metricExporter := initMetricExporter(ctx, opts)
-	if metricExporter == nil {
-		return ioz.CloserV(func() {})
-	}
+// func InitMetric(ctx context.Context, app string, version string, opts *Options) io.Closer {
+// 	metricExporter := initMetricExporter(ctx, opts)
+// 	if metricExporter == nil {
+// 		return ioz.CloserV(func() {})
+// 	}
 
-	res := createResource(ctx, app, version)
-	metricProvider := sdkmetric.NewMeterProvider(
-		sdkmetric.WithResource(res),
-		sdkmetric.WithReader(sdkmetric.NewPeriodicReader(metricExporter, sdkmetric.WithInterval(15*time.Second))),
-	)
-	otel.SetMeterProvider(metricProvider)
-	return ioz.Closer(func() error {
-		return metricProvider.Shutdown(ctx)
-	})
-}
+// 	res := createResource(ctx, app, version)
+// 	metricProvider := sdkmetric.NewMeterProvider(
+// 		sdkmetric.WithResource(res),
+// 		sdkmetric.WithReader(sdkmetric.NewPeriodicReader(metricExporter, sdkmetric.WithInterval(15*time.Second))),
+// 	)
+// 	otel.SetMeterProvider(metricProvider)
+// 	return ioz.Closer(func() error {
+// 		return metricProvider.Shutdown(ctx)
+// 	})
+// }
