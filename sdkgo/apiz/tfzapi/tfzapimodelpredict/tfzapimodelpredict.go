@@ -6,11 +6,11 @@ import (
 )
 
 type Req struct {
-	Dataset   string         `json:"dataset"`
-	ModelName string         `json:"model_name"`
-	Version   string         `json:"version"`
-	StoreId   string         `json:"store_id"`
-	Inputs    map[string]any `json:"inputs"`
+	Dataset   string `json:"dataset"`
+	ModelName string `json:"model_name"`
+	Version   string `json:"version"`
+	StoreId   string `json:"store_id"`
+	Inputs    any    `json:"inputs"`
 }
 
 type Resp struct {
