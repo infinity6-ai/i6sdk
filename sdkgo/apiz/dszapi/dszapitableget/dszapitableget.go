@@ -43,8 +43,8 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
 					"dataset": {
-						Desc: &schemaz.Desc{Summary: "Name of the dataset."},
-						UrlValue:  schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
+						Desc:     &schemaz.Desc{Summary: "Name of the dataset."},
+						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
 					},
 					"path": {
 						Desc: &schemaz.Desc{Summary: "Path to the file without schema."},
@@ -73,8 +73,8 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
 					"location": {
-						Desc: &schemaz.Desc{Summary: "Redirect URL for the file."},
-						UrlValue:  schemaz.ParseStr(&d.Resp.Location),
+						Desc:     &schemaz.Desc{Summary: "Redirect URL for the file."},
+						UrlValue: schemaz.ParseStr(&d.Resp.Location),
 					},
 				}
 			},

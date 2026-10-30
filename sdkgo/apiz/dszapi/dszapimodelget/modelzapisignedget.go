@@ -23,12 +23,12 @@ func (u *ModelFile) Schema() *schemaz.Schema {
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"name": {
-					Desc: &schemaz.Desc{Summary: "File Name"},
-					Field:  func() any { return &u.Name },
+					Desc:  &schemaz.Desc{Summary: "File Name"},
+					Field: func() any { return &u.Name },
 				},
 				"url": {
-					Desc: &schemaz.Desc{Summary: "signed URL."},
-					Field:  func() any { return &u.Url },
+					Desc:  &schemaz.Desc{Summary: "signed URL."},
+					Field: func() any { return &u.Url },
 				},
 			}
 		},
@@ -64,12 +64,12 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
 					"dataset": {
-						Desc: &schemaz.Desc{Summary: "Name of the dataset to generate signed URLs for."},
-						UrlValue:  schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
+						Desc:     &schemaz.Desc{Summary: "Name of the dataset to generate signed URLs for."},
+						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
 					},
 					"model_name": {
-						Desc: &schemaz.Desc{Summary: "Model name"},
-						UrlValue:  schemaz.ParseStr(&d.Req.ModelName),
+						Desc:     &schemaz.Desc{Summary: "Model name"},
+						UrlValue: schemaz.ParseStr(&d.Req.ModelName),
 					},
 				}
 			},
@@ -81,12 +81,12 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
 					"model_version": {
-						Desc: &schemaz.Desc{Summary: "Model version"},
-						Field:  func() any { return &d.Req.ModelVersion },
+						Desc:  &schemaz.Desc{Summary: "Model version"},
+						Field: func() any { return &d.Req.ModelVersion },
 					},
 					"model_partitions": {
-						Desc: &schemaz.Desc{Summary: "Model partition key/value pairs"},
-						Field:  func() any { return &d.Req.ModelPartitions },
+						Desc:  &schemaz.Desc{Summary: "Model partition key/value pairs"},
+						Field: func() any { return &d.Req.ModelPartitions },
 					},
 				}
 			},

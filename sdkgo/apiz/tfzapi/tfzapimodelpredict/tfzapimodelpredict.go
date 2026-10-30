@@ -6,11 +6,11 @@ import (
 )
 
 type Req struct {
-	Dataset   string `json:"dataset"`
-	ModelName string `json:"model_name"`
-	Version   string `json:"version"`
-	StoreId   string `json:"store_id"`
-	Inputs    any    `json:"inputs"`
+	Dataset         string            `json:"dataset"`
+	ModelName       string            `json:"model_name"`
+	Version         string            `json:"version"`
+	ModelPartitions map[string]string `json:"model_partitions"`
+	Inputs          any               `json:"inputs"`
 }
 
 type Resp struct {
@@ -48,19 +48,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				}
 			},
 		},
-		QueryParams: &schemaz.Schema{
-			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && d.Req == nil {
-					return nil
-				}
-				if d.Req == nil {
-					d.Req = &Req{}
-				}
-				return map[string]*schemaz.Schema{
-					"store_id": {UrlValue: schemaz.ParseStr(&d.Req.StoreId)},
-				}
-			},
-		},
+		QueryParams: nil,
 		ReqHeaders:  nil,
 		ReqBody: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
@@ -73,6 +61,9 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				return map[string]*schemaz.Schema{
 					"inputs": {
 						Field: func() any { return &d.Req.Inputs },
+					},
+					"model_partitions": {
+						Field: func() any { return &d.Req.ModelPartitions },
 					},
 				}
 			},

@@ -55,8 +55,8 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
 					"dataset": {
-						Desc: &schemaz.Desc{Summary: "Name of the dataset to list tables from."},
-						UrlValue:  schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
+						Desc:     &schemaz.Desc{Summary: "Name of the dataset to list tables from."},
+						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
 					},
 				}
 			},
@@ -65,28 +65,28 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
 					"path": {
-						Desc: &schemaz.Desc{Summary: "Path to list."},
-						UrlValue:  schemaz.ParseStrGet(&d.Req.Path, laketbpathz.MustParse),
+						Desc:     &schemaz.Desc{Summary: "Path to list."},
+						UrlValue: schemaz.ParseStrGet(&d.Req.Path, laketbpathz.MustParse),
 					},
 					"sign_method": {
-						Desc: &schemaz.Desc{Summary: "Whether to return signed URLs."},
-						UrlValue:  schemaz.ParseStrGet(&d.Req.SignMethod, fszsignmethod.MustParseOptional),
+						Desc:     &schemaz.Desc{Summary: "Whether to return signed URLs."},
+						UrlValue: schemaz.ParseStrGet(&d.Req.SignMethod, fszsignmethod.MustParseOptional),
 					},
 					"recursive": {
-						Desc: &schemaz.Desc{Summary: "Whether to list recursively."},
-						UrlValue:  schemaz.ParseStrBool(&d.Req.Recursive),
+						Desc:     &schemaz.Desc{Summary: "Whether to list recursively."},
+						UrlValue: schemaz.ParseStrBool(&d.Req.Recursive),
 					},
 					"stat": {
-						Desc: &schemaz.Desc{Summary: "Whether to include file stats."},
-						UrlValue:  schemaz.ParseStrBool(&d.Req.Stat),
+						Desc:     &schemaz.Desc{Summary: "Whether to include file stats."},
+						UrlValue: schemaz.ParseStrBool(&d.Req.Stat),
 					},
 					"from_cursor": {
-						Desc: &schemaz.Desc{Summary: "Pagination cursor."},
-						UrlValue:  schemaz.ParseStr(&d.Req.FromCursor),
+						Desc:     &schemaz.Desc{Summary: "Pagination cursor."},
+						UrlValue: schemaz.ParseStr(&d.Req.FromCursor),
 					},
 					"limist": {
-						Desc: &schemaz.Desc{Summary: "Limit the number of results."},
-						UrlValue:  schemaz.ParseStrNumber(&d.Req.Limit),
+						Desc:     &schemaz.Desc{Summary: "Limit the number of results."},
+						UrlValue: schemaz.ParseStrNumber(&d.Req.Limit),
 					},
 				}
 			},
@@ -108,16 +108,16 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 									Object: func(_ bool) map[string]*schemaz.Schema {
 										return map[string]*schemaz.Schema{
 											"path": {
-												Desc: &schemaz.Desc{Summary: "write it"},
-												Field:  func() any { return &(*element).Path },
+												Desc:  &schemaz.Desc{Summary: "write it"},
+												Field: func() any { return &(*element).Path },
 											},
 											"stat": {
-												Desc: &schemaz.Desc{Summary: "write it"},
-												Field:  func() any { return &(*element).Stat },
+												Desc:  &schemaz.Desc{Summary: "write it"},
+												Field: func() any { return &(*element).Stat },
 											},
 											"signed_url": {
-												Desc: &schemaz.Desc{Summary: "write it"},
-												Field:  func() any { return &(*element).SignedUrl },
+												Desc:  &schemaz.Desc{Summary: "write it"},
+												Field: func() any { return &(*element).SignedUrl },
 											},
 										}
 									},
@@ -126,8 +126,8 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 						}),
 					},
 					"next_cursor": {
-						Desc: &schemaz.Desc{Summary: "Cursor for the next page of results."},
-						Field:  func() any { return &d.Resp.NextCursor },
+						Desc:  &schemaz.Desc{Summary: "Cursor for the next page of results."},
+						Field: func() any { return &d.Resp.NextCursor },
 					},
 				}
 			},

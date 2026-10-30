@@ -623,4 +623,3 @@ func TestUnitEventValidation(t *testing.T) {
 		})
 	})
 }
-
