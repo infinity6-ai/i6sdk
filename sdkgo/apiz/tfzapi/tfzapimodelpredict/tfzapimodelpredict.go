@@ -1,0 +1,97 @@
+package tfzapimodelpredict
+
+import (
+	"github.com/infinity6-ai/gox/routez/apiz"
+	"github.com/infinity6-ai/gox/schemaz/schemaz"
+)
+
+type Req struct {
+	Dataset   string         `json:"dataset"`
+	ModelName string         `json:"model_name"`
+	Version   string         `json:"version"`
+	StoreId   string         `json:"store_id"`
+	Inputs    map[string]any `json:"inputs"`
+}
+
+type Resp struct {
+	Outputs map[string]any `json:"outputs"`
+}
+
+type Api struct {
+	Req  *Req  `json:"req"`
+	Resp *Resp `json:"resp"`
+}
+
+func (d *Api) ApiSpec() apiz.ApiSpec {
+	return apiz.ApiSpec{
+		Id:     "tfz-model-predict",
+		Desc:   nil,
+		Method: "POST",
+		Path:   "/api/model/dataset/{dataset}/{model_name}/{version}/predict",
+	}
+}
+
+func (d *Api) ApiDataRefs() *apiz.DataRefs {
+	return &apiz.DataRefs{
+		PathParams: &schemaz.Schema{
+			Object: func(read bool) map[string]*schemaz.Schema {
+				if read && d.Req == nil {
+					return nil
+				}
+				if d.Req == nil {
+					d.Req = &Req{}
+				}
+				return map[string]*schemaz.Schema{
+					"dataset":    {UrlValue: schemaz.ParseStr(&d.Req.Dataset)},
+					"model_name": {UrlValue: schemaz.ParseStr(&d.Req.ModelName)},
+					"version":    {UrlValue: schemaz.ParseStr(&d.Req.Version)},
+				}
+			},
+		},
+		QueryParams: &schemaz.Schema{
+			Object: func(read bool) map[string]*schemaz.Schema {
+				if read && d.Req == nil {
+					return nil
+				}
+				if d.Req == nil {
+					d.Req = &Req{}
+				}
+				return map[string]*schemaz.Schema{
+					"store_id": {UrlValue: schemaz.ParseStr(&d.Req.StoreId)},
+				}
+			},
+		},
+		ReqHeaders:  nil,
+		ReqBody: &schemaz.Schema{
+			Object: func(read bool) map[string]*schemaz.Schema {
+				if read && d.Req == nil {
+					return nil
+				}
+				if d.Req == nil {
+					d.Req = &Req{}
+				}
+				return map[string]*schemaz.Schema{
+					"inputs": {
+						Field: func() any { return &d.Req.Inputs },
+					},
+				}
+			},
+		},
+		RespHeaders: nil,
+		RespBody: &schemaz.Schema{
+			Object: func(read bool) map[string]*schemaz.Schema {
+				if read && d.Resp == nil {
+					return nil
+				}
+				if d.Resp == nil {
+					d.Resp = &Resp{}
+				}
+				return map[string]*schemaz.Schema{
+					"outputs": {
+						Field: func() any { return &d.Resp.Outputs },
+					},
+				}
+			},
+		},
+	}
+}
