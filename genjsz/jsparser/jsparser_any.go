@@ -26,6 +26,9 @@ func ParseAny(ctx context.Context, baseId string, v any) (*jstypez.Typedef, *jst
 
 	for val.Kind() == reflect.Pointer || val.Kind() == reflect.Interface {
 		if val.IsNil() {
+			if val.Kind() == reflect.Interface {
+				return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: "Record<string, any>", GoTyp: "any"}}, nil
+			}
 			val = reflect.Zero(val.Type().Elem())
 			break
 		}

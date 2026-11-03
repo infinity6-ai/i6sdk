@@ -99,7 +99,7 @@ class Infer {
     const cacheName = (kind) => `infer-${modelName}-${partitionsKey(opts.partitions)}-${kind}`
     const [sqliteRef, tfliteRef] = await Promise.all([
       downloadFile(cacheName("sqlite"), urls.sqlite),
-      downloadFile(cacheName("tflite"), urls.tflite),
+      // downloadFile(cacheName("tflite"), urls.tflite),
     ])
 
     const conn = await sqlitez.open({ path: await fs.resolve(sqliteRef) })
@@ -107,15 +107,16 @@ class Infer {
       // 2. The input query gives the model inputs: {name: {data, shape}}. The model compiles meanwhile.
       const [inputs, compiled] = await Promise.all([
         conn.namedJsonQuery({ name: queryName("input"), params: [params] }),
-        loadModel({ ref: tfliteRef, wasmUrl: opts.litertWasm }),
+        // loadModel({ ref: tfliteRef, wasmUrl: opts.litertWasm }),
       ])
       if (!inputs || typeof inputs !== "object") throw new I6Error(`infer: ${queryName("input")} returned no model inputs`, { code: "query" })
       debug("input query returned", Object.keys(inputs), "model", describeModel(compiled))
 
       // 3. Run the model
-      const outputs = await runModel(compiled, inputs)
-      debug("output returned (before namedJsonQuery)", outputs)
-      announceTensors({ modelName, partitions: opts.partitions, model: describeModel(compiled), inputs, outputs })
+      // const outputs = await runModel(compiled, inputs)
+      // debug("output returned (before namedJsonQuery)", outputs)
+      // announceTensors({ modelName, partitions: opts.partitions, model: describeModel(compiled), inputs, outputs })
+      const outputs = await callModel(inputs, opts)
 
       // 4. The sqlite turns the outputs into the result
       const result = await conn.namedJsonQuery({ name: queryName("output"), params: outputQueryParams(outputs, opts) })
@@ -129,6 +130,21 @@ class Infer {
     } finally {
       await conn.close()
     }
+  }
+
+  async callModel(inputs, opts) {
+    const { dataset, modelName, partitions } = opts
+    return await this._services.apis().tfzModelPredict({
+      params: {
+        dataset: dataset,
+        model_name: modelName,
+        version: partitions.version
+      },
+      payload: {
+        model_partitions: partitions,
+        inputs: inputs
+      }
+    })
   }
 
   /**
