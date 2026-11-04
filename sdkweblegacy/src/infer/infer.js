@@ -118,8 +118,10 @@ class Infer {
       // announceTensors({ modelName, partitions: opts.partitions, model: describeModel(compiled), inputs, outputs })
       const outputs = await this.callModel(inputs, opts)
 
+      let modelOutputsAndLimit = [JSON.parse(outputs.payload.outputs), opts.limit ?? DEFAULT_LIMIT]
+      console.log("TEST", modelOutputsAndLimit)
       // 4. The sqlite turns the outputs into the result
-      const result = await conn.namedJsonQuery({ name: queryName("output"), params: outputQueryParams(outputs, opts) })
+      const result = await conn.namedJsonQuery({ name: queryName("output"), params:  modelOutputsAndLimit})
       debug("output query returned (after namedJsonQuery)", result)
       // The rec_id ties this run to the recshow event that selectResults sends later
       const recId = crypto.randomUUID()
