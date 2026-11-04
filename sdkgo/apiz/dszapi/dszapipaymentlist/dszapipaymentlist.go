@@ -13,6 +13,13 @@ type Req struct {
 	Dataset lakedsz.Dataset
 }
 
+type PaymentLine struct {
+	Id          string
+	Solution    solution.Solution
+	Amount      int64
+	Description string
+}
+
 // Payment is a Stripe invoice with its values without translation, the amounts are in the minor unit of the currency
 type Payment struct {
 	Id               string
@@ -26,7 +33,7 @@ type Payment struct {
 	PeriodEnd        time.Time
 	HostedInvoiceUrl string
 	InvoicePdf       string
-	Solution         solution.Solution
+	Lines            []PaymentLine
 }
 
 // Resp has no payments for datasets without a Stripe customer, like custom and enterprise contracts
@@ -140,9 +147,35 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 												Desc:  &schemaz.Desc{Summary: "Pdf of the invoice"},
 												Field: func() any { return &element.InvoicePdf },
 											},
-											"solution": {
-												Desc:  &schemaz.Desc{Summary: "Solution (product) of the payment"},
-												Field: func() any { return &element.Solution },
+											"lines": {
+												Desc: &schemaz.Desc{Summary: "Line items of the invoice"},
+												Array: schemaz.NewArray(schemaz.ArrayOptions[[]PaymentLine, PaymentLine]{
+													Slice: func() *[]PaymentLine { return &element.Lines },
+													Get: func(lineIdx int, lineElement *PaymentLine) *schemaz.Schema {
+														return &schemaz.Schema{
+															Object: func(_ bool) map[string]*schemaz.Schema {
+																return map[string]*schemaz.Schema{
+																	"id": {
+																		Desc:  &schemaz.Desc{Summary: "Id of the line item in Stripe"},
+																		Field: func() any { return &lineElement.Id },
+																	},
+																	"solution": {
+																		Desc:  &schemaz.Desc{Summary: "Solution (product) of the line item"},
+																		Field: func() any { return &lineElement.Solution },
+																	},
+																	"amount": {
+																		Desc:  &schemaz.Desc{Summary: "Amount of the line item in minor unit"},
+																		Field: func() any { return &lineElement.Amount },
+																	},
+																	"description": {
+																		Desc:  &schemaz.Desc{Summary: "Description of the line item"},
+																		Field: func() any { return &lineElement.Description },
+																	},
+																}
+															},
+														}
+													},
+												}),
 											},
 										}
 									},
