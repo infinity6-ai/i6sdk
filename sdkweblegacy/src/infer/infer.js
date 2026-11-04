@@ -110,13 +110,13 @@ class Infer {
         // loadModel({ ref: tfliteRef, wasmUrl: opts.litertWasm }),
       ])
       if (!inputs || typeof inputs !== "object") throw new I6Error(`infer: ${queryName("input")} returned no model inputs`, { code: "query" })
-      debug("input query returned", Object.keys(inputs), "model", describeModel(compiled))
+      // debug("input query returned", Object.keys(inputs), "model", describeModel(compiled))
 
       // 3. Run the model
       // const outputs = await runModel(compiled, inputs)
       // debug("output returned (before namedJsonQuery)", outputs)
       // announceTensors({ modelName, partitions: opts.partitions, model: describeModel(compiled), inputs, outputs })
-      const outputs = await callModel(inputs, opts)
+      const outputs = await this.callModel(inputs, opts)
 
       // 4. The sqlite turns the outputs into the result
       const result = await conn.namedJsonQuery({ name: queryName("output"), params: outputQueryParams(outputs, opts) })
