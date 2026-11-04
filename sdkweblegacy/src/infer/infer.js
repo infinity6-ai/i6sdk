@@ -106,10 +106,10 @@ class Infer {
     try {
       // 2. The input query gives the model inputs: {name: {data, shape}}. The model compiles meanwhile.
       const [inputs, compiled] = await Promise.all([
-        conn.namedJsonQuery({ name: queryName("input"), params: [params] }),
+        conn.namedStringQuery({ name: queryName("input"), params: [params] }),
         // loadModel({ ref: tfliteRef, wasmUrl: opts.litertWasm }),
       ])
-      if (!inputs || typeof inputs !== "object") throw new I6Error(`infer: ${queryName("input")} returned no model inputs`, { code: "query" })
+      if (!inputs) throw new I6Error(`infer: ${queryName("input")} returned no model inputs`, { code: "query" })
       // debug("input query returned", Object.keys(inputs), "model", describeModel(compiled))
 
       // 3. Run the model
