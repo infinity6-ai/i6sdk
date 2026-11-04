@@ -9,6 +9,7 @@ import (
 type Req struct {
 	Dataset   lakedsz.Dataset
 	ReturnUrl string
+	Locale    string
 }
 
 type Resp struct {
@@ -67,6 +68,10 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					"return_url": {
 						Desc:  &schemaz.Desc{Summary: "URL where the user is redirected when leaving the portal"},
 						Field: func() any { return &d.Req.ReturnUrl },
+					},
+					"locale": {
+						Desc:  &schemaz.Desc{Summary: "Locale for the portal interface, defaults to en-US if empty (e.g. pt-BR, en-US)"},
+						Field: func() any { return &d.Req.Locale },
 					},
 				}
 			},
