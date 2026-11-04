@@ -8,6 +8,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapicustomerportalcreate"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapidatasetlist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapidatasetsolutions"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapiingestiontokencreate"
@@ -84,6 +85,7 @@ func init() {
 	add(&dszapitokendelete.Api{})
 	add(&dszapimodelget.Api{})
 	add(&dszapistripecheckout.Api{})
+	add(&dszapicustomerportalcreate.Api{})
 	add(&dszapisubscriptionget.Api{})
 	add(&dszapisubscriptionplanupdate.Api{})
 	add(&dszapipaymentlist.Api{})
