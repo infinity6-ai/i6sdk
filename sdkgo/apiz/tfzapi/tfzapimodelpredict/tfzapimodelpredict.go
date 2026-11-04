@@ -24,8 +24,10 @@ type Api struct {
 
 func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id:     "tfz-model-predict",
-		Desc:   nil,
+		Id: "tfz-model-predict",
+		Desc: func() *schemaz.Desc {
+			return &schemaz.Desc{Name: "Blablabla", Summary: "Blablablablablabla", Labels: map[string]string{"servname": "tfinfer"}}
+		},
 		Method: "POST",
 		Path:   "/api/model/dataset/{dataset}/{model_name}/{version}/predict",
 	}

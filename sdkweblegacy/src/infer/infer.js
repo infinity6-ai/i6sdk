@@ -144,7 +144,7 @@ class Infer {
         model_partitions: partitions,
         inputs: inputs
       }
-    })
+    }, opts.serviceOpts)
   }
 
   /**
