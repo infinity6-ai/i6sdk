@@ -33,7 +33,6 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/pipezapi/pipezget"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/pipezapi/pipezlist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/pipezapi/pipezstart"
-	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/tfzapi/tfzapimodelpredict"
 )
 
 var apis map[string]apiz.Api
@@ -84,7 +83,7 @@ func init() {
 	add(&dszapistripecheckout.Api{})
 	add(&dszapisubscriptionget.Api{})
 	add(&dszapipaymentlist.Api{})
-	add(&tfzapimodelpredict.Api{})
+	// add(&tfzapimodelpredict.Api{})
 }
 
 func Apis() []apiz.Api {
