@@ -14,7 +14,7 @@ type Req struct {
 }
 
 type Resp struct {
-	Outputs map[string]any
+	Outputs string
 }
 
 type Api struct {
