@@ -25,6 +25,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapistorelist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapistripecheckout"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapisubscriptionget"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapisubscriptionplanupdate"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitableget"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitablelist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitokendelete"
@@ -84,6 +85,7 @@ func init() {
 	add(&dszapimodelget.Api{})
 	add(&dszapistripecheckout.Api{})
 	add(&dszapisubscriptionget.Api{})
+	add(&dszapisubscriptionplanupdate.Api{})
 	add(&dszapipaymentlist.Api{})
 	add(&dszapipaymentautorenewupdate.Api{})
 	add(&tfzapimodelpredict.Api{})
