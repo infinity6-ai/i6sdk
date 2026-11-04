@@ -6,20 +6,20 @@ import (
 )
 
 type Req struct {
-	Dataset         string            `json:"dataset"`
-	ModelName       string            `json:"model_name"`
-	Version         string            `json:"version"`
-	ModelPartitions map[string]string `json:"model_partitions"`
-	Inputs          any               `json:"inputs"`
+	Dataset         string
+	ModelName       string
+	Version         string
+	ModelPartitions map[string]string
+	Inputs          string
 }
 
 type Resp struct {
-	Outputs map[string]any `json:"outputs"`
+	Outputs map[string]any
 }
 
 type Api struct {
-	Req  *Req  `json:"req"`
-	Resp *Resp `json:"resp"`
+	Req  *Req
+	Resp *Resp
 }
 
 func (d *Api) ApiSpec() apiz.ApiSpec {

@@ -19,9 +19,10 @@ func TestUnitModelPredictApi(t *testing.T) {
 			ModelPartitions: map[string]string{
 				"store_id": "store1",
 			},
-			Inputs: []any{
-				[]any{"a", "b"},
-			},
+			// Inputs: []any{
+			// 	[]any{"a", "b"},
+			// },
+			Inputs: `[["a","b"]]`,
 		},
 		Resp: &tfzapimodelpredict.Resp{
 			Outputs: map[string]any{
@@ -37,7 +38,7 @@ func TestUnitModelPredictApi(t *testing.T) {
 	require.Equal(t, "embedding_model", apiCopy.Req.ModelName)
 	require.Equal(t, "v1.0.0", apiCopy.Req.Version)
 	require.Equal(t, "store1", apiCopy.Req.ModelPartitions["store_id"])
-	require.Equal(t, []any{[]any{"a", "b"}}, apiCopy.Req.Inputs)
+	require.Equal(t, `[["a","b"]]`, apiCopy.Req.Inputs)
 	require.Equal(t, []any{"c", "d"}, apiCopy.Resp.Outputs["output"])
 
 	parsed := jsparserapi.ParseApi(ctx, api)
