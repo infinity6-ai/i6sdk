@@ -79,7 +79,7 @@ func (c *BatchSummary) Path() laketbpathz.Path {
 
 func (c *BatchSummary) Schema() *schemaz.Schema {
 	return &schemaz.Schema{
-		Desc: &schemaz.Desc{Summary: "Generic table data loaded from the datalake file."},
+		Desc: &schemaz.Desc{Summary: "Summary of the batch data loaded into the store datalake."},
 		Object: func(read bool) map[string]*schemaz.Schema {
 			if read && c.Resp == nil {
 				return nil

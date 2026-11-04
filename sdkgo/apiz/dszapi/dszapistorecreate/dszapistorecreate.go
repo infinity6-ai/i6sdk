@@ -19,7 +19,12 @@ type Api struct {
 func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
 		Id:     "dsz-create-store",
-		Desc:   nil,
+		Desc: func() *schemaz.Desc {
+			return &schemaz.Desc{
+				Name:    "Create Store",
+				Summary: "Creates a store configuration under a specific dataset.",
+			}
+		},
 		Method: "POST",
 		Path:   "/api/ds/dataset/{dataset}/store/create",
 	}
@@ -36,13 +41,17 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Req = &DszCreateStoreReq{}
 				}
 				return map[string]*schemaz.Schema{
-					"dataset": {UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse)},
+					"dataset": {
+						Desc:     &schemaz.Desc{Summary: "Dataset containing the store config to create."},
+						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
+					},
 				}
 			},
 		},
 		QueryParams: nil,
 		ReqHeaders:  nil,
 		ReqBody: &schemaz.Schema{
+			Desc: &schemaz.Desc{Summary: "Request body containing store configuration parameters."},
 			Object: func(read bool) map[string]*schemaz.Schema {
 				if read && d.Req == nil {
 					return nil

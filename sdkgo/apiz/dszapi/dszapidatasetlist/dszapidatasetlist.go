@@ -31,8 +31,13 @@ type Api struct {
 
 func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id:     "dsz-list-datasets",
-		Desc:   nil,
+		Id: "dsz-list-datasets",
+		Desc: func() *schemaz.Desc {
+			return &schemaz.Desc{
+				Name:    "List Datasets",
+				Summary: "Lists all datasets available to the user.",
+			}
+		},
 		Method: "GET",
 		Path:   "/api/ds/datasets",
 	}
@@ -50,7 +55,10 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Req = &DszListDatasetsReq{}
 				}
 				return map[string]*schemaz.Schema{
-					"user": {UrlValue: schemaz.ParseStr(&d.Req.User)},
+					"user": {
+						Desc:     &schemaz.Desc{Summary: "User identifier (id)."},
+						UrlValue: schemaz.ParseStr(&d.Req.User),
+					},
 				}
 			},
 		},
@@ -58,6 +66,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 		ReqBody:     nil,
 		RespHeaders: nil,
 		RespBody: &schemaz.Schema{
+			Desc: &schemaz.Desc{Summary: "Response containing the list of datasets."},
 			Object: func(read bool) map[string]*schemaz.Schema {
 				if read && d.Resp == nil {
 					return nil
@@ -67,24 +76,30 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				}
 				return map[string]*schemaz.Schema{
 					"datasets": {
+						Desc: &schemaz.Desc{Summary: "List of datasets available to the user."},
 						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Dataset, *Dataset]{
 							Slice:      func() *[]*Dataset { return &d.Resp.Datasets },
 							NewElement: func(idx int) *Dataset { return &Dataset{} },
 							Get: func(idx int, element **Dataset) *schemaz.Schema {
 								return &schemaz.Schema{
+									Desc: &schemaz.Desc{Summary: "Dataset object."},
 									Object: func(_ bool) map[string]*schemaz.Schema {
 										return map[string]*schemaz.Schema{
 											"id": {
+												Desc:  &schemaz.Desc{Summary: "Unique identifier of the dataset."},
 												Field: func() any { return &(*element).Id },
 											},
 											"name": {
+												Desc:  &schemaz.Desc{Summary: "Human-readable name of the dataset."},
 												Field: func() any { return &(*element).Name },
 											},
 											"grants": {
+												Desc: &schemaz.Desc{Summary: "List of grants or permissions the user has on this dataset."},
 												Array: schemaz.NewArray(schemaz.ArrayOptions[[]string, string]{
 													Slice: func() *[]string { return &(*element).Grants },
 													Get: func(idx int, grant *string) *schemaz.Schema {
 														return &schemaz.Schema{
+															Desc:  &schemaz.Desc{Summary: "Grant/permission value."},
 															Field: func() any { return grant },
 														}
 													},

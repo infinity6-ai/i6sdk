@@ -24,12 +24,15 @@ type SolutionDomain struct {
 
 func (s *SolutionDomain) Schema() *schemaz.Schema {
 	return &schemaz.Schema{
+		Desc: &schemaz.Desc{Summary: "Solution and domain configuration mapping for a store."},
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"solution": {
+					Desc:  &schemaz.Desc{Summary: "Solution type, such as relevance."},
 					Field: func() any { return &s.Solution },
 				},
 				"domain": {
+					Desc:  &schemaz.Desc{Summary: "Domain associated with the solution (e.g. relevance_fashion)."},
 					Field: func() any { return &s.Domain },
 				},
 			}
@@ -63,8 +66,13 @@ type Api struct {
 
 func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id:     "dsz-domain-get",
-		Desc:   nil,
+		Id: "dsz-domain-get",
+		Desc: func() *schemaz.Desc {
+			return &schemaz.Desc{
+				Name:    "Get Solution Domain",
+				Summary: "Retrieves the active solutions and their corresponding domains for a given store in a dataset.",
+			}
+		},
 		Method: "GET",
 		Path:   "/api/ds/dataset/{dataset}/store/solution-domain",
 	}
@@ -81,7 +89,10 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Req = &DszSolutionDomainGetReq{}
 				}
 				return map[string]*schemaz.Schema{
-					"dataset": {UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse)},
+					"dataset": {
+						Desc:     &schemaz.Desc{Summary: "Dataset identifier containing the store."},
+						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
+					},
 				}
 			},
 		},
@@ -94,7 +105,10 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Req = &DszSolutionDomainGetReq{}
 				}
 				return map[string]*schemaz.Schema{
-					"store_id": {UrlValue: schemaz.ParseStrGet(&d.Req.StoreId, storeid.MustParse)},
+					"store_id": {
+						Desc:     &schemaz.Desc{Summary: "Store identifier to query solutions and domains for."},
+						UrlValue: schemaz.ParseStrGet(&d.Req.StoreId, storeid.MustParse),
+					},
 				}
 			},
 		},
@@ -102,6 +116,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 		ReqBody:     nil,
 		RespHeaders: nil,
 		RespBody: &schemaz.Schema{
+			Desc: &schemaz.Desc{Summary: "Response containing solutions and domains for the store."},
 			Object: func(read bool) map[string]*schemaz.Schema {
 				if read && d.Resp == nil {
 					return nil
@@ -110,8 +125,12 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Resp = &DszSolutionDomainGetResp{}
 				}
 				return map[string]*schemaz.Schema{
-					"dataset": {Field: func() any { return &d.Resp.Dataset }},
+					"dataset": {
+						Desc:  &schemaz.Desc{Summary: "Dataset identifier."},
+						Field: func() any { return &d.Resp.Dataset },
+					},
 					"solutions": {
+						Desc: &schemaz.Desc{Summary: "List of solution and domain configurations mapping to this store."},
 						Array: schemaz.NewArray(schemaz.ArrayOptions[[]SolutionDomain, SolutionDomain]{
 							Slice: func() *[]SolutionDomain { return &d.Resp.Solutions },
 							Get: func(idx int, element *SolutionDomain) *schemaz.Schema {
@@ -120,6 +139,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 						}),
 					},
 					"store_id": {
+						Desc:  &schemaz.Desc{Summary: "Store identifier."},
 						Field: func() any { return &d.Resp.StoreId },
 					},
 				}

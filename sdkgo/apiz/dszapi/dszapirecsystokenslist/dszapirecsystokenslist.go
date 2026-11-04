@@ -23,6 +23,12 @@ type Api struct {
 func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
 		Id:     "dsz-list-recsys-tokens",
+		Desc: func() *schemaz.Desc {
+			return &schemaz.Desc{
+				Name:    "List Recsys Tokens",
+				Summary: "Lists all active recommendation system tokens for a specific dataset.",
+			}
+		},
 		Method: "GET",
 		Path:   "/api/ds/dataset/{dataset}/recsystoken/list",
 	}
@@ -33,7 +39,10 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"dataset": {UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse)},
+					"dataset": {
+						Desc:     &schemaz.Desc{Summary: "Dataset whose recommendation system tokens should be listed."},
+						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
+					},
 				}
 			},
 		},
@@ -42,9 +51,11 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 		ReqBody:     nil,
 		RespHeaders: nil,
 		RespBody: &schemaz.Schema{
+			Desc: &schemaz.Desc{Summary: "Response containing the list of recommendation system tokens."},
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
 					"tokens": {
+						Desc: &schemaz.Desc{Summary: "List of recommendation system tokens configured for this dataset."},
 						Array: schemaz.NewArray(schemaz.ArrayOptions[[]dsztoken.DatasetToken, dsztoken.DatasetToken]{
 							Slice: func() *[]dsztoken.DatasetToken { return &d.Resp.Tokens },
 							Get: func(idx int, element *dsztoken.DatasetToken) *schemaz.Schema {

@@ -20,6 +20,12 @@ type Api struct {
 func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
 		Id:     "dsz-create-ingestion-token",
+		Desc: func() *schemaz.Desc {
+			return &schemaz.Desc{
+				Name:    "Create Ingestion Token",
+				Summary: "Creates a write token for data ingestion into a specific dataset.",
+			}
+		},
 		Method: "POST",
 		Path:   "/api/ds/dataset/{dataset}/ingestiontoken/create",
 	}
@@ -30,16 +36,23 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"dataset": {UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse)},
+					"dataset": {
+						Desc:     &schemaz.Desc{Summary: "Dataset to create the ingestion token for."},
+						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
+					},
 				}
 			},
 		},
 		QueryParams: nil,
 		ReqHeaders:  nil,
 		ReqBody: &schemaz.Schema{
+			Desc: &schemaz.Desc{Summary: "Ingestion token configuration request."},
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"annotation": {Field: func() any { return &d.Req.Annotation }},
+					"annotation": {
+						Desc:  &schemaz.Desc{Summary: "Optional note or annotation identifying the purpose of this token."},
+						Field: func() any { return &d.Req.Annotation },
+					},
 				}
 			},
 		},

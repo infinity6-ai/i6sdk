@@ -24,7 +24,12 @@ type Api struct {
 func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
 		Id:     "dsz-dataset-solutions",
-		Desc:   nil,
+		Desc: func() *schemaz.Desc {
+			return &schemaz.Desc{
+				Name:    "List Active Dataset Solutions",
+				Summary: "Lists all active solutions configured for a specific dataset.",
+			}
+		},
 		Method: "GET",
 		Path:   "/api/ds/dataset/{dataset}/solutions",
 	}
@@ -41,7 +46,10 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Req = &DszListActiveSolutionsReq{}
 				}
 				return map[string]*schemaz.Schema{
-					"dataset": {UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse)},
+					"dataset": {
+						Desc:     &schemaz.Desc{Summary: "Dataset identifier to list active solutions for."},
+						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
+					},
 				}
 			},
 		},
@@ -50,6 +58,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 		ReqBody:     nil,
 		RespHeaders: nil,
 		RespBody: &schemaz.Schema{
+			Desc: &schemaz.Desc{Summary: "Response containing active solutions for the dataset."},
 			Object: func(read bool) map[string]*schemaz.Schema {
 				if read && d.Resp == nil {
 					return nil
@@ -58,8 +67,12 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Resp = &DszListActiveSolutionsResp{}
 				}
 				return map[string]*schemaz.Schema{
-					"dataset": {Field: func() any { return &d.Resp.Dataset }},
+					"dataset": {
+						Desc:  &schemaz.Desc{Summary: "Dataset identifier."},
+						Field: func() any { return &d.Resp.Dataset },
+					},
 					"solutions": {
+						Desc:  &schemaz.Desc{Summary: "Active solutions associated with this dataset."},
 						Field: func() any { return &d.Resp.Solutions },
 					},
 				}

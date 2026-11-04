@@ -17,7 +17,13 @@ type Api struct {
 
 func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id:     "dsz-delete-token",
+		Id: "dsz-delete-token",
+		Desc: func() *schemaz.Desc {
+			return &schemaz.Desc{
+				Name:    "Delete Token",
+				Summary: "Deletes (revokes) a specific token (e.g. ingestion or recsys token) associated with a dataset.",
+			}
+		},
 		Method: "DELETE",
 		Path:   "/api/ds/dataset/{dataset}/token/delete",
 	}
@@ -28,14 +34,20 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"dataset": {UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse)},
+					"dataset": {
+						Desc:     &schemaz.Desc{Summary: "The dataset whose token should be deleted."},
+						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
+					},
 				}
 			},
 		},
 		QueryParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"token": {UrlValue: schemaz.ParseStr(&d.Req.Token)},
+					"token": {
+						Desc:     &schemaz.Desc{Summary: "The token identifier (jti) to be deleted/revoked."},
+						UrlValue: schemaz.ParseStr(&d.Req.Token),
+					},
 				}
 			},
 		},

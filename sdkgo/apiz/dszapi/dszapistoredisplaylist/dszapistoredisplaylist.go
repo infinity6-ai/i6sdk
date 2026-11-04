@@ -26,8 +26,13 @@ type Api struct {
 
 func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id:     "dsz-store-display-list",
-		Desc:   nil,
+		Id: "dsz-store-display-list",
+		Desc: func() *schemaz.Desc {
+			return &schemaz.Desc{
+				Name:    "List Store Displays",
+				Summary: "Lists all active store displays configured for a store under a specific dataset.",
+			}
+		},
 		Method: "GET",
 		Path:   "/api/ds/dataset/{dataset}/store/display/list",
 	}
@@ -44,7 +49,10 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Req = &DszStoreDisplayListReq{}
 				}
 				return map[string]*schemaz.Schema{
-					"dataset": {UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse)},
+					"dataset": {
+						Desc:     &schemaz.Desc{Summary: "Dataset containing the store displays to list."},
+						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
+					},
 				}
 			},
 		},
@@ -58,12 +66,15 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				}
 				return map[string]*schemaz.Schema{
 					// An empty store_id stays unset, the service answers it with a bad request
-					"store_id": {UrlValue: schemaz.ParseStrGet(&d.Req.StoreId, func(v string) storeid.StoreId {
-						if v == "" {
-							return storeid.StoreId{}
-						}
-						return storeid.MustParse(v)
-					})},
+					"store_id": {
+						Desc: &schemaz.Desc{Summary: "Store identifier whose displays should be listed."},
+						UrlValue: schemaz.ParseStrGet(&d.Req.StoreId, func(v string) storeid.StoreId {
+							if v == "" {
+								return storeid.StoreId{}
+							}
+							return storeid.MustParse(v)
+						}),
+					},
 				}
 			},
 		},
@@ -71,6 +82,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 		ReqBody:     nil,
 		RespHeaders: nil,
 		RespBody: &schemaz.Schema{
+			Desc: &schemaz.Desc{Summary: "Response with the list of store displays."},
 			Object: func(read bool) map[string]*schemaz.Schema {
 				if read && d.Resp == nil {
 					return nil
@@ -83,22 +95,28 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				}
 				return map[string]*schemaz.Schema{
 					"dataset": {
+						Desc:  &schemaz.Desc{Summary: "Dataset identifier."},
 						Field: func() any { return &d.Resp.Dataset },
 					},
 					"store_id": {
+						Desc:  &schemaz.Desc{Summary: "Store identifier."},
 						Field: func() any { return &d.Resp.StoreId },
 					},
 					"displays": {
+						Desc: &schemaz.Desc{Summary: "List of store display configurations."},
 						Array: schemaz.NewArray(schemaz.ArrayOptions[[]dszstore.DszStoreDisplay, dszstore.DszStoreDisplay]{
 							Slice: func() *[]dszstore.DszStoreDisplay { return &d.Resp.Displays },
 							Get: func(idx int, element *dszstore.DszStoreDisplay) *schemaz.Schema {
 								return &schemaz.Schema{
+									Desc: &schemaz.Desc{Summary: "Store display configuration details."},
 									Object: func(_ bool) map[string]*schemaz.Schema {
 										return map[string]*schemaz.Schema{
 											"id": {
+												Desc:  &schemaz.Desc{Summary: "Unique identifier of the store display."},
 												Field: func() any { return &element.Id },
 											},
 											"name": {
+												Desc:  &schemaz.Desc{Summary: "Human-readable name of the store display."},
 												Field: func() any { return &element.Name },
 											},
 										}

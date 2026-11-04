@@ -108,15 +108,15 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 									Object: func(_ bool) map[string]*schemaz.Schema {
 										return map[string]*schemaz.Schema{
 											"path": {
-												Desc:  &schemaz.Desc{Summary: "write it"},
+												Desc:  &schemaz.Desc{Summary: "The path of the file or table."},
 												Field: func() any { return &(*element).Path },
 											},
 											"stat": {
-												Desc:  &schemaz.Desc{Summary: "write it"},
+												Desc:  &schemaz.Desc{Summary: "The metadata and stats of the file (size, modified time, etc.), if requested."},
 												Field: func() any { return &(*element).Stat },
 											},
 											"signed_url": {
-												Desc:  &schemaz.Desc{Summary: "write it"},
+												Desc:  &schemaz.Desc{Summary: "The presigned download/access URL for the file, if sign method was requested."},
 												Field: func() any { return &(*element).SignedUrl },
 											},
 										}

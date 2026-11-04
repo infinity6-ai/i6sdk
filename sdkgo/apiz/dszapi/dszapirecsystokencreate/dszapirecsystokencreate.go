@@ -21,6 +21,12 @@ type Api struct {
 func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
 		Id:     "dsz-create-recsys-token",
+		Desc: func() *schemaz.Desc {
+			return &schemaz.Desc{
+				Name:    "Create Recsys Token",
+				Summary: "Creates a read/recommendation token for the recommendation system associated with a specific dataset.",
+			}
+		},
 		Method: "POST",
 		Path:   "/api/ds/dataset/{dataset}/recsystoken/create",
 	}
@@ -31,17 +37,27 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"dataset": {UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse)},
+					"dataset": {
+						Desc:     &schemaz.Desc{Summary: "Dataset to create the recommendation system token for."},
+						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
+					},
 				}
 			},
 		},
 		QueryParams: nil,
 		ReqHeaders:  nil,
 		ReqBody: &schemaz.Schema{
+			Desc: &schemaz.Desc{Summary: "Request payload for creating a recommendation system token."},
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"annotation": {Field: func() any { return &d.Req.Annotation }},
-					"channel":    {Field: func() any { return &d.Req.Channel }},
+					"annotation": {
+						Desc:  &schemaz.Desc{Summary: "Optional note or annotation identifying the purpose of this token."},
+						Field: func() any { return &d.Req.Annotation },
+					},
+					"channel": {
+						Desc:  &schemaz.Desc{Summary: "Sales/distribution channel this recommendation token is restricted to (e.g. retail)."},
+						Field: func() any { return &d.Req.Channel },
+					},
 				}
 			},
 		},

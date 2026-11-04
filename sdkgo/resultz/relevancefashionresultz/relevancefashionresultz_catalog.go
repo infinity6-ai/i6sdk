@@ -59,7 +59,7 @@ func (c *CatalogSimple) Path() laketbpathz.Path {
 
 func (c *CatalogSimple) Schema() *schemaz.Schema {
 	return &schemaz.Schema{
-		Desc: &schemaz.Desc{Summary: "Generic table data loaded from the datalake file."},
+		Desc: &schemaz.Desc{Summary: "Store simple catalog loaded from the datalake file."},
 		Array: schemaz.NewArray(schemaz.ArrayOptions[[]*CatalogSimpleData, *CatalogSimpleData]{
 			Slice: func() *[]*CatalogSimpleData { return &c.Resp },
 			NewElement: func(idx int) *CatalogSimpleData {

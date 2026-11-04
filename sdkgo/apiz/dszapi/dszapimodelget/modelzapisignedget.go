@@ -20,6 +20,7 @@ type ModelFile struct {
 
 func (u *ModelFile) Schema() *schemaz.Schema {
 	return &schemaz.Schema{
+		Desc: &schemaz.Desc{Summary: "File associated with a model, along with its presigned access URL."},
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"name": {
