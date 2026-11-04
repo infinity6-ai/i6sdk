@@ -26,7 +26,11 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
 		Id: "tfz-model-predict",
 		Desc: func() *schemaz.Desc {
-			return &schemaz.Desc{Name: "Blablabla", Summary: "Blablablablablabla", Labels: map[string]string{"servname": "tfinfer"}}
+			return &schemaz.Desc{
+				Name:    "Model Predict",
+				Summary: "Runs a prediction of a dataset model version on the inference service (tfinfer), sending the model inputs and the model partitions and returning the model outputs.",
+				Labels:  map[string]string{"servname": "tfinfer"},
+			}
 		},
 		Method: "POST",
 		Path:   "/api/model/dataset/{dataset}/{model_name}/{version}/predict",

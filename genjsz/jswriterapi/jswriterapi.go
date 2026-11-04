@@ -124,6 +124,13 @@ func buildRespTypedef(apiId string, api *jsparserapi.Api) jstypez.Typedef {
 	return respTypedef
 }
 
+func servNameOf(api *jsparserapi.Api) string {
+	if api.Spec.Desc == nil || api.Spec.Desc.Labels == nil {
+		return ""
+	}
+	return api.Spec.Desc.Labels["servname"]
+}
+
 func funcName(apiId string) string {
 	name := strings.TrimPrefix(apiId, "api")
 	return strings.ToLower(name[0:1]) + name[1:]
@@ -173,7 +180,12 @@ func writeApiDecl(b *strings.Builder, api *jsparserapi.Api) {
 	writeln(b, "  return this._services.invoker().invokeResult({")
 	writeln(b, "    method: %q,", api.Spec.Method)
 
-	writeln(b, "    path: `%s`,", jsPath)
+	if servName := servNameOf(api); servName != "" {
+		// The api lives in another service: use its url from the config (servUrls), falling back to the baseUrl.
+		writeln(b, "    url: `${this._services.config().servUrls?.[%q] ?? this._services.config().baseUrl}/%s`,", servName, jsPath)
+	} else {
+		writeln(b, "    path: `%s`,", jsPath)
+	}
 
 	if hasQuery {
 		writeln(b, "    query: req.query,")

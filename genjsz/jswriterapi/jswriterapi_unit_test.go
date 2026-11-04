@@ -5,6 +5,7 @@ import (
 
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
+	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparserapi"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
@@ -164,5 +165,19 @@ export { Apis };
 			in:   apis,
 			want: want,
 		})
+	})
+
+	t.Run("servname label uses the service url", func(t *testing.T) {
+		api := &jsparserapi.Api{
+			Spec: jsparserapi.ApiSpec{
+				CamelId: "apiCustomAction",
+				Method:  "POST",
+				Path:    "/api/custom/{id}",
+				Desc:    &schemaz.Desc{Name: "Custom", Summary: "Custom action", Labels: map[string]string{"servname": "tfinfer"}},
+			},
+		}
+		got := jswriterapi.WriteV2(ctx, []*jsparserapi.Api{api})
+		require.Contains(t, got, "url: `${this._services.config().servUrls?.[\"tfinfer\"] ?? this._services.config().baseUrl}/api/custom/{id}`,")
+		require.NotContains(t, got, "path:")
 	})
 }

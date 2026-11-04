@@ -162,6 +162,29 @@ class SqliteConn {
     async namedJsonQuery(opts) {
         if (!opts || !opts.name) throw new TypeError("sqlitez: opts.name is required")
 
+        const ret = await this.namedStringQuery(opts)
+        if (ret === null) return null
+
+        try {
+            return JSON.parse(ret)
+        } catch (cause) {
+            throw new I6Error(`sqlitez: "ret" of named query "${opts.name}" is not valid JSON: ${cause.message}`, { code: "query", cause })
+        }
+    }
+
+    /**
+     * Like `namedJsonQuery` (same JSON params bound as `?1`, `?2`, ...), but the `ret` column is returned as is,
+     * without JSON.parse. Use it when the stored query returns plain text (e.g. for models); use `namedJsonQuery` when it returns JSON (e.g. for dash).
+     * @param {Object} opts
+     * @param {string} opts.name - required, the `name` of the stored query (see `namedQuery`).
+     * @param {Array<*>} [opts.params] - JSON-serializable values, bound in order as `?1`, `?2`, ... Default: none.
+     * @returns {Promise<string|null>} The `ret` of the first row as a string, or null if there is no row or `ret` is null.
+     * @throws {TypeError} If opts.name is missing or opts.params is not an array.
+     * @throws {I6Error} With code "query" if `namedQuery` fails or the rows have no `ret` column.
+     */
+    async namedStringQuery(opts) {
+        if (!opts || !opts.name) throw new TypeError("sqlitez: opts.name is required")
+
         if (opts.params !== undefined && !Array.isArray(opts.params)) throw new TypeError("sqlitez: opts.params must be an array")
 
         const rows = await this.namedQuery({ name: opts.name, params: (opts.params ?? []).map((value) => JSON.stringify(value ?? null)) })
@@ -172,16 +195,7 @@ class SqliteConn {
         }
         if (rows[0].ret === null) return null
 
-        try {
-            return JSON.parse(rows[0].ret)
-        } catch (cause) {
-            throw new I6Error(`sqlitez: "ret" of named query "${opts.name}" is not valid JSON: ${cause.message}`, { code: "query", cause })
-        }
-    }
-
-    async namedStringQuery(opts) {
-        //Mesma coisa que o de cima só que sem o json parse (mudar o de cima para usar esse e fazer o parse)
-        //Quando for dash utilizaremos o de cima (igual é hoje). Quando for model, vamos usar esse aqui.
+        return String(rows[0].ret)
     }
 
     /**
