@@ -6,10 +6,12 @@ import (
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
 )
 
 type Req struct {
-	Dataset lakedsz.Dataset
+	Dataset  lakedsz.Dataset
+	Solution solution.Solution
 }
 
 // Resp has the stripe values without translation, and none of the buyer or the price.
@@ -37,11 +39,11 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 		Desc: func() *schemaz.Desc {
 			return &schemaz.Desc{
 				Name:    "Get Subscription",
-				Summary: "Gets the plan and the status of the Stripe subscription of a dataset. The payload is empty for contracts without Stripe.",
+				Summary: "Gets the plan and the status of the Stripe subscription of a dataset product/solution. The payload is empty for contracts without Stripe.",
 			}
 		},
 		Method: "GET",
-		Path:   "/api/ds/dataset/{dataset}/subscription",
+		Path:   "/api/ds/dataset/{dataset}/solution/{solution}/subscription",
 	}
 }
 
@@ -59,6 +61,10 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					"dataset": {
 						Desc:     &schemaz.Desc{Summary: "Dataset of the subscription"},
 						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
+					},
+					"solution": {
+						Desc:     &schemaz.Desc{Summary: "Solution (product) of the subscription"},
+						UrlValue: schemaz.ParseStrGet(&d.Req.Solution, solution.MustParse),
 					},
 				}
 			},

@@ -9,6 +9,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparserapi"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapisubscriptionget"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
 )
 
 func TestUnitDszGetSubscriptionApi(t *testing.T) {
@@ -18,7 +19,7 @@ func TestUnitDszGetSubscriptionApi(t *testing.T) {
 
 	t.Run("round trip with cancel_at", func(t *testing.T) {
 		api := &dszapisubscriptionget.Api{
-			Req: &dszapisubscriptionget.Req{Dataset: lakedsz.MustParse("myds")},
+			Req: &dszapisubscriptionget.Req{Dataset: lakedsz.MustParse("myds"), Solution: solution.MustParse("relevance")},
 			Resp: &dszapisubscriptionget.Resp{
 				PlanKey: "relevance_growth_base_monthly", Status: "past_due", CurrentPeriodEnd: periodEnd, CancelAt: &cancelAt,
 			},
@@ -31,6 +32,7 @@ func TestUnitDszGetSubscriptionApi(t *testing.T) {
 
 	t.Run("cancel_at is null without cancellation", func(t *testing.T) {
 		api := &dszapisubscriptionget.Api{
+			Req:  &dszapisubscriptionget.Req{Dataset: lakedsz.MustParse("myds"), Solution: solution.MustParse("relevance")},
 			Resp: &dszapisubscriptionget.Resp{PlanKey: "relevance_starter_base_monthly", Status: "active", CurrentPeriodEnd: periodEnd},
 		}
 		apiCopy := jsonz.MustCopy(api, &dszapisubscriptionget.Api{})
@@ -53,5 +55,6 @@ func TestUnitDszGetSubscriptionApi(t *testing.T) {
 		parsed := jsparserapi.ParseApi(ctx, &dszapisubscriptionget.Api{})
 		require.NotNil(t, parsed)
 		require.Equal(t, "dsz-get-subscription", parsed.Spec.Id)
+		require.Equal(t, "/api/ds/dataset/{dataset}/solution/{solution}/subscription", parsed.Spec.Path)
 	})
 }
