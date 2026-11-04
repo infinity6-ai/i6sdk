@@ -8,6 +8,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparserapi"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapisubscriptionplanupdate"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
 )
 
 func TestUnitDszSubscriptionPlanUpdateApi(t *testing.T) {
@@ -16,8 +17,9 @@ func TestUnitDszSubscriptionPlanUpdateApi(t *testing.T) {
 	t.Run("round trip", func(t *testing.T) {
 		api := &dszapisubscriptionplanupdate.Api{
 			Req: &dszapisubscriptionplanupdate.Req{
-				Dataset: lakedsz.MustParse("myds"),
-				Plan:    "relevance_growth_base_monthly",
+				Dataset:  lakedsz.MustParse("myds"),
+				Solution: solution.MustParse("relevance"),
+				Plan:     "relevance_growth_base_monthly",
 			},
 		}
 		apiCopy := jsonz.MustCopy(api, &dszapisubscriptionplanupdate.Api{})
@@ -27,8 +29,9 @@ func TestUnitDszSubscriptionPlanUpdateApi(t *testing.T) {
 	t.Run("body schema has plan", func(t *testing.T) {
 		api := &dszapisubscriptionplanupdate.Api{
 			Req: &dszapisubscriptionplanupdate.Req{
-				Dataset: lakedsz.MustParse("myds"),
-				Plan:    "relevance_growth_base_monthly",
+				Dataset:  lakedsz.MustParse("myds"),
+				Solution: solution.MustParse("relevance"),
+				Plan:     "relevance_growth_base_monthly",
 			},
 		}
 		body := string(jsonz.MustFormat(api.ApiDataRefs().ReqBody).Bytes())
@@ -40,6 +43,6 @@ func TestUnitDszSubscriptionPlanUpdateApi(t *testing.T) {
 		require.NotNil(t, parsed)
 		require.Equal(t, "dsz-update-subscription-plan", parsed.Spec.Id)
 		require.Equal(t, "POST", parsed.Spec.Method)
-		require.Equal(t, "/api/ds/dataset/{dataset}/subscription/plan", parsed.Spec.Path)
+		require.Equal(t, "/api/ds/dataset/{dataset}/solution/{solution}/subscription/plan", parsed.Spec.Path)
 	})
 }

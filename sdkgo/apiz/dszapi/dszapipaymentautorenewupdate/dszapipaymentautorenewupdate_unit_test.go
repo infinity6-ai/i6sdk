@@ -8,6 +8,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparserapi"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapipaymentautorenewupdate"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
 )
 
 func TestUnitDszPaymentAutoRenewUpdateApi(t *testing.T) {
@@ -17,6 +18,7 @@ func TestUnitDszPaymentAutoRenewUpdateApi(t *testing.T) {
 		api := &dszapipaymentautorenewupdate.Api{
 			Req: &dszapipaymentautorenewupdate.Req{
 				Dataset:   lakedsz.MustParse("myds"),
+				Solution:  solution.MustParse("relevance"),
 				AutoRenew: true,
 			},
 		}
@@ -28,6 +30,7 @@ func TestUnitDszPaymentAutoRenewUpdateApi(t *testing.T) {
 		api := &dszapipaymentautorenewupdate.Api{
 			Req: &dszapipaymentautorenewupdate.Req{
 				Dataset:   lakedsz.MustParse("myds"),
+				Solution:  solution.MustParse("relevance"),
 				AutoRenew: false,
 			},
 		}
@@ -40,6 +43,6 @@ func TestUnitDszPaymentAutoRenewUpdateApi(t *testing.T) {
 		require.NotNil(t, parsed)
 		require.Equal(t, "dsz-update-payment-auto-renew", parsed.Spec.Id)
 		require.Equal(t, "POST", parsed.Spec.Method)
-		require.Equal(t, "/api/ds/dataset/{dataset}/payment/autorenew", parsed.Spec.Path)
+		require.Equal(t, "/api/ds/dataset/{dataset}/solution/{solution}/payment/autorenew", parsed.Spec.Path)
 	})
 }

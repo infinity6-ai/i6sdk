@@ -4,10 +4,12 @@ import (
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
 )
 
 type Req struct {
 	Dataset   lakedsz.Dataset
+	Solution  solution.Solution
 	AutoRenew bool
 }
 
@@ -21,11 +23,11 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 		Desc: func() *schemaz.Desc {
 			return &schemaz.Desc{
 				Name:    "Update Payment Auto Renew",
-				Summary: "Turns auto renew on or off for the Stripe subscription of a dataset.",
+				Summary: "Turns auto renew on or off for the Stripe subscription of a dataset product/solution.",
 			}
 		},
 		Method: "POST",
-		Path:   "/api/ds/dataset/{dataset}/payment/autorenew",
+		Path:   "/api/ds/dataset/{dataset}/solution/{solution}/payment/autorenew",
 	}
 }
 
@@ -43,6 +45,10 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					"dataset": {
 						Desc:     &schemaz.Desc{Summary: "Dataset of the payment"},
 						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
+					},
+					"solution": {
+						Desc:     &schemaz.Desc{Summary: "Solution (product) of the payment"},
+						UrlValue: schemaz.ParseStrGet(&d.Req.Solution, solution.MustParse),
 					},
 				}
 			},

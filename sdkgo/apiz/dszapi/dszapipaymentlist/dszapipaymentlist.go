@@ -6,6 +6,7 @@ import (
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
 )
 
 type Req struct {
@@ -25,6 +26,7 @@ type Payment struct {
 	PeriodEnd        time.Time
 	HostedInvoiceUrl string
 	InvoicePdf       string
+	Solution         solution.Solution
 }
 
 // Resp has no payments for datasets without a Stripe customer, like custom and enterprise contracts
@@ -137,6 +139,10 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 											"invoice_pdf": {
 												Desc:  &schemaz.Desc{Summary: "Pdf of the invoice"},
 												Field: func() any { return &element.InvoicePdf },
+											},
+											"solution": {
+												Desc:  &schemaz.Desc{Summary: "Solution (product) of the payment"},
+												Field: func() any { return &element.Solution },
 											},
 										}
 									},

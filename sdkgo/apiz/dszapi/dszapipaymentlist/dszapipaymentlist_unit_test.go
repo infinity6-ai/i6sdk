@@ -9,6 +9,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparserapi"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapipaymentlist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
 )
 
 func TestUnitDszListPaymentsApi(t *testing.T) {
@@ -19,6 +20,7 @@ func TestUnitDszListPaymentsApi(t *testing.T) {
 		Id: "in_1", Number: "ABC-0001", Status: "paid", Currency: "brl", AmountDue: 9900, AmountPaid: 9900,
 		Created: created, PeriodStart: created, PeriodEnd: periodEnd,
 		HostedInvoiceUrl: "https://invoice.stripe.com/i/1", InvoicePdf: "https://pay.stripe.com/invoice/1/pdf",
+		Solution: solution.MustParse("relevance"),
 	}
 
 	t.Run("round trip", func(t *testing.T) {
@@ -39,7 +41,8 @@ func TestUnitDszListPaymentsApi(t *testing.T) {
 		require.JSONEq(t, `{"payments":[{
 			"id":"in_1","number":"ABC-0001","status":"paid","currency":"brl","amount_due":9900,"amount_paid":9900,
 			"created":"2026-10-27T00:00:00Z","period_start":"2026-10-27T00:00:00Z","period_end":"2026-11-27T00:00:00Z",
-			"hosted_invoice_url":"https://invoice.stripe.com/i/1","invoice_pdf":"https://pay.stripe.com/invoice/1/pdf"}]}`,
+			"hosted_invoice_url":"https://invoice.stripe.com/i/1","invoice_pdf":"https://pay.stripe.com/invoice/1/pdf",
+			"solution":"relevance"}]}`,
 			body(&dszapipaymentlist.Resp{Payments: []dszapipaymentlist.Payment{payment}}))
 		require.JSONEq(t, `{"payments":[]}`, body(&dszapipaymentlist.Resp{}))
 	})
