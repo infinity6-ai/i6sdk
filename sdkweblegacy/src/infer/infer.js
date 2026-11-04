@@ -106,20 +106,22 @@ class Infer {
     try {
       // 2. The input query gives the model inputs: {name: {data, shape}}. The model compiles meanwhile.
       const [inputs, compiled] = await Promise.all([
-        conn.namedJsonQuery({ name: queryName("input"), params: [params] }),
+        conn.namedStringQuery({ name: queryName("input"), params: [params] }),
         // loadModel({ ref: tfliteRef, wasmUrl: opts.litertWasm }),
       ])
-      if (!inputs || typeof inputs !== "object") throw new I6Error(`infer: ${queryName("input")} returned no model inputs`, { code: "query" })
-      debug("input query returned", Object.keys(inputs), "model", describeModel(compiled))
+      if (!inputs) throw new I6Error(`infer: ${queryName("input")} returned no model inputs`, { code: "query" })
+      // debug("input query returned", Object.keys(inputs), "model", describeModel(compiled))
 
       // 3. Run the model
       // const outputs = await runModel(compiled, inputs)
       // debug("output returned (before namedJsonQuery)", outputs)
       // announceTensors({ modelName, partitions: opts.partitions, model: describeModel(compiled), inputs, outputs })
-      const outputs = await callModel(inputs, opts)
+      const outputs = await this.callModel(inputs, opts)
 
+      let modelOutputsAndLimit = [JSON.parse(outputs.payload.outputs), opts.limit ?? DEFAULT_LIMIT]
+      console.log("TEST", modelOutputsAndLimit)
       // 4. The sqlite turns the outputs into the result
-      const result = await conn.namedJsonQuery({ name: queryName("output"), params: outputQueryParams(outputs, opts) })
+      const result = await conn.namedJsonQuery({ name: queryName("output"), params:  modelOutputsAndLimit})
       debug("output query returned (after namedJsonQuery)", result)
       // The rec_id ties this run to the recshow event that selectResults sends later
       const recId = crypto.randomUUID()
@@ -144,7 +146,7 @@ class Infer {
         model_partitions: partitions,
         inputs: inputs
       }
-    })
+    }, opts.serviceOpts)
   }
 
   /**

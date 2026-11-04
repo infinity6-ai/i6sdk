@@ -9,6 +9,7 @@ import { I6Error } from "./errors.js";
  * Configuration options for the i6 SDK.
  * @typedef {Object} I6SdkConfig
  * @property {string} [baseUrl] - Base URL of the i6 server. Defaults to the sandbox environment.
+ * @property {Record<string, string>} [servUrls] - Base URL of the other services, by the `servname` label of the api (e.g. `tfinfer`). An api whose service is not listed uses `baseUrl`.
  */
 
 /**
@@ -17,6 +18,9 @@ import { I6Error } from "./errors.js";
  */
 const DEFAULT_CONFIG = {
   baseUrl: "https://decsuite.sandbox.rs.infinity6.ai",
+  servUrls: {
+    "tfinfer":"https://tfinfer.sandbox.rs.infinity6.ai"
+  },
   // baseUrl: "https://decsuite.app.rs.infinity6.ai",
   // baseUrl: "http://localhost:9021",
 }

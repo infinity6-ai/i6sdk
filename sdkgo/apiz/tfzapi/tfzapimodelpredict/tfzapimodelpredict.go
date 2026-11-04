@@ -6,26 +6,32 @@ import (
 )
 
 type Req struct {
-	Dataset         string            `json:"dataset"`
-	ModelName       string            `json:"model_name"`
-	Version         string            `json:"version"`
-	ModelPartitions map[string]string `json:"model_partitions"`
-	Inputs          any               `json:"inputs"`
+	Dataset         string
+	ModelName       string
+	Version         string
+	ModelPartitions map[string]string
+	Inputs          string
 }
 
 type Resp struct {
-	Outputs map[string]any `json:"outputs"`
+	Outputs string
 }
 
 type Api struct {
-	Req  *Req  `json:"req"`
-	Resp *Resp `json:"resp"`
+	Req  *Req
+	Resp *Resp
 }
 
 func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id:     "tfz-model-predict",
-		Desc:   nil,
+		Id: "tfz-model-predict",
+		Desc: func() *schemaz.Desc {
+			return &schemaz.Desc{
+				Name:    "Model Predict",
+				Summary: "Runs a prediction of a dataset model version on the inference service (tfinfer), sending the model inputs and the model partitions and returning the model outputs.",
+				Labels:  map[string]string{"servname": "tfinfer"},
+			}
+		},
 		Method: "POST",
 		Path:   "/api/model/dataset/{dataset}/{model_name}/{version}/predict",
 	}

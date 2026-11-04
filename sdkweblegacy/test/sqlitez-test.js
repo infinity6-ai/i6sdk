@@ -274,6 +274,39 @@
             await rejectsWithCode(assert, conn.namedJsonQuery({ name: 'no_bind', params: [1] }), 'query', /out of range/)
         })
 
+        // ---- namedStringQuery
+
+        QUnit.test("namedStringQuery requires name and array params", async function (assert) {
+            conn = await sqlitez.open({ path: await writeSqlite(namedQueries()) })
+            await assert.rejects(conn.namedStringQuery(), TypeError)
+            await assert.rejects(conn.namedStringQuery({}), /opts.name/)
+            await assert.rejects(conn.namedStringQuery({ name: 'x', params: 'nope' }), /array/)
+        })
+
+        QUnit.test("namedStringQuery binds params as JSON and returns ret without parsing", async function (assert) {
+            conn = await sqlitez.open({ path: await writeSqlite(namedQueries(
+                ['echo', "SELECT json_object('got', json(?1)) AS ret"],
+                ['text', "SELECT 'not json' || substr(?, 1, 0) AS ret"],
+            )) })
+            assert.strictEqual(await conn.namedStringQuery({ name: 'echo', params: [{ a: 1 }] }), '{"got":{"a":1}}')
+            assert.strictEqual(await conn.namedStringQuery({ name: 'text', params: [null] }), 'not json')
+        })
+
+        QUnit.test("namedStringQuery returns null when there is no row or ret is null", async function (assert) {
+            conn = await sqlitez.open({ path: await writeSqlite(namedQueries(
+                ['no_row', "SELECT '1' AS ret WHERE length(?) < 0"],
+                ['null_ret', 'SELECT NULL AS ret WHERE ? IS NOT NULL'],
+            )) })
+            assert.strictEqual(await conn.namedStringQuery({ name: 'no_row' }), null)
+            assert.strictEqual(await conn.namedStringQuery({ name: 'null_ret' }), null)
+        })
+
+        QUnit.test("namedStringQuery errors are query errors", async function (assert) {
+            conn = await sqlitez.open({ path: await writeSqlite(namedQueries(['no_ret', "SELECT ? AS other"])) })
+            await rejectsWithCode(assert, conn.namedStringQuery({ name: 'nope' }), 'query', /no named query/)
+            await rejectsWithCode(assert, conn.namedStringQuery({ name: 'no_ret' }), 'query', /no "ret" column/)
+        })
+
         // ---- close
 
         QUnit.test("close twice is fine", async function (assert) {
@@ -290,6 +323,7 @@
             await rejectsWithCode(assert, conn.update({ query: 'CREATE TABLE x (id INTEGER)' }), 'query', /closed/)
             await rejectsWithCode(assert, conn.namedQuery({ name: 'all' }), 'query', /closed/)
             await rejectsWithCode(assert, conn.namedJsonQuery({ name: 'all' }), 'query', /closed/)
+            await rejectsWithCode(assert, conn.namedStringQuery({ name: 'all' }), 'query', /closed/)
         })
 
         QUnit.test("connections are independent", async function (assert) {
