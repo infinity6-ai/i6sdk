@@ -179,6 +179,11 @@ class SqliteConn {
         }
     }
 
+    async namedStringQuery(opts) {
+        //Mesma coisa que o de cima só que sem o json parse (mudar o de cima para usar esse e fazer o parse)
+        //Quando for dash utilizaremos o de cima (igual é hoje). Quando for model, vamos usar esse aqui.
+    }
+
     /**
      * @returns {Object} The sql.js database.
      * @throws {I6Error} With code "query" if the connection is closed.
