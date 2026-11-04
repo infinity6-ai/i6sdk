@@ -14,6 +14,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapiingestiontokenslist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapiloadresult"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapimodelget"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapipaymentautorenewupdate"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapipaymentlist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapirecsystokencreate"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapirecsystokenslist"
@@ -84,6 +85,7 @@ func init() {
 	add(&dszapistripecheckout.Api{})
 	add(&dszapisubscriptionget.Api{})
 	add(&dszapipaymentlist.Api{})
+	add(&dszapipaymentautorenewupdate.Api{})
 	add(&tfzapimodelpredict.Api{})
 }
 
