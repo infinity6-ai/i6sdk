@@ -15,8 +15,6 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapiingestiontokenslist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapiloadresult"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapimodelget"
-	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapipaymentautorenewupdate"
-	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapipaymentlist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapirecsystokencreate"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapirecsystokenslist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapisignedurl"
@@ -26,7 +24,6 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapistorelist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapistripecheckout"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapisubscriptionget"
-	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapisubscriptionplanupdate"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitableget"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitablelist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitokendelete"
@@ -84,13 +81,15 @@ func init() {
 	add(&dszapirecsystokencreate.Api{})
 	add(&dszapitokendelete.Api{})
 	add(&dszapimodelget.Api{})
+	add(&tfzapimodelpredict.Api{})
 	add(&dszapistripecheckout.Api{})
 	add(&dszapicustomerportalcreate.Api{})
 	add(&dszapisubscriptionget.Api{})
-	add(&dszapisubscriptionplanupdate.Api{})
-	add(&dszapipaymentlist.Api{})
-	add(&dszapipaymentautorenewupdate.Api{})
-	add(&tfzapimodelpredict.Api{})
+
+	//DISALED:
+	// add(&dszapisubscriptionplanupdate.Api{})
+	// add(&dszapipaymentlist.Api{})
+	// add(&dszapipaymentautorenewupdate.Api{})
 }
 
 func Apis() []apiz.Api {
