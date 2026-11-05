@@ -17,13 +17,16 @@ type Req struct {
 // Resp has the stripe values without translation, and none of the buyer or the price.
 // The body is empty ({}) for contracts without stripe, like custom and enterprise.
 type Resp struct {
-	PlanKey           string
-	Status            string
-	CancelAt          *time.Time
-	CreatedAt         time.Time
-	CancelAtPeriodEnd bool
-	TrialEnd          *time.Time
-	CurrentPeriodEnd  time.Time
+	PlanKey              string
+	Status               string
+	CancelAt             *time.Time
+	CreatedAt            time.Time
+	CancelAtPeriodEnd    bool
+	TrialStartAt         *time.Time
+	TrialEndAt           *time.Time
+	CurrentPeriodStartAt time.Time
+	CurrentPeriodEndAt   time.Time
+	NextInvoiceAt        *time.Time
 }
 
 // Custom tells that the dataset has no stripe subscription
@@ -109,13 +112,25 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 						Desc:  &schemaz.Desc{Summary: "Whether the subscription will be canceled at the end of the current period"},
 						Field: func() any { return &d.Resp.CancelAtPeriodEnd },
 					},
-					"trial_end": {
-						Desc:  &schemaz.Desc{Summary: "When the subscription trial ends, in UTC; null if there is no trial"},
-						Field: func() any { return &d.Resp.TrialEnd },
+					"trial_start_at": {
+						Desc:  &schemaz.Desc{Summary: "When the subscription trial started, in UTC; null if there is no trial"},
+						Field: func() any { return &d.Resp.TrialStartAt },
 					},
-					"current_period_end": {
+					"trial_end_at": {
+						Desc:  &schemaz.Desc{Summary: "When the subscription trial ends, in UTC; null if there is no trial"},
+						Field: func() any { return &d.Resp.TrialEndAt },
+					},
+					"current_period_start_at": {
+						Desc:  &schemaz.Desc{Summary: "Start of the current period, in UTC"},
+						Field: func() any { return &d.Resp.CurrentPeriodStartAt },
+					},
+					"current_period_end_at": {
 						Desc:  &schemaz.Desc{Summary: "End of the current period, in UTC"},
-						Field: func() any { return &d.Resp.CurrentPeriodEnd },
+						Field: func() any { return &d.Resp.CurrentPeriodEndAt },
+					},
+					"next_invoice_at": {
+						Desc:  &schemaz.Desc{Summary: "When the next invoice is scheduled, in UTC; null if none"},
+						Field: func() any { return &d.Resp.NextInvoiceAt },
 					},
 				}
 			},

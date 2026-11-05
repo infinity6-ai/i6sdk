@@ -21,7 +21,7 @@ func TestUnitDszGetSubscriptionApi(t *testing.T) {
 		api := &dszapisubscriptionget.Api{
 			Req: &dszapisubscriptionget.Req{Dataset: lakedsz.MustParse("myds"), Solution: solution.MustParse("relevance")},
 			Resp: &dszapisubscriptionget.Resp{
-				PlanKey: "relevance_growth_base_monthly", Status: "past_due", CurrentPeriodEnd: periodEnd, CancelAt: &cancelAt,
+				PlanKey: "relevance_growth_base_monthly", Status: "past_due", CurrentPeriodEndAt: periodEnd, CancelAt: &cancelAt,
 			},
 		}
 		apiCopy := jsonz.MustCopy(api, &dszapisubscriptionget.Api{})
@@ -33,7 +33,7 @@ func TestUnitDszGetSubscriptionApi(t *testing.T) {
 	t.Run("cancel_at is null without cancellation", func(t *testing.T) {
 		api := &dszapisubscriptionget.Api{
 			Req:  &dszapisubscriptionget.Req{Dataset: lakedsz.MustParse("myds"), Solution: solution.MustParse("relevance")},
-			Resp: &dszapisubscriptionget.Resp{PlanKey: "relevance_starter_base_monthly", Status: "active", CurrentPeriodEnd: periodEnd},
+			Resp: &dszapisubscriptionget.Resp{PlanKey: "relevance_starter_base_monthly", Status: "active", CurrentPeriodEndAt: periodEnd},
 		}
 		apiCopy := jsonz.MustCopy(api, &dszapisubscriptionget.Api{})
 		require.Nil(t, apiCopy.Resp.CancelAt)
@@ -46,8 +46,8 @@ func TestUnitDszGetSubscriptionApi(t *testing.T) {
 			return string(jsonz.MustFormat(api.ApiDataRefs().RespBody).Bytes())
 		}
 		require.JSONEq(t,
-			`{"plan_key":"relevance_growth_base_monthly","status":"past_due","current_period_end":"2026-11-27T00:00:00Z","cancel_at":null,"created_at":"0001-01-01T00:00:00Z","cancel_at_period_end":false,"trial_end":null}`,
-			body(&dszapisubscriptionget.Resp{PlanKey: "relevance_growth_base_monthly", Status: "past_due", CurrentPeriodEnd: periodEnd}))
+			`{"plan_key":"relevance_growth_base_monthly","status":"past_due","current_period_start_at":"0001-01-01T00:00:00Z","current_period_end_at":"2026-11-27T00:00:00Z","cancel_at":null,"created_at":"0001-01-01T00:00:00Z","cancel_at_period_end":false,"trial_start_at":null,"trial_end_at":null,"next_invoice_at":null}`,
+			body(&dszapisubscriptionget.Resp{PlanKey: "relevance_growth_base_monthly", Status: "past_due", CurrentPeriodEndAt: periodEnd}))
 		require.JSONEq(t, `{}`, body(&dszapisubscriptionget.Resp{}))
 	})
 
