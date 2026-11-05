@@ -37,7 +37,12 @@ func (d *Func) SdkFuncSpec() sdkfuncz.Spec {
 		Id:      "product-relevance-fashion-dash-list-showcase-categories",
 		Version: "v1",
 		Typ:     sdkfuncz.TypClientQuery,
-		Desc:    nil,
+		Desc: func() *schemaz.Desc {
+			return &schemaz.Desc{
+				Name:    "List Showcase Categories",
+				Summary: "Lists the showcase categories of a store.",
+			}
+		},
 	}
 }
 
@@ -46,14 +51,20 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 		Input: &schemaz.Schema{
 			Object: func(_ bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"dataset": {Field: func() any { return &d.Req.Dataset }},
+					"dataset": {
+						Desc:  &schemaz.Desc{Summary: "Dataset identifier."},
+						Field: func() any { return &d.Req.Dataset },
+					},
 				}
 			},
 		},
 		Partitions: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"store_id": {Field: func() any { return &d.Req.DashPartitions.StoreId }},
+					"store_id": {
+						Desc:  &schemaz.Desc{Summary: "Store identifier."},
+						Field: func() any { return &d.Req.DashPartitions.StoreId },
+					},
 				}
 			},
 		},
@@ -61,6 +72,7 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 			Object: func(_ bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
 					"rows": {
+						Desc: &schemaz.Desc{Summary: "Result rows."},
 						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Row, *Row]{
 							Slice:      func() *[]*Row { return &d.Resp.Results.Rows },
 							NewElement: func(idx int) *Row { return &Row{} },
@@ -68,7 +80,10 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 								return &schemaz.Schema{
 									Object: func(_ bool) map[string]*schemaz.Schema {
 										return map[string]*schemaz.Schema{
-											"showcase_category": {Field: func() any { return &(*element).ShowcaseCategory }},
+											"showcase_category": {
+												Desc:  &schemaz.Desc{Summary: "Showcase category."},
+												Field: func() any { return &(*element).ShowcaseCategory },
+											},
 										}
 									},
 								}

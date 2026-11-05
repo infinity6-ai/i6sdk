@@ -48,15 +48,25 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Req = &Req{}
 				}
 				return map[string]*schemaz.Schema{
-					"dataset":    {UrlValue: schemaz.ParseStr(&d.Req.Dataset)},
-					"model_name": {UrlValue: schemaz.ParseStr(&d.Req.ModelName)},
-					"version":    {UrlValue: schemaz.ParseStr(&d.Req.Version)},
+					"dataset": {
+						Desc:     &schemaz.Desc{Summary: "Dataset identifier."},
+						UrlValue: schemaz.ParseStr(&d.Req.Dataset),
+					},
+					"model_name": {
+						Desc:     &schemaz.Desc{Summary: "Model name."},
+						UrlValue: schemaz.ParseStr(&d.Req.ModelName),
+					},
+					"version": {
+						Desc:     &schemaz.Desc{Summary: "Model version."},
+						UrlValue: schemaz.ParseStr(&d.Req.Version),
+					},
 				}
 			},
 		},
 		QueryParams: nil,
 		ReqHeaders:  nil,
 		ReqBody: &schemaz.Schema{
+			Desc: &schemaz.Desc{Summary: "Model inputs and partitions."},
 			Object: func(read bool) map[string]*schemaz.Schema {
 				if read && d.Req == nil {
 					return nil
@@ -66,9 +76,11 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				}
 				return map[string]*schemaz.Schema{
 					"inputs": {
+						Desc:  &schemaz.Desc{Summary: "Model inputs."},
 						Field: func() any { return &d.Req.Inputs },
 					},
 					"model_partitions": {
+						Desc:  &schemaz.Desc{Summary: "Model partition key/value pairs."},
 						Field: func() any { return &d.Req.ModelPartitions },
 					},
 				}
@@ -76,6 +88,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 		},
 		RespHeaders: nil,
 		RespBody: &schemaz.Schema{
+			Desc: &schemaz.Desc{Summary: "Response containing the model outputs."},
 			Object: func(read bool) map[string]*schemaz.Schema {
 				if read && d.Resp == nil {
 					return nil
@@ -85,6 +98,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				}
 				return map[string]*schemaz.Schema{
 					"outputs": {
+						Desc:  &schemaz.Desc{Summary: "Model outputs."},
 						Field: func() any { return &d.Resp.Outputs },
 					},
 				}

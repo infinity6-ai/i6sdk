@@ -28,8 +28,13 @@ type Api struct {
 
 func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id:     "pipez-get",
-		Desc:   nil,
+		Id: "pipez-get",
+		Desc: func() *schemaz.Desc {
+			return &schemaz.Desc{
+				Name:    "Get Pipeline",
+				Summary: "Gets a pipeline of a dataset by its id.",
+			}
+		},
 		Method: "GET",
 		Path:   "/api/pipe/dataset/{dataset}/id/{id}",
 	}
@@ -46,8 +51,14 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Req = &PipezGetReq{}
 				}
 				return map[string]*schemaz.Schema{
-					"dataset": {UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse)},
-					"id":      {UrlValue: schemaz.ParseStr(&d.Req.Id)},
+					"dataset": {
+						Desc:     &schemaz.Desc{Summary: "Dataset identifier."},
+						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
+					},
+					"id": {
+						Desc:     &schemaz.Desc{Summary: "Pipeline id."},
+						UrlValue: schemaz.ParseStr(&d.Req.Id),
+					},
 				}
 			},
 		},
@@ -56,6 +67,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 		ReqBody:     nil,
 		RespHeaders: nil,
 		RespBody: &schemaz.Schema{
+			Desc: &schemaz.Desc{Summary: "Response containing the pipeline."},
 			Object: func(read bool) map[string]*schemaz.Schema {
 				if read && d.Resp == nil {
 					return nil
@@ -65,6 +77,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				}
 				return map[string]*schemaz.Schema{
 					"pipeline": {
+						Desc: &schemaz.Desc{Summary: "Pipeline and its states."},
 						Object: func(read bool) map[string]*schemaz.Schema {
 							if read && d.Resp.Pipeline == nil {
 								return nil

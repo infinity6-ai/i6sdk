@@ -71,7 +71,10 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 		RespBody: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"count": {Field: func() any { return &d.Resp.Count }},
+					"count": {
+						Desc:  &schemaz.Desc{Summary: "Number of ingested events."},
+						Field: func() any { return &d.Resp.Count },
+					},
 				}
 			},
 		},

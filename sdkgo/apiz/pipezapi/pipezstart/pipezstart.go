@@ -48,8 +48,13 @@ func newT[T any]() T {
 func (d *Api[T]) ApiSpec() apiz.ApiSpec {
 	p := newT[T]()
 	return apiz.ApiSpec{
-		Id:     "pipez-start-" + p.SolutionDomain().String() + "-" + p.Pipename(),
-		Desc:   nil,
+		Id: "pipez-start-" + p.SolutionDomain().String() + "-" + p.Pipename(),
+		Desc: func() *schemaz.Desc {
+			return &schemaz.Desc{
+				Name:    "Start Pipeline",
+				Summary: "Starts a pipeline on a dataset with the given params and returns its id.",
+			}
+		},
 		Method: "POST",
 		Path:   "/api/pipe/dataset/{dataset}/start/" + p.SolutionDomain().String() + "/" + p.Pipename(),
 	}
@@ -66,13 +71,17 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 					d.Req = &PipezStartReq[T]{}
 				}
 				return map[string]*schemaz.Schema{
-					"dataset": {UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse)},
+					"dataset": {
+						Desc:     &schemaz.Desc{Summary: "Dataset identifier."},
+						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
+					},
 				}
 			},
 		},
 		QueryParams: nil,
 		ReqHeaders:  nil,
 		ReqBody: &schemaz.Schema{
+			Desc: &schemaz.Desc{Summary: "Pipeline params."},
 			Object: func(read bool) map[string]*schemaz.Schema {
 				if read && d.Req == nil {
 					return nil
@@ -93,6 +102,7 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 		},
 		RespHeaders: nil,
 		RespBody: &schemaz.Schema{
+			Desc: &schemaz.Desc{Summary: "Response containing the started pipeline."},
 			Object: func(read bool) map[string]*schemaz.Schema {
 				if read && d.Resp == nil {
 					return nil
@@ -101,7 +111,10 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 					d.Resp = &PipezStartResp{}
 				}
 				return map[string]*schemaz.Schema{
-					"id": {Field: func() any { return &d.Resp.Id }},
+					"id": {
+						Desc:  &schemaz.Desc{Summary: "Pipeline id."},
+						Field: func() any { return &d.Resp.Id },
+					},
 				}
 			},
 		},

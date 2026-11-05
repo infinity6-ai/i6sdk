@@ -52,7 +52,12 @@ func (d *Func) SdkFuncSpec() sdkfuncz.Spec {
 		Id:      "product-relevance-fashion-dash-impacted-metrics-by-sku",
 		Version: "v1",
 		Typ:     sdkfuncz.TypClientQuery,
-		Desc:    nil,
+		Desc: func() *schemaz.Desc {
+			return &schemaz.Desc{
+				Name:    "Get Metrics by SKU",
+				Summary: "Gets the metrics impacted by recommendations by SKU for a store and period.",
+			}
+		},
 	}
 }
 
@@ -61,12 +66,22 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 		Input: &schemaz.Schema{
 			Object: func(_ bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"dataset": {Field: func() any { return &d.Req.Dataset }},
+					"dataset": {
+						Desc:  &schemaz.Desc{Summary: "Dataset identifier."},
+						Field: func() any { return &d.Req.Dataset },
+					},
 					"params": {
+						Desc: &schemaz.Desc{Summary: "Query params."},
 						Object: func(_ bool) map[string]*schemaz.Schema {
 							return map[string]*schemaz.Schema{
-								"min_year_month": {Field: func() any { return &d.Req.Params.MinYearMonth }},
-								"max_year_month": {Field: func() any { return &d.Req.Params.MaxYearMonth }},
+								"min_year_month": {
+									Desc:  &schemaz.Desc{Summary: "First year-month of the period."},
+									Field: func() any { return &d.Req.Params.MinYearMonth },
+								},
+								"max_year_month": {
+									Desc:  &schemaz.Desc{Summary: "Last year-month of the period."},
+									Field: func() any { return &d.Req.Params.MaxYearMonth },
+								},
 							}
 						},
 					},
@@ -76,7 +91,10 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 		Partitions: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"store_id": {Field: func() any { return &d.Req.DashPartitions.StoreId }},
+					"store_id": {
+						Desc:  &schemaz.Desc{Summary: "Store identifier."},
+						Field: func() any { return &d.Req.DashPartitions.StoreId },
+					},
 				}
 			},
 		},
@@ -84,6 +102,7 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 			Object: func(_ bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
 					"rows": {
+						Desc: &schemaz.Desc{Summary: "Result rows."},
 						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Row, *Row]{
 							Slice:      func() *[]*Row { return &d.Resp.Results.Rows },
 							NewElement: func(idx int) *Row { return &Row{} },
@@ -91,16 +110,46 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 								return &schemaz.Schema{
 									Object: func(_ bool) map[string]*schemaz.Schema {
 										return map[string]*schemaz.Schema{
-											"sku_id":            {Field: func() any { return &(*element).SkuId }},
-											"showcase_category": {Field: func() any { return &(*element).ShowcaseCategory }},
-											"description":       {Field: func() any { return &(*element).Description }},
-											"recomendations":    {Field: func() any { return &(*element).Recomendations }},
-											"clicks":            {Field: func() any { return &(*element).Clicks }},
-											"cart_adds":         {Field: func() any { return &(*element).CartAdds }},
-											"purchases":         {Field: func() any { return &(*element).Purchases }},
-											"revenue":           {Field: func() any { return &(*element).Revenue }},
-											"participation":     {Field: func() any { return &(*element).Participation }},
-											"conversion_rate":   {Field: func() any { return &(*element).ConversionRate }},
+											"sku_id": {
+												Desc:  &schemaz.Desc{Summary: "SKU identifier."},
+												Field: func() any { return &(*element).SkuId },
+											},
+											"showcase_category": {
+												Desc:  &schemaz.Desc{Summary: "Showcase category."},
+												Field: func() any { return &(*element).ShowcaseCategory },
+											},
+											"description": {
+												Desc:  &schemaz.Desc{Summary: "SKU description."},
+												Field: func() any { return &(*element).Description },
+											},
+											"recomendations": {
+												Desc:  &schemaz.Desc{Summary: "Number of recommendations."},
+												Field: func() any { return &(*element).Recomendations },
+											},
+											"clicks": {
+												Desc:  &schemaz.Desc{Summary: "Number of clicks."},
+												Field: func() any { return &(*element).Clicks },
+											},
+											"cart_adds": {
+												Desc:  &schemaz.Desc{Summary: "Number of cart adds."},
+												Field: func() any { return &(*element).CartAdds },
+											},
+											"purchases": {
+												Desc:  &schemaz.Desc{Summary: "Number of purchases."},
+												Field: func() any { return &(*element).Purchases },
+											},
+											"revenue": {
+												Desc:  &schemaz.Desc{Summary: "Revenue."},
+												Field: func() any { return &(*element).Revenue },
+											},
+											"participation": {
+												Desc:  &schemaz.Desc{Summary: "Participation share."},
+												Field: func() any { return &(*element).Participation },
+											},
+											"conversion_rate": {
+												Desc:  &schemaz.Desc{Summary: "Conversion rate."},
+												Field: func() any { return &(*element).ConversionRate },
+											},
 										}
 									},
 								}

@@ -29,8 +29,13 @@ type Api struct {
 
 func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id:     "tfz-model-metadata",
-		Desc:   nil,
+		Id: "tfz-model-metadata",
+		Desc: func() *schemaz.Desc {
+			return &schemaz.Desc{
+				Name:    "Get Model Metadata",
+				Summary: "Gets the input and output tensors of a model version.",
+			}
+		},
 		Method: "GET",
 		Path:   "/api/metadata/{model_name}/{version}",
 	}
@@ -47,8 +52,14 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Req = &Req{}
 				}
 				return map[string]*schemaz.Schema{
-					"model_name": {UrlValue: schemaz.ParseStr(&d.Req.ModelName)},
-					"version":    {UrlValue: schemaz.ParseStr(&d.Req.Version)},
+					"model_name": {
+						Desc:     &schemaz.Desc{Summary: "Model name."},
+						UrlValue: schemaz.ParseStr(&d.Req.ModelName),
+					},
+					"version": {
+						Desc:     &schemaz.Desc{Summary: "Model version."},
+						UrlValue: schemaz.ParseStr(&d.Req.Version),
+					},
 				}
 			},
 		},
@@ -57,6 +68,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 		ReqBody:     nil,
 		RespHeaders: nil,
 		RespBody: &schemaz.Schema{
+			Desc: &schemaz.Desc{Summary: "Response containing the model tensors."},
 			Object: func(read bool) map[string]*schemaz.Schema {
 				if read && d.Resp == nil {
 					return nil
@@ -66,6 +78,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				}
 				return map[string]*schemaz.Schema{
 					"inputs": {
+						Desc: &schemaz.Desc{Summary: "Model input tensors."},
 						Array: schemaz.NewArray(schemaz.ArrayOptions[[]TensorDetail, TensorDetail]{
 							Slice:      func() *[]TensorDetail { return &d.Resp.Inputs },
 							NewElement: func(idx int) TensorDetail { return TensorDetail{} },
@@ -73,9 +86,16 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 								return &schemaz.Schema{
 									Object: func(_ bool) map[string]*schemaz.Schema {
 										return map[string]*schemaz.Schema{
-											"name":  {Field: func() any { return &element.Name }},
-											"index": {Field: func() any { return &element.Index }},
+											"name": {
+												Desc:  &schemaz.Desc{Summary: "Tensor name."},
+												Field: func() any { return &element.Name },
+											},
+											"index": {
+												Desc:  &schemaz.Desc{Summary: "Tensor index."},
+												Field: func() any { return &element.Index },
+											},
 											"shape": {
+												Desc: &schemaz.Desc{Summary: "Tensor dimensions."},
 												Array: schemaz.NewArray(schemaz.ArrayOptions[[]int, int]{
 													Slice: func() *[]int { return &element.Shape },
 													Get: func(idx int, shape *int) *schemaz.Schema {
@@ -85,7 +105,10 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 													},
 												}),
 											},
-											"dtype": {Field: func() any { return &element.DType }},
+											"dtype": {
+												Desc:  &schemaz.Desc{Summary: "Tensor data type."},
+												Field: func() any { return &element.DType },
+											},
 										}
 									},
 								}
@@ -93,6 +116,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 						}),
 					},
 					"outputs": {
+						Desc: &schemaz.Desc{Summary: "Model output tensors."},
 						Array: schemaz.NewArray(schemaz.ArrayOptions[[]TensorDetail, TensorDetail]{
 							Slice:      func() *[]TensorDetail { return &d.Resp.Outputs },
 							NewElement: func(idx int) TensorDetail { return TensorDetail{} },
@@ -100,9 +124,16 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 								return &schemaz.Schema{
 									Object: func(_ bool) map[string]*schemaz.Schema {
 										return map[string]*schemaz.Schema{
-											"name":  {Field: func() any { return &element.Name }},
-											"index": {Field: func() any { return &element.Index }},
+											"name": {
+												Desc:  &schemaz.Desc{Summary: "Tensor name."},
+												Field: func() any { return &element.Name },
+											},
+											"index": {
+												Desc:  &schemaz.Desc{Summary: "Tensor index."},
+												Field: func() any { return &element.Index },
+											},
 											"shape": {
+												Desc: &schemaz.Desc{Summary: "Tensor dimensions."},
 												Array: schemaz.NewArray(schemaz.ArrayOptions[[]int, int]{
 													Slice: func() *[]int { return &element.Shape },
 													Get: func(idx int, shape *int) *schemaz.Schema {
@@ -112,7 +143,10 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 													},
 												}),
 											},
-											"dtype": {Field: func() any { return &element.DType }},
+											"dtype": {
+												Desc:  &schemaz.Desc{Summary: "Tensor data type."},
+												Field: func() any { return &element.DType },
+											},
 										}
 									},
 								}

@@ -99,6 +99,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
 					"files": {
+						Desc: &schemaz.Desc{Summary: "Files and tables found."},
 						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*File, *File]{
 							Slice:      func() *[]*File { return &d.Resp.Files },
 							NewElement: func(idx int) *File { return &File{} },

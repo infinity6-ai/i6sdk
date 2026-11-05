@@ -72,7 +72,7 @@ func TestUnitRelevanceFashionDashImpactedMetricsByShowcaseCategorySpec(t *testin
 	require.Equal(t, "product-relevance-fashion-dash-impacted-metrics-by-showcase-category", spec.Id)
 	require.Equal(t, "v1", spec.Version)
 	require.Equal(t, sdkfuncz.TypClientQuery, spec.Typ)
-	require.Nil(t, spec.Desc)
+	require.NotNil(t, spec.Desc)
 }
 
 func TestUnitRelevanceFashionDashImpactedMetricsByShowcaseCategoryDataRefs(t *testing.T) {

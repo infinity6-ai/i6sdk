@@ -45,7 +45,12 @@ func (d *Func) SdkFuncSpec() sdkfuncz.Spec {
 		Id:      "product-relevance-fashion-dash-funnel",
 		Version: "v1",
 		Typ:     sdkfuncz.TypClientQuery,
-		Desc:    nil,
+		Desc: func() *schemaz.Desc {
+			return &schemaz.Desc{
+				Name:    "Get Funnel",
+				Summary: "Gets the event counts of the recommendation funnel for a store and period.",
+			}
+		},
 	}
 }
 
@@ -54,12 +59,22 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 		Input: &schemaz.Schema{
 			Object: func(_ bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"dataset": {Field: func() any { return &d.Req.Dataset }},
+					"dataset": {
+						Desc:  &schemaz.Desc{Summary: "Dataset identifier."},
+						Field: func() any { return &d.Req.Dataset },
+					},
 					"params": {
+						Desc: &schemaz.Desc{Summary: "Query params."},
 						Object: func(_ bool) map[string]*schemaz.Schema {
 							return map[string]*schemaz.Schema{
-								"min_year_month": {Field: func() any { return &d.Req.Params.MinYearMonth }},
-								"max_year_month": {Field: func() any { return &d.Req.Params.MaxYearMonth }},
+								"min_year_month": {
+									Desc:  &schemaz.Desc{Summary: "First year-month of the period."},
+									Field: func() any { return &d.Req.Params.MinYearMonth },
+								},
+								"max_year_month": {
+									Desc:  &schemaz.Desc{Summary: "Last year-month of the period."},
+									Field: func() any { return &d.Req.Params.MaxYearMonth },
+								},
 							}
 						},
 					},
@@ -69,7 +84,10 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 		Partitions: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"store_id": {Field: func() any { return &d.Req.DashPartitions.StoreId }},
+					"store_id": {
+						Desc:  &schemaz.Desc{Summary: "Store identifier."},
+						Field: func() any { return &d.Req.DashPartitions.StoreId },
+					},
 				}
 			},
 		},
@@ -77,6 +95,7 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 			Object: func(_ bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
 					"rows": {
+						Desc: &schemaz.Desc{Summary: "Result rows."},
 						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Row, *Row]{
 							Slice:      func() *[]*Row { return &d.Resp.Results.Rows },
 							NewElement: func(idx int) *Row { return &Row{} },
@@ -84,9 +103,18 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 								return &schemaz.Schema{
 									Object: func(_ bool) map[string]*schemaz.Schema {
 										return map[string]*schemaz.Schema{
-											"event_type": {Field: func() any { return &(*element).EventType }},
-											"from_rec":   {Field: func() any { return &(*element).FromRec }},
-											"qt_events":  {Field: func() any { return &(*element).QtEvents }},
+											"event_type": {
+												Desc:  &schemaz.Desc{Summary: "Event type."},
+												Field: func() any { return &(*element).EventType },
+											},
+											"from_rec": {
+												Desc:  &schemaz.Desc{Summary: "Whether the event came from a recommendation."},
+												Field: func() any { return &(*element).FromRec },
+											},
+											"qt_events": {
+												Desc:  &schemaz.Desc{Summary: "Number of events."},
+												Field: func() any { return &(*element).QtEvents },
+											},
 										}
 									},
 								}

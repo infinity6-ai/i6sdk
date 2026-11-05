@@ -90,12 +90,15 @@ func (c *BatchSummary) Schema() *schemaz.Schema {
 
 			return map[string]*schemaz.Schema{
 				"store_id": {
+					Desc:  &schemaz.Desc{Summary: "Store identifier."},
 					Field: func() any { return &c.Resp.StoreId },
 				},
 				"ingested_at": {
+					Desc:  &schemaz.Desc{Summary: "Batch ingestion date."},
 					Field: func() any { return &c.Resp.IngestedAt },
 				},
 				"row_count": {
+					Desc:  &schemaz.Desc{Summary: "Number of rows in the batch."},
 					Field: func() any { return &c.Resp.RowCount },
 				},
 				"column_summaries": {

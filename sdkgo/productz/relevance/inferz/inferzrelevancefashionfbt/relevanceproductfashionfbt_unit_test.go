@@ -64,7 +64,7 @@ func TestUnitInferzRelevanceFashionFbtSpec(t *testing.T) {
 	require.Equal(t, "product-relevance-fashion-fbt", spec.Id)
 	require.Equal(t, "v1", spec.Version)
 	require.Equal(t, sdkfuncz.TypClientInfer, spec.Typ)
-	require.Nil(t, spec.Desc)
+	require.NotNil(t, spec.Desc)
 }
 
 func TestUnitInferzRelevanceFashionFbtDataRefs(t *testing.T) {

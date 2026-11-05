@@ -65,7 +65,7 @@ func TestUnitRelevanceFashionDashFunnelSpec(t *testing.T) {
 	require.Equal(t, "product-relevance-fashion-dash-funnel", spec.Id)
 	require.Equal(t, "v1", spec.Version)
 	require.Equal(t, sdkfuncz.TypClientQuery, spec.Typ)
-	require.Nil(t, spec.Desc)
+	require.NotNil(t, spec.Desc)
 }
 
 func TestUnitRelevanceFashionDashFunnelDataRefs(t *testing.T) {

@@ -6,6 +6,7 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/errorz"
 	"github.com/infinity6-ai/gox/commonz/jsonz"
+	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparsersdkfunc"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
@@ -20,7 +21,11 @@ func expectedFashionFbtSdkFunc() *jsparsersdkfunc.SdkFunc {
 			Id:      "product-relevance-fashion-fbt",
 			CamelId: "sdkFuncProductRelevanceFashionFbt",
 			Version: "v1",
-			Typ:     sdkfuncz.TypClientInfer,
+			Desc: &schemaz.Desc{
+				Name:    "Get Bought Together",
+				Summary: "Infers the SKUs frequently bought together with the given SKUs for a store.",
+			},
+			Typ: sdkfuncz.TypClientInfer,
 		},
 		Typedefs: jstypez.NewTypedefs([]*jstypez.Typedef{
 			{
@@ -41,41 +46,41 @@ func expectedFashionFbtSdkFunc() *jsparsersdkfunc.SdkFunc {
 			{
 				Head: &jstypez.Tuple{Typ: "object", Name: "sdkFuncProductRelevanceFashionFbtInput", Summary: "sdkFuncProductRelevanceFashionFbt input"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "string", GoTyp: "lakedsz.Dataset", Name: "dataset"},
-					{Typ: "string", GoTyp: "string", Name: "session_id"},
-					{Typ: "Array<sdkFuncProductRelevanceFashionFbtInputSkusElement>", Name: "skus"},
-					{Typ: "string", GoTyp: "string", Name: "user_id"},
+					{Typ: "string", GoTyp: "lakedsz.Dataset", Name: "dataset", Summary: "Dataset identifier."},
+					{Typ: "string", GoTyp: "string", Name: "session_id", Summary: "Session identifier."},
+					{Typ: "Array<sdkFuncProductRelevanceFashionFbtInputSkusElement>", Name: "skus", Summary: "SKUs to find matches for."},
+					{Typ: "string", GoTyp: "string", Name: "user_id", Summary: "User identifier."},
 				}),
 			},
 			{
 				Head: &jstypez.Tuple{Typ: "object", Name: "sdkFuncProductRelevanceFashionFbtInputSkusElement"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "string", GoTyp: "string", Name: "sku_id"},
+					{Typ: "string", GoTyp: "string", Name: "sku_id", Summary: "SKU identifier."},
 				}),
 			},
 			{
 				Head: &jstypez.Tuple{Typ: "object", Name: "sdkFuncProductRelevanceFashionFbtPartitions", Summary: "sdkFuncProductRelevanceFashionFbt partitions"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "string", GoTyp: "string", Name: "store_id"},
+					{Typ: "string", GoTyp: "string", Name: "store_id", Summary: "Store identifier."},
 				}),
 			},
 			{
 				Head: &jstypez.Tuple{Typ: "object", Name: "sdkFuncProductRelevanceFashionFbtOutput", Summary: "sdkFuncProductRelevanceFashionFbt output"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "Array<sdkFuncProductRelevanceFashionFbtOutputResultsElement>", Name: "results"},
+					{Typ: "Array<sdkFuncProductRelevanceFashionFbtOutputResultsElement>", Name: "results", Summary: "Inference results."},
 				}),
 			},
 			{
 				Head: &jstypez.Tuple{Typ: "object", Name: "sdkFuncProductRelevanceFashionFbtOutputResultsElement"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "number", GoTyp: "float64", Name: "rating"},
-					{Typ: "Array<sdkFuncProductRelevanceFashionFbtOutputResultsElementSkusElement>", Name: "skus"},
+					{Typ: "number", GoTyp: "float64", Name: "rating", Summary: "Result rating."},
+					{Typ: "Array<sdkFuncProductRelevanceFashionFbtOutputResultsElementSkusElement>", Name: "skus", Summary: "Matching SKUs."},
 				}),
 			},
 			{
 				Head: &jstypez.Tuple{Typ: "object", Name: "sdkFuncProductRelevanceFashionFbtOutputResultsElementSkusElement"},
 				Properties: jstypez.NewTuples([]jstypez.Tuple{
-					{Typ: "string", GoTyp: "string", Name: "sku_id"},
+					{Typ: "string", GoTyp: "string", Name: "sku_id", Summary: "SKU identifier."},
 				}),
 			},
 		}),

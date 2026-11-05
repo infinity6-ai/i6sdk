@@ -58,6 +58,10 @@ func TestUnitWrite(t *testing.T) {
   }
 
   /**
+   * Get Bought Together
+   * 
+   * Infers the SKUs frequently bought together with the given SKUs for a store.
+   * 
    * @param {sdkFuncProductRelevanceFashionFbtReq} req
    * @param {(req: sdkFuncProductRelevanceFashionFbtReq, results: sdkFuncProductRelevanceFashionFbtOutput) => Promise<sdkFuncProductRelevanceFashionFbtSelected>} [selectResults] - picks which of the recommended skus are shown and may attach your own data to each in enriched; default: for each result, in order, the first sku not in req.input.skus (the cart) and not already picked, with the rating of that result; no duplicates, and results with no such sku are skipped
    * @param {ServiceOptions} [opts]
@@ -210,6 +214,10 @@ export { SdkFuncs };
   }
 
   /**
+   * Get Funnel
+   * 
+   * Gets the event counts of the recommendation funnel for a store and period.
+   * 
    * @param {sdkFuncProductRelevanceFashionDashFunnelReq} req
    * @param {ServiceOptions} [opts]
    * @returns {Promise<sdkFuncProductRelevanceFashionDashFunnelOutput>}
@@ -252,6 +260,10 @@ export { SdkFuncs };
   }
 
   /**
+   * List Showcase Categories
+   * 
+   * Lists the showcase categories of a store.
+   * 
    * @param {sdkFuncProductRelevanceFashionDashListShowcaseCategoriesReq} req
    * @param {ServiceOptions} [opts]
    * @returns {Promise<sdkFuncProductRelevanceFashionDashListShowcaseCategoriesOutput>}

@@ -34,8 +34,13 @@ type Api struct {
 
 func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id:     "pipez-list",
-		Desc:   nil,
+		Id: "pipez-list",
+		Desc: func() *schemaz.Desc {
+			return &schemaz.Desc{
+				Name:    "List Pipelines",
+				Summary: "Lists the pipelines of a dataset, optionally filtered, with cursor pagination.",
+			}
+		},
 		Method: "GET",
 		Path:   "/api/pipe/dataset/{dataset}/list",
 	}
@@ -52,7 +57,10 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Req = &PipezListReq{}
 				}
 				return map[string]*schemaz.Schema{
-					"dataset": {UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse)},
+					"dataset": {
+						Desc:     &schemaz.Desc{Summary: "Dataset identifier."},
+						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
+					},
 				}
 			},
 		},
@@ -65,11 +73,26 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Req = &PipezListReq{}
 				}
 				return map[string]*schemaz.Schema{
-					"solution_domain": {UrlValue: solutiondomain.ParseStr(&d.Req.SolutionDomain)},
-					"name":            {UrlValue: schemaz.ParseStr(&d.Req.Name)},
-					"status":          {UrlValue: schemaz.ParseStr(&d.Req.Status)},
-					"cursor":          {UrlValue: schemaz.ParseStr(&d.Req.Cursor)},
-					"limit":           {UrlValue: schemaz.ParseStrNumber(&d.Req.Limit)},
+					"solution_domain": {
+						Desc:     &schemaz.Desc{Summary: "Filter by solution domain."},
+						UrlValue: solutiondomain.ParseStr(&d.Req.SolutionDomain),
+					},
+					"name": {
+						Desc:     &schemaz.Desc{Summary: "Filter by pipeline name."},
+						UrlValue: schemaz.ParseStr(&d.Req.Name),
+					},
+					"status": {
+						Desc:     &schemaz.Desc{Summary: "Filter by pipeline status."},
+						UrlValue: schemaz.ParseStr(&d.Req.Status),
+					},
+					"cursor": {
+						Desc:     &schemaz.Desc{Summary: "Cursor to fetch the next page."},
+						UrlValue: schemaz.ParseStr(&d.Req.Cursor),
+					},
+					"limit": {
+						Desc:     &schemaz.Desc{Summary: "Maximum number of results."},
+						UrlValue: schemaz.ParseStrNumber(&d.Req.Limit),
+					},
 				}
 			},
 		},
@@ -77,6 +100,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 		ReqBody:     nil,
 		RespHeaders: nil,
 		RespBody: &schemaz.Schema{
+			Desc: &schemaz.Desc{Summary: "Response containing the listed pipelines."},
 			Object: func(read bool) map[string]*schemaz.Schema {
 				if read && d.Resp == nil {
 					return nil
@@ -86,9 +110,11 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				}
 				return map[string]*schemaz.Schema{
 					"cursor": {
+						Desc:  &schemaz.Desc{Summary: "Cursor for the next page."},
 						Field: func() any { return &d.Resp.Cursor },
 					},
 					"pipelines": {
+						Desc: &schemaz.Desc{Summary: "List of pipelines."},
 						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*pipez.Pipeline, *pipez.Pipeline]{
 							Slice:      func() *[]*pipez.Pipeline { return &d.Resp.Pipelines },
 							NewElement: func(idx int) *pipez.Pipeline { return &pipez.Pipeline{} },

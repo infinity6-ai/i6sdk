@@ -65,21 +65,27 @@ func (c *Catalog) SchemaQuery() *schemaz.Schema {
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"id": {
+					Desc:     &schemaz.Desc{Summary: "Catalog entry id."},
 					UrlValue: schemaz.ParseStr(&c.ID),
 				},
 				"store_id": {
+					Desc:     &schemaz.Desc{Summary: "Store identifier."},
 					UrlValue: schemaz.ParseStr(&c.StoreId),
 				},
 				"product_id": {
+					Desc:     &schemaz.Desc{Summary: "Product identifier."},
 					UrlValue: schemaz.ParseStr(&c.ProductId),
 				},
 				"sku_id": {
+					Desc:     &schemaz.Desc{Summary: "SKU identifier."},
 					UrlValue: schemaz.ParseStr(&c.SkuId),
 				},
 				"sku_ds": {
+					Desc:     &schemaz.Desc{Summary: "SKU description."},
 					UrlValue: schemaz.ParseStr(&c.SkuDs),
 				},
 				"inactive": {
+					Desc:     &schemaz.Desc{Summary: "Whether the SKU is inactive."},
 					UrlValue: schemaz.ParseStrBool(&c.Inactive),
 				},
 			}

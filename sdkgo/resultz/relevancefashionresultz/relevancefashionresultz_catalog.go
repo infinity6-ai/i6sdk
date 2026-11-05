@@ -70,12 +70,15 @@ func (c *CatalogSimple) Schema() *schemaz.Schema {
 					Object: func(read bool) map[string]*schemaz.Schema {
 						return map[string]*schemaz.Schema{
 							"store_id": {
+								Desc:  &schemaz.Desc{Summary: "Store identifier."},
 								Field: func() any { return &(*element).StoreId },
 							},
 							"sku_id": {
+								Desc:  &schemaz.Desc{Summary: "SKU identifier."},
 								Field: func() any { return &(*element).SkuId },
 							},
 							"sku_ds": {
+								Desc:  &schemaz.Desc{Summary: "SKU description."},
 								Field: func() any { return &(*element).SkuDs },
 							},
 						}

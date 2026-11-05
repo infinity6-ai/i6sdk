@@ -44,9 +44,11 @@ func (b *BatchIngest) Schema() *schemaz.Schema {
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"ingest_id": {
+					Desc:  &schemaz.Desc{Summary: "Batch ingestion id."},
 					Field: func() any { return &b.IngestId },
 				},
 				"table": {
+					Desc:  &schemaz.Desc{Summary: "Table that received the batch."},
 					Field: func() any { return &b.Table },
 				},
 			}
