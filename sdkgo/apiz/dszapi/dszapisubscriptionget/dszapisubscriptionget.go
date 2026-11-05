@@ -17,10 +17,13 @@ type Req struct {
 // Resp has the stripe values without translation, and none of the buyer or the price.
 // The body is empty ({}) for contracts without stripe, like custom and enterprise.
 type Resp struct {
-	PlanKey          string
-	Status           string
-	CurrentPeriodEnd time.Time
-	CancelAt         *time.Time
+	PlanKey           string
+	Status            string
+	CancelAt          *time.Time
+	CreatedAt         time.Time
+	CancelAtPeriodEnd bool
+	TrialEnd          *time.Time
+	CurrentPeriodEnd  time.Time
 }
 
 // Custom tells that the dataset has no stripe subscription
