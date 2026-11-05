@@ -19,7 +19,7 @@ func TestUnitDszListPaymentsApi(t *testing.T) {
 	payment := dszapipaymentlist.Payment{
 		Id: "in_1", Number: "ABC-0001", Status: "paid", Currency: "brl", AmountDue: 9900, AmountPaid: 9900,
 		Created: created, PeriodStart: created, PeriodEnd: periodEnd,
-		HostedInvoiceUrl: "https://invoice.stripe.com/i/1", InvoicePdf: "https://pay.stripe.com/invoice/1/pdf",
+		InvoicePdfUrl: "https://pay.stripe.com/invoice/1/pdf",
 		Lines: []dszapipaymentlist.PaymentLine{
 			{
 				Id:          "il_1",
@@ -48,7 +48,7 @@ func TestUnitDszListPaymentsApi(t *testing.T) {
 		require.JSONEq(t, `{"payments":[{
 			"id":"in_1","number":"ABC-0001","status":"paid","currency":"brl","amount_due":9900,"amount_paid":9900,
 			"created":"2026-10-27T00:00:00Z","period_start":"2026-10-27T00:00:00Z","period_end":"2026-11-27T00:00:00Z",
-			"hosted_invoice_url":"https://invoice.stripe.com/i/1","invoice_pdf":"https://pay.stripe.com/invoice/1/pdf",
+			"invoice_pdf_url":"https://pay.stripe.com/invoice/1/pdf",
 			"lines":[{
 				"id":"il_1",
 				"solution":"relevance",

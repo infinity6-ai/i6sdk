@@ -20,23 +20,20 @@ type PaymentLine struct {
 	Description string
 }
 
-// Payment is a Stripe invoice with its values without translation, the amounts are in the minor unit of the currency
 type Payment struct {
-	Id               string
-	Number           string
-	Status           string
-	Currency         string
-	AmountDue        int64
-	AmountPaid       int64
-	Created          time.Time
-	PeriodStart      time.Time
-	PeriodEnd        time.Time
-	HostedInvoiceUrl string
-	InvoicePdf       string
-	Lines            []PaymentLine
+	Id            string
+	Number        string
+	Status        string
+	Currency      string
+	AmountDue     int64
+	AmountPaid    int64
+	Created       time.Time
+	PeriodStart   time.Time
+	PeriodEnd     time.Time
+	InvoicePdfUrl string
+	Lines         []PaymentLine
 }
 
-// Resp has no payments for datasets without a Stripe customer, like custom and enterprise contracts
 type Resp struct {
 	Payments []Payment
 }
@@ -139,13 +136,9 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 												Desc:  &schemaz.Desc{Summary: "End of the billing period, in UTC"},
 												Field: func() any { return &element.PeriodEnd },
 											},
-											"hosted_invoice_url": {
-												Desc:  &schemaz.Desc{Summary: "Stripe page of the invoice"},
-												Field: func() any { return &element.HostedInvoiceUrl },
-											},
-											"invoice_pdf": {
+											"invoice_pdf_url": {
 												Desc:  &schemaz.Desc{Summary: "Pdf of the invoice"},
-												Field: func() any { return &element.InvoicePdf },
+												Field: func() any { return &element.InvoicePdfUrl },
 											},
 											"lines": {
 												Desc: &schemaz.Desc{Summary: "Line items of the invoice"},
