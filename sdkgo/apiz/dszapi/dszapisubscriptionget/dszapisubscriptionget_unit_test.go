@@ -46,7 +46,7 @@ func TestUnitDszGetSubscriptionApi(t *testing.T) {
 			return string(jsonz.MustFormat(api.ApiDataRefs().RespBody).Bytes())
 		}
 		require.JSONEq(t,
-			`{"plan_key":"relevance_growth_base_monthly","status":"past_due","current_period_end":"2026-11-27T00:00:00Z","cancel_at":null}`,
+			`{"plan_key":"relevance_growth_base_monthly","status":"past_due","current_period_end":"2026-11-27T00:00:00Z","cancel_at":null,"created_at":"0001-01-01T00:00:00Z","cancel_at_period_end":false,"trial_end":null}`,
 			body(&dszapisubscriptionget.Resp{PlanKey: "relevance_growth_base_monthly", Status: "past_due", CurrentPeriodEnd: periodEnd}))
 		require.JSONEq(t, `{}`, body(&dszapisubscriptionget.Resp{}))
 	})

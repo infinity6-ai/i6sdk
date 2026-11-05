@@ -97,13 +97,25 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 						Desc:  &schemaz.Desc{Summary: "Status of the subscription in Stripe, without translation: active, trialing, past_due, unpaid, incomplete, canceled, incomplete_expired or paused"},
 						Field: func() any { return &d.Resp.Status },
 					},
-					"current_period_end": {
-						Desc:  &schemaz.Desc{Summary: "End of the current period, in UTC"},
-						Field: func() any { return &d.Resp.CurrentPeriodEnd },
-					},
 					"cancel_at": {
 						Desc:  &schemaz.Desc{Summary: "When the subscription will be or was canceled, in UTC; null when there is no cancellation"},
 						Field: func() any { return &d.Resp.CancelAt },
+					},
+					"created_at": {
+						Desc:  &schemaz.Desc{Summary: "When the subscription was created, in UTC"},
+						Field: func() any { return &d.Resp.CreatedAt },
+					},
+					"cancel_at_period_end": {
+						Desc:  &schemaz.Desc{Summary: "Whether the subscription will be canceled at the end of the current period"},
+						Field: func() any { return &d.Resp.CancelAtPeriodEnd },
+					},
+					"trial_end": {
+						Desc:  &schemaz.Desc{Summary: "When the subscription trial ends, in UTC; null if there is no trial"},
+						Field: func() any { return &d.Resp.TrialEnd },
+					},
+					"current_period_end": {
+						Desc:  &schemaz.Desc{Summary: "End of the current period, in UTC"},
+						Field: func() any { return &d.Resp.CurrentPeriodEnd },
 					},
 				}
 			},
