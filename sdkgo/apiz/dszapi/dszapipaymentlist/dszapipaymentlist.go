@@ -31,6 +31,7 @@ type Payment struct {
 	PeriodStart   time.Time
 	PeriodEnd     time.Time
 	InvoicePdfUrl string
+	ReceiptPdfUrl string
 	Lines         []PaymentLine
 }
 
@@ -139,6 +140,10 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 											"invoice_pdf_url": {
 												Desc:  &schemaz.Desc{Summary: "Pdf of the invoice"},
 												Field: func() any { return &element.InvoicePdfUrl },
+											},
+											"receipt_pdf_url": {
+												Desc:  &schemaz.Desc{Summary: "Pdf of the receipt"},
+												Field: func() any { return &element.ReceiptPdfUrl },
 											},
 											"lines": {
 												Desc: &schemaz.Desc{Summary: "Line items of the invoice"},
