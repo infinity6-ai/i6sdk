@@ -68,7 +68,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 						Field: func() any { return &d.Req.CancelUrl },
 					},
 					"campaign_state": {
-						Desc:  &schemaz.Desc{Summary: "Base64 state token with the trial days and the metadata of the checkout; the service parses it"},
+						Desc:  &schemaz.Desc{Summary: "Base64 state token with the metadata of the checkout; the service parses it"},
 						Field: func() any { return &d.Req.CampaignState },
 					},
 					"payment_phone": {
