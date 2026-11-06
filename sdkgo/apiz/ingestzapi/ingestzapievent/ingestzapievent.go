@@ -23,13 +23,8 @@ type Req[T tabledataz.TableData] struct {
 	Payload T
 }
 
-type Resp struct {
-	Count int
-}
-
 type Api[T tabledataz.TableData] struct {
-	Req  Req[T]
-	Resp Resp
+	Req Req[T]
 }
 
 func (d *Api[T]) ApiSpec() apiz.ApiSpec {
@@ -68,15 +63,6 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 		ReqHeaders:  nil,
 		ReqBody:     d.Req.Payload.SchemaBody(),
 		RespHeaders: nil,
-		RespBody: &schemaz.Schema{
-			Object: func(read bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"count": {
-						Desc:  &schemaz.Desc{Summary: "Number of ingested events."},
-						Field: func() any { return &d.Resp.Count },
-					},
-				}
-			},
-		},
+		RespBody:    nil,
 	}
 }
