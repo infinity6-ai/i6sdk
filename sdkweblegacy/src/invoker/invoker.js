@@ -205,24 +205,24 @@ class Invoker {
             await opts.opts.prepareRequest(opts)
         }
 
-        if (opts.sinkable) {
-            //     if (opts.method?.toUpperCase() != "GET") throw new I6Error('Unsupported: sinkable must be GET')
-            //     if (opts.body) throw new I6Error('Unsupported: sinkable must not have body')
-            //     const u = new URL(opts.url)
-            //     const pathname = u.pathname.replace(/^\/+/, '')
-            //     let search = u.search.startsWith('?') ? u.search.substring(1) : u.search
-            //     if (search) {
-            //         search = b64.encodeUrlSafe(await gzip.gzip((search)))        
-            //     }
-            //     if (search.length <= 1900) {
-            //         opts.url = `${this._services.config().baseUrl}/api/sink/${pathname}?s=${search}`
-            //     }
-            console.log('sinkable apis disabled', opts.url)
-            return new Response(null, {
-                status: 204,
-                statusText: 'No Content',
-            })
-        }
+        // if (opts.sinkable) {
+        //     //     if (opts.method?.toUpperCase() != "GET") throw new I6Error('Unsupported: sinkable must be GET')
+        //     //     if (opts.body) throw new I6Error('Unsupported: sinkable must not have body')
+        //     //     const u = new URL(opts.url)
+        //     //     const pathname = u.pathname.replace(/^\/+/, '')
+        //     //     let search = u.search.startsWith('?') ? u.search.substring(1) : u.search
+        //     //     if (search) {
+        //     //         search = b64.encodeUrlSafe(await gzip.gzip((search)))        
+        //     //     }
+        //     //     if (search.length <= 1900) {
+        //     //         opts.url = `${this._services.config().baseUrl}/api/sink/${pathname}?s=${search}`
+        //     //     }
+        //     console.log('sinkable apis disabled', opts.url)
+        //     return new Response(null, {
+        //         status: 204,
+        //         statusText: 'No Content',
+        //     })
+        // }
 
         if (opts.opts?.fetcher) {
             return opts.opts.fetcher(opts.url, opts)
