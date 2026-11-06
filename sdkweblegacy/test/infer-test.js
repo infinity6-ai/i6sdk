@@ -61,7 +61,7 @@
 
             assert.strictEqual(results.length, 5, 'limit is honored')
             assert.strictEqual(events.length, 1, 'run sends the recraw event')
-            assert.strictEqual(events[0].query.recraw.rec_id, rec_id, 'with the rec_id it returns')
+            assert.strictEqual(events[0].payload.recraw.rec_id, rec_id, 'with the rec_id it returns')
             assert.true(results.every((r) => Array.isArray(r.skus) && r.skus.every((k) => typeof k.sku_id === 'string')), 'skus are {sku_id}')
             assert.true(results.every((r, i) => i === 0 || results[i - 1].rating >= r.rating), 'best rating first')
             await rejectsWithCode(assert, infer.run({ ...opts, limit: 0 }), 'invalid_argument', /opts.limit/)
@@ -129,7 +129,7 @@
             assert.strictEqual(requests.length, 1)
             const sent = requests.map((r) => {
                 assert.deepEqual(r.params, { dataset: 'dectest' })
-                const event = r.query
+                const event = r.payload
                 assert.strictEqual(event.store_id, 's1')
                 assert.deepEqual([event.session_id, event.user_id], ['sess-1', 'user-1'])
                 assert.true(/^[0-9a-f-]{36}$/.test(event.id), 'id is a uuid')
