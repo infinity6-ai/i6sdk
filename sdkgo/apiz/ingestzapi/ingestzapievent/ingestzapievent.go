@@ -64,8 +64,10 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 				}
 			},
 		},
+		//Ao inves de mandar aqui
 		QueryParams: d.Req.Payload.SchemaQuery(),
 		ReqHeaders:  nil,
+		//Mandaremos aqui, e mudaremos para POST
 		ReqBody:     nil,
 		RespHeaders: nil,
 		RespBody: &schemaz.Schema{
