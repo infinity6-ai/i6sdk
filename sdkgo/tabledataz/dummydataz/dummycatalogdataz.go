@@ -90,3 +90,35 @@ func (c *Catalog) SchemaQuery() *schemaz.Schema {
 		},
 	}
 }
+
+func (c *Catalog) SchemaBody() *schemaz.Schema {
+	if c == nil {
+		c = &Catalog{}
+	}
+	return &schemaz.Schema{
+		Object: func(read bool) map[string]*schemaz.Schema {
+			return map[string]*schemaz.Schema{
+				"id": {
+					Desc:  &schemaz.Desc{Summary: "Product id."},
+					Field: func() any { return &c.Id },
+				},
+				"product": {
+					Desc:  &schemaz.Desc{Summary: "Product name."},
+					Field: func() any { return &c.Product },
+				},
+				"price": {
+					Desc:  &schemaz.Desc{Summary: "Product price."},
+					Field: func() any { return &c.Price },
+				},
+				"qt_inventory": {
+					Desc:  &schemaz.Desc{Summary: "Quantity in inventory."},
+					Field: func() any { return &c.QtInventory },
+				},
+				"store_id": {
+					Desc:  &schemaz.Desc{Summary: "Store identifier."},
+					Field: func() any { return &c.StoreId },
+				},
+			}
+		},
+	}
+}

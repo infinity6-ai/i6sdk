@@ -513,3 +513,70 @@ func (e *Event) SchemaQuery() *schemaz.Schema {
 		},
 	}
 }
+
+func (e *Event) SchemaBody() *schemaz.Schema {
+	if e == nil {
+		e = &Event{}
+	}
+	return &schemaz.Schema{
+		Desc: &schemaz.Desc{
+			Summary: "Event represents an interaction in the Relevance Fashion domain. ID, StoreId, SessionId, and CreatedAt are required. Exactly one payload (Click, AddToCart, RemoveFromCart, Search, Purchase, Recraw, Recshow) must be set. Read-only fields like dataset and ingested_at are set by the system.",
+		},
+		Object: func(read bool) map[string]*schemaz.Schema {
+			return map[string]*schemaz.Schema{
+				"id": {
+					Desc:  &schemaz.Desc{Summary: "Unique identifier for the event (required)."},
+					Field: func() any { return &e.ID },
+				},
+				"store_id": {
+					Desc:  &schemaz.Desc{Summary: "Identifier of the store (required)."},
+					Field: func() any { return &e.StoreId },
+				},
+				"session_id": {
+					Desc:  &schemaz.Desc{Summary: "Identifier of the user session (required)."},
+					Field: func() any { return &e.SessionId },
+				},
+				"display_id": {
+					Desc:  &schemaz.Desc{Summary: "Optional display identifier."},
+					Field: func() any { return &e.DisplayId },
+				},
+				"user_id": {
+					Desc:  &schemaz.Desc{Summary: "Optional user identifier."},
+					Field: func() any { return &e.UserId },
+				},
+				"click": {
+					Desc:  e.Click.Schema().Desc,
+					Field: func() any { return &e.Click },
+				},
+				"add_to_cart": {
+					Desc:  e.AddToCart.Schema().Desc,
+					Field: func() any { return &e.AddToCart },
+				},
+				"remove_from_cart": {
+					Desc:  e.RemoveFromCart.Schema().Desc,
+					Field: func() any { return &e.RemoveFromCart },
+				},
+				"search": {
+					Desc:  e.Search.Schema().Desc,
+					Field: func() any { return &e.Search },
+				},
+				"purchase": {
+					Desc:  e.Purchase.Schema().Desc,
+					Field: func() any { return &e.Purchase },
+				},
+				"recraw": {
+					Desc:  e.Recraw.Schema().Desc,
+					Field: func() any { return &e.Recraw },
+				},
+				"recshow": {
+					Desc:  e.Recshow.Schema().Desc,
+					Field: func() any { return &e.Recshow },
+				},
+				"created_at": {
+					Desc:  &schemaz.Desc{Summary: "Timestamp of event creation (required)."},
+					Field: func() any { return &e.CreatedAt },
+				},
+			}
+		},
+	}
+}

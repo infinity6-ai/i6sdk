@@ -43,7 +43,7 @@ func (d *Api[T]) ApiSpec() apiz.ApiSpec {
 				Labels:  map[string]string{"sinkable": "true"},
 			}
 		},
-		Method: "GET",
+		Method: "POST",
 		Path:   "/api/ingest/dataset/{dataset}/event/" + x.Table().String() + "/text.txt",
 	}
 }
@@ -64,11 +64,9 @@ func (d *Api[T]) ApiDataRefs() *apiz.DataRefs {
 				}
 			},
 		},
-		//Ao inves de mandar aqui
-		QueryParams: d.Req.Payload.SchemaQuery(),
+		QueryParams: nil,
 		ReqHeaders:  nil,
-		//Mandaremos aqui, e mudaremos para POST
-		ReqBody:     nil,
+		ReqBody:     d.Req.Payload.SchemaBody(),
 		RespHeaders: nil,
 		RespBody: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {

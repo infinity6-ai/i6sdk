@@ -92,3 +92,39 @@ func (c *Catalog) SchemaQuery() *schemaz.Schema {
 		},
 	}
 }
+
+func (c *Catalog) SchemaBody() *schemaz.Schema {
+	if c == nil {
+		c = &Catalog{}
+	}
+	return &schemaz.Schema{
+		Object: func(read bool) map[string]*schemaz.Schema {
+			return map[string]*schemaz.Schema{
+				"id": {
+					Desc:  &schemaz.Desc{Summary: "Catalog entry id."},
+					Field: func() any { return &c.ID },
+				},
+				"store_id": {
+					Desc:  &schemaz.Desc{Summary: "Store identifier."},
+					Field: func() any { return &c.StoreId },
+				},
+				"product_id": {
+					Desc:  &schemaz.Desc{Summary: "Product identifier."},
+					Field: func() any { return &c.ProductId },
+				},
+				"sku_id": {
+					Desc:  &schemaz.Desc{Summary: "SKU identifier."},
+					Field: func() any { return &c.SkuId },
+				},
+				"sku_ds": {
+					Desc:  &schemaz.Desc{Summary: "SKU description."},
+					Field: func() any { return &c.SkuDs },
+				},
+				"inactive": {
+					Desc:  &schemaz.Desc{Summary: "Whether the SKU is inactive."},
+					Field: func() any { return &c.Inactive },
+				},
+			}
+		},
+	}
+}
