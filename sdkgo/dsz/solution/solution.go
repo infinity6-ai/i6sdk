@@ -44,16 +44,44 @@ func (d Solution) Validate(v string) error {
 	return nil
 }
 
+func (d Solution) Id() Id {
+	v := d.Get()
+	switch v {
+	case "relevance":
+		return 0 << 1
+	case "plat":
+		return 1 << 1
+	case "dummysolution":
+		return 2 << 1
+	default:
+		panic("unknown: " + v)
+	}
+}
+
 func MustParse(id string) Solution {
 	var ret Solution
 	checked.MustSet(&ret, id)
 	return ret
 }
 
+type Id uint16
+
+var total = 3
+var ids = make(map[Id]Solution, total)
+
+func create(name string) Solution {
+	if len(ids) >= total {
+		panic("wrong")
+	}
+	ret := MustParse(name)
+	ids[ret.Id()] = ret
+	return ret
+}
+
 var (
-	relevance     = MustParse("relevance")
-	plat          = MustParse("plat")
-	dummySolution = MustParse("dummysolution")
+	relevance     = create("relevance")
+	plat          = create("plat")
+	dummySolution = create("dummysolution")
 )
 
 func Relevance() Solution     { return relevance }
