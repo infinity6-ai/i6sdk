@@ -24,7 +24,7 @@ func TestUnitDszListPaymentsApi(t *testing.T) {
 		Lines: []dszapipaymentlist.PaymentLine{
 			{
 				Id:          "il_1",
-				Solution:    solution.MustParse("relevance"),
+				Solution:    solution.Relevance(),
 				Amount:      9900,
 				Description: "1 x i6 Relevance",
 			},

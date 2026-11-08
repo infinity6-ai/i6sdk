@@ -19,7 +19,7 @@ func TestUnitDszGetSubscriptionApi(t *testing.T) {
 
 	t.Run("round trip with cancel_at", func(t *testing.T) {
 		api := &dszapisubscriptionget.Api{
-			Req: &dszapisubscriptionget.Req{Dataset: lakedsz.MustParse("myds"), Solution: solution.MustParse("relevance")},
+			Req: &dszapisubscriptionget.Req{Dataset: lakedsz.MustParse("myds"), Solution: solution.Relevance()},
 			Resp: &dszapisubscriptionget.Resp{
 				PlanKey: "relevance_growth_base_monthly", Status: "past_due", CurrentPeriodEndAt: periodEnd, CancelAt: &cancelAt,
 			},
@@ -32,7 +32,7 @@ func TestUnitDszGetSubscriptionApi(t *testing.T) {
 
 	t.Run("cancel_at is null without cancellation", func(t *testing.T) {
 		api := &dszapisubscriptionget.Api{
-			Req:  &dszapisubscriptionget.Req{Dataset: lakedsz.MustParse("myds"), Solution: solution.MustParse("relevance")},
+			Req:  &dszapisubscriptionget.Req{Dataset: lakedsz.MustParse("myds"), Solution: solution.Relevance()},
 			Resp: &dszapisubscriptionget.Resp{PlanKey: "relevance_starter_base_monthly", Status: "active", CurrentPeriodEndAt: periodEnd},
 		}
 		apiCopy := jsonz.MustCopy(api, &dszapisubscriptionget.Api{})

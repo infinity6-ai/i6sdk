@@ -18,7 +18,7 @@ func TestUnitDszPaymentAutoRenewUpdateApi(t *testing.T) {
 		api := &dszapipaymentautorenewupdate.Api{
 			Req: &dszapipaymentautorenewupdate.Req{
 				Dataset:   lakedsz.MustParse("myds"),
-				Solution:  solution.MustParse("relevance"),
+				Solution:  solution.Relevance(),
 				AutoRenew: true,
 			},
 		}
@@ -30,7 +30,7 @@ func TestUnitDszPaymentAutoRenewUpdateApi(t *testing.T) {
 		api := &dszapipaymentautorenewupdate.Api{
 			Req: &dszapipaymentautorenewupdate.Req{
 				Dataset:   lakedsz.MustParse("myds"),
-				Solution:  solution.MustParse("relevance"),
+				Solution:  solution.Relevance(),
 				AutoRenew: false,
 			},
 		}

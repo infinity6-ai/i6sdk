@@ -20,8 +20,8 @@ func TestUnitDszListActiveSolutionsApi(t *testing.T) {
 		Resp: &dszapidatasetsolutions.DszListActiveSolutionsResp{
 			Dataset: lakedsz.MustParse("myds"),
 			Solutions: []solution.Solution{
-				solution.MustParse("relevance"),
-				solution.MustParse("plat"),
+				solution.Relevance(),
+				solution.Plat(),
 			},
 		},
 	}

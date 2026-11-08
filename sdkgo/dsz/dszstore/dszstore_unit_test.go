@@ -20,7 +20,7 @@ func TestUnitDszStoreSchema(t *testing.T) {
 		Name: "My Awesome Store",
 		SolutionDomains: []solutiondomain.SolutionDomain{
 			solutiondomain.MustParse(solutiondomain.Value{
-				Solution: solution.MustParse("relevance"),
+				Solution: solution.Relevance(),
 				Domain:   domain.MustParse("fashion"),
 			}),
 		},

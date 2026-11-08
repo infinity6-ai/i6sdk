@@ -50,6 +50,16 @@ func MustParse(id string) Solution {
 	return ret
 }
 
+var (
+	relevance     = MustParse("relevance")
+	plat          = MustParse("plat")
+	dummySolution = MustParse("dummysolution")
+)
+
+func Relevance() Solution     { return relevance }
+func Plat() Solution          { return plat }
+func DummySolution() Solution { return dummySolution }
+
 func ParseStr(out *Solution) func() *schemaz.Parser[string] {
 	return func() *schemaz.Parser[string] {
 		return &schemaz.Parser[string]{
