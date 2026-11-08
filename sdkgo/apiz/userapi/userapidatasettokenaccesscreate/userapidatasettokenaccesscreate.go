@@ -52,9 +52,9 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 		ReqHeaders: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"Authorization": {
-						Desc:  &schemaz.Desc{Summary: "User Bearer JWT access token."},
-						Field: func() any { return &d.Req.AuthHeader },
+					"authorization": {
+						Desc:     &schemaz.Desc{Summary: "User Bearer JWT access token."},
+						UrlValue: schemaz.ParseStr(&d.Req.AuthHeader),
 					},
 				}
 			},
@@ -64,12 +64,12 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
 					"dataset": {
-						Desc:     &schemaz.Desc{Summary: "Target dataset ID."},
-						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
+						Desc:  &schemaz.Desc{Summary: "Target dataset ID."},
+						Field: func() any { return &d.Req.Dataset },
 					},
 					"solution": {
-						Desc:     &schemaz.Desc{Summary: "Target solution domain restriction (empty for all)."},
-						UrlValue: schemaz.ParseStrGet(&d.Req.Solution, solution.MustParse),
+						Desc:  &schemaz.Desc{Summary: "Target solution domain restriction (empty for all)."},
+						Field: func() any { return &d.Req.Solution },
 					},
 					"grants": {
 						Desc:  &schemaz.Desc{Summary: "Compact uint8 grant bitmask."},
@@ -100,12 +100,12 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 						Field: func() any { return &d.Resp.AccessToken },
 					},
 					"dataset": {
-						Desc:     &schemaz.Desc{Summary: "Target dataset ID."},
-						UrlValue: schemaz.ParseStrGet(&d.Resp.Dataset, lakedsz.MustParse),
+						Desc:  &schemaz.Desc{Summary: "Target dataset ID."},
+						Field: func() any { return &d.Resp.Dataset },
 					},
 					"solution": {
-						Desc:     &schemaz.Desc{Summary: "Solution domain restriction."},
-						UrlValue: schemaz.ParseStrGet(&d.Resp.Solution, solution.MustParse),
+						Desc:  &schemaz.Desc{Summary: "Solution domain restriction."},
+						Field: func() any { return &d.Resp.Solution },
 					},
 					"grants": {
 						Desc:  &schemaz.Desc{Summary: "Effective uint8 grant bitmask."},

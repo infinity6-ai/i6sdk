@@ -50,9 +50,9 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 		ReqHeaders: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"Authorization": {
-						Desc:  &schemaz.Desc{Summary: "Parent Bearer dataset access token."},
-						Field: func() any { return &d.Req.AuthHeader },
+					"authorization": {
+						Desc:     &schemaz.Desc{Summary: "Parent Bearer dataset access token."},
+						UrlValue: schemaz.ParseStr(&d.Req.AuthHeader),
 					},
 				}
 			},
@@ -62,8 +62,8 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
 					"subsolution": {
-						Desc:     &schemaz.Desc{Summary: "Narrowed solution domain."},
-						UrlValue: schemaz.ParseStrGet(&d.Req.Subsolution, solution.MustParse),
+						Desc:  &schemaz.Desc{Summary: "Narrowed solution domain."},
+						Field: func() any { return &d.Req.Subsolution },
 					},
 					"subgrants": {
 						Desc:  &schemaz.Desc{Summary: "Reduced uint8 grant bitmask."},
@@ -90,12 +90,12 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 						Field: func() any { return &d.Resp.AccessToken },
 					},
 					"dataset": {
-						Desc:     &schemaz.Desc{Summary: "Target dataset ID."},
-						UrlValue: schemaz.ParseStrGet(&d.Resp.Dataset, lakedsz.MustParse),
+						Desc:  &schemaz.Desc{Summary: "Target dataset ID."},
+						Field: func() any { return &d.Resp.Dataset },
 					},
 					"solution": {
-						Desc:     &schemaz.Desc{Summary: "Effective solution domain."},
-						UrlValue: schemaz.ParseStrGet(&d.Resp.Solution, solution.MustParse),
+						Desc:  &schemaz.Desc{Summary: "Effective solution domain."},
+						Field: func() any { return &d.Resp.Solution },
 					},
 					"grants": {
 						Desc:  &schemaz.Desc{Summary: "Effective uint8 grant bitmask."},

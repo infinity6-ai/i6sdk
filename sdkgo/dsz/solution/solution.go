@@ -2,6 +2,7 @@ package solution
 
 import (
 	"github.com/infinity6-ai/gox/commonz/constraintz/optionalz"
+	"github.com/infinity6-ai/gox/commonz/errorz"
 	"github.com/infinity6-ai/gox/commonz/validation"
 	"github.com/infinity6-ai/gox/commonz/validation/checked"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
@@ -47,6 +48,21 @@ func (d Solution) Validate(v string) error {
 func MustParse(id string) Solution {
 	var ret Solution
 	checked.MustSet(&ret, id)
+	return ret
+}
+
+func ParseOptional(id string) (Solution, error) {
+	if id == "" {
+		return Solution{}, nil
+	}
+	var ret Solution
+	err := checked.Set(&ret, id)
+	return ret, err
+}
+
+func MustParseOptional(id string) Solution {
+	ret, err := ParseOptional(id)
+	errorz.Check(err)
 	return ret
 }
 

@@ -64,9 +64,9 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 		ReqHeaders: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"Authorization": {
-						Desc:  &schemaz.Desc{Summary: "User Bearer JWT access token."},
-						Field: func() any { return &d.Req.AuthHeader },
+					"authorization": {
+						Desc:     &schemaz.Desc{Summary: "User Bearer JWT access token."},
+						UrlValue: schemaz.ParseStr(&d.Req.AuthHeader),
 					},
 				}
 			},
@@ -90,12 +90,12 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 												Field: func() any { return &element.Jti },
 											},
 											"dataset": {
-												Desc:     &schemaz.Desc{Summary: "Target dataset ID."},
-												UrlValue: schemaz.ParseStrGet(&element.Dataset, lakedsz.MustParse),
+												Desc:  &schemaz.Desc{Summary: "Target dataset ID."},
+												Field: func() any { return &element.Dataset },
 											},
 											"solution": {
-												Desc:     &schemaz.Desc{Summary: "Solution domain restriction."},
-												UrlValue: schemaz.ParseStrGet(&element.Solution, solution.MustParse),
+												Desc:  &schemaz.Desc{Summary: "Solution domain restriction."},
+												Field: func() any { return &element.Solution },
 											},
 											"grants": {
 												Desc:  &schemaz.Desc{Summary: "Grants bitmask."},

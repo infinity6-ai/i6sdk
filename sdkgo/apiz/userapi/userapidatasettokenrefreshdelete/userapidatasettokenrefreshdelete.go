@@ -50,9 +50,9 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 		ReqHeaders: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"Authorization": {
-						Desc:  &schemaz.Desc{Summary: "User Bearer JWT access token."},
-						Field: func() any { return &d.Req.AuthHeader },
+					"authorization": {
+						Desc:     &schemaz.Desc{Summary: "User Bearer JWT access token."},
+						UrlValue: schemaz.ParseStr(&d.Req.AuthHeader),
 					},
 				}
 			},
