@@ -30,10 +30,11 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 			return &schemaz.Desc{
 				Name:    "PKCE Authorization Code Exchange",
 				Summary: "Exchanges a PKCE authorization code and verifier for user access and refresh tokens.",
+				Labels:  map[string]string{"servname": "userz"},
 			}
 		},
 		Method: "POST",
-		Path:   "/api/user/auth/exchange",
+		Path:   "/api/userz/auth/exchange",
 	}
 }
 

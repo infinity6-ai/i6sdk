@@ -40,10 +40,11 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 			return &schemaz.Desc{
 				Name:    "Create Dataset Refresh Token",
 				Summary: "Provisions a long-lived machine dataset refresh token with an Ed25519 keypair.",
+				Labels:  map[string]string{"servname": "userz"},
 			}
 		},
 		Method: "POST",
-		Path:   "/api/user/dataset/refresh-token",
+		Path:   "/api/userz/dataset/refresh-token",
 	}
 }
 

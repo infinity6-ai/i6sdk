@@ -38,10 +38,11 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 			return &schemaz.Desc{
 				Name:    "Create Dataset Access Token",
 				Summary: "Mints a short-lived dataset access token for an authenticated user.",
+				Labels:  map[string]string{"servname": "userz"},
 			}
 		},
 		Method: "POST",
-		Path:   "/api/user/dataset/access-token",
+		Path:   "/api/userz/dataset/access-token",
 	}
 }
 

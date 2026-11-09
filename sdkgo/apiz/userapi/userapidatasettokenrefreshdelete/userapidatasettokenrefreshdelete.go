@@ -23,10 +23,11 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 			return &schemaz.Desc{
 				Name:    "Revoke Dataset Refresh Token",
 				Summary: "Instantly revokes a machine dataset refresh token by JTI.",
+				Labels:  map[string]string{"servname": "userz"},
 			}
 		},
 		Method: "DELETE",
-		Path:   "/api/user/dataset/refresh-token/{dataset}/{jti}",
+		Path:   "/api/userz/dataset/refresh-token/{dataset}/{jti}",
 	}
 }
 

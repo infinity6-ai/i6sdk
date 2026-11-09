@@ -36,10 +36,11 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 			return &schemaz.Desc{
 				Name:    "Attenuate Dataset Access Token",
 				Summary: "Derives an in-flight attenuated child access token with dropped privileges from an active access token.",
+				Labels:  map[string]string{"servname": "userz"},
 			}
 		},
 		Method: "POST",
-		Path:   "/api/user/dataset/access-token/attenuate",
+		Path:   "/api/userz/dataset/access-token/attenuate",
 	}
 }
 

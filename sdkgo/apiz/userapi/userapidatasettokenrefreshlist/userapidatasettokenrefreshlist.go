@@ -41,10 +41,11 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 			return &schemaz.Desc{
 				Name:    "List Dataset Refresh Tokens",
 				Summary: "Lists all active machine refresh tokens provisioned for a dataset.",
+				Labels:  map[string]string{"servname": "userz"},
 			}
 		},
 		Method: "GET",
-		Path:   "/api/user/dataset/refresh-token/list",
+		Path:   "/api/userz/dataset/refresh-token/list",
 	}
 }
 

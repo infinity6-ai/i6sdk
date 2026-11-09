@@ -30,6 +30,7 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 			return &schemaz.Desc{
 				Name:    "Device Authorization Code Initiation",
 				Summary: "Initiates an RFC 8628 device authorization flow for CLI and remote headless SSH sessions.",
+				Labels:  map[string]string{"servname": "userz"},
 			}
 		},
 		Method: "POST",

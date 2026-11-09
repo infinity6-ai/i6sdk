@@ -29,6 +29,7 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 			return &schemaz.Desc{
 				Name:    "Device Token Polling & Exchange",
 				Summary: "Polled by CLI clients to check status and exchange an authorized device code for active user tokens.",
+				Labels:  map[string]string{"servname": "userz"},
 			}
 		},
 		Method: "POST",

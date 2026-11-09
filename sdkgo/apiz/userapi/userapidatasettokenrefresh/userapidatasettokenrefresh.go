@@ -37,10 +37,11 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 			return &schemaz.Desc{
 				Name:    "Refresh Dataset Access Token",
 				Summary: "Refreshes and attenuates a dataset access token using an Ed25519 signature assertion.",
+				Labels:  map[string]string{"servname": "userz"},
 			}
 		},
 		Method: "POST",
-		Path:   "/api/user/dataset/refresh",
+		Path:   "/api/userz/dataset/refresh",
 	}
 }
 
