@@ -9,7 +9,10 @@ const $ = (id) => document.getElementById(id)
 // --- log ---------------------------------------------------------------------------------------------
 const consoleLog = console.log
 const log = (...args) => {
-  $('log').textContent += args.map((a) => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ') + '\n'
+  // One blank line between logs
+  const logEl = $('log')
+  logEl.textContent += args.map((a) => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ') + '\n\n'
+  logEl.scrollTop = logEl.scrollHeight
 }
 console.log = (...args) => { consoleLog(...args); log(...args) }
 $('clearlog').onclick = () => { $('log').textContent = '' }
@@ -107,6 +110,7 @@ $('run').onclick = async () => {
     setStatus('ok')
   } catch (e) {
     card.querySelector('.out').textContent = `${e.name} [${e.code}] ${e.message}`
+    console.log(`ERROR infer run: ${e.name} [${e.code}] ${e.message}`)
     setStatus('error')
   }
 }
@@ -160,9 +164,23 @@ $('dashRun').onclick = async () => {
     setDashStatus('ok')
   } catch (e) {
     $('dashOut').textContent = `${e.name} [${e.code}] ${e.message}`
+    console.log(`ERROR dash run: ${e.name} [${e.code}] ${e.message}`)
     setDashStatus('error')
   }
 }
+
+// --- pages -------------------------------------------------------------------------------------------
+// The tabs show the cards of one page (data-page); cards without data-page (auth, log) are on every page. The page is kept in the URL hash.
+const pages = [...document.querySelectorAll('.tabs [data-tab]')].map((b) => b.dataset.tab)
+function showPage(page) {
+  if (!pages.includes(page)) page = pages[0]
+  document.querySelectorAll('[data-page]').forEach((el) => el.classList.toggle('hidden', el.dataset.page !== page))
+  document.querySelectorAll('.tabs [data-tab]').forEach((b) => b.classList.toggle('active', b.dataset.tab === page))
+  if (location.hash.slice(1) !== page) history.replaceState(null, '', `#${page}`)
+}
+document.querySelectorAll('.tabs [data-tab]').forEach((b) => { b.onclick = () => showPage(b.dataset.tab) })
+window.addEventListener('hashchange', () => showPage(location.hash.slice(1)))
+showPage(location.hash.slice(1))
 
 // --- tools -------------------------------------------------------------------------------------------
 // Redirects to the login page when nobody is signed in, and comes back here
@@ -177,7 +195,7 @@ $('login').onclick = async () => {
 
 $('clear').onclick = async () => {
   await (await navigator.storage.getDirectory()).removeEntry('i6', { recursive: true }).catch(() => { })
-  log('\nopfs cache removed')
+  log('opfs cache removed')
 }
 
 window.onunhandledrejection = (e) => log(`ERROR ${e.reason.name} [${e.reason.code}] ${e.reason.message}`)

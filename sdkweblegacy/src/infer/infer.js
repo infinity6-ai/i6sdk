@@ -93,9 +93,12 @@ class Infer {
     const { modelName, params, sessionId, userId } = opts
     const ids = { sessionId, userId }
     const queryName = (kind) => `model-${modelName}-${kind}`
+    const startedAt = performance.now()
+    debug("run start", { modelName, dataset: opts.dataset, partitions: opts.partitions, limit: opts.limit ?? DEFAULT_LIMIT, params })
 
     // 1. Get the model files
     const urls = await this._assetUrls(opts)
+    debug("1/4 model files located", { sqlite: withoutQuery(urls.sqlite), tflite: withoutQuery(urls.tflite) })
     const cacheName = (kind) => `infer-${modelName}-${partitionsKey(opts.partitions)}-${kind}`
     const [sqliteRef, tfliteRef] = await Promise.all([
       downloadFile(cacheName("sqlite"), urls.sqlite),
@@ -110,16 +113,20 @@ class Infer {
         // loadModel({ ref: tfliteRef, wasmUrl: opts.litertWasm }),
       ])
       if (!inputs) throw new I6Error(`infer: ${queryName("input")} returned no model inputs`, { code: "query" })
+      debug("2/4 input query", queryName("input"), "| bound as ?1:", params, "| returned (model inputs):", preview(inputs))
       // debug("input query returned", Object.keys(inputs), "model", describeModel(compiled))
 
       // 3. Run the model
       // const outputs = await runModel(compiled, inputs)
       // debug("output returned (before namedJsonQuery)", outputs)
       // announceTensors({ modelName, partitions: opts.partitions, model: describeModel(compiled), inputs, outputs })
+      debug("3/4 calling the model on the server", { model_name: modelName, version: opts.partitions.version, model_partitions: opts.partitions })
+      const modelStartedAt = performance.now()
       const outputs = await this.callModel(inputs, opts)
+      debug("3/4 model answered", { ms: Math.round(performance.now() - modelStartedAt), ok: outputs?.ok, status: outputs?.status, error: outputs?.error, outputs: preview(outputs?.payload?.outputs) })
 
       let modelOutputsAndLimit = [JSON.parse(outputs.payload.outputs), opts.limit ?? DEFAULT_LIMIT]
-      console.log("TEST", modelOutputsAndLimit)
+      debug("4/4 output query", queryName("output"), "| bound as ?1 (model outputs) and ?2 (limit):", preview(modelOutputsAndLimit))
       // 4. The sqlite turns the outputs into the result
       const result = await conn.namedJsonQuery({ name: queryName("output"), params:  modelOutputsAndLimit})
       debug("output query returned (after namedJsonQuery)", result)
@@ -128,6 +135,7 @@ class Infer {
       const results = { ...result, rec_id: recId }
       const eventOpts = { dataset: opts.dataset, modelName, modelVersion: opts.partitions.version, storeId: opts.partitions.store_id, serviceOpts: opts.serviceOpts }
       await this.#sendRecEvent(eventOpts, ids, recId, "recraw", results)
+      debug("recraw event sent", { rec_id: recId, results: results.results?.length, totalMs: Math.round(performance.now() - startedAt) })
       return results
     } finally {
       await conn.close()
@@ -184,7 +192,9 @@ class Infer {
       })
     }
 
+    debug("selectResults picked", { rec_id: recId, sku_ids: shown.skus.map((s) => s.sku_id) })
     await this.#sendRecEvent(opts, ids, recId, "recshow", shown)
+    debug("recshow event sent", { rec_id: recId })
 
     return selected
   }
@@ -242,6 +252,25 @@ class Infer {
     }
     return { sqlite: byName[FILES.sqlite], tflite: byName[FILES.tflite] }
   }
+}
+
+/**
+ * @param {string|undefined} url - A (signed) URL.
+ * @returns {string|undefined} The URL without its query string, so signatures never reach the logs.
+ */
+function withoutQuery(url) {
+  return typeof url === "string" ? url.split("?")[0] : url
+}
+
+/**
+ * @param {*} value - Anything to log.
+ * @param {number} [max] - Max characters kept.
+ * @returns {string} The JSON of the value, cut with its full length when longer than `max` (model tensors are huge).
+ */
+function preview(value, max = 600) {
+  const text = typeof value === "string" ? value : JSON.stringify(value)
+  if (typeof text !== "string" || text.length <= max) return text
+  return `${text.slice(0, max)}... (${text.length} chars in total)`
 }
 
 /**
