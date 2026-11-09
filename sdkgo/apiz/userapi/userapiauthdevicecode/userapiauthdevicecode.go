@@ -33,7 +33,7 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 			}
 		},
 		Method: "POST",
-		Path:   "/api/user/auth/device/code",
+		Path:   "/api/userz/auth/device/code",
 	}
 }
 
