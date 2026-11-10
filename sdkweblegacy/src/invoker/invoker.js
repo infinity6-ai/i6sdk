@@ -194,9 +194,10 @@ class Invoker {
         const datasetToken = opts.opts?.datasetToken || this._services.config().datasetToken;
         const bearerToken = opts.opts?.bearerToken || this._services.config().bearerToken || (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('i6_user_access_token') : null);
 
-        if (datasetToken) {
+        if (!opts.headers.has('Authorization') && datasetToken) {
             opts.headers.set('Authorization', 'Dataset ' + datasetToken)
-        } else if (bearerToken && !opts.headers.has('Authorization')) {
+        }
+        if (!opts.headers.has('Authorization') && bearerToken) {
             opts.headers.set('Authorization', 'Bearer ' + bearerToken)
         }
 
