@@ -20,11 +20,11 @@ func TestUnitSolutionChecked(t *testing.T) {
 }
 
 func TestUnitSolutionGetters(t *testing.T) {
-	require.Equal(t, "relevance", solution.Relevance().Get())
-	require.Equal(t, "plat", solution.Plat().Get())
-	require.Equal(t, "dummysolution", solution.DummySolution().Get())
+	require.Equal(t, "relevance", solution.Relevance().Solution.Get())
+	require.Equal(t, "plat", solution.Plat().Solution.Get())
+	require.Equal(t, "dummysolution", solution.DummySolution().Solution.Get())
 
-	require.Equal(t, solution.MustParse("relevance"), solution.Relevance())
-	require.Equal(t, solution.MustParse("plat"), solution.Plat())
-	require.Equal(t, solution.MustParse("dummysolution"), solution.DummySolution())
+	require.Equal(t, solution.MustParse("relevance"), solution.Relevance().Solution)
+	require.Equal(t, solution.MustParse("plat"), solution.Plat().Solution)
+	require.Equal(t, solution.MustParse("dummysolution"), solution.DummySolution().Solution)
 }

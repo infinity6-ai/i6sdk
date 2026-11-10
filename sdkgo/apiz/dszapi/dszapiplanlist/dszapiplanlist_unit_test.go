@@ -19,7 +19,7 @@ func TestUnitDszListPlansApi(t *testing.T) {
 
 	t.Run("round trip", func(t *testing.T) {
 		api := &dszapiplanlist.Api{
-			Req:  &dszapiplanlist.Req{Solution: solution.Relevance()},
+			Req:  &dszapiplanlist.Req{Solution: solution.Relevance().Solution},
 			Resp: &dszapiplanlist.Resp{Plans: []dszapiplanlist.Plan{plan}},
 		}
 		apiCopy := jsonz.MustCopy(api, &dszapiplanlist.Api{})

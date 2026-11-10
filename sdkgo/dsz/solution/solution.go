@@ -1,6 +1,8 @@
 package solution
 
 import (
+	"fmt"
+
 	"github.com/infinity6-ai/gox/commonz/constraintz/optionalz"
 	"github.com/infinity6-ai/gox/commonz/errorz"
 	"github.com/infinity6-ai/gox/commonz/validation"
@@ -66,15 +68,48 @@ func MustParseOptional(id string) Solution {
 	return ret
 }
 
+type Id uint8
+
+type Entry struct {
+	Id       Id
+	Solution Solution
+}
+
+var ids = make(map[Id]Solution, 8)
+var names = make(map[Solution]Id, 8)
+
+func create(id Id, name string) Entry {
+	s := MustParse(name)
+	ids[id] = s
+	names[s] = id
+	return Entry{Id: id, Solution: s}
+}
+
+func (s Solution) Id() Id {
+	ret, ok := names[s]
+	if !ok {
+		panic(fmt.Errorf("unknown: %s", s))
+	}
+	return ret
+}
+
+func By(id Id) Solution {
+	ret, ok := ids[id]
+	if !ok {
+		panic(fmt.Errorf("unknown: %s", id))
+	}
+	return ret
+}
+
 var (
-	relevance     = MustParse("relevance")
-	plat          = MustParse("plat")
-	dummySolution = MustParse("dummysolution")
+	relevance     = create(1<<0, "relevance")
+	plat          = create(1<<1, "plat")
+	dummySolution = create(1<<2, "dummysolution")
 )
 
-func Relevance() Solution     { return relevance }
-func Plat() Solution          { return plat }
-func DummySolution() Solution { return dummySolution }
+func Relevance() Entry     { return relevance }
+func Plat() Entry          { return plat }
+func DummySolution() Entry { return dummySolution }
 
 func ParseStr(out *Solution) func() *schemaz.Parser[string] {
 	return func() *schemaz.Parser[string] {

@@ -18,7 +18,7 @@ func TestUnitDszSubscriptionPlanUpdateApi(t *testing.T) {
 		api := &dszapisubscriptionplanupdate.Api{
 			Req: &dszapisubscriptionplanupdate.Req{
 				Dataset:  lakedsz.MustParse("myds"),
-				Solution: solution.Relevance(),
+				Solution: solution.Relevance().Solution,
 				Plan:     "relevance_growth_base_monthly",
 			},
 		}
@@ -30,7 +30,7 @@ func TestUnitDszSubscriptionPlanUpdateApi(t *testing.T) {
 		api := &dszapisubscriptionplanupdate.Api{
 			Req: &dszapisubscriptionplanupdate.Req{
 				Dataset:  lakedsz.MustParse("myds"),
-				Solution: solution.Relevance(),
+				Solution: solution.Relevance().Solution,
 				Plan:     "relevance_growth_base_monthly",
 			},
 		}
