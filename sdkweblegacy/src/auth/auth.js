@@ -116,6 +116,46 @@ class Auth {
   }
 
   /**
+   * Validates whether a redirect URL is safe to prevent open redirect vulnerabilities.
+   * A URL is considered safe if:
+   * 1. It is a relative path starting with '/' (but not '//' or '/\\').
+   * 2. It is an absolute URL whose origin matches window.location.origin or configured callback URLs.
+   * @private
+   * @param {string} url - The URL to validate.
+   * @returns {boolean} True if the redirect target is safe, false otherwise.
+   */
+  _isSafeRedirect(url) {
+    if (!url || typeof url !== "string") {
+      return false;
+    }
+    // Relative path (starts with '/' but not '//' or '/\')
+    if (url.startsWith("/") && !url.startsWith("//") && !url.startsWith("/\\")) {
+      return true;
+    }
+    // Absolute URL: origin validation
+    if (typeof window !== "undefined" && window.location) {
+      try {
+        const parsed = new URL(url, window.location.origin);
+        if (parsed.origin === window.location.origin) {
+          return true;
+        }
+        const config = this._services.config();
+        if (config.callbackUrl) {
+          const cbOrigin = new URL(config.callbackUrl, window.location.origin).origin;
+          if (parsed.origin === cbOrigin) return true;
+        }
+        if (config.userExchangeCallbackUrl) {
+          const excOrigin = new URL(config.userExchangeCallbackUrl, window.location.origin).origin;
+          if (parsed.origin === excOrigin) return true;
+        }
+      } catch {
+        return false;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Generates a cryptographically random standard PKCE code verifier (RFC 7636 §4.1).
    * Uses unreserved URL characters (`[A-Z]`, `[a-z]`, `[0-9]`, `-`, `.`, `_`, `~`).
    * @private
@@ -285,6 +325,9 @@ class Auth {
 
     const callback = params.get('callback');
     if (callback) {
+      if (!this._isSafeRedirect(callback)) {
+        throw new Error("Untrusted callback URL: " + callback);
+      }
       this._redirect(callback);
     }
     return true;

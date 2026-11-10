@@ -511,6 +511,7 @@
             let redirectedTo = null
 
             const sdk = new I6Sdk({
+                callbackUrl: "https://my.app/home",
                 sessionStorage: {
                     getItem: (k) => sessionMap.get(k) || null,
                     setItem: (k, v) => sessionMap.set(k, v),
@@ -626,6 +627,60 @@
                 assert.ok(errorCaught, "threw error on state mismatch")
                 assert.ok(errorCaught.message.includes("State mismatch / CSRF attempt"), "error mentions CSRF attempt")
                 assert.strictEqual(sessionMap.has("i6_auth_state"), false, "state was removed from session storage")
+            } finally {
+                window.history.replaceState({}, '', origSearch || '/')
+            }
+        })
+
+        QUnit.test("auth.handleCallback allows safe relative redirect path", async function (assert) {
+            let redirectedTo = null
+            const sdk = new I6Sdk()
+            sdk.tokens().exchange = async () => ({})
+
+            const auth = sdk.auth()
+            auth._redirect = (url) => { redirectedTo = url }
+
+            const origSearch = window.location.search
+            try {
+                window.history.replaceState({}, '', '?code=c123&callback=' + encodeURIComponent('/dashboard?tab=analytics'))
+                const handled = await auth.handleCallback()
+                assert.true(handled, "handleCallback completed")
+                assert.strictEqual(redirectedTo, "/dashboard?tab=analytics", "allowed relative path redirect")
+            } finally {
+                window.history.replaceState({}, '', origSearch || '/')
+            }
+        })
+
+        QUnit.test("auth.handleCallback rejects open redirect to untrusted external URL", async function (assert) {
+            const sdk = new I6Sdk()
+            sdk.tokens().exchange = async () => ({})
+
+            const auth = sdk.auth()
+            auth._redirect = () => {}
+
+            const origSearch = window.location.search
+            try {
+                // External untrusted domain
+                window.history.replaceState({}, '', '?code=c123&callback=' + encodeURIComponent('https://evil.com/phish'))
+                let errorCaught = null
+                try {
+                    await auth.handleCallback()
+                } catch (err) {
+                    errorCaught = err
+                }
+                assert.ok(errorCaught, "rejected external open redirect")
+                assert.ok(errorCaught.message.includes("Untrusted callback URL"), "error message mentions Untrusted callback URL")
+
+                // Protocol-relative URL
+                window.history.replaceState({}, '', '?code=c123&callback=' + encodeURIComponent('//evil.com/phish'))
+                let protoError = null
+                try {
+                    await auth.handleCallback()
+                } catch (err) {
+                    protoError = err
+                }
+                assert.ok(protoError, "rejected protocol-relative open redirect")
+                assert.ok(protoError.message.includes("Untrusted callback URL"), "error message mentions Untrusted callback URL")
             } finally {
                 window.history.replaceState({}, '', origSearch || '/')
             }
