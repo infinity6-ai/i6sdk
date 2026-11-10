@@ -12,10 +12,11 @@ type Req struct {
 }
 
 type Resp struct {
-	UserAccessToken  string `json:"user_access_token"`
-	UserRefreshToken string `json:"user_refresh_token"`
-	UserId           string `json:"user_id"`
-	ExpiresAt        int64  `json:"expires_at"`
+	UserAccessToken       string `json:"user_access_token"`
+	UserRefreshToken      string `json:"user_refresh_token"`
+	UserId                string `json:"user_id"`
+	ExpiresAt             int64  `json:"expires_at"`
+	RefreshTokenExpiresAt int64  `json:"refresh_token_expires_at"`
 }
 
 type Api struct {
@@ -82,6 +83,10 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					"expires_at": {
 						Desc:  &schemaz.Desc{Summary: "Access token expiration epoch millis."},
 						Field: func() any { return &d.Resp.ExpiresAt },
+					},
+					"refresh_token_expires_at": {
+						Desc:  &schemaz.Desc{Summary: "User refresh token expiration epoch millis (30 days)."},
+						Field: func() any { return &d.Resp.RefreshTokenExpiresAt },
 					},
 				}
 			},

@@ -10,11 +10,12 @@ type Req struct {
 }
 
 type Resp struct {
-	UserAccessToken  string `json:"user_access_token,omitempty"`
-	UserRefreshToken string `json:"user_refresh_token,omitempty"`
-	UserId           string `json:"user_id,omitempty"`
-	ExpiresAt        int64  `json:"expires_at,omitempty"`
-	Status           string `json:"status"` // "pending" | "authorized" | "denied" | "expired"
+	UserAccessToken       string `json:"user_access_token,omitempty"`
+	UserRefreshToken      string `json:"user_refresh_token,omitempty"`
+	UserId                string `json:"user_id,omitempty"`
+	ExpiresAt             int64  `json:"expires_at,omitempty"`
+	RefreshTokenExpiresAt int64  `json:"refresh_token_expires_at,omitempty"`
+	Status                string `json:"status"` // "pending" | "authorized" | "denied" | "expired"
 }
 
 type Api struct {
@@ -73,6 +74,10 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					"expires_at": {
 						Desc:  &schemaz.Desc{Summary: "Access token expiration epoch millis."},
 						Field: func() any { return &d.Resp.ExpiresAt },
+					},
+					"refresh_token_expires_at": {
+						Desc:  &schemaz.Desc{Summary: "User refresh token expiration epoch millis (30 days)."},
+						Field: func() any { return &d.Resp.RefreshTokenExpiresAt },
 					},
 					"status": {
 						Desc:  &schemaz.Desc{Summary: "Status of the device code: pending | authorized | denied | expired."},

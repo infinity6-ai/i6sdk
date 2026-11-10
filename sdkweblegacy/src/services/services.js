@@ -5,6 +5,7 @@
 import { Invoker } from "../invoker/invoker.js";
 import { Auth } from "../auth/auth.js";
 import { AuthV2 } from "../auth/authv2.js";
+import { Tokens } from "../tokens/tokens.js";
 import { Ingest } from "../ingest/ingest.js";
 import { Apis, SdkFuncs } from "../sdkapis/sdkapis.js";
 import { Infer } from "../infer/infer.js";
@@ -93,6 +94,20 @@ class Services {
      */
     authv2() {
         return this.auth();
+    }
+
+    /**
+     * Creates and returns a Tokens service instance.
+     * @returns {Tokens} An instance of the Tokens client.
+     */
+    tokens() {
+        if (!this._tokens) {
+            this._tokens = new Tokens(this);
+            if (this._tokens.prepare) {
+                this._tokens.prepare();
+            }
+        }
+        return this._tokens;
     }
 
     /**

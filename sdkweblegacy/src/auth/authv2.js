@@ -9,17 +9,16 @@
  * 3. Authorization Code Redirect: i6userz redirects the browser to the intermediate exchange URL
  *    (`config.userExchangeCallbackUrl`) with a short-lived authorization `code` appended.
  * 4. Token Exchange: The exchange callback page invokes {@link AuthV2#handleCallback}, which extracts
- *    the `code` and `code_verifier`, calls `POST /api/userz/auth/exchange` on the userz service to exchange
- *    them for active tokens (access token JWT, refresh token, user ID, expiration), persists them in
- *    `localStorage` under `'i6_user_user_token'`, and redirects the browser to the original application URL.
+ *    the `code` and `code_verifier`, calls the Tokens service to exchange them via `POST /api/userz/auth/exchange`
+ *    for active tokens (access token JWT, refresh token, user ID, expiration), persists them, and redirects the browser
+ *    to the original application URL.
  * 5. Profile Retrieval: {@link AuthV2#user} fetches user identity metadata via `GET /api/userz/auth/me`
  *    using Bearer token authentication.
  */
 
-import { decodeUrlSafe } from "../internal/b64/b64.js";
-
 /**
  * @typedef {import("../services/services.js").Services} Services
+ * @typedef {import("../tokens/tokens.js").UserToken} UserToken
  */
 
 /**
@@ -35,17 +34,7 @@ import { decodeUrlSafe } from "../internal/b64/b64.js";
  */
 
 /**
- * User token credentials returned by the POST /api/userz/auth/exchange endpoint
- * and stored in localStorage under the key 'i6_user_user_token'.
- * @typedef {Object} UserToken
- * @property {string} user_access_token - Signed EdDSA user access token JWT.
- * @property {string} user_refresh_token - Opaque user refresh token used for session extension.
- * @property {string} user_id - Authenticated user unique identifier UUID.
- * @property {number} expires_at - Access token expiration timestamp in epoch milliseconds.
- */
-
-/**
- * Authentication client V2 for handling browser redirects, PKCE, and token exchange with i6userz.
+ * Authentication client V2 for handling browser redirects, PKCE, and user profile retrieval with i6userz.
  * Configuration (callbackUrl, userExchangeCallbackUrl, app) is read directly from `i6sdk.config()`.
  */
 class AuthV2 {
@@ -146,8 +135,8 @@ class AuthV2 {
   /**
    * Redirects the browser to the i6userz login page (`GET /api/userz/auth`) to initiate the PKCE login flow.
    *
-   * Validates that `config.userExchangeCallbackUrl` is configured, clears any existing token from
-   * `localStorage`, generates a random PKCE `code_verifier` and S256 `code_challenge`, and redirects
+   * Validates that `config.userExchangeCallbackUrl` is configured, clears any existing token,
+   * generates a random PKCE `code_verifier` and S256 `code_challenge`, and redirects
    * the browser with `app`, `redirect`, and `code_challenge` query parameters.
    *
    * @param {string} [callbackUrl] - The final destination URL to return to after login and token exchange complete.
@@ -160,7 +149,7 @@ class AuthV2 {
     if (!config.userExchangeCallbackUrl) {
       throw 'config.userExchangeCallbackUrl is required'
     }
-    localStorage.removeItem('i6_user_user_token')
+    this._services.tokens().clearTokens();
 
     const app = config.app || "default";
     const codeVerifier = this._generateCodeVerifier();
@@ -169,7 +158,6 @@ class AuthV2 {
     // Build the exchange callback URL with 'callback' and 'code_verifier' query parameters.
     // The i6userz auth service will append '&code=...' upon successful authentication.
     let cbUrl = config.userExchangeCallbackUrl;
-    console.log('xxx', cbUrl)
     if (cbUrl.includes('?')) {
       cbUrl += '&'
     } else {
@@ -192,8 +180,7 @@ class AuthV2 {
 
   /**
    * Processes the authorization code present in the URL query string, exchanging it for tokens via
-   * `POST /api/userz/auth/exchange`, securely storing the {@link UserToken} object in `localStorage`
-   * under `'i6_user_user_token'`, and redirecting to the post-exchange `callback` URL.
+   * the Tokens service (`POST /api/userz/auth/exchange`), and redirecting to the post-exchange `callback` URL.
    *
    * Note: This method must be called explicitly by the exchange callback page
    * (configured via `config.userExchangeCallbackUrl`). It is not called automatically by `user()`.
@@ -211,57 +198,25 @@ class AuthV2 {
       return false;
     }
 
-    const codeVerifier = params.get('code_verifier')
+    const codeVerifier = params.get('code_verifier') || "";
+    await this._services.tokens().exchange(code, codeVerifier);
 
-    const userzUrl = this._getUserzUrl();
-    const exchangeUrl = `${userzUrl}/api/userz/auth/exchange`;
-
-    const resp = await fetch(exchangeUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        code: code,
-        code_verifier: codeVerifier,
-      }),
-    });
-    if (!resp.ok) {
-      const errText = await resp.text();
-      throw new Error(`Token exchange failed (${resp.status}): ${errText}`);
+    const callback = params.get('callback');
+    if (callback) {
+      location = callback;
     }
-    const data = await resp.json();
-    console.log('aaa', data)
-    localStorage.setItem('i6_user_user_token', JSON.stringify(data))
-    const callback = params.get('callback')
-    location = callback
     return true;
   }
 
   /**
-   * Retrieves the stored user token credentials from localStorage.
+   * Retrieves the stored user token credentials from the Tokens service.
    *
    * @param {boolean} [refreshed] - Optional flag indicating whether to return
    *   a freshly refreshed token.
-   * @returns {UserToken|null} The stored user token object containing access and
-   *   refresh tokens, or null if no valid session exists in storage.
-   *
-   * @example
-   * // Stored object schema:
-   * // {
-   * //   "expires_at": 1794338065000,
-   * //   "user_access_token": "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVC...",
-   * //   "user_id": "u-172c6f15-155",
-   * //   "user_refresh_token": "020c8d2e-d802-4de9-9077-9bc5def86c55..."
-   * // }
+   * @returns {UserToken|null} The stored user token object, or null if no valid session exists.
    */
   getUserToken(refreshed) {
-    const s = localStorage.getItem('i6_user_user_token')
-    if (!s) {
-      return null
-    }
-    let tk = JSON.parse(s)
-    return tk
+    return this._services.tokens().getUserToken(refreshed);
   }
 
   /**
@@ -271,16 +226,15 @@ class AuthV2 {
    *   or undefined if no user is authenticated.
    */
   getAccessToken() {
-    return this.getUserToken(true)?.user_access_token
+    return this._services.tokens().getAccessToken();
   }
 
   /**
-   * Clears all stored authentication tokens and credentials from localStorage.
-   * Removes the `'i6_user_user_token'` entry.
+   * Clears all stored authentication tokens and credentials via the Tokens service.
    * @returns {void}
    */
   clearTokens() {
-    localStorage.removeItem("i6_user_user_token");
+    this._services.tokens().clearTokens();
   }
 
   /**
@@ -299,7 +253,7 @@ class AuthV2 {
     if (!token) {
       return null;
     }
-    const userzUrl = this._getUserzUrl()
+    const userzUrl = this._getUserzUrl();
     const resp = await fetch(`${userzUrl}/api/userz/auth/me`, {
       headers: {
         'Authorization': 'Bearer ' + token
@@ -309,7 +263,7 @@ class AuthV2 {
       const errText = await resp.text();
       throw new Error(`Error getting logged user (${resp.status}): ${errText}`);
     }
-    return resp.json()
+    return resp.json();
   }
 
   /**

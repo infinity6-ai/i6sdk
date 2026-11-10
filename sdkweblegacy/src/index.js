@@ -108,6 +108,14 @@ class I6Sdk {
   }
 
   /**
+   * Returns a Tokens service instance.
+   * @returns {import("./tokens/tokens.js").Tokens} An instance of the Tokens client.
+   */
+  tokens() {
+    return this._service.tokens()
+  }
+
+  /**
    * Returns the Apis service instance, one typed method per i6 server API.
    * Each call resolves with `{status, ok, payload?, error?}` and does not throw on an HTTP error.
    * @returns {Apis} An instance of the generated Apis client.
