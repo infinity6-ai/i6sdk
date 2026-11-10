@@ -223,34 +223,13 @@ class AuthV2 {
     if (!token) {
       return null;
     }
-
-    const expiresAtStr = typeof sessionStorage !== "undefined" ? sessionStorage.getItem("i6_user_expires_at") : null;
-    if (expiresAtStr) {
-      const expiresAt = parseInt(expiresAtStr, 10);
-      if (!isNaN(expiresAt) && Date.now() > expiresAt) {
-        this.clearTokens();
-        return null;
-      }
+    const userzUrl = this._getUserzUrl()
+    const resp = await fetch(`${userzUrl}/api/userz/me`);
+    if (!resp.ok) {
+      const errText = await resp.text();
+      throw new Error(`Error getting logged user (${resp.status}): ${errText}`);
     }
-
-    const userId = typeof sessionStorage !== "undefined" ? sessionStorage.getItem("i6_user_id") : null;
-
-    let payload = {};
-    try {
-      const parts = token.split(".");
-      if (parts.length >= 2) {
-        payload = JSON.parse(decodeUrlSafe(parts[1]));
-      }
-    } catch (e) {
-      // Intentionally ignore JWT parse errors
-    }
-
-    return {
-      sub: userId || payload.sub,
-      user_id: userId || payload.sub,
-      display: payload.display || payload.email || userId || payload.sub,
-      ...payload,
-    };
+    return resp.json()
   }
 
   /**
