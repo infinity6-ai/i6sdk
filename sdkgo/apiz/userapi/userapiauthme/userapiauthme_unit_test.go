@@ -7,7 +7,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparserapi"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/userapi/userapiauthme"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
 
 func TestUnitUserAuthMeApi(t *testing.T) {
@@ -20,12 +19,7 @@ func TestUnitUserAuthMeApi(t *testing.T) {
 			UserId:        "u-12345",
 			EmailRedacted: "al***@infinity6.ai",
 			Providers:     []string{"google"},
-			Datasets: []userapiauthme.UserDatasetGrant{
-				{
-					Dataset: lakedsz.MustParse("ds-alpha"),
-					Grants:  14,
-				},
-			},
+			CreatedAt:     1792900000,
 		},
 	}
 

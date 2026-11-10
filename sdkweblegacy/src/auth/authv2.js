@@ -191,7 +191,7 @@ class AuthV2 {
   }
 
   getUserToken(refreshed) {
-    const s = locatStorage.getItem('i6_user_user_token')
+    const s = localStorage.getItem('i6_user_user_token')
     if (!s) {
       return null
     }
@@ -224,7 +224,11 @@ class AuthV2 {
       return null;
     }
     const userzUrl = this._getUserzUrl()
-    const resp = await fetch(`${userzUrl}/api/userz/me`);
+    const resp = await fetch(`${userzUrl}/api/userz/auth/me`, {
+      headers: {
+        'Authorization': 'Bearer ' + token
+      },
+    });
     if (!resp.ok) {
       const errText = await resp.text();
       throw new Error(`Error getting logged user (${resp.status}): ${errText}`);
@@ -253,9 +257,7 @@ class AuthV2 {
    */
   async logout(backurl = (typeof window !== "undefined" ? (this._services.config().callbackUrl || window.location.href) : "")) {
     this.clearTokens();
-    if (typeof window !== "undefined" && backurl) {
-      window.location.href = backurl;
-    }
+    window.location.href = backurl;
   }
 }
 
