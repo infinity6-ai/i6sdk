@@ -34,6 +34,7 @@
  */
 
 const CODE_VERIFIER_KEY = "i6_auth_code_verifier";
+const AUTH_STATE_KEY = "i6_auth_state";
 
 /**
  * Authentication client for handling browser redirects, PKCE, and user profile retrieval with i6userz.
@@ -204,11 +205,13 @@ class Auth {
     const app = config.app || "default";
     const codeVerifier = this._generateCodeVerifier();
     const codeChallenge = await this._generateCodeChallenge(codeVerifier);
+    const state = typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : this._generateCodeVerifier(32);
 
-    // Keep code_verifier on session storage only
+    // Keep code_verifier and CSRF state on session storage only
     const storage = this._getSessionStorage();
     if (storage) {
       storage.setItem(CODE_VERIFIER_KEY, codeVerifier);
+      storage.setItem(AUTH_STATE_KEY, state);
     }
 
     // Build the exchange callback URL with 'callback' query parameter.
@@ -227,6 +230,7 @@ class Auth {
       app: app,
       redirect: cbUrl,
       code_challenge: codeChallenge,
+      state: state,
     });
 
     const loginUrl = `${userzUrl}/api/userz/auth?${params.toString()}`;
@@ -238,14 +242,15 @@ class Auth {
    * Processes the authorization code present in the URL query string, exchanging it for tokens via
    * the Tokens service (`POST /api/userz/auth/exchange`), and redirecting to the post-exchange `callback` URL.
    *
-   * Retrieves the PKCE `code_verifier` from session storage. If found, deletes it from session storage.
+   * Validates the CSRF `state` parameter against session storage, and retrieves the PKCE `code_verifier`
+   * from session storage. Deletes both from session storage upon processing.
    *
    * Note: This method must be called explicitly by the exchange callback page
    * (configured via `config.userExchangeCallbackUrl`). It is not called automatically by `user()`.
    *
    * @returns {Promise<boolean>} True if handling tokens completed (code was exchanged and redirect initiated),
    *   false if not an auth callback (no authorization `code` in the URL query parameters).
-   * @throws {Error} If the token exchange request fails or the server returns an error status.
+   * @throws {Error} If state mismatch occurs, token exchange fails, or server returns an error.
    */
   async handleCallback() {
     if (typeof window === "undefined") return false;
@@ -257,6 +262,17 @@ class Auth {
     }
 
     const storage = this._getSessionStorage();
+    const storedState = storage ? storage.getItem(AUTH_STATE_KEY) : null;
+    if (storage) {
+      storage.removeItem(AUTH_STATE_KEY);
+    }
+    const returnedState = params.get("state");
+    if (storedState || returnedState) {
+      if (!storedState || returnedState !== storedState) {
+        throw new Error("State mismatch / CSRF attempt");
+      }
+    }
+
     let codeVerifier = storage ? storage.getItem(CODE_VERIFIER_KEY) : null;
     if (storage) {
       storage.removeItem(CODE_VERIFIER_KEY);
@@ -316,13 +332,14 @@ class Auth {
 
   /**
    * Clears all stored authentication tokens and credentials via the Tokens service,
-   * and clears any pending PKCE code verifier in session storage.
+   * and clears any pending PKCE code verifier and CSRF state in session storage.
    * @returns {void}
    */
   clearTokens() {
     const storage = this._getSessionStorage();
     if (storage) {
       storage.removeItem(CODE_VERIFIER_KEY);
+      storage.removeItem(AUTH_STATE_KEY);
     }
     this._services.tokens().clearTokens();
   }

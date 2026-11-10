@@ -544,6 +544,93 @@
             }
         })
 
+        QUnit.test("auth generates and stores CSRF state on login, and passes it to userz auth URL", async function (assert) {
+            const sessionMap = new Map()
+            const sdk = new I6Sdk({
+                userExchangeCallbackUrl: "https://my.app/auth/callback",
+                servUrls: { userz: "https://userz.test" },
+                sessionStorage: {
+                    getItem: (k) => sessionMap.get(k) || null,
+                    setItem: (k, v) => sessionMap.set(k, v),
+                    removeItem: (k) => sessionMap.delete(k),
+                }
+            })
+
+            const auth = sdk.auth()
+            let navigatedUrl = null
+            auth._navigate = (url) => { navigatedUrl = url }
+
+            await auth.login("https://my.app/dashboard")
+
+            const stateInSession = sessionMap.get("i6_auth_state")
+            assert.ok(stateInSession, "state was stored in sessionStorage")
+
+            const urlObj = new URL(navigatedUrl)
+            assert.strictEqual(urlObj.searchParams.get("state"), stateInSession, "state in login URL matches stored state")
+        })
+
+        QUnit.test("auth.handleCallback verifies matching CSRF state and cleans it up", async function (assert) {
+            const sessionMap = new Map()
+            sessionMap.set("i6_auth_code_verifier", "ver-123")
+            sessionMap.set("i6_auth_state", "valid-csrf-state-abc")
+
+            const sdk = new I6Sdk({
+                sessionStorage: {
+                    getItem: (k) => sessionMap.get(k) || null,
+                    setItem: (k, v) => sessionMap.set(k, v),
+                    removeItem: (k) => sessionMap.delete(k),
+                }
+            })
+            sdk.tokens().exchange = async () => ({})
+
+            const auth = sdk.auth()
+            auth._redirect = () => {}
+
+            const origSearch = window.location.search
+            try {
+                window.history.replaceState({}, '', '?code=c123&state=valid-csrf-state-abc')
+                const handled = await auth.handleCallback()
+                assert.true(handled, "callback succeeds with valid state")
+                assert.strictEqual(sessionMap.has("i6_auth_state"), false, "state removed from session after check")
+            } finally {
+                window.history.replaceState({}, '', origSearch || '/')
+            }
+        })
+
+        QUnit.test("auth.handleCallback rejects state mismatch with CSRF error", async function (assert) {
+            const sessionMap = new Map()
+            sessionMap.set("i6_auth_code_verifier", "ver-123")
+            sessionMap.set("i6_auth_state", "legitimate-state")
+
+            const sdk = new I6Sdk({
+                sessionStorage: {
+                    getItem: (k) => sessionMap.get(k) || null,
+                    setItem: (k, v) => sessionMap.set(k, v),
+                    removeItem: (k) => sessionMap.delete(k),
+                }
+            })
+            sdk.tokens().exchange = async () => ({})
+
+            const auth = sdk.auth()
+            auth._redirect = () => {}
+
+            const origSearch = window.location.search
+            try {
+                window.history.replaceState({}, '', '?code=c123&state=attacker-state')
+                let errorCaught = null
+                try {
+                    await auth.handleCallback()
+                } catch (err) {
+                    errorCaught = err
+                }
+                assert.ok(errorCaught, "threw error on state mismatch")
+                assert.ok(errorCaught.message.includes("State mismatch / CSRF attempt"), "error mentions CSRF attempt")
+                assert.strictEqual(sessionMap.has("i6_auth_state"), false, "state was removed from session storage")
+            } finally {
+                window.history.replaceState({}, '', origSearch || '/')
+            }
+        })
+
     })
 
 })(QUnit)
