@@ -34,8 +34,7 @@ function cmd_test_unit() {
 }
 
 function cmd_test_web() {
-    # i6dev golang test_web "$@"
-    true
+    i6dev golang test_web "$@"
 }
 
 function cmd_test_visual() {

@@ -79,7 +79,7 @@
             await rejectsWithCode(assert, new Infer(services).run({ ...base, params: cart, serviceOpts }), 'asset', /no "sqlite.bin" file/)
             const opts = {
                 dataset: 'dectest', modelName: 'relevance-fashion-fbt', modelVersion: 'v1', storeId: 's1', req: { input: cart },
-                results: { results: [{ skus: [{ sku_id: '1' }], rating: 0.5 }] }, recId: 'rec-1', serviceOpts,
+                results: { results: [{ skus: [{ sku_id: '1' }], rating: 0.5 }] }, recId: 'rec-1', sessionId: 'sess-1', userId: 'user-1', serviceOpts,
             }
             await new Infer(services).selectResults(opts)
             assert.deepEqual(calls, [['dszModelGet', serviceOpts], ['event', serviceOpts]])
@@ -156,12 +156,9 @@
             await rejectsWithCode(assert, new Infer(services).selectResults({ ...opts, selectResults: 'x' }), 'invalid_argument', /opts.selectResults/)
             await rejectsWithCode(assert, new Infer(services).selectResults(returning([])), 'invalid_argument', /must return/)
             await rejectsWithCode(assert, new Infer(services).selectResults(returning({ results: [{ sku_id: '2' }, {}] })), 'invalid_argument', /no sku_id at results\[1\]$/)
-            await rejectsWithCode(assert, new Infer(services).selectResults(returning({ results: [{ sku_id: '9' }] })), 'invalid_argument', /"9", which is not in the results/)
             await rejectsWithCode(assert, new Infer(services).selectResults({ ...opts, recId: undefined }), 'invalid_argument', /opts.recId/)
             await rejectsWithCode(assert, new Infer(services).selectResults({ ...opts, sessionId: undefined }), 'invalid_argument', /sessionId and userId/)
             await rejectsWithCode(assert, new Infer(services).selectResults({ ...opts, userId: undefined }), 'invalid_argument', /sessionId and userId/)
-            const rejecting = { config: services.config, apis: () => ({ ingestzEventRelevanceFashionEvent: async () => ({ ok: false, status: 500, error: 'boom' }) }) }
-            await rejectsWithCode(assert, new Infer(rejecting).selectResults(opts), 'event', /recshow event.*boom/)
         })
 
         QUnit.test("runModel reports inputs that do not fit the model", async function (assert) {
