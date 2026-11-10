@@ -88,14 +88,6 @@ class Services {
     }
 
     /**
-     * Creates and returns an Auth service instance.
-     * @returns {Auth} An instance of the Auth client.
-     */
-    authv2() {
-        return this.auth();
-    }
-
-    /**
      * Creates and returns a Tokens service instance.
      * @returns {Tokens} An instance of the Tokens client.
      */

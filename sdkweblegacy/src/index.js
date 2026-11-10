@@ -100,14 +100,6 @@ class I6Sdk {
   }
 
   /**
-   * Returns an Auth service instance.
-   * @returns {import("./auth/auth.js").Auth} An instance of the Auth client.
-   */
-  authv2() {
-    return this._service.authv2()
-  }
-
-  /**
    * Returns a Tokens service instance.
    * @returns {import("./tokens/tokens.js").Tokens} An instance of the Tokens client.
    */
