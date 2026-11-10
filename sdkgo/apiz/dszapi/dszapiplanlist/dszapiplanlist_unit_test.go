@@ -14,7 +14,7 @@ func TestUnitDszListPlansApi(t *testing.T) {
 	ctx := t.Context()
 	plan := dszapiplanlist.Plan{
 		Key: "relevance_growth_monthly_2027", Tier: "growth", Frequency: "monthly", Name: "2027",
-		Currency: "brl", Amount: 9900,
+		Description: "Growth mensal", Currency: "brl", Amount: 9900,
 	}
 
 	t.Run("round trip", func(t *testing.T) {
@@ -34,7 +34,7 @@ func TestUnitDszListPlansApi(t *testing.T) {
 		}
 		require.JSONEq(t, `{"plans":[{
 			"key":"relevance_growth_monthly_2027","tier":"growth","frequency":"monthly","name":"2027",
-			"currency":"brl","amount":9900}]}`,
+			"description":"Growth mensal","currency":"brl","amount":9900}]}`,
 			body(&dszapiplanlist.Resp{Plans: []dszapiplanlist.Plan{plan}}))
 		require.JSONEq(t, `{"plans":[]}`, body(&dszapiplanlist.Resp{}))
 	})
