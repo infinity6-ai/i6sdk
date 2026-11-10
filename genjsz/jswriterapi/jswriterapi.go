@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/infinity6-ai/gox/commonz/errorz"
@@ -175,6 +176,22 @@ func writeApiDecl(b *strings.Builder, api *jsparserapi.Api) {
 	jsPath := strings.TrimPrefix(api.Spec.Path, "/")
 	if hasParams {
 		jsPath = pathParamRe.ReplaceAllString(jsPath, "${encodeURIComponent(String(req.params.$1))}")
+	}
+
+	if api.Spec.Desc != nil && len(api.Spec.Desc.Labels) > 0 {
+		var labelKeys []string
+		for k := range api.Spec.Desc.Labels {
+			labelKeys = append(labelKeys, k)
+		}
+		sort.Strings(labelKeys)
+
+		writeln(b, "  opts = opts || {};")
+		writeln(b, "  opts.labels = {")
+		for _, k := range labelKeys {
+			writeln(b, "    %q: %q,", k, api.Spec.Desc.Labels[k])
+		}
+		writeln(b, "    ...(opts.labels || {}),")
+		writeln(b, "  };")
 	}
 
 	writeln(b, "  return this._services.invoker().invokeResult({")

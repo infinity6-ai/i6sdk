@@ -200,6 +200,7 @@ class Invoker {
         if (!opts.headers.has('Authorization') && bearerToken) {
             opts.headers.set('Authorization', 'Bearer ' + bearerToken)
         }
+        // if (!opts.headers.has('Authorization') && opts.opts?.lab)
 
         if (opts.json) {
             opts.headers.set('Content-Type', 'application/json')
