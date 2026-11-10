@@ -28,6 +28,7 @@ const sdkConfig = { baseUrl: "https://decsuite.sandbox.rs.infinity6.ai" }
 // The config the SDK really runs with: the defaults (baseUrl) merged with ours
 const sdk = new I6Sdk()
 sdk.setConfig(sdkConfig)
+await sdk.authv2().handleCallback()
 window.i6sdk = sdk
 
 // The session lives as long as the tab; the user is kept across visits.
@@ -176,11 +177,8 @@ function showPage(page) {
   if (!pages.includes(page)) page = pages[0]
   document.querySelectorAll('[data-page]').forEach((el) => el.classList.toggle('hidden', el.dataset.page !== page))
   document.querySelectorAll('.tabs [data-tab]').forEach((b) => b.classList.toggle('active', b.dataset.tab === page))
-  if (location.hash.slice(1) !== page) history.replaceState(null, '', `#${page}`)
 }
 document.querySelectorAll('.tabs [data-tab]').forEach((b) => { b.onclick = () => showPage(b.dataset.tab) })
-window.addEventListener('hashchange', () => showPage(location.hash.slice(1)))
-showPage(location.hash.slice(1))
 
 // --- tools -------------------------------------------------------------------------------------------
 // Redirects to the login page when nobody is signed in, and comes back here

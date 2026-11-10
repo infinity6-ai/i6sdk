@@ -111,26 +111,30 @@ class AuthV2 {
    * Reads callbackUrl, exchangeCallbackUrl, and app directly from i6sdk.config().
    * @returns {Promise<void>}
    */
-  async login() {
-    if (typeof window === "undefined") return;
-
+  async login(callbackUrl) {
+    // if (typeof window === "undefined") throw 'browser is required';
     const config = this._services.config();
-    const callbackUrl = config.callbackUrl || window.location.href;
-    const exchangeCallbackUrl = config.exchangeCallbackUrl || null;
+    callbackUrl = callbackUrl || window.location.href;
+    // const exchangeCallbackUrl = config.exchangeCallbackUrl || null;
     const app = config.app || "default";
+    console.log('app', config, callbackUrl, app)
 
     const codeVerifier = this._generateCodeVerifier();
     const codeChallenge = await this._generateCodeChallenge(codeVerifier);
+    console.log('codeVerifier', codeVerifier)
+    console.log('codeChallenge', codeChallenge)
 
-    sessionStorage.setItem("i6_auth_code_verifier", codeVerifier);
-    sessionStorage.setItem("i6_auth_callback_url", callbackUrl);
-    if (exchangeCallbackUrl) {
-      sessionStorage.setItem("i6_auth_exchange_callback_url", exchangeCallbackUrl);
-    }
+    // sessionStorage.setItem("i6_auth_code_verifier", codeVerifier);
+    // sessionStorage.setItem("i6_auth_callback_url", callbackUrl);
+    // if (exchangeCallbackUrl) {
+      // sessionStorage.setItem("i6_auth_exchange_callback_url", exchangeCallbackUrl);
+    // }
 
     const userzUrl = this._getUserzUrl();
-    const targetRedirect = exchangeCallbackUrl || callbackUrl;
-
+    const targetRedirect = config.userz?.exchangeCallbackUrl || callbackUrl;
+    console.log('userzUrl', userzUrl)
+    console.log('targetRedirect', targetRedirect)
+    
     const params = new URLSearchParams({
       app: app,
       redirect: targetRedirect,
@@ -138,6 +142,7 @@ class AuthV2 {
     });
 
     const loginUrl = `${userzUrl}/api/userz/auth?${params.toString()}`;
+    console.log('x', loginUrl)
     window.location.href = loginUrl;
   }
 
@@ -153,10 +158,10 @@ class AuthV2 {
 
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
-
     if (!code) {
       return false;
     }
+    throw 'ooooo: ' + code
 
     const codeVerifier = sessionStorage.getItem("i6_auth_code_verifier");
     if (!codeVerifier) {
@@ -259,13 +264,6 @@ class AuthV2 {
    * @returns {Promise<AuthPayload|null>} The user profile data, or null if unauthenticated.
    */
   async user() {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      if (params.has("code")) {
-        await this.handleCallback();
-      }
-    }
-
     const token = this.getAccessToken();
     if (!token) {
       return null;
