@@ -117,6 +117,7 @@ import * as gzip from "../internal/gzip/gzip.js";
  * @typedef {object} ServiceOptions
  * @property {string} [datasetToken] - [Go: string]
  * @property {string} [bearerToken] - [Go: string]
+ * @property {Record<string, string>} [labels] - Labels
  * @property {Fetcher} [fetcher] - Custom fetch implementation.
  * @property {PrepareRequest} [prepareRequest] - Hook to mutate request options before sending (e.g., adding `sig` query parameter).
  */
