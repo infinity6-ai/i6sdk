@@ -207,17 +207,21 @@ class Invoker {
         if (!opts.headers.has('Authorization') && bearerToken) {
             opts.headers.set('Authorization', 'Bearer ' + bearerToken)
         }
-        if (!opts.headers.has('Authorization') && opts.opts?.labels?.token_dataset) {
-            if (opts.opts?.labels?.token_dataset == 'params.dataset') {
-                const url = new URL(opts.url);
-                const split = url.pathname.split('/')
-                const idx = split.indexOf('dataset')
-                if (idx < 0) throw 'cannot resolve dataset: ' + url.pathname
+        if (!opts.headers.has('Authorization')) {
+            const url = new URL(opts.url);
+            const split = url.pathname.split('/')
+            const idx = split.indexOf('dataset')
+            let token = ''
+            if (idx < 0) {
+                token = await this._services.tokens().getValidAccessToken()  
+                console.log('user token', token) 
+            } else {
                 const dataset = split[idx+1]
-                const token = await this._services.tokens().getValidDatasetAccessToken(dataset)
-                if (token) {
-                    opts.headers['Authorization'] = 'Bearer ' + token
-                }
+                token = await this._services.tokens().getValidDatasetAccessToken(dataset)
+                console.log('dataset token', dataset, token)
+            }
+            if (token) {
+                opts.headers['Authorization'] = 'Bearer ' + token
             }
         }
         console.log(opts)
