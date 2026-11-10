@@ -56,7 +56,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 						Field: func() any { return &d.Req.DatasetName },
 					},
 					"plan": {
-						Desc:  &schemaz.Desc{Summary: "Lookup key of the Stripe price of the plan to buy; the service gets the price id from the Stripe prices api"},
+						Desc:  &schemaz.Desc{Summary: "Plan key to buy, like relevance_growth_monthly_2027; the service gets the prices {plan}_lic and {plan}_req from the Stripe prices api and sends both to the checkout"},
 						Field: func() any { return &d.Req.Plan },
 					},
 					"success_url": {

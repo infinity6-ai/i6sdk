@@ -12,6 +12,7 @@ type Req struct {
 
 // Plan is an allowed plan with the values of its Stripe price, without translation.
 // Key is {solution}_{tier}_{frequency}_{name}, like relevance_growth_monthly_2027.
+// Each plan has 2 Stripe prices, {key}_lic (license) and {key}_req (request count).
 type Plan struct {
 	Key       string
 	Tier      string
@@ -20,7 +21,12 @@ type Plan struct {
 	// Description is the "Price description" of the Stripe price (its nickname), to show to the user.
 	Description string
 	Currency    string
-	Amount      int64
+	// Amount is kept for compatibility, and equals LicAmount.
+	Amount int64
+	// LicAmount is the price of the license, in the minor unit of the currency.
+	LicAmount int64
+	// ReqAmount is the price of the request count, in the minor unit of the currency.
+	ReqAmount int64
 }
 
 type Resp struct {
@@ -90,7 +96,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 									Object: func(_ bool) map[string]*schemaz.Schema {
 										return map[string]*schemaz.Schema{
 											"key": {
-												Desc:  &schemaz.Desc{Summary: "Lookup key of the Stripe price, used to switch to the plan"},
+												Desc:  &schemaz.Desc{Summary: "Plan key (base of the Stripe lookup keys {key}_lic and {key}_req), used to switch to the plan"},
 												Field: func() any { return &element.Key },
 											},
 											"tier": {
@@ -114,8 +120,16 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 												Field: func() any { return &element.Currency },
 											},
 											"amount": {
-												Desc:  &schemaz.Desc{Summary: "Price in the minor unit of the currency (cents)"},
+												Desc:  &schemaz.Desc{Summary: "Same as lic_amount, kept for compatibility"},
 												Field: func() any { return &element.Amount },
+											},
+											"lic_amount": {
+												Desc:  &schemaz.Desc{Summary: "License price in the minor unit of the currency (cents)"},
+												Field: func() any { return &element.LicAmount },
+											},
+											"req_amount": {
+												Desc:  &schemaz.Desc{Summary: "Request count price in the minor unit of the currency (cents)"},
+												Field: func() any { return &element.ReqAmount },
 											},
 										}
 									},
