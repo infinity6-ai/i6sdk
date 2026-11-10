@@ -93,7 +93,8 @@ class Tokens {
    * @returns {import("../index.js").I6Storage|null} The active storage adapter or null if unavailable.
    */
   _getStorage() {
-    const s = this._services.config().storage;
+    const config = this._services.config();
+    const s = config.storage || config.localStorage;
     if (typeof s === "function") {
       try {
         return s();

@@ -460,6 +460,90 @@
             assert.strictEqual(tokens.getUserToken(), null, "tokens cleared")
         })
 
+        QUnit.test("auth stores code_verifier in sessionStorage and omits it from redirect URL", async function (assert) {
+            const localMap = new Map()
+            const sessionMap = new Map()
+            const localAdapter = {
+                getItem: (k) => localMap.get(k) || null,
+                setItem: (k, v) => localMap.set(k, v),
+                removeItem: (k) => localMap.delete(k),
+            }
+            const sessionAdapter = {
+                getItem: (k) => sessionMap.get(k) || null,
+                setItem: (k, v) => sessionMap.set(k, v),
+                removeItem: (k) => sessionMap.delete(k),
+            }
+
+            const sdk = new I6Sdk({
+                userExchangeCallbackUrl: "https://my.app/auth/callback",
+                servUrls: { userz: "https://userz.test" },
+                localStorage: localAdapter,
+                sessionStorage: sessionAdapter,
+            })
+
+            const auth = sdk.auth()
+            let navigatedUrl = null
+            auth._navigate = (url) => { navigatedUrl = url }
+
+            await auth.login("https://my.app/dashboard")
+
+            // 1. code_verifier stored in sessionStorage
+            const codeVerifier = sessionMap.get("i6_auth_code_verifier")
+            assert.ok(codeVerifier, "code_verifier was stored in sessionStorage")
+            assert.strictEqual(localMap.has("i6_auth_code_verifier"), false, "not in localStorage")
+
+            // 2. Redirect URL has code_challenge and callback, but NOT code_verifier
+            assert.ok(navigatedUrl.includes("https://userz.test/api/userz/auth?"), "navigated to userz login")
+            const urlObj = new URL(navigatedUrl)
+            const redirectParam = urlObj.searchParams.get("redirect")
+            assert.ok(redirectParam.includes("callback="), "redirect param contains callback")
+            assert.false(redirectParam.includes("code_verifier="), "code_verifier is NOT in callback URL")
+            assert.false(urlObj.searchParams.has("code_verifier"), "code_verifier is not in query params")
+            assert.ok(urlObj.searchParams.has("code_challenge"), "code_challenge is present")
+        })
+
+        QUnit.test("auth.handleCallback exchanges code using code_verifier from sessionStorage and deletes it", async function (assert) {
+            const sessionMap = new Map()
+            sessionMap.set("i6_auth_code_verifier", "verifier-stored-in-session-999")
+
+            let exchangedCode = null
+            let exchangedVerifier = null
+            let redirectedTo = null
+
+            const sdk = new I6Sdk({
+                sessionStorage: {
+                    getItem: (k) => sessionMap.get(k) || null,
+                    setItem: (k, v) => sessionMap.set(k, v),
+                    removeItem: (k) => sessionMap.delete(k),
+                }
+            })
+
+            // Mock tokens.exchange
+            sdk.tokens().exchange = async (c, v) => {
+                exchangedCode = c
+                exchangedVerifier = v
+                return {}
+            }
+
+            const auth = sdk.auth()
+            auth._redirect = (url) => { redirectedTo = url }
+
+            // Temporarily mock window.location.search
+            const origSearch = window.location.search
+            try {
+                window.history.replaceState({}, '', '?code=auth-code-777&callback=' + encodeURIComponent('https://my.app/home'))
+
+                const handled = await auth.handleCallback()
+                assert.true(handled, "handleCallback completed successfully")
+                assert.strictEqual(exchangedCode, "auth-code-777", "exchanged received code")
+                assert.strictEqual(exchangedVerifier, "verifier-stored-in-session-999", "exchanged code_verifier retrieved from sessionStorage")
+                assert.strictEqual(sessionMap.has("i6_auth_code_verifier"), false, "code_verifier was deleted from sessionStorage after exchange")
+                assert.strictEqual(redirectedTo, "https://my.app/home", "redirected to post-exchange callback")
+            } finally {
+                window.history.replaceState({}, '', origSearch || '/')
+            }
+        })
+
     })
 
 })(QUnit)
