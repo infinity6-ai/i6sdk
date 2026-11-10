@@ -4,7 +4,6 @@
 
 import { Invoker } from "../invoker/invoker.js";
 import { Auth } from "../auth/auth.js";
-import { AuthV2 } from "../auth/authv2.js";
 import { Tokens } from "../tokens/tokens.js";
 import { Ingest } from "../ingest/ingest.js";
 import { Apis, SdkFuncs } from "../sdkapis/sdkapis.js";
@@ -76,11 +75,11 @@ class Services {
 
     /**
      * Creates and returns an Auth service instance.
-     * @returns {AuthV2} An instance of the AuthV2 client.
+     * @returns {Auth} An instance of the Auth client.
      */
     auth() {
         if (!this._auth) {
-            this._auth = new AuthV2(this);
+            this._auth = new Auth(this);
             if (this._auth.prepare) {
                 this._auth.prepare();
             }
@@ -89,8 +88,8 @@ class Services {
     }
 
     /**
-     * Creates and returns an AuthV2 service instance.
-     * @returns {AuthV2} An instance of the AuthV2 client.
+     * Creates and returns an Auth service instance.
+     * @returns {Auth} An instance of the Auth client.
      */
     authv2() {
         return this.auth();

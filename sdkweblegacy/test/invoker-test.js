@@ -9,7 +9,7 @@
         hooks.beforeEach(async function () {
             ({ Invoker } = await import('../src/invoker/invoker.js'))
             realFetch = globalThis.fetch
-            invoker = new Invoker({ config: () => ({ baseUrl: 'https://api.test' }) })
+            invoker = new Invoker({ config: () => ({ baseUrl: 'https://api.test' }), tokens: () => ({ getValidAccessToken: async () => null, getValidDatasetAccessToken: async () => null }) })
         })
 
         hooks.afterEach(function () {

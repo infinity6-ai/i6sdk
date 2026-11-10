@@ -1,6 +1,6 @@
 ((QUnit) => {
 
-    QUnit.module("i6sdk-web authv2 & tokens", function (hooks) {
+    QUnit.module("i6sdk-web auth & tokens", function (hooks) {
 
         let I6Sdk
         let realFetch
@@ -52,13 +52,13 @@
             assert.strictEqual(tokens.getAccessToken(), "jwt-test-123", "access token matches")
 
             // AuthV2 delegates to tokens
-            assert.deepEqual(sdk.authv2().getUserToken(), sampleToken, "authv2 delegates getUserToken")
-            assert.strictEqual(sdk.authv2().getAccessToken(), "jwt-test-123", "authv2 delegates getAccessToken")
+            assert.deepEqual(sdk.auth().getUserToken(), sampleToken, "auth delegates getUserToken")
+            assert.strictEqual(sdk.auth().getAccessToken(), "jwt-test-123", "auth delegates getAccessToken")
 
-            // Clear tokens via authv2 or tokens
-            sdk.authv2().clearTokens()
+            // Clear tokens via auth or tokens
+            sdk.auth().clearTokens()
             assert.strictEqual(tokens.getUserToken(), null, "tokens cleared")
-            assert.strictEqual(sdk.authv2().getAccessToken(), undefined, "access token cleared on authv2")
+            assert.strictEqual(sdk.auth().getAccessToken(), undefined, "access token cleared on auth")
         })
 
         QUnit.test("tokens.exchange sends code and verifier and saves token", async function (assert) {
@@ -233,7 +233,7 @@
             assert.strictEqual(tokens.getUserToken(), null, "tokens cleared from storage on 401")
         })
 
-        QUnit.test("authv2.user automatically refreshes expired access token", async function (assert) {
+        QUnit.test("auth.user automatically refreshes expired access token", async function (assert) {
             const sdk = new I6Sdk({ servUrls: { userz: 'http://userz.test' } })
             const tokens = sdk.tokens()
 
@@ -265,7 +265,7 @@
                 return new Response("", { status: 404 })
             }
 
-            const user = await sdk.authv2().user()
+            const user = await sdk.auth().user()
             assert.strictEqual(calls.length, 2, "made refresh call then auth/me call")
             assert.strictEqual(calls[0].url, "http://userz.test/api/userz/auth/refresh")
             assert.strictEqual(calls[1].url, "http://userz.test/api/userz/auth/me")

@@ -31,7 +31,7 @@ const sdkConfig = {
 // The config the SDK really runs with: the defaults (baseUrl) merged with ours
 const sdk = new I6Sdk()
 sdk.setConfig(sdkConfig)
-await sdk.authv2().handleCallback()
+await sdk.auth().handleCallback()
 window.i6sdk = sdk
 
 // The session lives as long as the tab; the user is kept across visits.
