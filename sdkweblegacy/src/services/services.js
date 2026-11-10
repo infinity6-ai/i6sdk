@@ -16,7 +16,8 @@ import { Dash } from "../dash/dash.js";
 
 /**
  * Service container that instantiates and provides access to SDK service clients.
- * Every accessor returns a new client sharing this container's config and dispatcher.
+ * `auth` and `tokens` return cached singleton instances; other accessors instantiate a new client
+ * sharing this container's config and dispatcher.
  */
 class Services {
     /**

@@ -90,12 +90,24 @@ class Auth {
     return typeof sessionStorage !== "undefined" ? sessionStorage : null;
   }
 
+  /**
+   * Navigates the browser window to a target URL.
+   * @private
+   * @param {string} url - Target URL.
+   * @returns {void}
+   */
   _navigate(url) {
     if (typeof window !== "undefined") {
       window.location.href = url;
     }
   }
 
+  /**
+   * Redirects the browser location to a callback URL.
+   * @private
+   * @param {string} url - Target redirect URL.
+   * @returns {void}
+   */
   _redirect(url) {
     if (typeof location !== "undefined") {
       location = url;
@@ -179,7 +191,7 @@ class Auth {
    *
    * @param {string} [callbackUrl] - The final destination URL to return to after login and token exchange complete.
    *   Defaults to `window.location.href`.
-   * @returns {Promise<void>}
+   * @returns {Promise<string>} The generated login URL.
    * @throws {string} If `config.userExchangeCallbackUrl` is not defined in the SDK configuration.
    */
   async login(callbackUrl) {
