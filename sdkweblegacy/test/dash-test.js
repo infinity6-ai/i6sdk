@@ -36,7 +36,7 @@
             const db = new SQL.Database()
             db.run('CREATE TABLE namedqueries (name TEXT PRIMARY KEY, query TEXT)')
             const query = `SELECT json_object('marker', '${marker}', 'params', json(?1)) AS ret`
-            db.run('INSERT INTO namedqueries VALUES (?, ?)', [`dash-${dashName}`, query])
+            db.run('INSERT INTO namedqueries VALUES (?, ?)', [dashName, query])
             const bytes = db.export()
             db.close()
             return bytes
@@ -90,7 +90,7 @@
             const SQL = await (await import('sql.js')).default({ locateFile: (file) => sqlJsWasmUrl + file })
             const noParams = new SQL.Database()
             noParams.run('CREATE TABLE namedqueries (name TEXT PRIMARY KEY, query TEXT)')
-            noParams.run('INSERT INTO namedqueries VALUES (?, ?)', [`dash-${dashName}`, "SELECT json_object('marker', 'none') AS ret"])
+            noParams.run('INSERT INTO namedqueries VALUES (?, ?)', [dashName, "SELECT json_object('marker', 'none') AS ret"])
             sqliteBytes = noParams.export()
             noParams.close()
 
@@ -148,7 +148,7 @@
             assert.strictEqual(result.marker, 'first')
             assert.deepEqual(requests, [{
                 params: { dataset: 'dectest' },
-                payload: { paths: [{ method: 'GET', path: 'i6tb://results.relevance-fashion-store-dash/store_id=1/sqlite.bin' }] },
+                payload: { paths: [{ method: 'GET', path: 'i6tb://results.relevance-fashion-store-dash/store_id=s1/sqlite.bin' }] },
             }])
 
             const serviceOpts = { datasetToken: 'tok-1' }
