@@ -273,6 +273,132 @@
             assert.deepEqual(user, { user_id: "u-1", email_redacted: "test@infinity6.ai" })
         })
 
+        QUnit.test("dataset tokens cache per dataset and clear on clearTokens and exchange", async function (assert) {
+            const sdk = new I6Sdk({ servUrls: { userz: 'http://userz.test' } })
+            const tokens = sdk.tokens()
+
+            tokens.setDatasetToken("dataset-1", {
+                access_token: "ds-tok-1",
+                dataset: "dataset-1",
+                grants: 14,
+                expires_at: Date.now() + 3600 * 1000
+            })
+            tokens.setDatasetToken("dataset-2", {
+                access_token: "ds-tok-2",
+                dataset: "dataset-2",
+                grants: 8,
+                expires_at: Date.now() + 3600 * 1000
+            })
+
+            assert.strictEqual(tokens.getDatasetToken("dataset-1").access_token, "ds-tok-1")
+            assert.strictEqual(tokens.getDatasetToken("dataset-2").access_token, "ds-tok-2")
+            assert.strictEqual(tokens.getDatasetToken("nonexistent"), null)
+
+            // clearTokens clears both user and dataset tokens
+            tokens.setUserToken({ user_access_token: "u-tok", user_id: "u-1" })
+            tokens.clearTokens()
+            assert.strictEqual(tokens.getUserToken(), null)
+            assert.strictEqual(tokens.getDatasetToken("dataset-1"), null)
+            assert.strictEqual(tokens.getDatasetToken("dataset-2"), null)
+
+            // exchange clears previous dataset tokens
+            tokens.setDatasetToken("old-ds", { access_token: "old", dataset: "old-ds", grants: 8, expires_at: Date.now() + 100000 })
+            globalThis.fetch = async () => new Response(JSON.stringify({
+                user_access_token: "new-u",
+                user_refresh_token: "new-rt",
+                user_id: "u-new",
+                expires_at: Date.now() + 100000
+            }), { status: 200 })
+
+            await tokens.exchange("code", "verifier")
+            assert.strictEqual(tokens.getDatasetToken("old-ds"), null, "dataset tokens cleared before new exchange token saved")
+        })
+
+        QUnit.test("getValidDatasetAccessToken returns cached when fresh, requests when expired", async function (assert) {
+            const sdk = new I6Sdk({ servUrls: { userz: 'http://userz.test' } })
+            const tokens = sdk.tokens()
+
+            // User must be authenticated
+            tokens.setUserToken({
+                user_access_token: "user-jwt-123",
+                user_id: "u-1",
+                expires_at: Date.now() + 3600 * 1000
+            })
+
+            let dsCalls = 0
+            let capturedReq = null
+            globalThis.fetch = async (url, opts) => {
+                dsCalls++
+                capturedReq = { url, headers: opts.headers, body: JSON.parse(opts.body) }
+                return new Response(JSON.stringify({
+                    access_token: "binary-dataset-token-abc",
+                    dataset: "fashion-store",
+                    solution: "relevance_fashion",
+                    grants: 14,
+                    expires_at: Date.now() + 14400 * 1000
+                }), { status: 200 })
+            }
+
+            // 1. Initial fetch
+            const tok1 = await tokens.getValidDatasetAccessToken("fashion-store")
+            assert.strictEqual(tok1, "binary-dataset-token-abc")
+            assert.strictEqual(dsCalls, 1)
+            assert.strictEqual(capturedReq.url, "http://userz.test/api/userz/dataset/access-token")
+            assert.strictEqual(capturedReq.headers['Authorization'], "Bearer user-jwt-123")
+            assert.deepEqual(capturedReq.body, { dataset: "fashion-store", grants: 15 })
+
+            // 2. Second call returns cached token without network request
+            const tok2 = await tokens.getValidDatasetAccessToken("fashion-store")
+            assert.strictEqual(tok2, "binary-dataset-token-abc")
+            assert.strictEqual(dsCalls, 1, "no second fetch made while cached token is valid")
+
+            // 3. Expire the token in cache and verify it re-fetches
+            tokens.setDatasetToken("fashion-store", {
+                access_token: "expired-ds-tok",
+                dataset: "fashion-store",
+                grants: 14,
+                expires_at: Date.now() - 5000
+            })
+
+            const tok3 = await tokens.getValidDatasetAccessToken("fashion-store")
+            assert.strictEqual(tok3, "binary-dataset-token-abc")
+            assert.strictEqual(dsCalls, 2, "re-fetched when token expired")
+        })
+
+        QUnit.test("concurrent getValidDatasetAccessToken deduplicates request in flight", async function (assert) {
+            const sdk = new I6Sdk({ servUrls: { userz: 'http://userz.test' } })
+            const tokens = sdk.tokens()
+
+            tokens.setUserToken({
+                user_access_token: "user-jwt-123",
+                user_id: "u-1",
+                expires_at: Date.now() + 3600 * 1000
+            })
+
+            let callCount = 0
+            globalThis.fetch = async () => {
+                callCount++
+                await new Promise(r => setTimeout(r, 10))
+                return new Response(JSON.stringify({
+                    access_token: "deduped-ds-token",
+                    dataset: "products",
+                    grants: 10,
+                    expires_at: Date.now() + 3600 * 1000
+                }), { status: 200 })
+            }
+
+            const [r1, r2, r3] = await Promise.all([
+                tokens.getValidDatasetAccessToken("products"),
+                tokens.getValidDatasetAccessToken("products"),
+                tokens.getValidDatasetAccessToken("products")
+            ])
+
+            assert.strictEqual(r1, "deduped-ds-token")
+            assert.strictEqual(r2, "deduped-ds-token")
+            assert.strictEqual(r3, "deduped-ds-token")
+            assert.strictEqual(callCount, 1, "only 1 fetch made for concurrent dataset token requests")
+        })
+
     })
 
 })(QUnit)

@@ -1,6 +1,6 @@
 /**
  * @fileoverview Token management client for i6 SDK.
- * Manages storage, retrieval, exchange, and silent renewal of authentication and authorization tokens.
+ * Manages storage, retrieval, exchange, and silent renewal of authentication (user) and authorization (dataset) tokens.
  */
 
 /**
@@ -18,11 +18,30 @@
  * @property {number} [refresh_token_expires_at] - Refresh token expiration timestamp in epoch milliseconds.
  */
 
+/**
+ * Dataset access token credentials returned by POST /api/userz/dataset/access-token
+ * and cached in localStorage under 'i6_dataset_access_tokens'.
+ * @typedef {Object} DatasetToken
+ * @property {string} access_token - Binary packed and signed dataset access token string.
+ * @property {string} dataset - Target dataset ID.
+ * @property {string} [solution] - Solution domain restriction.
+ * @property {number} grants - Compact uint8 grant bitmask held over dataset.
+ * @property {number} expires_at - Access token expiration timestamp in epoch milliseconds.
+ * @property {Record<string, string>} [labels] - Contextual metadata labels.
+ */
+
 const USER_TOKEN_KEY = "i6_user_user_token";
+const DATASET_TOKENS_KEY = "i6_dataset_access_tokens";
+
+/**
+ * All permission grants bitmask (0x0F): GrantSystem(1) | GrantAdmin(2) | GrantWrite(4) | GrantRead(8).
+ * Sent to server to request all permissions the user actually holds on the target dataset.
+ */
+const ALL_GRANTS = 15;
 
 /**
  * Client for managing authentication tokens, local storage persistence, token exchanges,
- * and automatic token renewal.
+ * automatic user session renewal, and dataset access token derivation.
  */
 class Tokens {
   /**
@@ -37,11 +56,18 @@ class Tokens {
     this._services = services;
 
     /**
-     * In-flight refresh promise to prevent duplicate refresh calls during concurrent operations.
+     * In-flight user refresh promise to prevent duplicate refresh calls during concurrent operations.
      * @private
      * @type {Promise<UserToken|null>|null}
      */
     this._refreshPromise = null;
+
+    /**
+     * In-flight dataset token request promises by dataset ID to deduplicate concurrent requests.
+     * @private
+     * @type {Map<string, Promise<DatasetToken|null>>}
+     */
+    this._datasetTokenPromises = new Map();
   }
 
   /**
@@ -96,16 +122,6 @@ class Tokens {
    *   a freshly refreshed token.
    * @returns {UserToken|null} The stored user token object containing access and
    *   refresh tokens, or null if no valid session exists in storage.
-   *
-   * @example
-   * // Stored object schema:
-   * // {
-   * //   "expires_at": 1794338065000,
-   * //   "refresh_token_expires_at": 1825874065000,
-   * //   "user_access_token": "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVC...",
-   * //   "user_id": "u-172c6f15-155",
-   * //   "user_refresh_token": "020c8d2e-d802-4de9-9077-9bc5def86c55..."
-   * // }
    */
   getUserToken(refreshed) {
     if (typeof localStorage === "undefined") return null;
@@ -143,11 +159,13 @@ class Tokens {
   }
 
   /**
-   * Clears all stored authentication tokens and credentials from localStorage.
-   * Removes the `'i6_user_user_token'` entry.
+   * Clears all stored authentication and authorization tokens from localStorage.
+   * Removes both the user token (`'i6_user_user_token'`) and all cached dataset
+   * access tokens (`'i6_dataset_access_tokens'`).
    * @returns {void}
    */
   clearTokens() {
+    this.clearDatasetTokens();
     if (typeof localStorage === "undefined") return;
     localStorage.removeItem(USER_TOKEN_KEY);
   }
@@ -155,6 +173,7 @@ class Tokens {
   /**
    * Exchanges an authorization code and PKCE code verifier for user token credentials
    * via `POST /api/userz/auth/exchange`, and persists them in localStorage.
+   * Automatically clears any existing dataset tokens before storing new session credentials.
    *
    * @param {string} code - The authorization code returned by i6userz auth.
    * @param {string} codeVerifier - The PKCE code verifier matching the login challenge.
@@ -180,6 +199,9 @@ class Tokens {
       throw new Error(`Token exchange failed (${resp.status}): ${errText}`);
     }
     const data = await resp.json();
+
+    // Clear previous dataset tokens before writing a new user session
+    this.clearDatasetTokens();
     this.setUserToken(data);
     return data;
   }
@@ -262,6 +284,144 @@ class Tokens {
     // Access token is expired or expiring soon; refresh session
     const refreshed = await this.refresh();
     return refreshed?.user_access_token || null;
+  }
+
+  /**
+   * Retrieves the full map of cached dataset access tokens from localStorage.
+   *
+   * @returns {Record<string, DatasetToken>} A dictionary of cached dataset tokens keyed by dataset ID.
+   */
+  getAllDatasetTokens() {
+    if (typeof localStorage === "undefined") return {};
+    const s = localStorage.getItem(DATASET_TOKENS_KEY);
+    if (!s) return {};
+    try {
+      return JSON.parse(s) || {};
+    } catch {
+      return {};
+    }
+  }
+
+  /**
+   * Retrieves the cached dataset access token object for a specific dataset from localStorage.
+   *
+   * @param {string} dataset - Target dataset ID.
+   * @returns {DatasetToken|null} The cached dataset token object, or null if not found.
+   */
+  getDatasetToken(dataset) {
+    if (!dataset) return null;
+    const all = this.getAllDatasetTokens();
+    return all[dataset] || null;
+  }
+
+  /**
+   * Stores a dataset access token credentials object in localStorage under the given dataset ID.
+   *
+   * @param {string} dataset - Target dataset ID.
+   * @param {DatasetToken} token - The dataset access token credentials to cache.
+   * @returns {void}
+   */
+  setDatasetToken(dataset, token) {
+    if (typeof localStorage === "undefined" || !dataset) return;
+    const all = this.getAllDatasetTokens();
+    all[dataset] = token;
+    localStorage.setItem(DATASET_TOKENS_KEY, JSON.stringify(all));
+  }
+
+  /**
+   * Clears all cached dataset access tokens from localStorage.
+   * @returns {void}
+   */
+  clearDatasetTokens() {
+    this._datasetTokenPromises.clear();
+    if (typeof localStorage === "undefined") return;
+    localStorage.removeItem(DATASET_TOKENS_KEY);
+  }
+
+  /**
+   * Checks whether the given dataset access token is expired or will expire within the given skew window.
+   *
+   * @param {DatasetToken|null} [token] - The dataset token object to inspect.
+   * @param {number} [skewSeconds=30] - Safety margin in seconds before expiration.
+   * @returns {boolean} True if the token is missing, expired, or expiring within skewSeconds.
+   */
+  isDatasetTokenExpired(token, skewSeconds = 30) {
+    if (!token || !token.access_token || typeof token.expires_at !== "number") {
+      return true;
+    }
+    return Date.now() >= (token.expires_at - skewSeconds * 1000);
+  }
+
+  /**
+   * Retrieves a guaranteed-valid dataset access token string for the target dataset.
+   *
+   * 1. Checks localStorage for a cached dataset token for `dataset`. If present and valid
+   *    (not expiring within `skewSeconds`), returns its `access_token` immediately.
+   * 2. If expired or not yet cached, retrieves a valid user access token via {@link Tokens#getValidAccessToken}.
+   *    If unauthenticated or user session cannot be renewed, returns null.
+   * 3. Calls `POST /api/userz/dataset/access-token` on userz requesting all grants (`0x0F`),
+   *    which the server clamps to the user's actual grants on that dataset.
+   * 4. Caches the resulting {@link DatasetToken} in localStorage under `dataset` and returns the token string.
+   * 5. Deduplicates concurrent requests for the same dataset so only a single network request is made.
+   *
+   * @param {string} dataset - Target dataset ID.
+   * @param {number} [skewSeconds=30] - Safety margin in seconds before expiration.
+   * @returns {Promise<string|null>} The active dataset access token string, or null if unauthorized/error.
+   */
+  async getValidDatasetAccessToken(dataset, skewSeconds = 30) {
+    if (!dataset) {
+      return null;
+    }
+
+    const cached = this.getDatasetToken(dataset);
+    if (cached && !this.isDatasetTokenExpired(cached, skewSeconds)) {
+      return cached.access_token;
+    }
+
+    if (this._datasetTokenPromises.has(dataset)) {
+      const inFlight = await this._datasetTokenPromises.get(dataset);
+      return inFlight?.access_token || null;
+    }
+
+    const promise = (async () => {
+      try {
+        const userAccessToken = await this.getValidAccessToken(skewSeconds);
+        if (!userAccessToken) {
+          return null;
+        }
+
+        const userzUrl = this._getUserzUrl();
+        const url = `${userzUrl}/api/userz/dataset/access-token`;
+
+        const resp = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${userAccessToken}`,
+          },
+          body: JSON.stringify({
+            dataset: dataset,
+            grants: ALL_GRANTS,
+          }),
+        });
+
+        if (!resp.ok) {
+          return null;
+        }
+
+        const data = await resp.json();
+        this.setDatasetToken(dataset, data);
+        return data;
+      } catch {
+        return null;
+      } finally {
+        this._datasetTokenPromises.delete(dataset);
+      }
+    })();
+
+    this._datasetTokenPromises.set(dataset, promise);
+    const result = await promise;
+    return result?.access_token || null;
   }
 }
 
