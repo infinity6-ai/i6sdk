@@ -220,6 +220,7 @@ class Invoker {
                 }
             }
         }
+        console.log(opts)
 
         if (opts.json) {
             opts.headers.set('Content-Type', 'application/json')
