@@ -112,37 +112,37 @@ class AuthV2 {
    * @returns {Promise<void>}
    */
   async login(callbackUrl) {
-    // if (typeof window === "undefined") throw 'browser is required';
     const config = this._services.config();
-    callbackUrl = callbackUrl || window.location.href;
-    // const exchangeCallbackUrl = config.exchangeCallbackUrl || null;
-    const app = config.app || "default";
-    console.log('app', config, callbackUrl, app)
+    if (!config.userExchangeCallbackUrl) {
+      throw 'config.userExchangeCallbackUrl is required'
+    }
+    localStorage.removeItem('i6_user_user_token')
 
+    const app = config.app || "default";
     const codeVerifier = this._generateCodeVerifier();
     const codeChallenge = await this._generateCodeChallenge(codeVerifier);
-    console.log('codeVerifier', codeVerifier)
-    console.log('codeChallenge', codeChallenge)
+
+    let cbUrl = config.userExchangeCallbackUrl  //+ '?' + callbackUrl || window.location.href;
+    console.log('xxx', cbUrl)
+    if (cbUrl.includes('?')) {
+      cbUrl += '&'
+    } else {
+      cbUrl += '?'      
+    }
+    cbUrl += 'callback=' + encodeURIComponent(callbackUrl || window.location.href) + '&'
+    cbUrl += 'code_verifier=' + encodeURIComponent(codeVerifier)
 
     // sessionStorage.setItem("i6_auth_code_verifier", codeVerifier);
-    // sessionStorage.setItem("i6_auth_callback_url", callbackUrl);
-    // if (exchangeCallbackUrl) {
-      // sessionStorage.setItem("i6_auth_exchange_callback_url", exchangeCallbackUrl);
-    // }
 
     const userzUrl = this._getUserzUrl();
-    const targetRedirect = config.userz?.exchangeCallbackUrl || callbackUrl;
-    console.log('userzUrl', userzUrl)
-    console.log('targetRedirect', targetRedirect)
-    
+
     const params = new URLSearchParams({
       app: app,
-      redirect: targetRedirect,
+      redirect: cbUrl,
       code_challenge: codeChallenge,
     });
 
     const loginUrl = `${userzUrl}/api/userz/auth?${params.toString()}`;
-    console.log('x', loginUrl)
     window.location.href = loginUrl;
   }
 
@@ -161,12 +161,8 @@ class AuthV2 {
     if (!code) {
       return false;
     }
-    throw 'ooooo: ' + code
 
-    const codeVerifier = sessionStorage.getItem("i6_auth_code_verifier");
-    if (!codeVerifier) {
-      return false;
-    }
+    const codeVerifier = params.get('code_verifier')
 
     const userzUrl = this._getUserzUrl();
     const exchangeUrl = `${userzUrl}/api/userz/auth/exchange`;
@@ -181,48 +177,16 @@ class AuthV2 {
         code_verifier: codeVerifier,
       }),
     });
-
     if (!resp.ok) {
       const errText = await resp.text();
       throw new Error(`Token exchange failed (${resp.status}): ${errText}`);
     }
-
     const data = await resp.json();
-
-    if (data.user_refresh_token) {
-      localStorage.setItem("i6_user_refresh_token", data.user_refresh_token);
-    }
-    if (data.user_access_token) {
-      sessionStorage.setItem("i6_user_access_token", data.user_access_token);
-    }
-    if (data.user_id) {
-      sessionStorage.setItem("i6_user_id", data.user_id);
-    }
-    if (data.expires_at) {
-      sessionStorage.setItem("i6_user_expires_at", String(data.expires_at));
-    }
-
-    // Clean up code_verifier
-    sessionStorage.removeItem("i6_auth_code_verifier");
-
-    const exchangeCallbackUrl = sessionStorage.getItem("i6_auth_exchange_callback_url");
-    const callbackUrl = sessionStorage.getItem("i6_auth_callback_url") || this._services.config().callbackUrl;
-
-    sessionStorage.removeItem("i6_auth_exchange_callback_url");
-    sessionStorage.removeItem("i6_auth_callback_url");
-
-    if (exchangeCallbackUrl && callbackUrl && window.location.href !== callbackUrl) {
-      window.location.replace(callbackUrl);
-      await new Promise((r) => setTimeout(r, 5000));
-      return true;
-    } else {
-      if (window.history && window.history.replaceState) {
-        const cleanUrl = new URL(window.location.href);
-        cleanUrl.searchParams.delete("code");
-        window.history.replaceState({}, document.title, cleanUrl.toString());
-      }
-    }
-
+    console.log('aaa', data)
+    localStorage.setItem('i6_user_user_token', JSON.stringify(data))
+    const callback = params.get('callback')
+    location = callback
+    // sessionStorage.removeItem("i6_auth_code_verifier");
     return true;
   }
 

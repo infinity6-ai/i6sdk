@@ -24,7 +24,10 @@ const stored = (storage, key) => {
     return storage.getItem(key) ?? (storage.setItem(key, crypto.randomUUID()), storage.getItem(key))
   } catch { return crypto.randomUUID() }
 }
-const sdkConfig = { baseUrl: "https://decsuite.sandbox.rs.infinity6.ai" }
+const sdkConfig = { 
+  baseUrl: "https://decsuite.sandbox.rs.infinity6.ai",
+  userExchangeCallbackUrl: location.origin + '/static/infer-demo/logincallback.html',
+}
 // The config the SDK really runs with: the defaults (baseUrl) merged with ours
 const sdk = new I6Sdk()
 sdk.setConfig(sdkConfig)
