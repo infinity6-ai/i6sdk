@@ -191,8 +191,8 @@ class Invoker {
         }
 
         opts.headers = new Headers(opts.headers)
-        const datasetToken = opts.opts?.datasetToken || opts.opts?.DatasetToken || this._services.config().datasetToken;
-        const bearerToken = opts.opts?.bearerToken || opts.opts?.BearerToken || this._services.config().bearerToken || (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('i6_user_access_token') : null);
+        const datasetToken = opts.opts?.datasetToken || this._services.config().datasetToken;
+        const bearerToken = opts.opts?.bearerToken || this._services.config().bearerToken || (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('i6_user_access_token') : null);
 
         if (datasetToken) {
             opts.headers.set('Authorization', 'Dataset ' + datasetToken)
