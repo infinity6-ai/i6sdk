@@ -30,7 +30,7 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 			return &schemaz.Desc{
 				Name:    "Get Dataset Table File",
 				Summary: "Get table file by redirecting to its signed URL.",
-				Labels:  map[string]string{"token": "query.dataset"},
+				Labels:  map[string]string{"token_dataset": "params.dataset"},
 			}
 		},
 		Method: "GET",

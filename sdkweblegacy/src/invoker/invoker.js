@@ -139,6 +139,12 @@ import * as gzip from "../internal/gzip/gzip.js";
  * @property {boolean} [sinkable]
  */
 
+function getValue(obj, path) {
+  return path.split('.').reduce((currentObject, key) => {
+    return currentObject ? currentObject[key] : undefined;
+  }, obj);
+}
+
 /**
  * Invoker client for executing HTTP requests against the i6 API.
  */
@@ -201,7 +207,19 @@ class Invoker {
         if (!opts.headers.has('Authorization') && bearerToken) {
             opts.headers.set('Authorization', 'Bearer ' + bearerToken)
         }
-        // if (!opts.headers.has('Authorization') && opts.opts?.lab)
+        if (!opts.headers.has('Authorization') && opts.opts?.labels?.token_dataset) {
+            if (opts.opts?.labels?.token_dataset == 'params.dataset') {
+                const url = new URL(opts.url);
+                const split = url.pathname.split('/')
+                const idx = split.indexOf('dataset')
+                if (idx < 0) throw 'cannot resolve dataset: ' + url.pathname
+                const dataset = split[idx+1]
+                const token = await this._services.tokens().getValidDatasetAccessToken(dataset)
+                if (token) {
+                    opts.headers['Authorization'] = 'Bearer ' + token
+                }
+            }
+        }
 
         if (opts.json) {
             opts.headers.set('Content-Type', 'application/json')
