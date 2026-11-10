@@ -190,20 +190,18 @@ class AuthV2 {
     return true;
   }
 
-  /**
-   * Returns the current user access token stored in sessionStorage, or null if absent.
-   * @returns {string|null}
-   */
-  getAccessToken() {
-    return typeof sessionStorage !== "undefined" ? sessionStorage.getItem("i6_user_access_token") : null;
+  getUserToken(refreshed) {
+    const s = locatStorage.getItem('i6_user_user_token')
+    if (!s) {
+      return null
+    }
+    let tk = JSON.parse(s)
+    // {"expires_at":1794338065000,"user_access_token":"eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCIsImtpZCI6Ijg3Qzc2RjQzMDI5NzMwMUUifQ.eyJqdGkiOiJmMTY3ZDFkMS1iMGFjLTQ1YjEtYjZkZi00NjIxYTlhOTJlZWUiLCJzdWIiOiJ1LTE3MmM2ZjE1LTE1NSIsImV4cCI6MTc5NDMzODA2NX0.T9p2Xdl9qnA3Dl1hFmGncN1J2cyRVd5BihTryaW1vsI8ykP2Ozh9wyaqHPQkGP3oNsiicKT1XoHXGfLAlpBpBw","user_id":"u-172c6f15-155","user_refresh_token":"020c8d2e-d802-4de9-9077-9bc5def86c55.1c18f90fbfd1299142cb7218a8435af29109e161c885b4189a5adfbffd5487e4"}
+    return tk
   }
 
-  /**
-   * Returns the current user refresh token stored in localStorage, or null if absent.
-   * @returns {string|null}
-   */
-  getRefreshToken() {
-    return typeof localStorage !== "undefined" ? localStorage.getItem("i6_user_refresh_token") : null;
+  getAccessToken() {
+    return this.getUserToken(true)?.user_access_token
   }
 
   /**
@@ -211,14 +209,7 @@ class AuthV2 {
    * @returns {void}
    */
   clearTokens() {
-    if (typeof localStorage !== "undefined") {
-      localStorage.removeItem("i6_user_refresh_token");
-    }
-    if (typeof sessionStorage !== "undefined") {
-      sessionStorage.removeItem("i6_user_access_token");
-      sessionStorage.removeItem("i6_user_id");
-      sessionStorage.removeItem("i6_user_expires_at");
-    }
+      localStorage.removeItem("i6_user_user_token");
   }
 
   /**
