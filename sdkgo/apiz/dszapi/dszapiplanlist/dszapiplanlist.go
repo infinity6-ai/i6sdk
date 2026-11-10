@@ -17,8 +17,10 @@ type Plan struct {
 	Tier      string
 	Frequency string
 	Name      string
-	Currency  string
-	Amount    int64
+	// Description is the "Price description" of the Stripe price (its nickname), to show to the user.
+	Description string
+	Currency    string
+	Amount      int64
 }
 
 type Resp struct {
@@ -102,6 +104,10 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 											"name": {
 												Desc:  &schemaz.Desc{Summary: "Name of the plan, like 2027"},
 												Field: func() any { return &element.Name },
+											},
+											"description": {
+												Desc:  &schemaz.Desc{Summary: "Price description set in Stripe (the price nickname), to show to the user"},
+												Field: func() any { return &element.Description },
 											},
 											"currency": {
 												Desc:  &schemaz.Desc{Summary: "Three-letter currency code, like brl"},
