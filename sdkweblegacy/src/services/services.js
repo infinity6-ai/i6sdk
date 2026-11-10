@@ -4,6 +4,7 @@
 
 import { Invoker } from "../invoker/invoker.js";
 import { Auth } from "../auth/auth.js";
+import { AuthV2 } from "../auth/authv2.js";
 import { Ingest } from "../ingest/ingest.js";
 import { Apis, SdkFuncs } from "../sdkapis/sdkapis.js";
 import { Infer } from "../infer/infer.js";
@@ -74,14 +75,24 @@ class Services {
 
     /**
      * Creates and returns an Auth service instance.
-     * @returns {Auth} An instance of the Auth client.
+     * @returns {AuthV2} An instance of the AuthV2 client.
      */
     auth() {
-        const ret = new Auth(this)
-        if (ret.prepare) {
-            ret.prepare()
+        if (!this._auth) {
+            this._auth = new AuthV2(this);
+            if (this._auth.prepare) {
+                this._auth.prepare();
+            }
         }
-        return ret
+        return this._auth;
+    }
+
+    /**
+     * Creates and returns an AuthV2 service instance.
+     * @returns {AuthV2} An instance of the AuthV2 client.
+     */
+    authv2() {
+        return this.auth();
     }
 
     /**

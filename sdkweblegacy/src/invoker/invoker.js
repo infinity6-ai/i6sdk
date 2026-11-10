@@ -116,6 +116,7 @@ import * as gzip from "../internal/gzip/gzip.js";
  *
  * @typedef {object} ServiceOptions
  * @property {string} [datasetToken] - [Go: string]
+ * @property {string} [bearerToken] - [Go: string]
  * @property {Fetcher} [fetcher] - Custom fetch implementation.
  * @property {PrepareRequest} [prepareRequest] - Hook to mutate request options before sending (e.g., adding `sig` query parameter).
  */
@@ -190,8 +191,13 @@ class Invoker {
         }
 
         opts.headers = new Headers(opts.headers)
-        if (opts.opts?.datasetToken) {
-            opts.headers.set('Authorization', 'Dataset ' + opts.opts?.datasetToken)
+        const datasetToken = opts.opts?.datasetToken || opts.opts?.DatasetToken || this._services.config().datasetToken;
+        const bearerToken = opts.opts?.bearerToken || opts.opts?.BearerToken || this._services.config().bearerToken || (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('i6_user_access_token') : null);
+
+        if (datasetToken) {
+            opts.headers.set('Authorization', 'Dataset ' + datasetToken)
+        } else if (bearerToken && !opts.headers.has('Authorization')) {
+            opts.headers.set('Authorization', 'Bearer ' + bearerToken)
         }
 
         if (opts.json) {
