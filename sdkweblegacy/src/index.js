@@ -6,10 +6,20 @@ import { Services, Apis, SdkFuncs } from "./services/services.js";
 import { I6Error } from "./errors.js";
 
 /**
+ * Pluggable Web Storage interface for token persistence.
+ * Matches standard Web Storage API (localStorage, sessionStorage) or custom in-memory adapters.
+ * @typedef {Object} I6Storage
+ * @property {(key: string) => string | null} getItem - Retrieves an item by key.
+ * @property {(key: string, value: string) => void} setItem - Stores an item by key and string value.
+ * @property {(key: string) => void} removeItem - Removes an item by key.
+ */
+
+/**
  * Configuration options for the i6 SDK.
  * @typedef {Object} I6SdkConfig
  * @property {string} [baseUrl] - Base URL of the i6 server. Defaults to the sandbox environment.
  * @property {Record<string, string>} [servUrls] - Base URL of the other services, by the `servname` label of the api (e.g. `tfinfer`). An api whose service is not listed uses `baseUrl`.
+ * @property {I6Storage | (() => I6Storage)} [storage] - Optional storage adapter for token persistence. Defaults to global `localStorage` when omitted.
  */
 
 /**

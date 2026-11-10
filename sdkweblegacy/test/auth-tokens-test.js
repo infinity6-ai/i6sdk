@@ -399,6 +399,67 @@
             assert.strictEqual(callCount, 1, "only 1 fetch made for concurrent dataset token requests")
         })
 
+        QUnit.test("tokens uses custom storage object when provided in config", async function (assert) {
+            const memoryMap = new Map()
+            const customStorage = {
+                getItem: (key) => memoryMap.has(key) ? memoryMap.get(key) : null,
+                setItem: (key, val) => memoryMap.set(key, val),
+                removeItem: (key) => memoryMap.delete(key),
+            }
+
+            const sdk = new I6Sdk({ storage: customStorage })
+            const tokens = sdk.tokens()
+
+            const sampleToken = {
+                user_access_token: "jwt-custom-mem",
+                user_id: "u-custom-1",
+                expires_at: 1800000000000
+            }
+
+            tokens.setUserToken(sampleToken)
+            assert.deepEqual(tokens.getUserToken(), sampleToken, "token saved to custom storage")
+            assert.ok(memoryMap.has("i6_user_user_token"), "token stored inside custom storage map")
+            assert.strictEqual(localStorage.getItem("i6_user_user_token"), null, "did not touch global localStorage")
+
+            tokens.setDatasetToken("test-ds", {
+                access_token: "ds-tok-custom",
+                dataset: "test-ds",
+                grants: 15,
+                expires_at: 1800000000000
+            })
+            assert.ok(memoryMap.has("i6_dataset_access_tokens"), "dataset token saved to custom storage")
+            assert.strictEqual(localStorage.getItem("i6_dataset_access_tokens"), null, "global localStorage untouched")
+
+            tokens.clearTokens()
+            assert.strictEqual(tokens.getUserToken(), null, "tokens cleared from custom storage")
+            assert.strictEqual(memoryMap.size, 0, "custom storage map is empty after clear")
+        })
+
+        QUnit.test("tokens uses custom storage factory function when provided in config", async function (assert) {
+            const memoryMap = new Map()
+            const customStorage = {
+                getItem: (key) => memoryMap.has(key) ? memoryMap.get(key) : null,
+                setItem: (key, val) => memoryMap.set(key, val),
+                removeItem: (key) => memoryMap.delete(key),
+            }
+
+            const sdk = new I6Sdk({ storage: () => customStorage })
+            const tokens = sdk.tokens()
+
+            const sampleToken = {
+                user_access_token: "jwt-custom-func",
+                user_id: "u-custom-2",
+                expires_at: 1800000000000
+            }
+
+            tokens.setUserToken(sampleToken)
+            assert.deepEqual(tokens.getUserToken(), sampleToken, "token saved via storage function")
+            assert.ok(memoryMap.has("i6_user_user_token"), "token stored in map returned by function")
+
+            tokens.clearTokens()
+            assert.strictEqual(tokens.getUserToken(), null, "tokens cleared")
+        })
+
     })
 
 })(QUnit)
