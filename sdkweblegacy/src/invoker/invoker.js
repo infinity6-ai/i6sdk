@@ -221,7 +221,7 @@ class Invoker {
                 console.log('dataset token', dataset, token)
             }
             if (token) {
-                opts.headers['Authorization'] = 'Bearer ' + token
+                opts.headers.set('Authorization') = 'Bearer ' + token
             }
         }
         console.log(opts)
