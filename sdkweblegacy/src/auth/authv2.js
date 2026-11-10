@@ -112,37 +112,37 @@ class AuthV2 {
    * @returns {Promise<void>}
    */
   async login(callbackUrl) {
-    // if (typeof window === "undefined") throw 'browser is required';
     const config = this._services.config();
-    callbackUrl = callbackUrl || window.location.href;
-    // const exchangeCallbackUrl = config.exchangeCallbackUrl || null;
-    const app = config.app || "default";
-    console.log('app', config, callbackUrl, app)
+    if (!config.userExchangeCallbackUrl) {
+      throw 'config.userExchangeCallbackUrl is required'
+    }
+    localStorage.removeItem('i6_user_user_token')
 
+    const app = config.app || "default";
     const codeVerifier = this._generateCodeVerifier();
     const codeChallenge = await this._generateCodeChallenge(codeVerifier);
-    console.log('codeVerifier', codeVerifier)
-    console.log('codeChallenge', codeChallenge)
+
+    let cbUrl = config.userExchangeCallbackUrl  //+ '?' + callbackUrl || window.location.href;
+    console.log('xxx', cbUrl)
+    if (cbUrl.includes('?')) {
+      cbUrl += '&'
+    } else {
+      cbUrl += '?'      
+    }
+    cbUrl += 'callback=' + encodeURIComponent(callbackUrl || window.location.href) + '&'
+    cbUrl += 'code_verifier=' + encodeURIComponent(codeVerifier)
 
     // sessionStorage.setItem("i6_auth_code_verifier", codeVerifier);
-    // sessionStorage.setItem("i6_auth_callback_url", callbackUrl);
-    // if (exchangeCallbackUrl) {
-      // sessionStorage.setItem("i6_auth_exchange_callback_url", exchangeCallbackUrl);
-    // }
 
     const userzUrl = this._getUserzUrl();
-    const targetRedirect = config.userz?.exchangeCallbackUrl || callbackUrl;
-    console.log('userzUrl', userzUrl)
-    console.log('targetRedirect', targetRedirect)
-    
+
     const params = new URLSearchParams({
       app: app,
-      redirect: targetRedirect,
+      redirect: cbUrl,
       code_challenge: codeChallenge,
     });
 
     const loginUrl = `${userzUrl}/api/userz/auth?${params.toString()}`;
-    console.log('x', loginUrl)
     window.location.href = loginUrl;
   }
 
@@ -161,12 +161,8 @@ class AuthV2 {
     if (!code) {
       return false;
     }
-    throw 'ooooo: ' + code
 
-    const codeVerifier = sessionStorage.getItem("i6_auth_code_verifier");
-    if (!codeVerifier) {
-      return false;
-    }
+    const codeVerifier = params.get('code_verifier')
 
     const userzUrl = this._getUserzUrl();
     const exchangeUrl = `${userzUrl}/api/userz/auth/exchange`;
@@ -181,65 +177,31 @@ class AuthV2 {
         code_verifier: codeVerifier,
       }),
     });
-
     if (!resp.ok) {
       const errText = await resp.text();
       throw new Error(`Token exchange failed (${resp.status}): ${errText}`);
     }
-
     const data = await resp.json();
-
-    if (data.user_refresh_token) {
-      localStorage.setItem("i6_user_refresh_token", data.user_refresh_token);
-    }
-    if (data.user_access_token) {
-      sessionStorage.setItem("i6_user_access_token", data.user_access_token);
-    }
-    if (data.user_id) {
-      sessionStorage.setItem("i6_user_id", data.user_id);
-    }
-    if (data.expires_at) {
-      sessionStorage.setItem("i6_user_expires_at", String(data.expires_at));
-    }
-
-    // Clean up code_verifier
-    sessionStorage.removeItem("i6_auth_code_verifier");
-
-    const exchangeCallbackUrl = sessionStorage.getItem("i6_auth_exchange_callback_url");
-    const callbackUrl = sessionStorage.getItem("i6_auth_callback_url") || this._services.config().callbackUrl;
-
-    sessionStorage.removeItem("i6_auth_exchange_callback_url");
-    sessionStorage.removeItem("i6_auth_callback_url");
-
-    if (exchangeCallbackUrl && callbackUrl && window.location.href !== callbackUrl) {
-      window.location.replace(callbackUrl);
-      await new Promise((r) => setTimeout(r, 5000));
-      return true;
-    } else {
-      if (window.history && window.history.replaceState) {
-        const cleanUrl = new URL(window.location.href);
-        cleanUrl.searchParams.delete("code");
-        window.history.replaceState({}, document.title, cleanUrl.toString());
-      }
-    }
-
+    console.log('aaa', data)
+    localStorage.setItem('i6_user_user_token', JSON.stringify(data))
+    const callback = params.get('callback')
+    location = callback
+    // sessionStorage.removeItem("i6_auth_code_verifier");
     return true;
   }
 
-  /**
-   * Returns the current user access token stored in sessionStorage, or null if absent.
-   * @returns {string|null}
-   */
-  getAccessToken() {
-    return typeof sessionStorage !== "undefined" ? sessionStorage.getItem("i6_user_access_token") : null;
+  getUserToken(refreshed) {
+    const s = locatStorage.getItem('i6_user_user_token')
+    if (!s) {
+      return null
+    }
+    let tk = JSON.parse(s)
+    // {"expires_at":1794338065000,"user_access_token":"eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCIsImtpZCI6Ijg3Qzc2RjQzMDI5NzMwMUUifQ.eyJqdGkiOiJmMTY3ZDFkMS1iMGFjLTQ1YjEtYjZkZi00NjIxYTlhOTJlZWUiLCJzdWIiOiJ1LTE3MmM2ZjE1LTE1NSIsImV4cCI6MTc5NDMzODA2NX0.T9p2Xdl9qnA3Dl1hFmGncN1J2cyRVd5BihTryaW1vsI8ykP2Ozh9wyaqHPQkGP3oNsiicKT1XoHXGfLAlpBpBw","user_id":"u-172c6f15-155","user_refresh_token":"020c8d2e-d802-4de9-9077-9bc5def86c55.1c18f90fbfd1299142cb7218a8435af29109e161c885b4189a5adfbffd5487e4"}
+    return tk
   }
 
-  /**
-   * Returns the current user refresh token stored in localStorage, or null if absent.
-   * @returns {string|null}
-   */
-  getRefreshToken() {
-    return typeof localStorage !== "undefined" ? localStorage.getItem("i6_user_refresh_token") : null;
+  getAccessToken() {
+    return this.getUserToken(true)?.user_access_token
   }
 
   /**
@@ -247,14 +209,7 @@ class AuthV2 {
    * @returns {void}
    */
   clearTokens() {
-    if (typeof localStorage !== "undefined") {
-      localStorage.removeItem("i6_user_refresh_token");
-    }
-    if (typeof sessionStorage !== "undefined") {
-      sessionStorage.removeItem("i6_user_access_token");
-      sessionStorage.removeItem("i6_user_id");
-      sessionStorage.removeItem("i6_user_expires_at");
-    }
+      localStorage.removeItem("i6_user_user_token");
   }
 
   /**
@@ -268,34 +223,13 @@ class AuthV2 {
     if (!token) {
       return null;
     }
-
-    const expiresAtStr = typeof sessionStorage !== "undefined" ? sessionStorage.getItem("i6_user_expires_at") : null;
-    if (expiresAtStr) {
-      const expiresAt = parseInt(expiresAtStr, 10);
-      if (!isNaN(expiresAt) && Date.now() > expiresAt) {
-        this.clearTokens();
-        return null;
-      }
+    const userzUrl = this._getUserzUrl()
+    const resp = await fetch(`${userzUrl}/api/userz/me`);
+    if (!resp.ok) {
+      const errText = await resp.text();
+      throw new Error(`Error getting logged user (${resp.status}): ${errText}`);
     }
-
-    const userId = typeof sessionStorage !== "undefined" ? sessionStorage.getItem("i6_user_id") : null;
-
-    let payload = {};
-    try {
-      const parts = token.split(".");
-      if (parts.length >= 2) {
-        payload = JSON.parse(decodeUrlSafe(parts[1]));
-      }
-    } catch (e) {
-      // Intentionally ignore JWT parse errors
-    }
-
-    return {
-      sub: userId || payload.sub,
-      user_id: userId || payload.sub,
-      display: payload.display || payload.email || userId || payload.sub,
-      ...payload,
-    };
+    return resp.json()
   }
 
   /**

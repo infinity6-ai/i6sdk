@@ -1,0 +1,17 @@
+<html>
+
+<body>
+    aaa
+
+    <script type="module">
+        import { I6Sdk } from '../../src/index.js'
+        const sdk = new I6Sdk()
+        const sdkConfig = {
+            baseUrl: "https://decsuite.sandbox.rs.infinity6.ai",
+        }
+        sdk.setConfig(sdkConfig)
+        await sdk.authv2().handleCallback()
+    </script>
+</body>
+
+</html>
