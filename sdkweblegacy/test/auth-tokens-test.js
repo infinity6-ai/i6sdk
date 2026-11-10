@@ -75,7 +75,8 @@
                     user_access_token: "jwt-exchanged-abc",
                     user_refresh_token: "refresh-exchanged-def",
                     user_id: "u-exchanged-1",
-                    expires_at: 1900000000000
+                    expires_at: 1900000000000,
+                    refresh_token_expires_at: 2000000000000
                 }), { status: 200 })
             }
 
@@ -84,45 +85,192 @@
             assert.deepEqual(capturedBody, { code: "auth-code-123", code_verifier: "verifier-456" })
             assert.strictEqual(exchanged.user_access_token, "jwt-exchanged-abc")
             assert.strictEqual(tokens.getAccessToken(), "jwt-exchanged-abc")
+            assert.strictEqual(tokens.getUserToken().refresh_token_expires_at, 2000000000000)
         })
 
-        QUnit.test("authv2.user sends bearer token from tokens service", async function (assert) {
+        QUnit.test("expiration checks correctly identify expired vs fresh tokens", async function (assert) {
             const sdk = new I6Sdk({ servUrls: { userz: 'http://userz.test' } })
             const tokens = sdk.tokens()
 
-            // When no token is stored, user() returns null without making a request
-            let fetchCalled = false
-            globalThis.fetch = async () => {
-                fetchCalled = true
-                return new Response("{}", { status: 200 })
-            }
-            const userNoToken = await sdk.authv2().user()
-            assert.strictEqual(userNoToken, null)
-            assert.strictEqual(fetchCalled, false)
+            assert.true(tokens.isAccessTokenExpired(null), "null token is expired")
+            assert.true(tokens.isRefreshTokenExpired(null), "null refresh token is expired")
 
-            // Store a token
-            tokens.setUserToken({
-                user_access_token: "my-jwt-token",
-                user_refresh_token: "my-refresh",
+            const now = Date.now()
+            const freshToken = {
+                user_access_token: "jwt-fresh",
+                user_refresh_token: "rt-fresh",
                 user_id: "u-1",
-                expires_at: 1900000000000
+                expires_at: now + 3600 * 1000, // 1 hour in future
+                refresh_token_expires_at: now + 86400 * 1000 // 1 day in future
+            }
+            assert.false(tokens.isAccessTokenExpired(freshToken), "future token is not expired")
+            assert.false(tokens.isRefreshTokenExpired(freshToken), "future refresh token is not expired")
+
+            // Within skew window (e.g. expiring in 10s with 30s skew)
+            const almostExpiredToken = {
+                ...freshToken,
+                expires_at: now + 10 * 1000
+            }
+            assert.true(tokens.isAccessTokenExpired(almostExpiredToken, 30), "token within skew is considered expired")
+            assert.false(tokens.isAccessTokenExpired(almostExpiredToken, 5), "token with smaller skew is not expired")
+
+            const expiredToken = {
+                ...freshToken,
+                expires_at: now - 1000,
+                refresh_token_expires_at: now - 500
+            }
+            assert.true(tokens.isAccessTokenExpired(expiredToken), "past token is expired")
+            assert.true(tokens.isRefreshTokenExpired(expiredToken), "past refresh token is expired")
+        })
+
+        QUnit.test("getValidAccessToken returns existing token when fresh, refreshes when expired", async function (assert) {
+            const sdk = new I6Sdk({ servUrls: { userz: 'http://userz.test' } })
+            const tokens = sdk.tokens()
+
+            const now = Date.now()
+            tokens.setUserToken({
+                user_access_token: "jwt-already-valid",
+                user_refresh_token: "rt-valid",
+                user_id: "u-1",
+                expires_at: now + 3600 * 1000
             })
 
-            let authHeader = null
-            let reqUrl = null
+            let refreshCalls = 0
+            globalThis.fetch = async () => {
+                refreshCalls++
+                return new Response("{}", { status: 200 })
+            }
+
+            const validToken = await tokens.getValidAccessToken()
+            assert.strictEqual(validToken, "jwt-already-valid")
+            assert.strictEqual(refreshCalls, 0, "no refresh fetch performed when token is valid")
+
+            // Now simulate expired access token
+            tokens.setUserToken({
+                user_access_token: "jwt-old-expired",
+                user_refresh_token: "rt-rot-1",
+                user_id: "u-1",
+                expires_at: now - 10000
+            })
+
+            let capturedRefreshUrl = null
+            let capturedRefreshBody = null
             globalThis.fetch = async (url, opts) => {
-                reqUrl = url
-                authHeader = opts.headers['Authorization']
+                refreshCalls++
+                capturedRefreshUrl = url
+                capturedRefreshBody = JSON.parse(opts.body)
                 return new Response(JSON.stringify({
+                    user_access_token: "jwt-renewed-fresh",
+                    user_refresh_token: "rt-rot-2",
                     user_id: "u-1",
-                    email_redacted: "u***@infinity6.ai"
+                    expires_at: now + 3600 * 1000,
+                    refresh_token_expires_at: now + 86400 * 1000
                 }), { status: 200 })
             }
 
+            const renewed = await tokens.getValidAccessToken()
+            assert.strictEqual(capturedRefreshUrl, "http://userz.test/api/userz/auth/refresh")
+            assert.deepEqual(capturedRefreshBody, { refresh_token: "rt-rot-1" })
+            assert.strictEqual(renewed, "jwt-renewed-fresh")
+            assert.strictEqual(tokens.getAccessToken(), "jwt-renewed-fresh")
+            assert.strictEqual(tokens.getUserToken().user_refresh_token, "rt-rot-2", "refresh token rotated")
+        })
+
+        QUnit.test("concurrent getValidAccessToken deduplicates refresh in flight", async function (assert) {
+            const sdk = new I6Sdk({ servUrls: { userz: 'http://userz.test' } })
+            const tokens = sdk.tokens()
+
+            tokens.setUserToken({
+                user_access_token: "jwt-expired",
+                user_refresh_token: "rt-initial",
+                user_id: "u-1",
+                expires_at: Date.now() - 5000
+            })
+
+            let refreshCount = 0
+            globalThis.fetch = async () => {
+                refreshCount++
+                // Small delay to simulate network call
+                await new Promise(r => setTimeout(r, 10))
+                return new Response(JSON.stringify({
+                    user_access_token: "jwt-deduped",
+                    user_refresh_token: "rt-rotated",
+                    user_id: "u-1",
+                    expires_at: Date.now() + 3600 * 1000
+                }), { status: 200 })
+            }
+
+            // Launch 3 concurrent calls
+            const [t1, t2, t3] = await Promise.all([
+                tokens.getValidAccessToken(),
+                tokens.getValidAccessToken(),
+                tokens.getValidAccessToken()
+            ])
+
+            assert.strictEqual(t1, "jwt-deduped")
+            assert.strictEqual(t2, "jwt-deduped")
+            assert.strictEqual(t3, "jwt-deduped")
+            assert.strictEqual(refreshCount, 1, "exactly one refresh network call was made")
+        })
+
+        QUnit.test("refresh 401 response wipes stored session and returns null", async function (assert) {
+            const sdk = new I6Sdk({ servUrls: { userz: 'http://userz.test' } })
+            const tokens = sdk.tokens()
+
+            tokens.setUserToken({
+                user_access_token: "jwt-expired",
+                user_refresh_token: "rt-revoked",
+                user_id: "u-1",
+                expires_at: Date.now() - 1000
+            })
+
+            globalThis.fetch = async () => {
+                return new Response("token revoked", { status: 401 })
+            }
+
+            const token = await tokens.getValidAccessToken()
+            assert.strictEqual(token, null, "null returned on revoked refresh")
+            assert.strictEqual(tokens.getUserToken(), null, "tokens cleared from storage on 401")
+        })
+
+        QUnit.test("authv2.user automatically refreshes expired access token", async function (assert) {
+            const sdk = new I6Sdk({ servUrls: { userz: 'http://userz.test' } })
+            const tokens = sdk.tokens()
+
+            // Expired access token but valid refresh token
+            tokens.setUserToken({
+                user_access_token: "jwt-stale",
+                user_refresh_token: "rt-valid",
+                user_id: "u-1",
+                expires_at: Date.now() - 5000
+            })
+
+            const calls = []
+            globalThis.fetch = async (url, opts) => {
+                calls.push({ url, headers: opts?.headers })
+                if (url.endsWith("/api/userz/auth/refresh")) {
+                    return new Response(JSON.stringify({
+                        user_access_token: "jwt-newly-refreshed",
+                        user_refresh_token: "rt-new",
+                        user_id: "u-1",
+                        expires_at: Date.now() + 3600 * 1000
+                    }), { status: 200 })
+                }
+                if (url.endsWith("/api/userz/auth/me")) {
+                    return new Response(JSON.stringify({
+                        user_id: "u-1",
+                        email_redacted: "test@infinity6.ai"
+                    }), { status: 200 })
+                }
+                return new Response("", { status: 404 })
+            }
+
             const user = await sdk.authv2().user()
-            assert.strictEqual(reqUrl, "http://userz.test/api/userz/auth/me")
-            assert.strictEqual(authHeader, "Bearer my-jwt-token")
-            assert.deepEqual(user, { user_id: "u-1", email_redacted: "u***@infinity6.ai" })
+            assert.strictEqual(calls.length, 2, "made refresh call then auth/me call")
+            assert.strictEqual(calls[0].url, "http://userz.test/api/userz/auth/refresh")
+            assert.strictEqual(calls[1].url, "http://userz.test/api/userz/auth/me")
+            assert.strictEqual(calls[1].headers['Authorization'], "Bearer jwt-newly-refreshed")
+            assert.deepEqual(user, { user_id: "u-1", email_redacted: "test@infinity6.ai" })
         })
 
     })

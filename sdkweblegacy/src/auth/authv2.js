@@ -230,6 +230,25 @@ class AuthV2 {
   }
 
   /**
+   * Retrieves a guaranteed-valid user access token JWT string, silently refreshing if expired.
+   *
+   * @param {number} [skewSeconds=30] - Safety margin in seconds before expiration.
+   * @returns {Promise<string|null>} The valid user access token JWT, or null if unauthenticated.
+   */
+  async getValidAccessToken(skewSeconds = 30) {
+    return this._services.tokens().getValidAccessToken(skewSeconds);
+  }
+
+  /**
+   * Refreshes the active user access token using the stored refresh token.
+   *
+   * @returns {Promise<UserToken|null>} The refreshed user token credentials, or null if failed.
+   */
+  async refresh() {
+    return this._services.tokens().refresh();
+  }
+
+  /**
    * Clears all stored authentication tokens and credentials via the Tokens service.
    * @returns {void}
    */
@@ -239,7 +258,8 @@ class AuthV2 {
 
   /**
    * Fetches the current authenticated user profile metadata (`GET /api/userz/auth/me`).
-   * Sends the user access token in the `Authorization: Bearer <user_access_token>` header.
+   * Sends a valid user access token in the `Authorization: Bearer <user_access_token>` header,
+   * automatically performing a silent renewal if the access token has expired.
    * Does not redirect; use {@link AuthV2#requireUser} to automatically force a login redirect.
    *
    * Note: Expects tokens to already be present in storage. Call {@link AuthV2#handleCallback}
@@ -249,7 +269,7 @@ class AuthV2 {
    * @throws {Error} If the network request fails or the userz service returns an error status.
    */
   async user() {
-    const token = this.getAccessToken();
+    const token = await this.getValidAccessToken();
     if (!token) {
       return null;
     }
