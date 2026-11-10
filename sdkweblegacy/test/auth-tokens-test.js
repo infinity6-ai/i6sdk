@@ -686,6 +686,101 @@
             }
         })
 
+        QUnit.test("tokens.logout revokes session server-side via POST /api/userz/auth/logout", async function (assert) {
+            const localMap = new Map()
+            const sdk = new I6Sdk({
+                servUrls: { userz: "https://userz.test" },
+                localStorage: {
+                    getItem: (k) => localMap.get(k) || null,
+                    setItem: (k, v) => localMap.set(k, v),
+                    removeItem: (k) => localMap.delete(k),
+                }
+            })
+
+            const sampleToken = {
+                user_access_token: "jwt-logout-test",
+                user_refresh_token: "refresh-token-logout-xyz",
+                user_id: "u-logout-1",
+                expires_at: Date.now() + 60000,
+            }
+            sdk.tokens().setUserToken(sampleToken)
+            assert.deepEqual(sdk.tokens().getUserToken(), sampleToken, "token stored before logout")
+
+            let requestedUrl = null
+            let requestedMethod = null
+            let requestedBody = null
+
+            const origFetch = globalThis.fetch
+            globalThis.fetch = async (url, opts) => {
+                requestedUrl = url
+                requestedMethod = opts?.method
+                requestedBody = JSON.parse(opts?.body || "{}")
+                return new Response(JSON.stringify({ success: true }), { status: 200 })
+            }
+
+            try {
+                await sdk.tokens().logout()
+                assert.strictEqual(requestedUrl, "https://userz.test/api/userz/auth/logout", "invoked userz auth logout endpoint")
+                assert.strictEqual(requestedMethod, "POST", "used POST method")
+                assert.deepEqual(requestedBody, { refresh_token: "refresh-token-logout-xyz" }, "passed refresh_token in request body")
+                assert.strictEqual(sdk.tokens().getUserToken(), null, "tokens cleared from storage after logout")
+            } finally {
+                globalThis.fetch = origFetch
+            }
+        })
+
+        QUnit.test("auth.logout invokes server revocation and navigates to backurl", async function (assert) {
+            const localMap = new Map()
+            const sessionMap = new Map()
+            sessionMap.set("i6_auth_code_verifier", "ver-leftover")
+            sessionMap.set("i6_auth_state", "state-leftover")
+
+            const sdk = new I6Sdk({
+                servUrls: { userz: "https://userz.test" },
+                localStorage: {
+                    getItem: (k) => localMap.get(k) || null,
+                    setItem: (k, v) => localMap.set(k, v),
+                    removeItem: (k) => localMap.delete(k),
+                },
+                sessionStorage: {
+                    getItem: (k) => sessionMap.get(k) || null,
+                    setItem: (k, v) => sessionMap.set(k, v),
+                    removeItem: (k) => sessionMap.delete(k),
+                }
+            })
+
+            sdk.tokens().setUserToken({
+                user_access_token: "jwt-token",
+                user_refresh_token: "refresh-for-auth-logout",
+            })
+
+            let logoutCalled = false
+            let navigatedBackUrl = null
+
+            const origFetch = globalThis.fetch
+            globalThis.fetch = async (url, opts) => {
+                if (url.includes("/api/userz/auth/logout")) {
+                    logoutCalled = true
+                    return new Response(JSON.stringify({ success: true }), { status: 200 })
+                }
+                return origFetch(url, opts)
+            }
+
+            const auth = sdk.auth()
+            auth._navigate = (url) => { navigatedBackUrl = url }
+
+            try {
+                await auth.logout("https://my.app/goodbye")
+                assert.true(logoutCalled, "server revocation was triggered")
+                assert.strictEqual(sdk.tokens().getUserToken(), null, "tokens wiped from local storage")
+                assert.strictEqual(sessionMap.has("i6_auth_code_verifier"), false, "verifier wiped from session storage")
+                assert.strictEqual(sessionMap.has("i6_auth_state"), false, "state wiped from session storage")
+                assert.strictEqual(navigatedBackUrl, "https://my.app/goodbye", "navigated to backurl")
+            } finally {
+                globalThis.fetch = origFetch
+            }
+        })
+
     })
 
 })(QUnit)

@@ -433,15 +433,19 @@ class Auth {
   }
 
   /**
-   * Logs out the current user by clearing stored tokens and navigating to `backurl`.
+   * Logs out the current user by revoking the session family server-side via `POST /api/userz/auth/logout`,
+   * clearing stored credentials and session storage, and navigating to `backurl`.
    *
    * @param {string} [backurl] - The URL to return to after logging out.
    *   Defaults to `config.callbackUrl` or the current window URL (`window.location.href`).
    * @returns {Promise<void>}
    */
   async logout(backurl = (typeof window !== "undefined" ? (this._services.config().callbackUrl || window.location.href) : "")) {
+    await this._services.tokens().logout();
     this.clearTokens();
-    window.location.href = backurl;
+    if (backurl) {
+      this._navigate(backurl);
+    }
   }
 }
 
