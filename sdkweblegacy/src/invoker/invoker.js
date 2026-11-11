@@ -214,11 +214,11 @@ class Invoker {
             let token = ''
             if (idx < 0) {
                 token = await this._services.tokens().getValidAccessToken()  
-                console.log('user token', token) 
+                // console.log('user token', token) 
             } else {
                 const dataset = split[idx+1]
                 token = await this._services.tokens().getValidDatasetAccessToken(dataset)
-                console.log('dataset token', dataset, token)
+                // console.log('dataset token', dataset, token)
             }
             if (token) {
                 opts.headers.set('Authorization',  'Bearer ' + token)
