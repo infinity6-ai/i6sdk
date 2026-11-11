@@ -279,8 +279,8 @@ class Auth {
   }
 
   /**
-   * Processes the authorization code present in the URL query string, exchanging it for tokens via
-   * the Tokens service (`POST /api/userz/auth/exchange`), and redirecting to the post-exchange `callback` URL.
+   * Processes the authorization code or checkout artifact ticket present in the URL query string,
+   * exchanging it for tokens via the Tokens service, and redirecting to the post-exchange `callback` URL.
    *
    * Validates the CSRF `state` parameter against session storage, and retrieves the PKCE `code_verifier`
    * from session storage. Deletes both from session storage upon processing.
@@ -288,33 +288,36 @@ class Auth {
    * Note: This method must be called explicitly by the exchange callback page
    * (configured via `config.userExchangeCallbackUrl`). It is not called automatically by `user()`.
    *
-   * @returns {Promise<boolean>} True if handling tokens completed (code was exchanged and redirect initiated),
-   *   false if not an auth callback (no authorization `code` in the URL query parameters).
+   * @returns {Promise<string|null>} The dataset string if an exchange occurred, or null if it was a noop (no auth/checkout code in URL).
    * @throws {Error} If state mismatch occurs, token exchange fails, or server returns an error.
    */
   async handleCallback() {
     console.log("[i6sdk] auth.handleCallback called");
-    if (typeof window === "undefined") return false;
+    if (typeof window === "undefined") return null;
 
     const params = new URLSearchParams(window.location.search);
 
     const checkoutCode = params.get("checkout_code");
     if (checkoutCode) {
-      await this._services.tokens().redeemCheckout(checkoutCode);
+      const data = await this._services.tokens().redeemCheckout(checkoutCode);
+      const dataset = data?.dataset || "";
 
-      const callback = params.get("callback");
+      let callback = params.get("callback");
       if (callback) {
+        if (dataset && callback.includes("{{DATASET}}")) {
+          callback = callback.replaceAll("{{DATASET}}", dataset);
+        }
         if (!this._isSafeRedirect(callback)) {
           throw new Error("Untrusted callback URL: " + callback);
         }
         this._redirect(callback);
       }
-      return true;
+      return dataset;
     }
 
     const code = params.get("code");
     if (!code) {
-      return false;
+      return null;
     }
 
     const storage = this._getSessionStorage();
@@ -339,14 +342,14 @@ class Auth {
 
     await this._services.tokens().exchange(code, codeVerifier);
 
-    const callback = params.get('callback');
+    let callback = params.get('callback');
     if (callback) {
       if (!this._isSafeRedirect(callback)) {
         throw new Error("Untrusted callback URL: " + callback);
       }
       this._redirect(callback);
     }
-    return true;
+    return "";
   }
 
   /**

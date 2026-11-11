@@ -535,7 +535,7 @@
                 window.history.replaceState({}, '', '?code=auth-code-777&callback=' + encodeURIComponent('https://my.app/home'))
 
                 const handled = await auth.handleCallback()
-                assert.true(handled, "handleCallback completed successfully")
+                assert.strictEqual(handled, "", "handleCallback completed successfully")
                 assert.strictEqual(exchangedCode, "auth-code-777", "exchanged received code")
                 assert.strictEqual(exchangedVerifier, "verifier-stored-in-session-999", "exchanged code_verifier retrieved from sessionStorage")
                 assert.strictEqual(sessionMap.has("i6_auth_code_verifier"), false, "code_verifier was deleted from sessionStorage after exchange")
@@ -591,7 +591,7 @@
             try {
                 window.history.replaceState({}, '', '?code=c123&state=valid-csrf-state-abc')
                 const handled = await auth.handleCallback()
-                assert.true(handled, "callback succeeds with valid state")
+                assert.strictEqual(handled, "", "callback succeeds with valid state")
                 assert.strictEqual(sessionMap.has("i6_auth_state"), false, "state removed from session after check")
             } finally {
                 window.history.replaceState({}, '', origSearch || '/')
@@ -644,7 +644,7 @@
             try {
                 window.history.replaceState({}, '', '?code=c123&callback=' + encodeURIComponent('/dashboard?tab=analytics'))
                 const handled = await auth.handleCallback()
-                assert.true(handled, "handleCallback completed")
+                assert.strictEqual(handled, "", "handleCallback completed")
                 assert.strictEqual(redirectedTo, "/dashboard?tab=analytics", "allowed relative path redirect")
             } finally {
                 window.history.replaceState({}, '', origSearch || '/')
@@ -706,7 +706,7 @@
             try {
                 window.history.replaceState({}, '', '?checkout_code=ticket-aesgcm-xyz-123&callback=' + encodeURIComponent('/dashboard/ds123'))
                 const handled = await auth.handleCallback()
-                assert.true(handled, "handleCallback handled checkout_code")
+                assert.strictEqual(typeof handled, "string", "handleCallback handled checkout_code and returned string")
                 assert.strictEqual(redeemedCode, "ticket-aesgcm-xyz-123", "passed checkout_code to tokens.redeemCheckout")
                 assert.strictEqual(redirectedTo, "/dashboard/ds123", "redirected to target callback")
             } finally {
@@ -778,6 +778,86 @@
                 assert.strictEqual(stored.user_id, "u-buyer-uuid-999", "stored user id")
             } finally {
                 window.fetch = origFetch
+            }
+        })
+
+        QUnit.test("tokens.redeemCheckout returns dataset without storing it in UserToken", async function (assert) {
+            const storageMap = new Map()
+            const sdk = new I6Sdk({
+                baseUrl: "https://decsuite.test",
+                storage: {
+                    getItem: (k) => storageMap.get(k) || null,
+                    setItem: (k, v) => storageMap.set(k, v),
+                    removeItem: (k) => storageMap.delete(k),
+                }
+            })
+
+            const origFetch = window.fetch
+            window.fetch = async (url) => {
+                return {
+                    ok: true,
+                    json: async () => ({
+                        user_access_token: "user.access.jwt",
+                        user_refresh_token: "user.refresh.token",
+                        user_id: "u-buyer-456",
+                        expires_at: 1800000000000,
+                        dataset_id: "ds-buyer-789",
+                    })
+                }
+            }
+
+            try {
+                const tokenData = await sdk.tokens().redeemCheckout("ticket-with-dataset")
+                assert.strictEqual(tokenData.dataset, "ds-buyer-789", "redeem returned dataset property")
+
+                const stored = sdk.tokens().getUserToken()
+                assert.ok(stored, "stored user token in storage")
+                assert.strictEqual(stored.user_access_token, "user.access.jwt", "stored access token")
+                assert.strictEqual(stored.user_id, "u-buyer-456", "stored user id")
+                assert.strictEqual(stored.dataset, undefined, "dataset is not stored inside UserToken")
+                assert.strictEqual(stored.dataset_id, undefined, "dataset_id is not stored inside UserToken")
+            } finally {
+                window.fetch = origFetch
+            }
+        })
+
+        QUnit.test("auth.handleCallback returns dataset on checkout exchange and substitutes {{DATASET}} in callback", async function (assert) {
+            let redirectedTo = null
+
+            const sdk = new I6Sdk()
+            sdk.tokens().redeemCheckout = async (code) => {
+                return {
+                    user_access_token: "redeemed-access-token",
+                    user_id: "u-buyer-777",
+                    dataset: "ds-awesome-001",
+                }
+            }
+
+            const auth = sdk.auth()
+            auth._redirect = (url) => { redirectedTo = url }
+
+            const origSearch = window.location.search
+            try {
+                window.history.replaceState({}, '', '?checkout_code=ticket-123&callback=' + encodeURIComponent('/dataset/{{DATASET}}'))
+                const handled = await auth.handleCallback()
+                assert.strictEqual(handled, "ds-awesome-001", "handleCallback returned the dataset")
+                assert.strictEqual(redirectedTo, "/dataset/ds-awesome-001", "substituted {{DATASET}} in callback URL")
+            } finally {
+                window.history.replaceState({}, '', origSearch || '/')
+            }
+        })
+
+        QUnit.test("auth.handleCallback returns null when no auth or checkout code in URL", async function (assert) {
+            const sdk = new I6Sdk()
+            const auth = sdk.auth()
+
+            const origSearch = window.location.search
+            try {
+                window.history.replaceState({}, '', '/')
+                const handled = await auth.handleCallback()
+                assert.strictEqual(handled, null, "returned null on noop")
+            } finally {
+                window.history.replaceState({}, '', origSearch || '/')
             }
         })
 
