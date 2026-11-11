@@ -26,7 +26,7 @@ const stored = (storage, key) => {
 }
 const sdkConfig = { 
   baseUrl: "https://decsuite.sandbox.rs.infinity6.ai",
-  userExchangeCallbackUrl: location.origin + '/static/infer-demo/logincallback.html',
+  userExchangeCallbackUrl: new URL('./logincallback.html', location.href).href,
 }
 // The config the SDK really runs with: the defaults (baseUrl) merged with ours
 const sdk = new I6Sdk()
@@ -180,8 +180,11 @@ function showPage(page) {
   if (!pages.includes(page)) page = pages[0]
   document.querySelectorAll('[data-page]').forEach((el) => el.classList.toggle('hidden', el.dataset.page !== page))
   document.querySelectorAll('.tabs [data-tab]').forEach((b) => b.classList.toggle('active', b.dataset.tab === page))
+  if (location.hash.slice(1) !== page) history.replaceState(null, '', `#${page}`)
 }
 document.querySelectorAll('.tabs [data-tab]').forEach((b) => { b.onclick = () => showPage(b.dataset.tab) })
+window.addEventListener('hashchange', () => showPage(location.hash.slice(1)))
+showPage(location.hash.slice(1))
 
 // --- tools -------------------------------------------------------------------------------------------
 // Redirects to the login page when nobody is signed in, and comes back here
