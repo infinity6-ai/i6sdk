@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go/bigquery v1.84.0
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.30.0
 	github.com/infinity6-ai/gox/commonz v0.0.65
+	github.com/infinity6-ai/gox/cryptz v0.0.65
 	github.com/infinity6-ai/gox/fsz v0.0.65
 	github.com/infinity6-ai/gox/routez v0.0.65
 	github.com/infinity6-ai/gox/schemaz v0.0.65
