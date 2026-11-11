@@ -296,6 +296,21 @@ class Auth {
     if (typeof window === "undefined") return false;
 
     const params = new URLSearchParams(window.location.search);
+
+    const checkoutCode = params.get("checkout_code");
+    if (checkoutCode) {
+      await this._services.tokens().redeemCheckout(checkoutCode);
+
+      const callback = params.get("callback");
+      if (callback) {
+        if (!this._isSafeRedirect(callback)) {
+          throw new Error("Untrusted callback URL: " + callback);
+        }
+        this._redirect(callback);
+      }
+      return true;
+    }
+
     const code = params.get("code");
     if (!code) {
       return false;

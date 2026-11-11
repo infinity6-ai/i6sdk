@@ -686,6 +686,101 @@
             }
         })
 
+        QUnit.test("auth.handleCallback redeems checkout_code ticket via tokens.redeemCheckout and redirects to callback", async function (assert) {
+            let redeemedCode = null
+            let redirectedTo = null
+
+            const sdk = new I6Sdk()
+            sdk.tokens().redeemCheckout = async (code) => {
+                redeemedCode = code
+                return {
+                    user_access_token: "redeemed-access-token",
+                    user_id: "u-buyer-777",
+                }
+            }
+
+            const auth = sdk.auth()
+            auth._redirect = (url) => { redirectedTo = url }
+
+            const origSearch = window.location.search
+            try {
+                window.history.replaceState({}, '', '?checkout_code=ticket-aesgcm-xyz-123&callback=' + encodeURIComponent('/dashboard/ds123'))
+                const handled = await auth.handleCallback()
+                assert.true(handled, "handleCallback handled checkout_code")
+                assert.strictEqual(redeemedCode, "ticket-aesgcm-xyz-123", "passed checkout_code to tokens.redeemCheckout")
+                assert.strictEqual(redirectedTo, "/dashboard/ds123", "redirected to target callback")
+            } finally {
+                window.history.replaceState({}, '', origSearch || '/')
+            }
+        })
+
+        QUnit.test("auth.handleCallback rejects untrusted callback URL when redeeming checkout_code", async function (assert) {
+            const sdk = new I6Sdk()
+            sdk.tokens().redeemCheckout = async () => ({})
+
+            const auth = sdk.auth()
+            auth._redirect = () => {}
+
+            const origSearch = window.location.search
+            try {
+                window.history.replaceState({}, '', '?checkout_code=ticket-aesgcm-xyz-123&callback=' + encodeURIComponent('https://evil.com/phish'))
+                let errorCaught = null
+                try {
+                    await auth.handleCallback()
+                } catch (err) {
+                    errorCaught = err
+                }
+                assert.ok(errorCaught, "rejected untrusted callback with checkout_code")
+                assert.ok(errorCaught.message.includes("Untrusted callback URL"), "mentions Untrusted callback URL")
+            } finally {
+                window.history.replaceState({}, '', origSearch || '/')
+            }
+        })
+
+        QUnit.test("tokens.redeemCheckout performs POST /api/decsuite/auth/checkoutredeem and saves token in storage", async function (assert) {
+            const storageMap = new Map()
+            const sdk = new I6Sdk({
+                baseUrl: "https://decsuite.sandbox.rs.infinity6.ai",
+                storage: {
+                    getItem: (k) => storageMap.get(k) || null,
+                    setItem: (k, v) => storageMap.set(k, v),
+                    removeItem: (k) => storageMap.delete(k),
+                }
+            })
+
+            let capturedUrl = null
+            let capturedBody = null
+
+            const origFetch = window.fetch
+            window.fetch = async (url, opts) => {
+                capturedUrl = url
+                capturedBody = JSON.parse(opts.body)
+                return {
+                    ok: true,
+                    json: async () => ({
+                        user_access_token: "redeemed.access.jwt",
+                        user_refresh_token: "redeemed.refresh.token",
+                        user_id: "u-buyer-uuid-999",
+                        expires_at: 1800000000000,
+                    })
+                }
+            }
+
+            try {
+                const tokenData = await sdk.tokens().redeemCheckout("ticket-aes-12345")
+                assert.strictEqual(capturedUrl, "https://decsuite.sandbox.rs.infinity6.ai/api/decsuite/auth/checkoutredeem", "called checkoutredeem endpoint")
+                assert.strictEqual(capturedBody.checkout_code, "ticket-aes-12345", "posted checkout_code in request body")
+                assert.strictEqual(tokenData.user_id, "u-buyer-uuid-999", "returned redeemed token data")
+
+                const stored = sdk.tokens().getUserToken()
+                assert.ok(stored, "stored user token in storage")
+                assert.strictEqual(stored.user_access_token, "redeemed.access.jwt", "stored access token")
+                assert.strictEqual(stored.user_id, "u-buyer-uuid-999", "stored user id")
+            } finally {
+                window.fetch = origFetch
+            }
+        })
+
         QUnit.test("tokens.logout revokes session server-side via POST /api/userz/auth/logout", async function (assert) {
             const localMap = new Map()
             const sdk = new I6Sdk({

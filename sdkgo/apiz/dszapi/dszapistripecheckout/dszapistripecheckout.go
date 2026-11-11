@@ -7,14 +7,15 @@ import (
 )
 
 type Req struct {
-	DatasetName   string
-	Plan          string
-	SuccessUrl    string
-	CancelUrl     string
-	CampaignState string
-	PaymentPhone  string
-	PaymentEmail  string
-	Document      string
+	DatasetName             string
+	Plan                    string
+	SuccessUrl              string
+	CancelUrl               string
+	CampaignState           string
+	PaymentPhone            string
+	PaymentEmail            string
+	Document                string
+	UserExchangeCallbackUrl string
 }
 
 type Resp struct {
@@ -82,6 +83,10 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					"document": {
 						Desc:  &schemaz.Desc{Summary: "Document of the buyer"},
 						Field: func() any { return &d.Req.Document },
+					},
+					"user_exchange_callback_url": {
+						Desc:  &schemaz.Desc{Summary: "Optional exchange callback URL for redeeming checkout artifact ticket"},
+						Field: func() any { return &d.Req.UserExchangeCallbackUrl },
 					},
 				}
 			},
