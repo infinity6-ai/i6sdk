@@ -251,7 +251,7 @@ class Tokens {
     const config = this._services.config();
     const baseUrl = config.servUrls?.["decsuite"] || config.decsuiteUrl || config.baseUrl || "";
     const redeemUrl = `${baseUrl}/api/decsuite/auth/checkoutredeem`;
-
+    console.log("REDEEM checkoutCode", checkoutCode)
     const resp = await fetch(redeemUrl, {
       method: "POST",
       headers: {
@@ -272,10 +272,12 @@ class Tokens {
 
     this.clearDatasetTokens();
     this.setUserToken(data);
-    return {
+    console.log("REDEEM ret", ret)
+    let ret =  {
       ...data,
       dataset,
-    };
+    }
+    return ret;
   }
 
   /**
