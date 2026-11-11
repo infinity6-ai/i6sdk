@@ -100,7 +100,8 @@ func TestUnitStripeCheckoutApiDataRefs(t *testing.T) {
 		"campaign_state": "c3RhdGU",
 		"payment_phone": "",
 		"payment_email": "",
-		"document": ""
+		"document": "",
+		"user_exchange_callback_url": ""
 	}`, string(body))
 
 	// Reading a body fills Req
