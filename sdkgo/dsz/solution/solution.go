@@ -96,7 +96,7 @@ func (s Solution) Id() Id {
 func By(id Id) Solution {
 	ret, ok := ids[id]
 	if !ok {
-		panic(fmt.Errorf("unknown: %s", id))
+		panic(fmt.Errorf("unknown: %x", id))
 	}
 	return ret
 }
