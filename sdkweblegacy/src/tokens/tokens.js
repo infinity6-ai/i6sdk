@@ -19,6 +19,11 @@
  */
 
 /**
+ * Result returned by redeemCheckout containing user token credentials and the target dataset ID.
+ * @typedef {UserToken & { dataset: string }} CheckoutRedeemResult
+ */
+
+/**
  * Dataset access token credentials returned by POST /api/userz/dataset/access-token
  * and cached in localStorage under 'i6_dataset_access_tokens'.
  * @typedef {Object} DatasetToken
@@ -234,11 +239,12 @@ class Tokens {
 
   /**
    * Redeems a checkout artifact ticket via `POST /api/decsuite/auth/checkoutredeem`,
-   * and persists the resulting user token credentials in localStorage.
+   * persists the resulting user token credentials in localStorage (without dataset),
+   * and returns the user token credentials along with the target dataset ID.
    * Automatically clears any existing dataset tokens before storing new session credentials.
    *
    * @param {string} checkoutCode - The encrypted checkout ticket issued by checkoutcallback.
-   * @returns {Promise<UserToken>} The redeemed user token credentials.
+   * @returns {Promise<CheckoutRedeemResult>} The redeemed user token credentials and dataset ID.
    * @throws {Error} If the redemption request fails or the server returns an error status.
    */
   async redeemCheckout(checkoutCode) {
@@ -261,9 +267,15 @@ class Tokens {
     }
     const data = await resp.json();
 
+    const dataset = data.dataset_id || "";
+    delete data.dataset_id;
+
     this.clearDatasetTokens();
     this.setUserToken(data);
-    return data;
+    return {
+      ...data,
+      dataset,
+    };
   }
 
   /**
