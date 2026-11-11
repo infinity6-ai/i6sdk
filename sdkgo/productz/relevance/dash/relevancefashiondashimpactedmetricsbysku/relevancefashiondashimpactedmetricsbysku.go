@@ -26,6 +26,7 @@ type Row struct {
 	Revenue          float64
 	Participation    float64
 	ConversionRate   float64
+	EngagementRate   float64
 }
 
 type Result struct {
@@ -149,6 +150,10 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 											"conversion_rate": {
 												Desc:  &schemaz.Desc{Summary: "Conversion rate."},
 												Field: func() any { return &(*element).ConversionRate },
+											},
+											"engagement_rate": {
+												Desc:  &schemaz.Desc{Summary: "Engagement rate."},
+												Field: func() any { return &(*element).EngagementRate },
 											},
 										}
 									},

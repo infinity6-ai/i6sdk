@@ -38,6 +38,7 @@ func TestUnitRelevanceFashionDashImpactedMetricsBySku(t *testing.T) {
 						Revenue:          1368.01,
 						Participation:    0.12,
 						ConversionRate:   0.6,
+						EngagementRate:   0.024,
 					},
 					{
 						SkuId:            "1",
@@ -50,6 +51,7 @@ func TestUnitRelevanceFashionDashImpactedMetricsBySku(t *testing.T) {
 						Revenue:          103.5,
 						Participation:    0.08,
 						ConversionRate:   0.5,
+						EngagementRate:   0.026,
 					},
 				},
 			},
@@ -68,6 +70,7 @@ func TestUnitRelevanceFashionDashImpactedMetricsBySku(t *testing.T) {
 	require.Equal(t, "shirt", *fnCopy.Resp.Results.Rows[0].ShowcaseCategory)
 	require.Nil(t, fnCopy.Resp.Results.Rows[1].ShowcaseCategory)
 	require.Equal(t, fn.Resp.Results.Rows[0].Revenue, fnCopy.Resp.Results.Rows[0].Revenue)
+	require.Equal(t, fn.Resp.Results.Rows[0].EngagementRate, fnCopy.Resp.Results.Rows[0].EngagementRate)
 }
 
 func TestUnitRelevanceFashionDashImpactedMetricsBySkuSpec(t *testing.T) {
@@ -161,6 +164,8 @@ func TestUnitRelevanceFashionDashImpactedMetricsBySkuDataRefs(t *testing.T) {
 	require.Equal(t, "number", rowsElemProps["participation"].Typ)
 	require.Contains(t, rowsElemProps, "conversion_rate")
 	require.Equal(t, "number", rowsElemProps["conversion_rate"].Typ)
+	require.Contains(t, rowsElemProps, "engagement_rate")
+	require.Equal(t, "number", rowsElemProps["engagement_rate"].Typ)
 }
 
 func typedefNames(tds *jstypez.Typedefs) []string {
