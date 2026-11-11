@@ -27,7 +27,7 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 			}
 		},
 		Method: "DELETE",
-		Path:   "/api/userz/dataset/refresh-token/{dataset}/{jti}",
+		Path:   "/api/userz/dataset-refresh-tokens/{dataset}/{jti}",
 	}
 }
 

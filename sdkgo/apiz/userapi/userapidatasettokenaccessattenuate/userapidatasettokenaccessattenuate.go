@@ -40,7 +40,7 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 			}
 		},
 		Method: "POST",
-		Path:   "/api/userz/dataset/access-token/attenuate",
+		Path:   "/api/userz/attenuate",
 	}
 }
 

@@ -45,7 +45,7 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 			}
 		},
 		Method: "GET",
-		Path:   "/api/userz/dataset/refresh-token/list",
+		Path:   "/api/userz/dataset-refresh-tokens",
 	}
 }
 
