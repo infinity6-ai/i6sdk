@@ -4,6 +4,7 @@ import (
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabelinjectableauth"
 )
 
 type DszDeleteTokenReq struct {
@@ -22,6 +23,9 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 			return &schemaz.Desc{
 				Name:    "Delete Token",
 				Summary: "Deletes (revokes) a specific token (e.g. ingestion or recsys token) associated with a dataset.",
+				Labels: map[string]string{
+					speclabelinjectableauth.Key: speclabelinjectableauth.Dataset,
+				},
 			}
 		},
 		Method: "DELETE",

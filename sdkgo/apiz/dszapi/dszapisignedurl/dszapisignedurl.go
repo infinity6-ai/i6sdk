@@ -6,6 +6,7 @@ import (
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbpathz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabelinjectableauth"
 )
 
 type Path struct {
@@ -51,6 +52,9 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 			return &schemaz.Desc{
 				Name:    "Get Dataset Signed URLs",
 				Summary: "Generates presigned URLs for accessing or mutating files in the specified dataset.",
+				Labels: map[string]string{
+					speclabelinjectableauth.Key: speclabelinjectableauth.Dataset,
+				},
 			}
 		},
 		Method: "POST",

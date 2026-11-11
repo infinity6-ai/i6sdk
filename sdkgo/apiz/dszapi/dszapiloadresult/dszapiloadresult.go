@@ -1,6 +1,7 @@
 package dszapiloadresult
 
 import (
+	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabelinjectableauth"
 	"reflect"
 
 	"github.com/infinity6-ai/gox/routez/apiz"
@@ -53,6 +54,9 @@ func (d *Api[T]) ApiSpec() apiz.ApiSpec {
 			return &schemaz.Desc{
 				Name:    "Load Table File as JSON",
 				Summary: "Load a table file from the datalake as JSON and return it.",
+				Labels: map[string]string{
+					speclabelinjectableauth.Key: speclabelinjectableauth.Dataset,
+				},
 			}
 		},
 		Method: "GET",

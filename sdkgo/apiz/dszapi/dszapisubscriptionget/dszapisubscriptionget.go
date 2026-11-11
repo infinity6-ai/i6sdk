@@ -1,6 +1,7 @@
 package dszapisubscriptionget
 
 import (
+	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabelinjectableauth"
 	"time"
 
 	"github.com/infinity6-ai/gox/routez/apiz"
@@ -46,6 +47,9 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 			return &schemaz.Desc{
 				Name:    "Get Subscription",
 				Summary: "Gets the plan and the status of the Stripe subscription of a dataset product/solution. The payload is empty for contracts without Stripe.",
+				Labels: map[string]string{
+					speclabelinjectableauth.Key: speclabelinjectableauth.Dataset,
+				},
 			}
 		},
 		Method: "GET",

@@ -5,6 +5,7 @@ import (
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
+	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabelinjectableauth"
 )
 
 type DszListActiveSolutionsReq struct {
@@ -23,11 +24,14 @@ type Api struct {
 
 func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id:     "dsz-dataset-solutions",
+		Id: "dsz-dataset-solutions",
 		Desc: func() *schemaz.Desc {
 			return &schemaz.Desc{
 				Name:    "List Active Dataset Solutions",
 				Summary: "Lists all active solutions configured for a specific dataset.",
+				Labels: map[string]string{
+					speclabelinjectableauth.Key: speclabelinjectableauth.Dataset,
+				},
 			}
 		},
 		Method: "GET",

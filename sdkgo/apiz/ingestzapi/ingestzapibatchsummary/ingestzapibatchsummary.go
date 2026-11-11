@@ -6,6 +6,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/storeid"
+	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabelinjectableauth"
 )
 
 type Req struct {
@@ -39,6 +40,9 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 			return &schemaz.Desc{
 				Name:    "Get Last Successful Ingestion Data Summary",
 				Summary: "Returns the date of ingestion, rows count and distinct and null columns count",
+				Labels: map[string]string{
+					speclabelinjectableauth.Key: speclabelinjectableauth.Dataset,
+				},
 			}
 		},
 		Method: "GET",
