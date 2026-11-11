@@ -45,14 +45,13 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 			}
 		},
 		Method: "GET",
-		Path:   "/api/userz/dataset-refresh-tokens",
+		Path:   "/api/userz/dataset-refresh-token/{dataset}",
 	}
 }
 
 func (d *Api) ApiDataRefs() *apiz.DataRefs {
 	return &apiz.DataRefs{
-		PathParams: nil,
-		QueryParams: &schemaz.Schema{
+		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
 					"dataset": {
@@ -62,6 +61,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 				}
 			},
 		},
+		QueryParams: nil,
 		ReqHeaders: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{

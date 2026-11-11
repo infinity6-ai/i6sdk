@@ -42,13 +42,22 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 			}
 		},
 		Method: "POST",
-		Path:   "/api/userz/dataset-access-token",
+		Path:   "/api/userz/dataset-access-token/{dataset}",
 	}
 }
 
 func (d *Api) ApiDataRefs() *apiz.DataRefs {
 	return &apiz.DataRefs{
-		PathParams:  nil,
+		PathParams: &schemaz.Schema{
+			Object: func(read bool) map[string]*schemaz.Schema {
+				return map[string]*schemaz.Schema{
+					"dataset": {
+						Desc:     &schemaz.Desc{Summary: "Target dataset ID."},
+						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
+					},
+				}
+			},
+		},
 		QueryParams: nil,
 		ReqHeaders: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
@@ -64,10 +73,6 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 			Desc: &schemaz.Desc{Summary: "Dataset access token creation request."},
 			Object: func(read bool) map[string]*schemaz.Schema {
 				return map[string]*schemaz.Schema{
-					"dataset": {
-						Desc:  &schemaz.Desc{Summary: "Target dataset ID."},
-						Field: func() any { return &d.Req.Dataset },
-					},
 					"solution": {
 						Desc:  &schemaz.Desc{Summary: "Target solution domain restriction (empty for all)."},
 						Field: func() any { return &d.Req.Solution },
