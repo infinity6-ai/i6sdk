@@ -13,7 +13,7 @@ func TestUnitDszListDatasetsApi(t *testing.T) {
 	ctx := t.Context()
 	api := &dszapidatasetlist.Api{
 		Req: &dszapidatasetlist.DszListDatasetsReq{
-			User: "user1",
+			UserId: "user1",
 		},
 		Resp: &dszapidatasetlist.DszListDatasetsResp{
 			Datasets: []*dszapidatasetlist.Dataset{

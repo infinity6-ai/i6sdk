@@ -17,7 +17,7 @@ type Dataset struct {
 }
 
 type DszListDatasetsReq struct {
-	User string `json:"user"`
+	UserId string `json:"userId"`
 }
 
 type DszListDatasetsResp struct {
@@ -39,14 +39,13 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 			}
 		},
 		Method: "GET",
-		Path:   "/api/ds/datasets",
+		Path:   "/api/ds/user-id/{userId}/datasets",
 	}
 }
 
 func (d *Api) ApiDataRefs() *apiz.DataRefs {
 	return &apiz.DataRefs{
-		PathParams: nil,
-		QueryParams: &schemaz.Schema{
+		PathParams: &schemaz.Schema{
 			Object: func(read bool) map[string]*schemaz.Schema {
 				if read && d.Req == nil {
 					return nil
@@ -55,13 +54,14 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					d.Req = &DszListDatasetsReq{}
 				}
 				return map[string]*schemaz.Schema{
-					"user": {
+					"userId": {
 						Desc:     &schemaz.Desc{Summary: "User identifier (id)."},
-						UrlValue: schemaz.ParseStr(&d.Req.User),
+						UrlValue: schemaz.ParseStr(&d.Req.UserId),
 					},
 				}
 			},
 		},
+		QueryParams: nil,
 		ReqHeaders:  nil,
 		ReqBody:     nil,
 		RespHeaders: nil,
