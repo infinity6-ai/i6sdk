@@ -11,6 +11,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapicustomerportalcreate"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapidatasetlist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapidatasetsolutions"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapidomainsolutionget"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapiingestiontokencreate"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapiingestiontokenslist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapiloadresult"
@@ -36,7 +37,24 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/pipezapi/pipezget"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/pipezapi/pipezlist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/pipezapi/pipezstart"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/tfzapi/tfzapimodelmetadata"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/tfzapi/tfzapimodelpredict"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/userapi/userapiauthdevicecode"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/userapi/userapiauthdevicetoken"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/userapi/userapiauthexchange"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/userapi/userapiauthgoogle"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/userapi/userapiauthlogout"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/userapi/userapiauthme"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/userapi/userapiauthpasswordreset"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/userapi/userapiauthpasswordsignin"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/userapi/userapiauthpasswordsignup"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/userapi/userapiauthrefresh"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/userapi/userapidatasettokenaccessattenuate"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/userapi/userapidatasettokenaccesscreate"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/userapi/userapidatasettokenrefresh"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/userapi/userapidatasettokenrefreshcreate"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/userapi/userapidatasettokenrefreshdelete"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/userapi/userapidatasettokenrefreshlist"
 )
 
 var apis map[string]apiz.Api
@@ -78,12 +96,14 @@ func init() {
 	add(&dszapistorelist.Api{})
 	add(&dszapidatasetlist.Api{})
 	add(&dszapidatasetsolutions.Api{})
+	add(&dszapidomainsolutionget.Api{})
 	add(&dszapiingestiontokenslist.Api{})
 	add(&dszapiingestiontokencreate.Api{})
 	add(&dszapirecsystokenslist.Api{})
 	add(&dszapirecsystokencreate.Api{})
 	add(&dszapitokendelete.Api{})
 	add(&dszapimodelget.Api{})
+	add(&tfzapimodelmetadata.Api{})
 	add(&tfzapimodelpredict.Api{})
 	add(&dszapistripecheckout.Api{})
 	add(&dszapicustomerportalcreate.Api{})
@@ -92,6 +112,22 @@ func init() {
 	add(&dszapipaymentlist.Api{})
 	add(&dszapiplanlist.Api{})
 	add(&dszapisubscriptionplanupdate.Api{})
+	add(&userapiauthdevicecode.Api{})
+	add(&userapiauthdevicetoken.Api{})
+	add(&userapiauthexchange.Api{})
+	add(&userapiauthgoogle.Api{})
+	add(&userapiauthlogout.Api{})
+	add(&userapiauthme.Api{})
+	add(&userapiauthpasswordreset.Api{})
+	add(&userapiauthpasswordsignin.Api{})
+	add(&userapiauthpasswordsignup.Api{})
+	add(&userapiauthrefresh.Api{})
+	add(&userapidatasettokenaccessattenuate.Api{})
+	add(&userapidatasettokenaccesscreate.Api{})
+	add(&userapidatasettokenrefresh.Api{})
+	add(&userapidatasettokenrefreshcreate.Api{})
+	add(&userapidatasettokenrefreshdelete.Api{})
+	add(&userapidatasettokenrefreshlist.Api{})
 }
 
 func Apis() []apiz.Api {
