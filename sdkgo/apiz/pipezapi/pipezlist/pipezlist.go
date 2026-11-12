@@ -7,7 +7,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solutiondomain"
 	"go.code.infinity6.ai/sdkgo/sdkgo/pipez"
-	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabelinjectableauth"
+	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabeltokentype"
 )
 
 type PipezListReq struct {
@@ -41,7 +41,7 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 				Name:    "List Pipelines",
 				Summary: "Lists the pipelines of a dataset, optionally filtered, with cursor pagination.",
 				Labels: map[string]string{
-					speclabelinjectableauth.Key: speclabelinjectableauth.Dataset,
+					speclabeltokentype.Key: speclabeltokentype.Dataset,
 				},
 			}
 		},

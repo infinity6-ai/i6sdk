@@ -3,7 +3,7 @@ package tfzapimodelpredict
 import (
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabelinjectableauth"
+	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabeltokentype"
 )
 
 type Req struct {
@@ -31,7 +31,7 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 				Name:    "Model Predict",
 				Summary: "Runs a prediction of a dataset model version on the inference service (tfinfer), sending the model inputs and the model partitions and returning the model outputs.",
 				Labels: map[string]string{
-					speclabelinjectableauth.Key: speclabelinjectableauth.Dataset, "servname": "tfinfer"},
+					speclabeltokentype.Key: speclabeltokentype.Dataset, "servname": "tfinfer"},
 			}
 		},
 		Method: "POST",

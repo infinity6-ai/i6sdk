@@ -4,7 +4,7 @@ import (
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
-	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabelinjectableauth"
+	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabeltokentype"
 )
 
 type Req struct {
@@ -47,7 +47,7 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 				Name:    "List Plans",
 				Summary: "Lists the plans a subscription of a solution can be switched to, with the price data from Stripe.",
 				Labels: map[string]string{
-					speclabelinjectableauth.Key: speclabelinjectableauth.User,
+					speclabeltokentype.Key: speclabeltokentype.User,
 				},
 			}
 		},

@@ -1,8 +1,9 @@
 package dszapipaymentlist
 
 import (
-	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabelinjectableauth"
 	"time"
+
+	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabeltokentype"
 
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
@@ -53,7 +54,7 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 				Name:    "List Payments",
 				Summary: "Lists the Stripe payments (invoices) of a dataset. The list is empty for datasets without a Stripe customer.",
 				Labels: map[string]string{
-					speclabelinjectableauth.Key: speclabelinjectableauth.Dataset,
+					speclabeltokentype.Key: speclabeltokentype.Dataset,
 				},
 			}
 		},

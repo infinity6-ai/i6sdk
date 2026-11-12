@@ -1,8 +1,9 @@
 package pipezstart
 
 import (
-	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabelinjectableauth"
 	"reflect"
+
+	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabeltokentype"
 
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
@@ -55,7 +56,7 @@ func (d *Api[T]) ApiSpec() apiz.ApiSpec {
 				Name:    "Start Pipeline",
 				Summary: "Starts a pipeline on a dataset with the given params and returns its id.",
 				Labels: map[string]string{
-					speclabelinjectableauth.Key: speclabelinjectableauth.Dataset,
+					speclabeltokentype.Key: speclabeltokentype.Dataset,
 				},
 			}
 		},

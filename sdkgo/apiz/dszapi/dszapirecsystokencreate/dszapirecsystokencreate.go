@@ -5,7 +5,7 @@ import (
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/dsztoken"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabelinjectableauth"
+	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabeltokentype"
 )
 
 type DszCreateRecsysTokenReq struct {
@@ -27,7 +27,7 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 				Name:    "Create Recsys Token",
 				Summary: "Creates a read/recommendation token for the recommendation system associated with a specific dataset.",
 				Labels: map[string]string{
-					speclabelinjectableauth.Key: speclabelinjectableauth.Dataset,
+					speclabeltokentype.Key: speclabeltokentype.Dataset,
 				},
 			}
 		},

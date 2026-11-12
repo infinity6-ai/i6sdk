@@ -7,7 +7,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/ingestztoken"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
-	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabelinjectableauth"
+	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabeltokentype"
 )
 
 type GetUrlReq struct {
@@ -39,7 +39,7 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 				Name:    "Get Ingestion Upload URLs",
 				Summary: "Generates presigned PUT URLs and an ingestion token for uploading files into a target dataset table and partitions.",
 				Labels: map[string]string{
-					speclabelinjectableauth.Key: speclabelinjectableauth.Dataset,
+					speclabeltokentype.Key: speclabeltokentype.Dataset,
 				},
 			}
 		},

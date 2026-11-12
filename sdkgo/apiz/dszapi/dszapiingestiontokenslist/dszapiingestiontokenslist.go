@@ -5,7 +5,7 @@ import (
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/dsztoken"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabelinjectableauth"
+	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabeltokentype"
 )
 
 type DszListIngestionTokensReq struct {
@@ -29,7 +29,7 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 				Name:    "List Ingestion Tokens",
 				Summary: "Lists all active data ingestion tokens for a specific dataset.",
 				Labels: map[string]string{
-					speclabelinjectableauth.Key: speclabelinjectableauth.Dataset,
+					speclabeltokentype.Key: speclabeltokentype.Dataset,
 				},
 			}
 		},

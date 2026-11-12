@@ -1,8 +1,9 @@
 package dszapidomainsolutionget
 
 import (
-	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabelinjectableauth"
 	"reflect"
+
+	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabeltokentype"
 
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
@@ -73,7 +74,7 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 				Name:    "Get Solution Domain",
 				Summary: "Retrieves the active solutions and their corresponding domains for a given store in a dataset.",
 				Labels: map[string]string{
-					speclabelinjectableauth.Key: speclabelinjectableauth.Dataset,
+					speclabeltokentype.Key: speclabeltokentype.Dataset,
 				},
 			}
 		},

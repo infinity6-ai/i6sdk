@@ -4,7 +4,7 @@ import (
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabelinjectableauth"
+	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabeltokentype"
 )
 
 type Req struct {
@@ -30,7 +30,7 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 				Name:    "Create Customer Portal",
 				Summary: "Creates a Stripe billing portal session URL where the user can manage cards, auto-renew, and plans.",
 				Labels: map[string]string{
-					speclabelinjectableauth.Key: speclabelinjectableauth.Dataset,
+					speclabeltokentype.Key: speclabeltokentype.Dataset,
 				},
 			}
 		},

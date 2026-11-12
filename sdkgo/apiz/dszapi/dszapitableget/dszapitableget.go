@@ -1,8 +1,9 @@
 package dszapitableget
 
 import (
-	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabelinjectableauth"
 	"strings"
+
+	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabeltokentype"
 
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
@@ -32,7 +33,7 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 				Name:    "Get Dataset Table File",
 				Summary: "Get table file by redirecting to its signed URL.",
 				Labels: map[string]string{
-					speclabelinjectableauth.Key: speclabelinjectableauth.Dataset,
+					speclabeltokentype.Key: speclabeltokentype.Dataset,
 				},
 			}
 		},

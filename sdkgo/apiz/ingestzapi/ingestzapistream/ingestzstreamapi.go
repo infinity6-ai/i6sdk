@@ -1,8 +1,9 @@
 package ingestzapistream
 
 import (
-	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabelinjectableauth"
 	"reflect"
+
+	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabeltokentype"
 
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
@@ -41,7 +42,7 @@ func (d *Api[T]) ApiSpec() apiz.ApiSpec {
 				Name:    "Stream Ingestion",
 				Summary: "Ingests stream data into a target dataset table.",
 				Labels: map[string]string{
-					speclabelinjectableauth.Key: speclabelinjectableauth.Dataset,
+					speclabeltokentype.Key: speclabeltokentype.Dataset,
 				},
 			}
 		},
