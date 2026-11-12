@@ -107,16 +107,16 @@ $('run').onclick = async () => {
   setStatus('running')
   card.querySelector('.in').textContent = JSON.stringify(req, null, 1)
   card.querySelector('.out').textContent = ''
-  try {
+  // try {
     const result = await sdk.funcs().productRelevanceFashionFbtV1(req, selectResults, serviceOpts())
     // const result = await sdk.funcs().productRelevanceFashionFbtV1(req)
     card.querySelector('.out').textContent = JSON.stringify(result, null, 1)
     setStatus('ok')
-  } catch (e) {
-    card.querySelector('.out').textContent = `${e.name} [${e.code}] ${e.message}`
-    console.log(`ERROR infer run: ${e.name} [${e.code}] ${e.message}`)
-    setStatus('error')
-  }
+  // } catch (e) {
+    // card.querySelector('.out').textContent = `${e.name} [${e.code}] ${e.message}`
+    // console.log(`ERROR infer run: ${e.name} [${e.code}] ${e.message}`)
+    // setStatus('error')
+  // }
 }
 
 // --- tensors -----------------------------------------------------------------------------------------

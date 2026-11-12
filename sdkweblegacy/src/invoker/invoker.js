@@ -214,25 +214,25 @@ class Invoker {
 
     /**
      * @param {{tokenType: string, url: string}} opts
+     * @return {{token:string, required: boolean}}
      */
     async resolveToken(opts) {
+        let ret = { required: false, token: "" }
         if (!opts.tokenType || opts.tokenType === 'none') {
-            return null
+            return ret
         }
+        ret.required = true
         const url = new URL(opts.url);
-        /** @type {string|null} */
-        let ret = null
         if (opts.tokenType === 'user') {
-            ret = await this._services.tokens().getValidAccessToken()
+            ret.token = await this._services.tokens().getValidAccessToken()
         } else if (opts.tokenType === 'dataset') {
             const parts = url.pathname.split('/')
             if (parts[0] === '') parts.shift()
             if (parts[2] !== 'dataset') throw new Error(`cannot resolve dataset name ${opts.tokenType}: ${url.pathname}`)
             const dataset = parts[3]
             if (!dataset) throw new Error(`cannot resolve dataset name ${opts.tokenType}: ${url.pathname}`)
-            ret = await this._services.tokens().getValidDatasetAccessToken(dataset)
+            ret.token = await this._services.tokens().getValidDatasetAccessToken(dataset)
         }
-        if (!ret) throw new Error(`cannot resolve dataset name ${opts.tokenType}: ${url.pathname}`)
         return ret
     }
 
@@ -280,8 +280,13 @@ class Invoker {
                 tokenType: opts.opts.labels.token_type,
                 url: opts.url
             })
-            if (tk) {
-                opts.headers.set('Authorization', 'Bearer ' + tk)
+            if (tk.token) {
+                opts.headers.set('Authorization', 'Bearer ' + tk.token)
+            } else if (tk.required) {
+                if (opts.opts.labels.token_type == 'user') {
+                    return new Response(JSON.stringify({ error: "Unauthorized", message: "Unauthorized" }), { status: 401, statusText: "Unauthorized" });
+                }
+                return new Response(JSON.stringify({ error: "Forbidden", message: "Forbidden" }), { status: 403, statusText: "Forbidden" });
             }
         }
 
