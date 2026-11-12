@@ -114,6 +114,16 @@ import * as gzip from "../internal/gzip/gzip.js";
  */
 
 /**
+ * Service options configuring per-request behavior and authentication.
+ * @typedef {Object} ServiceOptions
+ * @property {Fetcher} [fetcher] - Custom fetcher function override.
+ * @property {PrepareRequest} [prepareRequest] - Pre-request hook (e.g. for URL signing).
+ * @property {string} [datasetToken] - Explicit dataset authorization token for this request.
+ * @property {string} [bearerToken] - Explicit user bearer token for this request.
+ * @property {Record<string, string>} [labels] - Contextual metadata labels.
+ */
+
+/**
  * Options for sending HTTP requests via the Invoker.
  * @typedef {Object} InvokeOptions
  * @property {string} [url] - Full target URL. Overrides baseUrl + path if set.
