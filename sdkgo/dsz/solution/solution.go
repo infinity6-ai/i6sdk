@@ -41,8 +41,8 @@ func (d Solution) Validate(v string) error {
 	if err := validation.StrNotEmpty(v, "Solution cannot be empty"); err != nil {
 		return err
 	}
-	if err := validation.OneOf([]string{"relevance", "plat", "dummysolution"}, v, "Solution"); err != nil {
-		return err
+	if _, ok := strs[v]; !ok {
+		return fmt.Errorf("unknown solution: %q", v)
 	}
 	return nil
 }
@@ -77,11 +77,13 @@ type Entry struct {
 
 var ids = make(map[Id]Solution, 8)
 var names = make(map[Solution]Id, 8)
+var strs = make(map[string]struct{}, 8)
 
 func create(id Id, name string) Entry {
 	s := MustParse(name)
 	ids[id] = s
 	names[s] = id
+	strs[s.Get()] = struct{}{}
 	return Entry{Id: id, Solution: s}
 }
 
@@ -105,11 +107,13 @@ var (
 	relevance     = create(1<<0, "relevance")
 	plat          = create(1<<1, "plat")
 	dummySolution = create(1<<2, "dummysolution")
+	prcbidding    = create(1<<3, "prcbidding")
 )
 
 func Relevance() Entry     { return relevance }
 func Plat() Entry          { return plat }
 func DummySolution() Entry { return dummySolution }
+func PrcBidding() Entry    { return prcbidding }
 
 func ParseStr(out *Solution) func() *schemaz.Parser[string] {
 	return func() *schemaz.Parser[string] {
