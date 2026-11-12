@@ -343,9 +343,9 @@
             const tok1 = await tokens.getValidDatasetAccessToken("fashion-store")
             assert.strictEqual(tok1, "binary-dataset-token-abc")
             assert.strictEqual(dsCalls, 1)
-            assert.strictEqual(capturedReq.url, "http://userz.test/api/userz/dataset/access-token")
+            assert.strictEqual(capturedReq.url, "http://userz.test/api/userz/dataset-access-token/fashion-store")
             assert.strictEqual(capturedReq.headers['Authorization'], "Bearer user-jwt-123")
-            assert.deepEqual(capturedReq.body, { dataset: "fashion-store", grants: 15 })
+            assert.deepEqual(capturedReq.body, {})
 
             // 2. Second call returns cached token without network request
             const tok2 = await tokens.getValidDatasetAccessToken("fashion-store")
@@ -632,10 +632,33 @@
             }
         })
 
+        QUnit.test("auth.handleCallback rejects missing code_verifier in sessionStorage even if passed in URL", async function (assert) {
+            const sdk = new I6Sdk()
+            const auth = sdk.auth()
+            sessionStorage.removeItem("i6_auth_code_verifier")
+
+            const origSearch = window.location.search
+            try {
+                // Pass code and attempt to bypass PKCE with code_verifier in URL
+                window.history.replaceState({}, '', '?code=c123&code_verifier=evil-verifier-in-url')
+                let errorCaught = null
+                try {
+                    await auth.handleCallback()
+                } catch (err) {
+                    errorCaught = err
+                }
+                assert.ok(errorCaught, "rejected when code_verifier is not in sessionStorage")
+                assert.ok(errorCaught.message.includes("Missing PKCE code verifier"), "error message mentions Missing PKCE code verifier")
+            } finally {
+                window.history.replaceState({}, '', origSearch || '/')
+            }
+        })
+
         QUnit.test("auth.handleCallback allows safe relative redirect path", async function (assert) {
             let redirectedTo = null
             const sdk = new I6Sdk()
             sdk.tokens().exchange = async () => ({})
+            sessionStorage.setItem("i6_auth_code_verifier", "ver-safe-123")
 
             const auth = sdk.auth()
             auth._redirect = (url) => { redirectedTo = url }
@@ -647,6 +670,7 @@
                 assert.strictEqual(handled, "", "handleCallback completed")
                 assert.strictEqual(redirectedTo, "/dashboard?tab=analytics", "allowed relative path redirect")
             } finally {
+                sessionStorage.removeItem("i6_auth_code_verifier")
                 window.history.replaceState({}, '', origSearch || '/')
             }
         })
@@ -654,6 +678,7 @@
         QUnit.test("auth.handleCallback rejects open redirect to untrusted external URL", async function (assert) {
             const sdk = new I6Sdk()
             sdk.tokens().exchange = async () => ({})
+            sessionStorage.setItem("i6_auth_code_verifier", "ver-untrusted-123")
 
             const auth = sdk.auth()
             auth._redirect = () => {}
@@ -672,6 +697,7 @@
                 assert.ok(errorCaught.message.includes("Untrusted callback URL"), "error message mentions Untrusted callback URL")
 
                 // Protocol-relative URL
+                sessionStorage.setItem("i6_auth_code_verifier", "ver-untrusted-proto")
                 window.history.replaceState({}, '', '?code=c123&callback=' + encodeURIComponent('//evil.com/phish'))
                 let protoError = null
                 try {
@@ -682,6 +708,7 @@
                 assert.ok(protoError, "rejected protocol-relative open redirect")
                 assert.ok(protoError.message.includes("Untrusted callback URL"), "error message mentions Untrusted callback URL")
             } finally {
+                sessionStorage.removeItem("i6_auth_code_verifier")
                 window.history.replaceState({}, '', origSearch || '/')
             }
         })

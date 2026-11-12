@@ -324,12 +324,12 @@ class Auth {
       }
     }
 
-    let codeVerifier = storage ? storage.getItem(CODE_VERIFIER_KEY) : null;
+    const codeVerifier = storage ? storage.getItem(CODE_VERIFIER_KEY) : null;
     if (storage) {
       storage.removeItem(CODE_VERIFIER_KEY);
     }
     if (!codeVerifier) {
-      codeVerifier = params.get('code_verifier') || "";
+      throw new Error("Missing PKCE code verifier in session storage");
     }
 
     await this._services.tokens().exchange(code, codeVerifier);
