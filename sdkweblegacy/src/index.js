@@ -23,8 +23,6 @@ import { Resp } from "./invoker/invoker.js";
  * @property {string} [userExchangeCallbackUrl] - Absolute URL of the application's exchange callback page handling PKCE token exchange.
  * @property {string} [callbackUrl] - Default application redirect URL after logout.
  * @property {string} [app] - Client application identifier registered in i6userz (e.g. 'default').
- * @property {string} [datasetToken] - Default dataset authorization token string for API requests.
- * @property {string} [bearerToken] - Default user bearer token JWT string for API requests.
  * @property {I6Storage | (() => I6Storage)} [storage] - Optional storage adapter for persistent token storage. Defaults to global `localStorage` when omitted.
  * @property {I6Storage | (() => I6Storage)} [localStorage] - Optional alias for persistent storage adapter (defaults to global `localStorage`).
  * @property {I6Storage | (() => I6Storage)} [sessionStorage] - Optional storage adapter for session-scoped data such as PKCE code verifier. Defaults to global `sessionStorage` when omitted.
