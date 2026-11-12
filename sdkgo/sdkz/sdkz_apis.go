@@ -37,6 +37,8 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/pipezapi/pipezget"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/pipezapi/pipezlist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/pipezapi/pipezstart"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/pipezapi/scheduleractivate"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/pipezapi/schedulerdeactivate"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/tfzapi/tfzapimodelmetadata"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/tfzapi/tfzapimodelpredict"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/userapi/userapiauthdevicecode"
@@ -88,6 +90,8 @@ func init() {
 	add(&dszapitablelist.Api{})
 	add(dszapiloadresult.AllApis()...)
 	add(pipezstart.AllApis()...)
+	add(scheduleractivate.AllApis()...)
+	add(schedulerdeactivate.AllApis()...)
 	add(&pipezlist.Api{})
 	add(&pipezget.Api{})
 	add(&dszapistoredisplaycreate.Api{})
