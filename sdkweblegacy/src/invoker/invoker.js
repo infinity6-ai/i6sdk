@@ -212,7 +212,7 @@ class Invoker {
             //pegar a label injectable_auth
             // se for dataset, tem que ter dataset no path e precisa conseguir pegar o token, se nao nem faz a request
             // se for user, tem que pegar o do user
-            // se for never, tem que nao por nada
+            // se for none, envia sem nada. Se tiver mandado, quebra
             // se tiver user|dataset, tenta das duas formas, seguindo a ordem
             const url = new URL(opts.url);
 
