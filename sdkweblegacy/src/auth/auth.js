@@ -284,7 +284,6 @@ class Auth {
    * @throws {Error} If state mismatch occurs, token exchange fails, or server returns an error.
    */
   async handleCallback() {
-    console.log("[i6sdk] auth.handleCallback called");
     if (typeof window === "undefined") return null;
 
     const params = new URLSearchParams(window.location.search);
