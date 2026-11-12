@@ -19,16 +19,16 @@ type BatchSummaryReq struct {
 }
 
 type BatchSummaryData struct {
-	StoreId         storeid.StoreId  `json:"store_id"`
-	RowCount        int              `json:"row_count"`
-	IngestedAt      string           `json:"ingested_at"`
-	ColumnSummaries []*ColumnSummary `json:"column_summaries"`
+	StoreId         string           `json:"store_id" bigquery:"store_id"`
+	RowCount        int              `json:"row_count,string" bigquery:"row_count"`
+	IngestedAt      string           `json:"ingested_at" bigquery:"ingested_at"`
+	ColumnSummaries []*ColumnSummary `json:"column_summaries" bigquery:"column_summaries"`
 }
 
 type ColumnSummary struct {
-	ColumnName    string `json:"column_name"`
-	DistinctCount int    `json:"distinct_count"`
-	NullCount     int    `json:"null_count"`
+	ColumnName    string `json:"column_name" bigquery:"column_name"`
+	DistinctCount int    `json:"distinct_count,string" bigquery:"distinct_count"`
+	NullCount     int    `json:"null_count,string" bigquery:"null_count"`
 }
 
 type BatchSummary struct {
