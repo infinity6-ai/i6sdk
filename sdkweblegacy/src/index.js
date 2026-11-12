@@ -4,6 +4,7 @@
 
 import { Services, Apis, SdkFuncs } from "./services/services.js";
 import { Resp } from "./invoker/invoker.js";
+import { bitmapz } from "./internal/bitmapz/bitmapz.js";
 
 /**
  * Pluggable Web Storage interface for token persistence and session data.
@@ -152,7 +153,20 @@ class I6Sdk {
   }
 }
 
+/**
+ * Permissions catalog and bitmask constants matching Go's grants package.
+ */
+const Grants = Object.freeze({
+  System: 1,
+  Admin: 2,
+  Write: 4,
+  Read: 8,
+  All: 15,
+});
+
 window.I6Sdk = I6Sdk;
 I6Sdk.Resp = Resp;
-export { I6Sdk, Resp };
+I6Sdk.bitmapz = bitmapz;
+I6Sdk.Grants = Grants;
+export { I6Sdk, Resp, bitmapz, Grants };
 
