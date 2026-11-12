@@ -41,8 +41,8 @@ func (d Solution) Validate(v string) error {
 	if err := validation.StrNotEmpty(v, "Solution cannot be empty"); err != nil {
 		return err
 	}
-	if _, ok := strs[v]; !ok {
-		return fmt.Errorf("unknown solution: %q", v)
+	if err := validation.OneOf([]string{"relevance", "plat", "dummysolution", "prcbidding"}, v, "Solution"); err != nil {
+		return err
 	}
 	return nil
 }
