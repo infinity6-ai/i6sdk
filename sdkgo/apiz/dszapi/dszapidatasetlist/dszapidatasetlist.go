@@ -3,6 +3,7 @@ package dszapidatasetlist
 import (
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabelinjectableauth"
 )
 
 type Solution struct {
@@ -36,6 +37,9 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 			return &schemaz.Desc{
 				Name:    "List Datasets",
 				Summary: "Lists all datasets available to the user.",
+				Labels: map[string]string{
+					speclabelinjectableauth.Key: speclabelinjectableauth.User,
+				},
 			}
 		},
 		Method: "GET",
