@@ -27,6 +27,7 @@ func TestUnitUserDatasetTokenRefreshListApi(t *testing.T) {
 					Grants:     12,
 					CreatedBy:  "u-1",
 					CreatedAt:  1792900000,
+					LastUsedAt: 1792900500,
 					ExpiresAt:  1892900000,
 					Revoked:    false,
 					Annotation: "Airflow",

@@ -15,6 +15,7 @@ type RefreshTokenSummary struct {
 	Labels     map[string]string `json:"labels,omitempty"`
 	CreatedBy  string            `json:"created_by"`
 	CreatedAt  int64             `json:"created_at"`
+	LastUsedAt int64             `json:"last_used_at"`
 	ExpiresAt  int64             `json:"expires_at"`
 	Revoked    bool              `json:"revoked"`
 	Annotation string            `json:"annotation,omitempty"`
@@ -113,6 +114,10 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 											"created_at": {
 												Desc:  &schemaz.Desc{Summary: "Creation timestamp in millis."},
 												Field: func() any { return &element.CreatedAt },
+											},
+											"last_used_at": {
+												Desc:  &schemaz.Desc{Summary: "Epoch milliseconds when token was last refreshed (0 = never used)."},
+												Field: func() any { return &element.LastUsedAt },
 											},
 											"expires_at": {
 												Desc:  &schemaz.Desc{Summary: "Expiration timestamp in millis."},

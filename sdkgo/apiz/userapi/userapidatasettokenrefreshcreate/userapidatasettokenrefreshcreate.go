@@ -10,7 +10,7 @@ import (
 type Req struct {
 	Dataset    lakedsz.Dataset   `json:"dataset"`
 	Solution   solution.Solution `json:"solution"`
-	Grants     uint8             `json:"grants"`
+	Grants     uint8             `json:"grants,omitempty"` // Optional: If omitted or 0, defaults to caller's registered grants on the dataset. Limited to registered grants.
 	Labels     map[string]string `json:"labels,omitempty"`
 	ExpSeconds int64             `json:"exp_seconds,omitempty"`
 	Annotation string            `json:"annotation,omitempty"`
@@ -80,7 +80,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 						Field: func() any { return &d.Req.Solution },
 					},
 					"grants": {
-						Desc:  &schemaz.Desc{Summary: "Compact uint8 grant bitmask."},
+						Desc:  &schemaz.Desc{Summary: "Compact uint8 grant bitmask (optional, defaults to caller's registered grants on dataset; limited to registered grants)."},
 						Field: func() any { return &d.Req.Grants },
 					},
 					"labels": {
