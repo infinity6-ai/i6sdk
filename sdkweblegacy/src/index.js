@@ -3,7 +3,6 @@
  */
 
 import { Services, Apis, SdkFuncs } from "./services/services.js";
-import { I6Error } from "./errors.js";
 
 /**
  * Pluggable Web Storage interface for token persistence and session data.
@@ -154,9 +153,6 @@ class I6Sdk {
   }
 }
 
-// Lets bundle users (window.I6Sdk) test errors with `e instanceof I6Sdk.I6Error`.
-I6Sdk.I6Error = I6Error;
-
 window.I6Sdk = I6Sdk;
-export { I6Sdk, I6Error };
+export { I6Sdk };
 

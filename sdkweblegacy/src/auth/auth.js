@@ -79,11 +79,7 @@ class Auth {
     const config = this._services.config();
     const s = config.sessionStorage || config.storageSession;
     if (typeof s === "function") {
-      try {
-        return s();
-      } catch {
-        return null;
-      }
+      return s();
     }
     if (s) {
       return s;
@@ -134,22 +130,18 @@ class Auth {
     }
     // Absolute URL: origin validation
     if (typeof window !== "undefined" && window.location) {
-      try {
-        const parsed = new URL(url, window.location.origin);
-        if (parsed.origin === window.location.origin) {
-          return true;
-        }
-        const config = this._services.config();
-        if (config.callbackUrl) {
-          const cbOrigin = new URL(config.callbackUrl, window.location.origin).origin;
-          if (parsed.origin === cbOrigin) return true;
-        }
-        if (config.userExchangeCallbackUrl) {
-          const excOrigin = new URL(config.userExchangeCallbackUrl, window.location.origin).origin;
-          if (parsed.origin === excOrigin) return true;
-        }
-      } catch {
-        return false;
+      const parsed = new URL(url, window.location.origin);
+      if (parsed.origin === window.location.origin) {
+        return true;
+      }
+      const config = this._services.config();
+      if (config.callbackUrl) {
+        const cbOrigin = new URL(config.callbackUrl, window.location.origin).origin;
+        if (parsed.origin === cbOrigin) return true;
+      }
+      if (config.userExchangeCallbackUrl) {
+        const excOrigin = new URL(config.userExchangeCallbackUrl, window.location.origin).origin;
+        if (parsed.origin === excOrigin) return true;
       }
     }
     return false;

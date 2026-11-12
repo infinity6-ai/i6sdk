@@ -54,13 +54,10 @@
             assert.strictEqual(r.error.code, 'bad_request')
         })
 
-        QUnit.test("a network failure is returned, not thrown", async function (assert) {
+        QUnit.test("a network failure throws", async function (assert) {
             const cause = new TypeError('Failed to fetch')
             globalThis.fetch = async () => { throw cause }
-            const r = await invoker.invokeResult({ path: 'x' })
-            assert.false(r.ok)
-            assert.strictEqual(r.status, 0)
-            assert.deepEqual(r.error, { status: 0, code: 'network', message: 'Failed to fetch', cause })
+            await assert.rejects(invoker.invokeResult({ path: 'x' }), cause)
         })
 
         QUnit.test("uses custom fetcher from ServiceOptions if provided", async function (assert) {

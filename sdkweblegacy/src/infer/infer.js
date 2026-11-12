@@ -9,7 +9,6 @@
  * Set `window.I6_DEBUG = true` to see what happens in the console, and to get the model tensors in the "i6:infer-tensors" event.
  */
 
-import { I6Error } from "../errors.js";
 import { downloadFile, isPartitions, partitionsKey } from "../internal/assets/assets.js";
 import { fs } from "../internal/fs/fs.js";
 import { sqlitez } from "../internal/sqlitez/sqlitez.js";
@@ -39,34 +38,32 @@ import { debugLogger } from "../internal/debug/debug.js";
  */
 
 /**
- * Options of `Infer.selectResults`.
+ * Options of `selectResults`.
  * @typedef {Object} SelectResultsOptions
- * @property {string} dataset - Dataset that receives the `recraw` and `recshow` events.
- * @property {string} modelName - Model that made the recommendation (e.g. "relevance-fashion-fbt").
- * @property {string} modelVersion - Version of that model.
- * @property {string} storeId - Store of the event.
- * @property {string} sessionId - Id of the user session; sent in the recommendation events.
- * @property {string} userId - Id of the user; sent in the recommendation events.
- * @property {*} req - What the caller asked for; given as is to `selectResults`.
- * @property {*} results - What `run` returned (its `rec_id` is the id of the recommendation); given as is to `selectResults`.
- * @property {string} recId - Id of the recommendation, the `rec_id` that `run` returned. Same as in the `recraw` event that `run` sent; sent in the `recshow` event.
- * @property {(req: *, results: *) => Promise<*>} [selectResults] - Picks which of the recommended skus are shown: returns
- *   `{ results: [{ sku_id, rating?, enriched? }] }`. Only `sku_id` is sent (in the `recshow` event); `enriched` is any data of
- *   your own for the sku (e.g. name, price, image), returned to you as is. Default: `defaultSelectResults`.
- * @property {ServiceOptions} [serviceOpts] - Given to the API call of the `recshow` event.
+ * @property {*} req - What the caller asked for (the cart).
+ * @property {*} results - What `run` returned.
+ * @property {string} recId - Id of the recommendation run, returned by `run`.
+ * @property {string} sessionId - Id of the user session.
+ * @property {string} userId - Id of the user.
+ * @property {string} dataset - Dataset of the model.
+ * @property {string} modelName - Model name.
+ * @property {string} modelVersion - Model version.
+ * @property {string} [storeId] - Store partition.
+ * @property {ServiceOptions} [serviceOpts] - Given to the `recshow` event call.
+ * @property {(req: *, results: *) => Promise<*>} [selectResults] - Custom selection function.
  */
 
-/** Default for `InferOptions.limit`. */
-const DEFAULT_LIMIT = 20
-
-/** Names of the model files in the model API response. */
+/** The two files every model needs, by their role. */
 const FILES = { sqlite: "sqlite.bin", tflite: "tflite.bin" }
+
+/** Default limit when opts has none. */
+const DEFAULT_LIMIT = 20
 
 /** Prints only when `window.I6_DEBUG` is true. */
 const debug = debugLogger("infer")
 
 /**
- * Inference client.
+ * Infer client.
  */
 class Infer {
   /**
@@ -82,21 +79,19 @@ class Infer {
   }
 
   /**
-   * Runs the model for the given params and returns what the output query gives.
+   * Runs the model in the browser and returns its recommendation result.
    * @param {InferOptions} opts - Inference options.
-   * @returns {Promise<*>} The `ret` of the named query `model-${modelName}-output`, plus a generated `rec_id` (uuid). Sends the `recraw` event with that id.
-   * @throws {I6Error} With code "invalid_argument" if opts is malformed, has no `sessionId` and `userId` or the model inputs do not fit the model,
-   *   "asset" if a download fails, "model" if loading or running the model fails, "query" if the sqlite fails.
+   * @returns {Promise<*>} The results of the model.
    */
   async run(opts) {
     validate(opts)
+
+    const startedAt = performance.now()
     const { modelName, params, sessionId, userId } = opts
     const ids = { sessionId, userId }
     const queryName = (kind) => `model-${modelName}-${kind}`
-    const startedAt = performance.now()
-    debug("run start", { modelName, dataset: opts.dataset, partitions: opts.partitions, limit: opts.limit ?? DEFAULT_LIMIT, params })
 
-    // 1. Get the model files
+    // 1. Locate and download the two files of the model (cached by etag)
     const urls = await this._assetUrls(opts)
     debug("1/4 model files located", { sqlite: withoutQuery(urls.sqlite), tflite: withoutQuery(urls.tflite) })
     const cacheName = (kind) => `infer-${modelName}-${partitionsKey(opts.partitions)}-${kind}`
@@ -112,14 +107,10 @@ class Infer {
         conn.namedStringQuery({ name: queryName("input"), params: [params] }),
         // loadModel({ ref: tfliteRef, wasmUrl: opts.litertWasm }),
       ])
-      if (!inputs) throw new I6Error(`infer: ${queryName("input")} returned no model inputs`, { code: "query" })
+      if (!inputs) throw new Error(`infer: ${queryName("input")} returned no model inputs`)
       debug("2/4 input query", queryName("input"), "| bound as ?1:", params, "| returned (model inputs):", preview(inputs))
-      // debug("input query returned", Object.keys(inputs), "model", describeModel(compiled))
 
       // 3. Run the model
-      // const outputs = await runModel(compiled, inputs)
-      // debug("output returned (before namedJsonQuery)", outputs)
-      // announceTensors({ modelName, partitions: opts.partitions, model: describeModel(compiled), inputs, outputs })
       debug("3/4 calling the model on the server", { model_name: modelName, version: opts.partitions.version, model_partitions: opts.partitions })
       const modelStartedAt = performance.now()
       const outputs = await this.callModel(inputs, opts)
@@ -128,7 +119,7 @@ class Infer {
       let modelOutputsAndLimit = [JSON.parse(outputs.payload.outputs), opts.limit ?? DEFAULT_LIMIT]
       debug("4/4 output query", queryName("output"), "| bound as ?1 (model outputs) and ?2 (limit):", preview(modelOutputsAndLimit))
       // 4. The sqlite turns the outputs into the result
-      const result = await conn.namedJsonQuery({ name: queryName("output"), params:  modelOutputsAndLimit})
+      const result = await conn.namedJsonQuery({ name: queryName("output"), params: modelOutputsAndLimit })
       debug("output query returned (after namedJsonQuery)", result)
       // The rec_id ties this run to the recshow event that selectResults sends later
       const recId = crypto.randomUUID()
@@ -161,33 +152,31 @@ class Infer {
    * Asks `selectResults` which of the recommended skus are shown and sends their sku ids as the `recshow` event.
    * @param {SelectResultsOptions} opts - Select options.
    * @returns {Promise<*>} What `selectResults` returned, as is (the default sets the `rating` of each sku; see `defaultSelectResults`).
-   * @throws {I6Error} With code "invalid_argument" if `selectResults` is not a function, `recId` is missing, `opts` has no `sessionId` and
-   *   `userId`, or `selectResults` returned an item with no `sku_id` or a sku not in the results; "event" if an event is not accepted.
    */
   async selectResults(opts) {
     const selectResults = opts?.selectResults ?? defaultSelectResults
     if (typeof selectResults !== "function") {
-      throw new I6Error("infer: opts.selectResults must be a function", { code: "invalid_argument" })
+      throw new TypeError("infer: opts.selectResults must be a function")
     }
 
     const { req, results, recId, sessionId, userId } = opts
 
-    if (!recId) throw new I6Error("infer: opts.recId is required", { code: "invalid_argument" })
+    if (!recId) throw new TypeError("infer: opts.recId is required")
     if (!sessionId || !userId) {
-      throw new I6Error("infer: opts needs sessionId and userId", { code: "invalid_argument" })
+      throw new TypeError("infer: opts needs sessionId and userId")
     }
     const ids = { sessionId, userId }
 
     const selected = await selectResults(req, results)
     if (!Array.isArray(selected?.results)) {
-      throw new I6Error("infer: selectResults must return { results: [...] }", { code: "invalid_argument" })
+      throw new TypeError("infer: selectResults must return { results: [...] }")
     }
 
     // The event carries only the sku ids
     const shown = {
       skus: selected.results.map((item, i) => {
         const skuId = item?.sku_id
-        if (!skuId) throw new I6Error(`infer: selectResults returned an item with no sku_id at results[${i}]`, { code: "invalid_argument" })
+        if (!skuId) throw new TypeError(`infer: selectResults returned an item with no sku_id at results[${i}]`)
         return { sku_id: skuId }
       })
     }
@@ -208,7 +197,6 @@ class Infer {
    * @param {"recraw"|"recshow"} kind - Which event.
    * @param {*} payload - What the event carries, any JSON.
    * @returns {Promise<void>}
-   * @throws {I6Error} With code "event" if the event is not accepted.
    */
   async #sendRecEvent(opts, ids, recId, kind, payload) {
     await this._services.apis().ingestzEventRelevanceFashionEvent({
@@ -230,11 +218,10 @@ class Infer {
   }
 
   /**
-   * Finds where the model files are: the signed URLs of the model API, unless opts has both URLs (tests).
+   * Finds where the two model files are: the signed URLs of the model API, unless opts has them (tests).
    * @private
    * @param {InferOptions} opts - Inference options.
    * @returns {Promise<{sqlite: string, tflite: string}>} Download URLs of the files.
-   * @throws {I6Error} With code "asset" if the API gave no URL for a file.
    */
   async _assetUrls(opts) {
     if (opts.sqliteUrl) return { sqlite: opts.sqliteUrl, tflite: opts.tfliteUrl }
@@ -248,7 +235,7 @@ class Infer {
     const byName = Object.fromEntries((resp.payload?.urls ?? []).map((file) => [file.name, file.url]))
     const missing = Object.values(FILES).find((name) => !byName[name])
     if (missing) {
-      throw new I6Error(`infer: the model api gave no "${missing}" file: ${resp.error?.message ?? JSON.stringify(Object.keys(byName))}`, { code: "asset", status: resp.error?.status, cause: resp.error })
+      throw new Error(`infer: the model api gave no "${missing}" file: ${resp.error?.message ?? JSON.stringify(Object.keys(byName))}`)
     }
     return { sqlite: byName[FILES.sqlite], tflite: byName[FILES.tflite] }
   }
@@ -286,22 +273,21 @@ function announceTensors({ outputs, ...rest }) {
 
 /**
  * @param {InferOptions} opts - Options given to `Infer.run`.
- * @throws {I6Error} With code "invalid_argument" if a required option is missing.
  */
 function validate(opts) {
   for (const key of ["modelName", "dataset", "sessionId", "userId"]) {
-    if (!opts || !opts[key]) throw new I6Error(`infer: opts.${key} is required`, { code: "invalid_argument" })
+    if (!opts || !opts[key]) throw new TypeError(`infer: opts.${key} is required`)
   }
 
   if (!isPartitions(opts.partitions)) {
-    throw new I6Error("infer: opts.partitions must be an object of string values", { code: "invalid_argument" })
+    throw new TypeError("infer: opts.partitions must be an object of string values")
   }
-  if (opts.params === undefined) throw new I6Error("infer: opts.params is required", { code: "invalid_argument" })
+  if (opts.params === undefined) throw new TypeError("infer: opts.params is required")
   if (opts.limit !== undefined && !(Number.isInteger(opts.limit) && opts.limit > 0)) {
-    throw new I6Error("infer: opts.limit must be a positive integer", { code: "invalid_argument" })
+    throw new TypeError("infer: opts.limit must be a positive integer")
   }
   if (!opts.sqliteUrl !== !opts.tfliteUrl) {
-    throw new I6Error("infer: opts.sqliteUrl and opts.tfliteUrl go together", { code: "invalid_argument" })
+    throw new TypeError("infer: opts.sqliteUrl and opts.tfliteUrl go together")
   }
 }
 
@@ -326,10 +312,6 @@ function outputQueryParams(outputs, opts) {
  * no such sku gives nothing. All picks are returned (no limit; slice them if you show fewer). No `enriched` is set: pass
  * your own `selectResults` to attach your catalog data or to choose differently.
  *
- * @example
- * // cart: [{ sku_id: "1" }]
- * // results: [{ skus: [{ sku_id: "1" }, { sku_id: "2" }], rating: 0.9 }, { skus: [{ sku_id: "2" }, { sku_id: "3" }], rating: 0.7 }, { skus: [{ sku_id: "3" }], rating: 0.5 }]
- * // returns: { results: [{ sku_id: "2", rating: 0.9 }, { sku_id: "3", rating: 0.7 }] }
  * @param {*} req - What the caller asked for; its `input.skus` (the cart) is required.
  * @param {*} results - What `run` returned: `{ results: [{ skus: [{ sku_id }], rating }] }`.
  * @returns {Promise<{results: Array<{sku_id: string, rating: number}>}>}

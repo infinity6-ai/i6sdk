@@ -2,7 +2,6 @@
  * @fileoverview Helpers shared by the services that run on files downloaded from i6 (infer, dash).
  */
 
-import { I6Error } from "../../errors.js";
 import { downloader } from "../downloader/downloader.js";
 import { debugLogger } from "../debug/debug.js";
 
@@ -36,17 +35,11 @@ function isPartitions(partitions) {
  * @param {string} name - Name of the cached file.
  * @param {string} url - URL of the file.
  * @returns {Promise<FileRef>} The cached file.
- * @throws {I6Error} With code "asset" if the download fails; `status` is the HTTP status when the server answered
- *   (404 when the file does not exist, e.g. a store or month without data) and `cause` is the underlying error.
  */
 async function downloadFile(name, url) {
-  try {
-    const ref = await downloader.update({ name, url })
-    debug(`${name} is ready`, ref)
-    return ref
-  } catch (cause) {
-    throw new I6Error(`could not get ${url}: ${cause.message}`, { code: "asset", status: cause.status, cause })
-  }
+  const ref = await downloader.update({ name, url })
+  debug(`${name} is ready`, ref)
+  return ref
 }
 
 export { partitionsKey, isPartitions, downloadFile };

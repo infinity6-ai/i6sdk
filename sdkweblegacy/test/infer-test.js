@@ -12,16 +12,16 @@
 
         /** @type {import('../src/infer/infer.js').Infer} */
         let infer, events
-        let I6Error
 
-        const rejectsWithCode = async (assert, promise, code, message) => {
+        const assertRejects = async (assert, promise, message) => {
             try {
                 await promise
                 assert.ok(false, 'should have been rejected')
             } catch (e) {
-                assert.true(e instanceof I6Error, 'is an I6Error')
-                assert.strictEqual(e.code, code)
-                assert.true(message.test(e.message), `message ${e.message} matches ${message}`)
+                assert.true(e instanceof Error, 'is an Error')
+                if (message) {
+                    assert.true(message.test(e.message), `message ${e.message} matches ${message}`)
+                }
             }
         }
 
@@ -32,25 +32,24 @@
 
         hooks.beforeEach(async function () {
             const { Infer } = await import('../src/infer/infer.js');
-            ({ I6Error } = await import('../src/errors.js'))
             events = []
             infer = new Infer(stubServices(events))
         })
 
         QUnit.test("run validates its opts", async function (assert) {
             const ok = { ...base, params: cart, ...assets }
-            await rejectsWithCode(assert, infer.run(), 'invalid_argument', /opts.modelName/)
+            await assertRejects(assert, infer.run(), /opts.modelName/)
             for (const key of ['modelName', 'dataset', 'sessionId', 'userId']) {
-                await rejectsWithCode(assert, infer.run({ ...ok, [key]: '' }), 'invalid_argument', new RegExp(`opts.${key}`))
+                await assertRejects(assert, infer.run({ ...ok, [key]: '' }), new RegExp(`opts.${key}`))
             }
             for (const partitions of [undefined, 'x', ['a'], { store_id: 1 }]) {
-                await rejectsWithCode(assert, infer.run({ ...ok, partitions }), 'invalid_argument', /opts.partitions/)
+                await assertRejects(assert, infer.run({ ...ok, partitions }), /opts.partitions/)
             }
         })
 
         QUnit.test("run reports an asset that cannot be downloaded", async function (assert) {
             const opts = { ...base, params: {}, sqliteUrl: new URL('nope.sqlite', location.href).href, tfliteUrl: assets.tfliteUrl }
-            await rejectsWithCode(assert, infer.run(opts), 'asset', /could not get/)
+            await assertRejects(assert, infer.run(opts), /nope\.sqlite/)
         })
 
         QUnit.test("run with the real model", async function (assert) {
@@ -64,7 +63,7 @@
             assert.strictEqual(events[0].payload.recraw.rec_id, rec_id, 'with the rec_id it returns')
             assert.true(results.every((r) => Array.isArray(r.skus) && r.skus.every((k) => typeof k.sku_id === 'string')), 'skus are {sku_id}')
             assert.true(results.every((r, i) => i === 0 || results[i - 1].rating >= r.rating), 'best rating first')
-            await rejectsWithCode(assert, infer.run({ ...opts, limit: 0 }), 'invalid_argument', /opts.limit/)
+            await assertRejects(assert, infer.run({ ...opts, limit: 0 }), /opts.limit/)
         })
 
         QUnit.test("run and selectResults give serviceOpts to the api calls", async function (assert) {
@@ -76,7 +75,7 @@
             })
             const { Infer } = await import('../src/infer/infer.js')
 
-            await rejectsWithCode(assert, new Infer(services).run({ ...base, params: cart, serviceOpts }), 'asset', /no "sqlite.bin" file/)
+            await assertRejects(assert, new Infer(services).run({ ...base, params: cart, serviceOpts }), /no "sqlite.bin" file/)
             const opts = {
                 dataset: 'dectest', modelName: 'relevance-fashion-fbt', modelVersion: 'v1', storeId: 's1', req: { input: cart },
                 results: { results: [{ skus: [{ sku_id: '1' }], rating: 0.5 }] }, recId: 'rec-1', sessionId: 'sess-1', userId: 'user-1', serviceOpts,
@@ -103,7 +102,7 @@
             }])
 
             const noSqlite = stubServices([], { dszModelGet: async () => ({ ok: true, payload: { urls: [] } }) })
-            await rejectsWithCode(assert, new Infer(noSqlite).run({ ...base, params: cart }), 'asset', /no "sqlite.bin" file/)
+            await assertRejects(assert, new Infer(noSqlite).run({ ...base, params: cart }), /no "sqlite.bin" file/)
         })
 
         QUnit.test("selectResults returns the selection as is and sends its sku ids as recshow", async function (assert) {
@@ -153,12 +152,12 @@
                 { results: [{ sku_id: '2', rating: 0.9 }, { sku_id: '3', rating: 0.7 }] }, 'default skips the cart and duplicates')
 
             const returning = (ret) => ({ ...opts, selectResults: async () => ret })
-            await rejectsWithCode(assert, new Infer(services).selectResults({ ...opts, selectResults: 'x' }), 'invalid_argument', /opts.selectResults/)
-            await rejectsWithCode(assert, new Infer(services).selectResults(returning([])), 'invalid_argument', /must return/)
-            await rejectsWithCode(assert, new Infer(services).selectResults(returning({ results: [{ sku_id: '2' }, {}] })), 'invalid_argument', /no sku_id at results\[1\]$/)
-            await rejectsWithCode(assert, new Infer(services).selectResults({ ...opts, recId: undefined }), 'invalid_argument', /opts.recId/)
-            await rejectsWithCode(assert, new Infer(services).selectResults({ ...opts, sessionId: undefined }), 'invalid_argument', /sessionId and userId/)
-            await rejectsWithCode(assert, new Infer(services).selectResults({ ...opts, userId: undefined }), 'invalid_argument', /sessionId and userId/)
+            await assertRejects(assert, new Infer(services).selectResults({ ...opts, selectResults: 'x' }), /opts.selectResults/)
+            await assertRejects(assert, new Infer(services).selectResults(returning([])), /must return/)
+            await assertRejects(assert, new Infer(services).selectResults(returning({ results: [{ sku_id: '2' }, {}] })), /no sku_id at results\[1\]$/)
+            await assertRejects(assert, new Infer(services).selectResults({ ...opts, recId: undefined }), /opts.recId/)
+            await assertRejects(assert, new Infer(services).selectResults({ ...opts, sessionId: undefined }), /sessionId and userId/)
+            await assertRejects(assert, new Infer(services).selectResults({ ...opts, userId: undefined }), /sessionId and userId/)
         })
 
         QUnit.test("runModel reports inputs that do not fit the model", async function (assert) {
@@ -171,10 +170,10 @@
             const fields = { data: Array(70).fill(0), shape: [1, 10, 7] }
             const padMask = { data: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0], shape: [1, 10] }
 
-            await rejectsWithCode(assert, runModel(model, {}), 'invalid_argument', /is missing/)
-            await rejectsWithCode(assert, runModel(model, { fields: { data: [1, 2, 3] }, pad_mask: padMask }), 'invalid_argument', /no shape/)
-            await rejectsWithCode(assert, runModel(model, { fields: { data: [1, 2, 3], shape: [3] }, pad_mask: padMask }), 'invalid_argument', /the model needs/)
-            await rejectsWithCode(assert, runModel(model, { fields: { data: Array(69).fill(0), shape: [1, 10, 7] }, pad_mask: padMask }), 'invalid_argument', /69 values/)
+            await assertRejects(assert, runModel(model, {}), /is missing/)
+            await assertRejects(assert, runModel(model, { fields: { data: [1, 2, 3] }, pad_mask: padMask }), /no shape/)
+            await assertRejects(assert, runModel(model, { fields: { data: [1, 2, 3], shape: [3] }, pad_mask: padMask }), /the model needs/)
+            await assertRejects(assert, runModel(model, { fields: { data: Array(69).fill(0), shape: [1, 10, 7] }, pad_mask: padMask }), /69 values/)
 
             const outputs = await runModel(model, { fields, pad_mask: padMask })
             assert.strictEqual(outputs.signature_probs.length, 7185)

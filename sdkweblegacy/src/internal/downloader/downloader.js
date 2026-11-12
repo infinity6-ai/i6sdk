@@ -69,7 +69,7 @@ class Downloader {
         } finally {
             if (!success) {
                 // Do not leave a half-written version behind
-                await fs.discard(ref).catch(() => {})
+                await fs.discard(ref)
             }
         }
 
