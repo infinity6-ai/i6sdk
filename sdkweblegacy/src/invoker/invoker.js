@@ -226,7 +226,6 @@ class Invoker {
      * @return {{token:string, required: boolean}}
      */
     async resolveToken(opts) {
-        console.log('opts', opts)
         let ret = { required: false, token: "" }
         if (!opts.tokenTypes) {
             return ret
