@@ -2,7 +2,7 @@
  * @fileoverview HTTP client for sending API requests to i6 services.
  */
 
-import { apiErrorFromResponse, apiErrorFromNetwork } from "../errors.js";
+import { apiErrorFromResponse, apiErrorFromNetwork, I6Error } from "../errors.js";
 
 import * as b64 from "../internal/b64/b64.js";
 import * as gzip from "../internal/gzip/gzip.js";
@@ -140,9 +140,9 @@ import * as gzip from "../internal/gzip/gzip.js";
  */
 
 function getValue(obj, path) {
-  return path.split('.').reduce((currentObject, key) => {
-    return currentObject ? currentObject[key] : undefined;
-  }, obj);
+    return path.split('.').reduce((currentObject, key) => {
+        return currentObject ? currentObject[key] : undefined;
+    }, obj);
 }
 
 /**
@@ -163,6 +163,30 @@ class Invoker {
     }
 
     /**
+     * @param {{tokenType: string, url: string}} opts
+     */
+    async resolveToken(opts) {
+        if (opts.tokenType == 'none') {
+            return null
+        }
+        const url = new URL(opts.url);
+        /** @type {string} */
+        var ret = null
+        if (opts.tokenType == 'user') {
+            ret = await this._services.tokens().getValidAccessToken()
+        } else if (opts.tokenType == 'dataset') {
+            const parts = url.pathname.split('/')
+            if (parts[0] == '') parts.shift()
+            if (parts[2] != 'dataset') throw new I6Error(`cannot resolve dataset name ${opts.tokenType}: ${url.pathname}`)
+            const dataset = parts[3]
+            if (!dataset) throw new I6Error(`cannot resolve dataset name ${opts.tokenType}: ${url.pathname}`)
+            ret = await this._services.tokens().getValidDatasetAccessToken(dataset)
+        }
+        if (!ret) throw new I6Error(`cannot resolve dataset name ${opts.tokenType}: ${url.pathname}`)
+        return ret
+    }
+
+    /**
      * Sends an HTTP request using the Fetch API.
      *
      * @param {InvokeOptions} opts - Request options including path/URL, query params, and fetch options.
@@ -174,7 +198,7 @@ class Invoker {
      */
     async invoke(opts) {
         console.log('invoke req', { ...opts, headers: opts.headers && Object.fromEntries(new Headers(opts.headers)), labels: opts.opts?.labels })
-        opts.url =opts.url || `${this._services.config().baseUrl}/${opts.path}`
+        opts.url = opts.url || `${this._services.config().baseUrl}/${opts.path}`
 
         if (opts.query) {
             const search = new URLSearchParams()
@@ -208,30 +232,18 @@ class Invoker {
         if (!opts.headers.has('Authorization') && bearerToken) {
             opts.headers.set('Authorization', 'Bearer ' + bearerToken)
         }
+        console.log('aaaa', opts.headers.has('Authorization'))
         if (!opts.headers.has('Authorization')) {
-            //pegar a label injectable_auth
-            // se for dataset, tem que ter dataset no path e precisa conseguir pegar o token, se nao nem faz a request
-            // se for user, tem que pegar o do user
-            // se for none, envia sem nada. Se tiver mandado, quebra
-            // se tiver user|dataset, tenta das duas formas, seguindo a ordem
-            const url = new URL(opts.url);
-
-            const split = url.pathname.split('/')
-            const idx = split.indexOf('dataset')
-            let token = ''
-            if (idx < 0) {
-                token = await this._services.tokens().getValidAccessToken()  
-                // console.log('user token', token) 
-            } else {
-                const dataset = split[idx+1]
-                token = await this._services.tokens().getValidDatasetAccessToken(dataset)
-                // console.log('dataset token', dataset, token)
-            }
-            if (token) {
-                opts.headers.set('Authorization',  'Bearer ' + token)
-            }
+            console.log('cccc', opts.headers.get('Authorization'))
+            const tk = await this.resolveToken({
+                tokenType: opts.opts?.labels?.token_type,
+                url: opts.url
+            })
+            console.log('ddd', tk)
+            opts.headers.set('Authorization', 'Bearer ' + tk)
+            console.log('bbbbb', opts.headers.get('Authorization'))
         }
-        console.log(opts)
+
 
         if (opts.json) {
             opts.headers.set('Content-Type', 'application/json')
