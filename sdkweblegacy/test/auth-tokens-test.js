@@ -505,6 +505,7 @@
         QUnit.test("auth.handleCallback exchanges code using code_verifier from sessionStorage and deletes it", async function (assert) {
             const sessionMap = new Map()
             sessionMap.set("i6_auth_code_verifier", "verifier-stored-in-session-999")
+            sessionMap.set("i6_auth_state", "state-auth-777")
 
             let exchangedCode = null
             let exchangedVerifier = null
@@ -532,7 +533,7 @@
             // Temporarily mock window.location.search
             const origSearch = window.location.search
             try {
-                window.history.replaceState({}, '', '?code=auth-code-777&callback=' + encodeURIComponent('https://my.app/home'))
+                window.history.replaceState({}, '', '?code=auth-code-777&state=state-auth-777&callback=' + encodeURIComponent('https://my.app/home'))
 
                 const handled = await auth.handleCallback()
                 assert.strictEqual(handled, "", "handleCallback completed successfully")
@@ -632,15 +633,40 @@
             }
         })
 
+        QUnit.test("auth.handleCallback rejects callback when state is absent in sessionStorage and URL (Login CSRF)", async function (assert) {
+            const sdk = new I6Sdk()
+            const auth = sdk.auth()
+            sessionStorage.removeItem("i6_auth_state")
+            sessionStorage.setItem("i6_auth_code_verifier", "ver-123")
+
+            const origSearch = window.location.search
+            try {
+                // Attacker sends victim a link with code but no state (or victim has no session state)
+                window.history.replaceState({}, '', '?code=c123')
+                let errorCaught = null
+                try {
+                    await auth.handleCallback()
+                } catch (err) {
+                    errorCaught = err
+                }
+                assert.ok(errorCaught, "rejected when state is missing in session storage")
+                assert.ok(errorCaught.message.includes("State mismatch / CSRF attempt"), "error message mentions CSRF attempt")
+            } finally {
+                sessionStorage.removeItem("i6_auth_code_verifier")
+                window.history.replaceState({}, '', origSearch || '/')
+            }
+        })
+
         QUnit.test("auth.handleCallback rejects missing code_verifier in sessionStorage even if passed in URL", async function (assert) {
             const sdk = new I6Sdk()
             const auth = sdk.auth()
             sessionStorage.removeItem("i6_auth_code_verifier")
+            sessionStorage.setItem("i6_auth_state", "state-valid")
 
             const origSearch = window.location.search
             try {
                 // Pass code and attempt to bypass PKCE with code_verifier in URL
-                window.history.replaceState({}, '', '?code=c123&code_verifier=evil-verifier-in-url')
+                window.history.replaceState({}, '', '?code=c123&state=state-valid&code_verifier=evil-verifier-in-url')
                 let errorCaught = null
                 try {
                     await auth.handleCallback()
@@ -650,6 +676,7 @@
                 assert.ok(errorCaught, "rejected when code_verifier is not in sessionStorage")
                 assert.ok(errorCaught.message.includes("Missing PKCE code verifier"), "error message mentions Missing PKCE code verifier")
             } finally {
+                sessionStorage.removeItem("i6_auth_state")
                 window.history.replaceState({}, '', origSearch || '/')
             }
         })
@@ -659,18 +686,20 @@
             const sdk = new I6Sdk()
             sdk.tokens().exchange = async () => ({})
             sessionStorage.setItem("i6_auth_code_verifier", "ver-safe-123")
+            sessionStorage.setItem("i6_auth_state", "state-safe-123")
 
             const auth = sdk.auth()
             auth._redirect = (url) => { redirectedTo = url }
 
             const origSearch = window.location.search
             try {
-                window.history.replaceState({}, '', '?code=c123&callback=' + encodeURIComponent('/dashboard?tab=analytics'))
+                window.history.replaceState({}, '', '?code=c123&state=state-safe-123&callback=' + encodeURIComponent('/dashboard?tab=analytics'))
                 const handled = await auth.handleCallback()
                 assert.strictEqual(handled, "", "handleCallback completed")
                 assert.strictEqual(redirectedTo, "/dashboard?tab=analytics", "allowed relative path redirect")
             } finally {
                 sessionStorage.removeItem("i6_auth_code_verifier")
+                sessionStorage.removeItem("i6_auth_state")
                 window.history.replaceState({}, '', origSearch || '/')
             }
         })
@@ -679,6 +708,7 @@
             const sdk = new I6Sdk()
             sdk.tokens().exchange = async () => ({})
             sessionStorage.setItem("i6_auth_code_verifier", "ver-untrusted-123")
+            sessionStorage.setItem("i6_auth_state", "state-untrusted-1")
 
             const auth = sdk.auth()
             auth._redirect = () => {}
@@ -686,7 +716,7 @@
             const origSearch = window.location.search
             try {
                 // External untrusted domain
-                window.history.replaceState({}, '', '?code=c123&callback=' + encodeURIComponent('https://evil.com/phish'))
+                window.history.replaceState({}, '', '?code=c123&state=state-untrusted-1&callback=' + encodeURIComponent('https://evil.com/phish'))
                 let errorCaught = null
                 try {
                     await auth.handleCallback()
@@ -698,7 +728,8 @@
 
                 // Protocol-relative URL
                 sessionStorage.setItem("i6_auth_code_verifier", "ver-untrusted-proto")
-                window.history.replaceState({}, '', '?code=c123&callback=' + encodeURIComponent('//evil.com/phish'))
+                sessionStorage.setItem("i6_auth_state", "state-untrusted-2")
+                window.history.replaceState({}, '', '?code=c123&state=state-untrusted-2&callback=' + encodeURIComponent('//evil.com/phish'))
                 let protoError = null
                 try {
                     await auth.handleCallback()
@@ -709,6 +740,7 @@
                 assert.ok(protoError.message.includes("Untrusted callback URL"), "error message mentions Untrusted callback URL")
             } finally {
                 sessionStorage.removeItem("i6_auth_code_verifier")
+                sessionStorage.removeItem("i6_auth_state")
                 window.history.replaceState({}, '', origSearch || '/')
             }
         })

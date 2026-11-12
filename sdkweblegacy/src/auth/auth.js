@@ -318,10 +318,8 @@ class Auth {
       storage.removeItem(AUTH_STATE_KEY);
     }
     const returnedState = params.get("state");
-    if (storedState || returnedState) {
-      if (!storedState || returnedState !== storedState) {
-        throw new Error("State mismatch / CSRF attempt");
-      }
+    if (!storedState || returnedState !== storedState) {
+      throw new Error("State mismatch / CSRF attempt");
     }
 
     const codeVerifier = storage ? storage.getItem(CODE_VERIFIER_KEY) : null;
