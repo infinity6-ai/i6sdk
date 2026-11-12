@@ -226,14 +226,14 @@ class Invoker {
      * @return {{token:string, required: boolean}}
      */
     async resolveToken(opts) {
+        console.log('opts', opts)
         let ret = { required: false, token: "" }
         if (!opts.tokenTypes) {
             return ret
         }
         ret.required = true
         const tokenTypes = opts.tokenTypes.split('|')
-        for (const tokenType in tokenTypes) {
-            console.log('xxxx', tokenType)
+        for (const tokenType of tokenTypes) {
             if (!tokenType) continue
             if (tokenType === 'none') {
                 return { required: false, token: "" }
@@ -248,10 +248,9 @@ class Invoker {
                     return ret
                 }
                 const dataset = parts[3]
-                if (!dataset) {
-                    return ret
+                if (dataset) {
+                    ret.token = await this._services.tokens().getValidDatasetAccessToken(dataset)
                 }
-                ret.token = await this._services.tokens().getValidDatasetAccessToken(dataset)
             }
             if (ret.token) {
                 return ret
@@ -295,7 +294,7 @@ class Invoker {
         if (!opts.headers.has('Authorization') && bearerToken) {
             opts.headers.set('Authorization', 'Bearer ' + bearerToken)
         }
-        if (!opts.headers.has('Authorization') && opts.opts?.labels?.token_type && opts.opts.labels.token_type !== 'none') {
+        if (!opts.headers.has('Authorization') && opts.opts?.labels?.token_types) {
             const tk = await this.resolveToken({
                 tokenTypes: opts.opts.labels.token_types,
                 url: opts.url
