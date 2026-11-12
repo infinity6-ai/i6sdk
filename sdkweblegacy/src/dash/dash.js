@@ -92,8 +92,10 @@ class Dash {
       }
     }, opts.serviceOpts)
     
-    const url = resp.payload?.urls?.[0]?.url
-    if (!url) throw new Error(`dash: the api gave no "${SQLITE_FILE}" file: ${resp.error?.message ?? "empty answer"}`)
+    if (!resp.ok) throw new Error(`dash: the api gave no "${SQLITE_FILE}" file: ${resp.error?.message ?? "empty answer"}`)
+    const payload = resp.parse()
+    const url = payload?.urls?.[0]?.url
+    if (!url) throw new Error(`dash: the api gave no "${SQLITE_FILE}" file: empty answer`)
 
     return url
   }

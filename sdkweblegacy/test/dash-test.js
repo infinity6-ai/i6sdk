@@ -138,7 +138,7 @@
             const services = { apis: () => ({ dszSignedUrl: async (req, opts) => {
                 requests.push(req)
                 optsSeen.push(opts)
-                return { ok: true, payload: { urls: [{ url: sqliteUrl }] } }
+                return { ok: true, status: 200, parse: () => ({ urls: [{ url: sqliteUrl }] }) }
             } }) }
 
             const result = await new Dash(services).query(base)
@@ -152,7 +152,7 @@
             await new Dash(services).query({ ...base, serviceOpts })
             assert.deepEqual(optsSeen, [undefined, serviceOpts], 'serviceOpts given to the api call')
 
-            const noSqlite = { apis: () => ({ dszSignedUrl: async () => ({ ok: true, payload: { urls: [] } }) }) }
+            const noSqlite = { apis: () => ({ dszSignedUrl: async () => ({ ok: true, status: 200, parse: () => ({ urls: [] }) }) }) }
             await assertRejects(assert, new Dash(noSqlite).query(base), /no "sqlite.bin" file/)
         })
     })

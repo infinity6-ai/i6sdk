@@ -139,6 +139,63 @@ function apiErrorFromResponse(status, text) {
 }
 
 /**
+ * Response wrapper holding HTTP transport status and lazy parser.
+ * @template T
+ */
+class Resp {
+    #parser
+    #parsed = false
+    #value = null
+    #text = null
+
+    /**
+     * @param {number} status - HTTP status code.
+     * @param {Headers} headers - HTTP response headers.
+     * @param {() => *} parser - Lazy parser function.
+     * @param {string} [text] - Raw response body text.
+     */
+    constructor(status, headers, parser, text = "") {
+        this.status = status
+        this.headers = headers
+        this.ok = this.status >= 200 && this.status < 300
+        this.#parser = parser
+        this.#text = text
+    }
+
+    /**
+     * Raw body text of the response.
+     * @returns {string}
+     */
+    get text() {
+        return this.#text
+    }
+
+    /**
+     * Structured error information when response is not ok.
+     * @returns {{status: number, code: string, message: string, cause: *}|null}
+     */
+    get error() {
+        if (!this.ok) {
+            return apiErrorFromResponse(this.status, this.#text)
+        }
+        return null
+    }
+
+    /**
+     * Parses and returns the deserialized response value.
+     * Throws an error if deserialization fails or if the response status is not ok.
+     * @returns {T}
+     */
+    parse() {
+        if (!this.#parsed) {
+            this.#value = this.#parser()
+            this.#parsed = true
+        }
+        return this.#value
+    }
+}
+
+/**
  * Invoker client for executing HTTP requests against the i6 API.
  */
 class Invoker {
@@ -247,27 +304,34 @@ class Invoker {
     }
 
     /**
-     * Resolves with `{status, ok, <key>}` on success and with `{status, ok: false, error}` on HTTP error.
-     * Network errors and JSON syntax errors bubble up directly as native exceptions.
+     * Resolves with a `Resp` instance holding the HTTP status, headers, and lazy `parse()`.
+     * Network errors bubble up directly as native exceptions.
+     * @template T
      * @param {InvokeOptions} opts - Same as `invoke`.
-     * @param {"payload"|"body"} [key] - Where the parsed JSON of a success is put.
-     * @returns {Promise<Record<string, any>>}
+     * @returns {Promise<Resp<T>>}
      */
-    async invokeResult(opts, key = "payload") {
+    async invokeResult(opts) {
         const resp = await this.invoke(opts)
+        const text = resp.status === 204 ? "" : await resp.text()
 
-        const result = { status: resp.status, ok: resp.ok }
-        if (resp.ok) {
-            const text = resp.status === 204 ? "" : await resp.text()
-            if (text) {
-                result[key] = JSON.parse(text)
+        const parser = () => {
+            if (!resp.ok) {
+                const apiErr = apiErrorFromResponse(resp.status, text)
+                const err = new Error(apiErr.message)
+                err.status = apiErr.status
+                err.code = apiErr.code
+                err.cause = apiErr.cause
+                throw err
             }
-        } else {
-            result.error = apiErrorFromResponse(resp.status, await resp.text())
+            if (!text) {
+                return null
+            }
+            return JSON.parse(text)
         }
-        return result
+
+        return new Resp(resp.status, resp.headers, parser, text)
     }
 
 }
 
-export { Invoker };
+export { Invoker, Resp };

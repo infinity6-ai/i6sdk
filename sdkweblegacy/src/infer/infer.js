@@ -114,9 +114,10 @@ class Infer {
       debug("3/4 calling the model on the server", { model_name: modelName, version: opts.partitions.version, model_partitions: opts.partitions })
       const modelStartedAt = performance.now()
       const outputs = await this.callModel(inputs, opts)
-      debug("3/4 model answered", { ms: Math.round(performance.now() - modelStartedAt), ok: outputs?.ok, status: outputs?.status, error: outputs?.error, outputs: preview(outputs?.payload?.outputs) })
+      const data = outputs.parse()
+      debug("3/4 model answered", { ms: Math.round(performance.now() - modelStartedAt), ok: outputs?.ok, status: outputs?.status, error: outputs?.error, outputs: preview(data?.outputs) })
 
-      let modelOutputsAndLimit = [JSON.parse(outputs.payload.outputs), opts.limit ?? DEFAULT_LIMIT]
+      let modelOutputsAndLimit = [JSON.parse(data.outputs), opts.limit ?? DEFAULT_LIMIT]
       debug("4/4 output query", queryName("output"), "| bound as ?1 (model outputs) and ?2 (limit):", preview(modelOutputsAndLimit))
       // 4. The sqlite turns the outputs into the result
       const result = await conn.namedJsonQuery({ name: queryName("output"), params: modelOutputsAndLimit })
@@ -232,7 +233,8 @@ class Infer {
       payload: { model_version: opts.partitions.version, model_partitions: partitions },
     }, opts.serviceOpts)
 
-    const byName = Object.fromEntries((resp.payload?.urls ?? []).map((file) => [file.name, file.url]))
+    const data = resp.parse()
+    const byName = Object.fromEntries((data?.urls ?? []).map((file) => [file.name, file.url]))
     const missing = Object.values(FILES).find((name) => !byName[name])
     if (missing) {
       throw new Error(`infer: the model api gave no "${missing}" file: ${resp.error?.message ?? JSON.stringify(Object.keys(byName))}`)

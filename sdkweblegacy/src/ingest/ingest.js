@@ -97,11 +97,12 @@ class Ingest {
       throw new Error(`Get upload URL failed with status ${resp.status}: ${resp.error?.message ?? ""}`);
     }
 
-    const uploads = resp.payload?.uploads;
+    const data = resp.parse();
+    const uploads = data?.uploads;
     if (!uploads?.[0]) {
       throw new Error("Get upload URL returned no upload URL.");
     }
-    return { ingestId: resp.payload.ingest_id, url: uploads[0] };
+    return { ingestId: data.ingest_id, url: uploads[0] };
   }
 
   /**

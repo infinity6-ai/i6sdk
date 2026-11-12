@@ -70,7 +70,7 @@
             const serviceOpts = { datasetToken: 'tok-1' }
             const calls = []
             const services = stubServices([], {
-                dszModelGet: async (req, opts) => { calls.push(['dszModelGet', opts]); return { ok: true, payload: { urls: [] } } },
+                dszModelGet: async (req, opts) => { calls.push(['dszModelGet', opts]); return { ok: true, status: 200, parse: () => ({ urls: [] }) } },
                 ingestzEventRelevanceFashionEvent: async (req, opts) => { calls.push(['event', opts]); return { ok: true, status: 200 } },
             })
             const { Infer } = await import('../src/infer/infer.js')
@@ -90,7 +90,7 @@
             const requests = []
             const services = stubServices([], { dszModelGet: async (req) => {
                 requests.push(req)
-                return { ok: true, payload: { urls: [{ name: 'tflite.bin', url: assets.tfliteUrl }, { name: 'sqlite.bin', url: assets.sqliteUrl }] } }
+                return { ok: true, status: 200, parse: () => ({ urls: [{ name: 'tflite.bin', url: assets.tfliteUrl }, { name: 'sqlite.bin', url: assets.sqliteUrl }] }) }
             } })
             const { Infer } = await import('../src/infer/infer.js')
 
@@ -101,7 +101,7 @@
                 payload: { model_version: 'v1', model_partitions: { store_id: 's1', version: 'v1' } },
             }])
 
-            const noSqlite = stubServices([], { dszModelGet: async () => ({ ok: true, payload: { urls: [] } }) })
+            const noSqlite = stubServices([], { dszModelGet: async () => ({ ok: true, status: 200, parse: () => ({ urls: [] }) }) })
             await assertRejects(assert, new Infer(noSqlite).run({ ...base, params: cart }), /no "sqlite.bin" file/)
         })
 

@@ -3,6 +3,7 @@
  */
 
 import { Services, Apis, SdkFuncs } from "./services/services.js";
+import { Resp } from "./invoker/invoker.js";
 
 /**
  * Pluggable Web Storage interface for token persistence and session data.
@@ -154,5 +155,6 @@ class I6Sdk {
 }
 
 window.I6Sdk = I6Sdk;
-export { I6Sdk };
+I6Sdk.Resp = Resp;
+export { I6Sdk, Resp };
 
