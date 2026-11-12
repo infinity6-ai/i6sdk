@@ -146,7 +146,7 @@ func expectedIngestzApi() *jsparserapi.Api {
 				Name:     "Get Ingestion Upload URLs",
 				Summary:  "Generates presigned PUT URLs and an ingestion token for uploading files into a target dataset table and partitions.",
 				Markdown: "",
-				Labels:   map[string]string{"token_type": "dataset"},
+				Labels:   map[string]string{"token_types": "dataset"},
 			},
 			Method: "POST",
 			Path:   "/api/ingest/dataset/{dataset}/get-url",
