@@ -164,7 +164,7 @@ func writeApiDecl(b *strings.Builder, api *jsparserapi.Api) {
 	if api.Resp.Payload.Head != nil && api.Resp.Payload.Head.GoTyp != "" {
 		returnDesc = fmt.Sprintf(" - [Go: %s]", api.Resp.Payload.Head.GoTyp)
 	}
-	writeln(b, " * @returns {Promise<import(\"../errors.js\").I6Result<%sResp>>}%s", apiId, returnDesc)
+	writeln(b, " * @returns {Promise<import(\"../invoker/invoker.js\").Resp<%sResp>>}%s", apiId, returnDesc)
 	writeln(b, " */")
 
 	if hasReq {
@@ -220,10 +220,6 @@ func writeApiDecl(b *strings.Builder, api *jsparserapi.Api) {
 		writeln(b, "    sinkable: true,")
 	}
 
-	resultKey := "payload"
-	if api.Resp.Payload.Head == nil {
-		resultKey = "body"
-	}
-	writeln(b, "  }, %q);", resultKey)
+	writeln(b, "  });")
 	writeln(b, "}")
 }

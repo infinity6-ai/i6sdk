@@ -2,8 +2,6 @@
  * @fileoverview HTTP client for sending API requests to i6 services.
  */
 
-import { apiErrorFromResponse, apiErrorFromNetwork, I6Error } from "../errors.js";
-
 import * as b64 from "../internal/b64/b64.js";
 import * as gzip from "../internal/gzip/gzip.js";
 
@@ -24,14 +22,14 @@ import * as gzip from "../internal/gzip/gzip.js";
 /**
  * Service options configuring SDK network requests.
  *
- * This is essential when the `DatasetToken` must never be exposed to the browser.
- * There are two main approaches to keep the `DatasetToken` safe on your backend:
+ * This is essential when tokens must never be exposed to the browser.
+ * There are two main approaches to keep tokens safe on your backend:
  *
  * ---
  * ### Approach 1: Backend Reverse Proxy (Recommended for simplicity)
  * To avoid all signature complexity ("signature hell"), you can simply proxy requests through
  * your own backend server. The browser sends the request to your backend, and your server forwards
- * it to i6 while attaching the `Authorization: Dataset <datasetToken>` header. This also works for
+ * it to i6 while attaching the `Authorization: Bearer <token>` header. This also works for
  * all HTTP methods and request bodies without any signing restrictions.
  *
  * Browser Fetcher example:
@@ -52,7 +50,7 @@ import * as gzip from "../internal/gzip/gzip.js";
  *     method: req.method,
  *     headers: {
  *       ...req.headers,
- *       'Authorization': `Dataset ${process.env.I6_DATASET_TOKEN}`,
+ *       'Authorization': `Bearer ${process.env.I6_BEARER_TOKEN}`,
  *     },
  *     body: ['GET', 'HEAD'].includes(req.method) ? undefined : req.body,
  *   });
@@ -112,37 +110,98 @@ import * as gzip from "../internal/gzip/gzip.js";
  *    ```
  * 4. Encode the signature and public key in Base64URL.
  * 5. Append the `sig` query parameter: `?sig=v1.<exp>.<open_params_pipe_separated>.<pub_key>.<signature>`
- *    (e.g., `sig=v1.20261027T150000000Z.payload.PubKeyBase64...SigBase64...`)
- *
- * @typedef {object} ServiceOptions
- * @property {string} [datasetToken] - [Go: string]
- * @property {string} [bearerToken] - [Go: string]
- * @property {Record<string, string>} [labels] - Labels
- * @property {Fetcher} [fetcher] - Custom fetch implementation.
- * @property {PrepareRequest} [prepareRequest] - Hook to mutate request options before sending (e.g., adding `sig` query parameter).
+ *    (e.g., `sig=v1.20261027T150000000Z.payload.PubKeyBase64...SigBase64...`
+ */
+
+/**
+ * Service options configuring per-request behavior and authentication.
+ * @typedef {Object} ServiceOptions
+ * @property {Fetcher} [fetcher] - Custom fetcher function override.
+ * @property {PrepareRequest} [prepareRequest] - Pre-request hook (e.g. for URL signing).
+ * @property {string} [bearerToken] - Explicit user bearer token for this request.
+ * @property {Record<string, string>} [labels] - Contextual metadata labels.
  */
 
 /**
  * Options for sending HTTP requests via the Invoker.
  * @typedef {Object} InvokeOptions
- * @property {string} [url] - The full URL to request. If omitted, defaults to `${baseUrl}/${path}`.
- * @property {string} [path] - The path to append to the baseUrl if `url` is not provided.
- * @property {Record<string, any>} [query] - Key-value pairs to append as query parameters.
- * @property {*} [json] - JSON-serializable body data. If provided, sets Content-Type header to application/json and serializes to body.
- * @property {string} [method] - HTTP method (e.g., 'GET', 'POST', 'PUT', 'DELETE').
- * @property {HeadersInit} [headers] - HTTP headers for the request.
- * @property {BodyInit|null} [body] - HTTP request body.
- * @property {RequestCredentials} [credentials] - Request credentials mode (e.g., 'include', 'same-origin', 'omit').
- * @property {RequestMode} [mode] - Request mode (e.g., 'cors', 'no-cors', 'same-origin').
- * @property {AbortSignal|null} [signal] - An AbortSignal to cancel the request.
- * @property {ServiceOptions} [opts]
- * @property {boolean} [sinkable]
+ * @property {string} [url] - Full target URL. Overrides baseUrl + path if set.
+ * @property {string} [path] - Path appended to baseUrl (e.g. "api/item/create").
+ * @property {string} [method="GET"] - HTTP method ("GET", "POST", "PUT", etc.).
+ * @property {Record<string, *>} [query] - Query parameters serialized into the URL.
+ * @property {*} [json] - Body data serialized as JSON. Sets "Content-Type: application/json".
+ * @property {HeadersInit} [headers] - Additional HTTP headers.
+ * @property {ServiceOptions} [opts] - Advanced service request hooks (fetcher, prepareRequest, etc.).
+ * @property {RequestCredentials} [credentials="include"] - Fetch credentials mode.
  */
 
-function getValue(obj, path) {
-    return path.split('.').reduce((currentObject, key) => {
-        return currentObject ? currentObject[key] : undefined;
-    }, obj);
+function codeFromStatus(status) {
+    if (status === 401) return "unauthenticated"
+    if (status === 403) return "forbidden"
+    if (status === 404) return "not_found"
+    if (status >= 500) return "unavailable"
+    return "bad_request"
+}
+
+function apiErrorFromResponse(status, text) {
+    return { status, code: codeFromStatus(status), message: text || `HTTP ${status}`, cause: text }
+}
+
+/**
+ * Response wrapper holding HTTP transport status and lazy parser.
+ * @template T
+ */
+class Resp {
+    #parser
+    #parsed = false
+    #value = null
+    #text = null
+
+    /**
+     * @param {number} status - HTTP status code.
+     * @param {Headers} headers - HTTP response headers.
+     * @param {() => *} parser - Lazy parser function.
+     * @param {string} [text] - Raw response body text.
+     */
+    constructor(status, headers, parser, text = "") {
+        this.status = status
+        this.headers = headers
+        this.ok = this.status >= 200 && this.status < 300
+        this.#parser = parser
+        this.#text = text
+    }
+
+    /**
+     * Raw body text of the response.
+     * @returns {string}
+     */
+    get text() {
+        return this.#text
+    }
+
+    /**
+     * Structured error information when response is not ok.
+     * @returns {{status: number, code: string, message: string, cause: *}|null}
+     */
+    get error() {
+        if (!this.ok) {
+            return apiErrorFromResponse(this.status, this.#text)
+        }
+        return null
+    }
+
+    /**
+     * Parses and returns the deserialized response value.
+     * Throws an error if deserialization fails or if the response status is not ok.
+     * @returns {T}
+     */
+    parse() {
+        if (!this.#parsed) {
+            this.#value = this.#parser()
+            this.#parsed = true
+        }
+        return this.#value
+    }
 }
 
 /**
@@ -163,26 +222,40 @@ class Invoker {
     }
 
     /**
-     * @param {{tokenType: string, url: string}} opts
+     * @param {{tokenTypes: string, url: string}} opts
+     * @return {{token:string, required: boolean}}
      */
     async resolveToken(opts) {
-        if (opts.tokenType == 'none') {
-            return null
+        console.log('opts', opts)
+        let ret = { required: false, token: "" }
+        if (!opts.tokenTypes) {
+            return ret
         }
-        const url = new URL(opts.url);
-        /** @type {string} */
-        var ret = null
-        if (opts.tokenType == 'user') {
-            ret = await this._services.tokens().getValidAccessToken()
-        } else if (opts.tokenType == 'dataset') {
-            const parts = url.pathname.split('/')
-            if (parts[0] == '') parts.shift()
-            if (parts[2] != 'dataset') throw new I6Error(`cannot resolve dataset name ${opts.tokenType}: ${url.pathname}`)
-            const dataset = parts[3]
-            if (!dataset) throw new I6Error(`cannot resolve dataset name ${opts.tokenType}: ${url.pathname}`)
-            ret = await this._services.tokens().getValidDatasetAccessToken(dataset)
+        ret.required = true
+        const tokenTypes = opts.tokenTypes.split('|')
+        for (const tokenType of tokenTypes) {
+            if (!tokenType) continue
+            if (tokenType === 'none') {
+                return { required: false, token: "" }
+            }
+            if (tokenType === 'user') {
+                ret.token = await this._services.tokens().getValidAccessToken()
+            } else if (tokenType === 'dataset') {
+                const url = new URL(opts.url);
+                const parts = url.pathname.split('/')
+                if (parts[0] === '') parts.shift()
+                if (parts[2] !== 'dataset') {
+                    return ret
+                }
+                const dataset = parts[3]
+                if (dataset) {
+                    ret.token = await this._services.tokens().getValidDatasetAccessToken(dataset)
+                }
+            }
+            if (ret.token) {
+                return ret
+            }   
         }
-        if (!ret) throw new I6Error(`cannot resolve dataset name ${opts.tokenType}: ${url.pathname}`)
         return ret
     }
 
@@ -190,14 +263,9 @@ class Invoker {
      * Sends an HTTP request using the Fetch API.
      *
      * @param {InvokeOptions} opts - Request options including path/URL, query params, and fetch options.
-     * Credentials are always set to "include" so the session cookie is sent. Note that `opts`
-     * is modified (credentials, and headers/body when `json` is given). An HTTP error status
-     * does not throw; check `ok` on the returned Response.
      * @returns {Promise<Response>} A promise that resolves to the fetch Response.
-     * @throws {TypeError} If the network request fails (from fetch).
      */
     async invoke(opts) {
-        console.log('invoke req', { ...opts, headers: opts.headers && Object.fromEntries(new Headers(opts.headers)), labels: opts.opts?.labels })
         opts.url = opts.url || `${this._services.config().baseUrl}/${opts.path}`
 
         if (opts.query) {
@@ -206,9 +274,7 @@ class Invoker {
                 if (value === undefined || value === null) {
                     continue
                 }
-                // A list becomes one repeated key per item (?a=1&a=2), not "1,2".
                 for (const item of Array.isArray(value) ? value : [value]) {
-                    // Objects are sent as JSON, everything else as its string
                     const serializedValue = (typeof item === 'object' && item !== null)
                         ? JSON.stringify(item)
                         : String(item);
@@ -223,27 +289,25 @@ class Invoker {
         }
 
         opts.headers = new Headers(opts.headers)
-        const datasetToken = opts.opts?.datasetToken || this._services.config().datasetToken;
-        const bearerToken = opts.opts?.bearerToken || this._services.config().bearerToken || (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('i6_user_access_token') : null);
+        const bearerToken = opts.opts?.bearerToken;
 
-        if (!opts.headers.has('Authorization') && datasetToken) {
-            opts.headers.set('Authorization', 'Dataset ' + datasetToken)
-        }
         if (!opts.headers.has('Authorization') && bearerToken) {
             opts.headers.set('Authorization', 'Bearer ' + bearerToken)
         }
-        console.log('aaaa', opts.headers.has('Authorization'))
-        if (!opts.headers.has('Authorization')) {
-            console.log('cccc', opts.headers.get('Authorization'))
+        if (!opts.headers.has('Authorization') && opts.opts?.labels?.token_types) {
             const tk = await this.resolveToken({
-                tokenType: opts.opts?.labels?.token_type,
+                tokenTypes: opts.opts.labels.token_types,
                 url: opts.url
             })
-            console.log('ddd', tk)
-            opts.headers.set('Authorization', 'Bearer ' + tk)
-            console.log('bbbbb', opts.headers.get('Authorization'))
+            if (tk.token) {
+                opts.headers.set('Authorization', 'Bearer ' + tk.token)
+            } else if (tk.required) {
+                if (opts.opts.labels.token_type == 'user') {
+                    return new Response(JSON.stringify({ error: "Unauthorized", message: "Unauthorized" }), { status: 401, statusText: "Unauthorized" });
+                }
+                return new Response(JSON.stringify({ error: "Forbidden", message: "Forbidden" }), { status: 403, statusText: "Forbidden" });
+            }
         }
-
 
         if (opts.json) {
             opts.headers.set('Content-Type', 'application/json')
@@ -256,25 +320,6 @@ class Invoker {
             await opts.opts.prepareRequest(opts)
         }
 
-        // if (opts.sinkable) {
-        //     //     if (opts.method?.toUpperCase() != "GET") throw new I6Error('Unsupported: sinkable must be GET')
-        //     //     if (opts.body) throw new I6Error('Unsupported: sinkable must not have body')
-        //     //     const u = new URL(opts.url)
-        //     //     const pathname = u.pathname.replace(/^\/+/, '')
-        //     //     let search = u.search.startsWith('?') ? u.search.substring(1) : u.search
-        //     //     if (search) {
-        //     //         search = b64.encodeUrlSafe(await gzip.gzip((search)))        
-        //     //     }
-        //     //     if (search.length <= 1900) {
-        //     //         opts.url = `${this._services.config().baseUrl}/api/sink/${pathname}?s=${search}`
-        //     //     }
-        //     console.log('sinkable apis disabled', opts.url)
-        //     return new Response(null, {
-        //         status: 204,
-        //         statusText: 'No Content',
-        //     })
-        // }
-
         if (opts.opts?.fetcher) {
             return opts.opts.fetcher(opts.url, opts)
         }
@@ -283,38 +328,34 @@ class Invoker {
     }
 
     /**
-     * Like `invoke`, but never throws: resolves with `{status, ok, <key>}` on success and with
-     * `{status, ok: false, error}` (see `I6ApiError`) on an HTTP error or a network failure.
-     * A success with status 204 or an empty body resolves with `{status, ok: true}` and no `<key>`.
+     * Resolves with a `Resp` instance holding the HTTP status, headers, and lazy `parse()`.
+     * Network errors bubble up directly as native exceptions.
+     * @template T
      * @param {InvokeOptions} opts - Same as `invoke`.
-     * @param {"payload"|"body"} [key] - Where the parsed JSON of a success is put.
-     * @returns {Promise<{status: number, ok: boolean, error?: import("../errors.js").I6ApiError} & Record<string, any>>}
+     * @returns {Promise<Resp<T>>}
      */
-    async invokeResult(opts, key = "payload") {
-        let resp
-        try {
-            resp = await this.invoke(opts)
-        } catch (cause) {
-            return { status: 0, ok: false, error: apiErrorFromNetwork(cause) }
+    async invokeResult(opts) {
+        const resp = await this.invoke(opts)
+        const text = resp.status === 204 ? "" : await resp.text()
+
+        const parser = () => {
+            if (!resp.ok) {
+                const apiErr = apiErrorFromResponse(resp.status, text)
+                const err = new Error(apiErr.message)
+                err.status = apiErr.status
+                err.code = apiErr.code
+                err.cause = apiErr.cause
+                throw err
+            }
+            if (!text) {
+                return null
+            }
+            return JSON.parse(text)
         }
 
-        const result = { status: resp.status, ok: resp.ok }
-        try {
-            if (resp.ok) {
-                const text = resp.status === 204 ? "" : await resp.text()
-                if (text) {
-                    result[key] = JSON.parse(text)
-                }
-            } else {
-                result.error = apiErrorFromResponse(resp.status, await resp.text())
-            }
-        } catch (cause) {
-            result.ok = false
-            result.error = apiErrorFromNetwork(cause)
-        }
-        return result
+        return new Resp(resp.status, resp.headers, parser, text)
     }
 
 }
 
-export { Invoker };
+export { Invoker, Resp };

@@ -13,20 +13,20 @@
         }
 
         let Dash
-        let I6Error
         let realFetch
         let etag
         let sqliteBytes
         let fetches
 
-        const rejectsWithCode = async (assert, promise, code, message) => {
+        const assertRejects = async (assert, promise, message) => {
             try {
                 await promise
                 assert.ok(false, 'should have been rejected')
             } catch (e) {
-                assert.true(e instanceof I6Error, 'is an I6Error')
-                assert.strictEqual(e.code, code)
-                assert.true(message.test(e.message), `message ${e.message} matches ${message}`)
+                assert.true(e instanceof Error, 'is an Error')
+                if (message) {
+                    assert.true(message.test(e.message), `message ${e.message} matches ${message}`)
+                }
             }
         }
 
@@ -45,7 +45,6 @@
         // The sqlite is served by a fetch stub, because a test page has no server giving it an etag
         hooks.beforeEach(async function () {
             ({ Dash } = await import('../src/dash/dash.js'));
-            ({ I6Error } = await import('../src/errors.js'))
             const { fs } = await import('../src/internal/fs/fs.js')
             await fs.clean()
             await (await navigator.storage.getDirectory()).removeEntry('i6', { recursive: true }).catch(() => { })
@@ -70,12 +69,12 @@
         QUnit.test("query validates its opts", async function (assert) {
             const dash = new Dash()
             const ok = { ...base, sqliteUrl }
-            await rejectsWithCode(assert, dash.query(), 'invalid_argument', /opts.dashName/)
+            await assertRejects(assert, dash.query(), /opts.dashName/)
             for (const key of ['dashName', 'dataset']) {
-                await rejectsWithCode(assert, dash.query({ ...ok, [key]: '' }), 'invalid_argument', new RegExp(`opts.${key}`))
+                await assertRejects(assert, dash.query({ ...ok, [key]: '' }), new RegExp(`opts.${key}`))
             }
             for (const partitions of [undefined, 'x', ['a'], { store_id: 1 }]) {
-                await rejectsWithCode(assert, dash.query({ ...ok, partitions }), 'invalid_argument', /opts.partitions/)
+                await assertRejects(assert, dash.query({ ...ok, partitions }), /opts.partitions/)
             }
         })
 
@@ -115,7 +114,7 @@
 
         QUnit.test("query reports an asset that cannot be downloaded", async function (assert) {
             const opts = { ...base, sqliteUrl: new URL('nope.sqlite', location.href).href }
-            await rejectsWithCode(assert, new Dash().query(opts), 'asset', /could not get/)
+            await assertRejects(assert, new Dash().query(opts), /nope\.sqlite/)
         })
 
         QUnit.test("query reports the http status and cause of a missing asset", async function (assert) {
@@ -124,15 +123,13 @@
                 await new Dash().query(opts)
                 assert.ok(false, 'should have been rejected')
             } catch (e) {
-                assert.strictEqual(e.code, 'asset')
                 assert.strictEqual(e.status, 404)
-                assert.true(e.cause instanceof Error, 'has the underlying error as cause')
             }
         })
 
         QUnit.test("query reports a sqlite without the named query", async function (assert) {
             sqliteBytes = await buildSqlite('x')
-            await rejectsWithCode(assert, new Dash().query({ ...base, dashName: 'other', sqliteUrl }), 'query', /./)
+            await assertRejects(assert, new Dash().query({ ...base, dashName: 'other', sqliteUrl }), /no named query "other"/)
         })
 
         QUnit.test("query finds the sqlite with the signed url api", async function (assert) {
@@ -141,7 +138,7 @@
             const services = { apis: () => ({ dszSignedUrl: async (req, opts) => {
                 requests.push(req)
                 optsSeen.push(opts)
-                return { ok: true, payload: { urls: [{ url: sqliteUrl }] } }
+                return { ok: true, status: 200, parse: () => ({ urls: [{ url: sqliteUrl }] }) }
             } }) }
 
             const result = await new Dash(services).query(base)
@@ -151,12 +148,12 @@
                 payload: { paths: [{ method: 'GET', path: 'i6tb://results.relevance-fashion-store-dash/store_id=s1/sqlite.bin' }] },
             }])
 
-            const serviceOpts = { datasetToken: 'tok-1' }
+            const serviceOpts = { bearerToken: 'tok-1' }
             await new Dash(services).query({ ...base, serviceOpts })
             assert.deepEqual(optsSeen, [undefined, serviceOpts], 'serviceOpts given to the api call')
 
-            const noSqlite = { apis: () => ({ dszSignedUrl: async () => ({ ok: true, payload: { urls: [] } }) }) }
-            await rejectsWithCode(assert, new Dash(noSqlite).query(base), 'asset', /no "sqlite.bin" file/)
+            const noSqlite = { apis: () => ({ dszSignedUrl: async () => ({ ok: true, status: 200, parse: () => ({ urls: [] }) }) }) }
+            await assertRejects(assert, new Dash(noSqlite).query(base), /no "sqlite.bin" file/)
         })
     })
 

@@ -101,11 +101,7 @@ class Tokens {
     const config = this._services.config();
     const s = config.storage || config.localStorage;
     if (typeof s === "function") {
-      try {
-        return s();
-      } catch {
-        return null;
-      }
+      return s();
     }
     if (s) {
       return s;
@@ -158,11 +154,7 @@ class Tokens {
     if (!s) {
       return null;
     }
-    try {
-      return JSON.parse(s);
-    } catch {
-      return null;
-    }
+    return JSON.parse(s);
   }
 
   /**
@@ -178,7 +170,7 @@ class Tokens {
   }
 
   /**
-   * Retrieves the raw stored user access token JWT string without checking expiration or refreshing.
+   * Retrieves the current user access token directly from storage without expiration checks or refresh attempts.
    * Use {@link Tokens#getValidAccessToken} when fresh/valid credentials are required.
    *
    * @returns {string|undefined} The signed EdDSA user access token JWT,
@@ -189,13 +181,10 @@ class Tokens {
   }
 
   /**
-   * Clears all stored authentication and authorization tokens from storage.
-   * Removes both the user token (`'i6_user_user_token'`) and all cached dataset
-   * access tokens (`'i6_dataset_access_tokens'`).
+   * Clears stored user token credentials from storage.
    * @returns {void}
    */
-  clearTokens() {
-    this.clearDatasetTokens();
+  clearUserToken() {
     const storage = this._getStorage();
     if (!storage) return;
     storage.removeItem(USER_TOKEN_KEY);
@@ -251,7 +240,6 @@ class Tokens {
     const config = this._services.config();
     const baseUrl = config.servUrls?.["decsuite"] || config.decsuiteUrl || config.baseUrl || "";
     const redeemUrl = `${baseUrl}/api/decsuite/auth/checkoutredeem`;
-    console.log("REDEEM checkoutCode", checkoutCode)
     const resp = await fetch(redeemUrl, {
       method: "POST",
       headers: {
@@ -272,20 +260,20 @@ class Tokens {
 
     this.clearDatasetTokens();
     this.setUserToken(data);
-    console.log("REDEEM ret", ret)
-    let ret =  {
+    const ret = {
       ...data,
       dataset,
-    }
+    };
     return ret;
   }
 
   /**
    * Refreshes the user access token using the stored user refresh token via `POST /api/userz/auth/refresh`.
    * Enforces token family rotation by storing the newly rotated refresh token and fresh access token.
-   * Deduplicates concurrent in-flight refresh requests to prevent token reuse conflicts.
+   * If session renewal is revoked or family reuse is detected, wipes the stored user session.
+   * Concurrent refresh calls are deduplicated using an in-flight promise cache.
    *
-   * @returns {Promise<UserToken|null>} The refreshed token credentials, or null if refresh failed / token revoked.
+   * @returns {Promise<UserToken|null>} The newly refreshed user token credentials or null if renewal failed.
    */
   async refresh() {
     if (this._refreshPromise) {
@@ -324,8 +312,6 @@ class Tokens {
         const data = await resp.json();
         this.setUserToken(data);
         return data;
-      } catch {
-        return null;
       } finally {
         this._refreshPromise = null;
       }
@@ -346,22 +332,18 @@ class Tokens {
     const refreshToken = token?.user_refresh_token;
 
     if (refreshToken) {
-      try {
-        const userzUrl = this._getUserzUrl();
-        const logoutUrl = `${userzUrl}/api/userz/auth/logout`;
+      const userzUrl = this._getUserzUrl();
+      const logoutUrl = `${userzUrl}/api/userz/auth/logout`;
 
-        await fetch(logoutUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            refresh_token: refreshToken,
-          }),
-        });
-      } catch {
-        // Network or server error; continue with local clearance
-      }
+      await fetch(logoutUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          refresh_token: refreshToken,
+        }),
+      });
     }
 
     this.clearTokens();
@@ -404,11 +386,7 @@ class Tokens {
     if (!storage) return {};
     const s = storage.getItem(DATASET_TOKENS_KEY);
     if (!s) return {};
-    try {
-      return JSON.parse(s) || {};
-    } catch {
-      return {};
-    }
+    return JSON.parse(s) || {};
   }
 
   /**
@@ -503,7 +481,7 @@ class Tokens {
         }
 
         const userzUrl = this._getUserzUrl();
-        const url = `${userzUrl}/api/userz/dataset/access-token`;
+        const url = `${userzUrl}/api/userz/dataset-access-token/` + encodeURIComponent(dataset);
 
         const resp = await fetch(url, {
           method: "POST",
@@ -511,10 +489,7 @@ class Tokens {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${userAccessToken}`,
           },
-          body: JSON.stringify({
-            dataset: dataset,
-            grants: ALL_GRANTS,
-          }),
+          body: JSON.stringify({}),
         });
 
         if (!resp.ok) {
@@ -524,8 +499,6 @@ class Tokens {
         const data = await resp.json();
         this.setDatasetToken(dataset, data);
         return data;
-      } catch {
-        return null;
       } finally {
         this._datasetTokenPromises.delete(dataset);
       }
@@ -534,6 +507,17 @@ class Tokens {
     this._datasetTokenPromises.set(dataset, promise);
     const result = await promise;
     return result?.access_token || null;
+  }
+
+  /**
+   * Clears all session credentials (both user and dataset tokens) from storage.
+   * Effectively resets client authentication state.
+   *
+   * @returns {void}
+   */
+  clearTokens() {
+    this.clearUserToken();
+    this.clearDatasetTokens();
   }
 }
 

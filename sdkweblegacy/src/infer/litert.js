@@ -3,7 +3,6 @@
  * LiteRT library (runtime, model, tensors) is in this file. The caller only gives data and gets values back.
  */
 
-import { I6Error } from "../errors.js";
 import { fs } from "../internal/fs/fs.js";
 
 /**
@@ -40,7 +39,6 @@ let loadedModel = null
  * @param {FileRef} opts.ref - The downloaded .tflite file.
  * @param {string} [opts.wasmUrl] - URL of the folder with the LiteRT wasm files. Defaults to the jsdelivr copy.
  * @returns {Promise<Object>} The compiled model, to give to `runModel` and `describeModel`.
- * @throws {I6Error} With code "asset" if the file is not a tflite file, "model" if the runtime or the model cannot be loaded.
  */
 async function loadModel(opts) {
   const key = `${opts.ref.name}@${opts.ref.version}`
@@ -49,7 +47,7 @@ async function loadModel(opts) {
   const bytes = await fs.read(opts.ref)
   
   if (new TextDecoder().decode(bytes.subarray(4, 8)) !== "TFL3") {
-    throw new I6Error(`infer: ${opts.ref.name} is not a tflite file`, { code: "asset" })
+    throw new Error(`infer: ${opts.ref.name} is not a tflite file`)
   }
 
   const litert = await import("@litertjs/core")
@@ -80,10 +78,9 @@ function describeModel(model) {
  * @param {ModelInput} input - What the caller gave.
  * @param {number[]} modelShape - Shape of the model input (-1 is free).
  * @returns {{flat: number[], shape: number[]}}
- * @throws {I6Error} With code "invalid_argument" if the data does not fit the model's shape.
  */
 function toTensorData(name, input, modelShape) {
-  const invalid = (msg) => new I6Error(`infer: input "${name}" ${msg}`, { code: "invalid_argument" })
+  const invalid = (msg) => new TypeError(`infer: input "${name}" ${msg}`)
 
   const { data, shape } = input
   if (!Array.isArray(data)) throw invalid("has no data array")
@@ -103,7 +100,6 @@ function toTensorData(name, input, modelShape) {
  * @param {Object} model - The compiled model, from loadModel.
  * @param {Record<string, ModelInput>} inputs - Input name -> data.
  * @returns {Promise<Record<string, ArrayLike<number>>>} Output name -> values, for every output of the model.
- * @throws {I6Error} With code "invalid_argument" if an input is missing or its data does not fit the model, "model" if the run fails.
  */
 async function runModel(model, inputs) {
   const tensors = {}
@@ -111,7 +107,7 @@ async function runModel(model, inputs) {
   try {
     for (const detail of model.getInputDetails()) {
       const input = inputs?.[detail.name]
-      if (!input) throw new I6Error(`infer: input "${detail.name}" is missing`, { code: "invalid_argument" })
+      if (!input) throw new TypeError(`infer: input "${detail.name}" is missing`)
 
       const { flat, shape } = toTensorData(detail.name, input, Array.from(detail.shape))
       tensors[detail.name] = new loadedModel.litert.Tensor(new DTYPE_CTORS[detail.dtype](flat), shape)

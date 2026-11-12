@@ -68,7 +68,7 @@ func TestUnitWrite(t *testing.T) {
    * 
    * @param {apiSampleFractionReq} req
    * @param {ServiceOptions} [opts]
-   * @returns {Promise<import("../errors.js").I6Result<apiSampleFractionResp>>}
+   * @returns {Promise<import("../invoker/invoker.js").Resp<apiSampleFractionResp>>}
    */
   async sampleFraction(req, opts) {
     return this._services.invoker().invokeResult({
@@ -78,7 +78,7 @@ func TestUnitWrite(t *testing.T) {
       headers: req.headers,
       json: req.payload,
       opts: opts,
-    }, "payload");
+    });
   }
 }
 
@@ -147,7 +147,7 @@ export { Apis };
    * 
    * @param {apiCustomActionReq} req - [Go: models.CustomReq]
    * @param {ServiceOptions} [opts]
-   * @returns {Promise<import("../errors.js").I6Result<apiCustomActionResp>>} - [Go: models.CustomResp]
+   * @returns {Promise<import("../invoker/invoker.js").Resp<apiCustomActionResp>>} - [Go: models.CustomResp]
    */
   async customAction(req, opts) {
     return this._services.invoker().invokeResult({
@@ -155,7 +155,7 @@ export { Apis };
       path: ` + "`" + `api/custom/action` + "`" + `,
       json: req.payload,
       opts: opts,
-    }, "payload");
+    });
   }
 }
 

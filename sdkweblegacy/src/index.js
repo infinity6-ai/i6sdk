@@ -3,7 +3,7 @@
  */
 
 import { Services, Apis, SdkFuncs } from "./services/services.js";
-import { I6Error } from "./errors.js";
+import { Resp } from "./invoker/invoker.js";
 
 /**
  * Pluggable Web Storage interface for token persistence and session data.
@@ -23,8 +23,6 @@ import { I6Error } from "./errors.js";
  * @property {string} [userExchangeCallbackUrl] - Absolute URL of the application's exchange callback page handling PKCE token exchange.
  * @property {string} [callbackUrl] - Default application redirect URL after logout.
  * @property {string} [app] - Client application identifier registered in i6userz (e.g. 'default').
- * @property {string} [datasetToken] - Default dataset authorization token string for API requests.
- * @property {string} [bearerToken] - Default user bearer token JWT string for API requests.
  * @property {I6Storage | (() => I6Storage)} [storage] - Optional storage adapter for persistent token storage. Defaults to global `localStorage` when omitted.
  * @property {I6Storage | (() => I6Storage)} [localStorage] - Optional alias for persistent storage adapter (defaults to global `localStorage`).
  * @property {I6Storage | (() => I6Storage)} [sessionStorage] - Optional storage adapter for session-scoped data such as PKCE code verifier. Defaults to global `sessionStorage` when omitted.
@@ -154,9 +152,7 @@ class I6Sdk {
   }
 }
 
-// Lets bundle users (window.I6Sdk) test errors with `e instanceof I6Sdk.I6Error`.
-I6Sdk.I6Error = I6Error;
-
 window.I6Sdk = I6Sdk;
-export { I6Sdk, I6Error };
+I6Sdk.Resp = Resp;
+export { I6Sdk, Resp };
 

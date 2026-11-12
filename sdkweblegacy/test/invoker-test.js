@@ -2,12 +2,12 @@
 
     QUnit.module("i6sdk-web invokeResult", function (hooks) {
 
-        let Invoker
+        let Invoker, Resp
         let realFetch
         let invoker
 
         hooks.beforeEach(async function () {
-            ({ Invoker } = await import('../src/invoker/invoker.js'))
+            ({ Invoker, Resp } = await import('../src/invoker/invoker.js'))
             realFetch = globalThis.fetch
             invoker = new Invoker({ config: () => ({ baseUrl: 'https://api.test' }), tokens: () => ({ getValidAccessToken: async () => null, getValidDatasetAccessToken: async () => null }) })
         })
@@ -18,17 +18,28 @@
 
         const answer = (body, status) => { globalThis.fetch = async () => new Response(body, { status }) }
 
-        QUnit.test("success puts the json in payload, or in body when asked", async function (assert) {
+        QUnit.test("success returns Resp with status, ok and parse()", async function (assert) {
             answer('{"id":"a"}', 200)
-            assert.deepEqual(await invoker.invokeResult({ path: 'x' }), { status: 200, ok: true, payload: { id: 'a' } })
-            assert.deepEqual(await invoker.invokeResult({ path: 'x' }, 'body'), { status: 200, ok: true, body: { id: 'a' } })
+            const r = await invoker.invokeResult({ path: 'x' })
+            assert.true(r instanceof Resp)
+            assert.strictEqual(r.status, 200)
+            assert.true(r.ok)
+            assert.strictEqual(r.text, '{"id":"a"}')
+            assert.deepEqual(r.parse(), { id: 'a' })
         })
 
-        QUnit.test("a 204 or an empty success body is ok with no payload", async function (assert) {
+        QUnit.test("a 204 or an empty success body returns null on parse()", async function (assert) {
             answer(null, 204)
-            assert.deepEqual(await invoker.invokeResult({ path: 'x' }, 'body'), { status: 204, ok: true })
+            const r1 = await invoker.invokeResult({ path: 'x' })
+            assert.strictEqual(r1.status, 204)
+            assert.true(r1.ok)
+            assert.strictEqual(r1.parse(), null)
+
             answer('', 200)
-            assert.deepEqual(await invoker.invokeResult({ path: 'x' }), { status: 200, ok: true })
+            const r2 = await invoker.invokeResult({ path: 'x' })
+            assert.strictEqual(r2.status, 200)
+            assert.true(r2.ok)
+            assert.strictEqual(r2.parse(), null)
         })
 
         QUnit.test("http errors keep the server text and get a code from the status", async function (assert) {
@@ -43,7 +54,10 @@
             for (const [status, text, code] of cases) {
                 answer(text, status)
                 const r = await invoker.invokeResult({ path: 'x' })
-                assert.deepEqual(r, { status, ok: false, error: { status, code, message: text, cause: text } })
+                assert.strictEqual(r.status, status)
+                assert.false(r.ok)
+                assert.deepEqual(r.error, { status, code, message: text, cause: text })
+                assert.throws(() => r.parse(), new RegExp(text))
             }
         })
 
@@ -54,13 +68,10 @@
             assert.strictEqual(r.error.code, 'bad_request')
         })
 
-        QUnit.test("a network failure is returned, not thrown", async function (assert) {
+        QUnit.test("a network failure throws", async function (assert) {
             const cause = new TypeError('Failed to fetch')
             globalThis.fetch = async () => { throw cause }
-            const r = await invoker.invokeResult({ path: 'x' })
-            assert.false(r.ok)
-            assert.strictEqual(r.status, 0)
-            assert.deepEqual(r.error, { status: 0, code: 'network', message: 'Failed to fetch', cause })
+            await assert.rejects(invoker.invokeResult({ path: 'x' }), cause)
         })
 
         QUnit.test("uses custom fetcher from ServiceOptions if provided", async function (assert) {
@@ -68,7 +79,9 @@
             const fetcher = async (url, opts) => new Response('{"id":"custom"}', { status: 200 })
             
             const r = await invoker.invokeResult({ path: 'x', opts: { fetcher } })
-            assert.deepEqual(r, { status: 200, ok: true, payload: { id: 'custom' } })
+            assert.strictEqual(r.status, 200)
+            assert.true(r.ok)
+            assert.deepEqual(r.parse(), { id: 'custom' })
         })
 
         QUnit.test("calls prepareRequest from ServiceOptions if provided", async function (assert) {
@@ -83,7 +96,9 @@
             }
             
             const r = await invoker.invokeResult({ path: 'x', opts: { prepareRequest } })
-            assert.deepEqual(r, { status: 200, ok: true, payload: { id: 'prep' } })
+            assert.strictEqual(r.status, 200)
+            assert.true(r.ok)
+            assert.deepEqual(r.parse(), { id: 'prep' })
             assert.strictEqual(fetchedUrl, 'https://api.test/x?sig=test')
         })
     })
