@@ -101,6 +101,18 @@
             assert.deepEqual(r.parse(), { id: 'prep' })
             assert.strictEqual(fetchedUrl, 'https://api.test/x?sig=test')
         })
+
+        QUnit.test("returns 401 when user token is required but missing, and 403 for dataset token", async function (assert) {
+            const rUser = await invoker.invokeResult({ path: 'x', opts: { labels: { token_types: 'user' } } })
+            assert.strictEqual(rUser.status, 401, "status is 401 for missing user credentials")
+            assert.false(rUser.ok)
+            assert.strictEqual(rUser.error.code, "unauthenticated")
+
+            const rDataset = await invoker.invokeResult({ path: 'x', opts: { labels: { token_types: 'dataset' } } })
+            assert.strictEqual(rDataset.status, 403, "status is 403 for missing dataset credentials")
+            assert.false(rDataset.ok)
+            assert.strictEqual(rDataset.error.code, "forbidden")
+        })
     })
 
 })(QUnit)

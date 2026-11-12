@@ -301,7 +301,8 @@ class Invoker {
             if (tk.token) {
                 opts.headers.set('Authorization', 'Bearer ' + tk.token)
             } else if (tk.required) {
-                if (opts.opts.labels.token_type == 'user') {
+                const types = opts.opts.labels.token_types.split('|')
+                if (types.includes('user')) {
                     return new Response(JSON.stringify({ error: "Unauthorized", message: "Unauthorized" }), { status: 401, statusText: "Unauthorized" });
                 }
                 return new Response(JSON.stringify({ error: "Forbidden", message: "Forbidden" }), { status: 403, statusText: "Forbidden" });
