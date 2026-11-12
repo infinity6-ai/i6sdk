@@ -26,6 +26,37 @@
 /**
  * Dataset access token credentials returned by POST /api/userz/dataset/access-token
  * and cached in localStorage under 'i6_dataset_access_tokens'.
+ *
+ * ### Permissions and Bitmasks (`grants`):
+ * The `grants` field is a compact `uint8` bitmask matching Go's `grants.Grant` package:
+ * - `Grants.System` = 1 (0x01) - Platform orchestration
+ * - `Grants.Admin`  = 2 (0x02) - Dataset administration, solutions, credentials
+ * - `Grants.Write`  = 4 (0x04) - Ingestion, mutations, pipelines
+ * - `Grants.Read`   = 8 (0x08) - Queries, inspection, exports
+ * - `Grants.All`    = 15 (0x0F) - All grants combined
+ *
+ * #### Usage in API Requests:
+ * In JSON payloads sent to or received from the API, grants are simply numbers.
+ * Combine multiple permissions using native bitwise OR (`|`) or `bitmapz.join()`:
+ * ```js
+ * import { I6Sdk, Grants, bitmapz } from 'i6sdk';
+ *
+ * // Requesting Read + Write:
+ * const myGrants = Grants.Read | Grants.Write; // 12
+ * ```
+ *
+ * #### Inspecting Grants in Client Applications:
+ * Use the SDK's `bitmapz` helper functions to inspect or decompose granted permissions:
+ * ```js
+ * // Check if a specific permission is granted:
+ * if (bitmapz.containsAll(token.grants, Grants.Admin)) {
+ *   // User is an admin
+ * }
+ *
+ * // Decompose into an array of individual active bits:
+ * const activeBits = bitmapz.split(token.grants); // e.g. [4, 8]
+ * ```
+ *
  * @typedef {Object} DatasetToken
  * @property {string} access_token - Binary packed and signed dataset access token string.
  * @property {string} dataset - Target dataset ID.
