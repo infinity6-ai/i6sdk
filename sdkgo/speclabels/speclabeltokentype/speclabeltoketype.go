@@ -2,7 +2,7 @@ package speclabeltokentype
 
 import "strings"
 
-const Key = "token_type"
+const Key = "token_types"
 
 const (
 	User    = "user"
