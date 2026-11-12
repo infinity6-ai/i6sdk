@@ -67,7 +67,7 @@
         })
 
         QUnit.test("run and selectResults give serviceOpts to the api calls", async function (assert) {
-            const serviceOpts = { datasetToken: 'tok-1' }
+            const serviceOpts = { bearerToken: 'tok-1' }
             const calls = []
             const services = stubServices([], {
                 dszModelGet: async (req, opts) => { calls.push(['dszModelGet', opts]); return { ok: true, status: 200, parse: () => ({ urls: [] }) } },

@@ -22,14 +22,14 @@ import * as gzip from "../internal/gzip/gzip.js";
 /**
  * Service options configuring SDK network requests.
  *
- * This is essential when the `DatasetToken` must never be exposed to the browser.
- * There are two main approaches to keep the `DatasetToken` safe on your backend:
+ * This is essential when tokens must never be exposed to the browser.
+ * There are two main approaches to keep tokens safe on your backend:
  *
  * ---
  * ### Approach 1: Backend Reverse Proxy (Recommended for simplicity)
  * To avoid all signature complexity ("signature hell"), you can simply proxy requests through
  * your own backend server. The browser sends the request to your backend, and your server forwards
- * it to i6 while attaching the `Authorization: Dataset <datasetToken>` header. This also works for
+ * it to i6 while attaching the `Authorization: Bearer <token>` header. This also works for
  * all HTTP methods and request bodies without any signing restrictions.
  *
  * Browser Fetcher example:
@@ -50,7 +50,7 @@ import * as gzip from "../internal/gzip/gzip.js";
  *     method: req.method,
  *     headers: {
  *       ...req.headers,
- *       'Authorization': `Dataset ${process.env.I6_DATASET_TOKEN}`,
+ *       'Authorization': `Bearer ${process.env.I6_BEARER_TOKEN}`,
  *     },
  *     body: ['GET', 'HEAD'].includes(req.method) ? undefined : req.body,
  *   });
@@ -118,7 +118,6 @@ import * as gzip from "../internal/gzip/gzip.js";
  * @typedef {Object} ServiceOptions
  * @property {Fetcher} [fetcher] - Custom fetcher function override.
  * @property {PrepareRequest} [prepareRequest] - Pre-request hook (e.g. for URL signing).
- * @property {string} [datasetToken] - Explicit dataset authorization token for this request.
  * @property {string} [bearerToken] - Explicit user bearer token for this request.
  * @property {Record<string, string>} [labels] - Contextual metadata labels.
  */
@@ -276,12 +275,8 @@ class Invoker {
         }
 
         opts.headers = new Headers(opts.headers)
-        const datasetToken = opts.opts?.datasetToken;
         const bearerToken = opts.opts?.bearerToken;
 
-        if (!opts.headers.has('Authorization') && datasetToken) {
-            opts.headers.set('Authorization', 'Dataset ' + datasetToken)
-        }
         if (!opts.headers.has('Authorization') && bearerToken) {
             opts.headers.set('Authorization', 'Bearer ' + bearerToken)
         }

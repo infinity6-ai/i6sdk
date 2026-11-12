@@ -148,7 +148,7 @@
                 payload: { paths: [{ method: 'GET', path: 'i6tb://results.relevance-fashion-store-dash/store_id=s1/sqlite.bin' }] },
             }])
 
-            const serviceOpts = { datasetToken: 'tok-1' }
+            const serviceOpts = { bearerToken: 'tok-1' }
             await new Dash(services).query({ ...base, serviceOpts })
             assert.deepEqual(optsSeen, [undefined, serviceOpts], 'serviceOpts given to the api call')
 
