@@ -7,6 +7,7 @@ import (
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
+	"go.code.infinity6.ai/sdkgo/sdkgo/grants"
 )
 
 func TestUnitParseSchema(t *testing.T) {
@@ -57,6 +58,34 @@ func TestUnitParseSchemaNestedObject(t *testing.T) {
 		if d.Head.Name == "inParams" {
 			found = true
 			require.Equal(t, "string", d.Properties.All()[0].Typ)
+		}
+	}
+	require.True(t, found)
+}
+
+func TestUnitParseSchemaCustomTypeEnum(t *testing.T) {
+	ctx := t.Context()
+	var g grants.Grant
+	schema := &schemaz.Schema{
+		Object: func(_ bool) map[string]*schemaz.Schema {
+			return map[string]*schemaz.Schema{
+				"grants": {
+					Field: func() any { return &g },
+				},
+			}
+		},
+	}
+
+	td, tds := jsparser.ParseSchema(ctx, "testReq", schema)
+	require.NotNil(t, td)
+	require.Equal(t, "Grant", td.Properties.All()[0].Typ)
+
+	var found bool
+	for _, d := range tds.All() {
+		if d.Head.Name == "Grant" {
+			found = true
+			require.Equal(t, "1 | 2 | 4 | 8 | number", d.Head.Typ)
+			require.Equal(t, "grants.Grant", d.Head.GoTyp)
 		}
 	}
 	require.True(t, found)

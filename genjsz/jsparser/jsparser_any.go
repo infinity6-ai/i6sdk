@@ -170,9 +170,6 @@ func checkSchema(ctx context.Context, baseId string, val reflect.Value) (*jstype
 func checkCustom(ctx context.Context, baseId string, val reflect.Value) (*jstypez.Typedef, *jstypez.Typedefs) {
 	v := val.Interface()
 	if ret, tdfs := jsparsercustom.Resolve(v); ret != nil {
-		if tdfs != nil {
-			checker.Empty(tdfs.All(), "must be empty")
-		}
 		if ret.Head.Typ != jstypez.TypBoolean && ret.Head.Typ != jstypez.TypString && ret.Head.Typ != jstypez.TypNumber {
 			logger.Info(ctx, "non basic parser custom detected", map[string]any{"typ": ret.Head.Typ, "base": baseId})
 		}
