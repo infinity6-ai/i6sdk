@@ -13,7 +13,6 @@ import (
 
 func AllApis() []apiz.Api {
 	return []apiz.Api{
-		&Api[*relevancefashionpipez.BatchIngest]{},
 		&Api[*relevancefashionpipez.Main]{},
 	}
 }
