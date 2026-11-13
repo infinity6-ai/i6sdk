@@ -175,24 +175,24 @@
                             <div class="field" style="max-width: 110px;">
                                 <label for="check-method">Method</label>
                                 <select id="check-method">
+                                    <option value="GET" selected>GET</option>
                                     <option value="POST">POST</option>
-                                    <option value="GET">GET</option>
                                     <option value="PUT">PUT</option>
                                     <option value="DELETE">DELETE</option>
                                 </select>
                             </div>
                             <div class="field">
                                 <label for="check-path">Path</label>
-                                <input type="text" id="check-path" class="mono-input" placeholder="/api/relevance/dataset/dectest/predict">
+                                <input type="text" id="check-path" class="mono-input" value="/api/ds/dataset/dectest/solutions" placeholder="/api/ds/dataset/dectest/solutions">
                             </div>
                         </div>
                         <div class="field">
                             <label for="check-query">Query String</label>
-                            <input type="text" id="check-query" class="mono-input" placeholder="limit=10&page=1">
+                            <input type="text" id="check-query" class="mono-input" placeholder="Optional query (e.g. limit=10)">
                         </div>
                         <div class="field">
                             <label for="check-body">Request Body</label>
-                            <textarea id="check-body" rows="2" class="mono-input" placeholder='{"item": "123"}'></textarea>
+                            <textarea id="check-body" rows="2" class="mono-input" placeholder="Optional request body"></textarea>
                         </div>
                     </div>
 
@@ -485,24 +485,24 @@
                             <div class="field" style="max-width: 110px;">
                                 <label for="wiz-sign-method">Method</label>
                                 <select id="wiz-sign-method">
+                                    <option value="GET" selected>GET</option>
                                     <option value="POST">POST</option>
-                                    <option value="GET">GET</option>
                                     <option value="PUT">PUT</option>
                                     <option value="DELETE">DELETE</option>
                                 </select>
                             </div>
                             <div class="field">
                                 <label for="wiz-sign-path">Path</label>
-                                <input type="text" id="wiz-sign-path" class="mono-input" value="/api/relevance/dataset/dectest/predict">
+                                <input type="text" id="wiz-sign-path" class="mono-input" value="/api/ds/dataset/dectest/solutions">
                             </div>
                         </div>
                         <div class="field">
                             <label for="wiz-sign-query">Query String</label>
-                            <input type="text" id="wiz-sign-query" class="mono-input" value="limit=10">
+                            <input type="text" id="wiz-sign-query" class="mono-input" value="" placeholder="Optional query parameters (e.g. limit=10)">
                         </div>
                         <div class="field">
                             <label for="wiz-sign-body">Request Body</label>
-                            <textarea id="wiz-sign-body" rows="3" class="mono-input">{"item": "sku_1001", "store": "s1"}</textarea>
+                            <textarea id="wiz-sign-body" rows="3" class="mono-input" placeholder="Optional payload for POST/PUT"></textarea>
                         </div>
                         <div class="field-row">
                             <div class="field">
@@ -888,20 +888,20 @@
             try {
                 const res = await signRequest(
                     dummyPrivKey,
-                    "POST",
-                    "/api/relevance/dataset/dectest/predict",
-                    "limit=10",
-                    new TextEncoder().encode('{"item": "sku_1001", "store": "s1"}'),
+                    "GET",
+                    "/api/ds/dataset/dectest/solutions",
+                    "",
+                    null,
                     dummyAccessToken,
                     exp,
                     new Uint8Array(16),
                     false
                 );
                 inspectInput.value = res.signatureHeader;
-                $('check-method').value = "POST";
-                $('check-path').value = "/api/relevance/dataset/dectest/predict";
-                $('check-query').value = "limit=10";
-                $('check-body').value = '{"item": "sku_1001", "store": "s1"}';
+                $('check-method').value = "GET";
+                $('check-path').value = "/api/ds/dataset/dectest/solutions";
+                $('check-query').value = "";
+                $('check-body').value = "";
                 updateLocalDescribe();
             } catch (err) {
                 console.error("Failed to generate sample signature:", err);
@@ -944,8 +944,8 @@
                 const req = {};
                 if (desc.kind === 'request_signature') {
                     req.signature = rawToken;
-                    req.method = $('check-method').value.trim();
-                    req.path = $('check-path').value.trim();
+                    req.method = $('check-method').value.trim() || 'GET';
+                    req.path = $('check-path').value.trim() || '/api/ds/dataset/dectest/solutions';
                     req.query = $('check-query').value.trim();
                     req.body = $('check-body').value;
                 } else {
@@ -1004,9 +1004,9 @@
                 if (desc && desc.envelope) {
                     try {
                         const localCanon = await buildCanonicalString(
-                            $('check-method').value,
-                            $('check-path').value,
-                            $('check-query').value,
+                            $('check-method').value.trim() || 'GET',
+                            $('check-path').value.trim() || '/api/ds/dataset/dectest/solutions',
+                            $('check-query').value.trim(),
                             new TextEncoder().encode($('check-body').value),
                             desc.embeddedTokenRaw,
                             desc.envelope.exp,
@@ -1156,6 +1156,13 @@
         });
 
         // Step 2: Keypair
+        $('wiz-dataset').addEventListener('input', (e) => {
+            const ds = e.target.value.trim() || 'dectest';
+            state.keypair.dataset = ds;
+            $('wiz-sign-path').value = `/api/ds/dataset/${encodeURIComponent(ds)}/solutions`;
+            updateWizardCanonicalPreview();
+        });
+
         $('btn-wiz-create-keypair').addEventListener('click', async () => {
             if (!state.userToken || !state.userToken.user_access_token) {
                 alert("Please complete Step 1 (Authentication) first.");

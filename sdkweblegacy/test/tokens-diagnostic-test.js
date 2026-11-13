@@ -29,7 +29,7 @@
 
             const canon = await buildCanonicalString(
                 "post",
-                "/api/relevance/dataset/dectest/predict/",
+                "/api/ds/dataset/dectest/solutions/",
                 "b=2&i6_sig=strip_this&a=1",
                 new TextEncoder().encode('{"item": 123}'),
                 "tok_test_abc",
@@ -41,7 +41,7 @@
             const lines = canon.split("\n");
             assert.strictEqual(lines.length, 7, "canonical string has exactly 7 lines");
             assert.strictEqual(lines[0], "POST", "normalized method");
-            assert.strictEqual(lines[1], "/api/relevance/dataset/dectest/predict", "normalized path without trailing slash");
+            assert.strictEqual(lines[1], "/api/ds/dataset/dectest/solutions", "normalized path without trailing slash");
             assert.strictEqual(lines[2], "a=1&b=2", "canonical query sorted and i6_sig removed");
             assert.strictEqual(lines[3], await sha256Hex('{"item": 123}'), "body sha256 matches");
             assert.strictEqual(lines[4], await sha256Hex('tok_test_abc'), "token sha256 matches");
