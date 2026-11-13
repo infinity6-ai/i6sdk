@@ -433,6 +433,96 @@ $('useSdkToken').onclick = () => {
   }
 }
 
+// Mint Access Token from Refresh Assertion (POST /api/userz/refresh-dataset)
+$('btnRefreshDataset').onclick = async () => {
+  const statusEl = $('refreshStatus')
+  statusEl.style.display = 'block'
+  statusEl.style.color = 'var(--muted)'
+  statusEl.textContent = 'Generating 121-byte RefreshAssertion...'
+
+  if (!currentSeed) {
+    statusEl.innerHTML = '<span style="color:var(--err)">Please enter a valid Ed25519 private key above first.</span>'
+    return
+  }
+
+  const datasetId = $('refreshDatasetId').value.trim()
+  if (!datasetId) {
+    statusEl.innerHTML = '<span style="color:var(--err)">Target Dataset ID is required.</span>'
+    return
+  }
+
+  try {
+    const exp = Math.floor(Date.now() / 1000) + 300
+    const rndNonce = new Uint8Array(16)
+    crypto.getRandomValues(rndNonce)
+    const nonceHex = bytesToHex(rndNonce)
+
+    // Canonical string for Flow 4 RefreshAssertion:
+    // Line 1: METHOD = "POST"
+    // Line 2: PATH = "/api/userz/refresh-dataset"
+    // Line 3: CANONICAL QUERY = ""
+    // Line 4: BODY SHA-256 = "" (unsigned body = true)
+    // Line 5: TOKEN SHA-256 = ""
+    // Line 6: EXP = exp
+    // Line 7: NONCE HEX = nonceHex
+    const canonical = [
+      'POST',
+      '/api/userz/refresh-dataset',
+      '',
+      '',
+      '',
+      String(exp),
+      nonceHex
+    ].join('\n')
+
+    const canonicalBytes = new TextEncoder().encode(canonical)
+    const sigBytes = await signCanonicalBytes(currentSeed, canonicalBytes)
+
+    // Assemble 121-byte binary assertion
+    const buf = new Uint8Array(121)
+    buf[0] = 3 | 0x80 // TokenType 3 (RefreshAssertion) + FlagUnsignedBody
+    const dv = new DataView(buf.buffer)
+    dv.setBigUint64(1, BigInt(exp), false)
+    buf.set(hexToBytes(nonceHex), 9)
+    buf.set(currentPubKey, 25)
+    buf.set(sigBytes, 57)
+
+    const assertionB64 = b64urlEncode(buf)
+    statusEl.textContent = 'Calling POST /api/userz/refresh-dataset...'
+
+    const refreshReq = {
+      headers: {
+        x_i6_signature: assertionB64
+      },
+      payload: {
+        dataset: datasetId
+      }
+    }
+
+    const resp = await sdk.apis().userDatasetTokenRefresh(refreshReq)
+    let payload = null
+    try {
+      payload = resp.parse()
+    } catch (_) {
+      try { payload = JSON.parse(resp.text) } catch (_) { payload = { raw: resp.text } }
+    }
+
+    if (resp.ok && payload?.access_token) {
+      statusEl.innerHTML = `<span style="color:var(--ok)">✓ Minted access token for "${datasetId}"! Filled into Access Token field.</span>`
+      $('accessToken').value = payload.access_token
+      await computeSignature()
+      log('Successfully refreshed dataset access token:', payload)
+    } else {
+      const errMsg = payload?.cause || payload?.payload || payload?.message || resp.text || `HTTP ${resp.status}`
+      statusEl.innerHTML = `<span style="color:var(--err)">Refresh failed: ${errMsg}</span>`
+      log('Dataset refresh failed:', resp.status, payload)
+    }
+  } catch (err) {
+    statusEl.innerHTML = `<span style="color:var(--err)">Exception: ${err.message}</span>`
+    log('Dataset refresh error:', err)
+  }
+}
+
 $('formatJson').onclick = () => {
   try {
     const val = $('body').value.trim()

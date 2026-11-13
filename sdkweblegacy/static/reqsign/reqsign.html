@@ -225,7 +225,21 @@
 
     <div style="margin-top:8px; padding:10px 12px; background:var(--code); border:1px solid var(--line); border-radius:6px; font-size:12px">
       <div style="font-weight:600; margin-bottom:4px; display:flex; align-items:center; justify-content:space-between">
-        <span>💡 Generate Access Token via <code>../i6userz</code> CLI:</span>
+        <span>🔄 Mint Access Token from Refresh Key (<code>POST /api/userz/refresh-dataset</code>):</span>
+      </div>
+      <p class="hint" style="margin:2px 0 6px">
+        If the private key above belongs to a registered dataset refresh token, enter the dataset ID to mint a live access token:
+      </p>
+      <div class="row">
+        <input type="text" id="refreshDatasetId" placeholder="Target Dataset ID (e.g. ds64l7qauv4l6512kf0c)" style="flex:1">
+        <button id="btnRefreshDataset" class="small primary">Mint Access Token</button>
+      </div>
+      <div id="refreshStatus" style="margin-top:6px; font-size:11px; display:none"></div>
+    </div>
+
+    <div style="margin-top:8px; padding:10px 12px; background:var(--code); border:1px solid var(--line); border-radius:6px; font-size:12px">
+      <div style="font-weight:600; margin-bottom:4px; display:flex; align-items:center; justify-content:space-between">
+        <span>💡 Or Generate via <code>../i6userz</code> CLI:</span>
         <button id="copyCliCmd" class="small secondary">Copy Command</button>
       </div>
       <p class="hint" style="margin:2px 0 6px">
