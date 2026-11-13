@@ -58,6 +58,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/userapi/userapidatasettokenrefreshcreate"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/userapi/userapidatasettokenrefreshdelete"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/userapi/userapidatasettokenrefreshlist"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/userapi/userapisigntest"
 )
 
 var apis map[string]apiz.Api
@@ -134,6 +135,7 @@ func init() {
 	add(&userapidatasettokenrefreshcreate.Api{})
 	add(&userapidatasettokenrefreshdelete.Api{})
 	add(&userapidatasettokenrefreshlist.Api{})
+	add(&userapisigntest.Api{})
 }
 
 func Apis() []apiz.Api {
