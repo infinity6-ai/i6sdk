@@ -75,6 +75,7 @@ function cmd_release() {
     cmd_bundle
     mkdir -p ../../i6pages/releases/sdkweb
     rsync -av --delete dist/ ../../i6pages/releases/sdkweb/latest/
+    rsync -av --delete static/tokens/ ../../i6pages/tokens/ --exclude 'target'
     # rsync -av --delete ../sdkgo/ ../../i6pages/sdkgo/ --exclude 'target'
     cmd_release-infer-demo
 }
