@@ -31,7 +31,7 @@ func TestUnitApis(t *testing.T) {
 		"user-dataset-token-refresh-create",
 		"user-dataset-token-refresh-delete",
 		"user-dataset-token-refresh-list",
-		"user-sign-test",
+		"user-sign-check",
 	}
 
 	type testScenario struct {

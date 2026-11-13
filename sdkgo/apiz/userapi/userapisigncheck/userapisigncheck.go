@@ -1,4 +1,4 @@
-package userapisigntest
+package userapisigncheck
 
 import (
 	"github.com/infinity6-ai/gox/routez/apiz"
@@ -70,16 +70,16 @@ type Api struct {
 
 func (d *Api) ApiSpec() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id: "user-sign-test",
+		Id: "user-sign-check",
 		Desc: func() *schemaz.Desc {
 			return &schemaz.Desc{
-				Name:    "Interactive Request Signature Diagnostics & Testing",
+				Name:    "Interactive Request Signature Diagnostics & Verification",
 				Summary: "Validates and diagnoses Ed25519 request signature construction without mutating datastore state.",
 				Labels:  map[string]string{"servname": "userz"},
 			}
 		},
 		Method: "POST",
-		Path:   "/api/userz/sign/test",
+		Path:   "/api/userz/sign/check",
 	}
 }
 
