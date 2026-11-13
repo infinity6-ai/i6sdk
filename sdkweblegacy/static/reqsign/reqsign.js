@@ -194,13 +194,16 @@ async function updateKeypairState() {
 
     currentPubKey = await derivePublicKey(currentSeed, parsed.pubKey)
     if (currentPubKey) {
-      $('pubKeyB64').textContent = b64urlEncode(currentPubKey)
+      const pubB64 = b64urlEncode(currentPubKey)
+      $('pubKeyB64').textContent = pubB64
       $('pubKeyHex').textContent = bytesToHex(currentPubKey)
       pubDisplay.style.display = 'block'
+      updateCliCommand(pubB64)
     } else {
       $('pubKeyB64').textContent = '(Derivation requires @noble/curves or 64B key)'
       $('pubKeyHex').textContent = ''
       pubDisplay.style.display = 'block'
+      updateCliCommand('<CLIENT_PUB_KEY>')
     }
   } catch (err) {
     currentSeed = null
@@ -208,7 +211,14 @@ async function updateKeypairState() {
     badge.textContent = 'Invalid key format'
     badge.className = 'badge error'
     pubDisplay.style.display = 'none'
+    updateCliCommand('<CLIENT_PUB_KEY>')
   }
+}
+
+function updateCliCommand(pubKeyB64) {
+  const el = $('cliCreateAccessCmd')
+  if (!el) return
+  el.textContent = `go run ../i6userz token dataset create-access \\\n  --endpoint "https://userz.sandbox.rs.infinity6.ai" \\\n  --dataset "ds64l7qauv4l6512kf0c" \\\n  --client-pub-key "${pubKeyB64 || '<CLIENT_PUB_KEY>'}" \\\n  --grants "read,write"`
 }
 
 async function signCanonicalBytes(seed, canonicalBytes) {
@@ -475,6 +485,15 @@ $('copyCurlBtn').onclick = () => {
 }
 
 // --- signcheck API Diagnostics -----------------------------------------------------------------------
+$('copyCliCmd').onclick = () => {
+  const cmd = $('cliCreateAccessCmd').textContent
+  if (cmd) {
+    navigator.clipboard.writeText(cmd)
+    $('copyCliCmd').textContent = 'Copied!'
+    setTimeout(() => { $('copyCliCmd').textContent = 'Copy Command' }, 1500)
+  }
+}
+
 $('btnCheckApi').onclick = async () => {
   const badge = $('checkBadge')
   const banner = $('statusBanner')
@@ -512,23 +531,42 @@ $('btnCheckApi').onclick = async () => {
   try {
     log('Calling sdk.apis().userSignCheck(...)')
     const resp = await sdk.apis().userSignCheck(apiReq)
-    respPre.textContent = JSON.stringify(resp, null, 2)
-    log('userSignCheck response:', resp)
+    log('userSignCheck response received: HTTP', resp.status, resp.text)
+
+    // Safely extract and parse response payload
+    let payload = null
+    try {
+      payload = resp.parse()
+    } catch (_) {
+      try {
+        payload = JSON.parse(resp.text)
+      } catch (e) {
+        payload = { raw: resp.text }
+      }
+    }
+
+    // Display formatted payload directly in the output pre
+    respPre.textContent = JSON.stringify(payload ?? { raw: resp.text }, null, 2)
 
     banner.style.display = 'block'
-    if (resp.ok && resp.payload?.valid) {
+    if (resp.ok && payload?.valid) {
       badge.textContent = 'VALID'
       badge.className = 'badge ok'
       banner.className = 'status-box valid'
-      banner.innerHTML = `<strong>VALID:</strong> ${resp.payload?.summary || 'Request signature successfully verified!'}`
+      banner.innerHTML = `<strong>VALID:</strong> ${payload?.summary || 'Request signature successfully verified!'}`
     } else {
       badge.textContent = 'INVALID'
       badge.className = 'badge error'
       banner.className = 'status-box invalid'
-      const errCode = resp.payload?.error_code || (resp.ok ? 'invalid_signature' : `http_${resp.status}`)
-      const summary = resp.payload?.summary || resp.error || 'Signature check failed'
-      const hint = resp.payload?.diagnostics?.hint ? `<br><small style="margin-top:4px; display:block"><strong>Hint:</strong> ${resp.payload.diagnostics.hint}</small>` : ''
-      banner.innerHTML = `<strong>${errCode}:</strong> ${summary}${hint}`
+
+      const errCode = payload?.error_code || (resp.ok ? 'invalid_signature' : `http_${resp.status}`)
+      const summary = payload?.summary || resp.error?.message || 'Signature check failed'
+      let details = `<strong>[${errCode}]</strong> ${summary}`
+
+      if (payload?.diagnostics?.hint) {
+        details += `<div style="margin-top:6px; font-size:12px; opacity:0.95"><strong>💡 Server Hint:</strong> ${payload.diagnostics.hint}</div>`
+      }
+      banner.innerHTML = details
     }
   } catch (err) {
     badge.textContent = 'request error'

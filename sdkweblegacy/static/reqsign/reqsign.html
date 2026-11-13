@@ -217,10 +217,22 @@
       <button id="clearBody" class="small secondary">Clear Body</button>
     </div>
 
-    <label for="accessToken">Access Token (Dataset Access Token component, optional)</label>
+    <label for="accessToken">Access Token (Dataset Access Token component, required by signcheck API)</label>
     <div class="row">
-      <input type="text" id="accessToken" placeholder="e.g. Type 1 Binary Dataset Access Token (leave empty for standalone signature)" style="flex:1">
+      <input type="text" id="accessToken" placeholder="e.g. Type 1 Binary Dataset Access Token (<envelope_89B>.<access_token>)" style="flex:1">
       <button id="useSdkToken" class="small secondary" title="Fill active dataset token from SDK localStorage if available">From SDK Cache</button>
+    </div>
+
+    <div style="margin-top:8px; padding:10px 12px; background:var(--code); border:1px solid var(--line); border-radius:6px; font-size:12px">
+      <div style="font-weight:600; margin-bottom:4px; display:flex; align-items:center; justify-content:space-between">
+        <span>💡 Generate Access Token via <code>../i6userz</code> CLI:</span>
+        <button id="copyCliCmd" class="small secondary">Copy Command</button>
+      </div>
+      <p class="hint" style="margin:2px 0 6px">
+        <code>userapisigncheck</code> expects a composite token: <code>&lt;sig_envelope_89B&gt;.&lt;dataset_access_token&gt;</code>.
+        Run this command to mint a token bound to your current public key:
+      </p>
+      <pre id="cliCreateAccessCmd" style="margin:0; padding:6px 8px; font-size:11px"></pre>
     </div>
   </div>
 
