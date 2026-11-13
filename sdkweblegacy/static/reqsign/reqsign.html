@@ -149,7 +149,7 @@
 <body>
   <h1>
     Request Signature Playground 
-    <span class="badge">sdk.apis().userSignCheck(req)</span>
+    <span class="badge">sdk.apis().userTokenCheck(req)</span>
     <span class="badge">Ed25519</span>
   </h1>
 
@@ -243,7 +243,7 @@
         <button id="copyCliCmd" class="small secondary">Copy Command</button>
       </div>
       <p class="hint" style="margin:2px 0 6px">
-        <code>userapisigncheck</code> expects a composite token: <code>&lt;sig_envelope_89B&gt;.&lt;dataset_access_token&gt;</code>.
+        <code>userapitokencheck</code> expects a composite token: <code>&lt;sig_envelope_89B&gt;.&lt;dataset_access_token&gt;</code>.
         Run this command to mint a token bound to your current public key:
       </p>
       <pre id="cliCreateAccessCmd" style="margin:0; padding:6px 8px; font-size:11px"></pre>
@@ -325,12 +325,12 @@
   <!-- 5. SignCheck API Diagnostics -->
   <div class="card" id="apiCheckCard">
     <h2>
-      <button id="btnCheckApi" class="primary">Verify with signcheck API</button>
+      <button id="btnCheckApi" class="primary">Verify with tokencheck API</button>
       <span class="badge" id="checkBadge">idle</span>
     </h2>
     <p class="hint">
-      Sends the signature and request fields to <code>sdk.apis().userSignCheck(req)</code> 
-      (<code>POST /api/userz/sign/check</code>) to verify Ed25519 validity and inspect server-side canonicalization diagnostics.
+      Sends the signature and request fields to <code>sdk.apis().userTokenCheck(req)</code> 
+      (<code>POST /api/userz/token/check</code>) to verify Ed25519 validity and inspect server-side canonicalization diagnostics.
     </p>
 
     <div id="statusBanner" style="display:none" class="status-box"></div>

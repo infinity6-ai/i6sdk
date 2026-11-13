@@ -616,12 +616,12 @@ $('btnCheckApi').onclick = async () => {
   }
 
   reqPre.textContent = JSON.stringify(apiReq, null, 2)
-  respPre.textContent = 'Waiting for response from userapisigncheck...'
+  respPre.textContent = 'Waiting for response from userapitokencheck...'
 
   try {
-    log('Calling sdk.apis().userSignCheck(...)')
-    const resp = await sdk.apis().userSignCheck(apiReq)
-    log('userSignCheck response received: HTTP', resp.status, resp.text)
+    log('Calling sdk.apis().userTokenCheck(...)')
+    const resp = await sdk.apis().userTokenCheck(apiReq)
+    log('userTokenCheck response received: HTTP', resp.status, resp.text)
 
     // Safely extract and parse response payload
     let payload = null
