@@ -24,6 +24,7 @@ func TestUnitApis(t *testing.T) {
 		"user-auth-password-signin",
 		"user-auth-password-signup",
 		"user-auth-refresh",
+		"user-conf-settings",
 		"user-dataset-token-access-attenuate",
 		"user-dataset-token-access-create",
 		"user-dataset-token-refresh",

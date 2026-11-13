@@ -51,6 +51,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/userapi/userapiauthpasswordsignin"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/userapi/userapiauthpasswordsignup"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/userapi/userapiauthrefresh"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/userapi/userapiconfsettings"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/userapi/userapidatasettokenaccessattenuate"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/userapi/userapidatasettokenaccesscreate"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/userapi/userapidatasettokenrefresh"
@@ -126,6 +127,7 @@ func init() {
 	add(&userapiauthpasswordsignin.Api{})
 	add(&userapiauthpasswordsignup.Api{})
 	add(&userapiauthrefresh.Api{})
+	add(&userapiconfsettings.Api{})
 	add(&userapidatasettokenaccessattenuate.Api{})
 	add(&userapidatasettokenaccesscreate.Api{})
 	add(&userapidatasettokenrefresh.Api{})
