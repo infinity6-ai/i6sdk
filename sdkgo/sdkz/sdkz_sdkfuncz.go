@@ -8,6 +8,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashattachedrevenue"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashcoverage"
+	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashdisplaymetrics"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashfunnel"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashimpactedmetricsbyshowcasecategory"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashimpactedmetricsbysku"
@@ -37,6 +38,7 @@ func init() {
 	add(&relevancefashiondashimpactedmetricsbyshowcasecategory.Func{})
 	add(&relevancefashiondashimpactedmetricsbysku.Func{})
 	add(&relevancefashiondashcoverage.Func{})
+	add(&relevancefashiondashdisplaymetrics.Func{})
 }
 
 func SdkFuncs() []sdkfuncz.Func {
