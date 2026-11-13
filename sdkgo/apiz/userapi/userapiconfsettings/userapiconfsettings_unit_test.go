@@ -18,6 +18,7 @@ func TestUnitUserConfSettingsApi(t *testing.T) {
 			UserAccessTokenTTLSeconds:    3600,
 			DatasetAccessTokenTTLSeconds: 3600,
 			DeviceCodeTTLSeconds:        900,
+			SignedRequestMaxTTLSeconds:  86400,
 		},
 	}
 

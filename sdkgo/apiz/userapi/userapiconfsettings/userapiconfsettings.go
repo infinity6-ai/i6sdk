@@ -12,6 +12,7 @@ type Resp struct {
 	UserAccessTokenTTLSeconds    int64 `json:"user_access_token_ttl_seconds"`
 	DatasetAccessTokenTTLSeconds int64 `json:"dataset_access_token_ttl_seconds"`
 	DeviceCodeTTLSeconds        int64 `json:"device_code_ttl_seconds"`
+	SignedRequestMaxTTLSeconds  int64 `json:"signed_request_max_ttl_seconds"`
 }
 
 type Api struct {
@@ -60,6 +61,10 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					"device_code_ttl_seconds": {
 						Desc:  &schemaz.Desc{Summary: "Time-to-live for RFC 8628 device codes in seconds."},
 						Field: func() any { return &d.Resp.DeviceCodeTTLSeconds },
+					},
+					"signed_request_max_ttl_seconds": {
+						Desc:  &schemaz.Desc{Summary: "Maximum allowed future expiration for Ed25519 request signatures in seconds."},
+						Field: func() any { return &d.Resp.SignedRequestMaxTTLSeconds },
 					},
 				}
 			},
