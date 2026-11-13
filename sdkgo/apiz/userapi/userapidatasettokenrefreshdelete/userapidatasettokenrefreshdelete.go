@@ -41,8 +41,8 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
 					},
 					"jti": {
-						Desc:  &schemaz.Desc{Summary: "Token JTI (public key identifier) to revoke."},
-						Field: func() any { return &d.Req.Jti },
+						Desc:     &schemaz.Desc{Summary: "Token JTI (public key identifier) to revoke."},
+						UrlValue: schemaz.ParseStr(&d.Req.Jti),
 					},
 				}
 			},

@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ReqSign Playground</title>
+  <style>
+    :root { --bg:#f6f7f9; --card:#fff; --fg:#1b1f24; --muted:#667; --line:#d8dce2; --ok:#1a7f37; --err:#cf222e; --run:#9a6700; --code:#f0f2f5; }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg:#0f1318; --card:#181d24; --fg:#e6e9ee; --muted:#9aa4b2; --line:#2c333d; --ok:#3fb950; --err:#f85149; --run:#d29922; --code:#0f1318; }
+    }
+    * { box-sizing: border-box }
+    body { margin:0; padding:16px; background:var(--bg); color:var(--fg); font:14px/1.45 system-ui, sans-serif }
+    h1 { font-size:18px; margin:0 0 12px }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:12px; margin-bottom:12px }
+    .card h2 { font-size:14px; margin:0 0 8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap }
+    .badge { font-size:12px; padding:1px 8px; border-radius:10px; border:1px solid var(--line); color:var(--muted) }
+    .badge.ok { color:var(--ok); border-color:var(--ok) } .badge.error { color:var(--err); border-color:var(--err) } .badge.running { color:var(--run); border-color:var(--run) }
+    .hint { color:var(--muted); font-size:13px; margin:0 0 8px }
+    label { display:block; font-size:12px; color:var(--muted); margin:6px 0 2px }
+    input[type=text], input[type=password], textarea { width:100%; padding:6px 8px; font:13px ui-monospace, monospace; background:var(--code); color:var(--fg); border:1px solid var(--line); border-radius:6px }
+    textarea { resize: vertical; min-height: 80px; }
+    button { padding:6px 12px; border:1px solid var(--line); border-radius:6px; background:var(--card); color:var(--fg); cursor:pointer; font:inherit }
+    button:hover { border-color:var(--fg) } button.primary { background:var(--fg); color:var(--bg) }
+    .io { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px }
+    @media (max-width:800px) { .io { grid-template-columns:1fr } }
+    .io h3 { font-size:12px; color:var(--muted); margin:0 0 2px; font-weight:600 }
+    pre { margin:0; padding:8px; background:var(--code); border:1px solid var(--line); border-radius:6px; font:12px/1.4 ui-monospace, monospace; max-height:480px; overflow:auto; white-space:pre-wrap; word-break:break-word; min-height:34px }
+    .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center }
+  </style>
+</head>
+<body>
+  <h1>ReqSign Playground <span class="badge">uses the SDK: sdk.apis().userSignCheck(req)</span></h1>
+
+  <div class="card">
+    <h2>SDK Config</h2>
+    <p class="hint">The userz environment to query.</p>
+    <pre id="sdkConfig"></pre>
+  </div>
+
+  <div class="card">
+    <h2>Request Signature Details</h2>
+    <p class="hint">Enter the details of the request you want to diagnose/verify.</p>
+    
+    <label for="signature">Signature (X-I6-Signature header or composite token value)</label>
+    <input type="text" id="signature" placeholder="v1.1234567890.abcdef...">
+
+    <label for="method">HTTP Method</label>
+    <input type="text" id="method" value="POST">
+
+    <label for="path">URL Path</label>
+    <input type="text" id="path" value="/api/relevance/infer">
+
+    <label for="query">Query String</label>
+    <input type="text" id="query" value="" placeholder="e.g. view=summary">
+
+    <label for="body">Request Body</label>
+    <textarea id="body" placeholder="Raw JSON or body content..."></textarea>
+  </div>
+
+  <div class="card" id="step">
+    <h2><button id="run" class="primary">Check Signature</button><span class="badge" id="statusBadge">idle</span></h2>
+    <div class="io">
+      <div>
+        <h3>Input (req)</h3>
+        <pre class="in" id="reqOut"></pre>
+      </div>
+      <div>
+        <h3>Output (Diagnostics & Result)</h3>
+        <pre class="out" id="respOut"></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Log <span class="badge">console log</span> <button id="clearlog">Clear</button></h2>
+    <pre id="log" style="max-height:420px"></pre>
+  </div>
+
+  <script type="module" src="./reqsign.js"></script>
+</body>
+</html>
