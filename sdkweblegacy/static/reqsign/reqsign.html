@@ -200,15 +200,18 @@
       </div>
       <div>
         <label for="path">URL Path (normalized)</label>
-        <input type="text" id="path" value="/api/data" placeholder="/api/relevance/dataset/ds1/predict">
+        <input type="text" id="path" value="/api/userz/sign/check" placeholder="/api/userz/sign/check">
       </div>
     </div>
 
     <label for="query">Query String</label>
-    <input type="text" id="query" value="" placeholder="e.g. view=summary&sort=asc (i6_sig is automatically omitted)">
+    <input type="text" id="query" value="view=diagnostics&format=json" placeholder="e.g. view=summary&sort=asc (i6_sig is automatically omitted)">
 
     <label for="body">Request Body</label>
-    <textarea id="body" placeholder='{"hello": "world"}'></textarea>
+    <textarea id="body" placeholder='{"hello": "world"}'>{
+  "action": "check_request_signature",
+  "timestamp": 1700000000
+}</textarea>
     <div class="row" style="margin-top:4px">
       <button id="formatJson" class="small secondary">Format JSON Body</button>
       <button id="clearBody" class="small secondary">Clear Body</button>

@@ -543,6 +543,11 @@ $('btnCheckApi').onclick = async () => {
 
 // --- Initialization ----------------------------------------------------------------------------------
 async function init() {
+  if (!$('privKey').value) {
+    $('privKey').value = DEMO_KEY_SEED_B64
+    $('privKey').type = 'text'
+    $('togglePrivKey').textContent = 'Hide'
+  }
   setTtlSeconds(300)
   updateNonceDisplay()
   await updateKeypairState()
