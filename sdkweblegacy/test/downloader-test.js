@@ -88,8 +88,22 @@
             const ref2 = await downloader.update({ name, url })
 
             assert.deepEqual(calls, ['HEAD'])
-            assert.deepEqual(ref2, ref1)
+            assert.strictEqual(ref2.version, ref1.version)
+            assert.strictEqual(ref2.etag, ref1.etag)
+            assert.true(ref2.checkedAt >= ref1.checkedAt)
+            assert.deepEqual(await fs.get({ name }), ref2)
             assert.strictEqual(await readBlob(ref2), 'hello')
+        })
+
+        QUnit.test("concurrent update calls deduplicate in flight", async function (assert) {
+            serve({ etag: 'e1', body: 'hello' })
+            const [ref1, ref2] = await Promise.all([
+                downloader.update({ name, url }),
+                downloader.update({ name, url })
+            ])
+            assert.deepEqual(calls, ['HEAD', 'GET'])
+            assert.deepEqual(ref1, ref2)
+            assert.strictEqual(downloader.downloads.has(name), false)
         })
 
         QUnit.test("update with another etag downloads a new version", async function (assert) {

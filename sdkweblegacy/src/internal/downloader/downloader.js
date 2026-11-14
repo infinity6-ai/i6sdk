@@ -22,6 +22,11 @@ function httpError(message, status) {
  * Downloads remote files into the versioned file store. Use the `downloader` singleton.
  */
 class Downloader {
+    constructor() {
+        /** @type {Map<string, Promise<FileRef>>} */
+        this.downloads = new Map()
+    }
+
     /**
      * Downloads the file by name if necessary (checking etag): sends a HEAD request, and
      * if the etag differs from the released version, streams the body into a new version
@@ -38,6 +43,26 @@ class Downloader {
         if (!opts || !opts.name) throw new TypeError('downloader: opts.name is required')
         if (!opts.url) throw new TypeError('downloader: opts.url is required')
 
+        if (this.downloads.has(opts.name)) {
+            return this.downloads.get(opts.name)
+        }
+
+        const promise = this._fetchAndUpdate(opts).finally(() => {
+            this.downloads.delete(opts.name)
+        })
+
+        this.downloads.set(opts.name, promise)
+        return promise
+    }
+
+    /**
+     * @param {Object} opts
+     * @param {string} opts.name
+     * @param {string} opts.url
+     * @returns {Promise<FileRef>}
+     * @private
+     */
+    async _fetchAndUpdate(opts) {
         // HEAD (gcs) to get the current etag
         const head = await fetch(opts.url, { method: 'HEAD' })
         if (!head.ok) throw httpError(`downloader: HEAD ${opts.url} failed (${head.status})`, head.status)
@@ -47,7 +72,10 @@ class Downloader {
 
         // Same etag as the released version, nothing to download
         const current = await fs.get({ name: opts.name })
-        if (current && current.etag === etag) return current
+        if (current && current.etag === etag) {
+            const checkedAt = await fs.touch({ name: opts.name })
+            return { ...current, checkedAt }
+        }
 
         // Create the version in the fs, the blob is not written by it
         const ref = await fs.create({ name: opts.name, etag })

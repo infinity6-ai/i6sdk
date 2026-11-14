@@ -17,13 +17,12 @@ Implement stale-while-revalidate caching and background preloading for assets st
   - `fs.get({ name })` returns `checkedAt: string` (ISO timestamp) on the released `FileRef`.
   - Backwards-compatible: if `checkedat.txt` is missing, `checkedAt` is omitted, allowing consumers to fall back to `version`.
 
-### Step 2: Track In-Flight Download Promises in `downloader.js`
-- **Deduplication Map:** Add `this.downloads = new Map<string, Promise<FileRef>>()` to the `Downloader` instance.
-- **Promise Re-use:** When `downloader.update()` starts an update check or download:
-  - If `this.downloads.has(opts.name)`, re-use and return the existing in-flight promise.
-  - Otherwise, initiate the update promise, store it in `this.downloads`, and delete it in a `.finally()` callback once settled.
-- **Background Detach Safety:** When a download/check runs in the background (stale-while-revalidate), attach a `.catch()` logger to the background promise so network drops do not trigger unhandled promise rejections.
-- **On ETag Match:** When the remote ETag matches `current.etag`, call `await fs.touch({ name: opts.name })` to reset `checkedAt` so redundant `HEAD` checks are avoided for the next `minPreloadTime` seconds across page reloads.
+### Step 2: Track In-Flight Download Promises in `downloader.js` [COMPLETED]
+- **Deduplication Map:** Added `this.downloads = new Map<string, Promise<FileRef>>()` to the `Downloader` instance.
+- **Promise Re-use:** When `downloader.update()` runs:
+  - If `this.downloads.has(opts.name)`, re-uses and returns the existing in-flight promise.
+  - Otherwise, initiates `_fetchAndUpdate(opts)`, tracks it in `this.downloads`, and deletes it in `.finally()` once settled.
+- **On ETag Match:** When the remote ETag matches `current.etag`, calls `await fs.touch({ name: opts.name })` to update `checkedAt` and returns `{ ...current, checkedAt }`.
 
 ### Step 3: Lifecycle Management in `downloader.update(opts)`
 - **Parameters:** Accept `{ name, url, minPreloadTime }` (`minPreloadTime` in seconds).
