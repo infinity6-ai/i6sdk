@@ -87,13 +87,14 @@ class Infer {
     validate(opts)
 
     const startedAt = performance.now()
+    const elapsed = () => `[${((performance.now() - startedAt) / 1000).toFixed(2)}s]`
     const { modelName, params, sessionId, userId } = opts
     const ids = { sessionId, userId }
     const queryName = (kind) => `model-${modelName}-${kind}`
 
     // 1. Locate and download the model file (cached by etag)
     const urls = await this._assetUrls(opts)
-    debug("1/4 model files located", { sqlite: withoutQuery(urls.sqlite) })
+    debug(elapsed(), "1/4 model files located", { sqlite: withoutQuery(urls.sqlite) })
     const cacheName = (kind) => `infer-${modelName}-${partitionsKey(opts.partitions)}-${kind}`
     const [sqliteRef] = await Promise.all([
       downloadFile(cacheName("sqlite"), urls.sqlite),
@@ -107,28 +108,31 @@ class Infer {
         // loadModel({ ref: tfliteRef, wasmUrl: opts.litertWasm }),
       ])
       if (!inputs) throw new Error(`infer: ${queryName("input")} returned no model inputs`)
-      debug("2/4 input query", queryName("input"), "| bound as ?1:", params, "| returned (model inputs):", preview(inputs))
+      debug(elapsed(), "2/4 input query", queryName("input"), "| bound as ?1:", params, "| returned (model inputs):", preview(inputs))
 
       // 3. Run the model
-      debug("3/4 calling the model on the server", { model_name: modelName, version: opts.partitions.version, model_partitions: opts.partitions })
+      debug(elapsed(), "3/4 calling the model on the server", { model_name: modelName, version: opts.partitions.version, model_partitions: opts.partitions })
       const modelStartedAt = performance.now()
       const outputs = await this.callModel(inputs, opts)
       const data = outputs.parse()
-      debug("3/4 model answered", { ms: Math.round(performance.now() - modelStartedAt), ok: outputs?.ok, status: outputs?.status, error: outputs?.error, outputs: preview(data?.outputs) })
+      debug(elapsed(), "3/4 model answered", { sec: +((performance.now() - modelStartedAt) / 1000).toFixed(2), ok: outputs?.ok, status: outputs?.status, error: outputs?.error, outputs: preview(data?.outputs) })
 
       let modelOutputsAndLimit = [JSON.parse(data.outputs), opts.limit ?? DEFAULT_LIMIT]
-      debug("4/4 output query", queryName("output"), "| bound as ?1 (model outputs) and ?2 (limit):", preview(modelOutputsAndLimit))
+      debug(elapsed(), "4/4 output query", queryName("output"), "| bound as ?1 (model outputs) and ?2 (limit):", preview(modelOutputsAndLimit))
       // 4. The sqlite turns the outputs into the result
       const result = await conn.namedJsonQuery({ name: queryName("output"), params: modelOutputsAndLimit })
-      debug("output query returned (after namedJsonQuery)", result)
+      debug(elapsed(), "output query returned (after namedJsonQuery)", result)
       // The rec_id ties this run to the recshow event that selectResults sends later
       const recId = crypto.randomUUID()
       const results = { ...result, rec_id: recId }
       const eventOpts = { dataset: opts.dataset, modelName, modelVersion: opts.partitions.version, storeId: opts.partitions.store_id, serviceOpts: opts.serviceOpts }
-      await this.#sendRecEvent(eventOpts, ids, recId, "recraw", results)
-      const totalMs = Math.round(performance.now() - startedAt)
-      debug("recraw event sent", { rec_id: recId, results: results.results?.length })
-      debug("run completed", { rec_id: recId, totalMs })
+      this.#sendRecEvent(eventOpts, ids, recId, "recraw", results)
+        .then(
+          () => debug(elapsed(), "recraw event sent", { rec_id: recId, results: results.results?.length }),
+          (err) => debug(elapsed(), "recraw event failed", err)
+        )
+      const totalSec = +((performance.now() - startedAt) / 1000).toFixed(2)
+      debug(elapsed(), "run completed", { rec_id: recId, totalSec })
       return results
     } finally {
       await conn.close()
@@ -184,8 +188,11 @@ class Infer {
     }
 
     debug("selectResults picked", { rec_id: recId, sku_ids: shown.skus.map((s) => s.sku_id) })
-    await this.#sendRecEvent(opts, ids, recId, "recshow", shown)
-    debug("recshow event sent", { rec_id: recId })
+    this.#sendRecEvent(opts, ids, recId, "recshow", shown)
+      .then(
+        () => debug("recshow event sent", { rec_id: recId }),
+        (err) => debug("recshow event failed", err)
+      )
 
     return selected
   }
