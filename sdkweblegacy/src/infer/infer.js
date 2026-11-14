@@ -31,7 +31,6 @@ import { debugLogger } from "../internal/debug/debug.js";
  * @property {string} sessionId - Id of the user session; sent in the recommendation events.
  * @property {string} userId - Id of the user; sent in the recommendation events.
  * @property {number} [limit] - Max number of results asked from the output query (its `?2`). Default 20.
- * @property {number} [minPreloadTime] - Seconds before checking for model file updates in the background. Default 60.
  * @property {string} [sqliteUrl] - Tests only, together with `tfliteUrl`: URL of the sqlite (must answer HEAD with an etag). Default: the model API.
  * @property {string} [tfliteUrl] - Tests only, together with `sqliteUrl`: URL of the tflite.
  * @property {string} [litertWasm] - URL of the folder with the LiteRT wasm files (ending in "/"). Defaults to the jsdelivr copy.
@@ -59,6 +58,9 @@ const FILES = { sqlite: "sqlite.bin" }
 
 /** Default limit when opts has none. */
 const DEFAULT_LIMIT = 20
+
+/** Seconds before checking for model file updates in the background. */
+const MIN_PRELOAD_TIME = 60
 
 /** Prints only when `window.I6_DEBUG` is true. */
 const debug = debugLogger("infer")
@@ -98,7 +100,7 @@ class Infer {
     debug(elapsed(), "1/4 model files located", { sqlite: withoutQuery(urls.sqlite) })
     const cacheName = (kind) => `infer-${modelName}-${partitionsKey(opts.partitions)}-${kind}`
     const [sqliteRef] = await Promise.all([
-      downloadFile(cacheName("sqlite"), urls.sqlite, opts.minPreloadTime ?? 60),
+      downloadFile(cacheName("sqlite"), urls.sqlite, MIN_PRELOAD_TIME),
     ])
 
     const conn = await sqlitez.open({ path: await fs.resolve(sqliteRef) })
