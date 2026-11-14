@@ -21,32 +21,29 @@ Implement stale-while-revalidate caching and background preloading for assets st
 - **Background Detach Safety:** When a download runs in the background (stale-while-revalidate), attach a `.catch()` logger to the background promise so network drops do not trigger unhandled promise rejections.
 
 ### Step 3: Lifecycle Management in `downloader.update(opts)`
-- **Parameters:** Accept `{ name, url, tag?, minPreloadTime, minAge }` (times in seconds).
+- **Parameters:** Accept `{ name, url, tag?, minPreloadTime }` (`minPreloadTime` in seconds).
+- **Core Principle:** If a file is too old, kick off the background download first, then immediately return the existing cached file. Only block if there is no file at all.
 - **Execution Flow:**
   1. Retrieve `current = await fs.get({ name: opts.name })`.
   2. Compute `age = current ? (Date.now() - current.createdAt) / 1000 : Infinity`.
-  3. **Trigger Preload (if stale or missing):**
-     - If `!current || age >= minPreloadTime`: ensure a download promise is active in `this.downloads`.
-  4. **Fast Return (if too new / fresh):**
-     - If `current && age < minAge`: return `current` immediately (non-blocking, zero network delay).
-  5. **Fallback:**
-     - If `!current`: return and await the in-flight download promise.
-     - If `current` exists but is expired (`age >= minAge`): await the download promise to provide fresh data.
+  3. **Step A — Kick off download if missing or stale:**
+     - If `!current || (opts.minPreloadTime !== undefined && age >= opts.minPreloadTime)`:
+       - Ensure a download promise is started and tracked in `this.downloads` (if not already running).
+  4. **Step B — Return cached file if available:**
+     - If `current` exists: return `current` immediately (non-blocking). Any download started in Step A continues running in the background.
+  5. **Step C — Await download if no file existed:**
+     - If `!current`: await and return the download promise tracked in `this.downloads`.
 
 ---
 
 ## 2. Questions & Clarifications
 
-1. **Meaning of `minAge` vs `minPreloadTime`:**
-   - Does `minAge` represent the **maximum allowed freshness** (i.e. if `age < minAge`, return cached immediately without waiting; if `age >= minAge`, block until the new version is downloaded)?
-   - Does `minPreloadTime` represent the **preload threshold** (i.e. start downloading in the background if `age >= minPreloadTime`, but if `age < minAge` we can still return the stale file immediately)?
-
-2. **The `tag` parameter:**
-   - In `{ name, tag, minPreloadTime, minAge }`, is `tag` an optional known ETag or version (to bypass the initial `HEAD` request if already known by the caller)?
+1. **The `tag` parameter:**
+   - In `{ name, tag, minPreloadTime }`, is `tag` an optional known ETag or version (to bypass the initial `HEAD` request if already known by the caller)?
    - Is `url` still required as the remote endpoint?
 
-3. **Updating `createdat.txt` on ETag match (304 / unchanged):**
+2. **Updating `createdat.txt` on ETag match (304 / unchanged):**
    - When a `HEAD` request returns the same ETag as the released version, should we update `createdat.txt` to `Date.now()` so the file is considered fresh again, preventing redundant `HEAD` checks on every subsequent call?
 
-4. **Default values:**
-   - When `minPreloadTime` and `minAge` are omitted, should `downloader.update()` default to current behavior (always check ETag via `HEAD` and block until verified/downloaded)?
+3. **Default behavior when `minPreloadTime` is omitted:**
+   - If `minPreloadTime` is omitted or `undefined`: should it check and block on update (current behavior), or should it never preload in the background?
