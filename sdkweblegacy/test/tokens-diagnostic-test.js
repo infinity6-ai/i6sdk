@@ -117,6 +117,26 @@
             assert.strictEqual(dsDesc.byteLength, 5, "byte length matches");
         });
 
+        QUnit.test("describeToken parses dataset create-refresh CLI block and validates keypair", async function (assert) {
+            const { describeToken } = await import('../static/tokens/tokens.js');
+
+            const cliOutput = `Dataset Refresh Token Created:
+  JTI:         FBJWJtjS3-_5Bak86k2besJdKP6SQneeAhpLfSoyYYQ
+  Dataset:     dectest
+  Private Key: fLWBJV3lhclrne7WBqpjI6rZ0hlPsh5puIIjNTxr7O4UElYm2NLf7_kFqTzqTZt6wl0o_pJCd54CGkt9KjJhhA
+  Annotation:  t3
+  Expires At:  2126-10-20T23:48:54Z`;
+
+            const desc = describeToken(cliOutput);
+            assert.strictEqual(desc.kind, "dataset_refresh_keypair", "detected dataset_refresh_keypair");
+            assert.strictEqual(desc.dataset, "dectest", "dataset matches dectest");
+            assert.strictEqual(desc.jti, "FBJWJtjS3-_5Bak86k2besJdKP6SQneeAhpLfSoyYYQ", "jti matches");
+            assert.strictEqual(desc.derivedJti, "FBJWJtjS3-_5Bak86k2besJdKP6SQneeAhpLfSoyYYQ", "private key derives exact JTI");
+            assert.strictEqual(desc.annotation, "t3", "annotation matches");
+            assert.true(desc.keyValid, "key is mathematically valid");
+            assert.false(desc.isExpired, "key is not expired");
+        });
+
     });
 
 })(QUnit);

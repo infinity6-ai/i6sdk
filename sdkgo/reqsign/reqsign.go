@@ -169,6 +169,7 @@ func BuildCanonicalStringWithBodyHash(method, path, query, bodyHash, accessToken
 			return "", fmt.Errorf("canonicalization_error: invalid query string: %w", err)
 		}
 		vals.Del("i6_sig")
+		vals.Del("i6sig")
 
 		keys := make([]string, 0, len(vals))
 		for k := range vals {

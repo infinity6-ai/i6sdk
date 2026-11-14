@@ -276,6 +276,28 @@ func TestUnitBuildCanonicalString(t *testing.T) {
 		})
 	})
 
+	t.Run("GET request with i6sig without underscore is also stripped", func(t *testing.T) {
+		check(t, testScenario{
+			method:       "GET",
+			path:         "/api/relevance/dataset/ds1/predict",
+			query:        "b=2&i6sig=ignore_this_too&a=1",
+			bodyBytes:    nil,
+			accessToken:  "tok-123",
+			exp:          1792933262,
+			nonce:        [16]byte{},
+			unsignedBody: false,
+			wantLines: []string{
+				"GET",
+				"/api/relevance/dataset/ds1/predict",
+				"a=1&b=2",
+				emptyBodyHash,
+				hex.EncodeToString(func() []byte { h := sha256.Sum256([]byte("tok-123")); return h[:] }()),
+				"1792933262",
+				"00000000000000000000000000000000",
+			},
+		})
+	})
+
 	t.Run("POST request with unsigned body allows empty body hash line", func(t *testing.T) {
 		check(t, testScenario{
 			method:       "post",
