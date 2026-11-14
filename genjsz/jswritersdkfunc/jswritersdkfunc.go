@@ -192,7 +192,7 @@ func Write(ctx context.Context, sdkFuncs []*jsparsersdkfunc.SdkFunc) string {
 			}
 			writeln(&decl, "    sessionId: req.input.session_id,")
 			writeln(&decl, "    userId: req.input.user_id,")
-			writeln(&decl, "    serviceOpts: opts,")
+			writeln(&decl, "    serviceOptions: opts,")
 			writeln(&decl, "  })")
 			writeln(&decl, "  return infer.selectResults({")
 			writeln(&decl, "    dataset: req.input.dataset,")
@@ -205,7 +205,7 @@ func Write(ctx context.Context, sdkFuncs []*jsparsersdkfunc.SdkFunc) string {
 			writeln(&decl, "    sessionId: req.input.session_id,")
 			writeln(&decl, "    userId: req.input.user_id,")
 			writeln(&decl, "    selectResults,")
-			writeln(&decl, "    serviceOpts: opts,")
+			writeln(&decl, "    serviceOptions: opts,")
 			writeln(&decl, "  })")
 		case sdkfuncz.TypClientQuery:
 			writeln(&decl, "  const dash = this._services.dash()")
@@ -220,7 +220,7 @@ func Write(ctx context.Context, sdkFuncs []*jsparsersdkfunc.SdkFunc) string {
 			} else {
 				writeln(&decl, "    partitions: req.partitions,")
 			}
-			writeln(&decl, "    serviceOpts: opts,")
+			writeln(&decl, "    serviceOptions: opts,")
 			writeln(&decl, "  })")
 			writeln(&decl, "  return ret;")
 		default:

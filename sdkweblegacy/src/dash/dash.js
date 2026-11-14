@@ -24,7 +24,6 @@ import { debugLogger } from "../internal/debug/debug.js";
  * @property {*} [params] - Query input, any JSON. Bound as `?1` of the named query. Omit it for a query that takes none.
  * @property {string} [sqliteUrl] - Tests only: URL of the sqlite (must answer HEAD with an etag). Default: the model API.
  * @property {ServiceOptions} [serviceOptions] - Given to the API call that signs the sqlite URL.
- * @property {ServiceOptions} [serviceOpts] - Alias for `serviceOptions`.
  */
 
 /** Name of the sqlite in the model API response. */
@@ -91,7 +90,7 @@ class Dash {
           { method: "GET", path: `i6tb://results.relevance-fashion-store-dash/store_id=${storeId}/sqlite.bin` },
         ]
       }
-    }, opts.serviceOptions ?? opts.serviceOpts)
+    }, opts.serviceOptions)
     
     if (!resp.ok) throw new Error(`dash: the api gave no "${SQLITE_FILE}" file: ${resp.error?.message ?? "empty answer"}`)
     const payload = resp.parse()

@@ -76,7 +76,7 @@ func TestUnitWrite(t *testing.T) {
       partitions: {"version": "v1", ...req.partitions},
       sessionId: req.input.session_id,
       userId: req.input.user_id,
-      serviceOpts: opts,
+      serviceOptions: opts,
     })
     return infer.selectResults({
       dataset: req.input.dataset,
@@ -89,7 +89,7 @@ func TestUnitWrite(t *testing.T) {
       sessionId: req.input.session_id,
       userId: req.input.user_id,
       selectResults,
-      serviceOpts: opts,
+      serviceOptions: opts,
     })
   }
 }
@@ -171,7 +171,7 @@ export { SdkFuncs };
       partitions: {"version": "v1", ...req.partitions},
       sessionId: req.input.session_id,
       userId: req.input.user_id,
-      serviceOpts: opts,
+      serviceOptions: opts,
     })
     return infer.selectResults({
       dataset: req.input.dataset,
@@ -184,7 +184,7 @@ export { SdkFuncs };
       sessionId: req.input.session_id,
       userId: req.input.user_id,
       selectResults,
-      serviceOpts: opts,
+      serviceOptions: opts,
     })
   }
 }
@@ -229,7 +229,7 @@ export { SdkFuncs };
       dashName: "product-relevance-fashion-dash-funnel",
       params: req.input,
       partitions: {"version": "v1", ...req.partitions},
-      serviceOpts: opts,
+      serviceOptions: opts,
     })
     return ret;
   }
@@ -274,7 +274,7 @@ export { SdkFuncs };
       dataset: req.input.dataset,
       dashName: "product-relevance-fashion-dash-list-showcase-categories",
       partitions: {"version": "v1", ...req.partitions},
-      serviceOpts: opts,
+      serviceOptions: opts,
     })
     return ret;
   }

@@ -57,7 +57,6 @@ const DEFAULT_CONFIG = {
  * @property {Object<string, string>} [partition] - Alias for `partitions`.
  * @property {string} [sqliteUrl] - Tests only: URL of the sqlite.
  * @property {import("./invoker/invoker.js").ServiceOptions} [serviceOptions] - Service options for this model.
- * @property {import("./invoker/invoker.js").ServiceOptions} [serviceOpts] - Alias for `serviceOptions`.
  */
 
 /**
@@ -66,7 +65,6 @@ const DEFAULT_CONFIG = {
  * @property {string} dataset - Dataset name.
  * @property {Array<WarmupModelOptions>} models - Models to warm up.
  * @property {import("./invoker/invoker.js").ServiceOptions} [serviceOptions] - Default service options for all models.
- * @property {import("./invoker/invoker.js").ServiceOptions} [serviceOpts] - Alias for `serviceOptions`.
  */
 
 /**
@@ -174,7 +172,7 @@ class I6Sdk {
     if (!opts || !opts.dataset) throw new TypeError("i6sdk: opts.dataset is required")
     if (!Array.isArray(opts.models)) throw new TypeError("i6sdk: opts.models must be an array")
 
-    const serviceOptions = opts.serviceOptions ?? opts.serviceOpts
+    const serviceOptions = opts.serviceOptions
     const infer = this.infer()
 
     return Promise.all(
@@ -184,7 +182,7 @@ class I6Sdk {
           modelName: m.modelName,
           partitions: m.partitions ?? m.partition,
           sqliteUrl: m.sqliteUrl,
-          serviceOptions: m.serviceOptions ?? m.serviceOpts ?? serviceOptions,
+          serviceOptions: m.serviceOptions ?? serviceOptions,
         })
       )
     )

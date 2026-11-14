@@ -19,7 +19,6 @@
  * @property {string} table - Inbox table name.
  * @property {Partitions} partitions - Values for the table partitions, except the ingest id one.
  * @property {ServiceOptions} [serviceOptions] - Given to the ingestz-get-url API call.
- * @property {ServiceOptions} [serviceOpts] - Alias for `serviceOptions`.
  */
 
 /**
@@ -41,7 +40,6 @@
  * @property {AbortSignal} [signal] - Aborts the upload; the promise then rejects with the signal's reason (an AbortError by default).
  * @property {string} [contentType] - Content-Type of the PUT. Defaults to the file's own type.
  * @property {ServiceOptions} [serviceOptions] - Given to the ingestz-get-url API call (the PUT to the signed URL needs none).
- * @property {ServiceOptions} [serviceOpts] - Alias for `serviceOptions`.
  */
 
 /**
@@ -71,14 +69,13 @@ class Ingest {
    * @param {UploadParams} params - Upload parameters.
    * @returns {Promise<UploadResult>} Resolves with the ingest id on a successful upload.
    */
-  async upload({ dataset, table, partitions, file, onProgress, signal, contentType, serviceOptions, serviceOpts }) {
+  async upload({ dataset, table, partitions, file, onProgress, signal, contentType, serviceOptions }) {
     if (!(file instanceof File)) {
       throw new TypeError("file must be a single File.");
     }
     signal?.throwIfAborted();
 
-    const options = serviceOptions ?? serviceOpts;
-    const { ingestId, url } = await this.#getUrl({ dataset, table, partitions, serviceOptions: options });
+    const { ingestId, url } = await this.#getUrl({ dataset, table, partitions, serviceOptions });
     signal?.throwIfAborted();
 
     await this.#put(url, file, { onProgress, signal, contentType });
@@ -91,12 +88,11 @@ class Ingest {
    * @param {GetUrlParams} params - Parameters for requesting the upload URL.
    * @returns {Promise<{ingestId: string, url: string}>} The ingest id and the signed PUT URL.
    */
-  async #getUrl({ dataset, table, partitions, serviceOptions, serviceOpts }) {
-    const options = serviceOptions ?? serviceOpts;
+  async #getUrl({ dataset, table, partitions, serviceOptions }) {
     const resp = await this._services.apis().ingestzGetUrl({
       params: { dataset },
       payload: { table, partitions, amount: 1 },
-    }, options)
+    }, serviceOptions)
     if (!resp.ok) {
       throw new Error(`Get upload URL failed with status ${resp.status}: ${resp.error?.message ?? ""}`);
     }

@@ -66,8 +66,8 @@
             await assertRejects(assert, infer.run({ ...opts, limit: 0 }), /opts.limit/)
         })
 
-        QUnit.test("run and selectResults give serviceOpts to the api calls", async function (assert) {
-            const serviceOpts = { bearerToken: 'tok-1' }
+        QUnit.test("run and selectResults give serviceOptions to the api calls", async function (assert) {
+            const serviceOptions = { bearerToken: 'tok-1' }
             const calls = []
             const services = stubServices([], {
                 dszModelGet: async (req, opts) => { calls.push(['dszModelGet', opts]); return { ok: true, status: 200, parse: () => ({ urls: [] }) } },
@@ -75,13 +75,13 @@
             })
             const { Infer } = await import('../src/infer/infer.js')
 
-            await assertRejects(assert, new Infer(services).run({ ...base, params: cart, serviceOpts }), /no "sqlite.bin" file/)
+            await assertRejects(assert, new Infer(services).run({ ...base, params: cart, serviceOptions }), /no "sqlite.bin" file/)
             const opts = {
                 dataset: 'dectest', modelName: 'relevance-fashion-fbt', modelVersion: 'v1', storeId: 's1', req: { input: cart },
-                results: { results: [{ skus: [{ sku_id: '1' }], rating: 0.5 }] }, recId: 'rec-1', sessionId: 'sess-1', userId: 'user-1', serviceOpts,
+                results: { results: [{ skus: [{ sku_id: '1' }], rating: 0.5 }] }, recId: 'rec-1', sessionId: 'sess-1', userId: 'user-1', serviceOptions,
             }
             await new Infer(services).selectResults(opts)
-            assert.deepEqual(calls, [['dszModelGet', serviceOpts], ['event', serviceOpts]])
+            assert.deepEqual(calls, [['dszModelGet', serviceOptions], ['event', serviceOptions]])
         })
 
         QUnit.test("run finds the model files with the model api", async function (assert) {

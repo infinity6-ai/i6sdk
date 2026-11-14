@@ -148,9 +148,9 @@
                 payload: { paths: [{ method: 'GET', path: 'i6tb://results.relevance-fashion-store-dash/store_id=s1/sqlite.bin' }] },
             }])
 
-            const serviceOpts = { bearerToken: 'tok-1' }
-            await new Dash(services).query({ ...base, serviceOpts })
-            assert.deepEqual(optsSeen, [undefined, serviceOpts], 'serviceOpts given to the api call')
+            const serviceOptions = { bearerToken: 'tok-1' }
+            await new Dash(services).query({ ...base, serviceOptions })
+            assert.deepEqual(optsSeen, [undefined, serviceOptions], 'serviceOptions given to the api call')
 
             const noSqlite = { apis: () => ({ dszSignedUrl: async () => ({ ok: true, status: 200, parse: () => ({ urls: [] }) }) }) }
             await assertRejects(assert, new Dash(noSqlite).query(base), /no "sqlite.bin" file/)
