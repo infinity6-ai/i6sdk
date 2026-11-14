@@ -24,13 +24,13 @@
             assert.strictEqual(desc.isExpired, false, "token is not expired");
         });
 
-        QUnit.test("buildCanonicalString sorts queries, strips i6_sig, and normalizes paths", async function (assert) {
+        QUnit.test("buildCanonicalString sorts queries, strips i6sig, and normalizes paths", async function (assert) {
             const { buildCanonicalString, sha256Hex } = await import('../static/tokens/tokens.js');
 
             const canon = await buildCanonicalString(
                 "post",
                 "/api/ds/dataset/dectest/solutions/",
-                "b=2&i6_sig=strip_this&a=1",
+                "b=2&i6sig=strip_this&a=1",
                 new TextEncoder().encode('{"item": 123}'),
                 "tok_test_abc",
                 1892934000,
@@ -42,7 +42,7 @@
             assert.strictEqual(lines.length, 7, "canonical string has exactly 7 lines");
             assert.strictEqual(lines[0], "POST", "normalized method");
             assert.strictEqual(lines[1], "/api/ds/dataset/dectest/solutions", "normalized path without trailing slash");
-            assert.strictEqual(lines[2], "a=1&b=2", "canonical query sorted and i6_sig removed");
+            assert.strictEqual(lines[2], "a=1&b=2", "canonical query sorted and i6sig removed");
             assert.strictEqual(lines[3], await sha256Hex('{"item": 123}'), "body sha256 matches");
             assert.strictEqual(lines[4], await sha256Hex('tok_test_abc'), "token sha256 matches");
             assert.strictEqual(lines[5], "1892934000", "exp matches");

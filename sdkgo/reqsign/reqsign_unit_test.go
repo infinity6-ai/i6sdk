@@ -254,33 +254,11 @@ func TestUnitBuildCanonicalString(t *testing.T) {
 
 	emptyBodyHash := "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 
-	t.Run("Standard GET request with query sorting and i6_sig removal", func(t *testing.T) {
+	t.Run("Standard GET request with query sorting and i6sig removal", func(t *testing.T) {
 		check(t, testScenario{
 			method:       "GET",
 			path:         "/api/relevance/dataset/ds1/predict/",
-			query:        "b=2&i6_sig=ignore_this&a=1",
-			bodyBytes:    nil,
-			accessToken:  "tok-123",
-			exp:          1792933262,
-			nonce:        [16]byte{},
-			unsignedBody: false,
-			wantLines: []string{
-				"GET",
-				"/api/relevance/dataset/ds1/predict",
-				"a=1&b=2",
-				emptyBodyHash,
-				hex.EncodeToString(func() []byte { h := sha256.Sum256([]byte("tok-123")); return h[:] }()),
-				"1792933262",
-				"00000000000000000000000000000000",
-			},
-		})
-	})
-
-	t.Run("GET request with i6sig without underscore is also stripped", func(t *testing.T) {
-		check(t, testScenario{
-			method:       "GET",
-			path:         "/api/relevance/dataset/ds1/predict",
-			query:        "b=2&i6sig=ignore_this_too&a=1",
+			query:        "b=2&i6sig=ignore_this&a=1",
 			bodyBytes:    nil,
 			accessToken:  "tok-123",
 			exp:          1792933262,
