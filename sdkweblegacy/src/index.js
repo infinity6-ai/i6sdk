@@ -28,6 +28,8 @@ import { bitmapz } from "./internal/bitmapz/bitmapz.js";
  * @property {I6Storage | (() => I6Storage)} [localStorage] - Optional alias for persistent storage adapter (defaults to global `localStorage`).
  * @property {I6Storage | (() => I6Storage)} [sessionStorage] - Optional storage adapter for session-scoped data such as PKCE code verifier. Defaults to global `sessionStorage` when omitted.
  * @property {I6Storage | (() => I6Storage)} [storageSession] - Optional alias for session storage adapter.
+ * @property {import("./invoker/invoker.js").Fetcher} [fetcher] - Custom fetch implementation for intercepting or proxying all SDK requests.
+ * @property {import("./invoker/invoker.js").Fetcher} [fetch] - Optional alias for `fetcher`.
  */
 
 /**

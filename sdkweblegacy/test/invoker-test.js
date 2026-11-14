@@ -84,6 +84,48 @@
             assert.deepEqual(r.parse(), { id: 'custom' })
         })
 
+        QUnit.test("uses config.fetcher when ServiceOptions fetcher is not provided", async function (assert) {
+            globalThis.fetch = async () => new Response('global', { status: 200 })
+            const configFetcher = async (url, opts) => new Response('{"id":"config-custom"}', { status: 200 })
+            const customInvoker = new Invoker({
+                config: () => ({ baseUrl: 'https://api.test', fetcher: configFetcher }),
+                tokens: () => ({ getValidAccessToken: async () => null, getValidDatasetAccessToken: async () => null })
+            })
+
+            const r = await customInvoker.invokeResult({ path: 'x' })
+            assert.strictEqual(r.status, 200)
+            assert.true(r.ok)
+            assert.deepEqual(r.parse(), { id: 'config-custom' })
+        })
+
+        QUnit.test("uses config.fetch alias when config.fetcher is not set", async function (assert) {
+            globalThis.fetch = async () => new Response('global', { status: 200 })
+            const configFetch = async (url, opts) => new Response('{"id":"config-alias"}', { status: 200 })
+            const customInvoker = new Invoker({
+                config: () => ({ baseUrl: 'https://api.test', fetch: configFetch }),
+                tokens: () => ({ getValidAccessToken: async () => null, getValidDatasetAccessToken: async () => null })
+            })
+
+            const r = await customInvoker.invokeResult({ path: 'x' })
+            assert.strictEqual(r.status, 200)
+            assert.true(r.ok)
+            assert.deepEqual(r.parse(), { id: 'config-alias' })
+        })
+
+        QUnit.test("per-request ServiceOptions fetcher takes precedence over config.fetcher", async function (assert) {
+            const configFetcher = async (url, opts) => new Response('{"id":"config-fetcher"}', { status: 200 })
+            const reqFetcher = async (url, opts) => new Response('{"id":"req-fetcher"}', { status: 200 })
+            const customInvoker = new Invoker({
+                config: () => ({ baseUrl: 'https://api.test', fetcher: configFetcher }),
+                tokens: () => ({ getValidAccessToken: async () => null, getValidDatasetAccessToken: async () => null })
+            })
+
+            const r = await customInvoker.invokeResult({ path: 'x', opts: { fetcher: reqFetcher } })
+            assert.strictEqual(r.status, 200)
+            assert.true(r.ok)
+            assert.deepEqual(r.parse(), { id: 'req-fetcher' })
+        })
+
         QUnit.test("calls prepareRequest from ServiceOptions if provided", async function (assert) {
             let fetchedUrl = ""
             globalThis.fetch = async (url, opts) => {
