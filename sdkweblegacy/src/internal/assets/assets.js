@@ -34,10 +34,11 @@ function isPartitions(partitions) {
  * Brings one remote file to the browser cache, downloading it only if its etag changed.
  * @param {string} name - Name of the cached file.
  * @param {string} url - URL of the file.
+ * @param {number} [minPreloadTime] - Optional seconds before triggering a background update check.
  * @returns {Promise<FileRef>} The cached file.
  */
-async function downloadFile(name, url) {
-  const ref = await downloader.update({ name, url })
+async function downloadFile(name, url, minPreloadTime) {
+  const ref = await downloader.update({ name, url, minPreloadTime })
   debug(`${name} is ready`, ref)
   return ref
 }
