@@ -106,13 +106,15 @@ $('warmup').onclick = async () => {
   setStatus('running')
   log('warmup started: preloading model assets in background...')
   try {
-    const ref = await sdk.infer().update({
-      modelName: text('modelName') || 'relevance-fashion-fbt',
-      partitions: { store_id: text('storeId'), version: text('modelVersion') },
+    const refs = await sdk.warmupDataset({
       dataset: text('dataset'),
+      models: [{
+        modelName: text('modelName') || 'relevance-fashion-fbt',
+        partitions: { store_id: text('storeId'), version: text('modelVersion') },
+      }],
       serviceOpts: serviceOpts(),
     })
-    log('warmup completed:', ref)
+    log('warmup completed:', refs)
     setStatus('ok')
   } catch (e) {
     log('warmup error:', e)

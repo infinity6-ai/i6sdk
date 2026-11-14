@@ -50,6 +50,26 @@ const DEFAULT_CONFIG = {
 }
 
 /**
+ * Model descriptor for warmupDataset.
+ * @typedef {Object} WarmupModelOptions
+ * @property {string} modelName - Model name (e.g. "relevance-fashion-fbt").
+ * @property {Object<string, string>} [partitions] - Model partitions (e.g. `{ version: "v1", store_id: "s1" }`).
+ * @property {Object<string, string>} [partition] - Alias for `partitions`.
+ * @property {string} [sqliteUrl] - Tests only: URL of the sqlite.
+ * @property {import("./invoker/invoker.js").ServiceOptions} [serviceOpts] - Service options for this model.
+ * @property {import("./invoker/invoker.js").ServiceOptions} [serviceOptions] - Alias for `serviceOpts`.
+ */
+
+/**
+ * Options for warmupDataset.
+ * @typedef {Object} WarmupDatasetOptions
+ * @property {string} dataset - Dataset name.
+ * @property {Array<WarmupModelOptions>} models - Models to warm up.
+ * @property {import("./invoker/invoker.js").ServiceOptions} [serviceOpts] - Default service options for all models.
+ * @property {import("./invoker/invoker.js").ServiceOptions} [serviceOptions] - Alias for `serviceOpts`.
+ */
+
+/**
  * Main SDK class providing access to i6 services.
  */
 class I6Sdk {
@@ -142,6 +162,32 @@ class I6Sdk {
    */
   funcs() {
     return this._service.funcs()
+  }
+
+  /**
+   * Warms up/preloads model assets for a dataset in the background.
+   * Safe to call on page load or during SDK initialization.
+   * @param {WarmupDatasetOptions} opts - Warmup options.
+   * @returns {Promise<Array<import("./internal/fs/fs.js").FileRef>>} References to the preloaded model files.
+   */
+  async warmupDataset(opts) {
+    if (!opts || !opts.dataset) throw new TypeError("i6sdk: opts.dataset is required")
+    if (!Array.isArray(opts.models)) throw new TypeError("i6sdk: opts.models must be an array")
+
+    const serviceOpts = opts.serviceOpts ?? opts.serviceOptions
+    const infer = this.infer()
+
+    return Promise.all(
+      opts.models.map((m) =>
+        infer.update({
+          dataset: opts.dataset,
+          modelName: m.modelName,
+          partitions: m.partitions ?? m.partition,
+          sqliteUrl: m.sqliteUrl,
+          serviceOpts: m.serviceOpts ?? m.serviceOptions ?? serviceOpts,
+        })
+      )
+    )
   }
 
   /**

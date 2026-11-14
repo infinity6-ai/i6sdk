@@ -19,6 +19,14 @@
             assert.strictEqual(sdk.auth()._services.config().baseUrl, 'http://x', 'clients see the new config')
         });
 
+        QUnit.test("warmupDataset validates its options", async function (assert) {
+            const { I6Sdk } = await import('../src/index.js')
+            const sdk = new I6Sdk()
+            await assert.rejects(sdk.warmupDataset(), /opts.dataset/)
+            await assert.rejects(sdk.warmupDataset({ dataset: 'd1' }), /opts.models/)
+            await assert.rejects(sdk.warmupDataset({ dataset: 'd1', models: 'not-array' }), /opts.models/)
+        });
+
     });
 
 })(QUnit)
