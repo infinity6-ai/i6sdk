@@ -154,10 +154,34 @@
             await new Promise((resolve) => setTimeout(resolve, 5))
             const ref3 = await fs.create({ name, etag: 'e3' })
 
-            assert.deepEqual(await fs.release(ref2), ref2)
-            assert.deepEqual(await fs.get({ name }), ref2)
+            const released = await fs.release(ref2)
+            assert.strictEqual(released.name, ref2.name)
+            assert.strictEqual(released.version, ref2.version)
+            assert.strictEqual(released.etag, ref2.etag)
+            assert.strictEqual(typeof released.checkedAt, 'string')
+            assert.deepEqual(await fs.get({ name }), released)
             assert.strictEqual(await fs.get({ name, version: ref1.version }), null, "older removed")
             assert.deepEqual(await fs.get({ name, version: ref3.version }), ref3, "newer kept")
+        })
+
+        QUnit.test("touch requires name", async function (assert) {
+            await assert.rejects(fs.touch({}), /opts.name/)
+        })
+
+        QUnit.test("touch fails if file does not exist", async function (assert) {
+            await assert.rejects(fs.touch({ name }), /does not exist/)
+        })
+
+        QUnit.test("touch updates checkedat.txt and reflects in get", async function (assert) {
+            const ref = await fs.create({ name, etag: 'e1' })
+            await fs.release(ref)
+            const initial = await fs.get({ name })
+            assert.strictEqual(typeof initial.checkedAt, 'string')
+
+            const custom = '2026-01-01T00:00:00.000Z'
+            await fs.touch({ name, checkedAt: custom })
+            const updated = await fs.get({ name })
+            assert.strictEqual(updated.checkedAt, custom)
         })
 
         QUnit.test("resolve requires name and version", async function (assert) {

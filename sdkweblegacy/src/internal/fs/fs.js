@@ -3,6 +3,7 @@
  *
  * Layout under `i6/fs`:
  *   {name}/version.txt          the released (current) version, if any
+ *   {name}/checkedat.txt        timestamp of the last check against remote
  *   {name}/v{version}/etag.txt  the etag the version was created for
  *   {name}/v{version}/blob.bin  the content (written by the caller, see `resolve`)
  *
@@ -18,6 +19,7 @@ const base = 'i6/fs'
  * @property {string} name - File name, a single OPFS directory name (e.g. "model").
  * @property {string} version - Version id, an ISO timestamp (e.g. "2026-09-29T12:00:00.000Z").
  * @property {string} etag - Etag of the remote content this version was created for.
+ * @property {string} [checkedAt] - Timestamp of the last check against remote.
  */
 
 /**
@@ -193,7 +195,8 @@ class FS {
     const dir = await getDirIfExists(baseHandle, opts.name)
     if (!dir) return null
 
-    const version = opts.version || await readTextIfExists(dir, 'version.txt')
+    const releasedVersion = await readTextIfExists(dir, 'version.txt')
+    const version = opts.version || releasedVersion
     if (!version) return null
 
     const versionDir = await getDirIfExists(dir, 'v' + version)
@@ -201,11 +204,18 @@ class FS {
 
     const etag = await readTextIfExists(versionDir, 'etag.txt')
 
-    return {
+    const res = {
       name: opts.name,
       version,
       etag
     }
+
+    if (!opts.version || opts.version === releasedVersion) {
+      const checkedAt = await readTextIfExists(dir, 'checkedat.txt')
+      if (checkedAt) res.checkedAt = checkedAt
+    }
+
+    return res
   }
 
   /**
@@ -282,7 +292,7 @@ class FS {
   }
 
   /**
-   * Makes a version the current one (version.txt), then cleans the older versions.
+   * Makes a version the current one (version.txt), sets checkedat.txt, then cleans older versions.
    * @param {Object} opts
    * @param {string} opts.name - required
    * @param {string} opts.version - required, must exist
@@ -295,10 +305,33 @@ class FS {
     const ref = await this.get(opts)
     if (!ref) throw new Error(`fs: version ${opts.version} of ${opts.name} does not exist`)
 
-    await writeFile(await (await baseDir()).getDirectoryHandle(opts.name), 'version.txt', opts.version)
+    const dir = await (await baseDir()).getDirectoryHandle(opts.name)
+    await writeFile(dir, 'version.txt', opts.version)
+    const checkedAt = await this.touch(opts)
     await this.cleanFile(opts)
 
-    return ref
+    return { ...ref, checkedAt }
+  }
+
+  /**
+   * Updates checkedat.txt to now (or opts.checkedAt), marking the file as recently checked.
+   * @param {Object} opts
+   * @param {string} opts.name - required
+   * @param {string} [opts.checkedAt] - ISO timestamp, defaults to now
+   * @returns {Promise<string>} the timestamp written.
+   */
+  async touch(opts) {
+    if (!opts || !opts.name) throw new TypeError('fs: opts.name is required')
+
+    const parent = await baseDirIfExists()
+    if (!parent) throw new Error(`fs: file ${opts.name} does not exist`)
+
+    const dir = await getDirIfExists(parent, opts.name)
+    if (!dir) throw new Error(`fs: file ${opts.name} does not exist`)
+
+    const checkedAt = opts.checkedAt || new Date().toISOString()
+    await writeFile(dir, 'checkedat.txt', checkedAt)
+    return checkedAt
   }
 
   /**

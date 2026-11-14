@@ -7,15 +7,15 @@ Implement stale-while-revalidate caching and background preloading for assets st
 
 ## 1. Plan
 
-### Step 1: Track `checkedat.txt` in `fs.js`
+### Step 1: Track `checkedat.txt` in `fs.js` [COMPLETED]
 - **Location:** Under `i6/fs/{name}/checkedat.txt`.
-- **Content:** An ISO timestamp or epoch milliseconds (e.g. `Date.now().toString()`) representing when the file was last verified/checked against remote.
+- **Content:** An ISO timestamp (e.g. `new Date().toISOString()`) representing when the file was last verified/checked against remote.
 - **Write Triggers:**
-  - Written when a new version is created/released.
-  - Updated via a new method `fs.touch({ name })` whenever a `HEAD` check confirms the remote ETag matches the released version.
+  - Written on `fs.release()` when a new version becomes active.
+  - Written via `fs.touch({ name, checkedAt? })` to update verification time.
 - **Expose on `FileRef`:**
-  - `fs.get({ name })` reads `checkedat.txt` and returns `checkedAt: number` (epoch ms) on `FileRef`.
-  - **Backward Compatibility:** If `checkedat.txt` does not exist, `checkedAt` falls back to `new Date(version).getTime()`.
+  - `fs.get({ name })` returns `checkedAt: string` (ISO timestamp) on the released `FileRef`.
+  - Backwards-compatible: if `checkedat.txt` is missing, `checkedAt` is omitted, allowing consumers to fall back to `version`.
 
 ### Step 2: Track In-Flight Download Promises in `downloader.js`
 - **Deduplication Map:** Add `this.downloads = new Map<string, Promise<FileRef>>()` to the `Downloader` instance.
