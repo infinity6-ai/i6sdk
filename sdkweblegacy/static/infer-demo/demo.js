@@ -101,6 +101,25 @@ const setStatus = (status) => {
   badge.className = `badge ${status}`
 }
 
+$('warmup').onclick = async () => {
+  const text = (id) => $(id).value.trim()
+  setStatus('running')
+  log('warmup started: preloading model assets in background...')
+  try {
+    const ref = await sdk.infer().update({
+      modelName: text('modelName') || 'relevance-fashion-fbt',
+      partitions: { store_id: text('storeId'), version: text('modelVersion') },
+      dataset: text('dataset'),
+      serviceOpts: serviceOpts(),
+    })
+    log('warmup completed:', ref)
+    setStatus('ok')
+  } catch (e) {
+    log('warmup error:', e)
+    setStatus('error')
+  }
+}
+
 $('run').onclick = async () => {
   const card = $('step')
   const req = funcsRequest()

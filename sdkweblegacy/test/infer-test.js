@@ -160,6 +160,29 @@
             await assertRejects(assert, new Infer(services).selectResults({ ...opts, userId: undefined }), /sessionId and userId/)
         })
 
+        QUnit.test("update validates its opts", async function (assert) {
+            await assertRejects(assert, infer.update(), /opts.modelName/)
+            for (const key of ['modelName', 'dataset']) {
+                await assertRejects(assert, infer.update({ ...base, [key]: '' }), new RegExp(`opts.${key}`))
+            }
+            for (const partitions of [undefined, 'x', ['a'], { store_id: 1 }]) {
+                await assertRejects(assert, infer.update({ ...base, partitions }), /opts.partitions/)
+            }
+        })
+
+        QUnit.test("update preloads asset and deduplicates in flight", async function (assert) {
+            if (!(await fetch(assets.sqliteUrl, { method: 'HEAD' })).ok) return assert.ok(true, 'skipped: no assets in src/infer/gen')
+
+            const opts = { ...base, ...assets }
+            const [ref1, ref2] = await Promise.all([
+                infer.update(opts),
+                infer.update(opts)
+            ])
+            assert.deepEqual(ref1, ref2)
+            assert.strictEqual(ref1.name, 'infer-relevance-fashion-fbt-store_id%3Ds1-version%3Dv1-sqlite')
+            assert.deepEqual(await fs.get({ name: ref1.name }), ref1)
+        })
+
         QUnit.test("runModel reports inputs that do not fit the model", async function (assert) {
             if (!(await fetch(assets.tfliteUrl, { method: 'HEAD' })).ok) return assert.ok(true, 'skipped: no assets in src/infer/gen')
 

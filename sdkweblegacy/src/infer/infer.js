@@ -22,6 +22,16 @@ import { debugLogger } from "../internal/debug/debug.js";
  */
 
 /**
+ * Options of an inference update/preload.
+ * @typedef {Object} InferUpdateOptions
+ * @property {string} modelName - Model name (e.g. "relevance-fashion-fbt").
+ * @property {Object<string, string>} partitions - Partitions of the model, name -> value (e.g. `{ version: "v1", store_id: "s1" }`).
+ * @property {string} dataset - Dataset that holds the model files.
+ * @property {string} [sqliteUrl] - Tests only: URL of the sqlite (must answer HEAD with an etag). Default: the model API.
+ * @property {ServiceOptions} [serviceOpts] - Given to the API call that locates the model files.
+ */
+
+/**
  * Options of an inference run.
  * @typedef {Object} InferOptions
  * @property {string} modelName - Model name (e.g. "relevance-fashion-fbt"); names the cached assets and the named queries.
@@ -79,6 +89,42 @@ class Infer {
      * @type {Services}
      */
     this._services = services;
+    /**
+     * In-flight preload/update promises by cache name.
+     * @private
+     * @type {Map<string, Promise<FileRef>>}
+     */
+    this._preloads = new Map();
+  }
+
+  /**
+   * Preloads or revalidates the model assets in the background.
+   * Safe to call repeatedly as warmup; deduplicates in-flight calls and skips network if checked within 60s.
+   * @param {InferUpdateOptions} opts - Preload options.
+   * @returns {Promise<FileRef>} The cached sqlite file reference.
+   */
+  async update(opts) {
+    validateUpdate(opts)
+
+    const cacheName = `infer-${opts.modelName}-${partitionsKey(opts.partitions)}-sqlite`
+    if (this._preloads.has(cacheName)) {
+      debug("reusing in-flight preload", { cacheName })
+      return this._preloads.get(cacheName)
+    }
+
+    const promise = (async () => {
+      const urls = await this._assetUrls(opts)
+      debug("model files located for preload", { sqlite: withoutQuery(urls.sqlite) })
+      return downloadFile(cacheName, urls.sqlite, MIN_PRELOAD_TIME)
+    })().finally(() => {
+      this._preloads.delete(cacheName)
+    })
+
+    // Background detach safety
+    promise.catch(() => {})
+
+    this._preloads.set(cacheName, promise)
+    return promise
   }
 
   /**
@@ -96,12 +142,18 @@ class Infer {
     const queryName = (kind) => `model-${modelName}-${kind}`
 
     // 1. Locate and download the model file (cached by etag)
-    const urls = await this._assetUrls(opts)
-    debug(elapsed(), "1/4 model files located", { sqlite: withoutQuery(urls.sqlite) })
-    const cacheName = (kind) => `infer-${modelName}-${partitionsKey(opts.partitions)}-${kind}`
-    const [sqliteRef] = await Promise.all([
-      downloadFile(cacheName("sqlite"), urls.sqlite, MIN_PRELOAD_TIME),
-    ])
+    const cacheName = `infer-${modelName}-${partitionsKey(opts.partitions)}-sqlite`
+    const cached = await fs.get({ name: cacheName })
+
+    let sqliteRef
+    if (cached) {
+      debug(elapsed(), "1/4 using cached model file, revalidating in background", { version: cached.version })
+      this.update(opts)
+      sqliteRef = cached
+    } else {
+      debug(elapsed(), "1/4 no cached model file, waiting for download")
+      sqliteRef = await this.update(opts)
+    }
 
     const conn = await sqlitez.open({ path: await fs.resolve(sqliteRef) })
     try {
@@ -282,6 +334,19 @@ function announceTensors({ outputs, ...rest }) {
   if (!globalThis.I6_DEBUG || typeof globalThis.dispatchEvent !== "function") return
   const plain = Object.fromEntries(Object.entries(outputs).map(([name, values]) => [name, Array.from(values)]))
   globalThis.dispatchEvent(new CustomEvent("i6:infer-tensors", { detail: { ...rest, outputs: plain } }))
+}
+
+/**
+ * @param {InferUpdateOptions} opts - Options given to `Infer.update`.
+ */
+function validateUpdate(opts) {
+  for (const key of ["modelName", "dataset"]) {
+    if (!opts || !opts[key]) throw new TypeError(`infer: opts.${key} is required`)
+  }
+
+  if (!isPartitions(opts.partitions)) {
+    throw new TypeError("infer: opts.partitions must be an object of string values")
+  }
 }
 
 /**
