@@ -126,7 +126,9 @@ class Infer {
       const results = { ...result, rec_id: recId }
       const eventOpts = { dataset: opts.dataset, modelName, modelVersion: opts.partitions.version, storeId: opts.partitions.store_id, serviceOpts: opts.serviceOpts }
       await this.#sendRecEvent(eventOpts, ids, recId, "recraw", results)
-      debug("recraw event sent", { rec_id: recId, results: results.results?.length, totalMs: Math.round(performance.now() - startedAt) })
+      const totalMs = Math.round(performance.now() - startedAt)
+      debug("recraw event sent", { rec_id: recId, results: results.results?.length })
+      debug("run completed", { rec_id: recId, totalMs })
       return results
     } finally {
       await conn.close()
