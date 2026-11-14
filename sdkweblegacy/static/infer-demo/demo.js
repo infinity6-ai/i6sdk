@@ -73,12 +73,12 @@ function funcsRequest() {
 }
 
 // The opts of sdk.funcs().*, from the config card: the bearer token, or none
-function serviceOpts() {
+function serviceOptions() {
   const bearerToken = $('bearerToken').value.trim()
   return bearerToken ? { bearerToken } : undefined
 }
 // The opts as written in the usage code; the token itself is not shown on the page
-const usageOpts = () => (serviceOpts() ? ', { bearerToken: "<your token>" }' : '')
+const usageOpts = () => (serviceOptions() ? ', { bearerToken: "<your token>" }' : '')
 
 // The code of the SDK user, written with the values of the config card. Shown at the top of the page and run by the button
 function usage() {
@@ -112,7 +112,7 @@ $('warmup').onclick = async () => {
         modelName: text('modelName') || 'relevance-fashion-fbt',
         partitions: { store_id: text('storeId'), version: text('modelVersion') },
       }],
-      serviceOpts: serviceOpts(),
+      serviceOptions: serviceOptions(),
     })
     log('warmup completed:', refs)
     setStatus('ok')
@@ -129,7 +129,7 @@ $('run').onclick = async () => {
   card.querySelector('.in').textContent = JSON.stringify(req, null, 1)
   card.querySelector('.out').textContent = ''
   // try {
-    const result = await sdk.funcs().productRelevanceFashionFbtV1(req, selectResults, serviceOpts())
+    const result = await sdk.funcs().productRelevanceFashionFbtV1(req, selectResults, serviceOptions())
     // const result = await sdk.funcs().productRelevanceFashionFbtV1(req)
     card.querySelector('.out').textContent = JSON.stringify(result, null, 1)
     setStatus('ok')
@@ -195,7 +195,7 @@ $('dashRun').onclick = async () => {
   $('dashIn').textContent = JSON.stringify(req, null, 1)
   $('dashOut').textContent = ''
   try {
-    const result = await sdk.funcs()[$('dashFunc').value](req, serviceOpts())
+    const result = await sdk.funcs()[$('dashFunc').value](req, serviceOptions())
     $('dashOut').textContent = JSON.stringify(result, null, 1)
     setDashStatus('ok')
   } catch (e) {

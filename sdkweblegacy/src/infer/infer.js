@@ -28,7 +28,8 @@ import { debugLogger } from "../internal/debug/debug.js";
  * @property {Object<string, string>} partitions - Partitions of the model, name -> value (e.g. `{ version: "v1", store_id: "s1" }`).
  * @property {string} dataset - Dataset that holds the model files.
  * @property {string} [sqliteUrl] - Tests only: URL of the sqlite (must answer HEAD with an etag). Default: the model API.
- * @property {ServiceOptions} [serviceOpts] - Given to the API call that locates the model files.
+ * @property {ServiceOptions} [serviceOptions] - Given to the API call that locates the model files.
+ * @property {ServiceOptions} [serviceOpts] - Alias for `serviceOptions`.
  */
 
 /**
@@ -44,7 +45,8 @@ import { debugLogger } from "../internal/debug/debug.js";
  * @property {string} [sqliteUrl] - Tests only, together with `tfliteUrl`: URL of the sqlite (must answer HEAD with an etag). Default: the model API.
  * @property {string} [tfliteUrl] - Tests only, together with `sqliteUrl`: URL of the tflite.
  * @property {string} [litertWasm] - URL of the folder with the LiteRT wasm files (ending in "/"). Defaults to the jsdelivr copy.
- * @property {ServiceOptions} [serviceOpts] - Given to the API calls (the model API and the `recraw` event).
+ * @property {ServiceOptions} [serviceOptions] - Given to the API calls (the model API and the `recraw` event).
+ * @property {ServiceOptions} [serviceOpts] - Alias for `serviceOptions`.
  */
 
 /**
@@ -59,7 +61,8 @@ import { debugLogger } from "../internal/debug/debug.js";
  * @property {string} modelName - Model name.
  * @property {string} modelVersion - Model version.
  * @property {string} [storeId] - Store partition.
- * @property {ServiceOptions} [serviceOpts] - Given to the `recshow` event call.
+ * @property {ServiceOptions} [serviceOptions] - Given to the `recshow` event call.
+ * @property {ServiceOptions} [serviceOpts] - Alias for `serviceOptions`.
  * @property {(req: *, results: *) => Promise<*>} [selectResults] - Custom selection function.
  */
 
@@ -190,7 +193,8 @@ class Infer {
       // The rec_id ties this run to the recshow event that selectResults sends later
       const recId = crypto.randomUUID()
       const results = { ...result, rec_id: recId }
-      const eventOpts = { dataset: opts.dataset, modelName, modelVersion: opts.partitions.version, storeId: opts.partitions.store_id, serviceOpts: opts.serviceOpts }
+      const serviceOptions = opts.serviceOptions ?? opts.serviceOpts
+      const eventOpts = { dataset: opts.dataset, modelName, modelVersion: opts.partitions.version, storeId: opts.partitions.store_id, serviceOptions }
       this.#sendRecEvent(eventOpts, ids, recId, "recraw", results)
         .then(
           () => debug(elapsed(), "recraw event sent", { rec_id: recId, results: results.results?.length }),
@@ -216,7 +220,7 @@ class Infer {
         model_partitions: partitions,
         inputs: inputs
       }
-    }, opts.serviceOpts)
+    }, opts.serviceOptions ?? opts.serviceOpts)
   }
 
   /**
@@ -288,7 +292,7 @@ class Infer {
           payload: JSON.stringify(payload),
         },
       },
-    }, opts.serviceOpts)
+    }, opts.serviceOptions ?? opts.serviceOpts)
   }
 
   /**
@@ -304,7 +308,7 @@ class Infer {
     const resp = await this._services.apis().dszModelGet({
       params: { dataset, model_name: modelName },
       payload: { model_version: opts.partitions.version, model_partitions: partitions },
-    }, opts.serviceOpts)
+    }, opts.serviceOptions ?? opts.serviceOpts)
 
     const data = resp.parse()
     const byName = Object.fromEntries((data?.urls ?? []).map((file) => [file.name, file.url]))

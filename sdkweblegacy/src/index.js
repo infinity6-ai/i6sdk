@@ -56,8 +56,8 @@ const DEFAULT_CONFIG = {
  * @property {Object<string, string>} [partitions] - Model partitions (e.g. `{ version: "v1", store_id: "s1" }`).
  * @property {Object<string, string>} [partition] - Alias for `partitions`.
  * @property {string} [sqliteUrl] - Tests only: URL of the sqlite.
- * @property {import("./invoker/invoker.js").ServiceOptions} [serviceOpts] - Service options for this model.
- * @property {import("./invoker/invoker.js").ServiceOptions} [serviceOptions] - Alias for `serviceOpts`.
+ * @property {import("./invoker/invoker.js").ServiceOptions} [serviceOptions] - Service options for this model.
+ * @property {import("./invoker/invoker.js").ServiceOptions} [serviceOpts] - Alias for `serviceOptions`.
  */
 
 /**
@@ -65,8 +65,8 @@ const DEFAULT_CONFIG = {
  * @typedef {Object} WarmupDatasetOptions
  * @property {string} dataset - Dataset name.
  * @property {Array<WarmupModelOptions>} models - Models to warm up.
- * @property {import("./invoker/invoker.js").ServiceOptions} [serviceOpts] - Default service options for all models.
- * @property {import("./invoker/invoker.js").ServiceOptions} [serviceOptions] - Alias for `serviceOpts`.
+ * @property {import("./invoker/invoker.js").ServiceOptions} [serviceOptions] - Default service options for all models.
+ * @property {import("./invoker/invoker.js").ServiceOptions} [serviceOpts] - Alias for `serviceOptions`.
  */
 
 /**
@@ -174,7 +174,7 @@ class I6Sdk {
     if (!opts || !opts.dataset) throw new TypeError("i6sdk: opts.dataset is required")
     if (!Array.isArray(opts.models)) throw new TypeError("i6sdk: opts.models must be an array")
 
-    const serviceOpts = opts.serviceOpts ?? opts.serviceOptions
+    const serviceOptions = opts.serviceOptions ?? opts.serviceOpts
     const infer = this.infer()
 
     return Promise.all(
@@ -184,7 +184,7 @@ class I6Sdk {
           modelName: m.modelName,
           partitions: m.partitions ?? m.partition,
           sqliteUrl: m.sqliteUrl,
-          serviceOpts: m.serviceOpts ?? m.serviceOptions ?? serviceOpts,
+          serviceOptions: m.serviceOptions ?? m.serviceOpts ?? serviceOptions,
         })
       )
     )
