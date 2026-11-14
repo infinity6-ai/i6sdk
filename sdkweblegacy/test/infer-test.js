@@ -183,6 +183,17 @@
             assert.deepEqual(await fs.get({ name: ref1.name }), ref1)
         })
 
+        QUnit.test("update skips if called faster than 5 minutes", async function (assert) {
+            if (!(await fetch(assets.sqliteUrl, { method: 'HEAD' })).ok) return assert.ok(true, 'skipped: no assets in src/infer/gen')
+
+            const opts = { ...base, ...assets }
+            const ref1 = await infer.update(opts)
+
+            // Second call right after should be a noop and return cached immediately
+            const ref2 = await infer.update(opts)
+            assert.deepEqual(ref2, ref1)
+        })
+
         QUnit.test("runModel reports inputs that do not fit the model", async function (assert) {
             if (!(await fetch(assets.tfliteUrl, { method: 'HEAD' })).ok) return assert.ok(true, 'skipped: no assets in src/infer/gen')
 

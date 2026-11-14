@@ -69,8 +69,8 @@ const FILES = { sqlite: "sqlite.bin" }
 /** Default limit when opts has none. */
 const DEFAULT_LIMIT = 20
 
-/** Seconds before checking for model file updates in the background. */
-const MIN_PRELOAD_TIME = 60
+/** Seconds before checking for model file updates in the background (5 minutes). */
+const UPDATE_INTERVAL = 5 * 60
 
 /** Prints only when `window.I6_DEBUG` is true. */
 const debug = debugLogger("infer")
@@ -99,7 +99,7 @@ class Infer {
 
   /**
    * Preloads or revalidates the model assets in the background.
-   * Safe to call repeatedly as warmup; deduplicates in-flight calls and skips network if checked within 60s.
+   * Safe to call repeatedly as warmup; deduplicates in-flight calls and skips (noop) if checked within 5 minutes.
    * @param {InferUpdateOptions} opts - Preload options.
    * @returns {Promise<FileRef>} The cached sqlite file reference.
    */
@@ -112,10 +112,20 @@ class Infer {
       return this._preloads.get(cacheName)
     }
 
+    const cached = await fs.get({ name: cacheName })
+    if (cached) {
+      const lastChecked = new Date(cached.checkedAt || cached.version).getTime()
+      const age = (Date.now() - lastChecked) / 1000
+      if (age < UPDATE_INTERVAL) {
+        debug(`skipping update for ${cacheName} (checked ${Math.round(age)}s ago < ${UPDATE_INTERVAL}s)`)
+        return cached
+      }
+    }
+
     const promise = (async () => {
       const urls = await this._assetUrls(opts)
       debug("model files located for preload", { sqlite: withoutQuery(urls.sqlite) })
-      return downloadFile(cacheName, urls.sqlite, MIN_PRELOAD_TIME)
+      return downloadFile(cacheName, urls.sqlite, UPDATE_INTERVAL)
     })().finally(() => {
       this._preloads.delete(cacheName)
     })
