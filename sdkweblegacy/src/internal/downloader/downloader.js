@@ -50,7 +50,7 @@ class Downloader {
         if (current && current.etag === etag) return current
 
         // Create the version in the fs, the blob is not written by it
-        const ref = await fs.create({ name: opts.name, etag, data: '' })
+        const ref = await fs.create({ name: opts.name, etag })
 
         let success = false
         try {

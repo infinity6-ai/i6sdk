@@ -214,7 +214,6 @@ class FS {
    * @param {Object} opts
    * @param {string} opts.name - required
    * @param {string} opts.etag - required
-   * @param {Blob|BufferSource|string} [opts.data] - content, required when a new version is created
    * @returns {Promise<FileRef>} a new full FileRef.
    */
   async create(opts) {
@@ -239,8 +238,6 @@ class FS {
         return { name: opts.name, version: latest.substring(1), etag: opts.etag }
       }
     }
-
-    if (opts.data === undefined) throw new TypeError('fs: opts.data is required to create a new version')
 
     const version = new Date().toISOString()
     const versionDir = await dir.getDirectoryHandle('v' + version, { create: true })
