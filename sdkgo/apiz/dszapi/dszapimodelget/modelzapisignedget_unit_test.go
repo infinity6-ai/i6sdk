@@ -28,10 +28,6 @@ func TestUnitModelzApiSignedGet(t *testing.T) {
 					Name: "model.onnx",
 					Url:  "https://example.com/models/embedding_model/model.onnx",
 				},
-				{
-					Name: "config.json",
-					Url:  "https://example.com/models/embedding_model/config.json",
-				},
 			},
 		},
 	}
@@ -42,7 +38,7 @@ func TestUnitModelzApiSignedGet(t *testing.T) {
 	require.Equal(t, api.Resp, apiCopy.Resp)
 	require.Equal(t, "v1.0.0", apiCopy.Req.ModelVersion)
 	require.Equal(t, "retail", apiCopy.Req.ModelPartitions["channel"])
-	require.Len(t, apiCopy.Resp.Urls, 2)
+	require.Len(t, apiCopy.Resp.Urls, 1)
 }
 
 func TestUnitModelzApiSignedGetParseApi(t *testing.T) {

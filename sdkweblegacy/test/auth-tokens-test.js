@@ -169,7 +169,7 @@
             }
 
             const renewed = await tokens.getValidAccessToken()
-            assert.strictEqual(capturedRefreshUrl, "http://userz.test/api/userz/auth/refresh")
+            assert.strictEqual(capturedRefreshUrl, "http://userz.test/api/userz/refresh-user")
             assert.deepEqual(capturedRefreshBody, { refresh_token: "rt-rot-1" })
             assert.strictEqual(renewed, "jwt-renewed-fresh")
             assert.strictEqual(tokens.getAccessToken(), "jwt-renewed-fresh")
@@ -248,7 +248,7 @@
             const calls = []
             globalThis.fetch = async (url, opts) => {
                 calls.push({ url, headers: opts?.headers })
-                if (url.endsWith("/api/userz/auth/refresh")) {
+                if (url.endsWith("/api/userz/refresh-user")) {
                     return new Response(JSON.stringify({
                         user_access_token: "jwt-newly-refreshed",
                         user_refresh_token: "rt-new",
@@ -267,7 +267,7 @@
 
             const user = await sdk.auth().user()
             assert.strictEqual(calls.length, 2, "made refresh call then auth/me call")
-            assert.strictEqual(calls[0].url, "http://userz.test/api/userz/auth/refresh")
+            assert.strictEqual(calls[0].url, "http://userz.test/api/userz/refresh-user")
             assert.strictEqual(calls[1].url, "http://userz.test/api/userz/auth/me")
             assert.strictEqual(calls[1].headers['Authorization'], "Bearer jwt-newly-refreshed")
             assert.deepEqual(user, { user_id: "u-1", email_redacted: "test@infinity6.ai" })

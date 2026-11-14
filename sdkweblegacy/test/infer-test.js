@@ -48,12 +48,12 @@
         })
 
         QUnit.test("run reports an asset that cannot be downloaded", async function (assert) {
-            const opts = { ...base, params: {}, sqliteUrl: new URL('nope.sqlite', location.href).href, tfliteUrl: assets.tfliteUrl }
+            const opts = { ...base, params: {}, sqliteUrl: new URL('nope.sqlite', location.href).href }
             await assertRejects(assert, infer.run(opts), /nope\.sqlite/)
         })
 
         QUnit.test("run with the real model", async function (assert) {
-            if (!(await fetch(assets.tfliteUrl, { method: 'HEAD' })).ok) return assert.ok(true, 'skipped: no assets in src/infer/gen')
+            if (!(await fetch(assets.sqliteUrl, { method: 'HEAD' })).ok) return assert.ok(true, 'skipped: no assets in src/infer/gen')
 
             const opts = { ...base, params: cart, ...assets }
             const { results, rec_id } = await infer.run({ ...opts, limit: 5 })
@@ -85,12 +85,12 @@
         })
 
         QUnit.test("run finds the model files with the model api", async function (assert) {
-            if (!(await fetch(assets.tfliteUrl, { method: 'HEAD' })).ok) return assert.ok(true, 'skipped: no assets in src/infer/gen')
+            if (!(await fetch(assets.sqliteUrl, { method: 'HEAD' })).ok) return assert.ok(true, 'skipped: no assets in src/infer/gen')
 
             const requests = []
             const services = stubServices([], { dszModelGet: async (req) => {
                 requests.push(req)
-                return { ok: true, status: 200, parse: () => ({ urls: [{ name: 'tflite.bin', url: assets.tfliteUrl }, { name: 'sqlite.bin', url: assets.sqliteUrl }] }) }
+                return { ok: true, status: 200, parse: () => ({ urls: [{ name: 'sqlite.bin', url: assets.sqliteUrl }] }) }
             } })
             const { Infer } = await import('../src/infer/infer.js')
 

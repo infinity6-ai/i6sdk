@@ -10,6 +10,11 @@
  * Versions are ISO timestamps, so they sort in creation order.
  */
 
+import { debugLogger } from '../debug/debug.js'
+
+/** Prints only when `window.I6_DEBUG` is true. */
+const debug = debugLogger('fs')
+
 /** OPFS path of the store, relative to the origin's root directory. */
 const base = 'i6/fs'
 
@@ -310,6 +315,7 @@ class FS {
     const checkedAt = await this.touch(opts)
     await this.cleanFile(opts)
 
+    debug(`released ${opts.name} v${opts.version}`, { etag: ref.etag, checkedAt })
     return { ...ref, checkedAt }
   }
 
@@ -331,6 +337,7 @@ class FS {
 
     const checkedAt = opts.checkedAt || new Date().toISOString()
     await writeFile(dir, 'checkedat.txt', checkedAt)
+    debug(`touched ${opts.name}`, checkedAt)
     return checkedAt
   }
 
@@ -356,6 +363,7 @@ class FS {
     }
 
     await removeEntryIfExists(dir, 'v' + opts.version, { recursive: true })
+    debug(`discarded unreleased version ${opts.name} v${opts.version}`)
   }
 }
 

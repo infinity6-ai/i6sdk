@@ -4,6 +4,10 @@
  */
 
 import { fs } from '../fs/fs.js'
+import { debugLogger } from '../debug/debug.js'
+
+/** Prints only when `window.I6_DEBUG` is true. */
+const debug = debugLogger('downloader')
 
 /**
  * @typedef {import('../fs/fs.js').FileRef} FileRef
@@ -50,6 +54,7 @@ class Downloader {
         const current = await fs.get({ name: opts.name })
 
         if (opts.minPreloadTime === undefined) {
+            debug(`${opts.name}: checking for updates (blocking)`)
             return this._startDownload(opts)
         }
 
@@ -58,9 +63,16 @@ class Downloader {
             : 0
         const age = current ? (Date.now() - lastChecked) / 1000 : Infinity
 
-        if (!current || age >= opts.minPreloadTime) {
-            const promise = this._startDownload(opts)
-            if (!current) return promise
+        if (!current) {
+            debug(`${opts.name}: no cached file, downloading...`)
+            return this._startDownload(opts)
+        }
+
+        if (age >= opts.minPreloadTime) {
+            debug(`${opts.name}: stale file (age: ${Math.round(age)}s >= minPreloadTime: ${opts.minPreloadTime}s), starting background update`)
+            this._startDownload(opts)
+        } else {
+            debug(`${opts.name}: fresh file (age: ${Math.round(age)}s < minPreloadTime: ${opts.minPreloadTime}s), using cached`, current)
         }
 
         return current
@@ -74,6 +86,7 @@ class Downloader {
      */
     _startDownload(opts) {
         if (this.downloads.has(opts.name)) {
+            debug(`${opts.name}: reusing in-flight download promise`)
             return this.downloads.get(opts.name)
         }
 
@@ -82,7 +95,9 @@ class Downloader {
         })
 
         // Catch background errors so detached background promises do not trigger unhandledrejection
-        promise.catch(() => {})
+        promise.catch((err) => {
+            debug(`${opts.name}: background update failed`, err)
+        })
 
         this.downloads.set(opts.name, promise)
         return promise
@@ -106,9 +121,12 @@ class Downloader {
         // Same etag as the released version, nothing to download
         const current = await fs.get({ name: opts.name })
         if (current && current.etag === etag) {
+            debug(`${opts.name}: remote etag matches released version (${etag}), touching checkedat.txt`)
             const checkedAt = await fs.touch({ name: opts.name })
             return { ...current, checkedAt }
         }
+
+        debug(`${opts.name}: new etag detected (${etag}), downloading from ${opts.url}`)
 
         // Create the version in the fs, the blob is not written by it
         const ref = await fs.create({ name: opts.name, etag })
@@ -130,11 +148,14 @@ class Downloader {
         } finally {
             if (!success) {
                 // Do not leave a half-written version behind
+                debug(`${opts.name}: download failed or aborted, discarding unreleased version`, ref.version)
                 await fs.discard(ref)
             }
         }
 
-        return fs.release(ref)
+        const released = await fs.release(ref)
+        debug(`${opts.name}: released new version`, released)
+        return released
     }
 }
 

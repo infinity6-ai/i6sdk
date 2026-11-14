@@ -9,7 +9,7 @@
 
 /**
  * User token credentials returned by the POST /api/userz/auth/exchange
- * and POST /api/userz/auth/refresh endpoints, stored in localStorage under 'i6_user_user_token'.
+ * and POST /api/userz/refresh-user endpoints, stored in localStorage under 'i6_user_user_token'.
  * @typedef {Object} UserToken
  * @property {string} user_access_token - Signed EdDSA user access token JWT.
  * @property {string} user_refresh_token - Opaque user refresh token used for session extension.
@@ -299,7 +299,7 @@ class Tokens {
   }
 
   /**
-   * Refreshes the user access token using the stored user refresh token via `POST /api/userz/auth/refresh`.
+   * Refreshes the user access token using the stored user refresh token via `POST /api/userz/refresh-user`.
    * Enforces token family rotation by storing the newly rotated refresh token and fresh access token.
    * If session renewal is revoked or family reuse is detected, wipes the stored user session.
    * Concurrent refresh calls are deduplicated using an in-flight promise cache.
@@ -320,7 +320,7 @@ class Tokens {
         }
 
         const userzUrl = this._getUserzUrl();
-        const refreshUrl = `${userzUrl}/api/userz/auth/refresh`;
+        const refreshUrl = `${userzUrl}/api/userz/refresh-user`;
 
         const resp = await fetch(refreshUrl, {
           method: "POST",

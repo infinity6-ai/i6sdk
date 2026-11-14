@@ -54,7 +54,7 @@ import { debugLogger } from "../internal/debug/debug.js";
  */
 
 /** The two files every model needs, by their role. */
-const FILES = { sqlite: "sqlite.bin", tflite: "tflite.bin" }
+const FILES = { sqlite: "sqlite.bin" }
 
 /** Default limit when opts has none. */
 const DEFAULT_LIMIT = 20
@@ -91,13 +91,12 @@ class Infer {
     const ids = { sessionId, userId }
     const queryName = (kind) => `model-${modelName}-${kind}`
 
-    // 1. Locate and download the two files of the model (cached by etag)
+    // 1. Locate and download the model file (cached by etag)
     const urls = await this._assetUrls(opts)
-    debug("1/4 model files located", { sqlite: withoutQuery(urls.sqlite), tflite: withoutQuery(urls.tflite) })
+    debug("1/4 model files located", { sqlite: withoutQuery(urls.sqlite) })
     const cacheName = (kind) => `infer-${modelName}-${partitionsKey(opts.partitions)}-${kind}`
-    const [sqliteRef, tfliteRef] = await Promise.all([
+    const [sqliteRef] = await Promise.all([
       downloadFile(cacheName("sqlite"), urls.sqlite),
-      // downloadFile(cacheName("tflite"), urls.tflite),
     ])
 
     const conn = await sqlitez.open({ path: await fs.resolve(sqliteRef) })
@@ -219,13 +218,13 @@ class Infer {
   }
 
   /**
-   * Finds where the two model files are: the signed URLs of the model API, unless opts has them (tests).
+   * Finds where the model file is: the signed URLs of the model API, unless opts has them (tests).
    * @private
    * @param {InferOptions} opts - Inference options.
-   * @returns {Promise<{sqlite: string, tflite: string}>} Download URLs of the files.
+   * @returns {Promise<{sqlite: string}>} Download URLs of the files.
    */
   async _assetUrls(opts) {
-    if (opts.sqliteUrl) return { sqlite: opts.sqliteUrl, tflite: opts.tfliteUrl }
+    if (opts.sqliteUrl) return { sqlite: opts.sqliteUrl }
 
     const { modelName, partitions, dataset } = opts
     const resp = await this._services.apis().dszModelGet({
@@ -239,7 +238,7 @@ class Infer {
     if (missing) {
       throw new Error(`infer: the model api gave no "${missing}" file: ${resp.error?.message ?? JSON.stringify(Object.keys(byName))}`)
     }
-    return { sqlite: byName[FILES.sqlite], tflite: byName[FILES.tflite] }
+    return { sqlite: byName[FILES.sqlite] }
   }
 }
 
@@ -287,9 +286,6 @@ function validate(opts) {
   if (opts.params === undefined) throw new TypeError("infer: opts.params is required")
   if (opts.limit !== undefined && !(Number.isInteger(opts.limit) && opts.limit > 0)) {
     throw new TypeError("infer: opts.limit must be a positive integer")
-  }
-  if (!opts.sqliteUrl !== !opts.tfliteUrl) {
-    throw new TypeError("infer: opts.sqliteUrl and opts.tfliteUrl go together")
   }
 }
 
