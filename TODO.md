@@ -24,19 +24,15 @@ Implement stale-while-revalidate caching and background preloading for assets st
   - Otherwise, initiates `_fetchAndUpdate(opts)`, tracks it in `this.downloads`, and deletes it in `.finally()` once settled.
 - **On ETag Match:** When the remote ETag matches `current.etag`, calls `await fs.touch({ name: opts.name })` to update `checkedAt` and returns `{ ...current, checkedAt }`.
 
-### Step 3: Lifecycle Management in `downloader.update(opts)`
+### Step 3: Lifecycle Management in `downloader.update(opts)` [COMPLETED]
 - **Parameters:** Accept `{ name, url, minPreloadTime }` (`minPreloadTime` in seconds).
 - **Core Principle:** If a file is older than `minPreloadTime`, kick off the background update check first, then immediately return the existing cached file. Only block if there is no file at all.
 - **Execution Flow:**
   1. Retrieve `current = await fs.get({ name: opts.name })`.
-  2. Compute `age = current ? (Date.now() - current.checkedAt) / 1000 : Infinity`.
-  3. **Step A — Kick off download/check if missing or stale:**
-     - If `!current || (opts.minPreloadTime !== undefined && age >= opts.minPreloadTime)`:
-       - Ensure an update promise is started and tracked in `this.downloads` (if not already running).
-  4. **Step B — Return cached file if available:**
-     - If `current` exists: return `current` immediately (non-blocking). Any check/download started in Step A continues running in the background.
-  5. **Step C — Await download if no file existed:**
-     - If `!current`: await and return the update promise tracked in `this.downloads`.
+  2. If `opts.minPreloadTime === undefined`: execute download check and await it (legacy behavior).
+  3. Compute `age = current ? (Date.now() - new Date(current.checkedAt || current.version).getTime()) / 1000 : Infinity`.
+  4. If `!current || age >= opts.minPreloadTime`: start `_startDownload(opts)`. If `!current`, await and return the promise.
+  5. Return `current` immediately (non-blocking). Any background update continues asynchronously.
 
 ---
 

@@ -165,6 +165,54 @@
             assert.strictEqual(await readBlob(ref), 'chunk0;chunk1;chunk2;')
         })
 
+        QUnit.test("update with minPreloadTime and missing file downloads and awaits", async function (assert) {
+            serve({ etag: 'e1', body: 'initial' })
+            const ref = await downloader.update({ name, url, minPreloadTime: 3600 })
+            assert.strictEqual(ref.etag, 'e1')
+            assert.deepEqual(calls, ['HEAD', 'GET'])
+            assert.deepEqual(await fs.get({ name }), ref)
+            assert.strictEqual(await readBlob(ref), 'initial')
+        })
+
+        QUnit.test("update with minPreloadTime and fresh file returns immediately without network calls", async function (assert) {
+            serve({ etag: 'e1', body: 'initial' })
+            const ref1 = await downloader.update({ name, url })
+            calls.length = 0
+
+            serve({ etag: 'e2', body: 'changed' })
+            const ref2 = await downloader.update({ name, url, minPreloadTime: 3600 })
+
+            assert.deepEqual(calls, [], "no network calls made")
+            assert.deepEqual(ref2, ref1)
+            assert.strictEqual(await readBlob(ref2), 'initial')
+        })
+
+        QUnit.test("update with minPreloadTime and stale file triggers background update and returns stale file immediately", async function (assert) {
+            serve({ etag: 'e1', body: 'initial' })
+            const ref1 = await downloader.update({ name, url })
+
+            // Simulate file verified long ago
+            await fs.touch({ name, checkedAt: '2026-01-01T00:00:00.000Z' })
+            calls.length = 0
+
+            serve({ etag: 'e2', body: 'updated' })
+            const ref2 = await downloader.update({ name, url, minPreloadTime: 60 })
+
+            // Returns immediately with stale file
+            assert.strictEqual(ref2.version, ref1.version)
+            assert.strictEqual(ref2.etag, 'e1')
+
+            // Background download is running
+            assert.strictEqual(downloader.downloads.has(name), true)
+
+            // Wait for background download to finish
+            const backgroundRef = await downloader.downloads.get(name)
+            assert.strictEqual(backgroundRef.etag, 'e2')
+            assert.deepEqual(calls, ['HEAD', 'GET'])
+            assert.deepEqual(await fs.get({ name }), backgroundRef)
+            assert.strictEqual(await readBlob(backgroundRef), 'updated')
+        })
+
     })
 
 })(QUnit)
