@@ -1,0 +1,336 @@
+package targetingfinancedataz
+
+import (
+	"fmt"
+	"time"
+
+	"cloud.google.com/go/bigquery"
+	"github.com/infinity6-ai/gox/commonz/validation"
+	"github.com/infinity6-ai/gox/schemaz/schemaz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
+	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz"
+)
+
+type ClientEvent struct {
+	ID                       string               `json:"id" bigquery:"id"`
+	Dataset                  bigquery.NullString  `json:"dataset" bigquery:"dataset"`
+	IngestedAt               string               `json:"ingested_at" bigquery:"ingested_at"`
+	CreatedAt                time.Time            `json:"created_at" bigquery:"created_at"`
+	UserId                   string               `json:"user_id" bigquery:"user_id"`
+	UserCd                   string               `json:"user_cd" bigquery:"user_cd"`
+	UserVlSal                float64              `json:"user_vl_sal" bigquery:"user_vl_sal"`
+	UserMnSal                float64              `json:"user_mn_sal" bigquery:"user_mn_sal"`
+	UserMxSal                float64              `json:"user_mx_sal" bigquery:"user_mx_sal"`
+	UserSmRmm                float64              `json:"user_sm_rmm" bigquery:"user_sm_rmm"`
+	UserMdRmm                float64              `json:"user_md_rmm" bigquery:"user_md_rmm"`
+	UserRiskScore            bigquery.NullFloat64 `json:"user_risk_score" bigquery:"user_risk_score"`
+	UserVlCon                float64              `json:"user_vl_con" bigquery:"user_vl_con"`
+	UserVlLim                float64              `json:"user_vl_lim" bigquery:"user_vl_lim"`
+	UserPcCut                bigquery.NullFloat64 `json:"user_pc_cut" bigquery:"user_pc_cut"`
+	EventTp                  string               `json:"event_tp" bigquery:"event_tp"`
+	EventCh                  string               `json:"event_ch" bigquery:"event_ch"`
+	EventDt                  float64              `json:"event_dt" bigquery:"event_dt"`
+	EventOr                  int64                `json:"event_or" bigquery:"event_or"`
+	DaysSinceLastEvent       int64                `json:"days_since_last_event" bigquery:"days_since_last_event"`
+	DaysSinceLastSameProduct int64                `json:"days_since_last_same_product" bigquery:"days_since_last_same_product"`
+	ItemId                   string               `json:"item_id" bigquery:"item_id"`
+	ItemPz                   float64              `json:"item_pz" bigquery:"item_pz"`
+	ItemTx                   float64              `json:"item_tx" bigquery:"item_tx"`
+	ItemTpLin                string               `json:"item_tp_lin" bigquery:"item_tp_lin"`
+	ItemTpSub                bigquery.NullString  `json:"item_tp_sub" bigquery:"item_tp_sub"`
+	ItemVlCon                float64              `json:"item_vl_con" bigquery:"item_vl_con"`
+}
+
+func (c *ClientEvent) Validate() error {
+	if err := validation.StrNotEmpty(c.ID, "id is required"); err != nil {
+		return fmt.Errorf("failed to validate id: %w", err)
+	}
+	if err := validation.False(c.CreatedAt.IsZero(), "created_at is required"); err != nil {
+		return fmt.Errorf("failed to validate created_at: %w", err)
+	}
+	if err := validation.StrNotEmpty(c.UserId, "user_id is required"); err != nil {
+		return fmt.Errorf("failed to validate user_id: %w", err)
+	}
+	if err := validation.LessOrEqual(len(c.UserId), 255, "user_id must have at most 255 characters"); err != nil {
+		return fmt.Errorf("failed to validate user_id: %w", err)
+	}
+	if err := validation.StrNotEmpty(c.UserCd, "user_cd is required"); err != nil {
+		return fmt.Errorf("failed to validate user_cd: %w", err)
+	}
+	if err := validation.LessOrEqual(len(c.UserCd), 255, "user_cd must have at most 255 characters"); err != nil {
+		return fmt.Errorf("failed to validate user_cd: %w", err)
+	}
+	if err := validation.StrNotEmpty(c.EventTp, "event_tp is required"); err != nil {
+		return fmt.Errorf("failed to validate event_tp: %w", err)
+	}
+	if err := validation.LessOrEqual(len(c.EventTp), 255, "event_tp must have at most 255 characters"); err != nil {
+		return fmt.Errorf("failed to validate event_tp: %w", err)
+	}
+	if err := validation.StrNotEmpty(c.EventCh, "event_ch is required"); err != nil {
+		return fmt.Errorf("failed to validate event_ch: %w", err)
+	}
+	if err := validation.LessOrEqual(len(c.EventCh), 255, "event_ch must have at most 255 characters"); err != nil {
+		return fmt.Errorf("failed to validate event_ch: %w", err)
+	}
+	if err := validation.StrNotEmpty(c.ItemId, "item_id is required"); err != nil {
+		return fmt.Errorf("failed to validate item_id: %w", err)
+	}
+	if err := validation.LessOrEqual(len(c.ItemId), 255, "item_id must have at most 255 characters"); err != nil {
+		return fmt.Errorf("failed to validate item_id: %w", err)
+	}
+	if err := validation.StrNotEmpty(c.ItemTpLin, "item_tp_lin is required"); err != nil {
+		return fmt.Errorf("failed to validate item_tp_lin: %w", err)
+	}
+	if err := validation.LessOrEqual(len(c.ItemTpLin), 255, "item_tp_lin must have at most 255 characters"); err != nil {
+		return fmt.Errorf("failed to validate item_tp_lin: %w", err)
+	}
+	if c.ItemTpSub.Valid {
+		if err := validation.LessOrEqual(len(c.ItemTpSub.StringVal), 255, "item_tp_sub must have at most 255 characters"); err != nil {
+			return fmt.Errorf("failed to validate item_tp_sub: %w", err)
+		}
+	}
+	return nil
+}
+
+func (c *ClientEvent) GetCreatedAt() *time.Time {
+	return &c.CreatedAt
+}
+
+func (c *ClientEvent) Table() laketbnamez.TableName {
+	return laketbnamez.MustParse("finance-predictivecampaign-client-events")
+}
+
+func (c *ClientEvent) SetDataset(ds lakedsz.Dataset) {
+	c.Dataset = tabledataz.NewBqNullString(ds.Get())
+}
+
+func (c *ClientEvent) SetIngestedAt(p string) {
+	c.IngestedAt = p
+}
+
+func (c *ClientEvent) SchemaQuery() *schemaz.Schema {
+	if c == nil {
+		c = &ClientEvent{}
+	}
+	return &schemaz.Schema{
+		Desc: &schemaz.Desc{Summary: "ClientEvent is a row of the finance-predictivecampaign-client-events table. The id is provided by the sender."},
+		Object: func(read bool) map[string]*schemaz.Schema {
+			return map[string]*schemaz.Schema{
+				"id": {
+					Desc:     &schemaz.Desc{Summary: "Unique row identifier, provided by the sender (required)."},
+					UrlValue: schemaz.ParseStr(&c.ID),
+				},
+				"created_at": {
+					Desc:     &schemaz.Desc{Summary: "Reference timestamp of the row (required)."},
+					UrlValue: tabledataz.ParseTime(&c.CreatedAt),
+				},
+				"user_id": {
+					Desc:     &schemaz.Desc{Summary: "user_id (required)."},
+					UrlValue: schemaz.ParseStr(&c.UserId),
+				},
+				"user_cd": {
+					Desc:     &schemaz.Desc{Summary: "user_cd (required)."},
+					UrlValue: schemaz.ParseStr(&c.UserCd),
+				},
+				"user_vl_sal": {
+					Desc:     &schemaz.Desc{Summary: "user_vl_sal (required)."},
+					UrlValue: schemaz.ParseStrNumber(&c.UserVlSal),
+				},
+				"user_mn_sal": {
+					Desc:     &schemaz.Desc{Summary: "user_mn_sal (required)."},
+					UrlValue: schemaz.ParseStrNumber(&c.UserMnSal),
+				},
+				"user_mx_sal": {
+					Desc:     &schemaz.Desc{Summary: "user_mx_sal (required)."},
+					UrlValue: schemaz.ParseStrNumber(&c.UserMxSal),
+				},
+				"user_sm_rmm": {
+					Desc:     &schemaz.Desc{Summary: "user_sm_rmm (required)."},
+					UrlValue: schemaz.ParseStrNumber(&c.UserSmRmm),
+				},
+				"user_md_rmm": {
+					Desc:     &schemaz.Desc{Summary: "user_md_rmm (required)."},
+					UrlValue: schemaz.ParseStrNumber(&c.UserMdRmm),
+				},
+				"user_risk_score": {
+					Desc:     &schemaz.Desc{Summary: "user_risk_score (optional)."},
+					UrlValue: tabledataz.ParseBqNullFloat64(&c.UserRiskScore),
+				},
+				"user_vl_con": {
+					Desc:     &schemaz.Desc{Summary: "user_vl_con (required)."},
+					UrlValue: schemaz.ParseStrNumber(&c.UserVlCon),
+				},
+				"user_vl_lim": {
+					Desc:     &schemaz.Desc{Summary: "user_vl_lim (required)."},
+					UrlValue: schemaz.ParseStrNumber(&c.UserVlLim),
+				},
+				"user_pc_cut": {
+					Desc:     &schemaz.Desc{Summary: "user_pc_cut (optional)."},
+					UrlValue: tabledataz.ParseBqNullFloat64(&c.UserPcCut),
+				},
+				"event_tp": {
+					Desc:     &schemaz.Desc{Summary: "event_tp (required)."},
+					UrlValue: schemaz.ParseStr(&c.EventTp),
+				},
+				"event_ch": {
+					Desc:     &schemaz.Desc{Summary: "event_ch (required)."},
+					UrlValue: schemaz.ParseStr(&c.EventCh),
+				},
+				"event_dt": {
+					Desc:     &schemaz.Desc{Summary: "event_dt (required)."},
+					UrlValue: schemaz.ParseStrNumber(&c.EventDt),
+				},
+				"event_or": {
+					Desc:     &schemaz.Desc{Summary: "event_or (required)."},
+					UrlValue: schemaz.ParseStrNumber(&c.EventOr),
+				},
+				"days_since_last_event": {
+					Desc:     &schemaz.Desc{Summary: "days_since_last_event (required)."},
+					UrlValue: schemaz.ParseStrNumber(&c.DaysSinceLastEvent),
+				},
+				"days_since_last_same_product": {
+					Desc:     &schemaz.Desc{Summary: "days_since_last_same_product (required)."},
+					UrlValue: schemaz.ParseStrNumber(&c.DaysSinceLastSameProduct),
+				},
+				"item_id": {
+					Desc:     &schemaz.Desc{Summary: "item_id (required)."},
+					UrlValue: schemaz.ParseStr(&c.ItemId),
+				},
+				"item_pz": {
+					Desc:     &schemaz.Desc{Summary: "item_pz (required)."},
+					UrlValue: schemaz.ParseStrNumber(&c.ItemPz),
+				},
+				"item_tx": {
+					Desc:     &schemaz.Desc{Summary: "item_tx (required)."},
+					UrlValue: schemaz.ParseStrNumber(&c.ItemTx),
+				},
+				"item_tp_lin": {
+					Desc:     &schemaz.Desc{Summary: "item_tp_lin (required)."},
+					UrlValue: schemaz.ParseStr(&c.ItemTpLin),
+				},
+				"item_tp_sub": {
+					Desc:     &schemaz.Desc{Summary: "item_tp_sub (optional)."},
+					UrlValue: tabledataz.ParseBqNullString(&c.ItemTpSub),
+				},
+				"item_vl_con": {
+					Desc:     &schemaz.Desc{Summary: "item_vl_con (required)."},
+					UrlValue: schemaz.ParseStrNumber(&c.ItemVlCon),
+				},
+			}
+		},
+	}
+}
+
+func (c *ClientEvent) SchemaBody() *schemaz.Schema {
+	if c == nil {
+		c = &ClientEvent{}
+	}
+	return &schemaz.Schema{
+		Desc: &schemaz.Desc{Summary: "ClientEvent is a row of the finance-predictivecampaign-client-events table. The id is provided by the sender."},
+		Object: func(read bool) map[string]*schemaz.Schema {
+			return map[string]*schemaz.Schema{
+				"id": {
+					Desc:  &schemaz.Desc{Summary: "Unique row identifier, provided by the sender (required)."},
+					Field: func() any { return &c.ID },
+				},
+				"created_at": {
+					Desc:  &schemaz.Desc{Summary: "Reference timestamp of the row (required)."},
+					Field: func() any { return &c.CreatedAt },
+				},
+				"user_id": {
+					Desc:  &schemaz.Desc{Summary: "user_id (required)."},
+					Field: func() any { return &c.UserId },
+				},
+				"user_cd": {
+					Desc:  &schemaz.Desc{Summary: "user_cd (required)."},
+					Field: func() any { return &c.UserCd },
+				},
+				"user_vl_sal": {
+					Desc:  &schemaz.Desc{Summary: "user_vl_sal (required)."},
+					Field: func() any { return &c.UserVlSal },
+				},
+				"user_mn_sal": {
+					Desc:  &schemaz.Desc{Summary: "user_mn_sal (required)."},
+					Field: func() any { return &c.UserMnSal },
+				},
+				"user_mx_sal": {
+					Desc:  &schemaz.Desc{Summary: "user_mx_sal (required)."},
+					Field: func() any { return &c.UserMxSal },
+				},
+				"user_sm_rmm": {
+					Desc:  &schemaz.Desc{Summary: "user_sm_rmm (required)."},
+					Field: func() any { return &c.UserSmRmm },
+				},
+				"user_md_rmm": {
+					Desc:  &schemaz.Desc{Summary: "user_md_rmm (required)."},
+					Field: func() any { return &c.UserMdRmm },
+				},
+				"user_risk_score": {
+					Desc:  &schemaz.Desc{Summary: "user_risk_score (optional)."},
+					Field: func() any { return &c.UserRiskScore },
+				},
+				"user_vl_con": {
+					Desc:  &schemaz.Desc{Summary: "user_vl_con (required)."},
+					Field: func() any { return &c.UserVlCon },
+				},
+				"user_vl_lim": {
+					Desc:  &schemaz.Desc{Summary: "user_vl_lim (required)."},
+					Field: func() any { return &c.UserVlLim },
+				},
+				"user_pc_cut": {
+					Desc:  &schemaz.Desc{Summary: "user_pc_cut (optional)."},
+					Field: func() any { return &c.UserPcCut },
+				},
+				"event_tp": {
+					Desc:  &schemaz.Desc{Summary: "event_tp (required)."},
+					Field: func() any { return &c.EventTp },
+				},
+				"event_ch": {
+					Desc:  &schemaz.Desc{Summary: "event_ch (required)."},
+					Field: func() any { return &c.EventCh },
+				},
+				"event_dt": {
+					Desc:  &schemaz.Desc{Summary: "event_dt (required)."},
+					Field: func() any { return &c.EventDt },
+				},
+				"event_or": {
+					Desc:  &schemaz.Desc{Summary: "event_or (required)."},
+					Field: func() any { return &c.EventOr },
+				},
+				"days_since_last_event": {
+					Desc:  &schemaz.Desc{Summary: "days_since_last_event (required)."},
+					Field: func() any { return &c.DaysSinceLastEvent },
+				},
+				"days_since_last_same_product": {
+					Desc:  &schemaz.Desc{Summary: "days_since_last_same_product (required)."},
+					Field: func() any { return &c.DaysSinceLastSameProduct },
+				},
+				"item_id": {
+					Desc:  &schemaz.Desc{Summary: "item_id (required)."},
+					Field: func() any { return &c.ItemId },
+				},
+				"item_pz": {
+					Desc:  &schemaz.Desc{Summary: "item_pz (required)."},
+					Field: func() any { return &c.ItemPz },
+				},
+				"item_tx": {
+					Desc:  &schemaz.Desc{Summary: "item_tx (required)."},
+					Field: func() any { return &c.ItemTx },
+				},
+				"item_tp_lin": {
+					Desc:  &schemaz.Desc{Summary: "item_tp_lin (required)."},
+					Field: func() any { return &c.ItemTpLin },
+				},
+				"item_tp_sub": {
+					Desc:  &schemaz.Desc{Summary: "item_tp_sub (optional)."},
+					Field: func() any { return &c.ItemTpSub },
+				},
+				"item_vl_con": {
+					Desc:  &schemaz.Desc{Summary: "item_vl_con (required)."},
+					Field: func() any { return &c.ItemVlCon },
+				},
+			}
+		},
+	}
+}

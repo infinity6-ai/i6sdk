@@ -41,7 +41,7 @@ func (d Solution) Validate(v string) error {
 	if err := validation.StrNotEmpty(v, "Solution cannot be empty"); err != nil {
 		return err
 	}
-	if err := validation.OneOf([]string{"relevance", "plat", "dummysolution", "prcbidding"}, v, "Solution"); err != nil {
+	if err := validation.OneOf([]string{"relevance", "plat", "dummysolution", "prcbidding", "targeting"}, v, "Solution"); err != nil {
 		return err
 	}
 	return nil
@@ -108,12 +108,14 @@ var (
 	plat          = create(1<<1, "plat")
 	dummySolution = create(1<<2, "dummysolution")
 	prcbidding    = create(1<<3, "prcbidding")
+	targeting     = create(1<<4, "targeting")
 )
 
 func Relevance() Entry     { return relevance }
 func Plat() Entry          { return plat }
 func DummySolution() Entry { return dummySolution }
 func PrcBidding() Entry    { return prcbidding }
+func Targeting() Entry     { return targeting }
 
 func ParseStr(out *Solution) func() *schemaz.Parser[string] {
 	return func() *schemaz.Parser[string] {
