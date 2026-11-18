@@ -1,11 +1,9 @@
 package targetingfinancedataz
 
 import (
-	"fmt"
 	"time"
 
 	"cloud.google.com/go/bigquery"
-	"github.com/infinity6-ai/gox/commonz/validation"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
@@ -43,54 +41,17 @@ type ClientEvent struct {
 }
 
 func (c *ClientEvent) Validate() error {
-	if err := validation.StrNotEmpty(c.ID, "id is required"); err != nil {
-		return fmt.Errorf("failed to validate id: %w", err)
-	}
-	if err := validation.False(c.CreatedAt.IsZero(), "created_at is required"); err != nil {
-		return fmt.Errorf("failed to validate created_at: %w", err)
-	}
-	if err := validation.StrNotEmpty(c.UserId, "user_id is required"); err != nil {
-		return fmt.Errorf("failed to validate user_id: %w", err)
-	}
-	if err := validation.LessOrEqual(len(c.UserId), 255, "user_id must have at most 255 characters"); err != nil {
-		return fmt.Errorf("failed to validate user_id: %w", err)
-	}
-	if err := validation.StrNotEmpty(c.UserCd, "user_cd is required"); err != nil {
-		return fmt.Errorf("failed to validate user_cd: %w", err)
-	}
-	if err := validation.LessOrEqual(len(c.UserCd), 255, "user_cd must have at most 255 characters"); err != nil {
-		return fmt.Errorf("failed to validate user_cd: %w", err)
-	}
-	if err := validation.StrNotEmpty(c.EventTp, "event_tp is required"); err != nil {
-		return fmt.Errorf("failed to validate event_tp: %w", err)
-	}
-	if err := validation.LessOrEqual(len(c.EventTp), 255, "event_tp must have at most 255 characters"); err != nil {
-		return fmt.Errorf("failed to validate event_tp: %w", err)
-	}
-	if err := validation.StrNotEmpty(c.EventCh, "event_ch is required"); err != nil {
-		return fmt.Errorf("failed to validate event_ch: %w", err)
-	}
-	if err := validation.LessOrEqual(len(c.EventCh), 255, "event_ch must have at most 255 characters"); err != nil {
-		return fmt.Errorf("failed to validate event_ch: %w", err)
-	}
-	if err := validation.StrNotEmpty(c.ItemId, "item_id is required"); err != nil {
-		return fmt.Errorf("failed to validate item_id: %w", err)
-	}
-	if err := validation.LessOrEqual(len(c.ItemId), 255, "item_id must have at most 255 characters"); err != nil {
-		return fmt.Errorf("failed to validate item_id: %w", err)
-	}
-	if err := validation.StrNotEmpty(c.ItemTpLin, "item_tp_lin is required"); err != nil {
-		return fmt.Errorf("failed to validate item_tp_lin: %w", err)
-	}
-	if err := validation.LessOrEqual(len(c.ItemTpLin), 255, "item_tp_lin must have at most 255 characters"); err != nil {
-		return fmt.Errorf("failed to validate item_tp_lin: %w", err)
-	}
-	if c.ItemTpSub.Valid {
-		if err := validation.LessOrEqual(len(c.ItemTpSub.StringVal), 255, "item_tp_sub must have at most 255 characters"); err != nil {
-			return fmt.Errorf("failed to validate item_tp_sub: %w", err)
-		}
-	}
-	return nil
+	return tabledataz.FirstError(
+		tabledataz.Required("id", c.ID),
+		tabledataz.RequiredTime("created_at", c.CreatedAt),
+		tabledataz.Str("user_id", c.UserId, 255),
+		tabledataz.Str("user_cd", c.UserCd, 255),
+		tabledataz.Str("event_tp", c.EventTp, 255),
+		tabledataz.Str("event_ch", c.EventCh, 255),
+		tabledataz.Str("item_id", c.ItemId, 255),
+		tabledataz.Str("item_tp_lin", c.ItemTpLin, 255),
+		tabledataz.NullMaxLen("item_tp_sub", c.ItemTpSub, 255),
+	)
 }
 
 func (c *ClientEvent) GetCreatedAt() *time.Time {

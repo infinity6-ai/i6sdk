@@ -1,11 +1,9 @@
 package targetingfinancedataz
 
 import (
-	"fmt"
 	"time"
 
 	"cloud.google.com/go/bigquery"
-	"github.com/infinity6-ai/gox/commonz/validation"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
@@ -20,10 +18,7 @@ type Weight struct {
 }
 
 func (w *Weight) Validate() error {
-	if err := validation.StrNotEmpty(w.ID, "id is required"); err != nil {
-		return fmt.Errorf("failed to validate id: %w", err)
-	}
-	return nil
+	return tabledataz.Required("id", w.ID)
 }
 
 func (w *Weight) GetCreatedAt() *time.Time {

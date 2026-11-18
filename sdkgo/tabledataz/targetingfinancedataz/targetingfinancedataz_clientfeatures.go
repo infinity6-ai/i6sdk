@@ -21,11 +21,11 @@ type ClientFeatures struct {
 }
 
 func (c *ClientFeatures) Validate() error {
-	if err := validation.StrNotEmpty(c.ID, "id is required"); err != nil {
-		return fmt.Errorf("failed to validate id: %w", err)
-	}
-	if err := validation.False(c.CreatedAt.IsZero(), "created_at is required"); err != nil {
-		return fmt.Errorf("failed to validate created_at: %w", err)
+	if err := tabledataz.FirstError(
+		tabledataz.Required("id", c.ID),
+		tabledataz.RequiredTime("created_at", c.CreatedAt),
+	); err != nil {
+		return err
 	}
 	if err := validation.NotEmpty(c.FeaturesFloat, "features_float must not be empty"); err != nil {
 		return fmt.Errorf("failed to validate features_float: %w", err)
@@ -68,10 +68,7 @@ type FeatureFloat struct {
 }
 
 func (f *FeatureFloat) Validate() error {
-	if err := validation.StrNotEmpty(f.Key, "key is required"); err != nil {
-		return fmt.Errorf("failed to validate key: %w", err)
-	}
-	return nil
+	return tabledataz.Required("key", f.Key)
 }
 
 func (f *FeatureFloat) Schema() *schemaz.Schema {

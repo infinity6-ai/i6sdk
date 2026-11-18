@@ -1,11 +1,9 @@
 package targetingfinancedataz
 
 import (
-	"fmt"
 	"time"
 
 	"cloud.google.com/go/bigquery"
-	"github.com/infinity6-ai/gox/commonz/validation"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
@@ -57,94 +55,24 @@ type ClientStatus struct {
 }
 
 func (c *ClientStatus) Validate() error {
-	if err := validation.StrNotEmpty(c.ID, "id is required"); err != nil {
-		return fmt.Errorf("failed to validate id: %w", err)
-	}
-	if err := validation.False(c.CreatedAt.IsZero(), "created_at is required"); err != nil {
-		return fmt.Errorf("failed to validate created_at: %w", err)
-	}
-	if err := validation.StrNotEmpty(c.UserId, "user_id is required"); err != nil {
-		return fmt.Errorf("failed to validate user_id: %w", err)
-	}
-	if err := validation.LessOrEqual(len(c.UserId), 255, "user_id must have at most 255 characters"); err != nil {
-		return fmt.Errorf("failed to validate user_id: %w", err)
-	}
-	if err := validation.StrNotEmpty(c.UserCd, "user_cd is required"); err != nil {
-		return fmt.Errorf("failed to validate user_cd: %w", err)
-	}
-	if err := validation.LessOrEqual(len(c.UserCd), 255, "user_cd must have at most 255 characters"); err != nil {
-		return fmt.Errorf("failed to validate user_cd: %w", err)
-	}
-	if err := validation.StrNotEmpty(c.UserSgGen, "user_sg_gen is required"); err != nil {
-		return fmt.Errorf("failed to validate user_sg_gen: %w", err)
-	}
-	if err := validation.LessOrEqual(len(c.UserSgGen), 10, "user_sg_gen must have at most 10 characters"); err != nil {
-		return fmt.Errorf("failed to validate user_sg_gen: %w", err)
-	}
-	if err := validation.StrNotEmpty(c.UserTpRen, "user_tp_ren is required"); err != nil {
-		return fmt.Errorf("failed to validate user_tp_ren: %w", err)
-	}
-	if err := validation.LessOrEqual(len(c.UserTpRen), 2, "user_tp_ren must have at most 2 characters"); err != nil {
-		return fmt.Errorf("failed to validate user_tp_ren: %w", err)
-	}
-	if err := validation.OneOf([]string{"pf", "pj"}, c.UserTpRen, "user_tp_ren must be one of: pf, pj"); err != nil {
-		return fmt.Errorf("failed to validate user_tp_ren: %w", err)
-	}
-	if err := validation.GreaterOrEqual(c.UserFlCon, int64(0), "user_fl_con must be >= 0"); err != nil {
-		return fmt.Errorf("failed to validate user_fl_con: %w", err)
-	}
-	if err := validation.LessOrEqual(c.UserFlCon, int64(1), "user_fl_con must be <= 1"); err != nil {
-		return fmt.Errorf("failed to validate user_fl_con: %w", err)
-	}
-	if err := validation.StrNotEmpty(c.UserCdSuf, "user_cd_suf is required"); err != nil {
-		return fmt.Errorf("failed to validate user_cd_suf: %w", err)
-	}
-	if err := validation.LessOrEqual(len(c.UserCdSuf), 3, "user_cd_suf must have at most 3 characters"); err != nil {
-		return fmt.Errorf("failed to validate user_cd_suf: %w", err)
-	}
-	if err := validation.StrNotEmpty(c.UserCdMun, "user_cd_mun is required"); err != nil {
-		return fmt.Errorf("failed to validate user_cd_mun: %w", err)
-	}
-	if err := validation.LessOrEqual(len(c.UserCdMun), 255, "user_cd_mun must have at most 255 characters"); err != nil {
-		return fmt.Errorf("failed to validate user_cd_mun: %w", err)
-	}
-	if c.UserPrCep.Valid {
-		if err := validation.LessOrEqual(len(c.UserPrCep.StringVal), 9, "user_pr_cep must have at most 9 characters"); err != nil {
-			return fmt.Errorf("failed to validate user_pr_cep: %w", err)
-		}
-	}
-	if err := validation.GreaterOrEqual(c.UserFlCco, int64(0), "user_fl_cco must be >= 0"); err != nil {
-		return fmt.Errorf("failed to validate user_fl_cco: %w", err)
-	}
-	if err := validation.LessOrEqual(c.UserFlCco, int64(1), "user_fl_cco must be <= 1"); err != nil {
-		return fmt.Errorf("failed to validate user_fl_cco: %w", err)
-	}
-	if err := validation.StrNotEmpty(c.UserCdSeg, "user_cd_seg is required"); err != nil {
-		return fmt.Errorf("failed to validate user_cd_seg: %w", err)
-	}
-	if err := validation.LessOrEqual(len(c.UserCdSeg), 255, "user_cd_seg must have at most 255 characters"); err != nil {
-		return fmt.Errorf("failed to validate user_cd_seg: %w", err)
-	}
-	if err := validation.GreaterOrEqual(c.UserFlCar, int64(0), "user_fl_car must be >= 0"); err != nil {
-		return fmt.Errorf("failed to validate user_fl_car: %w", err)
-	}
-	if err := validation.LessOrEqual(c.UserFlCar, int64(1), "user_fl_car must be <= 1"); err != nil {
-		return fmt.Errorf("failed to validate user_fl_car: %w", err)
-	}
-	if c.UserPcCut.Valid {
-		if err := validation.LessOrEqual(len(c.UserPcCut.StringVal), 255, "user_pc_cut must have at most 255 characters"); err != nil {
-			return fmt.Errorf("failed to validate user_pc_cut: %w", err)
-		}
-	}
-	if c.UserFlAtr.Valid {
-		if err := validation.GreaterOrEqual(c.UserFlAtr.Int64, int64(0), "user_fl_atr must be >= 0"); err != nil {
-			return fmt.Errorf("failed to validate user_fl_atr: %w", err)
-		}
-		if err := validation.LessOrEqual(c.UserFlAtr.Int64, int64(1), "user_fl_atr must be <= 1"); err != nil {
-			return fmt.Errorf("failed to validate user_fl_atr: %w", err)
-		}
-	}
-	return nil
+	return tabledataz.FirstError(
+		tabledataz.Required("id", c.ID),
+		tabledataz.RequiredTime("created_at", c.CreatedAt),
+		tabledataz.Str("user_id", c.UserId, 255),
+		tabledataz.Str("user_cd", c.UserCd, 255),
+		tabledataz.Str("user_sg_gen", c.UserSgGen, 10),
+		tabledataz.Str("user_tp_ren", c.UserTpRen, 2),
+		tabledataz.OneOf("user_tp_ren", c.UserTpRen, "pf", "pj"),
+		tabledataz.Flag("user_fl_con", c.UserFlCon),
+		tabledataz.Str("user_cd_suf", c.UserCdSuf, 3),
+		tabledataz.Str("user_cd_mun", c.UserCdMun, 255),
+		tabledataz.NullMaxLen("user_pr_cep", c.UserPrCep, 9),
+		tabledataz.Flag("user_fl_cco", c.UserFlCco),
+		tabledataz.Str("user_cd_seg", c.UserCdSeg, 255),
+		tabledataz.Flag("user_fl_car", c.UserFlCar),
+		tabledataz.NullMaxLen("user_pc_cut", c.UserPcCut, 255),
+		tabledataz.NullFlag("user_fl_atr", c.UserFlAtr),
+	)
 }
 
 func (c *ClientStatus) GetCreatedAt() *time.Time {
