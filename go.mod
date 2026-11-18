@@ -5,11 +5,11 @@ go 1.26.1
 require (
 	cloud.google.com/go/bigquery v1.84.0
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.30.0
-	github.com/infinity6-ai/gox/commonz v0.0.68
-	github.com/infinity6-ai/gox/cryptz v0.0.68
-	github.com/infinity6-ai/gox/fsz v0.0.68
-	github.com/infinity6-ai/gox/routez v0.0.68
-	github.com/infinity6-ai/gox/schemaz v0.0.68
+	github.com/infinity6-ai/gox/commonz v0.0.69
+	github.com/infinity6-ai/gox/cryptz v0.0.69
+	github.com/infinity6-ai/gox/fsz v0.0.69
+	github.com/infinity6-ai/gox/routez v0.0.69
+	github.com/infinity6-ai/gox/schemaz v0.0.69
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.12.1
 	go.opentelemetry.io/otel v1.44.0
