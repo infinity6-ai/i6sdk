@@ -46,6 +46,7 @@ require (
 	github.com/googleapis/enterprise-certificate-proxy v0.3.22 // indirect
 	github.com/googleapis/gax-go/v2 v2.24.1 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
+	github.com/infinity6-ai/gox/bqz v0.0.71
 	github.com/klauspost/compress v1.18.6 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.5 // indirect
 	github.com/pierrec/lz4/v4 v4.1.27 // indirect
