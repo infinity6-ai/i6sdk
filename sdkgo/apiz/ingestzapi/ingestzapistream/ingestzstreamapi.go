@@ -12,13 +12,6 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz/relevancefashiondataz"
 )
 
-func AllTables() []tabledataz.TableData {
-	return []tabledataz.TableData{
-		&relevancefashiondataz.Catalog{},
-		&relevancefashiondataz.Event{},
-	}
-}
-
 func AllApis() []apiz.Api {
 	return []apiz.Api{
 		&Api[*relevancefashiondataz.Catalog]{},
