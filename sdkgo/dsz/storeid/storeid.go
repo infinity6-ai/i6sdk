@@ -45,9 +45,14 @@ func (d StoreId) Validate(v string) error {
 	return nil
 }
 
-func MustParse(id string) StoreId {
+func Parse(id string) (StoreId, error) {
 	var ret StoreId
 	err := checked.Set(&ret, id)
+	return ret, err
+}
+
+func MustParse(id string) StoreId {
+	ret, err := Parse(id)
 	errorz.Check(err)
 	return ret
 }

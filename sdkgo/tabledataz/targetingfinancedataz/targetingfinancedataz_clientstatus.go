@@ -7,12 +7,14 @@ import (
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/storeid"
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz"
 )
 
 type ClientStatus struct {
 	ID            string               `json:"id" bigquery:"id"`
 	Dataset       bigquery.NullString  `json:"dataset" bigquery:"dataset"`
+	StoreId       string               `json:"store_id" bigquery:"store_id"`
 	IngestedAt    string               `json:"ingested_at" bigquery:"ingested_at"`
 	CreatedAt     time.Time            `json:"created_at" bigquery:"created_at"`
 	UserId        string               `json:"user_id" bigquery:"user_id"`
@@ -55,9 +57,11 @@ type ClientStatus struct {
 }
 
 func (c *ClientStatus) Validate() error {
+	_, err := storeid.Parse(c.StoreId)
 	return tabledataz.FirstError(
 		tabledataz.Required("id", c.ID),
 		tabledataz.RequiredTime("created_at", c.CreatedAt),
+		err,
 		tabledataz.Str("user_id", c.UserId, 255),
 		tabledataz.Str("user_cd", c.UserCd, 255),
 		tabledataz.Str("user_sg_gen", c.UserSgGen, 10),

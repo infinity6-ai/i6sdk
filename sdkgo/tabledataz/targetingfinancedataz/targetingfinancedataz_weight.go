@@ -7,18 +7,21 @@ import (
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/storeid"
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz"
 )
 
 type Weight struct {
 	ID         string              `json:"id" bigquery:"id"`
 	Dataset    bigquery.NullString `json:"dataset" bigquery:"dataset"`
+	StoreId    string              `json:"store_id" bigquery:"store_id"`
 	IngestedAt string              `json:"ingested_at" bigquery:"ingested_at"`
 	Weight     float64             `json:"weight" bigquery:"weight"`
 }
 
 func (w *Weight) Validate() error {
-	return tabledataz.Required("id", w.ID)
+	_, err := storeid.Parse(w.StoreId)
+	return tabledataz.FirstError(tabledataz.Required("id", w.ID), err)
 }
 
 func (w *Weight) GetCreatedAt() *time.Time {

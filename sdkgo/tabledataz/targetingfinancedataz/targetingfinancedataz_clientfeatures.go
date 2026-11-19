@@ -9,21 +9,25 @@ import (
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
+	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/storeid"
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz"
 )
 
 type ClientFeatures struct {
 	ID            string              `json:"id" bigquery:"id"`
 	Dataset       bigquery.NullString `json:"dataset" bigquery:"dataset"`
+	StoreId       string              `json:"store_id" bigquery:"store_id"`
 	IngestedAt    string              `json:"ingested_at" bigquery:"ingested_at"`
 	CreatedAt     time.Time           `json:"created_at" bigquery:"created_at"`
 	FeaturesFloat []*FeatureFloat     `json:"features_float" bigquery:"features_float"`
 }
 
 func (c *ClientFeatures) Validate() error {
+	_, err := storeid.Parse(c.StoreId)
 	if err := tabledataz.FirstError(
 		tabledataz.Required("id", c.ID),
 		tabledataz.RequiredTime("created_at", c.CreatedAt),
+		err,
 	); err != nil {
 		return err
 	}

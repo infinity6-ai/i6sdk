@@ -17,6 +17,7 @@ var _ tabledataz.TableData = (*targetingfinancedataz.ClientFeatures)(nil)
 func validFeatures() targetingfinancedataz.ClientFeatures {
 	return targetingfinancedataz.ClientFeatures{
 		ID:        "bbb",
+		StoreId:   "s1",
 		CreatedAt: time.Date(2025, 6, 2, 0, 0, 0, 0, time.UTC),
 		FeaturesFloat: []*targetingfinancedataz.FeatureFloat{
 			{Key: "tempo_exercicio_meses", Value: 8},
@@ -28,6 +29,7 @@ func validFeatures() targetingfinancedataz.ClientFeatures {
 func TestUnitClientFeaturesSerialization(t *testing.T) {
 	jsonStr := `{
 		"id": "bbb",
+		"store_id": "s1",
 		"created_at": "2025-06-02T00:00:00Z",
 		"features_float": [
 			{"key": "tempo_exercicio_meses", "value": 8},

@@ -23,6 +23,7 @@ func validStatus() targetingfinancedataz.ClientStatus {
 	return targetingfinancedataz.ClientStatus{
 		ID:        "st_1",
 		CreatedAt: time.Date(2026, 10, 1, 0, 0, 0, 0, time.UTC),
+		StoreId:   "s1",
 		UserId:    "u_1",
 		UserCd:    "cd_1",
 		UserSgGen: "f",
@@ -38,6 +39,7 @@ func validEvent() targetingfinancedataz.ClientEvent {
 	return targetingfinancedataz.ClientEvent{
 		ID:        "ev_1",
 		CreatedAt: time.Date(2026, 10, 1, 0, 0, 0, 0, time.UTC),
+		StoreId:   "s1",
 		UserId:    "u_1",
 		UserCd:    "cd_1",
 		EventTp:   "purchase",
@@ -135,7 +137,7 @@ func TestUnitClientEventValidation(t *testing.T) {
 }
 
 func TestUnitWeightValidation(t *testing.T) {
-	w := targetingfinancedataz.Weight{ID: "w_1", Weight: 0.7}
+	w := targetingfinancedataz.Weight{ID: "w_1", StoreId: "s1", Weight: 0.7}
 	require.NoError(t, w.Validate())
 	require.Nil(t, w.GetCreatedAt())
 
