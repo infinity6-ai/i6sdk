@@ -7,7 +7,7 @@ Evaluation and progress of migrating modules to `../gox`:
 | **`camelstring`** | **Done** | `gox/commonz/stringz/camelz` | Deleted local package; replaced with `gox/camelz`. |
 | **`jstypez`** | **Done** | `gox/schemaz/jstypez` | Moved pure JS/TS type AST (`Tuple`, `Typedef`, etc.) and unit tests to `gox`. Local package deleted. |
 | **`jsschema`** (Core) | **Done** | `gox/schemaz/jsschemaz` | Moved schema reflection engine (`Parser`, `AddKnownType`, `FormatTypedefs`) to `gox`. Stripped cloud dependencies. `i6sdk` now uses a clean `NewSdk()` factory. |
-| **`jsapi`** (Parser) | **Pending (Step 3)** | `gox/routez/jsapiz` | Move `routez.ApiSpec` parser and AST to `gox/routez`. Retain client class generator in `i6sdk`. |
+| **`jsapi`** (Parser) | **Done** | `gox/routez/jsapiz` | Moved `routez.ApiSpec` parser and AST to `gox/routez`. Retained client class generator in `i6sdk`. |
 
 *(Note: `jssdkfunc` and `jswriter` stay in `i6sdk` as they are coupled to the i6 SDK runtime).*
 
@@ -17,7 +17,7 @@ Evaluation and progress of migrating modules to `../gox`:
 
 To avoid churning 53+ test files across `sdkgo`, `i6sdk` retains thin facade packages (`genjsz/jsschema` and `genjsz/jsapi`) that wrap the constructors from `gox`:
 - `jsschema.NewSdk()` in `i6sdk` returns `*jsschemaz.Parser` pre-configured with BigQuery and `fsz.FileStat` types.
-- `jsapi.NewSdk()` in `i6sdk` will return `*jsapiz.Parser` configured with `jsschema.NewSdk()`.
+- `jsapi.NewSdk()` in `i6sdk` returns `*jsapiz.Parser` configured with `jsschema.NewSdk()`.
 - Existing tests and callers continue using `jsschema.NewSdk().ParseSchema(...)` and `jsapi.NewSdk().ParseApi(...)` without any import changes.
 
 ---
@@ -46,15 +46,15 @@ To avoid churning 53+ test files across `sdkgo`, `i6sdk` retains thin facade pac
     - Removed `i6sdk/genjsz/jstypez` in favor of `gox/schemaz/jstypez`.
     - Validated all tests in `i6sdk`.
 
-- [ ] **Step 3: Move `jsapi` route parser to `gox/routez/jsapiz`**
+- [x] **Step 3: Move `jsapi` route parser to `gox/routez/jsapiz`**
   - [x] **3A (`gox/routez/jsapiz`)**:
     - Created `gox/routez/jsapiz` with `Api`, `Apis`, `Req`, `Resp`, and `ApiSpec` data structures.
     - Added `Parser`, `New()`, `ParseApi`, `ParseApis`, and `ExtractTypedefs`.
     - Added comprehensive unit tests and verified all tests pass in `gox/routez`.
-  - **3B (`i6sdk/genjsz/jsapi`)**:
-    - Retain `Write` / `WriteV2` (generates the `i6`-specific `this._services.invoker()` client class).
-    - Provide `NewSdk()` returning `*jsapiz.Parser` configured with `jsschema.NewSdk()`.
-    - Validate all tests in `i6sdk`.
+  - [x] **3B (`i6sdk/genjsz/jsapi`)**:
+    - Retained `Write` / `WriteV2` (generates the `i6`-specific `this._services.invoker()` client class).
+    - Provided `NewSdk()` returning `*jsapiz.Parser` configured with `jsschema.NewSdk()`.
+    - Validated all tests in `i6sdk`.
 
-- [ ] **Step 4: Final Verification**
-  - Run `go vet ./...` and `go test ./...` in both `gox` and `i6sdk`.
+- [x] **Step 4: Final Verification**
+  - Executed `go vet ./...` and `go test ./...` in both `gox` and `i6sdk`; all packages passed cleanly.

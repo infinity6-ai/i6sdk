@@ -9,7 +9,6 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/errorz"
 	"github.com/infinity6-ai/gox/schemaz/jsschemaz"
-	"github.com/infinity6-ai/gox/schemaz/jstypez"
 )
 
 var pathParamRe = regexp.MustCompile(`\{([A-Za-z0-9_]+)\}`)
@@ -19,21 +18,6 @@ func writeln(sb *strings.Builder, msg string, args ...any) {
 	errorz.Check(err)
 	_, err = sb.WriteRune('\n')
 	errorz.Check(err)
-}
-
-func ExtractTypedefs(apis []*Api) jstypez.Typedefs {
-	tdfs := jstypez.Typedefs{}
-	for _, api := range apis {
-		apiId := api.Spec.CamelId
-		reqTypedef, hasReq := buildReqTypedef(apiId, api)
-		respTypedef := buildRespTypedef(apiId, api)
-
-		if hasReq {
-			tdfs.Add(&reqTypedef)
-		}
-		tdfs.Add(&respTypedef)
-	}
-	return tdfs
 }
 
 func Write(ctx context.Context, apis []*Api) string {
@@ -85,47 +69,6 @@ func indent(s, prefix string) string {
 		}
 	}
 	return strings.Join(lines, "\n")
-}
-
-func buildReqTypedef(apiId string, api *Api) (jstypez.Typedef, bool) {
-	hasParams := api.Req.Params.Head != nil
-	hasQuery := api.Req.Query.Head != nil
-	hasReqHeaders := api.Req.Headers.Head != nil
-	hasPayload := api.Req.Payload.Head != nil
-
-	hasReq := hasParams || hasQuery || hasReqHeaders || hasPayload
-
-	reqTypedef := jstypez.Typedef{
-		Head:       &jstypez.Tuple{Typ: "object", Name: apiId + "Req", Summary: apiId + " Request"},
-		Properties: &jstypez.Tuples{},
-	}
-	if hasParams {
-		reqTypedef.Properties.Add(jstypez.Tuple{Typ: api.Req.Params.Head.Typ, GoTyp: api.Req.Params.Head.GoTyp, Name: "params"})
-	}
-	if hasQuery {
-		reqTypedef.Properties.Add(jstypez.Tuple{Typ: api.Req.Query.Head.Typ, GoTyp: api.Req.Query.Head.GoTyp, Name: "query"})
-	}
-	if hasReqHeaders {
-		reqTypedef.Properties.Add(jstypez.Tuple{Typ: api.Req.Headers.Head.Typ, GoTyp: api.Req.Headers.Head.GoTyp, Name: "headers"})
-	}
-	if hasPayload {
-		reqTypedef.Properties.Add(jstypez.Tuple{Typ: api.Req.Payload.Head.Typ, GoTyp: api.Req.Payload.Head.GoTyp, Name: "payload"})
-	}
-	return reqTypedef, hasReq
-}
-
-func buildRespTypedef(apiId string, api *Api) jstypez.Typedef {
-	respTypedef := jstypez.Typedef{
-		Head:       &jstypez.Tuple{Typ: "object", Name: apiId + "Resp", Summary: apiId + " Response"},
-		Properties: &jstypez.Tuples{},
-	}
-	if api.Resp.Headers.Head != nil {
-		respTypedef.Properties.Add(jstypez.Tuple{Typ: api.Resp.Headers.Head.Typ, GoTyp: api.Resp.Headers.Head.GoTyp, Name: "headers"})
-	}
-	if api.Resp.Payload.Head != nil {
-		respTypedef.Properties.Add(jstypez.Tuple{Typ: api.Resp.Payload.Head.Typ, GoTyp: api.Resp.Payload.Head.GoTyp, Name: "payload"})
-	}
-	return respTypedef
 }
 
 func servNameOf(api *Api) string {
