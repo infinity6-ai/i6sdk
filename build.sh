@@ -89,8 +89,15 @@ function cmd_force_delete_version() {
 function cmd_release_exists() {
   local _version="${1:-$(./comp.sh versionz run version)}"
   [ ! -z "$_version" ]
-  git pull --tags 1>/dev/null
-  git tag -l | grep "$_version$" 1>/dev/null 
+  git fetch --tags origin 2>/dev/null || git fetch --tags 2>/dev/null || true
+  if git rev-parse -q --verify "refs/tags/$_version" >/dev/null 2>&1 || \
+     git rev-parse -q --verify "refs/tags/$_version^{commit}" >/dev/null 2>&1 || \
+     git tag -l | grep -q "$_version$" || \
+     [ -n "$(git -c core.sshCommand=ssh ls-remote --tags origin "refs/tags/$_version" 2>/dev/null)" ] || \
+     [ -n "$(git ls-remote --tags origin "refs/tags/$_version" 2>/dev/null)" ]; then
+    return 0
+  fi
+  return 1
 }
 
 function cmd_release() {
