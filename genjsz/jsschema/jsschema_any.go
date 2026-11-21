@@ -1,4 +1,4 @@
-package jsparser
+package jsschema
 
 import (
 	"context"
@@ -9,7 +9,6 @@ import (
 	"github.com/infinity6-ai/gox/commonz/logz"
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsparsercustom"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
@@ -26,9 +25,6 @@ func ParseAny(ctx context.Context, baseId string, v any) (*jstypez.Typedef, *jst
 
 	for val.Kind() == reflect.Pointer || val.Kind() == reflect.Interface {
 		if val.IsNil() {
-			// if val.Kind() == reflect.Interface {
-			// 	return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: "Record<string, any>", GoTyp: "any"}}, nil
-			// }
 			val = reflect.Zero(val.Type().Elem())
 			break
 		}
@@ -37,7 +33,7 @@ func ParseAny(ctx context.Context, baseId string, v any) (*jstypez.Typedef, *jst
 
 	if v, ok := jsonzembedded.Unembed(val.Interface()); ok {
 		a, b := ParseAny(ctx, baseId, v)
-		a.Head.Name = baseId // + "Embedded"
+		a.Head.Name = baseId
 		if b == nil {
 			b = &jstypez.Typedefs{}
 		}
@@ -77,28 +73,16 @@ func ParseAny(ctx context.Context, baseId string, v any) (*jstypez.Typedef, *jst
 	case reflect.Slice, reflect.Array:
 		var allTdfs jstypez.Typedefs
 
-		// 1. Get the reflect.Type of the slice/array element
 		elemType := val.Type().Elem()
-
-		// Optional: Special handling for []byte (often mapped to string or Uint8Array in JS)
-		// if elemType.Kind() == reflect.Uint8 {
-		// 	return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: "string"}}, allTdfs
-		// }
-
-		// 2. Generate a zero-value instance of the Element type
 		elemZeroVal := reflect.Zero(elemType).Interface()
 
-		// 3. Recursively parse the element type
 		elemTdf, eTdfs := ParseAny(ctx, baseId+"Element", elemZeroVal)
 		checker.StrEmpty(elemTdf.Head.Name, "elemTdf.Head.Name")
 		elemTdf.Head.Name = baseId + "Element"
 
-		// 4. Aggregate nested typedefs
 		allTdfs.ExtractFrom(eTdfs)
 		allTdfs.Add(elemTdf)
 
-		// 5. Format as a TypeScript array.
-		// You can use "%s[]" (e.g., "string[]") or "Array<%s>" (e.g., "Array<string>")
 		return &jstypez.Typedef{
 			Head: &jstypez.Tuple{Typ: fmt.Sprintf("Array<%s>", elemTdf.Head.Name)},
 		}, &allTdfs
@@ -106,18 +90,13 @@ func ParseAny(ctx context.Context, baseId string, v any) (*jstypez.Typedef, *jst
 	case reflect.Map:
 		var allTdfs jstypez.Typedefs
 
-		// 1. Get the reflect.Type of the map
 		mapType := val.Type()
-
-		// 2. Generate a zero-value instance of the Key type (e.g., "" for string)
 		keyType := mapType.Key()
 		keyZeroVal := reflect.Zero(keyType).Interface()
 
-		// 3. Generate a zero-value instance of the Element type (e.g., 0.0 for float64)
 		elemType := mapType.Elem()
 		elemZeroVal := reflect.Zero(elemType).Interface()
 
-		// 4. Recursively parse the key and value types
 		keyTdf, kTdfs := ParseAny(ctx, baseId+"Key", keyZeroVal)
 		valTdf, vTdfs := ParseAny(ctx, baseId+"Value", elemZeroVal)
 
@@ -127,7 +106,6 @@ func ParseAny(ctx context.Context, baseId string, v any) (*jstypez.Typedef, *jst
 		keyTdf.Head.Name = baseId + "Key"
 		valTdf.Head.Name = baseId + "Value"
 
-		// 5. Aggregate nested typedefs
 		allTdfs.ExtractFrom(kTdfs)
 		allTdfs.ExtractFrom(vTdfs)
 		allTdfs.Add(keyTdf, valTdf)
@@ -169,7 +147,7 @@ func checkSchema(ctx context.Context, baseId string, val reflect.Value) (*jstype
 
 func checkCustom(ctx context.Context, baseId string, val reflect.Value) (*jstypez.Typedef, *jstypez.Typedefs) {
 	v := val.Interface()
-	if ret, tdfs := jsparsercustom.Resolve(v); ret != nil {
+	if ret, tdfs := Resolve(v); ret != nil {
 		if ret.Head.Typ != jstypez.TypBoolean && ret.Head.Typ != jstypez.TypString && ret.Head.Typ != jstypez.TypNumber {
 			logger.Info(ctx, "non basic parser custom detected", map[string]any{"typ": ret.Head.Typ, "base": baseId})
 		}

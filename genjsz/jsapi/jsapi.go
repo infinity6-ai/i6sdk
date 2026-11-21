@@ -1,17 +1,22 @@
-package jsparserapi
+package jsapi
 
 import (
 	"context"
 	"fmt"
 	"strings"
 
+	"github.com/infinity6-ai/gox/commonz/logz"
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/camelstring"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
+	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
+
+type tlogger logz.Type
+
+var logger = logz.Create(tlogger(true))
 
 type Req struct {
 	Params  jstypez.Typedef `json:"params"`
@@ -39,6 +44,11 @@ type ApiSpec struct {
 	Desc    *schemaz.Desc `json:"desc,omitempty"`
 	Method  string        `json:"method,omitempty"`
 	Path    string        `json:"path,omitempty"`
+}
+
+type Apis struct {
+	Apis     []*Api           `json:"apis"`
+	Typedefs jstypez.Typedefs `json:"typedefs"`
 }
 
 func ParseApi(ctx context.Context, api apiz.Api) *Api {
@@ -78,7 +88,7 @@ func ParseApi(ctx context.Context, api apiz.Api) *Api {
 			return
 		}
 		fieldName := ret.Spec.CamelId + strings.ToUpper(suffix[0:1]) + suffix[1:]
-		p, tdfs := jsparser.ParseSchema(ctx, fieldName, s)
+		p, tdfs := jsschema.ParseSchema(ctx, fieldName, s)
 		checker.Equal("object", p.Head.Typ, "must be object")
 		out.Properties = &jstypez.Tuples{}
 		out.Head = &jstypez.Tuple{Typ: fieldName, Name: suffix}
@@ -95,6 +105,20 @@ func ParseApi(ctx context.Context, api apiz.Api) *Api {
 	parseRefsV2(&ret.Resp.Payload, "respPayload", refs.RespBody)
 
 	return ret
+}
+
+func ParseApis(ctx context.Context, apis []apiz.Api) *Apis {
+	ret := Apis{
+		Apis:     make([]*Api, len(apis)),
+		Typedefs: jstypez.NewTypedefs(nil),
+	}
+	for idx, api := range apis {
+		logger.Info(ctx, "parsring js sdk api", map[string]any{"api": api.ApiSpec().Id})
+		parsed := ParseApi(ctx, api)
+		ret.Typedefs.Merge(parsed.Typedefs)
+		ret.Apis[idx] = parsed
+	}
+	return &ret
 }
 
 func validateDataRef(schema *schemaz.Schema, n string) {

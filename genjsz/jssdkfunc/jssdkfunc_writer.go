@@ -1,4 +1,4 @@
-package jswritersdkfunc
+package jssdkfunc
 
 import (
 	"context"
@@ -8,8 +8,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/errorz"
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
 	"go.code.infinity6.ai/sdkgo/camelstring"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsparsersdkfunc"
+	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
 )
@@ -31,7 +30,7 @@ func indent(s, prefix string) string {
 	return strings.Join(lines, "\n")
 }
 
-func ExtractTypedefs(sdkFuncs []*jsparsersdkfunc.SdkFunc) jstypez.Typedefs {
+func ExtractTypedefs(sdkFuncs []*SdkFunc) jstypez.Typedefs {
 	tdfs := jstypez.Typedefs{}
 	for _, fn := range sdkFuncs {
 		funcId := fn.Spec.CamelId
@@ -72,7 +71,7 @@ func ExtractTypedefs(sdkFuncs []*jsparsersdkfunc.SdkFunc) jstypez.Typedefs {
 	return tdfs
 }
 
-func buildSelectedTypedefs(fn *jsparsersdkfunc.SdkFunc) (jstypez.Typedef, jstypez.Typedef) {
+func buildSelectedTypedefs(fn *SdkFunc) (jstypez.Typedef, jstypez.Typedef) {
 	funcId := fn.Spec.CamelId
 	enrichedName := funcId + "OutputResultsElementSkusElementEnriched"
 	enriched := jstypez.Typedef{
@@ -101,7 +100,7 @@ func funcName(funcId string, version string) string {
 	return name
 }
 
-func Write(ctx context.Context, sdkFuncs []*jsparsersdkfunc.SdkFunc) string {
+func Write(ctx context.Context, sdkFuncs []*SdkFunc) string {
 	if len(sdkFuncs) == 0 {
 		return ""
 	}
@@ -136,9 +135,9 @@ func Write(ctx context.Context, sdkFuncs []*jsparsersdkfunc.SdkFunc) string {
 
 		writeln(&decl, "/**")
 		if fn.Spec.Desc != nil {
-			writeln(&decl, " * %s", jsparser.DescName(fn.Spec.Desc))
+			writeln(&decl, " * %s", jsschema.DescName(fn.Spec.Desc))
 			writeln(&decl, " * ")
-			writeln(&decl, " * %s", jsparser.DescSummary(fn.Spec.Desc))
+			writeln(&decl, " * %s", jsschema.DescSummary(fn.Spec.Desc))
 			writeln(&decl, " * ")
 		}
 		if hasReq {
@@ -243,7 +242,7 @@ func Write(ctx context.Context, sdkFuncs []*jsparsersdkfunc.SdkFunc) string {
 }
 
 // hasInputParams tells if the input of fn has a "params" property, the query input of a client query.
-func hasInputParams(fn *jsparsersdkfunc.SdkFunc) bool {
+func hasInputParams(fn *SdkFunc) bool {
 	if fn.Req.Input.Head == nil {
 		return false
 	}

@@ -1,4 +1,4 @@
-package jsparsercustom
+package jsschema
 
 import (
 	"reflect"

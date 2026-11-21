@@ -1,4 +1,4 @@
-package jsparser
+package jsschema
 
 import (
 	"context"
@@ -26,7 +26,10 @@ func knownTypes(ctx context.Context, baseId string, val reflect.Value) (*jstypez
 		a, b := ParseSchema(ctx, baseId, &v)
 		a.Head.Name = ""
 		return a, b
-	default:
-		return nil, nil
+	case *schemaz.Schema:
+		a, b := ParseSchema(ctx, baseId, v)
+		a.Head.Name = ""
+		return a, b
 	}
+	return nil, nil
 }

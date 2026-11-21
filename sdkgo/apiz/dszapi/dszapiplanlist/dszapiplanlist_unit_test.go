@@ -5,7 +5,7 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsparserapi"
+	"go.code.infinity6.ai/sdkgo/genjsz/jsapi"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapiplanlist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
 )
@@ -70,7 +70,7 @@ func TestUnitDszListPlansApi(t *testing.T) {
 	})
 
 	t.Run("spec", func(t *testing.T) {
-		parsed := jsparserapi.ParseApi(ctx, &dszapiplanlist.Api{})
+		parsed := jsapi.ParseApi(ctx, &dszapiplanlist.Api{})
 		require.NotNil(t, parsed)
 		require.Equal(t, "dsz-list-plans", parsed.Spec.Id)
 		require.Equal(t, "GET", parsed.Spec.Method)

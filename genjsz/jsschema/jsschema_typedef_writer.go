@@ -1,4 +1,4 @@
-package jstypedefwriter
+package jsschema
 
 import (
 	"fmt"
@@ -7,7 +7,10 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
-func Write(pipedefs *jstypez.Typedefs) string {
+func FormatTypedefs(pipedefs *jstypez.Typedefs) string {
+	if pipedefs == nil {
+		return ""
+	}
 	var b strings.Builder
 	for _, pipedef := range pipedefs.All() {
 		b.WriteString("/**\n")

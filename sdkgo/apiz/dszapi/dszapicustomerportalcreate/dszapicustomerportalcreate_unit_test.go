@@ -5,7 +5,7 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsparserapi"
+	"go.code.infinity6.ai/sdkgo/genjsz/jsapi"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapicustomerportalcreate"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
@@ -48,7 +48,7 @@ func TestUnitDszCreateCustomerPortalApi(t *testing.T) {
 	})
 
 	t.Run("spec", func(t *testing.T) {
-		parsed := jsparserapi.ParseApi(ctx, &dszapicustomerportalcreate.Api{})
+		parsed := jsapi.ParseApi(ctx, &dszapicustomerportalcreate.Api{})
 		require.NotNil(t, parsed)
 		require.Equal(t, "dsz-create-customer-portal", parsed.Spec.Id)
 		require.Equal(t, "POST", parsed.Spec.Method)

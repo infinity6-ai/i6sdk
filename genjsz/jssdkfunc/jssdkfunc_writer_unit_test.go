@@ -1,12 +1,11 @@
-package jswritersdkfunc_test
+package jssdkfunc_test
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsparsersdkfunc"
+	"go.code.infinity6.ai/sdkgo/genjsz/jssdkfunc"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
-	"go.code.infinity6.ai/sdkgo/genjsz/jswritersdkfunc"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashfunnel"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashlistshowcasecategories"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/inferz/inferzrelevancefashionfbt"
@@ -16,13 +15,13 @@ import (
 func TestUnitWrite(t *testing.T) {
 	ctx := t.Context()
 	type testScenario struct {
-		in   []*jsparsersdkfunc.SdkFunc
+		in   []*jssdkfunc.SdkFunc
 		want string
 	}
 
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
-		got := jswritersdkfunc.Write(ctx, s.in)
+		got := jssdkfunc.Write(ctx, s.in)
 
 		require.Equal(t, s.want, got)
 	}
@@ -36,13 +35,13 @@ func TestUnitWrite(t *testing.T) {
 
 	t.Run("empty sdk funcs", func(t *testing.T) {
 		check(t, testScenario{
-			in:   []*jsparsersdkfunc.SdkFunc{},
+			in:   []*jssdkfunc.SdkFunc{},
 			want: "",
 		})
 	})
 
 	t.Run("with client infer sdk func", func(t *testing.T) {
-		parsed := jsparsersdkfunc.ParseSdkFunc(ctx, &inferzrelevancefashionfbt.Func{})
+		parsed := jssdkfunc.ParseSdkFunc(ctx, &inferzrelevancefashionfbt.Func{})
 		want := `class SdkFuncs {
 
   /**
@@ -97,20 +96,20 @@ func TestUnitWrite(t *testing.T) {
 export { SdkFuncs };
 `
 		check(t, testScenario{
-			in:   []*jsparsersdkfunc.SdkFunc{parsed},
+			in:   []*jssdkfunc.SdkFunc{parsed},
 			want: want,
 		})
 	})
 
 	t.Run("with gotyp in input and output", func(t *testing.T) {
-		fn := &jsparsersdkfunc.SdkFunc{
-			Spec: jsparsersdkfunc.SdkFuncSpec{
+		fn := &jssdkfunc.SdkFunc{
+			Spec: jssdkfunc.SdkFuncSpec{
 				Id:      "product-custom-task",
 				CamelId: "sdkFuncProductCustomTask",
 				Version: "v1",
 				Typ:     sdkfuncz.TypClientInfer,
 			},
-			Req: jsparsersdkfunc.Req{
+			Req: jssdkfunc.Req{
 				Input: jstypez.Typedef{
 					Head: &jstypez.Tuple{Typ: "sdkFuncProductCustomTaskInput", GoTyp: "models.CustomInput", Name: "input"},
 				},
@@ -118,14 +117,14 @@ export { SdkFuncs };
 					Head: &jstypez.Tuple{Typ: "sdkFuncProductCustomTaskPartitions", GoTyp: "models.CustomPartitions", Name: "partitions"},
 				},
 			},
-			Resp: jsparsersdkfunc.Resp{
+			Resp: jssdkfunc.Resp{
 				Output: jstypez.Typedef{
 					Head: &jstypez.Tuple{Typ: "sdkFuncProductCustomTaskOutput", GoTyp: "models.CustomOutput", Name: "output"},
 				},
 			},
 		}
 
-		tds := jswritersdkfunc.ExtractTypedefs([]*jsparsersdkfunc.SdkFunc{fn})
+		tds := jssdkfunc.ExtractTypedefs([]*jssdkfunc.SdkFunc{fn})
 		allTds := tds.All()
 		require.Len(t, allTds, 4) // req, resp, enriched, selected
 		var reqTd *jstypez.Typedef
@@ -192,13 +191,13 @@ export { SdkFuncs };
 export { SdkFuncs };
 `
 		check(t, testScenario{
-			in:   []*jsparsersdkfunc.SdkFunc{fn},
+			in:   []*jssdkfunc.SdkFunc{fn},
 			want: want,
 		})
 	})
 
 	t.Run("with client query sdk func", func(t *testing.T) {
-		parsed := jsparsersdkfunc.ParseSdkFunc(ctx, &relevancefashiondashfunnel.Func{})
+		parsed := jssdkfunc.ParseSdkFunc(ctx, &relevancefashiondashfunnel.Func{})
 		want := `class SdkFuncs {
 
   /**
@@ -238,13 +237,13 @@ export { SdkFuncs };
 export { SdkFuncs };
 `
 		check(t, testScenario{
-			in:   []*jsparsersdkfunc.SdkFunc{parsed},
+			in:   []*jssdkfunc.SdkFunc{parsed},
 			want: want,
 		})
 	})
 
 	t.Run("with client query sdk func without params", func(t *testing.T) {
-		parsed := jsparsersdkfunc.ParseSdkFunc(ctx, &relevancefashiondashlistshowcasecategories.Func{})
+		parsed := jssdkfunc.ParseSdkFunc(ctx, &relevancefashiondashlistshowcasecategories.Func{})
 		want := `class SdkFuncs {
 
   /**
@@ -283,7 +282,7 @@ export { SdkFuncs };
 export { SdkFuncs };
 `
 		check(t, testScenario{
-			in:   []*jsparsersdkfunc.SdkFunc{parsed},
+			in:   []*jssdkfunc.SdkFunc{parsed},
 			want: want,
 		})
 	})

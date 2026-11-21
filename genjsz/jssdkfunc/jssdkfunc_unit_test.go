@@ -1,4 +1,4 @@
-package jsparsersdkfunc_test
+package jssdkfunc_test
 
 import (
 	"os"
@@ -8,16 +8,16 @@ import (
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsparsersdkfunc"
+	"go.code.infinity6.ai/sdkgo/genjsz/jssdkfunc"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/inferz/inferzrelevancefashionfbt"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkz"
 )
 
-func expectedFashionFbtSdkFunc() *jsparsersdkfunc.SdkFunc {
-	return &jsparsersdkfunc.SdkFunc{
-		Spec: jsparsersdkfunc.SdkFuncSpec{
+func expectedFashionFbtSdkFunc() *jssdkfunc.SdkFunc {
+	return &jssdkfunc.SdkFunc{
+		Spec: jssdkfunc.SdkFuncSpec{
 			Id:      "product-relevance-fashion-fbt",
 			CamelId: "sdkFuncProductRelevanceFashionFbt",
 			Version: "v1",
@@ -84,7 +84,7 @@ func expectedFashionFbtSdkFunc() *jsparsersdkfunc.SdkFunc {
 				}),
 			},
 		}),
-		Req: jsparsersdkfunc.Req{
+		Req: jssdkfunc.Req{
 			Input: jstypez.Typedef{
 				Head:       &jstypez.Tuple{Typ: "sdkFuncProductRelevanceFashionFbtInput", Name: "input"},
 				Properties: jstypez.NewTuples(nil),
@@ -94,7 +94,7 @@ func expectedFashionFbtSdkFunc() *jsparsersdkfunc.SdkFunc {
 				Properties: jstypez.NewTuples(nil),
 			},
 		},
-		Resp: jsparsersdkfunc.Resp{
+		Resp: jssdkfunc.Resp{
 			Output: jstypez.Typedef{
 				Head:       &jstypez.Tuple{Typ: "sdkFuncProductRelevanceFashionFbtOutput", Name: "output"},
 				Properties: jstypez.NewTuples(nil),
@@ -106,7 +106,7 @@ func expectedFashionFbtSdkFunc() *jsparsersdkfunc.SdkFunc {
 func TestUnitFashionFbtSdkFunc(t *testing.T) {
 	ctx := t.Context()
 	fn := &inferzrelevancefashionfbt.Func{}
-	actual := jsparsersdkfunc.ParseSdkFunc(ctx, fn)
+	actual := jssdkfunc.ParseSdkFunc(ctx, fn)
 	jsonz.MustParse(jsonz.MustFormat(actual).String(), &actual)
 	expected := expectedFashionFbtSdkFunc()
 	require.Equal(t, expected, actual)
@@ -117,10 +117,10 @@ func TestUnitAllSdkFuncs(t *testing.T) {
 	funcs := sdkz.SdkFuncs()
 	require.NotEmpty(t, funcs)
 	for _, fn := range funcs {
-		expected := jsparsersdkfunc.ParseSdkFunc(ctx, fn)
-		var actual *jsparsersdkfunc.SdkFunc
+		expected := jssdkfunc.ParseSdkFunc(ctx, fn)
+		var actual *jssdkfunc.SdkFunc
 		jsonz.MustParse(jsonz.MustFormat(expected).String(), &actual)
-		errorz.Check(os.MkdirAll("target/jsparser/sdkfunc", os.ModePerm))
-		errorz.Check(os.WriteFile("target/jsparser/sdkfunc/"+fn.SdkFuncSpec().Id+".json", jsonz.MustFormatPretty(expected).Bytes(), os.ModePerm))
+		errorz.Check(os.MkdirAll("target/jssdkfunc/sdkfunc", os.ModePerm))
+		errorz.Check(os.WriteFile("target/jssdkfunc/sdkfunc/"+fn.SdkFuncSpec().Id+".json", jsonz.MustFormatPretty(expected).Bytes(), os.ModePerm))
 	}
 }

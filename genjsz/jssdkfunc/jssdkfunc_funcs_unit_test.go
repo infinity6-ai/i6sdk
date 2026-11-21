@@ -1,11 +1,11 @@
-package jsparsersdkfunc_test
+package jssdkfunc_test
 
 import (
 	"testing"
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsparsersdkfunc"
+	"go.code.infinity6.ai/sdkgo/genjsz/jssdkfunc"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/inferz/inferzrelevancefashionfbt"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
@@ -15,12 +15,12 @@ func TestUnitParseSdkFuncs(t *testing.T) {
 	ctx := t.Context()
 	type testScenario struct {
 		in   []sdkfuncz.Func
-		want *jsparsersdkfunc.SdkFuncs
+		want *jssdkfunc.SdkFuncs
 	}
 
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
-		actual := jsparsersdkfunc.ParseSdkFuncs(ctx, s.in)
+		actual := jssdkfunc.ParseSdkFuncs(ctx, s.in)
 		jsonz.MustParse(jsonz.MustFormat(actual).String(), &actual)
 		require.Equal(t, s.want, actual)
 	}
@@ -28,8 +28,8 @@ func TestUnitParseSdkFuncs(t *testing.T) {
 	t.Run("empty sdk funcs slice", func(t *testing.T) {
 		check(t, testScenario{
 			in: []sdkfuncz.Func{},
-			want: &jsparsersdkfunc.SdkFuncs{
-				SdkFuncs: []*jsparsersdkfunc.SdkFunc{},
+			want: &jssdkfunc.SdkFuncs{
+				SdkFuncs: []*jssdkfunc.SdkFunc{},
 				Typedefs: jstypez.NewTypedefs(nil),
 			},
 		})
@@ -38,8 +38,8 @@ func TestUnitParseSdkFuncs(t *testing.T) {
 	t.Run("nil sdk funcs slice", func(t *testing.T) {
 		check(t, testScenario{
 			in: nil,
-			want: &jsparsersdkfunc.SdkFuncs{
-				SdkFuncs: []*jsparsersdkfunc.SdkFunc{},
+			want: &jssdkfunc.SdkFuncs{
+				SdkFuncs: []*jssdkfunc.SdkFunc{},
 				Typedefs: jstypez.NewTypedefs(nil),
 			},
 		})
@@ -51,8 +51,8 @@ func TestUnitParseSdkFuncs(t *testing.T) {
 			in: []sdkfuncz.Func{
 				&inferzrelevancefashionfbt.Func{},
 			},
-			want: &jsparsersdkfunc.SdkFuncs{
-				SdkFuncs: []*jsparsersdkfunc.SdkFunc{fbt},
+			want: &jssdkfunc.SdkFuncs{
+				SdkFuncs: []*jssdkfunc.SdkFunc{fbt},
 				Typedefs: fbt.Typedefs,
 			},
 		})
@@ -67,8 +67,8 @@ func TestUnitParseSdkFuncs(t *testing.T) {
 				&inferzrelevancefashionfbt.Func{},
 				&inferzrelevancefashionfbt.Func{},
 			},
-			want: &jsparsersdkfunc.SdkFuncs{
-				SdkFuncs: []*jsparsersdkfunc.SdkFunc{fbt1, fbt2},
+			want: &jssdkfunc.SdkFuncs{
+				SdkFuncs: []*jssdkfunc.SdkFunc{fbt1, fbt2},
 				Typedefs: fbt1.Typedefs,
 			},
 		})

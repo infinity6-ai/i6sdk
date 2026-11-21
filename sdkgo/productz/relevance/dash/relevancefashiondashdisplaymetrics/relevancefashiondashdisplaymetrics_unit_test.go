@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
+	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashdisplaymetrics"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
@@ -66,7 +66,7 @@ func TestUnitRelevanceFashionDashDisplayMetricsDataRefs(t *testing.T) {
 	ctx := t.Context()
 	refs := (&relevancefashiondashdisplaymetrics.Func{}).SdkFuncDataRefs()
 
-	tdInput, tdsInput := jsparser.ParseSchema(ctx, "displayMetricsInput", refs.Input)
+	tdInput, tdsInput := jsschema.ParseSchema(ctx, "displayMetricsInput", refs.Input)
 	require.NotNil(t, tdInput)
 	var paramsTdf *jstypez.Typedef
 	for _, td := range tdsInput.All() {
@@ -82,7 +82,7 @@ func TestUnitRelevanceFashionDashDisplayMetricsDataRefs(t *testing.T) {
 	require.Equal(t, "boolean", props["from_rec"].Typ)
 	require.Equal(t, "string", props["display_id"].Typ)
 
-	tdOutput, tdsOutput := jsparser.ParseSchema(ctx, "displayMetricsOutput", refs.Output)
+	tdOutput, tdsOutput := jsschema.ParseSchema(ctx, "displayMetricsOutput", refs.Output)
 	require.NotNil(t, tdOutput)
 	var elem *jstypez.Typedef
 	for _, td := range tdsOutput.All() {

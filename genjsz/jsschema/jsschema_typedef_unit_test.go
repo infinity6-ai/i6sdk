@@ -1,14 +1,14 @@
-package jswritertypedef_test
+package jsschema_test
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
-	"go.code.infinity6.ai/sdkgo/genjsz/jswritertypedef"
 )
 
-func TestUnitWrite(t *testing.T) {
+func TestUnitWriteTypedefs(t *testing.T) {
 	ctx := t.Context()
 	type testScenario struct {
 		in   jstypez.Typedefs
@@ -17,7 +17,7 @@ func TestUnitWrite(t *testing.T) {
 
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
-		got := jswritertypedef.Write(ctx, s.in)
+		got := jsschema.WriteTypedefs(ctx, s.in)
 		require.Equal(t, s.want, got)
 	}
 

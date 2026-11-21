@@ -1,14 +1,14 @@
-package jstypedefwriter_test
+package jsschema_test
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/genjsz/jstypedefwriter"
+	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
-func TestUnitWrite(t *testing.T) {
+func TestUnitFormatTypedefs(t *testing.T) {
 	type testScenario struct {
 		name string
 		in   jstypez.Typedefs
@@ -17,7 +17,7 @@ func TestUnitWrite(t *testing.T) {
 
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
-		got := jstypedefwriter.Write(&s.in)
+		got := jsschema.FormatTypedefs(&s.in)
 		require.Equal(t, s.want, got)
 	}
 

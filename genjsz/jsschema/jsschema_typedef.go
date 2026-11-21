@@ -1,14 +1,13 @@
-package jswritertypedef
+package jsschema
 
 import (
 	"context"
 	"strings"
 
-	"go.code.infinity6.ai/sdkgo/genjsz/jstypedefwriter"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
-func Write(ctx context.Context, typedefs jstypez.Typedefs) string {
+func WriteModuleTypedefs(ctx context.Context, typedefs jstypez.Typedefs) string {
 	var b strings.Builder
 	b.WriteString("/**\n")
 	b.WriteString(" * @typedef {import(\"../services/services.js\").Services} Services\n")
@@ -24,10 +23,14 @@ func Write(ctx context.Context, typedefs jstypez.Typedefs) string {
 	b.WriteString(" */\n")
 	b.WriteString("\n")
 
-	if tdfs := jstypedefwriter.Write(&typedefs); tdfs != "" {
+	if tdfs := FormatTypedefs(&typedefs); tdfs != "" {
 		b.WriteString(strings.TrimSuffix(tdfs, "\n"))
 		b.WriteString("\n")
 	}
 
 	return b.String()
+}
+
+func WriteTypedefs(ctx context.Context, typedefs jstypez.Typedefs) string {
+	return WriteModuleTypedefs(ctx, typedefs)
 }

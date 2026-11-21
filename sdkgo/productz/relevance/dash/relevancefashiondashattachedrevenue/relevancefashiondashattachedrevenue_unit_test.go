@@ -5,7 +5,7 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
+	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashattachedrevenue"
@@ -79,7 +79,7 @@ func TestUnitRelevanceFashionDashAttachedRevenueDataRefs(t *testing.T) {
 	require.NotNil(t, refs.Partitions)
 	require.NotNil(t, refs.Output)
 
-	tdInput, tdsInput := jsparser.ParseSchema(ctx, "attachedRevenueInput", refs.Input)
+	tdInput, tdsInput := jsschema.ParseSchema(ctx, "attachedRevenueInput", refs.Input)
 	require.NotNil(t, tdInput)
 	require.Equal(t, "attachedRevenueInput", tdInput.Head.Name)
 	require.Equal(t, "object", tdInput.Head.Typ)
@@ -95,7 +95,7 @@ func TestUnitRelevanceFashionDashAttachedRevenueDataRefs(t *testing.T) {
 	require.Equal(t, "attachedRevenueInputParams", inputProps["params"].Typ)
 	require.Contains(t, typedefNames(tdsInput), "attachedRevenueInputParams")
 
-	tdPartitions, tdsPartitions := jsparser.ParseSchema(ctx, "attachedRevenuePartitions", refs.Partitions)
+	tdPartitions, tdsPartitions := jsschema.ParseSchema(ctx, "attachedRevenuePartitions", refs.Partitions)
 	require.NotNil(t, tdPartitions)
 	require.Equal(t, "attachedRevenuePartitions", tdPartitions.Head.Name)
 	require.Equal(t, "object", tdPartitions.Head.Typ)
@@ -108,7 +108,7 @@ func TestUnitRelevanceFashionDashAttachedRevenueDataRefs(t *testing.T) {
 	require.Contains(t, partitionProps, "store_id")
 	require.Equal(t, "string", partitionProps["store_id"].Typ)
 
-	tdOutput, tdsOutput := jsparser.ParseSchema(ctx, "attachedRevenueOutput", refs.Output)
+	tdOutput, tdsOutput := jsschema.ParseSchema(ctx, "attachedRevenueOutput", refs.Output)
 	require.NotNil(t, tdOutput)
 	require.Equal(t, "attachedRevenueOutput", tdOutput.Head.Name)
 	require.Equal(t, "object", tdOutput.Head.Typ)

@@ -1,4 +1,4 @@
-package jsparserapi_test
+package jsapi_test
 
 import (
 	"testing"
@@ -8,14 +8,14 @@ import (
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsparserapi"
+	"go.code.infinity6.ai/sdkgo/genjsz/jsapi"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzapi/ingestzapigeturl"
 )
 
-func expectedFractionApi() *jsparserapi.Api {
-	return &jsparserapi.Api{
-		Spec: jsparserapi.ApiSpec{
+func expectedFractionApi() *jsapi.Api {
+	return &jsapi.Api{
+		Spec: jsapi.ApiSpec{
 			Id:      "sample-fraction",
 			CamelId: "apiSampleFraction",
 			Desc: &schemaz.Desc{
@@ -106,7 +106,7 @@ func expectedFractionApi() *jsparserapi.Api {
 				Head: &jstypez.Tuple{Typ: "string", Name: "dszTime", Summary: "Missing Summary"},
 			},
 		}),
-		Req: jsparserapi.Req{
+		Req: jsapi.Req{
 			Params: jstypez.Typedef{
 				Head:       &jstypez.Tuple{Typ: "apiSampleFractionParams", Name: "params"},
 				Properties: jstypez.NewTuples(nil),
@@ -124,7 +124,7 @@ func expectedFractionApi() *jsparserapi.Api {
 				Properties: jstypez.NewTuples(nil),
 			},
 		},
-		Resp: jsparserapi.Resp{
+		Resp: jsapi.Resp{
 			Headers: jstypez.Typedef{
 				Head:       &jstypez.Tuple{Typ: "apiSampleFractionRespHeaders", Name: "respHeaders"},
 				Properties: jstypez.NewTuples(nil),
@@ -137,9 +137,9 @@ func expectedFractionApi() *jsparserapi.Api {
 	}
 }
 
-func expectedIngestzApi() *jsparserapi.Api {
-	return &jsparserapi.Api{
-		Spec: jsparserapi.ApiSpec{
+func expectedIngestzApi() *jsapi.Api {
+	return &jsapi.Api{
+		Spec: jsapi.ApiSpec{
 			Id:      "ingestz-get-url",
 			CamelId: "apiIngestzGetUrl",
 			Desc: &schemaz.Desc{
@@ -198,7 +198,7 @@ func expectedIngestzApi() *jsparserapi.Api {
 				Head: &jstypez.Tuple{Typ: "string", Name: "dszTime", Summary: "Missing Summary"},
 			},
 		}),
-		Req: jsparserapi.Req{
+		Req: jsapi.Req{
 			Params: jstypez.Typedef{
 				Head:       &jstypez.Tuple{Typ: "apiIngestzGetUrlParams", Name: "params"},
 				Properties: jstypez.NewTuples(nil),
@@ -208,7 +208,7 @@ func expectedIngestzApi() *jsparserapi.Api {
 				Properties: jstypez.NewTuples(nil),
 			},
 		},
-		Resp: jsparserapi.Resp{
+		Resp: jsapi.Resp{
 			Payload: jstypez.Typedef{
 				Head:       &jstypez.Tuple{Typ: "apiIngestzGetUrlRespPayload", Name: "respPayload"},
 				Properties: jstypez.NewTuples(nil),
@@ -221,12 +221,12 @@ func TestUnitParseApis(t *testing.T) {
 	ctx := t.Context()
 	type testScenario struct {
 		in   []apiz.Api
-		want *jsparserapi.Apis
+		want *jsapi.Apis
 	}
 
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
-		actual := jsparserapi.ParseApis(ctx, s.in)
+		actual := jsapi.ParseApis(ctx, s.in)
 		jsonz.MustParse(jsonz.MustFormat(actual).String(), &actual)
 		require.Equal(t, s.want, actual)
 	}
@@ -234,8 +234,8 @@ func TestUnitParseApis(t *testing.T) {
 	t.Run("empty apis slice", func(t *testing.T) {
 		check(t, testScenario{
 			in: []apiz.Api{},
-			want: &jsparserapi.Apis{
-				Apis:     []*jsparserapi.Api{},
+			want: &jsapi.Apis{
+				Apis:     []*jsapi.Api{},
 				Typedefs: jstypez.NewTypedefs(nil),
 			},
 		})
@@ -244,8 +244,8 @@ func TestUnitParseApis(t *testing.T) {
 	t.Run("nil apis slice", func(t *testing.T) {
 		check(t, testScenario{
 			in: nil,
-			want: &jsparserapi.Apis{
-				Apis:     []*jsparserapi.Api{},
+			want: &jsapi.Apis{
+				Apis:     []*jsapi.Api{},
 				Typedefs: jstypez.NewTypedefs(nil),
 			},
 		})
@@ -257,8 +257,8 @@ func TestUnitParseApis(t *testing.T) {
 			in: []apiz.Api{
 				&ingestzapigeturl.Api{},
 			},
-			want: &jsparserapi.Apis{
-				Apis:     []*jsparserapi.Api{ingestz},
+			want: &jsapi.Apis{
+				Apis:     []*jsapi.Api{ingestz},
 				Typedefs: ingestz.Typedefs,
 			},
 		})
@@ -277,8 +277,8 @@ func TestUnitParseApis(t *testing.T) {
 				routezsamplefraction.NewService().Api(),
 				&ingestzapigeturl.Api{},
 			},
-			want: &jsparserapi.Apis{
-				Apis:     []*jsparserapi.Api{fraction, ingestz},
+			want: &jsapi.Apis{
+				Apis:     []*jsapi.Api{fraction, ingestz},
 				Typedefs: mergedTypedefs,
 			},
 		})
@@ -293,8 +293,8 @@ func TestUnitParseApis(t *testing.T) {
 				routezsamplefraction.NewService().Api(),
 				routezsamplefraction.NewService().Api(),
 			},
-			want: &jsparserapi.Apis{
-				Apis:     []*jsparserapi.Api{fraction1, fraction2},
+			want: &jsapi.Apis{
+				Apis:     []*jsapi.Api{fraction1, fraction2},
 				Typedefs: fraction1.Typedefs,
 			},
 		})

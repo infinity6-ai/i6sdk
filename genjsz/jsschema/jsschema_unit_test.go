@@ -1,4 +1,4 @@
-package jsparser_test
+package jsschema_test
 
 import (
 	"testing"
@@ -6,7 +6,7 @@ import (
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
+	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
 	"go.code.infinity6.ai/sdkgo/sdkgo/grants"
 )
 
@@ -16,7 +16,7 @@ func TestUnitParseSchema(t *testing.T) {
 	params := api.ApiDataRefs().PathParams
 	require.NotNil(t, params)
 
-	td, tds := jsparser.ParseSchema(ctx, "sampleParams", params)
+	td, tds := jsschema.ParseSchema(ctx, "sampleParams", params)
 	require.NotNil(t, td)
 	require.NotNil(t, tds)
 	require.Equal(t, "sampleParams", td.Head.Name)
@@ -27,10 +27,10 @@ func TestUnitDescHelpers(t *testing.T) {
 		Name:    "TestName",
 		Summary: "TestSummary",
 	}
-	require.Equal(t, "TestName", jsparser.DescName(d))
-	require.Equal(t, "TestSummary", jsparser.DescSummary(d))
-	require.Equal(t, "", jsparser.DescName(nil))
-	require.Equal(t, "", jsparser.DescSummary(nil))
+	require.Equal(t, "TestName", jsschema.DescName(d))
+	require.Equal(t, "TestSummary", jsschema.DescSummary(d))
+	require.Equal(t, "", jsschema.DescName(nil))
+	require.Equal(t, "", jsschema.DescSummary(nil))
 }
 
 func TestUnitParseSchemaNestedObject(t *testing.T) {
@@ -50,7 +50,7 @@ func TestUnitParseSchemaNestedObject(t *testing.T) {
 		},
 	}
 
-	td, tds := jsparser.ParseSchema(ctx, "in", schema)
+	td, tds := jsschema.ParseSchema(ctx, "in", schema)
 	require.Equal(t, "inParams", td.Properties.All()[0].Typ, "nested object must be typed, not a bare object")
 
 	var found bool
@@ -76,7 +76,7 @@ func TestUnitParseSchemaCustomTypeEnum(t *testing.T) {
 		},
 	}
 
-	td, tds := jsparser.ParseSchema(ctx, "testReq", schema)
+	td, tds := jsschema.ParseSchema(ctx, "testReq", schema)
 	require.NotNil(t, td)
 	require.Equal(t, "Grant", td.Properties.All()[0].Typ)
 
@@ -90,22 +90,3 @@ func TestUnitParseSchemaCustomTypeEnum(t *testing.T) {
 	}
 	require.True(t, found)
 }
-
-// func TestUnitParseSchemaAnyField(t *testing.T) {
-// 	ctx := t.Context()
-// 	var anyVal any // nil interface
-// 	schema := &schemaz.Schema{
-// 		Object: func(_ bool) map[string]*schemaz.Schema {
-// 			return map[string]*schemaz.Schema{
-// 				"inputs": {
-// 					Field: func() any { return &anyVal },
-// 				},
-// 			}
-// 		},
-// 	}
-
-// 	td, tds := jsparser.ParseSchema(ctx, "in", schema)
-// 	require.NotNil(t, td)
-// 	require.Empty(t, tds.All())
-// 	require.Equal(t, "Record<string, any>", td.Properties.All()[0].Typ)
-// }

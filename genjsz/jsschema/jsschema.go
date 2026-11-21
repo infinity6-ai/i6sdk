@@ -1,4 +1,4 @@
-package jsparser
+package jsschema
 
 import (
 	"context"
@@ -35,4 +35,18 @@ func ParseSchema(ctx context.Context, baseId string, schema *schemaz.Schema) (*j
 	typedef.Head.Name = baseId
 	typedef.Head.Summary = DescSummary(schema.Desc)
 	return typedef, typedefs
+}
+
+func DescName(d *schemaz.Desc) string {
+	if d == nil {
+		return ""
+	}
+	return d.Name
+}
+
+func DescSummary(d *schemaz.Desc) string {
+	if d == nil {
+		return ""
+	}
+	return d.Summary
 }

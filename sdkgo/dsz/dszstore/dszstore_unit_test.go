@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
+	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/domain"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/dszstore"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
@@ -29,7 +29,7 @@ func TestUnitDszStoreSchema(t *testing.T) {
 	schema := store.Schema()
 	require.NotNil(t, schema)
 
-	td, tds := jsparser.ParseSchema(ctx, "dszStore", schema)
+	td, tds := jsschema.ParseSchema(ctx, "dszStore", schema)
 	require.NotNil(t, td)
 	require.NotNil(t, tds)
 

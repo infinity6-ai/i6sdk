@@ -5,7 +5,7 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
+	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashimpactedmetricsbyshowcasecategory"
@@ -84,7 +84,7 @@ func TestUnitRelevanceFashionDashImpactedMetricsByShowcaseCategoryDataRefs(t *te
 	require.NotNil(t, refs.Partitions)
 	require.NotNil(t, refs.Output)
 
-	tdInput, tdsInput := jsparser.ParseSchema(ctx, "impactedMetricsByShowcaseCategoryInput", refs.Input)
+	tdInput, tdsInput := jsschema.ParseSchema(ctx, "impactedMetricsByShowcaseCategoryInput", refs.Input)
 	require.NotNil(t, tdInput)
 	require.Equal(t, "impactedMetricsByShowcaseCategoryInput", tdInput.Head.Name)
 	require.Equal(t, "object", tdInput.Head.Typ)
@@ -100,7 +100,7 @@ func TestUnitRelevanceFashionDashImpactedMetricsByShowcaseCategoryDataRefs(t *te
 	require.Equal(t, "impactedMetricsByShowcaseCategoryInputParams", inputProps["params"].Typ)
 	require.Contains(t, typedefNames(tdsInput), "impactedMetricsByShowcaseCategoryInputParams")
 
-	tdPartitions, tdsPartitions := jsparser.ParseSchema(ctx, "impactedMetricsByShowcaseCategoryPartitions", refs.Partitions)
+	tdPartitions, tdsPartitions := jsschema.ParseSchema(ctx, "impactedMetricsByShowcaseCategoryPartitions", refs.Partitions)
 	require.NotNil(t, tdPartitions)
 	require.Equal(t, "impactedMetricsByShowcaseCategoryPartitions", tdPartitions.Head.Name)
 	require.Equal(t, "object", tdPartitions.Head.Typ)
@@ -113,7 +113,7 @@ func TestUnitRelevanceFashionDashImpactedMetricsByShowcaseCategoryDataRefs(t *te
 	require.Contains(t, partitionProps, "store_id")
 	require.Equal(t, "string", partitionProps["store_id"].Typ)
 
-	tdOutput, tdsOutput := jsparser.ParseSchema(ctx, "impactedMetricsByShowcaseCategoryOutput", refs.Output)
+	tdOutput, tdsOutput := jsschema.ParseSchema(ctx, "impactedMetricsByShowcaseCategoryOutput", refs.Output)
 	require.NotNil(t, tdOutput)
 	require.Equal(t, "impactedMetricsByShowcaseCategoryOutput", tdOutput.Head.Name)
 	require.Equal(t, "object", tdOutput.Head.Typ)

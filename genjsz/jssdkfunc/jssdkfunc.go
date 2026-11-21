@@ -1,17 +1,22 @@
-package jsparsersdkfunc
+package jssdkfunc
 
 import (
 	"context"
 	"fmt"
 	"strings"
 
+	"github.com/infinity6-ai/gox/commonz/logz"
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"go.code.infinity6.ai/sdkgo/camelstring"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
+	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
 )
+
+type tlogger logz.Type
+
+var logger = logz.Create(tlogger(true))
 
 type Req struct {
 	Input      jstypez.Typedef `json:"input"`
@@ -37,6 +42,15 @@ type SdkFuncSpec struct {
 	Desc     *schemaz.Desc `json:"desc,omitempty"`
 	Typ      sdkfuncz.Typ  `json:"typ,omitempty"`
 	FuncName string        `json:"func_name,omitempty"`
+}
+
+type SdkFuncs struct {
+	SdkFuncs []*SdkFunc       `json:"sdk_funcs"`
+	Typedefs jstypez.Typedefs `json:"typedefs"`
+}
+
+func (s *SdkFuncs) Funcs() []*SdkFunc {
+	return s.SdkFuncs
 }
 
 func ParseSdkFunc(ctx context.Context, fn sdkfuncz.Func) *SdkFunc {
@@ -78,7 +92,7 @@ func ParseSdkFunc(ctx context.Context, fn sdkfuncz.Func) *SdkFunc {
 				return
 			}
 			fieldName := ret.Spec.CamelId + strings.ToUpper(suffix[0:1]) + suffix[1:]
-			p, tdfs := jsparser.ParseSchema(ctx, fieldName, s)
+			p, tdfs := jsschema.ParseSchema(ctx, fieldName, s)
 			checker.Equal("object", p.Head.Typ, "must be object")
 			out.Properties = &jstypez.Tuples{}
 			out.Head = &jstypez.Tuple{Typ: fieldName, Name: suffix}
@@ -93,6 +107,20 @@ func ParseSdkFunc(ctx context.Context, fn sdkfuncz.Func) *SdkFunc {
 	}
 
 	return ret
+}
+
+func ParseSdkFuncs(ctx context.Context, funcs []sdkfuncz.Func) *SdkFuncs {
+	ret := SdkFuncs{
+		SdkFuncs: make([]*SdkFunc, len(funcs)),
+		Typedefs: jstypez.NewTypedefs(nil),
+	}
+	for idx, fn := range funcs {
+		logger.Info(ctx, "parsing js sdk func", map[string]any{"func": fn.SdkFuncSpec().Id})
+		parsed := ParseSdkFunc(ctx, fn)
+		ret.Typedefs.Merge(parsed.Typedefs)
+		ret.SdkFuncs[idx] = parsed
+	}
+	return &ret
 }
 
 func validateDataRef(schema *schemaz.Schema, n string) {

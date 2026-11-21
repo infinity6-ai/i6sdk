@@ -1,4 +1,4 @@
-package jswriterapi
+package jsapi
 
 import (
 	"context"
@@ -8,8 +8,7 @@ import (
 	"strings"
 
 	"github.com/infinity6-ai/gox/commonz/errorz"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsparser"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsparserapi"
+	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
@@ -22,7 +21,7 @@ func writeln(sb *strings.Builder, msg string, args ...any) {
 	errorz.Check(err)
 }
 
-func ExtractTypedefs(apis []*jsparserapi.Api) jstypez.Typedefs {
+func ExtractTypedefs(apis []*Api) jstypez.Typedefs {
 	tdfs := jstypez.Typedefs{}
 	for _, api := range apis {
 		apiId := api.Spec.CamelId
@@ -37,7 +36,11 @@ func ExtractTypedefs(apis []*jsparserapi.Api) jstypez.Typedefs {
 	return tdfs
 }
 
-func WriteV2(ctx context.Context, apis []*jsparserapi.Api) string {
+func Write(ctx context.Context, apis []*Api) string {
+	return WriteV2(ctx, apis)
+}
+
+func WriteV2(ctx context.Context, apis []*Api) string {
 	if len(apis) == 0 {
 		return ""
 	}
@@ -84,7 +87,7 @@ func indent(s, prefix string) string {
 	return strings.Join(lines, "\n")
 }
 
-func buildReqTypedef(apiId string, api *jsparserapi.Api) (jstypez.Typedef, bool) {
+func buildReqTypedef(apiId string, api *Api) (jstypez.Typedef, bool) {
 	hasParams := api.Req.Params.Head != nil
 	hasQuery := api.Req.Query.Head != nil
 	hasReqHeaders := api.Req.Headers.Head != nil
@@ -111,7 +114,7 @@ func buildReqTypedef(apiId string, api *jsparserapi.Api) (jstypez.Typedef, bool)
 	return reqTypedef, hasReq
 }
 
-func buildRespTypedef(apiId string, api *jsparserapi.Api) jstypez.Typedef {
+func buildRespTypedef(apiId string, api *Api) jstypez.Typedef {
 	respTypedef := jstypez.Typedef{
 		Head:       &jstypez.Tuple{Typ: "object", Name: apiId + "Resp", Summary: apiId + " Response"},
 		Properties: &jstypez.Tuples{},
@@ -125,7 +128,7 @@ func buildRespTypedef(apiId string, api *jsparserapi.Api) jstypez.Typedef {
 	return respTypedef
 }
 
-func servNameOf(api *jsparserapi.Api) string {
+func servNameOf(api *Api) string {
 	if api.Spec.Desc == nil || api.Spec.Desc.Labels == nil {
 		return ""
 	}
@@ -137,7 +140,7 @@ func funcName(apiId string) string {
 	return strings.ToLower(name[0:1]) + name[1:]
 }
 
-func writeApiDecl(b *strings.Builder, api *jsparserapi.Api) {
+func writeApiDecl(b *strings.Builder, api *Api) {
 	apiId := api.Spec.CamelId
 
 	hasParams := api.Req.Params.Head != nil
@@ -148,9 +151,9 @@ func writeApiDecl(b *strings.Builder, api *jsparserapi.Api) {
 	hasReq := hasParams || hasQuery || hasReqHeaders || hasPayload
 
 	writeln(b, "/**")
-	writeln(b, " * %s", jsparser.DescName(api.Spec.Desc))
+	writeln(b, " * %s", jsschema.DescName(api.Spec.Desc))
 	writeln(b, " * ")
-	writeln(b, " * %s", jsparser.DescSummary(api.Spec.Desc))
+	writeln(b, " * %s", jsschema.DescSummary(api.Spec.Desc))
 	writeln(b, " * ")
 	if hasReq {
 		paramDesc := ""
