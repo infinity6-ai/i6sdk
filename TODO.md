@@ -64,6 +64,6 @@ sdkweblegacy/ (served as Site root)
   - [x] **4B**: Clean up unused `webchecker.js` from `static/test/webchecker.js` or retain standalone `test.html` without server dependencies.
   - [x] **4C**: Run `go mod tidy` in `sdkweblegacy`.
 
-- [ ] **Phase 5: Full Workspace Verification**
-  - [ ] Run `go test -run '^(TestUnit.*|TestWeb.*)$' ./...` in `sdkweblegacy`.
-  - [ ] Run `go vet ./...` in both `gox` and `i6sdk`.
+- [x] **Phase 5: Full Workspace Verification**
+  - [x] Run `go test -run '^(TestUnit.*|TestWeb.*)$' ./...` in `sdkweblegacy`.
+  - [x] Run `go vet ./...` in both `gox` and `i6sdk`.
