@@ -86,6 +86,13 @@ function cmd_force_delete_version() {
   git push --delete origin "$_version" || true
 }
 
+function cmd_release_exists() {
+  local _version="${1:-$(./comp.sh versionz run version)}"
+  [ ! -z "$_version" ]
+  git pull --tags 1>/dev/null
+  git tag -l | grep "$_version$" 1>/dev/null 
+}
+
 function cmd_release() {
   if find . -name '*.go' | xargs grep go.code.infinity6.ai; then false i6sdk cannot use private deps; fi
   if find . -name 'go.mod' | xargs grep go.code.infinity6.ai; then false i6sdk cannot use private deps; fi
@@ -93,6 +100,10 @@ function cmd_release() {
   [ "x0" == "x$(git rev-list --count @{u}..HEAD)" ]
   local _version="$(./comp.sh versionz run version)"
   [ ! -z "$_version" ]
+  if cmd_release_exists "$_version" >/dev/null; then
+    echo "release already exists: $_version" 1>&2
+    false
+  fi
   GOWORK=off cmd_comps_run release "$_version"
   git tag "$_version"
   git push origin "$_version"
