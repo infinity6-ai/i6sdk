@@ -5,7 +5,7 @@ package main
 import (
 	"fmt"
 
-	"go.code.infinity6.ai/sdkweb/version"
+	"github.com/infinity6-ai/i6sdk/sdkweb/version"
 )
 
 func main() {

@@ -61,6 +61,6 @@ func prepareGenerateJsCmd() *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&out, "out", "sdkweblegacy/src/sdkapis/sdkapis.js", "output directory, one .js file per api")
+	cmd.Flags().StringVar(&out, "out", "sdkweb/src/sdkapis/sdkapis.js", "output directory, one .js file per api")
 	return cmd
 }

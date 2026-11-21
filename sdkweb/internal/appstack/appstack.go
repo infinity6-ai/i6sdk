@@ -5,7 +5,7 @@ import (
 
 	"go.code.infinity6.ai/platform/httpz"
 	"go.code.infinity6.ai/platform/util/deferz"
-	"go.code.infinity6.ai/sdkweb/internal/sdkwebserver"
+	"github.com/infinity6-ai/i6sdk/sdkweb/internal/sdkwebserver"
 	"go.code.infinity6.ai/web/api/webhandler"
 )
 

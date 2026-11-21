@@ -177,11 +177,11 @@ graph TD
 - [x] Verify Go SDK tests.
 
 ### Phase 6: Web SDK Migration (`sdkweb`)
-- [ ] Rename / migrate `sdkweblegacy` to `sdkweb`.
-- [ ] Clean up legacy dependencies and align `build.sh` / `package.json`.
-- [ ] Update `cmdz` generator output to write to `sdkweb/src/sdkapis/sdkapis.js`.
-- [ ] Verify code generation produces valid JavaScript/TypeScript bundles.
-- [ ] Verify `sdkweb` test suite.
+- [x] Rename / migrate `sdkweblegacy` to `sdkweb`.
+- [x] Clean up legacy dependencies and align `build.sh` / `package.json`.
+- [x] Update `cmdz` generator output to write to `sdkweb/src/sdkapis/sdkapis.js`.
+- [x] Verify code generation produces valid JavaScript/TypeScript bundles.
+- [x] Verify `sdkweb` test suite.
 
 ### Phase 7: Mono-Repo Tooling (`build.sh`, `comp.sh`, `go.work`)
 - [ ] Implement `comp.sh` component runner:

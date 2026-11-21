@@ -1,4 +1,4 @@
-module go.code.infinity6.ai/sdkweb
+module github.com/infinity6-ai/i6sdk/sdkweb
 
 go 1.26.1
 

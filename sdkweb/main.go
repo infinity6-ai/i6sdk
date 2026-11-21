@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 
-	"go.code.infinity6.ai/sdkweb/cmdsdkweb"
+	"github.com/infinity6-ai/i6sdk/sdkweb/cmdsdkweb"
 )
 
 func main() {

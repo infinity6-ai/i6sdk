@@ -8,8 +8,8 @@ import (
 	"syscall"
 
 	"github.com/spf13/cobra"
-	"go.code.infinity6.ai/sdkweb/internal/cmd/cmdserver"
-	"go.code.infinity6.ai/sdkweb/version"
+	"github.com/infinity6-ai/i6sdk/sdkweb/internal/cmd/cmdserver"
+	"github.com/infinity6-ai/i6sdk/sdkweb/version"
 )
 
 func Prepare(ctx context.Context) *cobra.Command {

@@ -2,7 +2,7 @@ package cmdserver
 
 import (
 	"github.com/spf13/cobra"
-	"go.code.infinity6.ai/sdkweb/internal/sdkwebserver"
+	"github.com/infinity6-ai/i6sdk/sdkweb/internal/sdkwebserver"
 )
 
 func prepareServerStart(parent *cobra.Command) {
