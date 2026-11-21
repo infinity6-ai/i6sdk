@@ -20,7 +20,7 @@ function cmd_test() {
 }
 
 function cmd_release() {
-  ./build.sh release
+#   ./build.sh release
   true
 }
 
