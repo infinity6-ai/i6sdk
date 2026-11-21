@@ -41,7 +41,7 @@ i6sdk/
 
 ### Migration Checklist
 
-- [ ] **Phase 1: Language-Agnostic Molds in `gox`**
+- [x] **Phase 1: Language-Agnostic Molds in `gox`**
   - [x] **1A (`gox/schemaz/typeastz`)**:
     - Created `gox/schemaz/typeastz` with `Tuple`, `Tuples`, `Typedef`, `Typedefs`, `Typ*` constants, and language-agnostic `CustomType` / `CustomTypeSimple` interfaces.
     - Updated `jsschemaz`, `jsapiz`, and all 38 files in `i6sdk` to import `typeastz`.
@@ -51,10 +51,10 @@ i6sdk/
     - Renamed `gox/schemaz/jsschemaz` -> `gox/schemaz/schemamold`.
     - Updated references to `schemamold` in `gox/routez/jsapiz` and `i6sdk`.
     - Validated all unit tests in `gox/schemaz`, `gox/routez`, and `i6sdk`.
-  - [ ] **1C (`gox/routez/apispecz`)**:
-    - Rename `gox/routez/jsapiz` -> `gox/routez/apispecz`.
-    - Update references to `schemamold` and `typeastz`.
-    - Validate unit tests in `gox/routez`.
+  - [x] **1C (`gox/routez/apispecz`)**:
+    - Renamed `gox/routez/jsapiz` -> `gox/routez/apispecz`.
+    - Updated references to `apispecz` in `i6sdk`.
+    - Validated unit tests in `gox/routez` and `i6sdk`.
 
 - [ ] **Phase 2: SDK Function Mold in `i6sdk`**
   - [ ] **2A (`i6sdk/mold/moldsdkfunc`)**:

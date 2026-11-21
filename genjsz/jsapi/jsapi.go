@@ -8,13 +8,13 @@ import (
 	"strings"
 
 	"github.com/infinity6-ai/gox/commonz/errorz"
-	"github.com/infinity6-ai/gox/routez/jsapiz"
+	"github.com/infinity6-ai/gox/routez/apispecz"
 	"github.com/infinity6-ai/gox/schemaz/schemamold"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
 )
 
-func NewSdk() *jsapiz.Parser {
-	return jsapiz.New(jsschema.NewSdk())
+func NewSdk() *apispecz.Parser {
+	return apispecz.New(jsschema.NewSdk())
 }
 
 var pathParamRe = regexp.MustCompile(`\{([A-Za-z0-9_]+)\}`)
@@ -26,11 +26,11 @@ func writeln(sb *strings.Builder, msg string, args ...any) {
 	errorz.Check(err)
 }
 
-func Write(ctx context.Context, apis []*jsapiz.Api) string {
+func Write(ctx context.Context, apis []*apispecz.Api) string {
 	return WriteV2(ctx, apis)
 }
 
-func WriteV2(ctx context.Context, apis []*jsapiz.Api) string {
+func WriteV2(ctx context.Context, apis []*apispecz.Api) string {
 	if len(apis) == 0 {
 		return ""
 	}
@@ -77,7 +77,7 @@ func indent(s, prefix string) string {
 	return strings.Join(lines, "\n")
 }
 
-func servNameOf(api *jsapiz.Api) string {
+func servNameOf(api *apispecz.Api) string {
 	if api.Spec.Desc == nil || api.Spec.Desc.Labels == nil {
 		return ""
 	}
@@ -89,7 +89,7 @@ func funcName(apiId string) string {
 	return strings.ToLower(name[0:1]) + name[1:]
 }
 
-func writeApiDecl(b *strings.Builder, api *jsapiz.Api) {
+func writeApiDecl(b *strings.Builder, api *apispecz.Api) {
 	apiId := api.Spec.CamelId
 
 	hasParams := api.Req.Params.Head != nil
