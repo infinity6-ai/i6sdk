@@ -4,10 +4,10 @@ import (
 	"testing"
 
 	"github.com/infinity6-ai/gox/commonz/validation/checked/tuchecked"
-	"github.com/stretchr/testify/require"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedspathz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/laketbpathz"
+	"github.com/stretchr/testify/require"
 )
 
 func TestUnitTableChecked(t *testing.T) {

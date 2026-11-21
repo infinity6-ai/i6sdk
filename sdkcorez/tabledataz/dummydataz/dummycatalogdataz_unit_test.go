@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/stretchr/testify/require"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/tabledataz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/tabledataz/dummydataz"
+	"github.com/stretchr/testify/require"
 )
 
 var _ tabledataz.TableData = (*dummydataz.Catalog)(nil)

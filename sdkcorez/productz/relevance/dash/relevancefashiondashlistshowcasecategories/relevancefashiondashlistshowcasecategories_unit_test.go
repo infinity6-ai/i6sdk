@@ -4,10 +4,10 @@ import (
 	"testing"
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
-	"github.com/stretchr/testify/require"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/dash/relevancefashiondashlistshowcasecategories"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/sdkfuncz"
+	"github.com/stretchr/testify/require"
 )
 
 func TestUnitRelevanceFashionDashListShowcaseCategories(t *testing.T) {
@@ -73,7 +73,6 @@ func TestUnitRelevanceFashionDashListShowcaseCategoriesDataRefs(t *testing.T) {
 	outputProps := refs.Output.Object(true)
 	require.Contains(t, outputProps, "rows")
 }
-
 
 func strPtr(s string) *string {
 	return &s

@@ -8,8 +8,8 @@ import (
 	"github.com/infinity6-ai/gox/routez/apispecz"
 	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"github.com/infinity6-ai/i6sdk/forgez/forgejs/forgejsapi"
-	"github.com/infinity6-ai/i6sdk/forgez/forgejs/forgejssdkfunc"
 	"github.com/infinity6-ai/i6sdk/forgez/forgejs/forgejsschema"
+	"github.com/infinity6-ai/i6sdk/forgez/forgejs/forgejssdkfunc"
 	"github.com/infinity6-ai/i6sdk/mold/moldsdkfunc"
 )
 

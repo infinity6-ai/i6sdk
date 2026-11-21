@@ -4,9 +4,9 @@ import (
 	"testing"
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
-	"github.com/stretchr/testify/require"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapiplanlist"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/solution"
+	"github.com/stretchr/testify/require"
 )
 
 func TestUnitDszListPlansApi(t *testing.T) {

@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/require"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/tabledataz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/tabledataz/targetingfinancedataz"
+	"github.com/stretchr/testify/require"
 )
 
 var _ tabledataz.TableData = (*targetingfinancedataz.ClientFeatures)(nil)

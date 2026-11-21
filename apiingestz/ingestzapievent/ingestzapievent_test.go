@@ -4,10 +4,10 @@ import (
 	"testing"
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
-	"github.com/stretchr/testify/require"
 	"github.com/infinity6-ai/i6sdk/apiingestz/ingestzapievent"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/tabledataz/dummydataz"
+	"github.com/stretchr/testify/require"
 )
 
 func TestUnitIngestzStreamApi(t *testing.T) {

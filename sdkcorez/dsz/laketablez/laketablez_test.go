@@ -5,10 +5,10 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/infinity6-ai/gox/commonz/validation/checked/tuchecked"
-	"github.com/stretchr/testify/require"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedbz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/laketablez"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/laketbnamez"
+	"github.com/stretchr/testify/require"
 )
 
 func TestUnitChecked(t *testing.T) {

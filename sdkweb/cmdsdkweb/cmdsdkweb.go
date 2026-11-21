@@ -7,9 +7,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/spf13/cobra"
 	"github.com/infinity6-ai/i6sdk/sdkweb/internal/cmd/cmdserver"
 	"github.com/infinity6-ai/i6sdk/sdkweb/version"
+	"github.com/spf13/cobra"
 )
 
 func Prepare(ctx context.Context) *cobra.Command {

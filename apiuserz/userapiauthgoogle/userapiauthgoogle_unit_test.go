@@ -3,8 +3,8 @@ package userapiauthgoogle_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
 	"github.com/infinity6-ai/i6sdk/apiuserz/userapiauthgoogle"
+	"github.com/stretchr/testify/require"
 )
 
 func TestUnitUserAuthGoogleApi(t *testing.T) {

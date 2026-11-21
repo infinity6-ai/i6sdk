@@ -8,7 +8,6 @@ function cmd_image_download() {
 function cmd_build() {
   i6dev golang auth-meta
   ./build.sh update
-  ./build.sh vendor
 }
 
 function cmd_test() {

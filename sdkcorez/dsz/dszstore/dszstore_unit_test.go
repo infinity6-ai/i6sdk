@@ -3,12 +3,12 @@ package dszstore_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/domain"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/dszstore"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/solution"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/solutiondomain"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/storeid"
+	"github.com/stretchr/testify/require"
 )
 
 func TestUnitDszStoreSchema(t *testing.T) {

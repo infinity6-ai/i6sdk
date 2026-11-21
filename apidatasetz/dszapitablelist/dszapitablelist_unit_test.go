@@ -5,10 +5,10 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/infinity6-ai/gox/fsz/fsz/fszsignmethod"
-	"github.com/stretchr/testify/require"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapitablelist"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/laketbpathz"
+	"github.com/stretchr/testify/require"
 )
 
 func TestUnitDszApiTableList(t *testing.T) {

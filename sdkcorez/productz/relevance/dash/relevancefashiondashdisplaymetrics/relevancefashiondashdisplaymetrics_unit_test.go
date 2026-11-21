@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/stretchr/testify/require"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/dash/relevancefashiondashdisplaymetrics"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/sdkfuncz"
+	"github.com/stretchr/testify/require"
 )
 
 func decodeInput(t *testing.T, js string) *relevancefashiondashdisplaymetrics.Func {

@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"cloud.google.com/go/bigquery"
-	"github.com/stretchr/testify/require"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/tabledataz"
+	"github.com/stretchr/testify/require"
 )
 
 func TestUnitValidateHelpers(t *testing.T) {

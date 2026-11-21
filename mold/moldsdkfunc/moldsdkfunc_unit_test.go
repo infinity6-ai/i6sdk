@@ -11,11 +11,11 @@ import (
 	"github.com/infinity6-ai/gox/schemaz/schemamold"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/infinity6-ai/gox/schemaz/typeastz"
-	"github.com/stretchr/testify/require"
-	"github.com/infinity6-ai/i6sdk/mold/moldsdkfunc"
 	"github.com/infinity6-ai/i6sdk/apicollectionz"
+	"github.com/infinity6-ai/i6sdk/mold/moldsdkfunc"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/inferz/inferzrelevancefashionfbt"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/sdkfuncz"
+	"github.com/stretchr/testify/require"
 )
 
 func expectedFashionFbtSdkFunc() *moldsdkfunc.SdkFunc {

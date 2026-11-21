@@ -4,19 +4,19 @@ import (
 	"testing"
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
-	"github.com/stretchr/testify/require"
 	"github.com/infinity6-ai/i6sdk/apiuserz/userapiconfsettings"
+	"github.com/stretchr/testify/require"
 )
 
 func TestUnitUserConfSettingsApi(t *testing.T) {
 	api := &userapiconfsettings.Api{
 		Req: userapiconfsettings.Req{},
 		Resp: userapiconfsettings.Resp{
-			RefreshTokenMaxIdleSeconds:  7776000,
+			RefreshTokenMaxIdleSeconds:   7776000,
 			UserAccessTokenTTLSeconds:    3600,
 			DatasetAccessTokenTTLSeconds: 3600,
-			DeviceCodeTTLSeconds:        900,
-			SignedRequestMaxTTLSeconds:  86400,
+			DeviceCodeTTLSeconds:         900,
+			SignedRequestMaxTTLSeconds:   86400,
 		},
 	}
 

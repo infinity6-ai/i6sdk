@@ -1,69 +1,110 @@
 #!/bin/bash -e
 
-eval "$(i6dev meta debug sdkgo-build I6DEV_DEBUG)"
+[ "$I6DEV_DEBUG" != "true" ] || eval "$(i6dev meta debug i6sdk-build I6DEV_DEBUG)"
 
-function cmd_env() {
-  cmd_run envconfig keys | i6dev box-config vault-export-keys
+function cmd_comps_list() {
+  echo "versionz"
+  echo "sdkcorez"
+  echo "apiuserz"
+  echo "apidatasetz"
+  echo "apiingestz"
+  echo "apipipez"
+  echo "apitfz"
+  echo "apicollectionz"
+  echo "mold"
+  echo "forgez"
+  echo "cmdz"
+  echo "sdkgo"
+  echo "sdkweb"
 }
 
-function cmd_clean() {
+function cmd_comps_exec() {
   local _k=""
-  find -name target | while read _k; do
-    rm -rf "$_k"
+  cmd_comps_list | while read _k; do
+    (cd "$_k" && "$@")
   done
 }
 
+function cmd_comps_run() {
+  local _k=""
+  cmd_comps_list | while read _k; do
+    ./comp.sh "$_k" "$@"
+  done
+}
+
+function cmd_work_init() {
+  [ ! -f go.work.sum ] || rm go.work.sum
+  [ ! -f go.work ] || rm go.work
+  cat <<EOF > go.work
+go 1.26.1
+
+use (
+$(cmd_comps_list | sed 's/^/\t.\//')
+)
+EOF
+}
+
+function cmd_clean() {
+  cmd_comps_run clean "$@"
+}
+
+function cmd_go() {
+  cmd_comps_run go "$@"
+}
+
+function cmd_uphead() {
+  cmd_comps_run uphead "$@"
+}
+
 function cmd_update() {
-  i6dev golang auth
-  I6DEV_GOLANG_AUTH_DISABLED="true" i6dev golang update
-  # I6DEV_GOLANG_AUTH_DISABLED="true" ./sdkweb/build.sh update
+  cmd_comps_run update "$@"
+  cmd_codegen
+}
+
+function cmd_codegen() {
+  ./comp.sh cmdz run js generate
 }
 
 function cmd_test() {
-  i6dev golang test_all "$@"
-  # ./sdkweb/build.sh test "$@"
+  cmd_comps_run test "$@"
 }
 
-function cmd_test_remote() {
-  # ./sdkweb/build.sh test_remote "$@"
-  true
+function cmd_test_web() {
+  cmd_comps_run test_web "$@"
 }
 
-function cmd_test_all() {
-  # ./sdkweb/build.sh test_all "$@"
-  true
+function cmd_fmt() {
+  cmd_comps_run fmt "$@"
 }
 
-function cmd_vendor() {
-  i6dev golang vendor
-  # ./sdkweb/build.sh vendor
+function cmd_force_delete_version() {
+  local _version="${1?'_version'}"
+  [ ! -z "$_version" ]
+  cmd_comps_list | while read _k; do
+    git tag -d "$_k/$_version" || true
+    git push --delete origin "$_k/$_version" || true
+  done
+  git tag -d "$_version" || true
+  git push --delete origin "$_version" || true
 }
 
 function cmd_release() {
-  i6dev golang bin-compile
-  i6dev golang release
-  i6dev golang bin-release latest
-  # ./sdkweb/build.sh release
-}
-
-function cmd_update_i6() {
-  i6dev golang gomod-update-i6
-  # ./sdkweb/build.sh update_i6
-}
-
-function cmd_run() {
-  go run . "$@"
+  [ -z "$(git status -s "$@")" ]
+  [ "x0" == "x$(git rev-list --count @{u}..HEAD)" ]
+  local _version="$(./comp.sh versionz run version)"
+  [ ! -z "$_version" ]
+  GOWORK=off cmd_comps_run release "$_version"
+  git tag "$_version"
+  git push origin "$_version"
 }
 
 function cmd_version-inc() {
-  i6dev dever version-inc sdkgo/version/version.go
-  # i6dev dever version-inc sdkweb/version/version.go
+  ./comp.sh versionz run inc
+  ./comp.sh versionz run version
 }
 
 function cmd_version() {
-  go run version/main/main.go
+  ./comp.sh versionz run version
 }
 
-cd "$(dirname "$0")";
-[ ! -f .venv/bin/activate ] || source .venv/bin/activate
-_cmd="${1?"cmd is required"}"; shift; "cmd_${_cmd}" "$@"
+cd "$(dirname "$0")"; _cmd="${1?"cmd is required"}"; shift; "cmd_${_cmd}" "$@"

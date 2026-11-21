@@ -4,14 +4,14 @@ import (
 	"testing"
 
 	"github.com/infinity6-ai/gox/schemaz/typeastz"
-	"github.com/stretchr/testify/require"
+	"github.com/infinity6-ai/i6sdk/apicollectionz"
 	"github.com/infinity6-ai/i6sdk/forgez/forgejs/forgejssdkfunc"
 	"github.com/infinity6-ai/i6sdk/mold/moldsdkfunc"
-	"github.com/infinity6-ai/i6sdk/apicollectionz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/dash/relevancefashiondashfunnel"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/dash/relevancefashiondashlistshowcasecategories"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/inferz/inferzrelevancefashionfbt"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/sdkfuncz"
+	"github.com/stretchr/testify/require"
 )
 
 func TestUnitWrite(t *testing.T) {
@@ -302,4 +302,3 @@ func TestUnitAllSdkFuncs(t *testing.T) {
 		require.NotEmpty(t, parsed.Spec.CamelId)
 	}
 }
-

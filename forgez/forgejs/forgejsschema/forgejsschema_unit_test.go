@@ -7,12 +7,12 @@ import (
 	"github.com/infinity6-ai/gox/schemaz/schemamold"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/infinity6-ai/gox/schemaz/typeastz"
-	"github.com/stretchr/testify/require"
 	"github.com/infinity6-ai/i6sdk/forgez/forgejs/forgejsschema"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/grants"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/tabledataz/dummydataz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/tabledataz/relevancefashiondataz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/tabledataz/targetingfinancedataz"
+	"github.com/stretchr/testify/require"
 )
 
 type externalCustomType struct {
@@ -183,4 +183,3 @@ func TestUnitParseTableDataSchemas(t *testing.T) {
 		require.Equal(t, "ClientStatus", td.Head.Name)
 	})
 }
-

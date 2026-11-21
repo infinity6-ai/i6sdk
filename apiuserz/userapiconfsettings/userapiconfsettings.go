@@ -8,11 +8,11 @@ import (
 type Req struct{}
 
 type Resp struct {
-	RefreshTokenMaxIdleSeconds  int64 `json:"refresh_token_max_idle_seconds"`
+	RefreshTokenMaxIdleSeconds   int64 `json:"refresh_token_max_idle_seconds"`
 	UserAccessTokenTTLSeconds    int64 `json:"user_access_token_ttl_seconds"`
 	DatasetAccessTokenTTLSeconds int64 `json:"dataset_access_token_ttl_seconds"`
-	DeviceCodeTTLSeconds        int64 `json:"device_code_ttl_seconds"`
-	SignedRequestMaxTTLSeconds  int64 `json:"signed_request_max_ttl_seconds"`
+	DeviceCodeTTLSeconds         int64 `json:"device_code_ttl_seconds"`
+	SignedRequestMaxTTLSeconds   int64 `json:"signed_request_max_ttl_seconds"`
 }
 
 type Api struct {

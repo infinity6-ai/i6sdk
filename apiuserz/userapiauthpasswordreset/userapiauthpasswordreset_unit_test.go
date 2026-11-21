@@ -3,8 +3,8 @@ package userapiauthpasswordreset_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
 	"github.com/infinity6-ai/i6sdk/apiuserz/userapiauthpasswordreset"
+	"github.com/stretchr/testify/require"
 )
 
 func TestUnitUserAuthPasswordResetApi(t *testing.T) {

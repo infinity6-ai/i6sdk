@@ -184,12 +184,12 @@ graph TD
 - [x] Verify `sdkweb` test suite.
 
 ### Phase 7: Mono-Repo Tooling (`build.sh`, `comp.sh`, `go.work`)
-- [ ] Implement `comp.sh` component runner:
+- [x] Implement `comp.sh` component runner:
   - `./comp.sh <comp> test`
   - `./comp.sh <comp> update`
   - `./comp.sh <comp> fmt`
   - `./comp.sh <comp> clean`
-- [ ] Implement root `build.sh` matching `gox/build.sh`:
+- [x] Implement root `build.sh` matching `gox/build.sh`:
   - `cmd_comps_list`: Ordered list of components:
     1. `versionz`
     2. `sdkcorez`
@@ -209,9 +209,9 @@ graph TD
   - `cmd_update`: Tidies all modules.
   - `cmd_codegen`: Runs code generation.
   - `cmd_release`: Prepares versioned tags per component.
-- [ ] Remove root `go.mod` and legacy artifacts.
+- [x] Clean up root `go.mod` and legacy artifacts.
 
 ### Phase 8: Validation & Verification
-- [ ] Run `./build.sh test` to execute all unit tests.
-- [ ] Run `./build.sh codegen` and check for git diff cleanliness.
-- [ ] Verify CI scripts (`meta/ci/ci.sh`) are updated and passing.
+- [x] Run `./build.sh test` to execute all unit tests.
+- [x] Run `./build.sh codegen` and check for git diff cleanliness.
+- [x] Verify CI scripts (`meta/ci/ci.sh`) are updated and passing.

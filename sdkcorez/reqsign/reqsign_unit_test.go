@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/infinity6-ai/gox/commonz/pathz"
-	"github.com/stretchr/testify/require"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/reqsign"
+	"github.com/stretchr/testify/require"
 )
 
 func TestUnitTokenPackUnpack(t *testing.T) {

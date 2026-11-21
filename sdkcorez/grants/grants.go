@@ -154,8 +154,8 @@ func (Grant) JSTypedef() (*typeastz.Typedef, *typeastz.Typedefs) {
 
 	def := &typeastz.Typedef{
 		Head: &typeastz.Tuple{
-			Name: "Grant",
-			Typ:  "1 | 2 | 4 | 8 | number",
+			Name:  "Grant",
+			Typ:   "1 | 2 | 4 | 8 | number",
 			GoTyp: "grants.Grant",
 			Summary: "Compact permission bitmask: 1=System, 2=Admin, 4=Write, 8=Read, 15=All. " +
 				"Combine using bitwise OR (|) or bitmapz.join(...).",

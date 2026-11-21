@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
-	"github.com/stretchr/testify/require"
 	"github.com/infinity6-ai/i6sdk/apiuserz/userapiauthme"
+	"github.com/stretchr/testify/require"
 )
 
 func TestUnitUserAuthMeApi(t *testing.T) {

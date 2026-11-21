@@ -3,8 +3,8 @@ package userapiauthpasswordsignin_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
 	"github.com/infinity6-ai/i6sdk/apiuserz/userapiauthpasswordsignin"
+	"github.com/stretchr/testify/require"
 )
 
 func TestUnitUserAuthPasswordSignInApi(t *testing.T) {

@@ -18,3 +18,5 @@ vendor
 node_modules
 apigenz
 sdkapis
+go.work
+go.work.sum
