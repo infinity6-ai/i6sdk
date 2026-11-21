@@ -9,7 +9,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/stringz/camelz"
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"github.com/infinity6-ai/gox/schemaz/jsschemaz"
+	"github.com/infinity6-ai/gox/schemaz/schemamold"
 	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
@@ -55,10 +55,10 @@ func (s *SdkFuncs) Funcs() []*SdkFunc {
 }
 
 type Parser struct {
-	schemaParser *jsschemaz.Parser
+	schemaParser *schemamold.Parser
 }
 
-func New(schemaParser *jsschemaz.Parser) *Parser {
+func New(schemaParser *schemamold.Parser) *Parser {
 	if schemaParser == nil {
 		schemaParser = jsschema.NewSdk()
 	}

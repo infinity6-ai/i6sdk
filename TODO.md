@@ -47,10 +47,10 @@ i6sdk/
     - Updated `jsschemaz`, `jsapiz`, and all 38 files in `i6sdk` to import `typeastz`.
     - Removed `gox/schemaz/jstypez`.
     - Validated unit tests in `gox/schemaz`, `gox/routez`, and `i6sdk`.
-  - [ ] **1B (`gox/schemaz/schemamold`)**:
-    - Rename `gox/schemaz/jsschemaz` -> `gox/schemaz/schemamold`.
-    - Update references to `typeastz`.
-    - Validate unit tests in `gox/schemaz`.
+  - [x] **1B (`gox/schemaz/schemamold`)**:
+    - Renamed `gox/schemaz/jsschemaz` -> `gox/schemaz/schemamold`.
+    - Updated references to `schemamold` in `gox/routez/jsapiz` and `i6sdk`.
+    - Validated all unit tests in `gox/schemaz`, `gox/routez`, and `i6sdk`.
   - [ ] **1C (`gox/routez/apispecz`)**:
     - Rename `gox/routez/jsapiz` -> `gox/routez/apispecz`.
     - Update references to `schemamold` and `typeastz`.

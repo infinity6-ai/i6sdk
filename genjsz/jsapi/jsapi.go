@@ -9,7 +9,7 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/errorz"
 	"github.com/infinity6-ai/gox/routez/jsapiz"
-	"github.com/infinity6-ai/gox/schemaz/jsschemaz"
+	"github.com/infinity6-ai/gox/schemaz/schemamold"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
 )
 
@@ -100,9 +100,9 @@ func writeApiDecl(b *strings.Builder, api *jsapiz.Api) {
 	hasReq := hasParams || hasQuery || hasReqHeaders || hasPayload
 
 	writeln(b, "/**")
-	writeln(b, " * %s", jsschemaz.DescName(api.Spec.Desc))
+	writeln(b, " * %s", schemamold.DescName(api.Spec.Desc))
 	writeln(b, " * ")
-	writeln(b, " * %s", jsschemaz.DescSummary(api.Spec.Desc))
+	writeln(b, " * %s", schemamold.DescSummary(api.Spec.Desc))
 	writeln(b, " * ")
 	if hasReq {
 		paramDesc := ""

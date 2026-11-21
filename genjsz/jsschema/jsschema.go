@@ -6,12 +6,12 @@ import (
 
 	"cloud.google.com/go/bigquery"
 	"github.com/infinity6-ai/gox/fsz/fsz"
-	"github.com/infinity6-ai/gox/schemaz/jsschemaz"
+	"github.com/infinity6-ai/gox/schemaz/schemamold"
 	"github.com/infinity6-ai/gox/schemaz/typeastz"
 )
 
-func NewSdk() *jsschemaz.Parser {
-	return jsschemaz.New().
+func NewSdk() *schemamold.Parser {
+	return schemamold.New().
 		AddKnownType(fsz.FileStat{}, typeastz.TypFileStat).
 		AddKnownType(bigquery.NullString{}, typeastz.TypString).
 		AddKnownType(bigquery.NullInt64{}, typeastz.TypNumber).
@@ -34,7 +34,7 @@ func WriteModuleTypedefs(ctx context.Context, typedefs typeastz.Typedefs) string
 	b.WriteString(" */\n")
 	b.WriteString("\n")
 
-	if tdfs := jsschemaz.FormatTypedefs(&typedefs); tdfs != "" {
+	if tdfs := schemamold.FormatTypedefs(&typedefs); tdfs != "" {
 		b.WriteString(strings.TrimSuffix(tdfs, "\n"))
 		b.WriteString("\n")
 	}
