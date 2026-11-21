@@ -64,11 +64,3 @@ func StartForTest(ctx context.Context) *Server {
 		WebCheckerEnabled:  false,
 	})
 }
-
-func StartForTestWeb(ctx context.Context) *Server {
-	return StartWithOptions(Options{
-		Context:            ctx,
-		SdkWebLocalAddress: "127.0.0.1:0",
-		WebCheckerEnabled:  true,
-	})
-}

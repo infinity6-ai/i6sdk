@@ -59,10 +59,10 @@ sdkweblegacy/ (served as Site root)
   - [x] **3B (CLI Verification)**:
     - Verify `brwjsz qunit --site .` works directly from `sdkweblegacy`.
 
-- [ ] **Phase 4: Deprecate & Clean Up Legacy `webchecker`**
-  - [ ] **4A**: Remove `internal/appstack/appstack_web_test.go` and references to `webchecker.RunWeb`.
-  - [ ] **4B**: Clean up unused `webchecker.js` from `static/test/webchecker.js` or retain standalone `test.html` without server dependencies.
-  - [ ] **4C**: Run `go mod tidy` in `sdkweblegacy`.
+- [x] **Phase 4: Deprecate & Clean Up Legacy `webchecker`**
+  - [x] **4A**: Remove `internal/appstack/appstack_web_test.go` and references to `webchecker.RunWeb`.
+  - [x] **4B**: Clean up unused `webchecker.js` from `static/test/webchecker.js` or retain standalone `test.html` without server dependencies.
+  - [x] **4C**: Run `go mod tidy` in `sdkweblegacy`.
 
 - [ ] **Phase 5: Full Workspace Verification**
   - [ ] Run `go test -run '^(TestUnit.*|TestWeb.*)$' ./...` in `sdkweblegacy`.
