@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/infinity6-ai/gox/commonz/errorz"
+	"github.com/infinity6-ai/gox/routez/jsapiz"
 	"github.com/infinity6-ai/gox/schemaz/jsschemaz"
 )
 
@@ -20,11 +21,11 @@ func writeln(sb *strings.Builder, msg string, args ...any) {
 	errorz.Check(err)
 }
 
-func Write(ctx context.Context, apis []*Api) string {
+func Write(ctx context.Context, apis []*jsapiz.Api) string {
 	return WriteV2(ctx, apis)
 }
 
-func WriteV2(ctx context.Context, apis []*Api) string {
+func WriteV2(ctx context.Context, apis []*jsapiz.Api) string {
 	if len(apis) == 0 {
 		return ""
 	}
@@ -71,7 +72,7 @@ func indent(s, prefix string) string {
 	return strings.Join(lines, "\n")
 }
 
-func servNameOf(api *Api) string {
+func servNameOf(api *jsapiz.Api) string {
 	if api.Spec.Desc == nil || api.Spec.Desc.Labels == nil {
 		return ""
 	}
@@ -83,7 +84,7 @@ func funcName(apiId string) string {
 	return strings.ToLower(name[0:1]) + name[1:]
 }
 
-func writeApiDecl(b *strings.Builder, api *Api) {
+func writeApiDecl(b *strings.Builder, api *jsapiz.Api) {
 	apiId := api.Spec.CamelId
 
 	hasParams := api.Req.Params.Head != nil

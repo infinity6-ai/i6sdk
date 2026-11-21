@@ -6,11 +6,12 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/errorz"
 	"github.com/infinity6-ai/gox/commonz/jsonz"
+	"github.com/infinity6-ai/gox/routez/jsapiz"
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
+	"github.com/infinity6-ai/gox/schemaz/jstypez"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsapi"
-	"github.com/infinity6-ai/gox/schemaz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkz"
 )
 
@@ -20,8 +21,8 @@ func TestUnitFractionSample(t *testing.T) {
 	actual := jsapi.NewSdk().ParseApi(ctx, api)
 	jsonz.MustParse(jsonz.MustFormat(actual).String(), &actual)
 	println(jsonz.MustFormatPretty(actual).String())
-	expected := &jsapi.Api{
-		Spec: jsapi.ApiSpec{
+	expected := &jsapiz.Api{
+		Spec: jsapiz.ApiSpec{
 			Id:      "sample-fraction",
 			CamelId: "apiSampleFraction",
 			Desc: &schemaz.Desc{
@@ -112,7 +113,7 @@ func TestUnitFractionSample(t *testing.T) {
 				Head: &jstypez.Tuple{Typ: "string", Name: "dszTime", Summary: "Missing Summary"},
 			},
 		}),
-		Req: jsapi.Req{
+		Req: jsapiz.Req{
 			Params: jstypez.Typedef{
 				Head:       &jstypez.Tuple{Typ: "apiSampleFractionParams", Name: "params"},
 				Properties: jstypez.NewTuples(nil),
@@ -130,7 +131,7 @@ func TestUnitFractionSample(t *testing.T) {
 				Properties: jstypez.NewTuples(nil),
 			},
 		},
-		Resp: jsapi.Resp{
+		Resp: jsapiz.Resp{
 			Headers: jstypez.Typedef{
 				Head:       &jstypez.Tuple{Typ: "apiSampleFractionRespHeaders", Name: "respHeaders"},
 				Properties: jstypez.NewTuples(nil),
@@ -149,7 +150,7 @@ func TestUnitAllApis(t *testing.T) {
 	apis := sdkz.Apis()
 	for _, api := range apis {
 		expected := jsapi.NewSdk().ParseApi(ctx, api)
-		var actual *jsapi.Api
+		var actual *jsapiz.Api
 		jsonz.MustParse(jsonz.MustFormat(expected).String(), &actual)
 		errorz.Check(os.MkdirAll("target/jsapi/api", os.ModePerm))
 		errorz.Check(os.WriteFile("target/jsapi/api/"+api.ApiSpec().Id+".json", jsonz.MustFormatPretty(expected).Bytes(), os.ModePerm))

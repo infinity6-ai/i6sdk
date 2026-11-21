@@ -4,23 +4,24 @@ import (
 	"testing"
 
 	"github.com/infinity6-ai/gox/routez/apiz"
+	"github.com/infinity6-ai/gox/routez/jsapiz"
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
+	"github.com/infinity6-ai/gox/schemaz/jstypez"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsapi"
-	"github.com/infinity6-ai/gox/schemaz/jstypez"
 )
 
 func TestUnitWrite(t *testing.T) {
 	ctx := t.Context()
 	type testScenario struct {
-		in   *jsapi.Apis
+		in   *jsapiz.Apis
 		want string
 	}
 
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
-		var apisList []*jsapi.Api
+		var apisList []*jsapiz.Api
 		if s.in != nil {
 			apisList = s.in.Apis
 		}
@@ -39,7 +40,7 @@ func TestUnitWrite(t *testing.T) {
 
 	t.Run("empty apis", func(t *testing.T) {
 		check(t, testScenario{
-			in:   &jsapi.Apis{},
+			in:   &jsapiz.Apis{},
 			want: ``,
 		})
 	})
@@ -90,25 +91,25 @@ export { Apis };
 	})
 
 	t.Run("with gotyp in request and response payload", func(t *testing.T) {
-		api := &jsapi.Api{
-			Spec: jsapi.ApiSpec{
+		api := &jsapiz.Api{
+			Spec: jsapiz.ApiSpec{
 				CamelId: "apiCustomAction",
 				Method:  "POST",
 				Path:    "/api/custom/action",
 			},
-			Req: jsapi.Req{
+			Req: jsapiz.Req{
 				Payload: jstypez.Typedef{
 					Head: &jstypez.Tuple{Typ: "apiCustomActionReqPayload", GoTyp: "models.CustomReq", Name: "payload"},
 				},
 			},
-			Resp: jsapi.Resp{
+			Resp: jsapiz.Resp{
 				Payload: jstypez.Typedef{
 					Head: &jstypez.Tuple{Typ: "apiCustomActionRespPayload", GoTyp: "models.CustomResp", Name: "payload"},
 				},
 			},
 		}
 
-		tds := jsapi.ExtractTypedefs([]*jsapi.Api{api})
+		tds := jsapiz.ExtractTypedefs([]*jsapiz.Api{api})
 		allTds := tds.All()
 		require.Len(t, allTds, 2)
 		var reqTd *jstypez.Typedef
@@ -124,7 +125,7 @@ export { Apis };
 		require.Len(t, props, 1)
 		require.Equal(t, "models.CustomReq", props[0].GoTyp)
 
-		apis := &jsapi.Apis{Apis: []*jsapi.Api{api}}
+		apis := &jsapiz.Apis{Apis: []*jsapiz.Api{api}}
 		want := `class Apis {
 
   /**
@@ -167,15 +168,15 @@ export { Apis };
 	})
 
 	t.Run("servname label uses the service url", func(t *testing.T) {
-		api := &jsapi.Api{
-			Spec: jsapi.ApiSpec{
+		api := &jsapiz.Api{
+			Spec: jsapiz.ApiSpec{
 				CamelId: "apiCustomAction",
 				Method:  "POST",
 				Path:    "/api/custom/{id}",
 				Desc:    &schemaz.Desc{Name: "Custom", Summary: "Custom action", Labels: map[string]string{"servname": "tfinfer"}},
 			},
 		}
-		got := jsapi.Write(ctx, []*jsapi.Api{api})
+		got := jsapi.Write(ctx, []*jsapiz.Api{api})
 		require.Contains(t, got, "url: `${this._services.config().servUrls?.[\"tfinfer\"] ?? this._services.config().baseUrl}/api/custom/{id}`,")
 		require.NotContains(t, got, "path:")
 	})

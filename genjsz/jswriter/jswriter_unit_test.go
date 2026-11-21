@@ -3,6 +3,7 @@ package jswriter_test
 import (
 	"testing"
 
+	"github.com/infinity6-ai/gox/routez/jsapiz"
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsapi"
@@ -24,7 +25,7 @@ func TestUnitWrite(t *testing.T) {
 		api := jsapi.NewSdk().ParseApi(ctx, routezsamplefraction.NewService().Api())
 		fn := jssdkfunc.NewSdk().ParseSdkFunc(ctx, &inferzrelevancefashionfbt.Func{})
 		got := jswriter.Write(ctx, jswriter.Options{
-			Apis:     []*jsapi.Api{api},
+			Apis:     []*jsapiz.Api{api},
 			SdkFuncs: []*jssdkfunc.SdkFunc{fn},
 		})
 		require.Contains(t, got, "// typedefs")

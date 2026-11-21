@@ -5,10 +5,11 @@ import (
 	"strings"
 
 	"github.com/infinity6-ai/gox/commonz/logz"
+	"github.com/infinity6-ai/gox/routez/jsapiz"
+	"github.com/infinity6-ai/gox/schemaz/jstypez"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsapi"
 	"go.code.infinity6.ai/sdkgo/genjsz/jssdkfunc"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
-	"github.com/infinity6-ai/gox/schemaz/jstypez"
 )
 
 type tlogger logz.Type
@@ -16,12 +17,12 @@ type tlogger logz.Type
 var logger = logz.Create(tlogger(true))
 
 type Options struct {
-	Apis     []*jsapi.Api
+	Apis     []*jsapiz.Api
 	SdkFuncs []*jssdkfunc.SdkFunc
 }
 
 type jsgenerator struct {
-	Apis     []*jsapi.Api
+	Apis     []*jsapiz.Api
 	SdkFuncs []*jssdkfunc.SdkFunc
 	Typedefs jstypez.Typedefs
 }
@@ -33,7 +34,7 @@ func (js *jsgenerator) Prepare(ctx context.Context, opts Options) {
 		logger.Info(ctx, "parsing js api", map[string]any{"spec": element.Spec.Id})
 		js.Typedefs.Merge(element.Typedefs)
 	}
-	js.Typedefs.Merge(jsapi.ExtractTypedefs(js.Apis))
+	js.Typedefs.Merge(jsapiz.ExtractTypedefs(js.Apis))
 
 	for _, element := range js.SdkFuncs {
 		logger.Info(ctx, "parsing js sdk func", map[string]any{"spec": element.Spec.Id})
