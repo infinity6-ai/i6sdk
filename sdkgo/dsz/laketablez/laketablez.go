@@ -9,7 +9,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/infinity6-ai/gox/commonz/validation"
 	"github.com/infinity6-ai/gox/commonz/validation/checked"
-	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedbz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
 )

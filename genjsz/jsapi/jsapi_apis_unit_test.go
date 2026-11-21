@@ -9,7 +9,7 @@ import (
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsapi"
-	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzapi/ingestzapigeturl"
 )
 

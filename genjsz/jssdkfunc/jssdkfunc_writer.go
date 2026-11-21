@@ -9,7 +9,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/stringz/camelz"
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
-	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
 )
 

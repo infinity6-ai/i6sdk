@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/jstypez"
 )
 
 func WriteModuleTypedefs(ctx context.Context, typedefs jstypez.Typedefs) string {

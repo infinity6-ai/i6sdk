@@ -8,7 +8,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jsapi"
 	"go.code.infinity6.ai/sdkgo/genjsz/jssdkfunc"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
-	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/jstypez"
 )
 
 type tlogger logz.Type

@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/infinity6-ai/gox/commonz/bitmapz"
-	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/jstypez"
 )
 
 // Grant represents a compact permission bitmask over datasets and solutions.

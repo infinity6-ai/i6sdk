@@ -8,7 +8,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/validation"
 	"github.com/infinity6-ai/gox/commonz/validation/checked"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/jstypez"
 )
 
 type Solution checked.Value[string]

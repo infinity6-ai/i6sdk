@@ -27,7 +27,7 @@ To avoid churning 53+ test files across `sdkgo`, `i6sdk` will retain thin facade
   - Removed local `camelstring` package.
   - Updated all call sites in `jsapi`, `jsschema`, and `jssdkfunc` to use `gox/camelz`.
 
-- [ ] **Step 2: Move `jstypez` and generic schema reflection (`jsschemaz`) to `gox/schemaz`**
+- [x] **Step 2: Move `jstypez` and generic schema reflection (`jsschemaz`) to `gox/schemaz`**
   - [x] **2A (`gox/schemaz/jstypez`)**:
     - Created `gox/schemaz/jstypez` with `Tuple`, `Tuples`, `Typedef`, `Typedefs`, `Typ*` constants, and `CustomType` / `CustomTypeSimple` interfaces.
     - Added `jstypez_typedefs_unit_test.go`.
@@ -38,11 +38,11 @@ To avoid churning 53+ test files across `sdkgo`, `i6sdk` will retain thin facade
     - Added `DescName`, `DescSummary`, and `Resolve`.
     - Maintained cloud-agnostic design (zero BigQuery dependencies).
     - Verified all unit tests pass in `gox/schemaz`.
-  - **2C (`i6sdk/genjsz/jsschema`)**:
-    - Update `genjsz/jsschema` to alias `jsschemaz.Parser` and provide `NewSdk()` registering BigQuery and `FileStat`.
-    - Retain `WriteModuleTypedefs` in `i6sdk` (SDK-specific imports for `Services` and `ServiceOptions`).
-    - Remove `i6sdk/genjsz/jstypez` in favor of `gox/schemaz/jstypez`.
-    - Validate all tests in `i6sdk`.
+  - [x] **2C (`i6sdk/genjsz/jsschema`)**:
+    - Updated `genjsz/jsschema` to alias `jsschemaz.Parser` and provided `NewSdk()` registering BigQuery and `FileStat`.
+    - Retained `WriteModuleTypedefs` in `i6sdk` (SDK-specific imports for `Services` and `ServiceOptions`).
+    - Removed `i6sdk/genjsz/jstypez` in favor of `gox/schemaz/jstypez`.
+    - Validated all tests in `i6sdk`.
 
 - [ ] **Step 3: Move `jsapi` route parser to `gox/routez/jsapiz`**
   - **3A (`gox/routez/jsapiz`)**:

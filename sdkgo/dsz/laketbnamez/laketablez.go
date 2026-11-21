@@ -7,7 +7,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/errorz"
 	"github.com/infinity6-ai/gox/commonz/validation"
 	"github.com/infinity6-ai/gox/commonz/validation/checked"
-	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/jstypez"
 )
 
 var validator = regexp.MustCompile(`^[a-z][a-z0-9\-]{1,}[a-z0-9]$`)

@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
-	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashdisplaymetrics"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
 )

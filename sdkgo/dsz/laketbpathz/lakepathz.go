@@ -10,7 +10,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/pathz"
 	"github.com/infinity6-ai/gox/commonz/stringz"
 	"github.com/infinity6-ai/gox/commonz/validation/checked"
-	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketablez"
 )
 
