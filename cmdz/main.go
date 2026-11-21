@@ -5,11 +5,11 @@ package main
 import (
 	"context"
 
-	"github.com/infinity6-ai/i6sdk/cmdz/cmdsdk"
+	"github.com/infinity6-ai/i6sdk/cmdz/cmdcmdz"
 )
 
 func main() {
 	ctx := context.Background()
-	rootCmd := cmdsdk.Prepare(ctx)
-	cmdsdk.Execute(rootCmd)
+	rootCmd := cmdcmdz.Prepare(ctx)
+	cmdcmdz.Execute(ctx, rootCmd)
 }

@@ -3,7 +3,7 @@ package apicollectionz_test
 import (
 	"testing"
 
-	"github.com/infinity6-ai/i6sdk/apicollectionz"
+	"github.com/infinity6-ai/i6sdk/apicollectionz/apicollectionz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/sdkfuncz"
 	"github.com/stretchr/testify/require"
 )

@@ -3,7 +3,7 @@ package sdkgo_test
 import (
 	"testing"
 
-	"github.com/infinity6-ai/i6sdk/sdkgo"
+	"github.com/infinity6-ai/i6sdk/sdkgo/sdkgo"
 	"github.com/stretchr/testify/require"
 )
 

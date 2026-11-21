@@ -9,6 +9,8 @@ require (
 	github.com/infinity6-ai/gox/routez v0.0.77
 	github.com/infinity6-ai/gox/schemaz v0.0.77
 	github.com/infinity6-ai/i6sdk/sdkcorez v0.0.0-00010101000000-000000000000
+	github.com/infinity6-ai/i6sdk/versionz v0.0.0-00010101000000-000000000000
+	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.12.1
 )
 
@@ -30,9 +32,11 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.25 // indirect
 	github.com/googleapis/gax-go/v2 v2.27.0 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/klauspost/compress v1.19.2 // indirect
 	github.com/klauspost/cpuid/v2 v2.4.0 // indirect
 	github.com/pierrec/lz4/v4 v4.1.29 // indirect
+	github.com/spf13/pflag v1.0.9 // indirect
 	github.com/zeebo/xxh3 v1.1.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.72.0 // indirect
@@ -57,3 +61,5 @@ require (
 	google.golang.org/grpc v1.85.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
 )
+
+replace github.com/infinity6-ai/i6sdk/versionz => ../versionz

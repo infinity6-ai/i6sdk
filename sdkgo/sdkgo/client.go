@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/infinity6-ai/gox/routez/apiz"
-	"github.com/infinity6-ai/i6sdk/apicollectionz"
+	"github.com/infinity6-ai/i6sdk/apicollectionz/apicollectionz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/sdkfuncz"
 	"github.com/infinity6-ai/i6sdk/versionz/version"
 )

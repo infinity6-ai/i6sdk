@@ -1,19 +1,19 @@
-package cmdsdk_test
+package cmdcmdz_test
 
 import (
 	"context"
 	"testing"
 
-	"github.com/infinity6-ai/i6sdk/cmdz/cmdsdk"
+	"github.com/infinity6-ai/i6sdk/cmdz/cmdcmdz"
 	"github.com/infinity6-ai/i6sdk/versionz/version"
 	"github.com/stretchr/testify/require"
 )
 
-func TestUnitCmdSdkPrepare(t *testing.T) {
+func TestUnitCmdCmdzPrepare(t *testing.T) {
 	ctx := context.Background()
-	cmd := cmdsdk.Prepare(ctx)
+	cmd := cmdcmdz.Prepare(ctx)
 	require.NotNil(t, cmd)
-	require.Equal(t, "i6sdk", cmd.Use)
+	require.Equal(t, "cmdz", cmd.Use)
 	require.Equal(t, version.Version(), cmd.Version)
 
 	subcommands := cmd.Commands()

@@ -11,7 +11,7 @@ import (
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/infinity6-ai/gox/schemaz/typeastz"
-	"github.com/infinity6-ai/i6sdk/apicollectionz"
+	"github.com/infinity6-ai/i6sdk/apicollectionz/apicollectionz"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapimodelget"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapistripecheckout"
 	"github.com/infinity6-ai/i6sdk/forgez/forgejs/forgejsapi"
