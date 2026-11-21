@@ -47,10 +47,10 @@ To avoid churning 53+ test files across `sdkgo`, `i6sdk` retains thin facade pac
     - Validated all tests in `i6sdk`.
 
 - [ ] **Step 3: Move `jsapi` route parser to `gox/routez/jsapiz`**
-  - **3A (`gox/routez/jsapiz`)**:
-    - Move `Api`, `Apis`, `Req`, `Resp`, `ApiSpec` data structures.
-    - Move `Parser`, `New()`, `ParseApi`, `ParseApis`, and `ExtractTypedefs`.
-    - Validate unit tests in `gox/routez`.
+  - [x] **3A (`gox/routez/jsapiz`)**:
+    - Created `gox/routez/jsapiz` with `Api`, `Apis`, `Req`, `Resp`, and `ApiSpec` data structures.
+    - Added `Parser`, `New()`, `ParseApi`, `ParseApis`, and `ExtractTypedefs`.
+    - Added comprehensive unit tests and verified all tests pass in `gox/routez`.
   - **3B (`i6sdk/genjsz/jsapi`)**:
     - Retain `Write` / `WriteV2` (generates the `i6`-specific `this._services.invoker()` client class).
     - Provide `NewSdk()` returning `*jsapiz.Parser` configured with `jsschema.NewSdk()`.
