@@ -52,11 +52,11 @@ sdkweblegacy/ (served as Site root)
   - [x] **2C (Headless & Visual Support)**:
     - Respect `BRWJSZ_DISABLE_HEADLESS` configuration for debugging and visual test inspection.
 
-- [ ] **Phase 3: Tooling & Script Updates**
-  - [ ] **3A (`build.sh`)**:
+- [x] **Phase 3: Tooling & Script Updates**
+  - [x] **3A (`build.sh`)**:
     - Update `cmd_test_web` in `sdkweblegacy/build.sh` to run `go test -run '^TestWeb.*' ./...`.
     - Update `cmd_test_visual` to export `BRWJSZ_DISABLE_HEADLESS=true`.
-  - [ ] **3B (CLI Verification)**:
+  - [x] **3B (CLI Verification)**:
     - Verify `brwjsz qunit --site .` works directly from `sdkweblegacy`.
 
 - [ ] **Phase 4: Deprecate & Clean Up Legacy `webchecker`**

@@ -30,15 +30,15 @@ function cmd_test() {
 }
 
 function cmd_test_unit() {
-    i6dev golang test_unit "$@"
+    GOWORK=off go test -run '^TestUnit.*$' ./... "$@"
 }
 
 function cmd_test_web() {
-    i6dev golang test_web "$@"
+    GOWORK=off go test -run '^TestWeb.*$' ./... "$@"
 }
 
 function cmd_test_visual() {
-    I6_WEB_HEADLESS_DISABLED=true cmd_test_web "$@"
+    BRWJSZ_DISABLE_HEADLESS=true cmd_test_web "$@"
 }
 
 function cmd_npm_install() {
