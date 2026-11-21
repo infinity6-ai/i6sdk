@@ -6,7 +6,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/constraintz/optionalz"
 	"github.com/infinity6-ai/gox/commonz/validation"
 	"github.com/infinity6-ai/gox/commonz/validation/checked"
-	"github.com/infinity6-ai/gox/schemaz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/typeastz"
 )
 
 var validator = regexp.MustCompile(`^[a-z][a-z0-9\-]{1,}[a-z0-9]$`)
@@ -14,7 +14,7 @@ var validator = regexp.MustCompile(`^[a-z][a-z0-9\-]{1,}[a-z0-9]$`)
 type Dataset checked.Value[string]
 
 func (*Dataset) JSType() string {
-	return jstypez.TypString
+	return typeastz.TypString
 }
 
 func (d Dataset) Optional() optionalz.Optional[string] {

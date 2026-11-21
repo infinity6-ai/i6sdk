@@ -6,7 +6,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
-	"github.com/infinity6-ai/gox/schemaz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/inferz/inferzrelevancefashionfbt"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
@@ -82,7 +82,7 @@ func TestUnitInferzRelevanceFashionFbtDataRefs(t *testing.T) {
 	require.Equal(t, "object", tdInput.Head.Typ)
 	require.NotNil(t, tdsInput)
 
-	inputProps := make(map[string]jstypez.Tuple)
+	inputProps := make(map[string]typeastz.Tuple)
 	for _, prop := range tdInput.Properties.All() {
 		inputProps[prop.Name] = prop
 	}
@@ -91,14 +91,14 @@ func TestUnitInferzRelevanceFashionFbtDataRefs(t *testing.T) {
 	require.Contains(t, inputProps, "skus")
 	require.Equal(t, "Array<fbtInputSkusElement>", inputProps["skus"].Typ)
 
-	tdfMapInput := make(map[string]*jstypez.Typedef)
+	tdfMapInput := make(map[string]*typeastz.Typedef)
 	for _, tdf := range tdsInput.All() {
 		tdfMapInput[tdf.Head.Name] = tdf
 	}
 	skusElemTdf, ok := tdfMapInput["fbtInputSkusElement"]
 	require.True(t, ok)
 	require.NotNil(t, skusElemTdf)
-	skusElemProps := make(map[string]jstypez.Tuple)
+	skusElemProps := make(map[string]typeastz.Tuple)
 	for _, prop := range skusElemTdf.Properties.All() {
 		skusElemProps[prop.Name] = prop
 	}
@@ -111,7 +111,7 @@ func TestUnitInferzRelevanceFashionFbtDataRefs(t *testing.T) {
 	require.Equal(t, "object", tdPartitions.Head.Typ)
 	require.NotNil(t, tdsPartitions)
 
-	partitionProps := make(map[string]jstypez.Tuple)
+	partitionProps := make(map[string]typeastz.Tuple)
 	for _, prop := range tdPartitions.Properties.All() {
 		partitionProps[prop.Name] = prop
 	}
@@ -124,21 +124,21 @@ func TestUnitInferzRelevanceFashionFbtDataRefs(t *testing.T) {
 	require.Equal(t, "object", tdOutput.Head.Typ)
 	require.NotNil(t, tdsOutput)
 
-	outputProps := make(map[string]jstypez.Tuple)
+	outputProps := make(map[string]typeastz.Tuple)
 	for _, prop := range tdOutput.Properties.All() {
 		outputProps[prop.Name] = prop
 	}
 	require.Contains(t, outputProps, "results")
 	require.Equal(t, "Array<fbtOutputResultsElement>", outputProps["results"].Typ)
 
-	tdfMapOutput := make(map[string]*jstypez.Typedef)
+	tdfMapOutput := make(map[string]*typeastz.Typedef)
 	for _, tdf := range tdsOutput.All() {
 		tdfMapOutput[tdf.Head.Name] = tdf
 	}
 	resultsElemTdf, ok := tdfMapOutput["fbtOutputResultsElement"]
 	require.True(t, ok)
 	require.NotNil(t, resultsElemTdf)
-	resultsElemProps := make(map[string]jstypez.Tuple)
+	resultsElemProps := make(map[string]typeastz.Tuple)
 	for _, prop := range resultsElemTdf.Properties.All() {
 		resultsElemProps[prop.Name] = prop
 	}
@@ -150,7 +150,7 @@ func TestUnitInferzRelevanceFashionFbtDataRefs(t *testing.T) {
 	skusElemOutputTdf, ok := tdfMapOutput["fbtOutputResultsElementSkusElement"]
 	require.True(t, ok)
 	require.NotNil(t, skusElemOutputTdf)
-	skusElemOutputProps := make(map[string]jstypez.Tuple)
+	skusElemOutputProps := make(map[string]typeastz.Tuple)
 	for _, prop := range skusElemOutputTdf.Properties.All() {
 		skusElemOutputProps[prop.Name] = prop
 	}

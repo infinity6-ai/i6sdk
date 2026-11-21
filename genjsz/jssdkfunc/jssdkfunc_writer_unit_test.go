@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jssdkfunc"
-	"github.com/infinity6-ai/gox/schemaz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashfunnel"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashlistshowcasecategories"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/inferz/inferzrelevancefashionfbt"
@@ -110,16 +110,16 @@ export { SdkFuncs };
 				Typ:     sdkfuncz.TypClientInfer,
 			},
 			Req: jssdkfunc.Req{
-				Input: jstypez.Typedef{
-					Head: &jstypez.Tuple{Typ: "sdkFuncProductCustomTaskInput", GoTyp: "models.CustomInput", Name: "input"},
+				Input: typeastz.Typedef{
+					Head: &typeastz.Tuple{Typ: "sdkFuncProductCustomTaskInput", GoTyp: "models.CustomInput", Name: "input"},
 				},
-				Partitions: jstypez.Typedef{
-					Head: &jstypez.Tuple{Typ: "sdkFuncProductCustomTaskPartitions", GoTyp: "models.CustomPartitions", Name: "partitions"},
+				Partitions: typeastz.Typedef{
+					Head: &typeastz.Tuple{Typ: "sdkFuncProductCustomTaskPartitions", GoTyp: "models.CustomPartitions", Name: "partitions"},
 				},
 			},
 			Resp: jssdkfunc.Resp{
-				Output: jstypez.Typedef{
-					Head: &jstypez.Tuple{Typ: "sdkFuncProductCustomTaskOutput", GoTyp: "models.CustomOutput", Name: "output"},
+				Output: typeastz.Typedef{
+					Head: &typeastz.Tuple{Typ: "sdkFuncProductCustomTaskOutput", GoTyp: "models.CustomOutput", Name: "output"},
 				},
 			},
 		}
@@ -127,7 +127,7 @@ export { SdkFuncs };
 		tds := jssdkfunc.ExtractTypedefs([]*jssdkfunc.SdkFunc{fn})
 		allTds := tds.All()
 		require.Len(t, allTds, 4) // req, resp, enriched, selected
-		var reqTd *jstypez.Typedef
+		var reqTd *typeastz.Typedef
 		for _, td := range allTds {
 			if td.Head.Name == "sdkFuncProductCustomTaskReq" {
 				reqTd = td

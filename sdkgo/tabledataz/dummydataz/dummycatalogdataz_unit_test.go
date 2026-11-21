@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
-	"github.com/infinity6-ai/gox/schemaz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz/dummydataz"
 )
@@ -84,24 +84,24 @@ func TestUnitDummyCatalogDataSchema(t *testing.T) {
 		td, _ := jsschema.NewSdk().ParseSchema(ctx, "DummyCatalogData", s)
 		require.Equal(t, "DummyCatalogData", td.Head.Name)
 
-		propMap := make(map[string]jstypez.Tuple)
+		propMap := make(map[string]typeastz.Tuple)
 		for _, prop := range td.Properties.All() {
 			propMap[prop.Name] = prop
 		}
 
 		require.Contains(t, propMap, "id")
-		require.Equal(t, jstypez.TypString, propMap["id"].Typ)
+		require.Equal(t, typeastz.TypString, propMap["id"].Typ)
 
 		require.Contains(t, propMap, "product")
-		require.Equal(t, jstypez.TypString, propMap["product"].Typ)
+		require.Equal(t, typeastz.TypString, propMap["product"].Typ)
 
 		require.Contains(t, propMap, "price")
-		require.Equal(t, jstypez.TypNumber, propMap["price"].Typ)
+		require.Equal(t, typeastz.TypNumber, propMap["price"].Typ)
 
 		require.Contains(t, propMap, "qt_inventory")
-		require.Equal(t, jstypez.TypNumber, propMap["qt_inventory"].Typ)
+		require.Equal(t, typeastz.TypNumber, propMap["qt_inventory"].Typ)
 
 		require.Contains(t, propMap, "store_id")
-		require.Equal(t, jstypez.TypString, propMap["store_id"].Typ)
+		require.Equal(t, typeastz.TypString, propMap["store_id"].Typ)
 	})
 }

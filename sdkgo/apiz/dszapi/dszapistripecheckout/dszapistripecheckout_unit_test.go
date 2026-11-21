@@ -6,7 +6,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsapi"
-	"github.com/infinity6-ai/gox/schemaz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapistripecheckout"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
@@ -40,15 +40,15 @@ func TestUnitStripeCheckoutParseApi(t *testing.T) {
 	require.Equal(t, "POST", parsed.Spec.Method)
 	require.Equal(t, "/api/stripe/checkout", parsed.Spec.Path)
 
-	tdfMap := make(map[string]*jstypez.Typedef)
+	tdfMap := make(map[string]*typeastz.Typedef)
 	for _, tdf := range parsed.Typedefs.All() {
 		tdfMap[tdf.Head.Name] = tdf
 	}
 
-	props := func(name string) map[string]jstypez.Tuple {
+	props := func(name string) map[string]typeastz.Tuple {
 		tdf, ok := tdfMap[name]
 		require.True(t, ok, name)
-		ret := make(map[string]jstypez.Tuple)
+		ret := make(map[string]typeastz.Tuple)
 		for _, p := range tdf.Properties.All() {
 			ret[p.Name] = p
 		}

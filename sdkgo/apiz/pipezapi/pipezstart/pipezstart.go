@@ -7,7 +7,7 @@ import (
 
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"github.com/infinity6-ai/gox/schemaz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/pipez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/pipez/relevancefashionpipez"
@@ -30,7 +30,7 @@ type PipezStartResp struct {
 }
 
 func (*PipezStartResp) JSType() string {
-	return jstypez.TypObject
+	return typeastz.TypObject
 }
 
 type Api[T pipez.Pipe] struct {

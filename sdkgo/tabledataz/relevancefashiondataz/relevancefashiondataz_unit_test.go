@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
-	"github.com/infinity6-ai/gox/schemaz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz/relevancefashiondataz"
 )
@@ -339,7 +339,7 @@ func TestUnitEventSchema(t *testing.T) {
 		td, tds := jsschema.NewSdk().ParseSchema(ctx, "Event", s)
 		require.Equal(t, "Event", td.Head.Name)
 
-		propMap := make(map[string]jstypez.Tuple)
+		propMap := make(map[string]typeastz.Tuple)
 		for _, prop := range td.Properties.All() {
 			propMap[prop.Name] = prop
 		}
@@ -348,7 +348,7 @@ func TestUnitEventSchema(t *testing.T) {
 		require.Equal(t, "string", propMap["id"].Typ)
 
 		require.Contains(t, propMap, "created_at")
-		require.Equal(t, jstypez.TypTime, propMap["created_at"].Typ)
+		require.Equal(t, typeastz.TypTime, propMap["created_at"].Typ)
 
 		require.Contains(t, propMap, "click")
 		require.Equal(t, "EventClick", propMap["click"].Typ)
@@ -357,7 +357,7 @@ func TestUnitEventSchema(t *testing.T) {
 		require.Equal(t, "EventPurchase", propMap["purchase"].Typ)
 
 		// Check registered sub-typedefs
-		tdfMap := make(map[string]*jstypez.Typedef)
+		tdfMap := make(map[string]*typeastz.Typedef)
 		for _, tdf := range tds.All() {
 			tdfMap[tdf.Head.Name] = tdf
 		}
@@ -466,7 +466,7 @@ func TestUnitCatalogSchema(t *testing.T) {
 		td, _ := jsschema.NewSdk().ParseSchema(ctx, "Catalog", s)
 		require.Equal(t, "Catalog", td.Head.Name)
 
-		propMap := make(map[string]jstypez.Tuple)
+		propMap := make(map[string]typeastz.Tuple)
 		for _, prop := range td.Properties.All() {
 			propMap[prop.Name] = prop
 		}

@@ -7,7 +7,7 @@ import (
 
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"github.com/infinity6-ai/gox/schemaz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/domain"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
@@ -42,15 +42,15 @@ func (s *SolutionDomain) Schema() *schemaz.Schema {
 	}
 }
 
-func (s *SolutionDomain) JSTypedef() (*jstypez.Typedef, *jstypez.Typedefs) {
+func (s *SolutionDomain) JSTypedef() (*typeastz.Typedef, *typeastz.Typedefs) {
 	t := reflect.TypeOf(*s).String()
-	td := &jstypez.Typedef{
-		Head:       &jstypez.Tuple{Typ: jstypez.TypObject, GoTyp: t, Name: ""},
-		Properties: &jstypez.Tuples{},
+	td := &typeastz.Typedef{
+		Head:       &typeastz.Tuple{Typ: typeastz.TypObject, GoTyp: t, Name: ""},
+		Properties: &typeastz.Tuples{},
 	}
 	td.Properties.Add(
-		jstypez.Tuple{Typ: jstypez.TypString, GoTyp: reflect.TypeOf(s.Solution).String(), Name: "solution"},
-		jstypez.Tuple{Typ: jstypez.TypString, GoTyp: reflect.TypeOf(s.Domain).String(), Name: "domain"},
+		typeastz.Tuple{Typ: typeastz.TypString, GoTyp: reflect.TypeOf(s.Solution).String(), Name: "solution"},
+		typeastz.Tuple{Typ: typeastz.TypString, GoTyp: reflect.TypeOf(s.Domain).String(), Name: "domain"},
 	)
 	return td, nil
 }

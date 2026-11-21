@@ -6,7 +6,7 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/logz"
 	"github.com/infinity6-ai/gox/routez/jsapiz"
-	"github.com/infinity6-ai/gox/schemaz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsapi"
 	"go.code.infinity6.ai/sdkgo/genjsz/jssdkfunc"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
@@ -24,7 +24,7 @@ type Options struct {
 type jsgenerator struct {
 	Apis     []*jsapiz.Api
 	SdkFuncs []*jssdkfunc.SdkFunc
-	Typedefs jstypez.Typedefs
+	Typedefs typeastz.Typedefs
 }
 
 func (js *jsgenerator) Prepare(ctx context.Context, opts Options) {

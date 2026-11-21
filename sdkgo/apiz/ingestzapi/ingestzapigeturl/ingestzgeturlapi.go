@@ -3,7 +3,7 @@ package ingestzapigeturl
 import (
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"github.com/infinity6-ai/gox/schemaz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/ingestztoken"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
@@ -23,7 +23,7 @@ type GetUrlResp struct {
 }
 
 func (*GetUrlResp) JSType() string {
-	return jstypez.TypObject
+	return typeastz.TypObject
 }
 
 type Api struct {

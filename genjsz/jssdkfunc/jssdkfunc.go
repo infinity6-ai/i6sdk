@@ -10,7 +10,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/infinity6-ai/gox/schemaz/jsschemaz"
-	"github.com/infinity6-ai/gox/schemaz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
 )
@@ -20,17 +20,17 @@ type tlogger logz.Type
 var logger = logz.Create(tlogger(true))
 
 type Req struct {
-	Input      jstypez.Typedef `json:"input"`
-	Partitions jstypez.Typedef `json:"partitions"`
+	Input      typeastz.Typedef `json:"input"`
+	Partitions typeastz.Typedef `json:"partitions"`
 }
 
 type Resp struct {
-	Output jstypez.Typedef `json:"output"`
+	Output typeastz.Typedef `json:"output"`
 }
 
 type SdkFunc struct {
 	Spec     SdkFuncSpec      `json:"spec"`
-	Typedefs jstypez.Typedefs `json:"typedefs"`
+	Typedefs typeastz.Typedefs `json:"typedefs"`
 
 	Req  Req  `json:"req"`
 	Resp Resp `json:"resp"`
@@ -47,7 +47,7 @@ type SdkFuncSpec struct {
 
 type SdkFuncs struct {
 	SdkFuncs []*SdkFunc       `json:"sdk_funcs"`
-	Typedefs jstypez.Typedefs `json:"typedefs"`
+	Typedefs typeastz.Typedefs `json:"typedefs"`
 }
 
 func (s *SdkFuncs) Funcs() []*SdkFunc {
@@ -95,7 +95,7 @@ func (p *Parser) ParseSdkFunc(ctx context.Context, fn sdkfuncz.Func) *SdkFunc {
 		Spec: parseSpec(),
 	}
 
-	xxx := jstypez.BasicTypes()
+	xxx := typeastz.BasicTypes()
 	ret.Typedefs.ExtractFrom(xxx)
 
 	if refs != nil {
@@ -103,15 +103,15 @@ func (p *Parser) ParseSdkFunc(ctx context.Context, fn sdkfuncz.Func) *SdkFunc {
 		validateDataRef(refs.Partitions, "Partitions")
 		validateDataRef(refs.Output, "Output")
 
-		parseRefsV2 := func(out *jstypez.Typedef, suffix string, s *schemaz.Schema) {
+		parseRefsV2 := func(out *typeastz.Typedef, suffix string, s *schemaz.Schema) {
 			if s == nil {
 				return
 			}
 			fieldName := ret.Spec.CamelId + strings.ToUpper(suffix[0:1]) + suffix[1:]
 			td, tdfs := p.schemaParser.ParseSchema(ctx, fieldName, s)
 			checker.Equal("object", td.Head.Typ, "must be object")
-			out.Properties = &jstypez.Tuples{}
-			out.Head = &jstypez.Tuple{Typ: fieldName, Name: suffix}
+			out.Properties = &typeastz.Tuples{}
+			out.Head = &typeastz.Tuple{Typ: fieldName, Name: suffix}
 			td.Head.Summary = fmt.Sprintf("%s %s", ret.Spec.CamelId, suffix)
 			ret.Typedefs.ExtractFrom(tdfs)
 			ret.Typedefs.Add(td)
@@ -128,7 +128,7 @@ func (p *Parser) ParseSdkFunc(ctx context.Context, fn sdkfuncz.Func) *SdkFunc {
 func (p *Parser) ParseSdkFuncs(ctx context.Context, funcs []sdkfuncz.Func) *SdkFuncs {
 	ret := SdkFuncs{
 		SdkFuncs: make([]*SdkFunc, len(funcs)),
-		Typedefs: jstypez.NewTypedefs(nil),
+		Typedefs: typeastz.NewTypedefs(nil),
 	}
 	for idx, fn := range funcs {
 		logger.Info(ctx, "parsing js sdk func", map[string]any{"func": fn.SdkFuncSpec().Id})

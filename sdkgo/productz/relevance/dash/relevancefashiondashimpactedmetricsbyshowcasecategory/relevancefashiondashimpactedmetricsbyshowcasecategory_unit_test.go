@@ -6,7 +6,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
-	"github.com/infinity6-ai/gox/schemaz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashimpactedmetricsbyshowcasecategory"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
@@ -90,7 +90,7 @@ func TestUnitRelevanceFashionDashImpactedMetricsByShowcaseCategoryDataRefs(t *te
 	require.Equal(t, "object", tdInput.Head.Typ)
 	require.NotNil(t, tdsInput)
 
-	inputProps := make(map[string]jstypez.Tuple)
+	inputProps := make(map[string]typeastz.Tuple)
 	for _, prop := range tdInput.Properties.All() {
 		inputProps[prop.Name] = prop
 	}
@@ -106,7 +106,7 @@ func TestUnitRelevanceFashionDashImpactedMetricsByShowcaseCategoryDataRefs(t *te
 	require.Equal(t, "object", tdPartitions.Head.Typ)
 	require.NotNil(t, tdsPartitions)
 
-	partitionProps := make(map[string]jstypez.Tuple)
+	partitionProps := make(map[string]typeastz.Tuple)
 	for _, prop := range tdPartitions.Properties.All() {
 		partitionProps[prop.Name] = prop
 	}
@@ -119,21 +119,21 @@ func TestUnitRelevanceFashionDashImpactedMetricsByShowcaseCategoryDataRefs(t *te
 	require.Equal(t, "object", tdOutput.Head.Typ)
 	require.NotNil(t, tdsOutput)
 
-	outputProps := make(map[string]jstypez.Tuple)
+	outputProps := make(map[string]typeastz.Tuple)
 	for _, prop := range tdOutput.Properties.All() {
 		outputProps[prop.Name] = prop
 	}
 	require.Contains(t, outputProps, "rows")
 	require.Equal(t, "Array<impactedMetricsByShowcaseCategoryOutputRowsElement>", outputProps["rows"].Typ)
 
-	tdfMapOutput := make(map[string]*jstypez.Typedef)
+	tdfMapOutput := make(map[string]*typeastz.Typedef)
 	for _, tdf := range tdsOutput.All() {
 		tdfMapOutput[tdf.Head.Name] = tdf
 	}
 	rowsElemTdf, ok := tdfMapOutput["impactedMetricsByShowcaseCategoryOutputRowsElement"]
 	require.True(t, ok)
 	require.NotNil(t, rowsElemTdf)
-	rowsElemProps := make(map[string]jstypez.Tuple)
+	rowsElemProps := make(map[string]typeastz.Tuple)
 	for _, prop := range rowsElemTdf.Properties.All() {
 		rowsElemProps[prop.Name] = prop
 	}
@@ -155,7 +155,7 @@ func TestUnitRelevanceFashionDashImpactedMetricsByShowcaseCategoryDataRefs(t *te
 	require.Equal(t, "number", rowsElemProps["conversion_rate"].Typ)
 }
 
-func typedefNames(tds *jstypez.Typedefs) []string {
+func typedefNames(tds *typeastz.Typedefs) []string {
 	var ret []string
 	for _, td := range tds.All() {
 		ret = append(ret, td.Head.Name)

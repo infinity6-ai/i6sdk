@@ -5,7 +5,7 @@ import (
 
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
 	"github.com/infinity6-ai/gox/schemaz/jsschemaz"
-	"github.com/infinity6-ai/gox/schemaz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
@@ -123,7 +123,7 @@ func TestUnitParseSchemaCustomTypeEnum(t *testing.T) {
 func TestUnitWriteTypedefs(t *testing.T) {
 	ctx := t.Context()
 	type testScenario struct {
-		in   jstypez.Typedefs
+		in   typeastz.Typedefs
 		want string
 	}
 
@@ -135,20 +135,20 @@ func TestUnitWriteTypedefs(t *testing.T) {
 
 	t.Run("empty typedefs", func(t *testing.T) {
 		check(t, testScenario{
-			in:   jstypez.NewTypedefs(nil),
+			in:   typeastz.NewTypedefs(nil),
 			want: "/**\n * @typedef {import(\"../services/services.js\").Services} Services\n */\n\n/**\n * @typedef {import(\"../invoker/invoker.js\").ServiceOptions} ServiceOptions\n */\n\n/**\n * @template T\n * @typedef {T} i6JsonEmbedded\n */\n\n",
 		})
 	})
 
 	t.Run("typedefs with gotyp comment", func(t *testing.T) {
-		td := &jstypez.Typedef{
-			Head:       &jstypez.Tuple{Typ: jstypez.TypObject, GoTyp: "models.Item", Name: "Item", Summary: "Item definition"},
-			Properties: &jstypez.Tuples{},
+		td := &typeastz.Typedef{
+			Head:       &typeastz.Tuple{Typ: typeastz.TypObject, GoTyp: "models.Item", Name: "Item", Summary: "Item definition"},
+			Properties: &typeastz.Tuples{},
 		}
 		td.Properties.Add(
-			jstypez.Tuple{Typ: jstypez.TypString, GoTyp: "string", Name: "id", Summary: "Item ID"},
+			typeastz.Tuple{Typ: typeastz.TypString, GoTyp: "string", Name: "id", Summary: "Item ID"},
 		)
-		tds := jstypez.NewTypedefs([]*jstypez.Typedef{td})
+		tds := typeastz.NewTypedefs([]*typeastz.Typedef{td})
 
 		check(t, testScenario{
 			in:   tds,

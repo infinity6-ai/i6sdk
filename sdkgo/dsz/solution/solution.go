@@ -8,13 +8,13 @@ import (
 	"github.com/infinity6-ai/gox/commonz/validation"
 	"github.com/infinity6-ai/gox/commonz/validation/checked"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"github.com/infinity6-ai/gox/schemaz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/typeastz"
 )
 
 type Solution checked.Value[string]
 
 func (*Solution) JSType() string {
-	return jstypez.TypString
+	return typeastz.TypString
 }
 
 func (d Solution) Optional() optionalz.Optional[string] {

@@ -7,7 +7,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/errorz"
 	"github.com/infinity6-ai/gox/commonz/validation"
 	"github.com/infinity6-ai/gox/commonz/validation/checked"
-	"github.com/infinity6-ai/gox/schemaz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/typeastz"
 )
 
 var storeIdValidator = regexp.MustCompile(`^[a-z0-9\-]+$`)
@@ -15,7 +15,7 @@ var storeIdValidator = regexp.MustCompile(`^[a-z0-9\-]+$`)
 type StoreId checked.Value[string]
 
 func (*StoreId) JSType() string {
-	return jstypez.TypString
+	return typeastz.TypString
 }
 
 func (d StoreId) Optional() optionalz.Optional[string] {

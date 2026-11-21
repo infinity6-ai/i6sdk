@@ -6,7 +6,7 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/errorz"
 	"github.com/infinity6-ai/gox/commonz/jsonz"
-	"github.com/infinity6-ai/gox/schemaz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jssdkfunc"
@@ -27,13 +27,13 @@ func expectedFashionFbtSdkFunc() *jssdkfunc.SdkFunc {
 			},
 			Typ: sdkfuncz.TypClientInfer,
 		},
-		Typedefs: jstypez.NewTypedefs([]*jstypez.Typedef{
+		Typedefs: typeastz.NewTypedefs([]*typeastz.Typedef{
 			{
-				Head: &jstypez.Tuple{Typ: "string", Name: "dszTime", Summary: "Missing Summary"},
+				Head: &typeastz.Tuple{Typ: "string", Name: "dszTime", Summary: "Missing Summary"},
 			},
 			{
-				Head: &jstypez.Tuple{Typ: "object", Name: "dszFileStat"},
-				Properties: jstypez.NewTuples([]jstypez.Tuple{
+				Head: &typeastz.Tuple{Typ: "object", Name: "dszFileStat"},
+				Properties: typeastz.NewTuples([]typeastz.Tuple{
 					{Typ: "string", Name: "url", Summary: "missing summary"},
 					{Typ: "string", Name: "content_type", Summary: "missing summary"},
 					{Typ: "string", Name: "md5", Summary: "missing summary"},
@@ -44,8 +44,8 @@ func expectedFashionFbtSdkFunc() *jssdkfunc.SdkFunc {
 				}),
 			},
 			{
-				Head: &jstypez.Tuple{Typ: "object", Name: "sdkFuncProductRelevanceFashionFbtInput", Summary: "sdkFuncProductRelevanceFashionFbt input"},
-				Properties: jstypez.NewTuples([]jstypez.Tuple{
+				Head: &typeastz.Tuple{Typ: "object", Name: "sdkFuncProductRelevanceFashionFbtInput", Summary: "sdkFuncProductRelevanceFashionFbt input"},
+				Properties: typeastz.NewTuples([]typeastz.Tuple{
 					{Typ: "string", GoTyp: "lakedsz.Dataset", Name: "dataset", Summary: "Dataset identifier."},
 					{Typ: "string", GoTyp: "string", Name: "session_id", Summary: "Session identifier."},
 					{Typ: "Array<sdkFuncProductRelevanceFashionFbtInputSkusElement>", Name: "skus", Summary: "SKUs to find matches for."},
@@ -53,51 +53,51 @@ func expectedFashionFbtSdkFunc() *jssdkfunc.SdkFunc {
 				}),
 			},
 			{
-				Head: &jstypez.Tuple{Typ: "object", Name: "sdkFuncProductRelevanceFashionFbtInputSkusElement"},
-				Properties: jstypez.NewTuples([]jstypez.Tuple{
+				Head: &typeastz.Tuple{Typ: "object", Name: "sdkFuncProductRelevanceFashionFbtInputSkusElement"},
+				Properties: typeastz.NewTuples([]typeastz.Tuple{
 					{Typ: "string", GoTyp: "string", Name: "sku_id", Summary: "SKU identifier."},
 				}),
 			},
 			{
-				Head: &jstypez.Tuple{Typ: "object", Name: "sdkFuncProductRelevanceFashionFbtPartitions", Summary: "sdkFuncProductRelevanceFashionFbt partitions"},
-				Properties: jstypez.NewTuples([]jstypez.Tuple{
+				Head: &typeastz.Tuple{Typ: "object", Name: "sdkFuncProductRelevanceFashionFbtPartitions", Summary: "sdkFuncProductRelevanceFashionFbt partitions"},
+				Properties: typeastz.NewTuples([]typeastz.Tuple{
 					{Typ: "string", GoTyp: "string", Name: "store_id", Summary: "Store identifier."},
 				}),
 			},
 			{
-				Head: &jstypez.Tuple{Typ: "object", Name: "sdkFuncProductRelevanceFashionFbtOutput", Summary: "sdkFuncProductRelevanceFashionFbt output"},
-				Properties: jstypez.NewTuples([]jstypez.Tuple{
+				Head: &typeastz.Tuple{Typ: "object", Name: "sdkFuncProductRelevanceFashionFbtOutput", Summary: "sdkFuncProductRelevanceFashionFbt output"},
+				Properties: typeastz.NewTuples([]typeastz.Tuple{
 					{Typ: "Array<sdkFuncProductRelevanceFashionFbtOutputResultsElement>", Name: "results", Summary: "Inference results."},
 				}),
 			},
 			{
-				Head: &jstypez.Tuple{Typ: "object", Name: "sdkFuncProductRelevanceFashionFbtOutputResultsElement"},
-				Properties: jstypez.NewTuples([]jstypez.Tuple{
+				Head: &typeastz.Tuple{Typ: "object", Name: "sdkFuncProductRelevanceFashionFbtOutputResultsElement"},
+				Properties: typeastz.NewTuples([]typeastz.Tuple{
 					{Typ: "number", GoTyp: "float64", Name: "rating", Summary: "Result rating."},
 					{Typ: "Array<sdkFuncProductRelevanceFashionFbtOutputResultsElementSkusElement>", Name: "skus", Summary: "Matching SKUs."},
 				}),
 			},
 			{
-				Head: &jstypez.Tuple{Typ: "object", Name: "sdkFuncProductRelevanceFashionFbtOutputResultsElementSkusElement"},
-				Properties: jstypez.NewTuples([]jstypez.Tuple{
+				Head: &typeastz.Tuple{Typ: "object", Name: "sdkFuncProductRelevanceFashionFbtOutputResultsElementSkusElement"},
+				Properties: typeastz.NewTuples([]typeastz.Tuple{
 					{Typ: "string", GoTyp: "string", Name: "sku_id", Summary: "SKU identifier."},
 				}),
 			},
 		}),
 		Req: jssdkfunc.Req{
-			Input: jstypez.Typedef{
-				Head:       &jstypez.Tuple{Typ: "sdkFuncProductRelevanceFashionFbtInput", Name: "input"},
-				Properties: jstypez.NewTuples(nil),
+			Input: typeastz.Typedef{
+				Head:       &typeastz.Tuple{Typ: "sdkFuncProductRelevanceFashionFbtInput", Name: "input"},
+				Properties: typeastz.NewTuples(nil),
 			},
-			Partitions: jstypez.Typedef{
-				Head:       &jstypez.Tuple{Typ: "sdkFuncProductRelevanceFashionFbtPartitions", Name: "partitions"},
-				Properties: jstypez.NewTuples(nil),
+			Partitions: typeastz.Typedef{
+				Head:       &typeastz.Tuple{Typ: "sdkFuncProductRelevanceFashionFbtPartitions", Name: "partitions"},
+				Properties: typeastz.NewTuples(nil),
 			},
 		},
 		Resp: jssdkfunc.Resp{
-			Output: jstypez.Typedef{
-				Head:       &jstypez.Tuple{Typ: "sdkFuncProductRelevanceFashionFbtOutput", Name: "output"},
-				Properties: jstypez.NewTuples(nil),
+			Output: typeastz.Typedef{
+				Head:       &typeastz.Tuple{Typ: "sdkFuncProductRelevanceFashionFbtOutput", Name: "output"},
+				Properties: typeastz.NewTuples(nil),
 			},
 		},
 	}
@@ -144,7 +144,7 @@ func TestUnitParseSdkFuncs(t *testing.T) {
 			in: []sdkfuncz.Func{},
 			want: &jssdkfunc.SdkFuncs{
 				SdkFuncs: []*jssdkfunc.SdkFunc{},
-				Typedefs: jstypez.NewTypedefs(nil),
+				Typedefs: typeastz.NewTypedefs(nil),
 			},
 		})
 	})
@@ -154,7 +154,7 @@ func TestUnitParseSdkFuncs(t *testing.T) {
 			in: nil,
 			want: &jssdkfunc.SdkFuncs{
 				SdkFuncs: []*jssdkfunc.SdkFunc{},
-				Typedefs: jstypez.NewTypedefs(nil),
+				Typedefs: typeastz.NewTypedefs(nil),
 			},
 		})
 	})

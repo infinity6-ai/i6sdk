@@ -5,13 +5,13 @@ import (
 	"github.com/infinity6-ai/gox/commonz/validation"
 	"github.com/infinity6-ai/gox/commonz/validation/checked"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"github.com/infinity6-ai/gox/schemaz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/typeastz"
 )
 
 type Domain checked.Value[string]
 
 func (*Domain) JSType() string {
-	return jstypez.TypString
+	return typeastz.TypString
 }
 
 func (d Domain) Optional() optionalz.Optional[string] {

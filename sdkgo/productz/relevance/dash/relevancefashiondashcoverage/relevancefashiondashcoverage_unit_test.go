@@ -6,7 +6,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
-	"github.com/infinity6-ai/gox/schemaz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashcoverage"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
@@ -78,20 +78,20 @@ func TestUnitRelevanceFashionDashCoverageDataRefs(t *testing.T) {
 	tdOutput, tdsOutput := jsschema.NewSdk().ParseSchema(ctx, "coverageOutput", refs.Output)
 	require.Equal(t, "object", tdOutput.Head.Typ)
 
-	outputProps := make(map[string]jstypez.Tuple)
+	outputProps := make(map[string]typeastz.Tuple)
 	for _, prop := range tdOutput.Properties.All() {
 		outputProps[prop.Name] = prop
 	}
 	require.Equal(t, "Array<coverageOutputRowsElement>", outputProps["rows"].Typ)
 
-	var rowsElem *jstypez.Typedef
+	var rowsElem *typeastz.Typedef
 	for _, tdf := range tdsOutput.All() {
 		if tdf.Head.Name == "coverageOutputRowsElement" {
 			rowsElem = tdf
 		}
 	}
 	require.NotNil(t, rowsElem)
-	props := make(map[string]jstypez.Tuple)
+	props := make(map[string]typeastz.Tuple)
 	for _, prop := range rowsElem.Properties.All() {
 		props[prop.Name] = prop
 	}

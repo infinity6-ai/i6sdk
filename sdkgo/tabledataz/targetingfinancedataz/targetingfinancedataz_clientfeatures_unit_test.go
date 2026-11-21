@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
-	"github.com/infinity6-ai/gox/schemaz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz/targetingfinancedataz"
 )
@@ -105,12 +105,12 @@ func TestUnitClientFeaturesSchema(t *testing.T) {
 		td, tds := jsschema.NewSdk().ParseSchema(ctx, "ClientFeatures", (&targetingfinancedataz.ClientFeatures{}).SchemaBody())
 		require.Equal(t, "ClientFeatures", td.Head.Name)
 
-		props := map[string]jstypez.Tuple{}
+		props := map[string]typeastz.Tuple{}
 		for _, p := range td.Properties.All() {
 			props[p.Name] = p
 		}
-		require.Equal(t, jstypez.TypString, props["id"].Typ)
-		require.Equal(t, jstypez.TypTime, props["created_at"].Typ)
+		require.Equal(t, typeastz.TypString, props["id"].Typ)
+		require.Equal(t, typeastz.TypTime, props["created_at"].Typ)
 		require.Contains(t, props, "features_float")
 
 		names := map[string]struct{}{}

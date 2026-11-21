@@ -9,7 +9,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/stringz/camelz"
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
 	"github.com/infinity6-ai/gox/schemaz/jsschemaz"
-	"github.com/infinity6-ai/gox/schemaz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
 )
 
@@ -30,8 +30,8 @@ func indent(s, prefix string) string {
 	return strings.Join(lines, "\n")
 }
 
-func ExtractTypedefs(sdkFuncs []*SdkFunc) jstypez.Typedefs {
-	tdfs := jstypez.Typedefs{}
+func ExtractTypedefs(sdkFuncs []*SdkFunc) typeastz.Typedefs {
+	tdfs := typeastz.Typedefs{}
 	for _, fn := range sdkFuncs {
 		funcId := fn.Spec.CamelId
 
@@ -40,26 +40,26 @@ func ExtractTypedefs(sdkFuncs []*SdkFunc) jstypez.Typedefs {
 		hasReq := hasInput || hasPartitions
 
 		if hasReq {
-			reqTypedef := jstypez.Typedef{
-				Head:       &jstypez.Tuple{Typ: "object", Name: funcId + "Req", Summary: funcId + " Request"},
-				Properties: &jstypez.Tuples{},
+			reqTypedef := typeastz.Typedef{
+				Head:       &typeastz.Tuple{Typ: "object", Name: funcId + "Req", Summary: funcId + " Request"},
+				Properties: &typeastz.Tuples{},
 			}
 			if hasInput {
-				reqTypedef.Properties.Add(jstypez.Tuple{Typ: fn.Req.Input.Head.Typ, GoTyp: fn.Req.Input.Head.GoTyp, Name: "input"})
+				reqTypedef.Properties.Add(typeastz.Tuple{Typ: fn.Req.Input.Head.Typ, GoTyp: fn.Req.Input.Head.GoTyp, Name: "input"})
 			}
 			if hasPartitions {
-				reqTypedef.Properties.Add(jstypez.Tuple{Typ: fn.Req.Partitions.Head.Typ, GoTyp: fn.Req.Partitions.Head.GoTyp, Name: "partitions"})
+				reqTypedef.Properties.Add(typeastz.Tuple{Typ: fn.Req.Partitions.Head.Typ, GoTyp: fn.Req.Partitions.Head.GoTyp, Name: "partitions"})
 			}
 			tdfs.Add(&reqTypedef)
 		}
 
 		hasOutput := fn.Resp.Output.Head != nil
-		respTypedef := jstypez.Typedef{
-			Head:       &jstypez.Tuple{Typ: "object", Name: funcId + "Resp", Summary: funcId + " Response"},
-			Properties: &jstypez.Tuples{},
+		respTypedef := typeastz.Typedef{
+			Head:       &typeastz.Tuple{Typ: "object", Name: funcId + "Resp", Summary: funcId + " Response"},
+			Properties: &typeastz.Tuples{},
 		}
 		if hasOutput {
-			respTypedef.Properties.Add(jstypez.Tuple{Typ: fn.Resp.Output.Head.Typ, GoTyp: fn.Resp.Output.Head.GoTyp, Name: "output"})
+			respTypedef.Properties.Add(typeastz.Tuple{Typ: fn.Resp.Output.Head.Typ, GoTyp: fn.Resp.Output.Head.GoTyp, Name: "output"})
 		}
 		tdfs.Add(&respTypedef)
 
@@ -71,20 +71,20 @@ func ExtractTypedefs(sdkFuncs []*SdkFunc) jstypez.Typedefs {
 	return tdfs
 }
 
-func buildSelectedTypedefs(fn *SdkFunc) (jstypez.Typedef, jstypez.Typedef) {
+func buildSelectedTypedefs(fn *SdkFunc) (typeastz.Typedef, typeastz.Typedef) {
 	funcId := fn.Spec.CamelId
 	enrichedName := funcId + "OutputResultsElementSkusElementEnriched"
-	enriched := jstypez.Typedef{
-		Head: &jstypez.Tuple{Typ: "object", Name: enrichedName, Summary: "One recommended sku to show, as picked by selectResults"},
-		Properties: jstypez.NewTuples([]jstypez.Tuple{
+	enriched := typeastz.Typedef{
+		Head: &typeastz.Tuple{Typ: "object", Name: enrichedName, Summary: "One recommended sku to show, as picked by selectResults"},
+		Properties: typeastz.NewTuples([]typeastz.Tuple{
 			{Typ: "string", Name: "sku_id", Summary: "Id of the sku. Required; the only field sent to i6 (in the recshow event)"},
 			{Typ: "number", Name: "rating", Summary: "Model rating, higher is more relevant. The default selectResults sets the rating of the result the sku was picked from"},
 			{Typ: "*", Name: "enriched", Summary: "Optional: any data your selectResults attaches to the sku (e.g. name, price, image). Returned to you as is, never sent to i6. The default selectResults does not set it"},
 		}),
 	}
-	selected := jstypez.Typedef{
-		Head: &jstypez.Tuple{Typ: "object", Name: funcId + "Selected", Summary: funcId + " Selected: the skus to show, as returned by selectResults"},
-		Properties: jstypez.NewTuples([]jstypez.Tuple{
+	selected := typeastz.Typedef{
+		Head: &typeastz.Tuple{Typ: "object", Name: funcId + "Selected", Summary: funcId + " Selected: the skus to show, as returned by selectResults"},
+		Properties: typeastz.NewTuples([]typeastz.Tuple{
 			{Typ: fmt.Sprintf("Array<%s>", enrichedName), Name: "results", Summary: "Skus to show, in the order selectResults returned them"},
 		}),
 	}

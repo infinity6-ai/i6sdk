@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
-	"github.com/infinity6-ai/gox/schemaz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashdisplaymetrics"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
 )
@@ -68,14 +68,14 @@ func TestUnitRelevanceFashionDashDisplayMetricsDataRefs(t *testing.T) {
 
 	tdInput, tdsInput := jsschema.NewSdk().ParseSchema(ctx, "displayMetricsInput", refs.Input)
 	require.NotNil(t, tdInput)
-	var paramsTdf *jstypez.Typedef
+	var paramsTdf *typeastz.Typedef
 	for _, td := range tdsInput.All() {
 		if td.Head.Name == "displayMetricsInputParams" {
 			paramsTdf = td
 		}
 	}
 	require.NotNil(t, paramsTdf)
-	props := map[string]jstypez.Tuple{}
+	props := map[string]typeastz.Tuple{}
 	for _, p := range paramsTdf.Properties.All() {
 		props[p.Name] = p
 	}
@@ -84,14 +84,14 @@ func TestUnitRelevanceFashionDashDisplayMetricsDataRefs(t *testing.T) {
 
 	tdOutput, tdsOutput := jsschema.NewSdk().ParseSchema(ctx, "displayMetricsOutput", refs.Output)
 	require.NotNil(t, tdOutput)
-	var elem *jstypez.Typedef
+	var elem *typeastz.Typedef
 	for _, td := range tdsOutput.All() {
 		if td.Head.Name == "displayMetricsOutputRowsElement" {
 			elem = td
 		}
 	}
 	require.NotNil(t, elem)
-	rp := map[string]jstypez.Tuple{}
+	rp := map[string]typeastz.Tuple{}
 	for _, p := range elem.Properties.All() {
 		rp[p.Name] = p
 	}

@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/infinity6-ai/gox/commonz/bitmapz"
-	"github.com/infinity6-ai/gox/schemaz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/typeastz"
 )
 
 // Grant represents a compact permission bitmask over datasets and solutions.
@@ -143,17 +143,17 @@ func JoinGrants(grants ...Grant) Grant {
 	return bitmapz.Join(grants...)
 }
 
-// JSTypedef implements jstypez.CustomType to generate a typed enum/bitmask in the JS SDK.
-func (Grant) JSTypedef() (*jstypez.Typedef, *jstypez.Typedefs) {
-	ref := &jstypez.Typedef{
-		Head: &jstypez.Tuple{
+// JSTypedef implements typeastz.CustomType to generate a typed enum/bitmask in the JS SDK.
+func (Grant) JSTypedef() (*typeastz.Typedef, *typeastz.Typedefs) {
+	ref := &typeastz.Typedef{
+		Head: &typeastz.Tuple{
 			Typ:   "Grant",
 			GoTyp: "grants.Grant",
 		},
 	}
 
-	def := &jstypez.Typedef{
-		Head: &jstypez.Tuple{
+	def := &typeastz.Typedef{
+		Head: &typeastz.Tuple{
 			Name: "Grant",
 			Typ:  "1 | 2 | 4 | 8 | number",
 			GoTyp: "grants.Grant",
@@ -162,7 +162,7 @@ func (Grant) JSTypedef() (*jstypez.Typedef, *jstypez.Typedefs) {
 		},
 	}
 
-	tdfs := &jstypez.Typedefs{}
+	tdfs := &typeastz.Typedefs{}
 	tdfs.Add(def)
 
 	return ref, tdfs

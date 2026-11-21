@@ -10,7 +10,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/pathz"
 	"github.com/infinity6-ai/gox/commonz/stringz"
 	"github.com/infinity6-ai/gox/commonz/validation/checked"
-	"github.com/infinity6-ai/gox/schemaz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketablez"
 )
 
@@ -87,7 +87,7 @@ func (v *parsedPathImpl) Parse(s string) error {
 type Path checked.Value[string]
 
 func (*Path) JSType() string {
-	return jstypez.TypString
+	return typeastz.TypString
 }
 
 func (d Path) Optional() optionalz.Optional[string] {

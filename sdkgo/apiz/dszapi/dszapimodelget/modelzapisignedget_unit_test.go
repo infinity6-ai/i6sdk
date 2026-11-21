@@ -6,7 +6,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsapi"
-	"github.com/infinity6-ai/gox/schemaz/jstypez"
+	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapimodelget"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
@@ -58,7 +58,7 @@ func TestUnitModelzApiSignedGetParseApi(t *testing.T) {
 	require.Equal(t, "apiDszModelGetRespPayload", parsed.Resp.Payload.Head.Typ)
 	require.Equal(t, "respPayload", parsed.Resp.Payload.Head.Name)
 
-	tdfMap := make(map[string]*jstypez.Typedef)
+	tdfMap := make(map[string]*typeastz.Typedef)
 	for _, tdf := range parsed.Typedefs.All() {
 		tdfMap[tdf.Head.Name] = tdf
 	}
@@ -68,7 +68,7 @@ func TestUnitModelzApiSignedGetParseApi(t *testing.T) {
 	require.NotNil(t, reqPayloadTdf)
 	require.NotNil(t, reqPayloadTdf.Properties)
 
-	propMap := make(map[string]jstypez.Tuple)
+	propMap := make(map[string]typeastz.Tuple)
 	for _, prop := range reqPayloadTdf.Properties.All() {
 		propMap[prop.Name] = prop
 	}
@@ -82,7 +82,7 @@ func TestUnitModelzApiSignedGetParseApi(t *testing.T) {
 	require.NotNil(t, respPayloadTdf)
 	require.NotNil(t, respPayloadTdf.Properties)
 
-	respPropMap := make(map[string]jstypez.Tuple)
+	respPropMap := make(map[string]typeastz.Tuple)
 	for _, prop := range respPayloadTdf.Properties.All() {
 		respPropMap[prop.Name] = prop
 	}
