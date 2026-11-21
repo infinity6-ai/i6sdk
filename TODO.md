@@ -39,7 +39,8 @@ To avoid churning 53+ test files across `sdkgo`, `i6sdk` will retain thin facade
     - Maintained cloud-agnostic design (zero BigQuery dependencies).
     - Verified all unit tests pass in `gox/schemaz`.
   - [x] **2C (`i6sdk/genjsz/jsschema`)**:
-    - Updated `genjsz/jsschema` to alias `jsschemaz.Parser` and provided `NewSdk()` registering BigQuery and `FileStat`.
+    - Simplified `genjsz/jsschema/jsschema.go` into a clean factory providing strictly `NewSdk() *jsschemaz.Parser` with BigQuery and `FileStat` types registered.
+    - Removed redundant pass-through aliases (`Parser`, `New`, `DescName`, `DescSummary`, `FormatTypedefs`) in favor of direct `jsschemaz` calls.
     - Retained `WriteModuleTypedefs` in `i6sdk` (SDK-specific imports for `Services` and `ServiceOptions`).
     - Removed `i6sdk/genjsz/jstypez` in favor of `gox/schemaz/jstypez`.
     - Validated all tests in `i6sdk`.
