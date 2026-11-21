@@ -1,12 +1,13 @@
 # Proposed Migration to gox
 
-Evaluation of remaining candidates for migration to `../gox`:
+Evaluation and progress of migrating modules to `../gox`:
 
-| Package | Move to `gox`? | Target in `gox` | Verdict & Rationale |
+| Package | Status | Target in `gox` | Details & Rationale |
 | :--- | :---: | :--- | :--- |
-| **`jstypez`** | **Yes** | `gox/schemaz/jstypez` | Pure, domain-agnostic JavaScript/TypeScript AST. Zero business logic. |
-| **`jsschema`** (Core) | **Yes** | `gox/schemaz/jsschemaz` | Translating `schemaz.Schema` into JSDoc/TS `@typedef` is a generic schema capability. Uses `AddKnownType` for decoupling external types. |
-| **`jsapi`** (Parser) | **Partially** | `gox/routez/jsapiz` | Parsing `routez.ApiSpec` into a JS API AST makes sense in `routez`. The generator (`this._services.invoker()`) remains in `i6sdk`. |
+| **`camelstring`** | **Done** | `gox/commonz/stringz/camelz` | Deleted local package; replaced with `gox/camelz`. |
+| **`jstypez`** | **Done** | `gox/schemaz/jstypez` | Moved pure JS/TS type AST (`Tuple`, `Typedef`, etc.) and unit tests to `gox`. Local package deleted. |
+| **`jsschema`** (Core) | **Done** | `gox/schemaz/jsschemaz` | Moved schema reflection engine (`Parser`, `AddKnownType`, `FormatTypedefs`) to `gox`. Stripped cloud dependencies. `i6sdk` now uses a clean `NewSdk()` factory. |
+| **`jsapi`** (Parser) | **Pending (Step 3)** | `gox/routez/jsapiz` | Move `routez.ApiSpec` parser and AST to `gox/routez`. Retain client class generator in `i6sdk`. |
 
 *(Note: `jssdkfunc` and `jswriter` stay in `i6sdk` as they are coupled to the i6 SDK runtime).*
 
@@ -14,9 +15,9 @@ Evaluation of remaining candidates for migration to `../gox`:
 
 ### Migration Strategy: Thin Facade in `i6sdk`
 
-To avoid churning 53+ test files across `sdkgo`, `i6sdk` will retain thin facade packages (`genjsz/jsschema` and `genjsz/jsapi`) that alias the types and wrap the constructors from `gox`:
-- `jsschema.NewSdk()` in `i6sdk` returns `jsschemaz.New()` pre-configured with BigQuery and `fsz.FileStat` types.
-- `jsapi.NewSdk()` in `i6sdk` returns `jsapiz.New(jsschema.NewSdk())`.
+To avoid churning 53+ test files across `sdkgo`, `i6sdk` retains thin facade packages (`genjsz/jsschema` and `genjsz/jsapi`) that wrap the constructors from `gox`:
+- `jsschema.NewSdk()` in `i6sdk` returns `*jsschemaz.Parser` pre-configured with BigQuery and `fsz.FileStat` types.
+- `jsapi.NewSdk()` in `i6sdk` will return `*jsapiz.Parser` configured with `jsschema.NewSdk()`.
 - Existing tests and callers continue using `jsschema.NewSdk().ParseSchema(...)` and `jsapi.NewSdk().ParseApi(...)` without any import changes.
 
 ---
@@ -36,7 +37,7 @@ To avoid churning 53+ test files across `sdkgo`, `i6sdk` will retain thin facade
     - Created `gox/schemaz/jsschemaz` with `Parser`, `New()`, `AddKnownType()`, and instance methods (`ParseSchema`, `ParseAny`, `ParseSchemaObject`, etc.).
     - Added `FormatTypedefs` (JSDoc typedef block formatter).
     - Added `DescName`, `DescSummary`, and `Resolve`.
-    - Maintained cloud-agnostic design (zero BigQuery dependencies).
+    - Stripped `logz` to ensure zero indirect dependencies in `schemaz/go.mod`.
     - Verified all unit tests pass in `gox/schemaz`.
   - [x] **2C (`i6sdk/genjsz/jsschema`)**:
     - Simplified `genjsz/jsschema/jsschema.go` into a clean factory providing strictly `NewSdk() *jsschemaz.Parser` with BigQuery and `FileStat` types registered.
@@ -52,7 +53,7 @@ To avoid churning 53+ test files across `sdkgo`, `i6sdk` will retain thin facade
     - Validate unit tests in `gox/routez`.
   - **3B (`i6sdk/genjsz/jsapi`)**:
     - Retain `Write` / `WriteV2` (generates the `i6`-specific `this._services.invoker()` client class).
-    - Provide `NewSdk()` aliasing `jsapiz.New(jsschema.NewSdk())`.
+    - Provide `NewSdk()` returning `*jsapiz.Parser` configured with `jsschema.NewSdk()`.
     - Validate all tests in `i6sdk`.
 
 - [ ] **Step 4: Final Verification**
