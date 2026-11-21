@@ -26,16 +26,16 @@ sdkweblegacy/ (served as Site root)
 
 ### Implementation Checklist
 
-- [ ] **Phase 1: Extend `brwjsz` / `brwqunit` for Import Maps & Module Specifiers (`gox/brwjsz`)**
-  - [ ] **1A (Import Map Support in Runner)**:
+- [x] **Phase 1: Extend `brwjsz` / `brwqunit` for Import Maps & Module Specifiers (`gox/brwjsz`)**
+  - [x] **1A (Import Map Support in Runner)**:
     - Update `brwjsz/staticz/qunit/runner.js` to accept optional `importmap` definitions.
     - Inject `<script type="importmap">` into the test iframe before loading scripts.
-  - [ ] **1B (`brwqunit` Go API)**:
+  - [x] **1B (`brwqunit` Go API)**:
     - Add `ImportMap map[string]string` (or options struct) to `brwqunit.Run` / `brwqunit.Test`.
     - Support passing custom import maps from Go test suites.
-  - [ ] **1C (`cmdqunit` CLI)**:
+  - [x] **1C (`cmdqunit` CLI)**:
     - Add `--importmap` flag (file path or inline JSON) to `brwjsz qunit` command.
-  - [ ] **1D (Verification in `gox`)**:
+  - [x] **1D (Verification in `gox`)**:
     - Add unit/web tests in `gox/brwjsz/brwqunit` verifying that bare specifiers imported inside test modules resolve properly.
     - Run `cmd_unit_test.sh` in `gox/brwjsz`.
 
