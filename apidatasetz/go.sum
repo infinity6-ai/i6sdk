@@ -74,10 +74,10 @@ github.com/infinity6-ai/gox/routez v0.0.77 h1:/Cd0jyko3PNlCMtDf7DDT74HIaziAyDIWv
 github.com/infinity6-ai/gox/routez v0.0.77/go.mod h1:/5WzIIQfqFXJCTr4xPwu59CC5Z8ROnc6mbYitF4VyyY=
 github.com/infinity6-ai/gox/schemaz v0.0.77 h1:kflpVJ1Zwr8MnjVT9r+kx/SS7rM+5emYiZ94NfHS5vU=
 github.com/infinity6-ai/gox/schemaz v0.0.77/go.mod h1:bBhufG43utke1AoTm04zmwmCl6/ImYq0iWlZwszV9ps=
-github.com/infinity6-ai/i6sdk/sdkcorez v0.0.1 h1:bKJg62hHY1WHqSyAvk0chm/koEf684UrSV6wgS/Zrsc=
-github.com/infinity6-ai/i6sdk/sdkcorez v0.0.1/go.mod h1:dki83MrlCBg2iLJx1b5LfooZEYftHhfyycyOEudJ5tQ=
-github.com/infinity6-ai/i6sdk/versionz v0.0.1 h1:CsFttfd3urWx7V5fjb0EFGMD1NeAu5RjEq20nt/O6rI=
-github.com/infinity6-ai/i6sdk/versionz v0.0.1/go.mod h1:QlEk4LhkKhX3SzCqU+arvD22SsSAlnesjV3658pRZI0=
+github.com/infinity6-ai/i6sdk/sdkcorez v0.0.2 h1:6XQf/sLxrz5VzCoFE6O34q0I2VK2elx2/3Zm+BstHe4=
+github.com/infinity6-ai/i6sdk/sdkcorez v0.0.2/go.mod h1:QS6auuR7jd7WSzrv3LjHpywW2Kkn5tn+9a/HagORUVs=
+github.com/infinity6-ai/i6sdk/versionz v0.0.2 h1:r9II8pe9BmRTGo3MGK72G09asxcGg9JQejrZXPstoX4=
+github.com/infinity6-ai/i6sdk/versionz v0.0.2/go.mod h1:QlEk4LhkKhX3SzCqU+arvD22SsSAlnesjV3658pRZI0=
 github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 h1:GFCKgmp0tecUJ0sJuv4pzYCqS9+RGSn52M3FUwPs+uo=
 github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10/go.mod h1:t/avpk3KcrXxUnYOhZhMXJlSEyie6gQbtLq5NM3loB8=
 github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
