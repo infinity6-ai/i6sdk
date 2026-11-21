@@ -6,7 +6,7 @@ import (
 	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/solutiondomain"
-	"go.code.infinity6.ai/sdkgo/sdkgo/pipez"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/pipez"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/speclabels/speclabeltokentype"
 )
 

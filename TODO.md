@@ -171,10 +171,10 @@ graph TD
   - Provide CLI entry points (e.g. `cmdz js generate`).
 
 ### Phase 5: Go Client SDK (`sdkgo`)
-- [ ] Transform `sdkgo/` into a dedicated Go client library.
-- [ ] Reorganize client configuration, auth helpers, middleware, and high-level client interfaces.
-- [ ] Create dedicated `sdkgo/go.mod` depending on `apicollectionz` and `sdkcorez`.
-- [ ] Verify Go SDK tests.
+- [x] Transform `sdkgo/` into a dedicated Go client library.
+- [x] Reorganize client configuration, auth helpers, middleware, and high-level client interfaces.
+- [x] Create dedicated `sdkgo/go.mod` depending on `apicollectionz` and `sdkcorez`.
+- [x] Verify Go SDK tests.
 
 ### Phase 6: Web SDK Migration (`sdkweb`)
 - [ ] Rename / migrate `sdkweblegacy` to `sdkweb`.
