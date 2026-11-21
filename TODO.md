@@ -1,84 +1,69 @@
-# Multi-Language Architecture: Mold -> Forge
+# Integrating `brwjsz` to Execute `sdkweblegacy` QUnit Tests
 
-Architecture for generating multi-language SDK clients (JS, Python, Java) from language-agnostic models.
-
-### Metaphor
-- **`mold` (Language-Agnostic ASTs & Parsers)**: Captures the shape and schema of types, endpoints, and SDK functions independent of target language.
-- **`forgez` (Language-Specific Emitters)**: Pours the mold into target code (e.g., JavaScript/TypeScript, Python, Java).
+Migrate the web SDK test runner from legacy `webchecker` to the `brwjsz` browser test framework in `gox`.
 
 ---
 
-### Target Layout
+### Motivation & Goals
+- **Native Go Test Integration:** Map all 12 QUnit test suites directly into Go sub-tests (`t.Run`) via `brwqunit.Test`.
+- **Remove Legacy Dependencies:** Deprecate and remove `go.code.infinity6.ai/web/api/webchecker` and related legacy platform packages.
+- **Fast Developer Workflow:** Enable dual execution via automated `go test -run '^TestWeb.*'` and the standalone `brwjsz qunit` CLI tool.
+- **Full Module & Bare Specifier Support:** Ensure browser-side ES module imports (`sql.js`, `@litertjs/core`) resolve cleanly via import maps.
+
+---
+
+### Architecture & Serving Layout
 
 ```text
-gox/
-├── schemaz/
-│   ├── typeastz/                 # Universal type AST (Tuple, Typedef, CustomType)
-│   └── schemamold/               # Schema reflection engine (Go struct/schema -> typeastz)
-│
-└── routez/
-    └── apispecz/                 # HTTP route specification AST (Api, Apis, Req, Resp, Parser)
-
-i6sdk/
-├── mold/
-│   └── moldsdkfunc/              # SDK function specification AST & Parser (SdkFunc, SdkFuncs, Parser)
-│
-└── forgez/
-    ├── forgejs/                  # JavaScript / TypeScript Emitters
-    │   ├── forgejsschema/        # Emits JSDoc / TS @typedef blocks
-    │   ├── forgejsapi/           # Emits class Apis
-    │   ├── forgejssdkfunc/       # Emits class SdkFuncs
-    │   └── forgejsbundle/        # Assembles sdkapis.js bundle
-    │
-    ├── forgepy/                  # Python Emitters (Future)
-    │   └── ...
-    │
-    └── forgejava/                # Java Emitters (Future)
-        └── ...
+sdkweblegacy/ (served as Site root)
+├── src/                      # ES modules (index.js, litert.js, etc.)
+├── test/                     # QUnit test suites (*-test.js)
+├── static/                   # Static assets, wasm files, html
+└── sdkweb_web_test.go        # Go browser runner invoking brwqunit
 ```
 
 ---
 
-### Migration Checklist
+### Implementation Checklist
 
-- [x] **Phase 1: Language-Agnostic Molds in `gox`**
-  - [x] **1A (`gox/schemaz/typeastz`)**:
-    - Created `gox/schemaz/typeastz` with `Tuple`, `Tuples`, `Typedef`, `Typedefs`, `Typ*` constants, and language-agnostic `CustomType` / `CustomTypeSimple` interfaces.
-    - Updated `jsschemaz`, `jsapiz`, and all 38 files in `i6sdk` to import `typeastz`.
-    - Removed `gox/schemaz/jstypez`.
-    - Validated unit tests in `gox/schemaz`, `gox/routez`, and `i6sdk`.
-  - [x] **1B (`gox/schemaz/schemamold`)**:
-    - Renamed `gox/schemaz/jsschemaz` -> `gox/schemaz/schemamold`.
-    - Updated references to `schemamold` in `gox/routez/jsapiz` and `i6sdk`.
-    - Validated all unit tests in `gox/schemaz`, `gox/routez`, and `i6sdk`.
-  - [x] **1C (`gox/routez/apispecz`)**:
-    - Renamed `gox/routez/jsapiz` -> `gox/routez/apispecz`.
-    - Updated references to `apispecz` in `i6sdk`.
-    - Validated unit tests in `gox/routez` and `i6sdk`.
+- [ ] **Phase 1: Extend `brwjsz` / `brwqunit` for Import Maps & Module Specifiers (`gox/brwjsz`)**
+  - [ ] **1A (Import Map Support in Runner)**:
+    - Update `brwjsz/staticz/qunit/runner.js` to accept optional `importmap` definitions.
+    - Inject `<script type="importmap">` into the test iframe before loading scripts.
+  - [ ] **1B (`brwqunit` Go API)**:
+    - Add `ImportMap map[string]string` (or options struct) to `brwqunit.Run` / `brwqunit.Test`.
+    - Support passing custom import maps from Go test suites.
+  - [ ] **1C (`cmdqunit` CLI)**:
+    - Add `--importmap` flag (file path or inline JSON) to `brwjsz qunit` command.
+  - [ ] **1D (Verification in `gox`)**:
+    - Add unit/web tests in `gox/brwjsz/brwqunit` verifying that bare specifiers imported inside test modules resolve properly.
+    - Run `cmd_unit_test.sh` in `gox/brwjsz`.
 
-- [x] **Phase 2: SDK Function Mold in `i6sdk`**
-  - [x] **2A (`i6sdk/mold/moldsdkfunc`)**:
-    - Extracted `SdkFunc`, `SdkFuncs`, `Req`, `Resp`, `SdkFuncSpec` into `mold/moldsdkfunc`.
-    - Moved `Parser`, `New()`, `ParseSdkFunc`, and `ParseSdkFuncs` into `moldsdkfunc`.
-    - Added unit tests in `mold/moldsdkfunc`.
-    - Updated `genjsz/jssdkfunc`, `cmdsdkjs`, and `jswriter` to use `moldsdkfunc`.
+- [ ] **Phase 2: Integrate `brwjsz` in `sdkweblegacy` (`i6sdk/sdkweblegacy`)**
+  - [ ] **2A (Dependency Configuration)**:
+    - Add `github.com/infinity6-ai/gox/brwjsz` to `sdkweblegacy/go.mod`.
+  - [ ] **2B (Web Test Implementation)**:
+    - Implement `TestWebSdk(t *testing.T)` in `sdkweblegacy` using `brwjsz.New` and `brwqunit.Test`.
+    - Configure `Site` to serve `sdkweblegacy` directory.
+    - Configure import map for:
+      - `sql.js` -> `https://cdn.jsdelivr.net/npm/sql.js@1.14.2/+esm`
+      - `@litertjs/core` -> `https://cdn.jsdelivr.net/npm/@litertjs/core@2.5.3/+esm`
+    - Execute discovery or run individual suites (`sample-test.js`, `b64-test.js`, `auth-tokens-test.js`, `dash-test.js`, etc.).
+  - [ ] **2C (Headless & Visual Support)**:
+    - Respect `BRWJSZ_DISABLE_HEADLESS` configuration for debugging and visual test inspection.
 
-- [x] **Phase 3: JavaScript Forge in `i6sdk/forgez/forgejs`**
-  - [x] **3A (`forgez/forgejs/forgejsschema`)**:
-    - Created `forgez/forgejs/forgejsschema` with `NewSdk()` and `WriteModuleTypedefs`.
-    - Added comprehensive unit tests in `forgejsschema_unit_test.go`.
-  - [x] **3B (`forgez/forgejs/forgejsapi`)**:
-    - Created `forgez/forgejs/forgejsapi` with `NewSdk()` and `Write()` (`class Apis`).
-    - Added comprehensive unit tests in `forgejsapi_unit_test.go`.
-  - [x] **3C (`forgez/forgejs/forgejssdkfunc`)**:
-    - Created `forgez/forgejs/forgejssdkfunc` with `NewSdk()` and `Write()` (`class SdkFuncs`).
-    - Added comprehensive unit tests in `forgejssdkfunc_unit_test.go`.
-  - [x] **3D (`forgez/forgejs/forgejsbundle`)**:
-    - Created `forgez/forgejs/forgejsbundle` assembling `sdkapis.js`.
-    - Updated generator command in `sdkgo/internal/cmd/cmdsdkjs`.
-    - Added unit tests in `forgejsbundle_unit_test.go`.
-  - [x] **3E**: Deleted `genjsz/` directory entirely.
+- [ ] **Phase 3: Tooling & Script Updates**
+  - [ ] **3A (`build.sh`)**:
+    - Update `cmd_test_web` in `sdkweblegacy/build.sh` to run `go test -run '^TestWeb.*' ./...`.
+    - Update `cmd_test_visual` to export `BRWJSZ_DISABLE_HEADLESS=true`.
+  - [ ] **3B (CLI Verification)**:
+    - Verify `brwjsz qunit --site .` works directly from `sdkweblegacy`.
 
-- [x] **Phase 4: Workspace Verification**
-  - Updated all 53 unit test files across `sdkgo/...`.
-  - Executed `go vet ./...` and `go test ./...` in both `gox` and `i6sdk`; all packages passed cleanly.
+- [ ] **Phase 4: Deprecate & Clean Up Legacy `webchecker`**
+  - [ ] **4A**: Remove `internal/appstack/appstack_web_test.go` and references to `webchecker.RunWeb`.
+  - [ ] **4B**: Clean up unused `webchecker.js` from `static/test/webchecker.js` or retain standalone `test.html` without server dependencies.
+  - [ ] **4C**: Run `go mod tidy` in `sdkweblegacy`.
+
+- [ ] **Phase 5: Full Workspace Verification**
+  - [ ] Run `go test -run '^(TestUnit.*|TestWeb.*)$' ./...` in `sdkweblegacy`.
+  - [ ] Run `go vet ./...` in both `gox` and `i6sdk`.
