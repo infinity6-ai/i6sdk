@@ -57,11 +57,10 @@ function cmd_uphead() {
 
 function cmd_update() {
   cmd_comps_run update "$@"
-  cmd_codegen
 }
 
 function cmd_codegen() {
-  ./comp.sh forgez run generate
+  cmd_comps_run codegen "$@"
 }
 
 function cmd_test() {
