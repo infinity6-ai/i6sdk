@@ -114,16 +114,17 @@ Examples:
 
 ## Code Generation
 
-The JavaScript/TypeScript Web SDK client bundle (`sdkweb/src/sdkapis/sdkapis.js`) is automatically generated from all registered service APIs and SdkFuncs in `apicollectionz`:
+The JavaScript/TypeScript Web SDK client bundle (`sdkweb/src/main/sdkapis/sdkapis.js`) and embedded static files (`sdkweb/internal/stzfiles/stzfiles.blob.go`) are automatically generated:
 
 ```bash
 ./build.sh codegen
 ```
 
-Or via CLI directly:
+Or directly in the target language SDK:
 
 ```bash
-cd forgez && go run . generate
+cd sdkweb && go generate ./...
+# or: cd sdkweb && go run . generate
 ```
 
 ---

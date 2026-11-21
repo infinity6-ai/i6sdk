@@ -1,7 +1,7 @@
 package cmdserver
 
 import (
-	"github.com/infinity6-ai/i6sdk/sdkweb/internal/sdkwebserver"
+	"github.com/infinity6-ai/i6sdk/sdkweb/internal/sdkwebservice"
 	"github.com/spf13/cobra"
 )
 
@@ -9,7 +9,7 @@ func prepareServerStart(parent *cobra.Command) {
 	cmd := &cobra.Command{
 		Use: "start",
 		Run: func(cmd *cobra.Command, args []string) {
-			s := sdkwebserver.Start(sdkwebserver.Options{
+			s := sdkwebservice.Start(sdkwebservice.Options{
 				Context: cmd.Context(),
 			})
 			s.Serve()

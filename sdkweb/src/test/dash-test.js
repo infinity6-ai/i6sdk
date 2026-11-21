@@ -44,8 +44,8 @@
 
         // The sqlite is served by a fetch stub, because a test page has no server giving it an etag
         hooks.beforeEach(async function () {
-            ({ Dash } = await import('../src/dash/dash.js'));
-            const { fs } = await import('../src/internal/fs/fs.js')
+            ({ Dash } = await import('../main/dash/dash.js'));
+            const { fs } = await import('../main/internal/fs/fs.js')
             await fs.clean()
             await (await navigator.storage.getDirectory()).removeEntry('i6', { recursive: true }).catch(() => { })
 

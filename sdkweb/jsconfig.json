@@ -6,5 +6,5 @@
     "lib": ["es2022", "dom"],
     "checkJs": false
   },
-  "include": ["src", "static", "test"]
+  "include": ["src/**/*"]
 }

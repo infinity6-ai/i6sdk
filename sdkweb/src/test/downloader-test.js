@@ -5,9 +5,9 @@
         const name = `test-dl-${Date.now()}`
         const url = 'https://example.test/file.bin'
 
-        /** @type {import('../src/internal/downloader/downloader.js').downloader} */
+        /** @type {import('../main/internal/downloader/downloader.js').downloader} */
         let downloader
-        /** @type {import('../src/internal/fs/fs.js').fs} */
+        /** @type {import('../main/internal/fs/fs.js').fs} */
         let fs
 
         const realFetch = window.fetch
@@ -44,8 +44,8 @@
         }
 
         hooks.beforeEach(async function () {
-            ({ downloader } = await import('../src/internal/downloader/downloader.js'));
-            ({ fs } = await import('../src/internal/fs/fs.js'))
+            ({ downloader } = await import('../main/internal/downloader/downloader.js'));
+            ({ fs } = await import('../main/internal/fs/fs.js'))
         })
 
         hooks.afterEach(async function () {

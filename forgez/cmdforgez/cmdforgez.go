@@ -23,9 +23,6 @@ func Prepare(ctx context.Context) *cobra.Command {
 		},
 	})
 
-	rootCmd.AddCommand(prepareJsCmd())
-	rootCmd.AddCommand(prepareGenerateJsCmd())
-
 	return rootCmd
 }
 

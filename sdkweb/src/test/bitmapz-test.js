@@ -6,7 +6,7 @@
         let Grants
 
         hooks.beforeEach(async function () {
-            ({ bitmapz, Grants } = await import('../src/index.js'))
+            ({ bitmapz, Grants } = await import('../main/index.js'))
         })
 
         QUnit.test("join combines bits using bitwise OR", function (assert) {

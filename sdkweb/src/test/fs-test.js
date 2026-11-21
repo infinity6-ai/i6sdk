@@ -4,7 +4,7 @@
 
         const name = `test-${Date.now()}`
 
-        /** @type {import('../src/internal/fs/fs.js').fs} */
+        /** @type {import('../main/internal/fs/fs.js').fs} */
         let fs
 
         /**
@@ -25,7 +25,7 @@
         }
 
         hooks.beforeEach(async function () {
-            ({ fs } = await import('../src/internal/fs/fs.js'))
+            ({ fs } = await import('../main/internal/fs/fs.js'))
         })
 
         hooks.afterEach(async function () {

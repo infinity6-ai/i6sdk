@@ -1,4 +1,4 @@
-package cmdforgez
+package cmdsdkweb
 
 import (
 	"os"
@@ -18,25 +18,8 @@ type tlogger logz.Type
 
 var logger = logz.Create(tlogger(true))
 
-func prepareJsCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use: "js",
-	}
-	cmd.AddCommand(prepareGenerateJsCmd())
-	return cmd
-}
-
-func prepareGenerateJsCmd() *cobra.Command {
+func prepareGenerateCmd() *cobra.Command {
 	var out string
-	var defaultOut string
-	if _, err := os.Stat("sdkweb"); err == nil {
-		defaultOut = "sdkweb/src/sdkapis/sdkapis.js"
-	} else if _, err := os.Stat("../sdkweb"); err == nil {
-		defaultOut = "../sdkweb/src/sdkapis/sdkapis.js"
-	} else {
-		defaultOut = "sdkweb/src/sdkapis/sdkapis.js"
-	}
-
 	cmd := &cobra.Command{
 		Use:   "generate",
 		Short: "generate the JS client of every API into the web SDK",
@@ -67,6 +50,6 @@ func prepareGenerateJsCmd() *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&out, "out", defaultOut, "output directory, one .js file per api")
+	cmd.Flags().StringVar(&out, "out", "src/main/sdkapis/sdkapis.js", "output path for generated sdkapis.js")
 	return cmd
 }

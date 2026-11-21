@@ -3,7 +3,7 @@
     QUnit.module("b64", function () {
 
         QUnit.test("encodeUrlSafe and decodeUrlSafe", async function (assert) {
-            const { encodeUrlSafe, decodeUrlSafe, decodeUrlSafeToBytes } = await import('../src/internal/b64/b64.js');
+            const { encodeUrlSafe, decodeUrlSafe, decodeUrlSafeToBytes } = await import('../main/internal/b64/b64.js');
             
             const originalString = "Hello, world! 🌍 \x00 \xFF";
             

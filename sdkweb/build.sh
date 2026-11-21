@@ -43,7 +43,7 @@ function cmd_npm_install() {
 # Generates src/apigenz (gitignored): one JS client per API, imported by src/ingest and friends.
 # Must run before anything that resolves src/**, since a fresh checkout has no apigenz.
 function cmd_generate() {
-    (cd .. && ./comp.sh forgez run generate)
+    go run . generate
 }
 
 function cmd_bundle() {
@@ -60,24 +60,24 @@ function cmd_bundle() {
     find dist/types -name "*.d.ts" -exec cat {} + > dist/bundle/i6sdk-web.d.ts
 
     # 3. Build the JavaScript
-    npx esbuild src/index.js --bundle --sourcemap --outfile=dist/bundle/i6sdk-web.js
-    npx esbuild src/index.js --bundle --minify --sourcemap --outfile=dist/bundle/i6sdk-web.min.js
-    npx esbuild "src/**/*.js" --minify --outdir=dist/module-min
-    npx esbuild "src/**/*.js" --outdir=dist/module
+    npx esbuild src/main/index.js --bundle --sourcemap --outfile=dist/bundle/i6sdk-web.js
+    npx esbuild src/main/index.js --bundle --minify --sourcemap --outfile=dist/bundle/i6sdk-web.min.js
+    npx esbuild "src/main/**/*.js" --minify --outdir=dist/module-min
+    npx esbuild "src/main/**/*.js" --outdir=dist/module
 }
 
 function cmd_release() {
     cmd_bundle
     mkdir -p ../../i6pages/releases/sdkweb
     rsync -av --delete dist/ ../../i6pages/releases/sdkweb/latest/
-    rsync -av --delete static/tokens/ ../../i6pages/tokens/ --exclude 'target'
+    rsync -av --delete src/site/tokens/ ../../i6pages/tokens/ --exclude 'target'
     # rsync -av --delete ../sdkgo/ ../../i6pages/sdkgo/ --exclude 'target'
     cmd_release-infer-demo
 }
 
-# Publishes static/infer-demo to i6pages/infer-demo, running against the released bundle instead of the source
+# Publishes src/site/infer-demo to i6pages/infer-demo, running against the released bundle instead of the source
 function cmd_release-infer-demo() {
-    local src=static/infer-demo dst=../../i6pages/infer-demo
+    local src=src/site/infer-demo dst=../../i6pages/infer-demo
     local tag='<script src="../releases/sdkweb/latest/bundle/i6sdk-web.js"></script>'
     mkdir -p "$dst"
     rm -f "$dst"/i6sdk-web.js "$dst"/i6sdk-web.js.map
@@ -99,9 +99,9 @@ const { I6Sdk } = window" \
         "$src/logincallback.html" > "$dst/logincallback.html"
 
     # Fail loudly if a rewrite stopped matching
-    grep -q '^const { I6Sdk } = window' "$dst/demo.js" && ! grep -q "src/index.js" "$dst/demo.js" \
+    grep -q '^const { I6Sdk } = window' "$dst/demo.js" && ! grep -q "src/main/index.js" "$dst/demo.js" \
         && ! grep -q importmap "$dst/index.html" && grep -q "i6sdk-web.js" "$dst/index.html" \
-        && grep -q "i6sdk-web.js" "$dst/logincallback.html" && ! grep -q "src/index.js" "$dst/logincallback.html" \
+        && grep -q "i6sdk-web.js" "$dst/logincallback.html" && ! grep -q "src/main/index.js" "$dst/logincallback.html" \
         || { echo "infer-demo release: a rewrite did not match, check $src" >&2; return 1; }
 }
 

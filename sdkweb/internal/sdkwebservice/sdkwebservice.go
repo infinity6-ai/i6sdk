@@ -1,4 +1,4 @@
-package sdkwebserver
+package sdkwebservice
 
 import (
 	"context"
@@ -10,6 +10,8 @@ import (
 	"github.com/infinity6-ai/gox/httpz/httpzrequest"
 	"github.com/infinity6-ai/gox/httpz/httpzserver"
 	"github.com/infinity6-ai/gox/httpz/httpzserver/httpzserverdisk"
+	"github.com/infinity6-ai/gox/httpz/httpzserver/httpzserverstatic"
+	"github.com/infinity6-ai/i6sdk/sdkweb/internal/stzfiles"
 )
 
 var I6_SDK_WEB_SERVER_LOCAL_ADDRESS = configz.Create("I6_SDK_WEB_SERVER_LOCAL_ADDRESS", "127.0.0.1:8043")
@@ -41,24 +43,20 @@ func Listen(opts Options) *Server {
 	})
 
 	root := "."
-	if _, err := os.Stat("static/sdkweb.txt"); err != nil {
-		if _, err := os.Stat("sdkweb/static/sdkweb.txt"); err == nil {
+	if _, err := os.Stat("src/main"); err != nil {
+		if _, err := os.Stat("sdkweb/src/main"); err == nil {
 			root = "sdkweb"
 		}
 	}
 	basePath := pathz.MustParse(root)
 
-	srv.AddHandler("GET", "/static/*", httpzserverdisk.Handler(httpzserverdisk.Options{
-		Base:   basePath,
-		Prefix: "/static",
+	srv.AddHandler("GET", "/site/*", httpzserverstatic.Handler(stzfiles.Name, httpzserverstatic.Options{
+		Prefix: "/site",
 	}))
+
 	srv.AddHandler("GET", "/src/*", httpzserverdisk.Handler(httpzserverdisk.Options{
 		Base:   basePath,
 		Prefix: "/src",
-	}))
-	srv.AddHandler("GET", "/test/*", httpzserverdisk.Handler(httpzserverdisk.Options{
-		Base:   basePath,
-		Prefix: "/test",
 	}))
 
 	srv.AddHandler("POST", "/api/stripe/webhook", func(ctx context.Context, resp httpzserver.Resp, req *httpzrequest.Req, params map[string]string) {
@@ -66,7 +64,7 @@ func Listen(opts Options) *Server {
 	})
 
 	srv.AddHandler("GET", "/", func(ctx context.Context, resp httpzserver.Resp, req *httpzrequest.Req, params map[string]string) {
-		resp.Redirect(nil, "/static/index.html")
+		resp.Redirect(nil, "/src/site/index.html")
 	})
 
 	srv.Listen()

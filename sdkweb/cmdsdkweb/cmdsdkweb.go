@@ -27,6 +27,7 @@ func Prepare(ctx context.Context) *cobra.Command {
 	})
 
 	cmdserver.Prepare(rootCmd)
+	rootCmd.AddCommand(prepareGenerateCmd())
 
 	return rootCmd
 }

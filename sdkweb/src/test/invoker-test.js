@@ -7,7 +7,7 @@
         let invoker
 
         hooks.beforeEach(async function () {
-            ({ Invoker, Resp } = await import('../src/invoker/invoker.js'))
+            ({ Invoker, Resp } = await import('../main/invoker/invoker.js'))
             realFetch = globalThis.fetch
             invoker = new Invoker({ config: () => ({ baseUrl: 'https://api.test' }), tokens: () => ({ getValidAccessToken: async () => null, getValidDatasetAccessToken: async () => null }) })
         })

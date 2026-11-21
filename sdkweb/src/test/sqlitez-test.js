@@ -5,7 +5,7 @@
         const dirName = `test-sqlitez-${Date.now()}`
         const sqlJsWasmUrl = 'https://cdn.jsdelivr.net/npm/sql.js@1.14.2/dist/'
 
-        /** @type {import('../src/internal/sqlitez/sqlitez.js').sqlitez} */
+        /** @type {import('../main/internal/sqlitez/sqlitez.js').sqlitez} */
         let sqlitez
         let conn
 
@@ -57,7 +57,7 @@
         }
 
         hooks.beforeEach(async function () {
-            ({ sqlitez } = await import('../src/internal/sqlitez/sqlitez.js'));
+            ({ sqlitez } = await import('../main/internal/sqlitez/sqlitez.js'));
             conn = null
         })
 

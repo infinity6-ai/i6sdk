@@ -3,7 +3,7 @@
     QUnit.module("tokens-diagnostic", function () {
 
         QUnit.test("describeToken detects and parses user_jwt", async function (assert) {
-            const { describeToken, base64UrlEncode } = await import('../static/tokens/tokens.js');
+            const { describeToken, base64UrlEncode } = await import('../site/tokens/tokens.js');
 
             const header = base64UrlEncode(new TextEncoder().encode(JSON.stringify({ alg: "EdDSA", typ: "JWT" })));
             const exp = Math.floor(Date.now() / 1000) + 3600;
@@ -25,7 +25,7 @@
         });
 
         QUnit.test("buildCanonicalString sorts queries, strips i6sig, and normalizes paths", async function (assert) {
-            const { buildCanonicalString, sha256Hex } = await import('../static/tokens/tokens.js');
+            const { buildCanonicalString, sha256Hex } = await import('../site/tokens/tokens.js');
 
             const canon = await buildCanonicalString(
                 "post",
@@ -57,7 +57,7 @@
                 getEd25519PublicKeyB64,
                 base64UrlEncode,
                 base64UrlDecodeToBytes
-            } = await import('../static/tokens/tokens.js');
+            } = await import('../site/tokens/tokens.js');
 
             const seed = new Uint8Array(32);
             crypto.getRandomValues(seed);
@@ -99,7 +99,7 @@
         });
 
         QUnit.test("describeToken handles refresh assertions and dataset access tokens", async function (assert) {
-            const { describeToken, base64UrlEncode } = await import('../static/tokens/tokens.js');
+            const { describeToken, base64UrlEncode } = await import('../site/tokens/tokens.js');
 
             // Refresh Assertion (121 bytes, Type 3)
             const assertionBuf = new Uint8Array(121);
@@ -118,7 +118,7 @@
         });
 
         QUnit.test("describeToken parses dataset create-refresh CLI block and validates keypair", async function (assert) {
-            const { describeToken } = await import('../static/tokens/tokens.js');
+            const { describeToken } = await import('../site/tokens/tokens.js');
 
             const cliOutput = `Dataset Refresh Token Created:
   JTI:         FBJWJtjS3-_5Bak86k2besJdKP6SQneeAhpLfSoyYYQ

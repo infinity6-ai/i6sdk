@@ -57,15 +57,15 @@ func TestWebSdk(t *testing.T) {
 
 	client := b.Client()
 
-	files, err := filepath.Glob(filepath.Join(sdkDir, "test", "*-test.js"))
+	files, err := filepath.Glob(filepath.Join(sdkDir, "src", "test", "*-test.js"))
 	require.NoError(t, err)
-	require.NotEmpty(t, files, "no test files found matching test/*-test.js")
+	require.NotEmpty(t, files, "no test files found matching src/test/*-test.js")
 
 	sort.Strings(files)
 
 	for _, file := range files {
 		fileName := filepath.Base(file)
-		testUrl := "/test/" + fileName
+		testUrl := "/src/test/" + fileName
 		t.Run(fileName, func(t *testing.T) {
 			brwqunit.TestWithOptions(t, client, brwqunit.Options{
 				TestUrls:  []string{testUrl},

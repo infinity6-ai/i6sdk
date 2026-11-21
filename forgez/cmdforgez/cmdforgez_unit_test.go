@@ -24,6 +24,4 @@ func TestUnitCmdForgezPrepare(t *testing.T) {
 		names[c.Name()] = true
 	}
 	require.True(t, names["version"])
-	require.True(t, names["js"])
-	require.True(t, names["generate"])
 }

@@ -7,7 +7,7 @@
         let mockStorage
 
         hooks.beforeEach(async function () {
-            ({ I6Sdk } = await import('../src/index.js'))
+            ({ I6Sdk } = await import('../main/index.js'))
             realFetch = globalThis.fetch
 
             // Mock localStorage if needed

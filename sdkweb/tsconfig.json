@@ -4,11 +4,11 @@
     "checkJs": false,
     "declaration": true,
     "emitDeclarationOnly": true,
-    "rootDir": "src",
+    "rootDir": "src/main",
     "outDir": "dist/types",
     "moduleResolution": "bundler",
     "target": "ESNext",
     "module": "ESNext"
   },
-  "include": ["src/**/*"]
+  "include": ["src/main/**/*"]
 }

@@ -3,7 +3,7 @@
     QUnit.module("gzip", function () {
 
         QUnit.test("gzip and gunzipString for raw strings", async function (assert) {
-            const { gzip, gunzipString, gunzip, gzipStringToBase64Url, gunzipStringFromBase64Url } = await import('../src/internal/gzip/gzip.js');
+            const { gzip, gunzipString, gunzip, gzipStringToBase64Url, gunzipStringFromBase64Url } = await import('../main/internal/gzip/gzip.js');
 
             const text = "Hello World! This is an arbitrary text with UTF-8 characters: 🚀🌟🔥";
 
@@ -24,7 +24,7 @@
         });
 
         QUnit.test("gzipJson and gunzipJson for objects", async function (assert) {
-            const { gzipJson, gunzipJson, gzipJsonToBase64Url, gunzipJsonFromBase64Url } = await import('../src/internal/gzip/gzip.js');
+            const { gzipJson, gunzipJson, gzipJsonToBase64Url, gunzipJsonFromBase64Url } = await import('../main/internal/gzip/gzip.js');
 
             const originalData = { hello: "world", a: 1, nested: { b: [2, 3, "foo"] } };
 

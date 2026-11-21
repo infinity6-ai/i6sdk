@@ -4,13 +4,13 @@
 
         // Test assets (gitignored): the test with the real model is skipped when they are not served
         const assets = {
-            sqliteUrl: new URL('../src/infer/gen/sqlite.bin', location.href).href,
-            tfliteUrl: new URL('../src/infer/gen/model.tflite', location.href).href,
+            sqliteUrl: new URL('../main/infer/gen/sqlite.bin', location.href).href,
+            tfliteUrl: new URL('../main/infer/gen/model.tflite', location.href).href,
         }
         const base = { modelName: 'relevance-fashion-fbt', partitions: { store_id: 's1', version: 'v1' }, dataset: 'dectest', sessionId: 'sess-1', userId: 'user-1' }
         const cart = { skus: [{ sku_id: '150' }, { sku_id: '77' }] }
 
-        /** @type {import('../src/infer/infer.js').Infer} */
+        /** @type {import('../main/infer/infer.js').Infer} */
         let infer, events
 
         const assertRejects = async (assert, promise, message) => {
@@ -31,7 +31,7 @@
         })
 
         hooks.beforeEach(async function () {
-            const { Infer } = await import('../src/infer/infer.js');
+            const { Infer } = await import('../main/infer/infer.js');
             events = []
             infer = new Infer(stubServices(events))
         })
@@ -73,7 +73,7 @@
                 dszModelGet: async (req, opts) => { calls.push(['dszModelGet', opts]); return { ok: true, status: 200, parse: () => ({ urls: [] }) } },
                 ingestzEventRelevanceFashionEvent: async (req, opts) => { calls.push(['event', opts]); return { ok: true, status: 200 } },
             })
-            const { Infer } = await import('../src/infer/infer.js')
+            const { Infer } = await import('../main/infer/infer.js')
 
             await assertRejects(assert, new Infer(services).run({ ...base, params: cart, serviceOptions }), /no "sqlite.bin" file/)
             const opts = {
@@ -92,7 +92,7 @@
                 requests.push(req)
                 return { ok: true, status: 200, parse: () => ({ urls: [{ name: 'sqlite.bin', url: assets.sqliteUrl }] }) }
             } })
-            const { Infer } = await import('../src/infer/infer.js')
+            const { Infer } = await import('../main/infer/infer.js')
 
             const result = await new Infer(services).run({ ...base, params: cart })
             assert.strictEqual(result.results.length, 20, 'default limit')
@@ -111,7 +111,7 @@
                 requests.push(req)
                 return { ok: true, status: 200 }
             } }) }
-            const { Infer } = await import('../src/infer/infer.js')
+            const { Infer } = await import('../main/infer/infer.js')
             const req = { input: { dataset: 'dectest' } }
             const results = { results: [{ skus: [{ sku_id: '1' }, { sku_id: '2' }], rating: 0.5 }, { skus: [{ sku_id: '1' }], rating: 0.8 }] }
             const selected = { results: [{ sku_id: '1', enriched: { name: 'shirt' } }] }
@@ -197,8 +197,8 @@
         QUnit.test("runModel reports inputs that do not fit the model", async function (assert) {
             if (!(await fetch(assets.tfliteUrl, { method: 'HEAD' })).ok) return assert.ok(true, 'skipped: no assets in src/infer/gen')
 
-            const { loadModel, runModel } = await import('../src/infer/litert.js')
-            const { downloader } = await import('../src/internal/downloader/downloader.js')
+            const { loadModel, runModel } = await import('../main/infer/litert.js')
+            const { downloader } = await import('../main/internal/downloader/downloader.js')
             const ref = await downloader.update({ name: 'infer-relevance-fashion-fbt-tflite', url: assets.tfliteUrl })
             const model = await loadModel({ ref })
             const fields = { data: Array(70).fill(0), shape: [1, 10, 7] }
