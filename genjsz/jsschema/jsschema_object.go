@@ -5,8 +5,8 @@ import (
 	"maps"
 	"slices"
 
+	"github.com/infinity6-ai/gox/commonz/stringz/camelz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"go.code.infinity6.ai/sdkgo/camelstring"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
@@ -18,7 +18,7 @@ func ParseSchemaObject(ctx context.Context, baseId string, obj map[string]*schem
 	tdfs := &jstypez.Typedefs{}
 	for _, field := range slices.Sorted(maps.Keys(obj)) {
 		schema := obj[field]
-		fieldId := baseId + camelstring.ToCamelUpper(field)
+		fieldId := baseId + camelz.P(field).P()
 		s, schemaTdfs := ParseSchema(ctx, fieldId, schema)
 		typ := s.Head.Typ
 		if s.Head.Typ == jstypez.TypObject && s.Properties != nil {

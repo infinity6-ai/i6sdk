@@ -6,10 +6,10 @@ import (
 	"strings"
 
 	"github.com/infinity6-ai/gox/commonz/logz"
+	"github.com/infinity6-ai/gox/commonz/stringz/camelz"
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"go.code.infinity6.ai/sdkgo/camelstring"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
@@ -54,8 +54,10 @@ type Apis struct {
 func ParseApi(ctx context.Context, api apiz.Api) *Api {
 	refs := api.ApiDataRefs()
 
-	apiId := camelstring.ToCamel(api.ApiSpec().Id)
-	apiId = "api" + strings.ToUpper(apiId[0:1]) + apiId[1:]
+	apiId := ""
+	if id := api.ApiSpec().Id; id != "" {
+		apiId = "api" + camelz.P(id).P()
+	}
 
 	parseSpec := func() ApiSpec {
 		s := api.ApiSpec()

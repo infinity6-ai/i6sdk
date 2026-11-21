@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"github.com/infinity6-ai/gox/commonz/errorz"
+	"github.com/infinity6-ai/gox/commonz/stringz/camelz"
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
-	"go.code.infinity6.ai/sdkgo/camelstring"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
@@ -95,7 +95,7 @@ func funcName(funcId string, version string) string {
 	name := strings.TrimPrefix(funcId, "sdkFunc")
 	name = strings.ToLower(name[0:1]) + name[1:]
 	if version != "" {
-		name += camelstring.ToCamelUpper(version)
+		name += camelz.P(version).P()
 	}
 	return name
 }

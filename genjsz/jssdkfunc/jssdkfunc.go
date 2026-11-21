@@ -6,9 +6,9 @@ import (
 	"strings"
 
 	"github.com/infinity6-ai/gox/commonz/logz"
+	"github.com/infinity6-ai/gox/commonz/stringz/camelz"
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"go.code.infinity6.ai/sdkgo/camelstring"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
@@ -56,9 +56,9 @@ func (s *SdkFuncs) Funcs() []*SdkFunc {
 func ParseSdkFunc(ctx context.Context, fn sdkfuncz.Func) *SdkFunc {
 	refs := fn.SdkFuncDataRefs()
 
-	funcId := camelstring.ToCamel(fn.SdkFuncSpec().Id)
-	if funcId != "" {
-		funcId = "sdkFunc" + strings.ToUpper(funcId[0:1]) + funcId[1:]
+	funcId := ""
+	if id := fn.SdkFuncSpec().Id; id != "" {
+		funcId = "sdkFunc" + camelz.P(id).P()
 	}
 
 	parseSpec := func() SdkFuncSpec {
