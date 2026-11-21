@@ -2,14 +2,12 @@ module github.com/infinity6-ai/i6sdk/apidatasetz
 
 go 1.26.1
 
-replace github.com/infinity6-ai/i6sdk/sdkcorez => ../sdkcorez
-
 require (
 	github.com/infinity6-ai/gox/commonz v0.0.77
 	github.com/infinity6-ai/gox/fsz v0.0.77
 	github.com/infinity6-ai/gox/routez v0.0.77
 	github.com/infinity6-ai/gox/schemaz v0.0.77
-	github.com/infinity6-ai/i6sdk/sdkcorez v0.0.0-00010101000000-000000000000
+	github.com/infinity6-ai/i6sdk/sdkcorez v0.0.1
 	github.com/infinity6-ai/i6sdk/versionz v0.0.1
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.12.1
@@ -69,5 +67,3 @@ require (
 	google.golang.org/grpc v1.85.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
 )
-
-replace github.com/infinity6-ai/i6sdk/versionz => ../versionz
