@@ -140,7 +140,15 @@ class SqliteConn {
     async namedQuery(opts) {
         if (!opts || !opts.name) throw new TypeError("sqlitez: opts.name is required")
 
-        const found = await this.query({ query: "SELECT query FROM namedqueries WHERE name = ?", params: [opts.name] })
+        let found
+        try {
+            found = await this.query({ query: "SELECT query FROM namedqueries WHERE name = ?", params: [opts.name] })
+        } catch (e) {
+            if (opts.ignoreIfNotExist) {
+                return []
+            }
+            throw e
+        }
         if (found.length === 0) {
             if (opts.ignoreIfNotExist) {
                 return []
