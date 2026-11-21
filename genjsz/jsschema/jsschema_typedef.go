@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 
+	"github.com/infinity6-ai/gox/schemaz/jsschemaz"
 	"github.com/infinity6-ai/gox/schemaz/jstypez"
 )
 
@@ -23,7 +24,7 @@ func WriteModuleTypedefs(ctx context.Context, typedefs jstypez.Typedefs) string 
 	b.WriteString(" */\n")
 	b.WriteString("\n")
 
-	if tdfs := FormatTypedefs(&typedefs); tdfs != "" {
+	if tdfs := jsschemaz.FormatTypedefs(&typedefs); tdfs != "" {
 		b.WriteString(strings.TrimSuffix(tdfs, "\n"))
 		b.WriteString("\n")
 	}

@@ -10,8 +10,9 @@ import (
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
+	"github.com/infinity6-ai/gox/schemaz/jsschemaz"
 	"github.com/infinity6-ai/gox/schemaz/jstypez"
+	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
 )
 
 type tlogger logz.Type
@@ -52,10 +53,10 @@ type Apis struct {
 }
 
 type Parser struct {
-	schemaParser *jsschema.Parser
+	schemaParser *jsschemaz.Parser
 }
 
-func New(schemaParser *jsschema.Parser) *Parser {
+func New(schemaParser *jsschemaz.Parser) *Parser {
 	if schemaParser == nil {
 		schemaParser = jsschema.NewSdk()
 	}

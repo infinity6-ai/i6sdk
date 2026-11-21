@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/infinity6-ai/gox/commonz/errorz"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
+	"github.com/infinity6-ai/gox/schemaz/jsschemaz"
 	"github.com/infinity6-ai/gox/schemaz/jstypez"
 )
 
@@ -151,9 +151,9 @@ func writeApiDecl(b *strings.Builder, api *Api) {
 	hasReq := hasParams || hasQuery || hasReqHeaders || hasPayload
 
 	writeln(b, "/**")
-	writeln(b, " * %s", jsschema.DescName(api.Spec.Desc))
+	writeln(b, " * %s", jsschemaz.DescName(api.Spec.Desc))
 	writeln(b, " * ")
-	writeln(b, " * %s", jsschema.DescSummary(api.Spec.Desc))
+	writeln(b, " * %s", jsschemaz.DescSummary(api.Spec.Desc))
 	writeln(b, " * ")
 	if hasReq {
 		paramDesc := ""

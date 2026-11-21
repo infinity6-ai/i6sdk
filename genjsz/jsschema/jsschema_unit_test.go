@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
+	"github.com/infinity6-ai/gox/schemaz/jsschemaz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
@@ -17,7 +18,7 @@ type externalCustomType struct {
 func TestUnitParserInstanceAndAddKnownType(t *testing.T) {
 	ctx := t.Context()
 
-	parser := jsschema.New().AddKnownType(externalCustomType{}, "MyCustomJsString")
+	parser := jsschemaz.New().AddKnownType(externalCustomType{}, "MyCustomJsString")
 
 	var val externalCustomType
 	schema := &schemaz.Schema{
@@ -54,10 +55,10 @@ func TestUnitDescHelpers(t *testing.T) {
 		Name:    "TestName",
 		Summary: "TestSummary",
 	}
-	require.Equal(t, "TestName", jsschema.DescName(d))
-	require.Equal(t, "TestSummary", jsschema.DescSummary(d))
-	require.Equal(t, "", jsschema.DescName(nil))
-	require.Equal(t, "", jsschema.DescSummary(nil))
+	require.Equal(t, "TestName", jsschemaz.DescName(d))
+	require.Equal(t, "TestSummary", jsschemaz.DescSummary(d))
+	require.Equal(t, "", jsschemaz.DescName(nil))
+	require.Equal(t, "", jsschemaz.DescSummary(nil))
 }
 
 func TestUnitParseSchemaNestedObject(t *testing.T) {

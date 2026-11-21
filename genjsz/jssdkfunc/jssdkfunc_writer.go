@@ -8,7 +8,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/errorz"
 	"github.com/infinity6-ai/gox/commonz/stringz/camelz"
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
+	"github.com/infinity6-ai/gox/schemaz/jsschemaz"
 	"github.com/infinity6-ai/gox/schemaz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
 )
@@ -135,9 +135,9 @@ func Write(ctx context.Context, sdkFuncs []*SdkFunc) string {
 
 		writeln(&decl, "/**")
 		if fn.Spec.Desc != nil {
-			writeln(&decl, " * %s", jsschema.DescName(fn.Spec.Desc))
+			writeln(&decl, " * %s", jsschemaz.DescName(fn.Spec.Desc))
 			writeln(&decl, " * ")
-			writeln(&decl, " * %s", jsschema.DescSummary(fn.Spec.Desc))
+			writeln(&decl, " * %s", jsschemaz.DescSummary(fn.Spec.Desc))
 			writeln(&decl, " * ")
 		}
 		if hasReq {
