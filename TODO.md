@@ -142,17 +142,17 @@ graph TD
 - [x] Verify `sdkcorez` unit tests pass independently.
 
 ### Phase 2: Service API Extraction (`api*z`)
-- [ ] Create `apiuserz/` (`go.mod`):
+- [x] Create `apiuserz/` (`go.mod`):
   - Move `sdkgo/apiz/userapi/*`
-- [ ] Create `apidatasetz/` (`go.mod`):
+- [x] Create `apidatasetz/` (`go.mod`):
   - Move `sdkgo/apiz/dszapi/*`
-- [ ] Create `apiingestz/` (`go.mod`):
+- [x] Create `apiingestz/` (`go.mod`):
   - Move `sdkgo/apiz/ingestzapi/*`
-- [ ] Create `apipipez/` (`go.mod`):
+- [x] Create `apipipez/` (`go.mod`):
   - Move `sdkgo/apiz/pipezapi/*`
-- [ ] Create `apitfz/` (`go.mod`):
+- [x] Create `apitfz/` (`go.mod`):
   - Move `sdkgo/apiz/tfzapi/*`
-- [ ] Verify each API module compiles and unit tests pass with dependencies only on `sdkcorez`.
+- [x] Verify each API module compiles and unit tests pass with dependencies only on `sdkcorez`.
 
 ### Phase 3: Unified Collection (`apicollectionz`)
 - [ ] Create `apicollectionz/` (`go.mod`):

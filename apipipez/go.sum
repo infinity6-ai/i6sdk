@@ -1,0 +1,14 @@
+github.com/infinity6-ai/gox/commonz v0.0.77 h1:C9D2dSFx5uiSHuhzP1mgumZu6NMbDwWYWE77s5Vw/Ag=
+github.com/infinity6-ai/gox/commonz v0.0.77/go.mod h1:wePn2A7Bm+TX22LmXmFda4AvLjbMEvOaBFSWsQEVvjk=
+github.com/infinity6-ai/gox/routez v0.0.77 h1:/Cd0jyko3PNlCMtDf7DDT74HIaziAyDIWvKnxmOSp44=
+github.com/infinity6-ai/gox/routez v0.0.77/go.mod h1:/5WzIIQfqFXJCTr4xPwu59CC5Z8ROnc6mbYitF4VyyY=
+github.com/infinity6-ai/gox/schemaz v0.0.77 h1:kflpVJ1Zwr8MnjVT9r+kx/SS7rM+5emYiZ94NfHS5vU=
+github.com/infinity6-ai/gox/schemaz v0.0.77/go.mod h1:bBhufG43utke1AoTm04zmwmCl6/ImYq0iWlZwszV9ps=
+github.com/stretchr/testify v1.12.1 h1:EuwCh5fleGS7H32xRwO3wRGT7DxrDhLAT6FF8MpWDWE=
+github.com/stretchr/testify v1.12.1/go.mod h1:MDEgiDPPsNp5cuIrHPPCyornHKgEVbtFUmoNlxoYthg=
+go.code.infinity6.ai/sdkgo v0.0.69 h1:mZHEsoJd1vrpnHnegat24nUiY88Ogal0Pn+89VEXvho=
+go.code.infinity6.ai/sdkgo v0.0.69/go.mod h1:M1wCaF7NGwsXYqknq0gCRNTntK161OFSst7tAEeLeLc=
+go.yaml.in/yaml/v3 v3.0.5 h1:N6y/pJk8buWs9NY5ERU2HSMfm+IuD/OtfdAnq6kESPw=
+go.yaml.in/yaml/v3 v3.0.5/go.mod h1:HVTZu1O7/Vkt2N+BFy8Zza+lnLsABggaTM2ZpNIGuKg=
+golang.org/x/exp v0.0.0-20260824195058-e88cd73687aa h1:QSyA8ishJCyT21kER9KwNt0b7BM3iRK4x9QXhjN5Fdk=
+golang.org/x/exp v0.0.0-20260824195058-e88cd73687aa/go.mod h1:zeBbvyFKDaLwa7CH/zI8KXt7gTl14SF7sO08Pl5jBCM=

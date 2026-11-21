@@ -13,8 +13,8 @@ import (
 	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsapi"
-	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapimodelget"
-	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapistripecheckout"
+	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapimodelget"
+	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapistripecheckout"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkz"
 )
 

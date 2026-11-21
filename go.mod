@@ -8,6 +8,11 @@ require (
 	github.com/infinity6-ai/gox/fsz v0.0.77
 	github.com/infinity6-ai/gox/routez v0.0.77
 	github.com/infinity6-ai/gox/schemaz v0.0.77
+	github.com/infinity6-ai/i6sdk/apidatasetz v0.0.0-00010101000000-000000000000
+	github.com/infinity6-ai/i6sdk/apiingestz v0.0.0-00010101000000-000000000000
+	github.com/infinity6-ai/i6sdk/apipipez v0.0.0-00010101000000-000000000000
+	github.com/infinity6-ai/i6sdk/apitfz v0.0.0-00010101000000-000000000000
+	github.com/infinity6-ai/i6sdk/apiuserz v0.0.0-00010101000000-000000000000
 	github.com/infinity6-ai/i6sdk/sdkcorez v0.0.0-00010101000000-000000000000
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.12.1
@@ -80,3 +85,13 @@ require (
 replace github.com/infinity6-ai/i6sdk/sdkcorez => ./sdkcorez
 
 replace github.com/infinity6-ai/i6sdk/versionz => ./versionz
+
+replace github.com/infinity6-ai/i6sdk/apiuserz => ./apiuserz
+
+replace github.com/infinity6-ai/i6sdk/apidatasetz => ./apidatasetz
+
+replace github.com/infinity6-ai/i6sdk/apiingestz => ./apiingestz
+
+replace github.com/infinity6-ai/i6sdk/apipipez => ./apipipez
+
+replace github.com/infinity6-ai/i6sdk/apitfz => ./apitfz
