@@ -11,7 +11,7 @@ i6sdk/
 ├── build.sh                  # Workspace orchestrator (comps_list, test, update, codegen, release)
 ├── comp.sh                   # Component runner: ./comp.sh <comp> <cmd> (test, fmt, update, clean, run)
 ├── go.mod                    # Root module definition
-├── versionz/                 # Central version management (v0.0.69)
+├── versionz/                 # Central version management (v0.0.1)
 ├── sdkcorez/                 # Foundational domain entities (dsz, grants, logzinit, productz, pipez, reqsign, resultz, sdkfuncz, speclabels, tabledataz)
 ├── apiuserz/                 # User, Auth, Token, Password & Settings APIs
 ├── apidatasetz/              # Dataset, Store, Table, Model, Payment, Plan & Stripe APIs
