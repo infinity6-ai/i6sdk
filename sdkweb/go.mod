@@ -10,7 +10,7 @@ require (
 	github.com/infinity6-ai/i6sdk/apicollectionz v0.0.0-00010101000000-000000000000
 	github.com/infinity6-ai/i6sdk/forgez v0.0.0-00010101000000-000000000000
 	github.com/infinity6-ai/i6sdk/mold v0.0.0-00010101000000-000000000000
-	github.com/infinity6-ai/i6sdk/versionz v0.0.0-00010101000000-000000000000
+	github.com/infinity6-ai/i6sdk/versionz v0.0.1
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.12.1
 )
