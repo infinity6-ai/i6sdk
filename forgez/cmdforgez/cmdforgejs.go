@@ -28,6 +28,15 @@ func prepareJsCmd() *cobra.Command {
 
 func prepareGenerateJsCmd() *cobra.Command {
 	var out string
+	var defaultOut string
+	if _, err := os.Stat("sdkweb"); err == nil {
+		defaultOut = "sdkweb/src/sdkapis/sdkapis.js"
+	} else if _, err := os.Stat("../sdkweb"); err == nil {
+		defaultOut = "../sdkweb/src/sdkapis/sdkapis.js"
+	} else {
+		defaultOut = "sdkweb/src/sdkapis/sdkapis.js"
+	}
+
 	cmd := &cobra.Command{
 		Use:   "generate",
 		Short: "generate the JS client of every API into the web SDK",
@@ -58,6 +67,6 @@ func prepareGenerateJsCmd() *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&out, "out", "sdkweb/src/sdkapis/sdkapis.js", "output directory, one .js file per api")
+	cmd.Flags().StringVar(&out, "out", defaultOut, "output directory, one .js file per api")
 	return cmd
 }
