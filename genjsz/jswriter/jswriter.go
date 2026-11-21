@@ -10,6 +10,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jsapi"
 	"go.code.infinity6.ai/sdkgo/genjsz/jssdkfunc"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
+	"go.code.infinity6.ai/sdkgo/mold/moldsdkfunc"
 )
 
 type tlogger logz.Type
@@ -18,12 +19,12 @@ var logger = logz.Create(tlogger(true))
 
 type Options struct {
 	Apis     []*apispecz.Api
-	SdkFuncs []*jssdkfunc.SdkFunc
+	SdkFuncs []*moldsdkfunc.SdkFunc
 }
 
 type jsgenerator struct {
 	Apis     []*apispecz.Api
-	SdkFuncs []*jssdkfunc.SdkFunc
+	SdkFuncs []*moldsdkfunc.SdkFunc
 	Typedefs typeastz.Typedefs
 }
 

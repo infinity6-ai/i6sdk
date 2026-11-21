@@ -1,0 +1,135 @@
+package moldsdkfunc
+
+import (
+	"context"
+	"fmt"
+	"strings"
+
+	"github.com/infinity6-ai/gox/commonz/stringz/camelz"
+	"github.com/infinity6-ai/gox/commonz/validation/checker"
+	"github.com/infinity6-ai/gox/schemaz/schemamold"
+	"github.com/infinity6-ai/gox/schemaz/schemaz"
+	"github.com/infinity6-ai/gox/schemaz/typeastz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
+)
+
+type Req struct {
+	Input      typeastz.Typedef `json:"input"`
+	Partitions typeastz.Typedef `json:"partitions"`
+}
+
+type Resp struct {
+	Output typeastz.Typedef `json:"output"`
+}
+
+type SdkFunc struct {
+	Spec     SdkFuncSpec       `json:"spec"`
+	Typedefs typeastz.Typedefs `json:"typedefs"`
+
+	Req  Req  `json:"req"`
+	Resp Resp `json:"resp"`
+}
+
+type SdkFuncSpec struct {
+	Id       string        `json:"id,omitempty"`
+	CamelId  string        `json:"camel_id"`
+	Version  string        `json:"version,omitempty"`
+	Desc     *schemaz.Desc `json:"desc,omitempty"`
+	Typ      sdkfuncz.Typ  `json:"typ,omitempty"`
+	FuncName string        `json:"func_name,omitempty"`
+}
+
+type SdkFuncs struct {
+	SdkFuncs []*SdkFunc        `json:"sdk_funcs"`
+	Typedefs typeastz.Typedefs `json:"typedefs"`
+}
+
+func (s *SdkFuncs) Funcs() []*SdkFunc {
+	return s.SdkFuncs
+}
+
+type Parser struct {
+	schemaParser *schemamold.Parser
+}
+
+func New(schemaParser *schemamold.Parser) *Parser {
+	if schemaParser == nil {
+		schemaParser = schemamold.New()
+	}
+	return &Parser{schemaParser: schemaParser}
+}
+
+func (p *Parser) ParseSdkFunc(ctx context.Context, fn sdkfuncz.Func) *SdkFunc {
+	refs := fn.SdkFuncDataRefs()
+
+	funcId := ""
+	if id := fn.SdkFuncSpec().Id; id != "" {
+		funcId = "sdkFunc" + camelz.P(id).P()
+	}
+
+	parseSpec := func() SdkFuncSpec {
+		s := fn.SdkFuncSpec()
+		ret := SdkFuncSpec{
+			Id:      s.Id,
+			CamelId: funcId,
+			Version: s.Version,
+			Typ:     s.Typ,
+		}
+		if s.Desc != nil {
+			ret.Desc = s.Desc()
+		}
+		return ret
+	}
+
+	ret := &SdkFunc{
+		Spec: parseSpec(),
+	}
+
+	xxx := typeastz.BasicTypes()
+	ret.Typedefs.ExtractFrom(xxx)
+
+	if refs != nil {
+		validateDataRef(refs.Input, "Input")
+		validateDataRef(refs.Partitions, "Partitions")
+		validateDataRef(refs.Output, "Output")
+
+		parseRefsV2 := func(out *typeastz.Typedef, suffix string, s *schemaz.Schema) {
+			if s == nil {
+				return
+			}
+			fieldName := ret.Spec.CamelId + strings.ToUpper(suffix[0:1]) + suffix[1:]
+			td, tdfs := p.schemaParser.ParseSchema(ctx, fieldName, s)
+			checker.Equal("object", td.Head.Typ, "must be object")
+			out.Properties = &typeastz.Tuples{}
+			out.Head = &typeastz.Tuple{Typ: fieldName, Name: suffix}
+			td.Head.Summary = fmt.Sprintf("%s %s", ret.Spec.CamelId, suffix)
+			ret.Typedefs.ExtractFrom(tdfs)
+			ret.Typedefs.Add(td)
+		}
+
+		parseRefsV2(&ret.Req.Input, "input", refs.Input)
+		parseRefsV2(&ret.Req.Partitions, "partitions", refs.Partitions)
+		parseRefsV2(&ret.Resp.Output, "output", refs.Output)
+	}
+
+	return ret
+}
+
+func (p *Parser) ParseSdkFuncs(ctx context.Context, funcs []sdkfuncz.Func) *SdkFuncs {
+	ret := SdkFuncs{
+		SdkFuncs: make([]*SdkFunc, len(funcs)),
+		Typedefs: typeastz.NewTypedefs(nil),
+	}
+	for idx, fn := range funcs {
+		parsed := p.ParseSdkFunc(ctx, fn)
+		ret.Typedefs.Merge(parsed.Typedefs)
+		ret.SdkFuncs[idx] = parsed
+	}
+	return &ret
+}
+
+func validateDataRef(schema *schemaz.Schema, n string) {
+	if schema != nil {
+		checker.NotNil(schema.Object, "%s", n)
+	}
+}

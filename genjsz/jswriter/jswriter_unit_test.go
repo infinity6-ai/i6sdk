@@ -9,6 +9,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jsapi"
 	"go.code.infinity6.ai/sdkgo/genjsz/jssdkfunc"
 	"go.code.infinity6.ai/sdkgo/genjsz/jswriter"
+	"go.code.infinity6.ai/sdkgo/mold/moldsdkfunc"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/inferz/inferzrelevancefashionfbt"
 )
 
@@ -26,7 +27,7 @@ func TestUnitWrite(t *testing.T) {
 		fn := jssdkfunc.NewSdk().ParseSdkFunc(ctx, &inferzrelevancefashionfbt.Func{})
 		got := jswriter.Write(ctx, jswriter.Options{
 			Apis:     []*apispecz.Api{api},
-			SdkFuncs: []*jssdkfunc.SdkFunc{fn},
+			SdkFuncs: []*moldsdkfunc.SdkFunc{fn},
 		})
 		require.Contains(t, got, "// typedefs")
 		require.Contains(t, got, "// apis")

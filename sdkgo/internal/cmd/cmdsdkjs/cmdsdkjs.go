@@ -9,8 +9,8 @@ import (
 	"github.com/infinity6-ai/gox/routez/apispecz"
 	"github.com/spf13/cobra"
 	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
-	"go.code.infinity6.ai/sdkgo/genjsz/jssdkfunc"
 	"go.code.infinity6.ai/sdkgo/genjsz/jswriter"
+	"go.code.infinity6.ai/sdkgo/mold/moldsdkfunc"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkz"
 )
 
@@ -41,7 +41,7 @@ func prepareGenerateJsCmd() *cobra.Command {
 
 			schemaParser := jsschema.NewSdk()
 			apiParser := apispecz.New(schemaParser)
-			sdkFuncParser := jssdkfunc.New(schemaParser)
+			sdkFuncParser := moldsdkfunc.New(schemaParser)
 
 			apis := sdkz.Apis()
 			parsedApis := apiParser.ParseApis(ctx, apis)

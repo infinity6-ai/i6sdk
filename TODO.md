@@ -56,11 +56,12 @@ i6sdk/
     - Updated references to `apispecz` in `i6sdk`.
     - Validated unit tests in `gox/routez` and `i6sdk`.
 
-- [ ] **Phase 2: SDK Function Mold in `i6sdk`**
-  - [ ] **2A (`i6sdk/mold/moldsdkfunc`)**:
-    - Extract `SdkFunc`, `SdkFuncs`, `Req`, `Resp`, `SdkFuncSpec` from `genjsz/jssdkfunc` into `mold/moldsdkfunc`.
-    - Move `Parser`, `New()`, `ParseSdkFunc`, and `ParseSdkFuncs` into `moldsdkfunc`.
-    - Add unit tests in `mold/moldsdkfunc`.
+- [x] **Phase 2: SDK Function Mold in `i6sdk`**
+  - [x] **2A (`i6sdk/mold/moldsdkfunc`)**:
+    - Extracted `SdkFunc`, `SdkFuncs`, `Req`, `Resp`, `SdkFuncSpec` into `mold/moldsdkfunc`.
+    - Moved `Parser`, `New()`, `ParseSdkFunc`, and `ParseSdkFuncs` into `moldsdkfunc`.
+    - Added unit tests in `mold/moldsdkfunc`.
+    - Updated `genjsz/jssdkfunc`, `cmdsdkjs`, and `jswriter` to use `moldsdkfunc`.
 
 - [ ] **Phase 3: JavaScript Forge in `i6sdk/forgez/forgejs`**
   - [ ] **3A (`forgez/forgejs/forgejsschema`)**:
