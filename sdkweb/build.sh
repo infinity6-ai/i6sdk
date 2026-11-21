@@ -72,37 +72,6 @@ function cmd_release() {
     rsync -av --delete dist/ ../../i6pages/releases/sdkweb/latest/
     rsync -av --delete src/site/tokens/ ../../i6pages/tokens/ --exclude 'target'
     # rsync -av --delete ../sdkgo/ ../../i6pages/sdkgo/ --exclude 'target'
-    cmd_release-infer-demo
-}
-
-# Publishes src/site/infer-demo to i6pages/infer-demo, running against the released bundle instead of the source
-function cmd_release-infer-demo() {
-    local src=src/site/infer-demo dst=../../i6pages/infer-demo
-    local tag='<script src="../releases/sdkweb/latest/bundle/i6sdk-web.js"></script>'
-    mkdir -p "$dst"
-    rm -f "$dst"/i6sdk-web.js "$dst"/i6sdk-web.js.map
-
-    sed -e "1,2c\\
-// Serve this repo's root: python -m http.server 8000 -> http://localhost:8000/infer-demo/\\
-// The SDK comes from the published bundle (index.html), not from source: this page tests what the CDN serves.\\
-const { I6Sdk } = window" \
-        -e "s#return \`import { I6Sdk } from './i6sdk-web.js'#return \`// <script src=\"https://cdn.infinity6.ai/releases/sdkweb/latest/bundle/i6sdk-web.js\"></script>  (sets window.I6Sdk)#" \
-        "$src/demo.js" > "$dst/demo.js"
-
-    sed -e '/<!-- Demo only/,/<\/script>/c\
-  <!-- The published SDK bundle of this repo (sql.js is inside it); sets window.I6Sdk -->\
-  '"$tag" \
-        "$src/index.html" > "$dst/index.html"
-
-    sed -e "s#import { I6Sdk } from '[^']*'#const { I6Sdk } = window#" \
-        -e "s#^\( *\)<script type=\"module\">#\1$tag\n\1<script type=\"module\">#" \
-        "$src/logincallback.html" > "$dst/logincallback.html"
-
-    # Fail loudly if a rewrite stopped matching
-    grep -q '^const { I6Sdk } = window' "$dst/demo.js" && ! grep -q "src/main/index.js" "$dst/demo.js" \
-        && ! grep -q importmap "$dst/index.html" && grep -q "i6sdk-web.js" "$dst/index.html" \
-        && grep -q "i6sdk-web.js" "$dst/logincallback.html" && ! grep -q "src/main/index.js" "$dst/logincallback.html" \
-        || { echo "infer-demo release: a rewrite did not match, check $src" >&2; return 1; }
 }
 
 function cmd_vendor() {
