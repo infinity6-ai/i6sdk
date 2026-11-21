@@ -5,8 +5,9 @@
 `i6sdk` is the unified SDK repository for the entire Infinity6 platform. It is being refactored into a structured mono-repo (modeled after `gox`) to prepare for:
 1. **Multi-language support:** Core Go client (`sdkgo`), Web JavaScript/TypeScript (`sdkweb`), and future targets (Python `sdkpython`, Node `sdknode`, Java `sdkjava`).
 2. **Modular service APIs:** Breaking down monolithic API definitions into independent service modules (`apiuserz`, `apidatasetz`, `apiingestz`, `apipipez`, `apitfz`).
-3. **Automated Code Generation:** Using code generators (`forgez`, `mold`) to reflect on API definitions and SdkFunc specifications to generate consistent client code across all target languages.
-4. **Eventual Open-Source Release:** Following clean dependency layering and open-source standards matching `github.com/infinity6-ai/gox`.
+3. **Unified API Collection:** Centralizing API and SdkFunc registries in `apicollectionz` (replacing `sdkz`) for both `sdkgo` and code generators to consume.
+4. **Automated Code Generation:** Using code generators (`forgez`, `mold`) to reflect on API definitions and SdkFunc specifications to generate consistent client code across all target languages.
+5. **Eventual Open-Source Release:** Following clean dependency layering and open-source standards matching `github.com/infinity6-ai/gox`.
 
 ---
 
@@ -14,6 +15,7 @@
 
 ### Current Layout
 - Root `go.mod` (`go.code.infinity6.ai/sdkgo`) mixes the Go client, domain entities, service APIs, code generators (`forgez`), template molds (`mold`), and CLI (`main.go`, `cmdsdkgo`).
+- `sdkgo/sdkz` currently acts as a global registry for all APIs (`sdkz_apis.go`) and SdkFuncs (`sdkz_sdkfuncz.go`), but is trapped inside the monolithic `sdkgo` module.
 - `sdkweblegacy` is a semi-detached module with legacy naming and mixed Go web-test server + JS client.
 
 ### Cyclic Dependency Issue in Tests
@@ -55,8 +57,10 @@ i6sdk/
 │   └── go.mod
 ├── apitfz/                    # Module: ML Model metadata & prediction APIs
 │   └── go.mod
-├── sdkcatalogz/               # Module: Catalog/Registry aggregating all APIs and SdkFuncs
-│   └── go.mod                 # (Provides SdkApis() and SdkFuncs() for forgez/generators)
+├── apicollectionz/            # Module: Unified API & SdkFunc catalog (replaces sdkgo/sdkz)
+│   ├── go.mod
+│   ├── apis.go                # Central registry of all service APIs (Apis(), Api(id))
+│   └── sdkfuncs.go            # Central registry of all SdkFuncs (SdkFuncs(), SdkFunc(id))
 ├── mold/                      # Module: Template engine & molds for language code generators
 │   └── go.mod
 ├── forgez/                    # Module: Multi-language Code Generation Engine
@@ -89,25 +93,23 @@ graph TD
     Pipe[apipipez] --> Core
     TF[apitfz] --> Core
 
-    %% Catalog Layer
-    Catalog[sdkcatalogz] --> User
-    Catalog --> Dataset
-    Catalog --> Ingest
-    Catalog --> Pipe
-    Catalog --> TF
+    %% Unified Collection Registry Layer
+    Collection[apicollectionz] --> User
+    Collection --> Dataset
+    Collection --> Ingest
+    Collection --> Pipe
+    Collection --> TF
+    Collection --> Core
 
     %% Generation Layer
     Mold[mold] --> Core
-    Forge[forgez] --> Catalog
+    Forge[forgez] --> Collection
     Forge --> Mold
     CMD[cmdz] --> Forge
+    CMD --> Collection
 
     %% Client SDKs Layer
-    GoSDK[sdkgo] --> User
-    GoSDK --> Dataset
-    GoSDK --> Ingest
-    GoSDK --> Pipe
-    GoSDK --> TF
+    GoSDK[sdkgo] --> Collection
     GoSDK --> Core
 
     WebSDK[sdkweb] -. "generated from" .-> CMD
@@ -152,38 +154,56 @@ graph TD
   - Move `sdkgo/apiz/tfzapi/*`
 - [ ] Verify each API module compiles and unit tests pass with dependencies only on `sdkcorez`.
 
-### Phase 3: Registry, Molds & Generators (`sdkcatalogz`, `mold`, `forgez`, `cmdz`)
-- [ ] Create `sdkcatalogz/` (`go.mod`):
-  - Move `sdkgo/sdkz/sdkz_apis.go` and `sdkz_sdkfuncz.go`.
-  - Expose API and SdkFunc registries.
-- [ ] Setup `mold/` as an independent module with its own `go.mod`.
+### Phase 3: Unified Collection (`apicollectionz`)
+- [ ] Create `apicollectionz/` (`go.mod`):
+  - Move `sdkgo/sdkz/sdkz_apis.go` to `apicollectionz/apis.go`.
+  - Move `sdkgo/sdkz/sdkz_sdkfuncz.go` to `apicollectionz/sdkfuncs.go`.
+  - Wire dependencies from `apicollectionz` to `apiuserz`, `apidatasetz`, `apiingestz`, `apipipez`, `apitfz`, and `sdkcorez`.
+  - Expose `Apis() []apiz.Api`, `Api(id string) apiz.Api`, `SdkFuncs() []sdkfuncz.Func`, and `SdkFunc(id string) sdkfuncz.Func`.
+- [ ] Verify `apicollectionz` unit tests pass.
+
+### Phase 4: Molds, Generators & CLI (`mold`, `forgez`, `cmdz`)
+- [ ] Setup `mold/` as an independent module with its own `go.mod` (depends on `sdkcorez`).
 - [ ] Setup `forgez/` as an independent module with its own `go.mod`:
-  - Update imports to use `sdkcatalogz`, `mold`, `sdkcorez`.
+  - Update imports to use `apicollectionz`, `mold`, `sdkcorez`.
 - [ ] Create `cmdz/` (`go.mod`):
   - Move `main.go`, `cmdsdkgo`, and `sdkgo/internal/cmd` into `cmdz`.
   - Provide CLI entry points (e.g. `cmdz js generate`).
 
-### Phase 4: Go Client SDK (`sdkgo`)
+### Phase 5: Go Client SDK (`sdkgo`)
 - [ ] Transform `sdkgo/` into a dedicated Go client library.
 - [ ] Reorganize client configuration, auth helpers, middleware, and high-level client interfaces.
-- [ ] Create dedicated `sdkgo/go.mod` depending on `sdkcorez` and `api*z`.
+- [ ] Create dedicated `sdkgo/go.mod` depending on `apicollectionz` and `sdkcorez`.
 - [ ] Verify Go SDK tests.
 
-### Phase 5: Web SDK Migration (`sdkweb`)
+### Phase 6: Web SDK Migration (`sdkweb`)
 - [ ] Rename / migrate `sdkweblegacy` to `sdkweb`.
 - [ ] Clean up legacy dependencies and align `build.sh` / `package.json`.
 - [ ] Update `cmdz` generator output to write to `sdkweb/src/sdkapis/sdkapis.js`.
 - [ ] Verify code generation produces valid JavaScript/TypeScript bundles.
 - [ ] Verify `sdkweb` test suite.
 
-### Phase 6: Mono-Repo Tooling (`build.sh`, `comp.sh`, `go.work`)
+### Phase 7: Mono-Repo Tooling (`build.sh`, `comp.sh`, `go.work`)
 - [ ] Implement `comp.sh` component runner:
   - `./comp.sh <comp> test`
   - `./comp.sh <comp> update`
   - `./comp.sh <comp> fmt`
   - `./comp.sh <comp> clean`
 - [ ] Implement root `build.sh` matching `gox/build.sh`:
-  - `cmd_comps_list`: Ordered list of components (`versionz`, `sdkcorez`, `api*z`, `sdkcatalogz`, `mold`, `forgez`, `cmdz`, `sdkgo`, `sdkweb`).
+  - `cmd_comps_list`: Ordered list of components:
+    1. `versionz`
+    2. `sdkcorez`
+    3. `apiuserz`
+    4. `apidatasetz`
+    5. `apiingestz`
+    6. `apipipez`
+    7. `apitfz`
+    8. `apicollectionz`
+    9. `mold`
+    10. `forgez`
+    11. `cmdz`
+    12. `sdkgo`
+    13. `sdkweb`
   - `cmd_work_init`: Generates `go.work`.
   - `cmd_test`: Executes tests across all components.
   - `cmd_update`: Tidies all modules.
@@ -191,7 +211,7 @@ graph TD
   - `cmd_release`: Prepares versioned tags per component.
 - [ ] Remove root `go.mod` and legacy artifacts.
 
-### Phase 7: Validation & Verification
+### Phase 8: Validation & Verification
 - [ ] Run `./build.sh test` to execute all unit tests.
 - [ ] Run `./build.sh codegen` and check for git diff cleanliness.
 - [ ] Verify CI scripts (`meta/ci/ci.sh`) are updated and passing.
