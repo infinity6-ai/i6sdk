@@ -28,10 +28,10 @@ To avoid churning 53+ test files across `sdkgo`, `i6sdk` will retain thin facade
   - Updated all call sites in `jsapi`, `jsschema`, and `jssdkfunc` to use `gox/camelz`.
 
 - [ ] **Step 2: Move `jstypez` and generic schema reflection (`jsschemaz`) to `gox/schemaz`**
-  - **2A (`gox/schemaz/jstypez`)**:
-    - Move `Tuple`, `Tuples`, `Typedef`, `Typedefs`, `Typ*` constants, and `CustomType` / `CustomTypeSimple` interfaces.
-    - Move `jstypez_typedefs_unit_test.go`.
-    - Validate unit tests in `gox/schemaz`.
+  - [x] **2A (`gox/schemaz/jstypez`)**:
+    - Created `gox/schemaz/jstypez` with `Tuple`, `Tuples`, `Typedef`, `Typedefs`, `Typ*` constants, and `CustomType` / `CustomTypeSimple` interfaces.
+    - Added `jstypez_typedefs_unit_test.go`.
+    - Verified all unit tests pass in `gox/schemaz`.
   - **2B (`gox/schemaz/jsschemaz`)**:
     - Move `Parser`, `New()`, `AddKnownType()`, and instance methods (`ParseSchema`, `ParseAny`, `ParseSchemaObject`, etc.).
     - Move `FormatTypedefs` (JSDoc typedef block formatter).
