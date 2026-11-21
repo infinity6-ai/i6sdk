@@ -20,7 +20,8 @@ function cmd_test() {
 }
 
 function cmd_release() {
-  ./build.sh release_exists || ./build.sh release
+  # ./build.sh release_exists || ./build.sh release
+  false it is not working
 }
 
 function cmd_deploy() {
