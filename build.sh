@@ -13,7 +13,6 @@ function cmd_comps_list() {
   echo "apicollectionz"
   echo "mold"
   echo "forgez"
-  echo "cmdz"
   echo "sdkgo"
   echo "sdkweb"
 }
@@ -62,7 +61,7 @@ function cmd_update() {
 }
 
 function cmd_codegen() {
-  ./comp.sh cmdz run js generate
+  ./comp.sh forgez run generate
 }
 
 function cmd_test() {

@@ -1,4 +1,4 @@
-package cmdsdkjs
+package cmdforgez
 
 import (
 	"os"
@@ -18,14 +18,11 @@ type tlogger logz.Type
 
 var logger = logz.Create(tlogger(true))
 
-func Prepare(parent *cobra.Command) *cobra.Command {
+func prepareJsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "js",
 	}
-	parent.AddCommand(cmd)
-
 	cmd.AddCommand(prepareGenerateJsCmd())
-
 	return cmd
 }
 
@@ -33,7 +30,7 @@ func prepareGenerateJsCmd() *cobra.Command {
 	var out string
 	cmd := &cobra.Command{
 		Use:   "generate",
-		Short: "generate the JS client of every API into the legacy web SDK",
+		Short: "generate the JS client of every API into the web SDK",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()

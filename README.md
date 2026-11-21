@@ -20,8 +20,7 @@ i6sdk/
 ├── apitfz/                   # ML Model metadata & prediction APIs
 ├── apicollectionz/           # Unified catalog & registry of all service APIs & SdkFuncs
 ├── mold/                     # Multi-language code generation template engine
-├── forgez/                   # AST code generator & bundler (forgejs)
-├── cmdz/                     # Official i6sdk CLI (code generator & dev tooling)
+├── forgez/                   # AST code generator & bundler (forgejs, CLI generate)
 ├── sdkgo/                    # Official Go client SDK
 └── sdkweb/                   # Official Web JS/TS client SDK
 ```
@@ -52,14 +51,12 @@ graph TD
     Mold[mold] --> Core
     Forge[forgez] --> Collection
     Forge --> Mold
-    CMD[cmdz] --> Forge
-    CMD --> Collection
 
     %% Client SDKs
     GoSDK[sdkgo] --> Collection
     GoSDK --> Core
 
-    WebSDK[sdkweb] -. "generated bundle" .-> CMD
+    WebSDK[sdkweb] -. "generated bundle" .-> Forge
 ```
 
 ---
@@ -109,7 +106,7 @@ Examples:
 ```bash
 ./comp.sh sdkcorez test
 ./comp.sh apicollectionz test
-./comp.sh cmdz run js generate
+./comp.sh forgez run generate
 ./comp.sh sdkweb test
 ```
 
@@ -126,7 +123,7 @@ The JavaScript/TypeScript Web SDK client bundle (`sdkweb/src/sdkapis/sdkapis.js`
 Or via CLI directly:
 
 ```bash
-cd cmdz && go run . js generate
+cd forgez && go run . generate
 ```
 
 ---
