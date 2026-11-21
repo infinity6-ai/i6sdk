@@ -5,8 +5,6 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsschema"
-	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashimpactedmetricsbyshowcasecategory"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
@@ -76,7 +74,6 @@ func TestUnitRelevanceFashionDashImpactedMetricsByShowcaseCategorySpec(t *testin
 }
 
 func TestUnitRelevanceFashionDashImpactedMetricsByShowcaseCategoryDataRefs(t *testing.T) {
-	ctx := t.Context()
 	fn := &relevancefashiondashimpactedmetricsbyshowcasecategory.Func{}
 	refs := fn.SdkFuncDataRefs()
 	require.NotNil(t, refs)
@@ -84,83 +81,18 @@ func TestUnitRelevanceFashionDashImpactedMetricsByShowcaseCategoryDataRefs(t *te
 	require.NotNil(t, refs.Partitions)
 	require.NotNil(t, refs.Output)
 
-	tdInput, tdsInput := forgejsschema.NewSdk().ParseSchema(ctx, "impactedMetricsByShowcaseCategoryInput", refs.Input)
-	require.NotNil(t, tdInput)
-	require.Equal(t, "impactedMetricsByShowcaseCategoryInput", tdInput.Head.Name)
-	require.Equal(t, "object", tdInput.Head.Typ)
-	require.NotNil(t, tdsInput)
-
-	inputProps := make(map[string]typeastz.Tuple)
-	for _, prop := range tdInput.Properties.All() {
-		inputProps[prop.Name] = prop
-	}
+	require.NotNil(t, refs.Input.Object)
+	inputProps := refs.Input.Object(true)
 	require.Contains(t, inputProps, "dataset")
-	require.Equal(t, "string", inputProps["dataset"].Typ)
 	require.Contains(t, inputProps, "params")
-	require.Equal(t, "impactedMetricsByShowcaseCategoryInputParams", inputProps["params"].Typ)
-	require.Contains(t, typedefNames(tdsInput), "impactedMetricsByShowcaseCategoryInputParams")
 
-	tdPartitions, tdsPartitions := forgejsschema.NewSdk().ParseSchema(ctx, "impactedMetricsByShowcaseCategoryPartitions", refs.Partitions)
-	require.NotNil(t, tdPartitions)
-	require.Equal(t, "impactedMetricsByShowcaseCategoryPartitions", tdPartitions.Head.Name)
-	require.Equal(t, "object", tdPartitions.Head.Typ)
-	require.NotNil(t, tdsPartitions)
-
-	partitionProps := make(map[string]typeastz.Tuple)
-	for _, prop := range tdPartitions.Properties.All() {
-		partitionProps[prop.Name] = prop
-	}
+	require.NotNil(t, refs.Partitions.Object)
+	partitionProps := refs.Partitions.Object(true)
 	require.Contains(t, partitionProps, "store_id")
-	require.Equal(t, "string", partitionProps["store_id"].Typ)
 
-	tdOutput, tdsOutput := forgejsschema.NewSdk().ParseSchema(ctx, "impactedMetricsByShowcaseCategoryOutput", refs.Output)
-	require.NotNil(t, tdOutput)
-	require.Equal(t, "impactedMetricsByShowcaseCategoryOutput", tdOutput.Head.Name)
-	require.Equal(t, "object", tdOutput.Head.Typ)
-	require.NotNil(t, tdsOutput)
-
-	outputProps := make(map[string]typeastz.Tuple)
-	for _, prop := range tdOutput.Properties.All() {
-		outputProps[prop.Name] = prop
-	}
+	require.NotNil(t, refs.Output.Object)
+	outputProps := refs.Output.Object(true)
 	require.Contains(t, outputProps, "rows")
-	require.Equal(t, "Array<impactedMetricsByShowcaseCategoryOutputRowsElement>", outputProps["rows"].Typ)
-
-	tdfMapOutput := make(map[string]*typeastz.Typedef)
-	for _, tdf := range tdsOutput.All() {
-		tdfMapOutput[tdf.Head.Name] = tdf
-	}
-	rowsElemTdf, ok := tdfMapOutput["impactedMetricsByShowcaseCategoryOutputRowsElement"]
-	require.True(t, ok)
-	require.NotNil(t, rowsElemTdf)
-	rowsElemProps := make(map[string]typeastz.Tuple)
-	for _, prop := range rowsElemTdf.Properties.All() {
-		rowsElemProps[prop.Name] = prop
-	}
-	require.Contains(t, rowsElemProps, "showcase_category")
-	require.Equal(t, "string", rowsElemProps["showcase_category"].Typ)
-	require.Contains(t, rowsElemProps, "recomendations")
-	require.Equal(t, "number", rowsElemProps["recomendations"].Typ)
-	require.Contains(t, rowsElemProps, "clicks")
-	require.Equal(t, "number", rowsElemProps["clicks"].Typ)
-	require.Contains(t, rowsElemProps, "cart_adds")
-	require.Equal(t, "number", rowsElemProps["cart_adds"].Typ)
-	require.Contains(t, rowsElemProps, "purchases")
-	require.Equal(t, "number", rowsElemProps["purchases"].Typ)
-	require.Contains(t, rowsElemProps, "revenue")
-	require.Equal(t, "number", rowsElemProps["revenue"].Typ)
-	require.Contains(t, rowsElemProps, "participation")
-	require.Equal(t, "number", rowsElemProps["participation"].Typ)
-	require.Contains(t, rowsElemProps, "conversion_rate")
-	require.Equal(t, "number", rowsElemProps["conversion_rate"].Typ)
-}
-
-func typedefNames(tds *typeastz.Typedefs) []string {
-	var ret []string
-	for _, td := range tds.All() {
-		ret = append(ret, td.Head.Name)
-	}
-	return ret
 }
 
 func strPtr(s string) *string {

@@ -6,14 +6,12 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsapi"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapipaymentlist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
 )
 
 func TestUnitDszListPaymentsApi(t *testing.T) {
-	ctx := t.Context()
 	created := time.Date(2026, 10, 27, 0, 0, 0, 0, time.UTC)
 	periodEnd := time.Date(2026, 11, 27, 0, 0, 0, 0, time.UTC)
 	payment := dszapipaymentlist.Payment{
@@ -62,10 +60,9 @@ func TestUnitDszListPaymentsApi(t *testing.T) {
 	})
 
 	t.Run("spec", func(t *testing.T) {
-		parsed := forgejsapi.NewSdk().ParseApi(ctx, &dszapipaymentlist.Api{})
-		require.NotNil(t, parsed)
-		require.Equal(t, "dsz-list-payments", parsed.Spec.Id)
-		require.Equal(t, "GET", parsed.Spec.Method)
-		require.Equal(t, "/api/ds/dataset/{dataset}/payments", parsed.Spec.Path)
+		spec := (&dszapipaymentlist.Api{}).ApiSpec()
+		require.Equal(t, "dsz-list-payments", spec.Id)
+		require.Equal(t, "GET", spec.Method)
+		require.Equal(t, "/api/ds/dataset/{dataset}/payments", spec.Path)
 	})
 }

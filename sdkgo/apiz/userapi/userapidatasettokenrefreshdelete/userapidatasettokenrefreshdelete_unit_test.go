@@ -5,13 +5,11 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsapi"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/userapi/userapidatasettokenrefreshdelete"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
 
 func TestUnitUserDatasetTokenRefreshDeleteApi(t *testing.T) {
-	ctx := t.Context()
 	api := &userapidatasettokenrefreshdelete.Api{
 		Req: userapidatasettokenrefreshdelete.Req{
 			Dataset:    lakedsz.MustParse("ds64l7qauv4l6512kf0c"),
@@ -23,7 +21,6 @@ func TestUnitUserDatasetTokenRefreshDeleteApi(t *testing.T) {
 	apiCopy := jsonz.MustCopy(api, &userapidatasettokenrefreshdelete.Api{})
 	require.Equal(t, api.Req, apiCopy.Req)
 
-	parsed := forgejsapi.NewSdk().ParseApi(ctx, api)
-	require.NotNil(t, parsed)
-	require.Equal(t, "user-dataset-token-refresh-delete", parsed.Spec.Id)
+	spec := api.ApiSpec()
+	require.Equal(t, "user-dataset-token-refresh-delete", spec.Id)
 }

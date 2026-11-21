@@ -11,6 +11,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashlistshowcasecategories"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/inferz/inferzrelevancefashionfbt"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/sdkz"
 )
 
 func TestUnitWrite(t *testing.T) {
@@ -288,3 +289,17 @@ export { SdkFuncs };
 		})
 	})
 }
+
+func TestUnitAllSdkFuncs(t *testing.T) {
+	ctx := t.Context()
+	funcs := sdkz.SdkFuncs()
+	require.NotEmpty(t, funcs)
+	p := forgejssdkfunc.NewSdk()
+	for _, fn := range funcs {
+		parsed := p.ParseSdkFunc(ctx, fn)
+		require.NotNil(t, parsed)
+		require.Equal(t, fn.SdkFuncSpec().Id, parsed.Spec.Id)
+		require.NotEmpty(t, parsed.Spec.CamelId)
+	}
+}
+

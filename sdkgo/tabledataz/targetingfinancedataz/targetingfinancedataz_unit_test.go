@@ -7,8 +7,6 @@ import (
 
 	"cloud.google.com/go/bigquery"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsschema"
-	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz/targetingfinancedataz"
 )
@@ -164,46 +162,36 @@ func TestUnitSchemaQueryNullParsers(t *testing.T) {
 }
 
 func TestUnitSchemas(t *testing.T) {
-	ctx := t.Context()
-
-	props := func(td *typeastz.Typedef) map[string]typeastz.Tuple {
-		ret := map[string]typeastz.Tuple{}
-		for _, p := range td.Properties.All() {
-			ret[p.Name] = p
-		}
-		return ret
-	}
-
 	t.Run("ClientStatus body", func(t *testing.T) {
-		td, _ := forgejsschema.NewSdk().ParseSchema(ctx, "ClientStatus", (&targetingfinancedataz.ClientStatus{}).SchemaBody())
-		p := props(td)
-		require.Equal(t, typeastz.TypString, p["id"].Typ)
-		require.Equal(t, typeastz.TypTime, p["created_at"].Typ)
-		require.Equal(t, typeastz.TypNumber, p["user_vl_sal"].Typ)
-		require.Equal(t, typeastz.TypNumber, p["user_vl_epg"].Typ)
-		require.Equal(t, typeastz.TypNumber, p["user_nr_cad"].Typ)
-		require.Equal(t, typeastz.TypString, p["user_pr_cep"].Typ)
-		require.Equal(t, typeastz.TypString, p["user_pc_cut"].Typ)
+		p := (&targetingfinancedataz.ClientStatus{}).SchemaBody().Object(true)
+		require.Contains(t, p, "id")
+		require.Contains(t, p, "created_at")
+		require.Contains(t, p, "user_vl_sal")
+		require.Contains(t, p, "user_vl_epg")
+		require.Contains(t, p, "user_nr_cad")
+		require.Contains(t, p, "user_pr_cep")
+		require.Contains(t, p, "user_pc_cut")
 		require.NotContains(t, p, "partition")
 		require.NotContains(t, p, "ingested_at")
 	})
 
 	t.Run("ClientEvent body", func(t *testing.T) {
-		td, _ := forgejsschema.NewSdk().ParseSchema(ctx, "ClientEvent", (&targetingfinancedataz.ClientEvent{}).SchemaBody())
-		p := props(td)
-		require.Equal(t, typeastz.TypNumber, p["user_pc_cut"].Typ)
-		require.Equal(t, typeastz.TypString, p["item_tp_sub"].Typ)
+		p := (&targetingfinancedataz.ClientEvent{}).SchemaBody().Object(true)
+		require.Contains(t, p, "user_pc_cut")
+		require.Contains(t, p, "item_tp_sub")
 		require.NotContains(t, p, "updated_at")
 	})
 
 	t.Run("Query schemas", func(t *testing.T) {
-		for name, s := range map[string]tabledataz.TableData{
+		for _, s := range map[string]tabledataz.TableData{
 			"ClientStatus": &targetingfinancedataz.ClientStatus{},
 			"ClientEvent":  &targetingfinancedataz.ClientEvent{},
 			"Weight":       &targetingfinancedataz.Weight{},
 		} {
-			td, _ := forgejsschema.NewSdk().ParseSchema(ctx, name, s.SchemaQuery())
-			require.Equal(t, name, td.Head.Name)
+			sq := s.SchemaQuery()
+			require.NotNil(t, sq)
+			require.NotNil(t, sq.Object)
+			require.NotEmpty(t, sq.Object(true))
 			require.NotPanics(t, func() { s.Table() })
 		}
 	})

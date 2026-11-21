@@ -5,7 +5,6 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsapi"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapistorecreate"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/dszstore"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
@@ -13,7 +12,6 @@ import (
 )
 
 func TestUnitDszCreateStoreApi(t *testing.T) {
-	ctx := t.Context()
 	api := &dszapistorecreate.Api{
 		Req: &dszapistorecreate.DszCreateStoreReq{
 			Dataset: lakedsz.MustParse("myds"),
@@ -27,7 +25,6 @@ func TestUnitDszCreateStoreApi(t *testing.T) {
 	apiCopy := jsonz.MustCopy(api, &dszapistorecreate.Api{})
 	require.Equal(t, api.Req, apiCopy.Req)
 
-	parsed := forgejsapi.NewSdk().ParseApi(ctx, api)
-	require.NotNil(t, parsed)
-	require.Equal(t, "dsz-create-store", parsed.Spec.Id)
+	spec := api.ApiSpec()
+	require.Equal(t, "dsz-create-store", spec.Id)
 }

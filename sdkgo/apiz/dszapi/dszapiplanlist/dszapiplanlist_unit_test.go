@@ -5,13 +5,11 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsapi"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapiplanlist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
 )
 
 func TestUnitDszListPlansApi(t *testing.T) {
-	ctx := t.Context()
 	plan := dszapiplanlist.Plan{
 		Key: "relevance_growth_monthly_2027", Tier: "growth", Frequency: "monthly", Name: "2027",
 		Description: "Growth mensal", Currency: "brl", Amount: 9900, LicAmount: 9900, ReqAmount: 99,
@@ -70,10 +68,9 @@ func TestUnitDszListPlansApi(t *testing.T) {
 	})
 
 	t.Run("spec", func(t *testing.T) {
-		parsed := forgejsapi.NewSdk().ParseApi(ctx, &dszapiplanlist.Api{})
-		require.NotNil(t, parsed)
-		require.Equal(t, "dsz-list-plans", parsed.Spec.Id)
-		require.Equal(t, "GET", parsed.Spec.Method)
-		require.Equal(t, "/api/ds/solution/{solution}/plans", parsed.Spec.Path)
+		spec := (&dszapiplanlist.Api{}).ApiSpec()
+		require.Equal(t, "dsz-list-plans", spec.Id)
+		require.Equal(t, "GET", spec.Method)
+		require.Equal(t, "/api/ds/solution/{solution}/plans", spec.Path)
 	})
 }

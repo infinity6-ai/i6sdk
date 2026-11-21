@@ -5,14 +5,11 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsapi"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapicustomerportalcreate"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
 
 func TestUnitDszCreateCustomerPortalApi(t *testing.T) {
-	ctx := t.Context()
-
 	t.Run("round trip", func(t *testing.T) {
 		api := &dszapicustomerportalcreate.Api{
 			Req: &dszapicustomerportalcreate.Req{
@@ -48,10 +45,9 @@ func TestUnitDszCreateCustomerPortalApi(t *testing.T) {
 	})
 
 	t.Run("spec", func(t *testing.T) {
-		parsed := forgejsapi.NewSdk().ParseApi(ctx, &dszapicustomerportalcreate.Api{})
-		require.NotNil(t, parsed)
-		require.Equal(t, "dsz-create-customer-portal", parsed.Spec.Id)
-		require.Equal(t, "POST", parsed.Spec.Method)
-		require.Equal(t, "/api/ds/dataset/{dataset}/portal", parsed.Spec.Path)
+		spec := (&dszapicustomerportalcreate.Api{}).ApiSpec()
+		require.Equal(t, "dsz-create-customer-portal", spec.Id)
+		require.Equal(t, "POST", spec.Method)
+		require.Equal(t, "/api/ds/dataset/{dataset}/portal", spec.Path)
 	})
 }

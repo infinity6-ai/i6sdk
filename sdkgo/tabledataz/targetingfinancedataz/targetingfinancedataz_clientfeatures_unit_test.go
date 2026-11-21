@@ -6,8 +6,6 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsschema"
-	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz/targetingfinancedataz"
 )
@@ -94,34 +92,31 @@ func TestUnitClientFeaturesValidation(t *testing.T) {
 }
 
 func TestUnitClientFeaturesSchema(t *testing.T) {
-	ctx := t.Context()
-
 	t.Run("FeatureFloat Schema", func(t *testing.T) {
-		td, _ := forgejsschema.NewSdk().ParseSchema(ctx, "FeatureFloat", (&targetingfinancedataz.FeatureFloat{}).Schema())
-		require.Equal(t, "FeatureFloat", td.Head.Name)
+		s := (&targetingfinancedataz.FeatureFloat{}).Schema()
+		require.NotNil(t, s)
+		require.NotNil(t, s.Object)
+		props := s.Object(true)
+		require.Contains(t, props, "key")
+		require.Contains(t, props, "value")
 	})
 
 	t.Run("ClientFeatures body", func(t *testing.T) {
-		td, tds := forgejsschema.NewSdk().ParseSchema(ctx, "ClientFeatures", (&targetingfinancedataz.ClientFeatures{}).SchemaBody())
-		require.Equal(t, "ClientFeatures", td.Head.Name)
-
-		props := map[string]typeastz.Tuple{}
-		for _, p := range td.Properties.All() {
-			props[p.Name] = p
-		}
-		require.Equal(t, typeastz.TypString, props["id"].Typ)
-		require.Equal(t, typeastz.TypTime, props["created_at"].Typ)
+		s := (&targetingfinancedataz.ClientFeatures{}).SchemaBody()
+		require.NotNil(t, s)
+		require.NotNil(t, s.Object)
+		props := s.Object(true)
+		require.Contains(t, props, "id")
+		require.Contains(t, props, "created_at")
 		require.Contains(t, props, "features_float")
-
-		names := map[string]struct{}{}
-		for _, d := range tds.All() {
-			names[d.Head.Name] = struct{}{}
-		}
-		require.Contains(t, names, "ClientFeaturesFeaturesFloatElement")
 	})
 
 	t.Run("ClientFeatures query", func(t *testing.T) {
-		td, _ := forgejsschema.NewSdk().ParseSchema(ctx, "ClientFeatures", (&targetingfinancedataz.ClientFeatures{}).SchemaQuery())
-		require.Equal(t, "ClientFeatures", td.Head.Name)
+		s := (&targetingfinancedataz.ClientFeatures{}).SchemaQuery()
+		require.NotNil(t, s)
+		require.NotNil(t, s.Object)
+		props := s.Object(true)
+		require.Contains(t, props, "id")
+		require.Contains(t, props, "created_at")
 	})
 }

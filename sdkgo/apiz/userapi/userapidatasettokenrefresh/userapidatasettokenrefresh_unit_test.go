@@ -5,14 +5,12 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsapi"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/userapi/userapidatasettokenrefresh"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
 )
 
 func TestUnitUserDatasetTokenRefreshApi(t *testing.T) {
-	ctx := t.Context()
 	api := &userapidatasettokenrefresh.Api{
 		Req: userapidatasettokenrefresh.Req{
 			Signature:   "assertion-sig-b64",
@@ -36,7 +34,6 @@ func TestUnitUserDatasetTokenRefreshApi(t *testing.T) {
 	require.Equal(t, api.Req, apiCopy.Req)
 	require.Equal(t, api.Resp, apiCopy.Resp)
 
-	parsed := forgejsapi.NewSdk().ParseApi(ctx, api)
-	require.NotNil(t, parsed)
-	require.Equal(t, "user-dataset-token-refresh", parsed.Spec.Id)
+	spec := api.ApiSpec()
+	require.Equal(t, "user-dataset-token-refresh", spec.Id)
 }

@@ -6,14 +6,12 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsapi"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapisubscriptionget"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
 )
 
 func TestUnitDszGetSubscriptionApi(t *testing.T) {
-	ctx := t.Context()
 	periodEnd := time.Date(2026, 11, 27, 0, 0, 0, 0, time.UTC)
 	cancelAt := time.Date(2026, 12, 27, 0, 0, 0, 0, time.UTC)
 
@@ -52,9 +50,8 @@ func TestUnitDszGetSubscriptionApi(t *testing.T) {
 	})
 
 	t.Run("spec", func(t *testing.T) {
-		parsed := forgejsapi.NewSdk().ParseApi(ctx, &dszapisubscriptionget.Api{})
-		require.NotNil(t, parsed)
-		require.Equal(t, "dsz-get-subscription", parsed.Spec.Id)
-		require.Equal(t, "/api/ds/dataset/{dataset}/solution/{solution}/subscription", parsed.Spec.Path)
+		spec := (&dszapisubscriptionget.Api{}).ApiSpec()
+		require.Equal(t, "dsz-get-subscription", spec.Id)
+		require.Equal(t, "/api/ds/dataset/{dataset}/solution/{solution}/subscription", spec.Path)
 	})
 }

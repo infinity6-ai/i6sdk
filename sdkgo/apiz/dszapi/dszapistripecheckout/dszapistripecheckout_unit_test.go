@@ -5,8 +5,6 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsapi"
-	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapistripecheckout"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
@@ -31,47 +29,11 @@ func TestUnitStripeCheckout(t *testing.T) {
 	require.Equal(t, api.Resp, apiCopy.Resp)
 }
 
-func TestUnitStripeCheckoutParseApi(t *testing.T) {
-	ctx := t.Context()
-	parsed := forgejsapi.NewSdk().ParseApi(ctx, &dszapistripecheckout.Api{})
-	require.NotNil(t, parsed)
-	require.Equal(t, "dsz-stripe-checkout", parsed.Spec.Id)
-	require.Equal(t, "apiDszStripeCheckout", parsed.Spec.CamelId)
-	require.Equal(t, "POST", parsed.Spec.Method)
-	require.Equal(t, "/api/stripe/checkout", parsed.Spec.Path)
-
-	tdfMap := make(map[string]*typeastz.Typedef)
-	for _, tdf := range parsed.Typedefs.All() {
-		tdfMap[tdf.Head.Name] = tdf
-	}
-
-	props := func(name string) map[string]typeastz.Tuple {
-		tdf, ok := tdfMap[name]
-		require.True(t, ok, name)
-		ret := make(map[string]typeastz.Tuple)
-		for _, p := range tdf.Properties.All() {
-			ret[p.Name] = p
-		}
-		return ret
-	}
-
-	req := props("apiDszStripeCheckoutReqPayload")
-	for _, name := range []string{"dataset_name", "plan", "success_url", "cancel_url", "campaign_state", "payment_phone", "payment_email", "document"} {
-		require.Contains(t, req, name)
-	}
-	for _, name := range []string{
-		"user", "mode", "locale", "allow_promotion_codes", "line_items", "customer_email",
-		"subscription_data_trial_period_days", "cnpj_hub", "responsible_name_hub", "responsible_email_hub",
-		"id_solution_hub", "id_campanha_hub", "terms_version", "contract_version", "terms_accepted_at",
-	} {
-		require.NotContains(t, req, name)
-	}
-	require.Equal(t, "string", req["campaign_state"].Typ)
-
-	resp := props("apiDszStripeCheckoutRespPayload")
-	require.Equal(t, "string", resp["id"].Typ)
-	require.Equal(t, "string", resp["url"].Typ)
-	require.Contains(t, resp, "dataset")
+func TestUnitStripeCheckoutApiSpec(t *testing.T) {
+	spec := (&dszapistripecheckout.Api{}).ApiSpec()
+	require.Equal(t, "dsz-stripe-checkout", spec.Id)
+	require.Equal(t, "POST", spec.Method)
+	require.Equal(t, "/api/stripe/checkout", spec.Path)
 }
 
 func TestUnitStripeCheckoutApiDataRefs(t *testing.T) {

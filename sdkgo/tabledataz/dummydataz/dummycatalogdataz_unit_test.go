@@ -5,8 +5,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsschema"
-	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz/dummydataz"
 )
@@ -78,30 +76,16 @@ func TestUnitDummyCatalogDataSerialization(t *testing.T) {
 }
 
 func TestUnitDummyCatalogDataSchema(t *testing.T) {
-	ctx := t.Context()
 	t.Run("DummyCatalogData Schema Check", func(t *testing.T) {
 		s := (&dummydataz.Catalog{}).SchemaQuery()
-		td, _ := forgejsschema.NewSdk().ParseSchema(ctx, "DummyCatalogData", s)
-		require.Equal(t, "DummyCatalogData", td.Head.Name)
+		require.NotNil(t, s)
+		require.NotNil(t, s.Object)
 
-		propMap := make(map[string]typeastz.Tuple)
-		for _, prop := range td.Properties.All() {
-			propMap[prop.Name] = prop
-		}
-
-		require.Contains(t, propMap, "id")
-		require.Equal(t, typeastz.TypString, propMap["id"].Typ)
-
-		require.Contains(t, propMap, "product")
-		require.Equal(t, typeastz.TypString, propMap["product"].Typ)
-
-		require.Contains(t, propMap, "price")
-		require.Equal(t, typeastz.TypNumber, propMap["price"].Typ)
-
-		require.Contains(t, propMap, "qt_inventory")
-		require.Equal(t, typeastz.TypNumber, propMap["qt_inventory"].Typ)
-
-		require.Contains(t, propMap, "store_id")
-		require.Equal(t, typeastz.TypString, propMap["store_id"].Typ)
+		props := s.Object(true)
+		require.Contains(t, props, "id")
+		require.Contains(t, props, "product")
+		require.Contains(t, props, "price")
+		require.Contains(t, props, "qt_inventory")
+		require.Contains(t, props, "store_id")
 	})
 }

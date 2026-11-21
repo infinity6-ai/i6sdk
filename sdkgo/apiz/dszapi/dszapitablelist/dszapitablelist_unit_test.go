@@ -6,7 +6,6 @@ import (
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/infinity6-ai/gox/fsz/fsz/fszsignmethod"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsapi"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitablelist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbpathz"
@@ -43,9 +42,7 @@ func TestUnitDszApiTableList(t *testing.T) {
 }
 
 func TestUnitDszApiTableListParseApi(t *testing.T) {
-	ctx := t.Context()
 	api := &dszapitablelist.Api{}
-	parsed := forgejsapi.NewSdk().ParseApi(ctx, api)
-	require.NotNil(t, parsed)
-	require.Equal(t, "dsz-table-list", parsed.Spec.Id)
+	spec := api.ApiSpec()
+	require.Equal(t, "dsz-table-list", spec.Id)
 }

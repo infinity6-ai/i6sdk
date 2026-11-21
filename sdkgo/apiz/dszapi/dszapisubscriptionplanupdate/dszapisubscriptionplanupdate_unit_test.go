@@ -5,15 +5,12 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsapi"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapisubscriptionplanupdate"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
 )
 
 func TestUnitDszSubscriptionPlanUpdateApi(t *testing.T) {
-	ctx := t.Context()
-
 	t.Run("round trip", func(t *testing.T) {
 		api := &dszapisubscriptionplanupdate.Api{
 			Req: &dszapisubscriptionplanupdate.Req{
@@ -39,10 +36,9 @@ func TestUnitDszSubscriptionPlanUpdateApi(t *testing.T) {
 	})
 
 	t.Run("spec", func(t *testing.T) {
-		parsed := forgejsapi.NewSdk().ParseApi(ctx, &dszapisubscriptionplanupdate.Api{})
-		require.NotNil(t, parsed)
-		require.Equal(t, "dsz-update-subscription-plan", parsed.Spec.Id)
-		require.Equal(t, "POST", parsed.Spec.Method)
-		require.Equal(t, "/api/ds/dataset/{dataset}/solution/{solution}/subscription/plan", parsed.Spec.Path)
+		spec := (&dszapisubscriptionplanupdate.Api{}).ApiSpec()
+		require.Equal(t, "dsz-update-subscription-plan", spec.Id)
+		require.Equal(t, "POST", spec.Method)
+		require.Equal(t, "/api/ds/dataset/{dataset}/solution/{solution}/subscription/plan", spec.Path)
 	})
 }

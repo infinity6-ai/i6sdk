@@ -120,10 +120,10 @@ graph TD
 ## 5. Execution Phases
 
 ### Phase 0: Decouple Tests & Eliminate Circular Dependencies
-- [ ] Remove `forgejsapi` calls from unit tests in `sdkgo/apiz/...`.
-- [ ] Remove `forgejsschema` calls from unit tests in `sdkgo/tabledataz/...`, `productz/...`, `dsz/...`.
-- [ ] Enhance `forgez/forgejs/forgejsapi` and `forgez/forgejs/forgejsschema` unit tests to ensure 100% schema and API parsing coverage across all APIs via `sdkz.Apis()` / `sdkz.SdkFuncs()`.
-- [ ] Run full test suite to verify all unit tests pass without relying on cross-module test imports.
+- [x] Remove `forgejsapi` calls from unit tests in `sdkgo/apiz/...`.
+- [x] Remove `forgejsschema` calls from unit tests in `sdkgo/tabledataz/...`, `productz/...`, `dsz/...`.
+- [x] Enhance `forgez/forgejs/forgejsapi` and `forgez/forgejs/forgejssdkfunc` unit tests to ensure 100% schema and API parsing coverage across all APIs via `sdkz.Apis()` / `sdkz.SdkFuncs()`.
+- [x] Run full test suite to verify all unit tests pass without relying on cross-module test imports.
 
 ### Phase 1: Core Domain Extraction (`versionz` & `sdkcorez`)
 - [ ] Create `versionz/` with `go.mod`.

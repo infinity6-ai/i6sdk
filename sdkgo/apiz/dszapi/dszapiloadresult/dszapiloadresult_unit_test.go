@@ -5,7 +5,6 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsapi"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapiloadresult"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/storeid"
@@ -13,7 +12,6 @@ import (
 )
 
 func TestUnitDszTableFileLoadApi(t *testing.T) {
-	ctx := t.Context()
 	store := storeid.MustParse("store-1")
 
 	api := &dszapiloadresult.Api[*relevancefashionresultz.CatalogSimple]{
@@ -47,11 +45,6 @@ func TestUnitDszTableFileLoadApi(t *testing.T) {
 	spec := api.ApiSpec()
 	require.Equal(t, "dsz-result-relevance-fashion-catalog", spec.Id)
 	require.Equal(t, "/api/ds/dataset/{dataset}/results/relevance-fashion-catalog", spec.Path)
-
-	// Verify Schema parsing and mapping
-	parsed := forgejsapi.NewSdk().ParseApi(ctx, api)
-	require.NotNil(t, parsed)
-	require.Equal(t, "dsz-result-relevance-fashion-catalog", parsed.Spec.Id)
 
 	// Verify ApiDataRefs does not overwrite existing query
 	refs := api.ApiDataRefs()

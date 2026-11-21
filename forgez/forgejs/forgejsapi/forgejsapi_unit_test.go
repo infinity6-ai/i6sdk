@@ -13,6 +13,8 @@ import (
 	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsapi"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapimodelget"
+	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapistripecheckout"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkz"
 )
 
@@ -149,8 +151,14 @@ func TestUnitFractionSample(t *testing.T) {
 func TestUnitAllApis(t *testing.T) {
 	ctx := t.Context()
 	apis := sdkz.Apis()
+	require.NotEmpty(t, apis)
 	for _, api := range apis {
 		expected := forgejsapi.NewSdk().ParseApi(ctx, api)
+		require.NotNil(t, expected)
+		require.Equal(t, api.ApiSpec().Id, expected.Spec.Id)
+		require.NotEmpty(t, expected.Spec.CamelId)
+		require.Equal(t, api.ApiSpec().Method, expected.Spec.Method)
+		require.Equal(t, api.ApiSpec().Path, expected.Spec.Path)
 		var actual *apispecz.Api
 		jsonz.MustParse(jsonz.MustFormat(expected).String(), &actual)
 		errorz.Check(os.MkdirAll("target/jsapi/api", os.ModePerm))
@@ -325,3 +333,95 @@ export { Apis };
 		require.NotContains(t, got, "path:")
 	})
 }
+
+func TestUnitStripeCheckoutParseApi(t *testing.T) {
+	ctx := t.Context()
+	parsed := forgejsapi.NewSdk().ParseApi(ctx, &dszapistripecheckout.Api{})
+	require.NotNil(t, parsed)
+	require.Equal(t, "dsz-stripe-checkout", parsed.Spec.Id)
+	require.Equal(t, "apiDszStripeCheckout", parsed.Spec.CamelId)
+	require.Equal(t, "POST", parsed.Spec.Method)
+	require.Equal(t, "/api/stripe/checkout", parsed.Spec.Path)
+
+	tdfMap := make(map[string]*typeastz.Typedef)
+	for _, tdf := range parsed.Typedefs.All() {
+		tdfMap[tdf.Head.Name] = tdf
+	}
+
+	props := func(name string) map[string]typeastz.Tuple {
+		tdf, ok := tdfMap[name]
+		require.True(t, ok, name)
+		ret := make(map[string]typeastz.Tuple)
+		for _, p := range tdf.Properties.All() {
+			ret[p.Name] = p
+		}
+		return ret
+	}
+
+	req := props("apiDszStripeCheckoutReqPayload")
+	for _, name := range []string{"dataset_name", "plan", "success_url", "cancel_url", "campaign_state", "payment_phone", "payment_email", "document"} {
+		require.Contains(t, req, name)
+	}
+	for _, name := range []string{
+		"user", "mode", "locale", "allow_promotion_codes", "line_items", "customer_email",
+		"subscription_data_trial_period_days", "cnpj_hub", "responsible_name_hub", "responsible_email_hub",
+		"id_solution_hub", "id_campanha_hub", "terms_version", "contract_version", "terms_accepted_at",
+	} {
+		require.NotContains(t, req, name)
+	}
+	require.Equal(t, "string", req["campaign_state"].Typ)
+
+	resp := props("apiDszStripeCheckoutRespPayload")
+	require.Equal(t, "string", resp["id"].Typ)
+	require.Equal(t, "string", resp["url"].Typ)
+	require.Contains(t, resp, "dataset")
+}
+
+func TestUnitModelzApiSignedGetParseApi(t *testing.T) {
+	ctx := t.Context()
+	api := &dszapimodelget.Api{}
+	parsed := forgejsapi.NewSdk().ParseApi(ctx, api)
+	require.NotNil(t, parsed)
+	require.Equal(t, "dsz-model-get", parsed.Spec.Id)
+	require.Equal(t, "apiDszModelGet", parsed.Spec.CamelId)
+	require.Equal(t, "POST", parsed.Spec.Method)
+	require.Equal(t, "/api/model/dataset/{dataset}/signed-get/{model_name}", parsed.Spec.Path)
+
+	require.Equal(t, "apiDszModelGetParams", parsed.Req.Params.Head.Typ)
+	require.Equal(t, "params", parsed.Req.Params.Head.Name)
+	require.Equal(t, "apiDszModelGetReqPayload", parsed.Req.Payload.Head.Typ)
+	require.Equal(t, "reqPayload", parsed.Req.Payload.Head.Name)
+	require.Equal(t, "apiDszModelGetRespPayload", parsed.Resp.Payload.Head.Typ)
+	require.Equal(t, "respPayload", parsed.Resp.Payload.Head.Name)
+
+	tdfMap := make(map[string]*typeastz.Typedef)
+	for _, tdf := range parsed.Typedefs.All() {
+		tdfMap[tdf.Head.Name] = tdf
+	}
+
+	reqPayloadTdf, ok := tdfMap["apiDszModelGetReqPayload"]
+	require.True(t, ok)
+	require.NotNil(t, reqPayloadTdf)
+	require.NotNil(t, reqPayloadTdf.Properties)
+
+	propMap := make(map[string]typeastz.Tuple)
+	for _, prop := range reqPayloadTdf.Properties.All() {
+		propMap[prop.Name] = prop
+	}
+	require.Contains(t, propMap, "model_version")
+	require.Equal(t, "string", propMap["model_version"].Typ)
+	require.Contains(t, propMap, "model_partitions")
+	require.Equal(t, "Record<apiDszModelGetReqPayloadModelPartitionsKey, apiDszModelGetReqPayloadModelPartitionsValue>", propMap["model_partitions"].Typ)
+
+	respPayloadTdf, ok := tdfMap["apiDszModelGetRespPayload"]
+	require.True(t, ok)
+	require.NotNil(t, respPayloadTdf)
+	require.NotNil(t, respPayloadTdf.Properties)
+
+	respPropMap := make(map[string]typeastz.Tuple)
+	for _, prop := range respPayloadTdf.Properties.All() {
+		respPropMap[prop.Name] = prop
+	}
+	require.Contains(t, respPropMap, "urls")
+}
+

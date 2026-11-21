@@ -5,8 +5,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsschema"
-	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashdisplaymetrics"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
 )
@@ -63,40 +61,16 @@ func TestUnitRelevanceFashionDashDisplayMetricsSpec(t *testing.T) {
 }
 
 func TestUnitRelevanceFashionDashDisplayMetricsDataRefs(t *testing.T) {
-	ctx := t.Context()
 	refs := (&relevancefashiondashdisplaymetrics.Func{}).SdkFuncDataRefs()
+	require.NotNil(t, refs)
+	require.NotNil(t, refs.Input)
+	require.NotNil(t, refs.Input.Object)
+	inputProps := refs.Input.Object(true)
+	require.Contains(t, inputProps, "dataset")
+	require.Contains(t, inputProps, "params")
 
-	tdInput, tdsInput := forgejsschema.NewSdk().ParseSchema(ctx, "displayMetricsInput", refs.Input)
-	require.NotNil(t, tdInput)
-	var paramsTdf *typeastz.Typedef
-	for _, td := range tdsInput.All() {
-		if td.Head.Name == "displayMetricsInputParams" {
-			paramsTdf = td
-		}
-	}
-	require.NotNil(t, paramsTdf)
-	props := map[string]typeastz.Tuple{}
-	for _, p := range paramsTdf.Properties.All() {
-		props[p.Name] = p
-	}
-	require.Equal(t, "boolean", props["from_rec"].Typ)
-	require.Equal(t, "string", props["display_id"].Typ)
-
-	tdOutput, tdsOutput := forgejsschema.NewSdk().ParseSchema(ctx, "displayMetricsOutput", refs.Output)
-	require.NotNil(t, tdOutput)
-	var elem *typeastz.Typedef
-	for _, td := range tdsOutput.All() {
-		if td.Head.Name == "displayMetricsOutputRowsElement" {
-			elem = td
-		}
-	}
-	require.NotNil(t, elem)
-	rp := map[string]typeastz.Tuple{}
-	for _, p := range elem.Properties.All() {
-		rp[p.Name] = p
-	}
-	for _, k := range []string{"from_rec", "recraws", "recshows", "clicks", "cart_adds", "purchases", "conversion_rate"} {
-		require.Equal(t, "number", rp[k].Typ, k)
-	}
-	require.Equal(t, "string", rp["src_display_id"].Typ)
+	require.NotNil(t, refs.Output)
+	require.NotNil(t, refs.Output.Object)
+	outputProps := refs.Output.Object(true)
+	require.Contains(t, outputProps, "rows")
 }

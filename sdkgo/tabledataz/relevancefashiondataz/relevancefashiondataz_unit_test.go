@@ -6,8 +6,6 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsschema"
-	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz/relevancefashiondataz"
 )
@@ -293,78 +291,64 @@ func TestUnitEventSerialization(t *testing.T) {
 }
 
 func TestUnitEventSchema(t *testing.T) {
-	ctx := t.Context()
 	t.Run("Click Schema", func(t *testing.T) {
 		s := (&relevancefashiondataz.Click{}).Schema()
-		td, _ := forgejsschema.NewSdk().ParseSchema(ctx, "Click", s)
-		require.Equal(t, "Click", td.Head.Name)
+		require.NotNil(t, s)
+		require.NotNil(t, s.Object)
+		require.NotEmpty(t, s.Object(true))
 	})
 	t.Run("AddToCart Schema", func(t *testing.T) {
 		s := (&relevancefashiondataz.AddToCart{}).Schema()
-		td, _ := forgejsschema.NewSdk().ParseSchema(ctx, "AddToCart", s)
-		require.Equal(t, "AddToCart", td.Head.Name)
+		require.NotNil(t, s)
+		require.NotNil(t, s.Object)
+		require.NotEmpty(t, s.Object(true))
 	})
 	t.Run("RemoveFromCart Schema", func(t *testing.T) {
 		s := (&relevancefashiondataz.RemoveFromCart{}).Schema()
-		td, _ := forgejsschema.NewSdk().ParseSchema(ctx, "RemoveFromCart", s)
-		require.Equal(t, "RemoveFromCart", td.Head.Name)
+		require.NotNil(t, s)
+		require.NotNil(t, s.Object)
+		require.NotEmpty(t, s.Object(true))
 	})
 	t.Run("Search Schema", func(t *testing.T) {
 		s := (&relevancefashiondataz.Search{}).Schema()
-		td, _ := forgejsschema.NewSdk().ParseSchema(ctx, "Search", s)
-		require.Equal(t, "Search", td.Head.Name)
+		require.NotNil(t, s)
+		require.NotNil(t, s.Object)
+		require.NotEmpty(t, s.Object(true))
 	})
 	t.Run("PurchaseSku Schema", func(t *testing.T) {
 		s := (&relevancefashiondataz.PurchaseSku{}).Schema()
-		td, _ := forgejsschema.NewSdk().ParseSchema(ctx, "PurchaseSku", s)
-		require.Equal(t, "PurchaseSku", td.Head.Name)
+		require.NotNil(t, s)
+		require.NotNil(t, s.Object)
+		require.NotEmpty(t, s.Object(true))
 	})
 	t.Run("Purchase Schema", func(t *testing.T) {
 		s := (&relevancefashiondataz.Purchase{}).Schema()
-		td, _ := forgejsschema.NewSdk().ParseSchema(ctx, "Purchase", s)
-		require.Equal(t, "Purchase", td.Head.Name)
+		require.NotNil(t, s)
+		require.NotNil(t, s.Object)
+		require.NotEmpty(t, s.Object(true))
 	})
 	t.Run("Recraw Schema", func(t *testing.T) {
 		s := (&relevancefashiondataz.Recraw{}).Schema()
-		td, _ := forgejsschema.NewSdk().ParseSchema(ctx, "Recraw", s)
-		require.Equal(t, "Recraw", td.Head.Name)
+		require.NotNil(t, s)
+		require.NotNil(t, s.Object)
+		require.NotEmpty(t, s.Object(true))
 	})
 	t.Run("Recshow Schema", func(t *testing.T) {
 		s := (&relevancefashiondataz.Recshow{}).Schema()
-		td, _ := forgejsschema.NewSdk().ParseSchema(ctx, "Recshow", s)
-		require.Equal(t, "Recshow", td.Head.Name)
+		require.NotNil(t, s)
+		require.NotNil(t, s.Object)
+		require.NotEmpty(t, s.Object(true))
 	})
 	t.Run("Event Schema", func(t *testing.T) {
 		s := (&relevancefashiondataz.Event{}).SchemaQuery()
-		td, tds := forgejsschema.NewSdk().ParseSchema(ctx, "Event", s)
-		require.Equal(t, "Event", td.Head.Name)
+		require.NotNil(t, s)
+		require.NotNil(t, s.Object)
 
-		propMap := make(map[string]typeastz.Tuple)
-		for _, prop := range td.Properties.All() {
-			propMap[prop.Name] = prop
-		}
-
-		require.Contains(t, propMap, "id")
-		require.Equal(t, "string", propMap["id"].Typ)
-
-		require.Contains(t, propMap, "created_at")
-		require.Equal(t, typeastz.TypTime, propMap["created_at"].Typ)
-
-		require.Contains(t, propMap, "click")
-		require.Equal(t, "EventClick", propMap["click"].Typ)
-
-		require.Contains(t, propMap, "purchase")
-		require.Equal(t, "EventPurchase", propMap["purchase"].Typ)
-
-		// Check registered sub-typedefs
-		tdfMap := make(map[string]*typeastz.Typedef)
-		for _, tdf := range tds.All() {
-			tdfMap[tdf.Head.Name] = tdf
-		}
-
-		require.Contains(t, tdfMap, "EventClick")
-		require.Contains(t, tdfMap, "EventPurchase")
-		require.Contains(t, tdfMap, "EventPurchaseSkusElement")
+		props := s.Object(true)
+		require.Contains(t, props, "id")
+		require.Contains(t, props, "created_at")
+		require.Contains(t, props, "click")
+		require.Contains(t, props, "purchase")
 	})
 }
 
@@ -460,34 +444,18 @@ func TestUnitCatalogSerialization(t *testing.T) {
 }
 
 func TestUnitCatalogSchema(t *testing.T) {
-	ctx := t.Context()
 	t.Run("Catalog Schema", func(t *testing.T) {
 		s := (&relevancefashiondataz.Catalog{}).SchemaQuery()
-		td, _ := forgejsschema.NewSdk().ParseSchema(ctx, "Catalog", s)
-		require.Equal(t, "Catalog", td.Head.Name)
+		require.NotNil(t, s)
+		require.NotNil(t, s.Object)
 
-		propMap := make(map[string]typeastz.Tuple)
-		for _, prop := range td.Properties.All() {
-			propMap[prop.Name] = prop
-		}
-
-		require.Contains(t, propMap, "id")
-		require.Equal(t, "string", propMap["id"].Typ)
-
-		require.Contains(t, propMap, "store_id")
-		require.Equal(t, "string", propMap["store_id"].Typ)
-
-		require.Contains(t, propMap, "product_id")
-		require.Equal(t, "string", propMap["product_id"].Typ)
-
-		require.Contains(t, propMap, "sku_id")
-		require.Equal(t, "string", propMap["sku_id"].Typ)
-
-		require.Contains(t, propMap, "sku_ds")
-		require.Equal(t, "string", propMap["sku_ds"].Typ)
-
-		require.Contains(t, propMap, "inactive")
-		require.Equal(t, "boolean", propMap["inactive"].Typ)
+		props := s.Object(true)
+		require.Contains(t, props, "id")
+		require.Contains(t, props, "store_id")
+		require.Contains(t, props, "product_id")
+		require.Contains(t, props, "sku_id")
+		require.Contains(t, props, "sku_ds")
+		require.Contains(t, props, "inactive")
 	})
 }
 

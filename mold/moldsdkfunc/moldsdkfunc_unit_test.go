@@ -4,12 +4,14 @@ import (
 	"os"
 	"testing"
 
+	"cloud.google.com/go/bigquery"
 	"github.com/infinity6-ai/gox/commonz/errorz"
 	"github.com/infinity6-ai/gox/commonz/jsonz"
+	"github.com/infinity6-ai/gox/fsz/fsz"
+	"github.com/infinity6-ai/gox/schemaz/schemamold"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsschema"
 	"go.code.infinity6.ai/sdkgo/mold/moldsdkfunc"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/inferz/inferzrelevancefashionfbt"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
@@ -104,10 +106,18 @@ func expectedFashionFbtSdkFunc() *moldsdkfunc.SdkFunc {
 	}
 }
 
+func newSchemaParser() *schemamold.Parser {
+	return schemamold.New().
+		AddKnownType(fsz.FileStat{}, typeastz.TypFileStat).
+		AddKnownType(bigquery.NullString{}, typeastz.TypString).
+		AddKnownType(bigquery.NullInt64{}, typeastz.TypNumber).
+		AddKnownType(bigquery.NullFloat64{}, typeastz.TypNumber)
+}
+
 func TestUnitFashionFbtSdkFunc(t *testing.T) {
 	ctx := t.Context()
 	fn := &inferzrelevancefashionfbt.Func{}
-	parser := moldsdkfunc.New(forgejsschema.NewSdk())
+	parser := moldsdkfunc.New(newSchemaParser())
 	actual := parser.ParseSdkFunc(ctx, fn)
 	jsonz.MustParse(jsonz.MustFormat(actual).String(), &actual)
 	expected := expectedFashionFbtSdkFunc()
@@ -118,7 +128,7 @@ func TestUnitAllSdkFuncs(t *testing.T) {
 	ctx := t.Context()
 	funcs := sdkz.SdkFuncs()
 	require.NotEmpty(t, funcs)
-	parser := moldsdkfunc.New(forgejsschema.NewSdk())
+	parser := moldsdkfunc.New(newSchemaParser())
 	for _, fn := range funcs {
 		expected := parser.ParseSdkFunc(ctx, fn)
 		var actual *moldsdkfunc.SdkFunc
@@ -135,7 +145,7 @@ func TestUnitParseSdkFuncs(t *testing.T) {
 		want *moldsdkfunc.SdkFuncs
 	}
 
-	parser := moldsdkfunc.New(forgejsschema.NewSdk())
+	parser := moldsdkfunc.New(newSchemaParser())
 
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()

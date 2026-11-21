@@ -5,14 +5,12 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsapi"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapiingestiontokenslist"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/dsztoken"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 )
 
 func TestUnitDszListIngestionTokensApi(t *testing.T) {
-	ctx := t.Context()
 	api := &dszapiingestiontokenslist.Api{
 		Req: dszapiingestiontokenslist.DszListIngestionTokensReq{
 			Dataset: lakedsz.MustParse("myds"),
@@ -38,7 +36,6 @@ func TestUnitDszListIngestionTokensApi(t *testing.T) {
 	require.Equal(t, api.Req, apiCopy.Req)
 	require.Equal(t, api.Resp, apiCopy.Resp)
 
-	parsed := forgejsapi.NewSdk().ParseApi(ctx, api)
-	require.NotNil(t, parsed)
-	require.Equal(t, "dsz-list-ingestion-tokens", parsed.Spec.Id)
+	spec := api.ApiSpec()
+	require.Equal(t, "dsz-list-ingestion-tokens", spec.Id)
 }

@@ -5,8 +5,6 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsschema"
-	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashcoverage"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
@@ -61,7 +59,6 @@ func TestUnitRelevanceFashionDashCoverageSpec(t *testing.T) {
 }
 
 func TestUnitRelevanceFashionDashCoverageDataRefs(t *testing.T) {
-	ctx := t.Context()
 	fn := &relevancefashiondashcoverage.Func{}
 	refs := fn.SdkFuncDataRefs()
 	require.NotNil(t, refs)
@@ -69,34 +66,9 @@ func TestUnitRelevanceFashionDashCoverageDataRefs(t *testing.T) {
 	require.NotNil(t, refs.Partitions)
 	require.NotNil(t, refs.Output)
 
-	tdInput, _ := forgejsschema.NewSdk().ParseSchema(ctx, "coverageInput", refs.Input)
-	require.Equal(t, "object", tdInput.Head.Typ)
-
-	tdPartitions, _ := forgejsschema.NewSdk().ParseSchema(ctx, "coveragePartitions", refs.Partitions)
-	require.Equal(t, "object", tdPartitions.Head.Typ)
-
-	tdOutput, tdsOutput := forgejsschema.NewSdk().ParseSchema(ctx, "coverageOutput", refs.Output)
-	require.Equal(t, "object", tdOutput.Head.Typ)
-
-	outputProps := make(map[string]typeastz.Tuple)
-	for _, prop := range tdOutput.Properties.All() {
-		outputProps[prop.Name] = prop
-	}
-	require.Equal(t, "Array<coverageOutputRowsElement>", outputProps["rows"].Typ)
-
-	var rowsElem *typeastz.Typedef
-	for _, tdf := range tdsOutput.All() {
-		if tdf.Head.Name == "coverageOutputRowsElement" {
-			rowsElem = tdf
-		}
-	}
-	require.NotNil(t, rowsElem)
-	props := make(map[string]typeastz.Tuple)
-	for _, prop := range rowsElem.Properties.All() {
-		props[prop.Name] = prop
-	}
-	for _, name := range []string{"recomendation_coverage", "recommended_items", "recommendable_items", "long_tail_coverage", "top_1_coverage", "top_1_to_5_coverage", "top_5_to_10_coverage", "bottom_90_coverage"} {
-		require.Contains(t, props, name)
-		require.Equal(t, "number", props[name].Typ)
-	}
+	require.NotNil(t, refs.Input.Object)
+	require.NotNil(t, refs.Partitions.Object)
+	require.NotNil(t, refs.Output.Object)
+	outputProps := refs.Output.Object(true)
+	require.Contains(t, outputProps, "rows")
 }

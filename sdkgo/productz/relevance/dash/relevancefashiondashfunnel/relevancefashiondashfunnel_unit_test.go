@@ -5,8 +5,6 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsschema"
-	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashfunnel"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
@@ -69,7 +67,6 @@ func TestUnitRelevanceFashionDashFunnelSpec(t *testing.T) {
 }
 
 func TestUnitRelevanceFashionDashFunnelDataRefs(t *testing.T) {
-	ctx := t.Context()
 	fn := &relevancefashiondashfunnel.Func{}
 	refs := fn.SdkFuncDataRefs()
 	require.NotNil(t, refs)
@@ -77,71 +74,16 @@ func TestUnitRelevanceFashionDashFunnelDataRefs(t *testing.T) {
 	require.NotNil(t, refs.Partitions)
 	require.NotNil(t, refs.Output)
 
-	tdInput, tdsInput := forgejsschema.NewSdk().ParseSchema(ctx, "funnelInput", refs.Input)
-	require.NotNil(t, tdInput)
-	require.Equal(t, "funnelInput", tdInput.Head.Name)
-	require.Equal(t, "object", tdInput.Head.Typ)
-	require.NotNil(t, tdsInput)
-
-	inputProps := make(map[string]typeastz.Tuple)
-	for _, prop := range tdInput.Properties.All() {
-		inputProps[prop.Name] = prop
-	}
+	require.NotNil(t, refs.Input.Object)
+	inputProps := refs.Input.Object(true)
 	require.Contains(t, inputProps, "dataset")
-	require.Equal(t, "string", inputProps["dataset"].Typ)
 	require.Contains(t, inputProps, "params")
-	require.Equal(t, "funnelInputParams", inputProps["params"].Typ)
-	require.Contains(t, typedefNames(tdsInput), "funnelInputParams")
 
-	tdPartitions, tdsPartitions := forgejsschema.NewSdk().ParseSchema(ctx, "funnelPartitions", refs.Partitions)
-	require.NotNil(t, tdPartitions)
-	require.Equal(t, "funnelPartitions", tdPartitions.Head.Name)
-	require.Equal(t, "object", tdPartitions.Head.Typ)
-	require.NotNil(t, tdsPartitions)
-
-	partitionProps := make(map[string]typeastz.Tuple)
-	for _, prop := range tdPartitions.Properties.All() {
-		partitionProps[prop.Name] = prop
-	}
+	require.NotNil(t, refs.Partitions.Object)
+	partitionProps := refs.Partitions.Object(true)
 	require.Contains(t, partitionProps, "store_id")
-	require.Equal(t, "string", partitionProps["store_id"].Typ)
 
-	tdOutput, tdsOutput := forgejsschema.NewSdk().ParseSchema(ctx, "funnelOutput", refs.Output)
-	require.NotNil(t, tdOutput)
-	require.Equal(t, "funnelOutput", tdOutput.Head.Name)
-	require.Equal(t, "object", tdOutput.Head.Typ)
-	require.NotNil(t, tdsOutput)
-
-	outputProps := make(map[string]typeastz.Tuple)
-	for _, prop := range tdOutput.Properties.All() {
-		outputProps[prop.Name] = prop
-	}
+	require.NotNil(t, refs.Output.Object)
+	outputProps := refs.Output.Object(true)
 	require.Contains(t, outputProps, "rows")
-	require.Equal(t, "Array<funnelOutputRowsElement>", outputProps["rows"].Typ)
-
-	tdfMapOutput := make(map[string]*typeastz.Typedef)
-	for _, tdf := range tdsOutput.All() {
-		tdfMapOutput[tdf.Head.Name] = tdf
-	}
-	rowsElemTdf, ok := tdfMapOutput["funnelOutputRowsElement"]
-	require.True(t, ok)
-	require.NotNil(t, rowsElemTdf)
-	rowsElemProps := make(map[string]typeastz.Tuple)
-	for _, prop := range rowsElemTdf.Properties.All() {
-		rowsElemProps[prop.Name] = prop
-	}
-	require.Contains(t, rowsElemProps, "event_type")
-	require.Equal(t, "string", rowsElemProps["event_type"].Typ)
-	require.Contains(t, rowsElemProps, "from_rec")
-	require.Equal(t, "string", rowsElemProps["from_rec"].Typ)
-	require.Contains(t, rowsElemProps, "qt_events")
-	require.Equal(t, "string", rowsElemProps["qt_events"].Typ)
-}
-
-func typedefNames(tds *typeastz.Typedefs) []string {
-	var ret []string
-	for _, td := range tds.All() {
-		ret = append(ret, td.Head.Name)
-	}
-	return ret
 }

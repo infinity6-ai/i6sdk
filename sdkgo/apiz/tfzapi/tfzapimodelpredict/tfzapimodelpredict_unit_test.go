@@ -5,12 +5,10 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsapi"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/tfzapi/tfzapimodelpredict"
 )
 
 func TestUnitModelPredictApi(t *testing.T) {
-	ctx := t.Context()
 	api := &tfzapimodelpredict.Api{
 		Req: &tfzapimodelpredict.Req{
 			Dataset:   "myds",
@@ -42,7 +40,6 @@ func TestUnitModelPredictApi(t *testing.T) {
 	require.Equal(t, `[["a","b"]]`, apiCopy.Req.Inputs)
 	require.Equal(t, `{"output":{"c","d"}}`, apiCopy.Resp.Outputs)
 
-	parsed := forgejsapi.NewSdk().ParseApi(ctx, api)
-	require.NotNil(t, parsed)
-	require.Equal(t, "tfz-model-predict", parsed.Spec.Id)
+	spec := api.ApiSpec()
+	require.Equal(t, "tfz-model-predict", spec.Id)
 }
