@@ -10,7 +10,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/errorz"
 	"github.com/infinity6-ai/gox/routez/apispecz"
 	"github.com/infinity6-ai/gox/schemaz/schemamold"
-	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsschema"
+	"github.com/infinity6-ai/i6sdk/forgez/forgejs/forgejsschema"
 )
 
 func NewSdk() *apispecz.Parser {

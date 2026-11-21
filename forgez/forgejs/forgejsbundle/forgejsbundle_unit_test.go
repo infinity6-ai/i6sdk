@@ -6,10 +6,10 @@ import (
 	"github.com/infinity6-ai/gox/routez/apispecz"
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsapi"
-	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsbundle"
-	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejssdkfunc"
-	"go.code.infinity6.ai/sdkgo/mold/moldsdkfunc"
+	"github.com/infinity6-ai/i6sdk/forgez/forgejs/forgejsapi"
+	"github.com/infinity6-ai/i6sdk/forgez/forgejs/forgejsbundle"
+	"github.com/infinity6-ai/i6sdk/forgez/forgejs/forgejssdkfunc"
+	"github.com/infinity6-ai/i6sdk/mold/moldsdkfunc"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/inferz/inferzrelevancefashionfbt"
 )
 

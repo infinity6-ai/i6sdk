@@ -9,9 +9,9 @@ import (
 	"github.com/infinity6-ai/gox/routez/apispecz"
 	"github.com/infinity6-ai/i6sdk/apicollectionz"
 	"github.com/spf13/cobra"
-	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsbundle"
-	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsschema"
-	"go.code.infinity6.ai/sdkgo/mold/moldsdkfunc"
+	"github.com/infinity6-ai/i6sdk/forgez/forgejs/forgejsbundle"
+	"github.com/infinity6-ai/i6sdk/forgez/forgejs/forgejsschema"
+	"github.com/infinity6-ai/i6sdk/mold/moldsdkfunc"
 )
 
 type tlogger logz.Type

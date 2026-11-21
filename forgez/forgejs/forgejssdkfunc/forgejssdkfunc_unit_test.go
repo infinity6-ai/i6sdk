@@ -5,8 +5,8 @@ import (
 
 	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejssdkfunc"
-	"go.code.infinity6.ai/sdkgo/mold/moldsdkfunc"
+	"github.com/infinity6-ai/i6sdk/forgez/forgejs/forgejssdkfunc"
+	"github.com/infinity6-ai/i6sdk/mold/moldsdkfunc"
 	"github.com/infinity6-ai/i6sdk/apicollectionz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/dash/relevancefashiondashfunnel"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/dash/relevancefashiondashlistshowcasecategories"

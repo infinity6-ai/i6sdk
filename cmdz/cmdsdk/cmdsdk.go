@@ -1,23 +1,20 @@
-//go:build !testcover
-
-package cmdsdkgo
+package cmdsdk
 
 import (
 	"context"
 	"fmt"
 	"os"
 
+	"github.com/infinity6-ai/i6sdk/cmdz/cmdsdkjs"
+	"github.com/infinity6-ai/i6sdk/versionz/version"
 	"github.com/spf13/cobra"
-
-	"go.code.infinity6.ai/sdkgo/sdkgo/internal/cmd/cmdsdkjs"
-	"go.code.infinity6.ai/sdkgo/sdkgo/version"
 )
 
 func Prepare(ctx context.Context) *cobra.Command {
 	var rootCmd = &cobra.Command{
 		Version: version.Version(),
-		Use:     "sdkgo",
-		Short:   "sdkgo",
+		Use:     "i6sdk",
+		Short:   "i6sdk CLI",
 	}
 
 	rootCmd.AddCommand(&cobra.Command{

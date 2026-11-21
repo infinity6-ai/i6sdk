@@ -163,10 +163,10 @@ graph TD
 - [x] Verify `apicollectionz` unit tests pass.
 
 ### Phase 4: Molds, Generators & CLI (`mold`, `forgez`, `cmdz`)
-- [ ] Setup `mold/` as an independent module with its own `go.mod` (depends on `sdkcorez`).
-- [ ] Setup `forgez/` as an independent module with its own `go.mod`:
+- [x] Setup `mold/` as an independent module with its own `go.mod` (depends on `sdkcorez`).
+- [x] Setup `forgez/` as an independent module with its own `go.mod`:
   - Update imports to use `apicollectionz`, `mold`, `sdkcorez`.
-- [ ] Create `cmdz/` (`go.mod`):
+- [x] Create `cmdz/` (`go.mod`):
   - Move `main.go`, `cmdsdkgo`, and `sdkgo/internal/cmd` into `cmdz`.
   - Provide CLI entry points (e.g. `cmdz js generate`).
 

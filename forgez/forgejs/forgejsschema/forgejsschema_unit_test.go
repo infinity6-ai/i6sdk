@@ -8,7 +8,7 @@ import (
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsschema"
+	"github.com/infinity6-ai/i6sdk/forgez/forgejs/forgejsschema"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/grants"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/tabledataz/dummydataz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/tabledataz/relevancefashiondataz"

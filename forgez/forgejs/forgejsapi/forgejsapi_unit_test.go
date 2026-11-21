@@ -15,7 +15,7 @@ import (
 	"github.com/infinity6-ai/i6sdk/apicollectionz"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapimodelget"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapistripecheckout"
-	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsapi"
+	"github.com/infinity6-ai/i6sdk/forgez/forgejs/forgejsapi"
 )
 
 func TestUnitFractionSample(t *testing.T) {
