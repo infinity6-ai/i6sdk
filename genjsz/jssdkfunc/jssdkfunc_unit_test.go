@@ -6,10 +6,10 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/errorz"
 	"github.com/infinity6-ai/gox/commonz/jsonz"
+	"github.com/infinity6-ai/gox/schemaz/jstypez"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/genjsz/jssdkfunc"
-	"github.com/infinity6-ai/gox/schemaz/jstypez"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/inferz/inferzrelevancefashionfbt"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkz"
@@ -123,4 +123,68 @@ func TestUnitAllSdkFuncs(t *testing.T) {
 		errorz.Check(os.MkdirAll("target/jssdkfunc/sdkfunc", os.ModePerm))
 		errorz.Check(os.WriteFile("target/jssdkfunc/sdkfunc/"+fn.SdkFuncSpec().Id+".json", jsonz.MustFormatPretty(expected).Bytes(), os.ModePerm))
 	}
+}
+
+func TestUnitParseSdkFuncs(t *testing.T) {
+	ctx := t.Context()
+	type testScenario struct {
+		in   []sdkfuncz.Func
+		want *jssdkfunc.SdkFuncs
+	}
+
+	check := func(t *testing.T, s testScenario) {
+		t.Helper()
+		actual := jssdkfunc.NewSdk().ParseSdkFuncs(ctx, s.in)
+		jsonz.MustParse(jsonz.MustFormat(actual).String(), &actual)
+		require.Equal(t, s.want, actual)
+	}
+
+	t.Run("empty sdk funcs slice", func(t *testing.T) {
+		check(t, testScenario{
+			in: []sdkfuncz.Func{},
+			want: &jssdkfunc.SdkFuncs{
+				SdkFuncs: []*jssdkfunc.SdkFunc{},
+				Typedefs: jstypez.NewTypedefs(nil),
+			},
+		})
+	})
+
+	t.Run("nil sdk funcs slice", func(t *testing.T) {
+		check(t, testScenario{
+			in: nil,
+			want: &jssdkfunc.SdkFuncs{
+				SdkFuncs: []*jssdkfunc.SdkFunc{},
+				Typedefs: jstypez.NewTypedefs(nil),
+			},
+		})
+	})
+
+	t.Run("single sdk func", func(t *testing.T) {
+		fbt := expectedFashionFbtSdkFunc()
+		check(t, testScenario{
+			in: []sdkfuncz.Func{
+				&inferzrelevancefashionfbt.Func{},
+			},
+			want: &jssdkfunc.SdkFuncs{
+				SdkFuncs: []*jssdkfunc.SdkFunc{fbt},
+				Typedefs: fbt.Typedefs,
+			},
+		})
+	})
+
+	t.Run("duplicate sdk funcs merge typedefs idempotently", func(t *testing.T) {
+		fbt1 := expectedFashionFbtSdkFunc()
+		fbt2 := expectedFashionFbtSdkFunc()
+
+		check(t, testScenario{
+			in: []sdkfuncz.Func{
+				&inferzrelevancefashionfbt.Func{},
+				&inferzrelevancefashionfbt.Func{},
+			},
+			want: &jssdkfunc.SdkFuncs{
+				SdkFuncs: []*jssdkfunc.SdkFunc{fbt1, fbt2},
+				Typedefs: fbt1.Typedefs,
+			},
+		})
+	})
 }
