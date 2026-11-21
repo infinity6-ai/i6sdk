@@ -1,4 +1,4 @@
-package jssdkfunc
+package forgejssdkfunc
 
 import (
 	"context"
@@ -10,13 +10,13 @@ import (
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
 	"github.com/infinity6-ai/gox/schemaz/schemamold"
 	"github.com/infinity6-ai/gox/schemaz/typeastz"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
+	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsschema"
 	"go.code.infinity6.ai/sdkgo/mold/moldsdkfunc"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
 )
 
 func NewSdk() *moldsdkfunc.Parser {
-	return moldsdkfunc.New(jsschema.NewSdk())
+	return moldsdkfunc.New(forgejsschema.NewSdk())
 }
 
 func writeln(sb *strings.Builder, msg string, args ...any) {
@@ -247,7 +247,6 @@ func Write(ctx context.Context, sdkFuncs []*moldsdkfunc.SdkFunc) string {
 	return b.String()
 }
 
-// hasInputParams tells if the input of fn has a "params" property, the query input of a client query.
 func hasInputParams(fn *moldsdkfunc.SdkFunc) bool {
 	if fn.Req.Input.Head == nil {
 		return false

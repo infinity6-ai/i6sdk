@@ -7,7 +7,7 @@ import (
 
 	"cloud.google.com/go/bigquery"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
+	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsschema"
 	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz/targetingfinancedataz"
@@ -175,7 +175,7 @@ func TestUnitSchemas(t *testing.T) {
 	}
 
 	t.Run("ClientStatus body", func(t *testing.T) {
-		td, _ := jsschema.NewSdk().ParseSchema(ctx, "ClientStatus", (&targetingfinancedataz.ClientStatus{}).SchemaBody())
+		td, _ := forgejsschema.NewSdk().ParseSchema(ctx, "ClientStatus", (&targetingfinancedataz.ClientStatus{}).SchemaBody())
 		p := props(td)
 		require.Equal(t, typeastz.TypString, p["id"].Typ)
 		require.Equal(t, typeastz.TypTime, p["created_at"].Typ)
@@ -189,7 +189,7 @@ func TestUnitSchemas(t *testing.T) {
 	})
 
 	t.Run("ClientEvent body", func(t *testing.T) {
-		td, _ := jsschema.NewSdk().ParseSchema(ctx, "ClientEvent", (&targetingfinancedataz.ClientEvent{}).SchemaBody())
+		td, _ := forgejsschema.NewSdk().ParseSchema(ctx, "ClientEvent", (&targetingfinancedataz.ClientEvent{}).SchemaBody())
 		p := props(td)
 		require.Equal(t, typeastz.TypNumber, p["user_pc_cut"].Typ)
 		require.Equal(t, typeastz.TypString, p["item_tp_sub"].Typ)
@@ -202,7 +202,7 @@ func TestUnitSchemas(t *testing.T) {
 			"ClientEvent":  &targetingfinancedataz.ClientEvent{},
 			"Weight":       &targetingfinancedataz.Weight{},
 		} {
-			td, _ := jsschema.NewSdk().ParseSchema(ctx, name, s.SchemaQuery())
+			td, _ := forgejsschema.NewSdk().ParseSchema(ctx, name, s.SchemaQuery())
 			require.Equal(t, name, td.Head.Name)
 			require.NotPanics(t, func() { s.Table() })
 		}

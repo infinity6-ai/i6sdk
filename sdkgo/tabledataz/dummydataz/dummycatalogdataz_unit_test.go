@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
+	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsschema"
 	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz/dummydataz"
@@ -81,7 +81,7 @@ func TestUnitDummyCatalogDataSchema(t *testing.T) {
 	ctx := t.Context()
 	t.Run("DummyCatalogData Schema Check", func(t *testing.T) {
 		s := (&dummydataz.Catalog{}).SchemaQuery()
-		td, _ := jsschema.NewSdk().ParseSchema(ctx, "DummyCatalogData", s)
+		td, _ := forgejsschema.NewSdk().ParseSchema(ctx, "DummyCatalogData", s)
 		require.Equal(t, "DummyCatalogData", td.Head.Name)
 
 		propMap := make(map[string]typeastz.Tuple)

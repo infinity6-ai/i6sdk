@@ -1,4 +1,4 @@
-package jswriter_test
+package forgejsbundle_test
 
 import (
 	"testing"
@@ -6,9 +6,9 @@ import (
 	"github.com/infinity6-ai/gox/routez/apispecz"
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsapi"
-	"go.code.infinity6.ai/sdkgo/genjsz/jssdkfunc"
-	"go.code.infinity6.ai/sdkgo/genjsz/jswriter"
+	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsapi"
+	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsbundle"
+	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejssdkfunc"
 	"go.code.infinity6.ai/sdkgo/mold/moldsdkfunc"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/inferz/inferzrelevancefashionfbt"
 )
@@ -17,15 +17,15 @@ func TestUnitWrite(t *testing.T) {
 	ctx := t.Context()
 
 	t.Run("empty options writes typedefs and classes", func(t *testing.T) {
-		got := jswriter.Write(ctx, jswriter.Options{})
+		got := forgejsbundle.Write(ctx, forgejsbundle.Options{})
 		require.Contains(t, got, "// typedefs")
 		require.Contains(t, got, "@typedef {import(\"../services/services.js\").Services} Services")
 	})
 
 	t.Run("with sdkfunc and api", func(t *testing.T) {
-		api := jsapi.NewSdk().ParseApi(ctx, routezsamplefraction.NewService().Api())
-		fn := jssdkfunc.NewSdk().ParseSdkFunc(ctx, &inferzrelevancefashionfbt.Func{})
-		got := jswriter.Write(ctx, jswriter.Options{
+		api := forgejsapi.NewSdk().ParseApi(ctx, routezsamplefraction.NewService().Api())
+		fn := forgejssdkfunc.NewSdk().ParseSdkFunc(ctx, &inferzrelevancefashionfbt.Func{})
+		got := forgejsbundle.Write(ctx, forgejsbundle.Options{
 			Apis:     []*apispecz.Api{api},
 			SdkFuncs: []*moldsdkfunc.SdkFunc{fn},
 		})

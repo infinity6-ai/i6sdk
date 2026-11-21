@@ -1,14 +1,14 @@
-package jsschema_test
+package forgejsschema_test
 
 import (
 	"testing"
 
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
 	"github.com/infinity6-ai/gox/schemaz/schemamold"
-	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
+	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
+	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsschema"
 	"go.code.infinity6.ai/sdkgo/sdkgo/grants"
 )
 
@@ -45,7 +45,7 @@ func TestUnitParseSchema(t *testing.T) {
 	params := api.ApiDataRefs().PathParams
 	require.NotNil(t, params)
 
-	td, tds := jsschema.NewSdk().ParseSchema(ctx, "sampleParams", params)
+	td, tds := forgejsschema.NewSdk().ParseSchema(ctx, "sampleParams", params)
 	require.NotNil(t, td)
 	require.NotNil(t, tds)
 	require.Equal(t, "sampleParams", td.Head.Name)
@@ -79,7 +79,7 @@ func TestUnitParseSchemaNestedObject(t *testing.T) {
 		},
 	}
 
-	td, tds := jsschema.NewSdk().ParseSchema(ctx, "in", schema)
+	td, tds := forgejsschema.NewSdk().ParseSchema(ctx, "in", schema)
 	require.Equal(t, "inParams", td.Properties.All()[0].Typ, "nested object must be typed, not a bare object")
 
 	var found bool
@@ -105,7 +105,7 @@ func TestUnitParseSchemaCustomTypeEnum(t *testing.T) {
 		},
 	}
 
-	td, tds := jsschema.NewSdk().ParseSchema(ctx, "testReq", schema)
+	td, tds := forgejsschema.NewSdk().ParseSchema(ctx, "testReq", schema)
 	require.NotNil(t, td)
 	require.Equal(t, "Grant", td.Properties.All()[0].Typ)
 
@@ -129,7 +129,7 @@ func TestUnitWriteTypedefs(t *testing.T) {
 
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
-		got := jsschema.WriteTypedefs(ctx, s.in)
+		got := forgejsschema.WriteTypedefs(ctx, s.in)
 		require.Equal(t, s.want, got)
 	}
 

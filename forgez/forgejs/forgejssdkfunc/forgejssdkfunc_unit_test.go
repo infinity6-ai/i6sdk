@@ -1,11 +1,11 @@
-package jssdkfunc_test
+package forgejssdkfunc_test
 
 import (
 	"testing"
 
 	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/genjsz/jssdkfunc"
+	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejssdkfunc"
 	"go.code.infinity6.ai/sdkgo/mold/moldsdkfunc"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashfunnel"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashlistshowcasecategories"
@@ -22,7 +22,7 @@ func TestUnitWrite(t *testing.T) {
 
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
-		got := jssdkfunc.Write(ctx, s.in)
+		got := forgejssdkfunc.Write(ctx, s.in)
 
 		require.Equal(t, s.want, got)
 	}
@@ -42,7 +42,7 @@ func TestUnitWrite(t *testing.T) {
 	})
 
 	t.Run("with client infer sdk func", func(t *testing.T) {
-		parsed := jssdkfunc.NewSdk().ParseSdkFunc(ctx, &inferzrelevancefashionfbt.Func{})
+		parsed := forgejssdkfunc.NewSdk().ParseSdkFunc(ctx, &inferzrelevancefashionfbt.Func{})
 		want := `class SdkFuncs {
 
   /**
@@ -125,7 +125,7 @@ export { SdkFuncs };
 			},
 		}
 
-		tds := jssdkfunc.ExtractTypedefs([]*moldsdkfunc.SdkFunc{fn})
+		tds := forgejssdkfunc.ExtractTypedefs([]*moldsdkfunc.SdkFunc{fn})
 		allTds := tds.All()
 		require.Len(t, allTds, 4) // req, resp, enriched, selected
 		var reqTd *typeastz.Typedef
@@ -198,7 +198,7 @@ export { SdkFuncs };
 	})
 
 	t.Run("with client query sdk func", func(t *testing.T) {
-		parsed := jssdkfunc.NewSdk().ParseSdkFunc(ctx, &relevancefashiondashfunnel.Func{})
+		parsed := forgejssdkfunc.NewSdk().ParseSdkFunc(ctx, &relevancefashiondashfunnel.Func{})
 		want := `class SdkFuncs {
 
   /**
@@ -244,7 +244,7 @@ export { SdkFuncs };
 	})
 
 	t.Run("with client query sdk func without params", func(t *testing.T) {
-		parsed := jssdkfunc.NewSdk().ParseSdkFunc(ctx, &relevancefashiondashlistshowcasecategories.Func{})
+		parsed := forgejssdkfunc.NewSdk().ParseSdkFunc(ctx, &relevancefashiondashlistshowcasecategories.Func{})
 		want := `class SdkFuncs {
 
   /**

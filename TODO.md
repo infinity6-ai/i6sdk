@@ -63,21 +63,22 @@ i6sdk/
     - Added unit tests in `mold/moldsdkfunc`.
     - Updated `genjsz/jssdkfunc`, `cmdsdkjs`, and `jswriter` to use `moldsdkfunc`.
 
-- [ ] **Phase 3: JavaScript Forge in `i6sdk/forgez/forgejs`**
-  - [ ] **3A (`forgez/forgejs/forgejsschema`)**:
-    - Move `genjsz/jsschema` -> `forgez/forgejs/forgejsschema`.
-    - Update imports to `gox/schemaz/schemamold` and `gox/schemaz/typeastz`.
-  - [ ] **3B (`forgez/forgejs/forgejsapi`)**:
-    - Move `genjsz/jsapi` -> `forgez/forgejs/forgejsapi`.
-    - Update imports to `gox/routez/apispecz`.
-  - [ ] **3C (`forgez/forgejs/forgejssdkfunc`)**:
-    - Move writer from `genjsz/jssdkfunc` -> `forgez/forgejs/forgejssdkfunc`.
-    - Update imports to `mold/moldsdkfunc`.
-  - [ ] **3D (`forgez/forgejs/forgejsbundle`)**:
-    - Move `genjsz/jswriter` -> `forgez/forgejs/forgejsbundle`.
-    - Update generator orchestration in `sdkgo/internal/cmd/cmdsdkjs`.
-  - [ ] **3E**: Delete `genjsz/` directory.
+- [x] **Phase 3: JavaScript Forge in `i6sdk/forgez/forgejs`**
+  - [x] **3A (`forgez/forgejs/forgejsschema`)**:
+    - Created `forgez/forgejs/forgejsschema` with `NewSdk()` and `WriteModuleTypedefs`.
+    - Added comprehensive unit tests in `forgejsschema_unit_test.go`.
+  - [x] **3B (`forgez/forgejs/forgejsapi`)**:
+    - Created `forgez/forgejs/forgejsapi` with `NewSdk()` and `Write()` (`class Apis`).
+    - Added comprehensive unit tests in `forgejsapi_unit_test.go`.
+  - [x] **3C (`forgez/forgejs/forgejssdkfunc`)**:
+    - Created `forgez/forgejs/forgejssdkfunc` with `NewSdk()` and `Write()` (`class SdkFuncs`).
+    - Added comprehensive unit tests in `forgejssdkfunc_unit_test.go`.
+  - [x] **3D (`forgez/forgejs/forgejsbundle`)**:
+    - Created `forgez/forgejs/forgejsbundle` assembling `sdkapis.js`.
+    - Updated generator command in `sdkgo/internal/cmd/cmdsdkjs`.
+    - Added unit tests in `forgejsbundle_unit_test.go`.
+  - [x] **3E**: Deleted `genjsz/` directory entirely.
 
-- [ ] **Phase 4: Workspace Verification**
-  - Update all imports in `sdkgo/...` (unit tests and models).
-  - Run `go vet ./...` and `go test ./...` in both `gox` and `i6sdk`.
+- [x] **Phase 4: Workspace Verification**
+  - Updated all 53 unit test files across `sdkgo/...`.
+  - Executed `go vet ./...` and `go test ./...` in both `gox` and `i6sdk`; all packages passed cleanly.

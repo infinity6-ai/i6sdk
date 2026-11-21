@@ -5,7 +5,7 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsapi"
+	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsapi"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapipaymentautorenewupdate"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
@@ -39,7 +39,7 @@ func TestUnitDszPaymentAutoRenewUpdateApi(t *testing.T) {
 	})
 
 	t.Run("spec", func(t *testing.T) {
-		parsed := jsapi.NewSdk().ParseApi(ctx, &dszapipaymentautorenewupdate.Api{})
+		parsed := forgejsapi.NewSdk().ParseApi(ctx, &dszapipaymentautorenewupdate.Api{})
 		require.NotNil(t, parsed)
 		require.Equal(t, "dsz-update-payment-auto-renew", parsed.Spec.Id)
 		require.Equal(t, "POST", parsed.Spec.Method)

@@ -5,7 +5,7 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsapi"
+	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsapi"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzapi/ingestzapievent"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz/dummydataz"
@@ -36,7 +36,7 @@ func TestUnitIngestzStreamApi(t *testing.T) {
 	require.Equal(t, "/api/ingest/dataset/{dataset}/event/dummy-catalog/text.txt", spec.Path)
 
 	// Verify Schema parsing and mapping
-	parsed := jsapi.NewSdk().ParseApi(ctx, api)
+	parsed := forgejsapi.NewSdk().ParseApi(ctx, api)
 	require.NotNil(t, parsed)
 	require.Equal(t, "ingestz-event-dummy-catalog", parsed.Spec.Id)
 

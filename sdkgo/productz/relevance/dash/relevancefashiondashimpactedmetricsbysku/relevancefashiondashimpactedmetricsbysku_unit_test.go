@@ -5,7 +5,7 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
+	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsschema"
 	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashimpactedmetricsbysku"
@@ -91,7 +91,7 @@ func TestUnitRelevanceFashionDashImpactedMetricsBySkuDataRefs(t *testing.T) {
 	require.NotNil(t, refs.Partitions)
 	require.NotNil(t, refs.Output)
 
-	tdInput, tdsInput := jsschema.NewSdk().ParseSchema(ctx, "impactedMetricsBySkuInput", refs.Input)
+	tdInput, tdsInput := forgejsschema.NewSdk().ParseSchema(ctx, "impactedMetricsBySkuInput", refs.Input)
 	require.NotNil(t, tdInput)
 	require.Equal(t, "impactedMetricsBySkuInput", tdInput.Head.Name)
 	require.Equal(t, "object", tdInput.Head.Typ)
@@ -107,7 +107,7 @@ func TestUnitRelevanceFashionDashImpactedMetricsBySkuDataRefs(t *testing.T) {
 	require.Equal(t, "impactedMetricsBySkuInputParams", inputProps["params"].Typ)
 	require.Contains(t, typedefNames(tdsInput), "impactedMetricsBySkuInputParams")
 
-	tdPartitions, tdsPartitions := jsschema.NewSdk().ParseSchema(ctx, "impactedMetricsBySkuPartitions", refs.Partitions)
+	tdPartitions, tdsPartitions := forgejsschema.NewSdk().ParseSchema(ctx, "impactedMetricsBySkuPartitions", refs.Partitions)
 	require.NotNil(t, tdPartitions)
 	require.Equal(t, "impactedMetricsBySkuPartitions", tdPartitions.Head.Name)
 	require.Equal(t, "object", tdPartitions.Head.Typ)
@@ -120,7 +120,7 @@ func TestUnitRelevanceFashionDashImpactedMetricsBySkuDataRefs(t *testing.T) {
 	require.Contains(t, partitionProps, "store_id")
 	require.Equal(t, "string", partitionProps["store_id"].Typ)
 
-	tdOutput, tdsOutput := jsschema.NewSdk().ParseSchema(ctx, "impactedMetricsBySkuOutput", refs.Output)
+	tdOutput, tdsOutput := forgejsschema.NewSdk().ParseSchema(ctx, "impactedMetricsBySkuOutput", refs.Output)
 	require.NotNil(t, tdOutput)
 	require.Equal(t, "impactedMetricsBySkuOutput", tdOutput.Head.Name)
 	require.Equal(t, "object", tdOutput.Head.Typ)

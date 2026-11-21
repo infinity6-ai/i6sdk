@@ -1,4 +1,4 @@
-package jsschema
+package forgejsschema
 
 import (
 	"context"

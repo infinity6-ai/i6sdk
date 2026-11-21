@@ -5,7 +5,7 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
+	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsschema"
 	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashlistshowcasecategories"
@@ -63,7 +63,7 @@ func TestUnitRelevanceFashionDashListShowcaseCategoriesDataRefs(t *testing.T) {
 	require.NotNil(t, refs.Partitions)
 	require.NotNil(t, refs.Output)
 
-	tdInput, tdsInput := jsschema.NewSdk().ParseSchema(ctx, "listShowcaseCategoriesInput", refs.Input)
+	tdInput, tdsInput := forgejsschema.NewSdk().ParseSchema(ctx, "listShowcaseCategoriesInput", refs.Input)
 	require.NotNil(t, tdInput)
 	require.Equal(t, "listShowcaseCategoriesInput", tdInput.Head.Name)
 	require.Equal(t, "object", tdInput.Head.Typ)
@@ -77,7 +77,7 @@ func TestUnitRelevanceFashionDashListShowcaseCategoriesDataRefs(t *testing.T) {
 	require.Equal(t, "string", inputProps["dataset"].Typ)
 	require.NotContains(t, inputProps, "params")
 
-	tdPartitions, tdsPartitions := jsschema.NewSdk().ParseSchema(ctx, "listShowcaseCategoriesPartitions", refs.Partitions)
+	tdPartitions, tdsPartitions := forgejsschema.NewSdk().ParseSchema(ctx, "listShowcaseCategoriesPartitions", refs.Partitions)
 	require.NotNil(t, tdPartitions)
 	require.Equal(t, "listShowcaseCategoriesPartitions", tdPartitions.Head.Name)
 	require.Equal(t, "object", tdPartitions.Head.Typ)
@@ -90,7 +90,7 @@ func TestUnitRelevanceFashionDashListShowcaseCategoriesDataRefs(t *testing.T) {
 	require.Contains(t, partitionProps, "store_id")
 	require.Equal(t, "string", partitionProps["store_id"].Typ)
 
-	tdOutput, tdsOutput := jsschema.NewSdk().ParseSchema(ctx, "listShowcaseCategoriesOutput", refs.Output)
+	tdOutput, tdsOutput := forgejsschema.NewSdk().ParseSchema(ctx, "listShowcaseCategoriesOutput", refs.Output)
 	require.NotNil(t, tdOutput)
 	require.Equal(t, "listShowcaseCategoriesOutput", tdOutput.Head.Name)
 	require.Equal(t, "object", tdOutput.Head.Typ)

@@ -5,7 +5,7 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsapi"
+	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsapi"
 	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapistripecheckout"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
@@ -33,7 +33,7 @@ func TestUnitStripeCheckout(t *testing.T) {
 
 func TestUnitStripeCheckoutParseApi(t *testing.T) {
 	ctx := t.Context()
-	parsed := jsapi.NewSdk().ParseApi(ctx, &dszapistripecheckout.Api{})
+	parsed := forgejsapi.NewSdk().ParseApi(ctx, &dszapistripecheckout.Api{})
 	require.NotNil(t, parsed)
 	require.Equal(t, "dsz-stripe-checkout", parsed.Spec.Id)
 	require.Equal(t, "apiDszStripeCheckout", parsed.Spec.CamelId)

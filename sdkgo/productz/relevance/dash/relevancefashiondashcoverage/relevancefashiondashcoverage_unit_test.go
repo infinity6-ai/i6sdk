@@ -5,7 +5,7 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
+	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsschema"
 	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashcoverage"
@@ -69,13 +69,13 @@ func TestUnitRelevanceFashionDashCoverageDataRefs(t *testing.T) {
 	require.NotNil(t, refs.Partitions)
 	require.NotNil(t, refs.Output)
 
-	tdInput, _ := jsschema.NewSdk().ParseSchema(ctx, "coverageInput", refs.Input)
+	tdInput, _ := forgejsschema.NewSdk().ParseSchema(ctx, "coverageInput", refs.Input)
 	require.Equal(t, "object", tdInput.Head.Typ)
 
-	tdPartitions, _ := jsschema.NewSdk().ParseSchema(ctx, "coveragePartitions", refs.Partitions)
+	tdPartitions, _ := forgejsschema.NewSdk().ParseSchema(ctx, "coveragePartitions", refs.Partitions)
 	require.Equal(t, "object", tdPartitions.Head.Typ)
 
-	tdOutput, tdsOutput := jsschema.NewSdk().ParseSchema(ctx, "coverageOutput", refs.Output)
+	tdOutput, tdsOutput := forgejsschema.NewSdk().ParseSchema(ctx, "coverageOutput", refs.Output)
 	require.Equal(t, "object", tdOutput.Head.Typ)
 
 	outputProps := make(map[string]typeastz.Tuple)

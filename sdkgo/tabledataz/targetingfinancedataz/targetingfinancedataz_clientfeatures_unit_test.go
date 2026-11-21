@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsschema"
+	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsschema"
 	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz/targetingfinancedataz"
@@ -97,12 +97,12 @@ func TestUnitClientFeaturesSchema(t *testing.T) {
 	ctx := t.Context()
 
 	t.Run("FeatureFloat Schema", func(t *testing.T) {
-		td, _ := jsschema.NewSdk().ParseSchema(ctx, "FeatureFloat", (&targetingfinancedataz.FeatureFloat{}).Schema())
+		td, _ := forgejsschema.NewSdk().ParseSchema(ctx, "FeatureFloat", (&targetingfinancedataz.FeatureFloat{}).Schema())
 		require.Equal(t, "FeatureFloat", td.Head.Name)
 	})
 
 	t.Run("ClientFeatures body", func(t *testing.T) {
-		td, tds := jsschema.NewSdk().ParseSchema(ctx, "ClientFeatures", (&targetingfinancedataz.ClientFeatures{}).SchemaBody())
+		td, tds := forgejsschema.NewSdk().ParseSchema(ctx, "ClientFeatures", (&targetingfinancedataz.ClientFeatures{}).SchemaBody())
 		require.Equal(t, "ClientFeatures", td.Head.Name)
 
 		props := map[string]typeastz.Tuple{}
@@ -121,7 +121,7 @@ func TestUnitClientFeaturesSchema(t *testing.T) {
 	})
 
 	t.Run("ClientFeatures query", func(t *testing.T) {
-		td, _ := jsschema.NewSdk().ParseSchema(ctx, "ClientFeatures", (&targetingfinancedataz.ClientFeatures{}).SchemaQuery())
+		td, _ := forgejsschema.NewSdk().ParseSchema(ctx, "ClientFeatures", (&targetingfinancedataz.ClientFeatures{}).SchemaQuery())
 		require.Equal(t, "ClientFeatures", td.Head.Name)
 	})
 }

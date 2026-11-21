@@ -1,4 +1,4 @@
-package jsapi_test
+package forgejsapi_test
 
 import (
 	"os"
@@ -6,20 +6,20 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/errorz"
 	"github.com/infinity6-ai/gox/commonz/jsonz"
-	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/routez/apispecz"
+	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
-	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
+	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/genjsz/jsapi"
+	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsapi"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkz"
 )
 
 func TestUnitFractionSample(t *testing.T) {
 	ctx := t.Context()
 	api := routezsamplefraction.NewService().Api()
-	actual := jsapi.NewSdk().ParseApi(ctx, api)
+	actual := forgejsapi.NewSdk().ParseApi(ctx, api)
 	jsonz.MustParse(jsonz.MustFormat(actual).String(), &actual)
 	println(jsonz.MustFormatPretty(actual).String())
 	expected := &apispecz.Api{
@@ -150,7 +150,7 @@ func TestUnitAllApis(t *testing.T) {
 	ctx := t.Context()
 	apis := sdkz.Apis()
 	for _, api := range apis {
-		expected := jsapi.NewSdk().ParseApi(ctx, api)
+		expected := forgejsapi.NewSdk().ParseApi(ctx, api)
 		var actual *apispecz.Api
 		jsonz.MustParse(jsonz.MustFormat(expected).String(), &actual)
 		errorz.Check(os.MkdirAll("target/jsapi/api", os.ModePerm))
@@ -171,7 +171,7 @@ func TestUnitWrite(t *testing.T) {
 		if s.in != nil {
 			apisList = s.in.Apis
 		}
-		got := jsapi.Write(ctx, apisList)
+		got := forgejsapi.Write(ctx, apisList)
 		require.Equal(t, s.want, got)
 	}
 
@@ -190,7 +190,7 @@ func TestUnitWrite(t *testing.T) {
 	})
 
 	t.Run("with multiple path params and extra request fields", func(t *testing.T) {
-		apis := jsapi.NewSdk().ParseApis(ctx, []apiz.Api{routezsamplefraction.NewService().Api()})
+		apis := forgejsapi.NewSdk().ParseApis(ctx, []apiz.Api{routezsamplefraction.NewService().Api()})
 		want := `class Apis {
 
   /**
@@ -320,7 +320,7 @@ export { Apis };
 				Desc:    &schemaz.Desc{Name: "Custom", Summary: "Custom action", Labels: map[string]string{"servname": "tfinfer"}},
 			},
 		}
-		got := jsapi.Write(ctx, []*apispecz.Api{api})
+		got := forgejsapi.Write(ctx, []*apispecz.Api{api})
 		require.Contains(t, got, "url: `${this._services.config().servUrls?.[\"tfinfer\"] ?? this._services.config().baseUrl}/api/custom/{id}`,")
 		require.NotContains(t, got, "path:")
 	})
