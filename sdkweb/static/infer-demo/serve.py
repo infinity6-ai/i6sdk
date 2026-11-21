@@ -19,7 +19,7 @@ class Handler(SimpleHTTPRequestHandler):
         super().end_headers()
 
 
-# Always serve sdkweblegacy, whatever the current directory is
+# Always serve sdkweb, whatever the current directory is
 os.chdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 
 ThreadingHTTPServer(("", 8000), Handler).serve_forever()

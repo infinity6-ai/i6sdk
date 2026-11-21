@@ -1,6 +1,6 @@
-# Commonz Go Project
+# i6sdk Mono-Repo Project
 
-This is an open-source Go project providing our company sdk utilities functionalities.
+This is an open-source Go mono-repo providing the Infinity6 SDK and multi-language generator utilities.
 
 ## Testing Conventions
 
@@ -106,8 +106,14 @@ errorz.Check(err)
 
 ### Running Tests
 
-To run Unit and Remote tests, use the following command:
+To run tests across all components in the mono-repo:
 
 ```bash
-go test -run '^(TestUnit.*|TestRemote.*)$' ./...
+./build.sh test
+```
+
+Or for a specific component:
+
+```bash
+./comp.sh <component> test
 ```

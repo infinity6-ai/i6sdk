@@ -10,7 +10,6 @@ require (
 	github.com/infinity6-ai/gox/schemaz v0.0.77
 	github.com/infinity6-ai/i6sdk/sdkcorez v0.0.0-00010101000000-000000000000
 	github.com/stretchr/testify v1.12.1
-	go.code.infinity6.ai/sdkgo v0.0.69
 )
 
 require (

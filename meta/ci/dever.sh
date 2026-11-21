@@ -2,7 +2,6 @@
 
 function cmd_build() {
   ./meta/ci/ci.sh build
-  ./build.sh update_i6
   mkdir -p gen
   if ! i6dev code is-clean; then
     touch gen/dever.flag
