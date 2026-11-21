@@ -16,12 +16,7 @@ function cmd_run_server() {
     # [ "x$(i6dev box-config jq -r .id)" == "xlocal" ]
     # eval "$(cmd_env)"
     cmd_generate
-    I6_WEB_CHECKER_ENABLED=true cmd_run server start "$@"
-}
-
-function cmd_run_testserver() {
-    cmd_generate
-    cmd_run appstack testserver
+    cmd_run server start "$@"
 }
 
 function cmd_test() {

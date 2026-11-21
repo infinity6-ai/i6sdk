@@ -2,17 +2,17 @@ package sdkwebserver
 
 import (
 	"context"
-	"io"
+	"net/http"
+	"os"
 
-	"github.com/infinity6-ai/i6sdk/sdkweb/internal/stfiles"
-	"github.com/infinity6-ai/i6sdk/sdkweb/internal/stripewebhook"
-	"github.com/infinity6-ai/i6sdk/sdkweb/version"
-	"go.code.infinity6.ai/platform/config"
-	"go.code.infinity6.ai/platform/httpz/httpzserver"
-	"go.code.infinity6.ai/web/api/webhandler"
+	"github.com/infinity6-ai/gox/commonz/configz"
+	"github.com/infinity6-ai/gox/commonz/pathz"
+	"github.com/infinity6-ai/gox/httpz/httpzrequest"
+	"github.com/infinity6-ai/gox/httpz/httpzserver"
+	"github.com/infinity6-ai/gox/httpz/httpzserver/httpzserverdisk"
 )
 
-var I6_SDK_WEB_SERVER_LOCAL_ADDRESS = config.Create("I6_SDK_WEB_SERVER_LOCAL_ADDRESS", "127.0.0.1:8043")
+var I6_SDK_WEB_SERVER_LOCAL_ADDRESS = configz.Create("I6_SDK_WEB_SERVER_LOCAL_ADDRESS", "127.0.0.1:8043")
 
 type Options struct {
 	Context      context.Context
@@ -20,71 +20,86 @@ type Options struct {
 }
 
 type Server struct {
-	server   *httpzserver.Server
-	reverter io.Closer
-}
-
-func (me *Server) Start() {
-	me.server.Start()
-}
-
-func (me *Server) Stop() {
-	if me.reverter != nil {
-		defer me.reverter.Close()
-	}
-	if me.server != nil {
-		defer me.server.Stop()
-	}
-}
-
-func (me *Server) Address() string {
-	return me.server.Address()
-}
-
-func (me *Server) Base() string {
-	return me.server.Base()
-}
-
-func (me *Server) Serve() {
-	me.server.Serve()
+	server *httpzserver.Server
 }
 
 func Listen(opts Options) *Server {
-	if opts.LocalAddress == "" {
-		opts.LocalAddress = I6_SDK_WEB_SERVER_LOCAL_ADDRESS.Get()
+	ctx := opts.Context
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	addr := opts.LocalAddress
+	if addr == "" {
+		addr, _ = I6_SDK_WEB_SERVER_LOCAL_ADDRESS.Get(ctx)
+		if addr == "" {
+			addr = "127.0.0.1:8043"
+		}
 	}
 
-	ret := &Server{}
-	ret.server = &httpzserver.Server{
-		Context:      opts.Context,
-		LocalAddress: opts.LocalAddress,
-		Audit:        false,
-		ServName:     "sdkweb",
-		ServVersion:  version.Version(),
+	srv := httpzserver.New(ctx, httpzserver.Options{
+		LocalAddress: addr,
+	})
+
+	root := "."
+	if _, err := os.Stat("static/sdkweb.txt"); err != nil {
+		if _, err := os.Stat("sdkweb/static/sdkweb.txt"); err == nil {
+			root = "sdkweb"
+		}
 	}
-	ret.server.Listen()
-	return ret
+	basePath := pathz.MustParse(root)
+
+	srv.AddHandler("GET", "/static/*", httpzserverdisk.Handler(httpzserverdisk.Options{
+		Base:   basePath,
+		Prefix: "/static",
+	}))
+	srv.AddHandler("GET", "/src/*", httpzserverdisk.Handler(httpzserverdisk.Options{
+		Base:   basePath,
+		Prefix: "/src",
+	}))
+	srv.AddHandler("GET", "/test/*", httpzserverdisk.Handler(httpzserverdisk.Options{
+		Base:   basePath,
+		Prefix: "/test",
+	}))
+
+	srv.AddHandler("POST", "/api/stripe/webhook", func(ctx context.Context, resp httpzserver.Resp, req *httpzrequest.Req, params map[string]string) {
+		resp(http.StatusNoContent, nil)
+	})
+
+	srv.AddHandler("GET", "/", func(ctx context.Context, resp httpzserver.Resp, req *httpzrequest.Req, params map[string]string) {
+		resp.Redirect(nil, "/static/index.html")
+	})
+
+	srv.Listen()
+
+	return &Server{server: srv}
 }
 
-func (me *Server) AddHandlers() {
-	me.server.Health()
+func (s *Server) Start() {
+	s.server.Start()
+}
 
-	webhandler.Add(me.server)
-	stripewebhook.Add(me.server)
-	me.server.AddRestPrefix("GET", "/static", stfiles.Handle())
-	me.server.AddRestPrefix("GET", "/src", stfiles.Handle())
-	me.server.AddRestPrefix("GET", "/test", stfiles.Handle())
+func (s *Server) Stop() {
+	s.server.Close()
+}
 
-	me.server.AddRestPrefix("GET", "/", stfiles.IndexRedirect)
+func (s *Server) Address() string {
+	return s.server.Addr().String()
+}
+
+func (s *Server) Base() string {
+	return s.server.Base().String()
+}
+
+func (s *Server) Serve() {
+	s.server.Serve()
+}
+
+func (s *Server) Server() *httpzserver.Server {
+	return s.server
 }
 
 func Start(opts Options) *Server {
-	server := Listen(opts)
-	server.AddHandlers()
-	server.Start()
-	return server
-}
-
-func (me *Server) Server() *httpzserver.Server {
-	return me.server
+	s := Listen(opts)
+	s.Start()
+	return s
 }
