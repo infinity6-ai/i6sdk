@@ -6,8 +6,8 @@ import (
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitableget"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbpathz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/laketbpathz"
 )
 
 func TestUnitDszApiTableGet(t *testing.T) {

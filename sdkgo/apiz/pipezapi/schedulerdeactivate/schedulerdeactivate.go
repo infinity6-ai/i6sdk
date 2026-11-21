@@ -5,10 +5,10 @@ import (
 
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/pipez"
-	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/pipez/relevancefashionpipez"
-	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabeltokentype"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/pipez/relevancefashionpipez"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/speclabels/speclabeltokentype"
 )
 
 func AllApis() []apiz.Api {

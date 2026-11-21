@@ -3,12 +3,12 @@ package dszapipaymentlist
 import (
 	"time"
 
-	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabeltokentype"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/speclabels/speclabeltokentype"
 
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/solution"
 )
 
 type Req struct {

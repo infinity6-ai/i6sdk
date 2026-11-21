@@ -3,14 +3,14 @@ package dszapiloadresult
 import (
 	"reflect"
 
-	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabeltokentype"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/speclabels/speclabeltokentype"
 
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/resultz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/resultz/platformresultz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/resultz/relevancefashionresultz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/resultz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/resultz/platformresultz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/resultz/relevancefashionresultz"
 )
 
 func AllApis() []apiz.Api {

@@ -2,8 +2,8 @@ package pipez
 
 import (
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solutiondomain"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/solutiondomain"
 )
 
 type Pipe interface {

@@ -7,8 +7,8 @@ import (
 	"github.com/infinity6-ai/gox/fsz/fsz/fszsignmethod"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapitablelist"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbpathz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/laketbpathz"
 )
 
 func TestUnitDszApiTableList(t *testing.T) {

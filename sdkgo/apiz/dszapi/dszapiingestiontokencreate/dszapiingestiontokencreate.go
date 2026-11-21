@@ -3,9 +3,9 @@ package dszapiingestiontokencreate
 import (
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/dsztoken"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabeltokentype"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/dsztoken"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/speclabels/speclabeltokentype"
 )
 
 type DszCreateIngestionTokenReq struct {

@@ -6,9 +6,9 @@ import (
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/pipezapi/pipezstart"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
-	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/pipez/relevancefashionpipez"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/laketbnamez"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/pipez/relevancefashionpipez"
 )
 
 func TestUnitPipezApi(t *testing.T) {

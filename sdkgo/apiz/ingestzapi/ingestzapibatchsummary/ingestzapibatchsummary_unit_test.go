@@ -6,9 +6,9 @@ import (
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/ingestzapi/ingestzapibatchsummary"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/laketbnamez"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/storeid"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/laketbnamez"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/storeid"
 )
 
 func TestUnitIngestzBatchSummaryApi(t *testing.T) {

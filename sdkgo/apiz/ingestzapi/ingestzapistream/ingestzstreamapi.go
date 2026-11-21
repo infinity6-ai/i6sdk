@@ -3,13 +3,13 @@ package ingestzapistream
 import (
 	"reflect"
 
-	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabeltokentype"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/speclabels/speclabeltokentype"
 
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz/relevancefashiondataz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/tabledataz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/tabledataz/relevancefashiondataz"
 )
 
 func AllApis() []apiz.Api {

@@ -126,9 +126,9 @@ graph TD
 - [x] Run full test suite to verify all unit tests pass without relying on cross-module test imports.
 
 ### Phase 1: Core Domain Extraction (`versionz` & `sdkcorez`)
-- [ ] Create `versionz/` with `go.mod`.
-- [ ] Create `sdkcorez/` with `go.mod`.
-- [ ] Move base packages into `sdkcorez/`:
+- [x] Create `versionz/` with `go.mod`.
+- [x] Create `sdkcorez/` with `go.mod`.
+- [x] Move base packages into `sdkcorez/`:
   - `dsz/`
   - `grants/`
   - `logzinit/`
@@ -138,8 +138,8 @@ graph TD
   - `sdkfuncz/`
   - `speclabels/`
   - `tabledataz/`
-- [ ] Update internal import paths within `sdkcorez/`.
-- [ ] Verify `sdkcorez` unit tests pass independently.
+- [x] Update internal import paths within `sdkcorez/`.
+- [x] Verify `sdkcorez` unit tests pass independently.
 
 ### Phase 2: Service API Extraction (`api*z`)
 - [ ] Create `apiuserz/` (`go.mod`):

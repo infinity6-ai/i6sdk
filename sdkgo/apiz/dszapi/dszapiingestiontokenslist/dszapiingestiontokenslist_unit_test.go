@@ -6,8 +6,8 @@ import (
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapiingestiontokenslist"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/dsztoken"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/dsztoken"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
 )
 
 func TestUnitDszListIngestionTokensApi(t *testing.T) {

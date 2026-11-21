@@ -6,15 +6,15 @@ import (
 	"slices"
 
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
-	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashattachedrevenue"
-	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashcoverage"
-	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashdisplaymetrics"
-	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashfunnel"
-	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashimpactedmetricsbyshowcasecategory"
-	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashimpactedmetricsbysku"
-	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashlistshowcasecategories"
-	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/inferz/inferzrelevancefashionfbt"
-	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/dash/relevancefashiondashattachedrevenue"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/dash/relevancefashiondashcoverage"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/dash/relevancefashiondashdisplaymetrics"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/dash/relevancefashiondashfunnel"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/dash/relevancefashiondashimpactedmetricsbyshowcasecategory"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/dash/relevancefashiondashimpactedmetricsbysku"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/dash/relevancefashiondashlistshowcasecategories"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/inferz/inferzrelevancefashionfbt"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/sdkfuncz"
 )
 
 var sdkFuncs map[string]sdkfuncz.Func

@@ -7,10 +7,10 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejssdkfunc"
 	"go.code.infinity6.ai/sdkgo/mold/moldsdkfunc"
-	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashfunnel"
-	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/dash/relevancefashiondashlistshowcasecategories"
-	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/inferz/inferzrelevancefashionfbt"
-	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/dash/relevancefashiondashfunnel"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/dash/relevancefashiondashlistshowcasecategories"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/inferz/inferzrelevancefashionfbt"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/sdkfuncz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkz"
 )
 

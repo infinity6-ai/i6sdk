@@ -6,10 +6,10 @@ import (
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/pipezapi/pipezlist"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/domain"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solutiondomain"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/domain"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/solution"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/solutiondomain"
 	"go.code.infinity6.ai/sdkgo/sdkgo/pipez"
 )
 

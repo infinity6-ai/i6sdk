@@ -12,7 +12,7 @@ import (
 	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsschema"
 	"go.code.infinity6.ai/sdkgo/mold/moldsdkfunc"
-	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/sdkfuncz"
 )
 
 func NewSdk() *moldsdkfunc.Parser {

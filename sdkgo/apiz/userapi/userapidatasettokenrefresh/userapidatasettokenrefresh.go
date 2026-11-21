@@ -3,9 +3,9 @@ package userapidatasettokenrefresh
 import (
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
-	"go.code.infinity6.ai/sdkgo/sdkgo/grants"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/solution"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/grants"
 )
 
 type Req struct {

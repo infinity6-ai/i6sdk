@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/sdkfuncz"
 	"go.code.infinity6.ai/sdkgo/sdkgo/sdkz"
 )
 

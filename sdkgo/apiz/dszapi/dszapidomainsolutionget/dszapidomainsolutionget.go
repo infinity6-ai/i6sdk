@@ -3,15 +3,15 @@ package dszapidomainsolutionget
 import (
 	"reflect"
 
-	"go.code.infinity6.ai/sdkgo/sdkgo/speclabels/speclabeltokentype"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/speclabels/speclabeltokentype"
 
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/infinity6-ai/gox/schemaz/typeastz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/domain"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/solution"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/storeid"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/domain"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/solution"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/storeid"
 )
 
 type DszSolutionDomainGetReq struct {

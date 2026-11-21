@@ -10,7 +10,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsbundle"
 	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejssdkfunc"
 	"go.code.infinity6.ai/sdkgo/mold/moldsdkfunc"
-	"go.code.infinity6.ai/sdkgo/sdkgo/productz/relevance/inferz/inferzrelevancefashionfbt"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/inferz/inferzrelevancefashionfbt"
 )
 
 func TestUnitWrite(t *testing.T) {

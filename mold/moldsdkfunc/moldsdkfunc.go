@@ -10,7 +10,7 @@ import (
 	"github.com/infinity6-ai/gox/schemaz/schemamold"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/infinity6-ai/gox/schemaz/typeastz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/sdkfuncz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/sdkfuncz"
 )
 
 type Req struct {

@@ -6,7 +6,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapidatasetlist"
-	"go.code.infinity6.ai/sdkgo/sdkgo/grants"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/grants"
 )
 
 func TestUnitDszListDatasetsApi(t *testing.T) {

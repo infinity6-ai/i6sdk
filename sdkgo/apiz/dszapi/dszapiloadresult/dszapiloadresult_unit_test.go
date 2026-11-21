@@ -6,9 +6,9 @@ import (
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapiloadresult"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/storeid"
-	"go.code.infinity6.ai/sdkgo/sdkgo/resultz/relevancefashionresultz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/storeid"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/resultz/relevancefashionresultz"
 )
 
 func TestUnitDszTableFileLoadApi(t *testing.T) {

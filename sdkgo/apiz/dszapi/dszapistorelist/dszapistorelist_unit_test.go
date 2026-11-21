@@ -6,9 +6,9 @@ import (
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/sdkgo/apiz/dszapi/dszapistorelist"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/dszstore"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/lakedsz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/dsz/storeid"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/dszstore"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/storeid"
 )
 
 func TestUnitDszListStoresApi(t *testing.T) {
