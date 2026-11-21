@@ -74,6 +74,8 @@ github.com/infinity6-ai/gox/commonz v0.0.75 h1:+kmNELTK1SitTSrVwZOVlYuO4C7jdS/Sr
 github.com/infinity6-ai/gox/commonz v0.0.75/go.mod h1:2wnwdFQdf8rOaSZO1GSWjK39/4jV/2gS2tjXlrkK+OE=
 github.com/infinity6-ai/gox/httpz v0.0.75 h1:Yz5+ETNRrw8pazIEPftY4QkOs8NFgQ/+OumVmNsBDFA=
 github.com/infinity6-ai/gox/httpz v0.0.75/go.mod h1:I6QM0i9NsM+Tn84voHl/an0ei7WyCqmY4u924vKxXJE=
+github.com/infinity6-ai/gox/versionz v0.0.75 h1:ivLf5mPkXAxC3ZxJmbZw9PkPYrqqwg6q/j53IsYr26M=
+github.com/infinity6-ai/gox/versionz v0.0.75/go.mod h1:/wIO1egpVS5CZ8hdbGDIeItr54luGEOcqcb7TnMUqsY=
 github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 h1:GFCKgmp0tecUJ0sJuv4pzYCqS9+RGSn52M3FUwPs+uo=
 github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10/go.mod h1:t/avpk3KcrXxUnYOhZhMXJlSEyie6gQbtLq5NM3loB8=
 github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
