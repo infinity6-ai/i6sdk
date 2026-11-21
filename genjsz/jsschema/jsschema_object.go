@@ -10,7 +10,7 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
-func ParseSchemaObject(ctx context.Context, baseId string, obj map[string]*schemaz.Schema) (*jstypez.Typedef, *jstypez.Typedefs) {
+func (p *Parser) ParseSchemaObject(ctx context.Context, baseId string, obj map[string]*schemaz.Schema) (*jstypez.Typedef, *jstypez.Typedefs) {
 	ret := jstypez.Typedef{
 		Head:       &jstypez.Tuple{Typ: jstypez.TypObject},
 		Properties: &jstypez.Tuples{},
@@ -19,7 +19,7 @@ func ParseSchemaObject(ctx context.Context, baseId string, obj map[string]*schem
 	for _, field := range slices.Sorted(maps.Keys(obj)) {
 		schema := obj[field]
 		fieldId := baseId + camelz.P(field).P()
-		s, schemaTdfs := ParseSchema(ctx, fieldId, schema)
+		s, schemaTdfs := p.ParseSchema(ctx, fieldId, schema)
 		typ := s.Head.Typ
 		if s.Head.Typ == jstypez.TypObject && s.Properties != nil {
 			tdfs.Add(s)

@@ -70,7 +70,7 @@ func TestUnitDszListPlansApi(t *testing.T) {
 	})
 
 	t.Run("spec", func(t *testing.T) {
-		parsed := jsapi.ParseApi(ctx, &dszapiplanlist.Api{})
+		parsed := jsapi.NewSdk().ParseApi(ctx, &dszapiplanlist.Api{})
 		require.NotNil(t, parsed)
 		require.Equal(t, "dsz-list-plans", parsed.Spec.Id)
 		require.Equal(t, "GET", parsed.Spec.Method)

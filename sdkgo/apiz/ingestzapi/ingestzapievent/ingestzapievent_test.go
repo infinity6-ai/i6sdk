@@ -36,7 +36,7 @@ func TestUnitIngestzStreamApi(t *testing.T) {
 	require.Equal(t, "/api/ingest/dataset/{dataset}/event/dummy-catalog/text.txt", spec.Path)
 
 	// Verify Schema parsing and mapping
-	parsed := jsapi.ParseApi(ctx, api)
+	parsed := jsapi.NewSdk().ParseApi(ctx, api)
 	require.NotNil(t, parsed)
 	require.Equal(t, "ingestz-event-dummy-catalog", parsed.Spec.Id)
 

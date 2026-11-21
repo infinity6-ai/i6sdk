@@ -22,7 +22,7 @@ func TestUnitDszDeleteTokenApi(t *testing.T) {
 	apiCopy := jsonz.MustCopy(api, &dszapitokendelete.Api{})
 	require.Equal(t, api.Req, apiCopy.Req)
 
-	parsed := jsapi.ParseApi(ctx, api)
+	parsed := jsapi.NewSdk().ParseApi(ctx, api)
 	require.NotNil(t, parsed)
 	require.Equal(t, "dsz-delete-token", parsed.Spec.Id)
 }

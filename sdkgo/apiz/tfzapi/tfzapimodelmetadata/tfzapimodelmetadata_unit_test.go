@@ -45,7 +45,7 @@ func TestUnitModelMetadataApi(t *testing.T) {
 	require.Equal(t, "input_1", apiCopy.Resp.Inputs[0].Name)
 	require.Equal(t, []int{1, 256}, apiCopy.Resp.Inputs[0].Shape)
 
-	parsed := jsapi.ParseApi(ctx, api)
+	parsed := jsapi.NewSdk().ParseApi(ctx, api)
 	require.NotNil(t, parsed)
 	require.Equal(t, "tfz-model-metadata", parsed.Spec.Id)
 }

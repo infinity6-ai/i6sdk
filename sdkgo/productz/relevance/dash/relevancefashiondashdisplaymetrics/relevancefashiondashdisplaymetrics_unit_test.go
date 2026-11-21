@@ -66,7 +66,7 @@ func TestUnitRelevanceFashionDashDisplayMetricsDataRefs(t *testing.T) {
 	ctx := t.Context()
 	refs := (&relevancefashiondashdisplaymetrics.Func{}).SdkFuncDataRefs()
 
-	tdInput, tdsInput := jsschema.ParseSchema(ctx, "displayMetricsInput", refs.Input)
+	tdInput, tdsInput := jsschema.NewSdk().ParseSchema(ctx, "displayMetricsInput", refs.Input)
 	require.NotNil(t, tdInput)
 	var paramsTdf *jstypez.Typedef
 	for _, td := range tdsInput.All() {
@@ -82,7 +82,7 @@ func TestUnitRelevanceFashionDashDisplayMetricsDataRefs(t *testing.T) {
 	require.Equal(t, "boolean", props["from_rec"].Typ)
 	require.Equal(t, "string", props["display_id"].Typ)
 
-	tdOutput, tdsOutput := jsschema.ParseSchema(ctx, "displayMetricsOutput", refs.Output)
+	tdOutput, tdsOutput := jsschema.NewSdk().ParseSchema(ctx, "displayMetricsOutput", refs.Output)
 	require.NotNil(t, tdOutput)
 	var elem *jstypez.Typedef
 	for _, td := range tdsOutput.All() {

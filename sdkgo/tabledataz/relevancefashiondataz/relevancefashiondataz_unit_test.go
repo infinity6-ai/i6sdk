@@ -296,47 +296,47 @@ func TestUnitEventSchema(t *testing.T) {
 	ctx := t.Context()
 	t.Run("Click Schema", func(t *testing.T) {
 		s := (&relevancefashiondataz.Click{}).Schema()
-		td, _ := jsschema.ParseSchema(ctx, "Click", s)
+		td, _ := jsschema.NewSdk().ParseSchema(ctx, "Click", s)
 		require.Equal(t, "Click", td.Head.Name)
 	})
 	t.Run("AddToCart Schema", func(t *testing.T) {
 		s := (&relevancefashiondataz.AddToCart{}).Schema()
-		td, _ := jsschema.ParseSchema(ctx, "AddToCart", s)
+		td, _ := jsschema.NewSdk().ParseSchema(ctx, "AddToCart", s)
 		require.Equal(t, "AddToCart", td.Head.Name)
 	})
 	t.Run("RemoveFromCart Schema", func(t *testing.T) {
 		s := (&relevancefashiondataz.RemoveFromCart{}).Schema()
-		td, _ := jsschema.ParseSchema(ctx, "RemoveFromCart", s)
+		td, _ := jsschema.NewSdk().ParseSchema(ctx, "RemoveFromCart", s)
 		require.Equal(t, "RemoveFromCart", td.Head.Name)
 	})
 	t.Run("Search Schema", func(t *testing.T) {
 		s := (&relevancefashiondataz.Search{}).Schema()
-		td, _ := jsschema.ParseSchema(ctx, "Search", s)
+		td, _ := jsschema.NewSdk().ParseSchema(ctx, "Search", s)
 		require.Equal(t, "Search", td.Head.Name)
 	})
 	t.Run("PurchaseSku Schema", func(t *testing.T) {
 		s := (&relevancefashiondataz.PurchaseSku{}).Schema()
-		td, _ := jsschema.ParseSchema(ctx, "PurchaseSku", s)
+		td, _ := jsschema.NewSdk().ParseSchema(ctx, "PurchaseSku", s)
 		require.Equal(t, "PurchaseSku", td.Head.Name)
 	})
 	t.Run("Purchase Schema", func(t *testing.T) {
 		s := (&relevancefashiondataz.Purchase{}).Schema()
-		td, _ := jsschema.ParseSchema(ctx, "Purchase", s)
+		td, _ := jsschema.NewSdk().ParseSchema(ctx, "Purchase", s)
 		require.Equal(t, "Purchase", td.Head.Name)
 	})
 	t.Run("Recraw Schema", func(t *testing.T) {
 		s := (&relevancefashiondataz.Recraw{}).Schema()
-		td, _ := jsschema.ParseSchema(ctx, "Recraw", s)
+		td, _ := jsschema.NewSdk().ParseSchema(ctx, "Recraw", s)
 		require.Equal(t, "Recraw", td.Head.Name)
 	})
 	t.Run("Recshow Schema", func(t *testing.T) {
 		s := (&relevancefashiondataz.Recshow{}).Schema()
-		td, _ := jsschema.ParseSchema(ctx, "Recshow", s)
+		td, _ := jsschema.NewSdk().ParseSchema(ctx, "Recshow", s)
 		require.Equal(t, "Recshow", td.Head.Name)
 	})
 	t.Run("Event Schema", func(t *testing.T) {
 		s := (&relevancefashiondataz.Event{}).SchemaQuery()
-		td, tds := jsschema.ParseSchema(ctx, "Event", s)
+		td, tds := jsschema.NewSdk().ParseSchema(ctx, "Event", s)
 		require.Equal(t, "Event", td.Head.Name)
 
 		propMap := make(map[string]jstypez.Tuple)
@@ -463,7 +463,7 @@ func TestUnitCatalogSchema(t *testing.T) {
 	ctx := t.Context()
 	t.Run("Catalog Schema", func(t *testing.T) {
 		s := (&relevancefashiondataz.Catalog{}).SchemaQuery()
-		td, _ := jsschema.ParseSchema(ctx, "Catalog", s)
+		td, _ := jsschema.NewSdk().ParseSchema(ctx, "Catalog", s)
 		require.Equal(t, "Catalog", td.Head.Name)
 
 		propMap := make(map[string]jstypez.Tuple)

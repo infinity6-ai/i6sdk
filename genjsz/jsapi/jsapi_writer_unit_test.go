@@ -45,7 +45,7 @@ func TestUnitWrite(t *testing.T) {
 	})
 
 	t.Run("with multiple path params and extra request fields", func(t *testing.T) {
-		apis := jsapi.ParseApis(ctx, []apiz.Api{routezsamplefraction.NewService().Api()})
+		apis := jsapi.NewSdk().ParseApis(ctx, []apiz.Api{routezsamplefraction.NewService().Api()})
 		want := `class Apis {
 
   /**

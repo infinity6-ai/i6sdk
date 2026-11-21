@@ -48,7 +48,7 @@ func TestUnitDszCreateCustomerPortalApi(t *testing.T) {
 	})
 
 	t.Run("spec", func(t *testing.T) {
-		parsed := jsapi.ParseApi(ctx, &dszapicustomerportalcreate.Api{})
+		parsed := jsapi.NewSdk().ParseApi(ctx, &dszapicustomerportalcreate.Api{})
 		require.NotNil(t, parsed)
 		require.Equal(t, "dsz-create-customer-portal", parsed.Spec.Id)
 		require.Equal(t, "POST", parsed.Spec.Method)

@@ -27,7 +27,7 @@ func TestUnitDszCreateStoreApi(t *testing.T) {
 	apiCopy := jsonz.MustCopy(api, &dszapistorecreate.Api{})
 	require.Equal(t, api.Req, apiCopy.Req)
 
-	parsed := jsapi.ParseApi(ctx, api)
+	parsed := jsapi.NewSdk().ParseApi(ctx, api)
 	require.NotNil(t, parsed)
 	require.Equal(t, "dsz-create-store", parsed.Spec.Id)
 }

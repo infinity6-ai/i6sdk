@@ -53,7 +53,22 @@ func (s *SdkFuncs) Funcs() []*SdkFunc {
 	return s.SdkFuncs
 }
 
-func ParseSdkFunc(ctx context.Context, fn sdkfuncz.Func) *SdkFunc {
+type Parser struct {
+	schemaParser *jsschema.Parser
+}
+
+func New(schemaParser *jsschema.Parser) *Parser {
+	if schemaParser == nil {
+		schemaParser = jsschema.NewSdk()
+	}
+	return &Parser{schemaParser: schemaParser}
+}
+
+func NewSdk() *Parser {
+	return New(jsschema.NewSdk())
+}
+
+func (p *Parser) ParseSdkFunc(ctx context.Context, fn sdkfuncz.Func) *SdkFunc {
 	refs := fn.SdkFuncDataRefs()
 
 	funcId := ""
@@ -92,13 +107,13 @@ func ParseSdkFunc(ctx context.Context, fn sdkfuncz.Func) *SdkFunc {
 				return
 			}
 			fieldName := ret.Spec.CamelId + strings.ToUpper(suffix[0:1]) + suffix[1:]
-			p, tdfs := jsschema.ParseSchema(ctx, fieldName, s)
-			checker.Equal("object", p.Head.Typ, "must be object")
+			td, tdfs := p.schemaParser.ParseSchema(ctx, fieldName, s)
+			checker.Equal("object", td.Head.Typ, "must be object")
 			out.Properties = &jstypez.Tuples{}
 			out.Head = &jstypez.Tuple{Typ: fieldName, Name: suffix}
-			p.Head.Summary = fmt.Sprintf("%s %s", ret.Spec.CamelId, suffix)
+			td.Head.Summary = fmt.Sprintf("%s %s", ret.Spec.CamelId, suffix)
 			ret.Typedefs.ExtractFrom(tdfs)
-			ret.Typedefs.Add(p)
+			ret.Typedefs.Add(td)
 		}
 
 		parseRefsV2(&ret.Req.Input, "input", refs.Input)
@@ -109,14 +124,14 @@ func ParseSdkFunc(ctx context.Context, fn sdkfuncz.Func) *SdkFunc {
 	return ret
 }
 
-func ParseSdkFuncs(ctx context.Context, funcs []sdkfuncz.Func) *SdkFuncs {
+func (p *Parser) ParseSdkFuncs(ctx context.Context, funcs []sdkfuncz.Func) *SdkFuncs {
 	ret := SdkFuncs{
 		SdkFuncs: make([]*SdkFunc, len(funcs)),
 		Typedefs: jstypez.NewTypedefs(nil),
 	}
 	for idx, fn := range funcs {
 		logger.Info(ctx, "parsing js sdk func", map[string]any{"func": fn.SdkFuncSpec().Id})
-		parsed := ParseSdkFunc(ctx, fn)
+		parsed := p.ParseSdkFunc(ctx, fn)
 		ret.Typedefs.Merge(parsed.Typedefs)
 		ret.SdkFuncs[idx] = parsed
 	}

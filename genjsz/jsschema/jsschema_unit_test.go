@@ -10,13 +10,40 @@ import (
 	"go.code.infinity6.ai/sdkgo/sdkgo/grants"
 )
 
+type externalCustomType struct {
+	Value string
+}
+
+func TestUnitParserInstanceAndAddKnownType(t *testing.T) {
+	ctx := t.Context()
+
+	parser := jsschema.New().AddKnownType(externalCustomType{}, "MyCustomJsString")
+
+	var val externalCustomType
+	schema := &schemaz.Schema{
+		Object: func(_ bool) map[string]*schemaz.Schema {
+			return map[string]*schemaz.Schema{
+				"custom_field": {
+					Field: func() any { return &val },
+				},
+			}
+		},
+	}
+
+	td, _ := parser.ParseSchema(ctx, "testCustom", schema)
+	require.NotNil(t, td)
+	require.Len(t, td.Properties.All(), 1)
+	require.Equal(t, "custom_field", td.Properties.All()[0].Name)
+	require.Equal(t, "MyCustomJsString", td.Properties.All()[0].Typ)
+}
+
 func TestUnitParseSchema(t *testing.T) {
 	ctx := t.Context()
 	api := routezsamplefraction.NewService().Api()
 	params := api.ApiDataRefs().PathParams
 	require.NotNil(t, params)
 
-	td, tds := jsschema.ParseSchema(ctx, "sampleParams", params)
+	td, tds := jsschema.NewSdk().ParseSchema(ctx, "sampleParams", params)
 	require.NotNil(t, td)
 	require.NotNil(t, tds)
 	require.Equal(t, "sampleParams", td.Head.Name)
@@ -50,7 +77,7 @@ func TestUnitParseSchemaNestedObject(t *testing.T) {
 		},
 	}
 
-	td, tds := jsschema.ParseSchema(ctx, "in", schema)
+	td, tds := jsschema.NewSdk().ParseSchema(ctx, "in", schema)
 	require.Equal(t, "inParams", td.Properties.All()[0].Typ, "nested object must be typed, not a bare object")
 
 	var found bool
@@ -76,7 +103,7 @@ func TestUnitParseSchemaCustomTypeEnum(t *testing.T) {
 		},
 	}
 
-	td, tds := jsschema.ParseSchema(ctx, "testReq", schema)
+	td, tds := jsschema.NewSdk().ParseSchema(ctx, "testReq", schema)
 	require.NotNil(t, td)
 	require.Equal(t, "Grant", td.Properties.All()[0].Typ)
 

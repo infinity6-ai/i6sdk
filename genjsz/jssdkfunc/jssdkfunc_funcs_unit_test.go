@@ -20,7 +20,7 @@ func TestUnitParseSdkFuncs(t *testing.T) {
 
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
-		actual := jssdkfunc.ParseSdkFuncs(ctx, s.in)
+		actual := jssdkfunc.NewSdk().ParseSdkFuncs(ctx, s.in)
 		jsonz.MustParse(jsonz.MustFormat(actual).String(), &actual)
 		require.Equal(t, s.want, actual)
 	}

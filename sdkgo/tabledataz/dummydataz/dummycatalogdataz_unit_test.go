@@ -81,7 +81,7 @@ func TestUnitDummyCatalogDataSchema(t *testing.T) {
 	ctx := t.Context()
 	t.Run("DummyCatalogData Schema Check", func(t *testing.T) {
 		s := (&dummydataz.Catalog{}).SchemaQuery()
-		td, _ := jsschema.ParseSchema(ctx, "DummyCatalogData", s)
+		td, _ := jsschema.NewSdk().ParseSchema(ctx, "DummyCatalogData", s)
 		require.Equal(t, "DummyCatalogData", td.Head.Name)
 
 		propMap := make(map[string]jstypez.Tuple)

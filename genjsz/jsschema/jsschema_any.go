@@ -16,7 +16,7 @@ type tlogger logz.Type
 
 var logger = logz.Create(tlogger(true))
 
-func ParseAny(ctx context.Context, baseId string, v any) (*jstypez.Typedef, *jstypez.Typedefs) {
+func (p *Parser) ParseAny(ctx context.Context, baseId string, v any) (*jstypez.Typedef, *jstypez.Typedefs) {
 	if v == nil {
 		return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: "any", GoTyp: "any"}}, nil
 	}
@@ -32,7 +32,7 @@ func ParseAny(ctx context.Context, baseId string, v any) (*jstypez.Typedef, *jst
 	}
 
 	if v, ok := jsonzembedded.Unembed(val.Interface()); ok {
-		a, b := ParseAny(ctx, baseId, v)
+		a, b := p.ParseAny(ctx, baseId, v)
 		a.Head.Name = baseId
 		if b == nil {
 			b = &jstypez.Typedefs{}
@@ -42,11 +42,11 @@ func ParseAny(ctx context.Context, baseId string, v any) (*jstypez.Typedef, *jst
 		return a, b
 	}
 
-	if a, b := knownTypes(ctx, baseId, val); a != nil {
+	if a, b := p.knownTypes(ctx, baseId, val); a != nil {
 		return a, b
 	}
 
-	if a, b := checkSchema(ctx, baseId, val); a != nil {
+	if a, b := p.checkSchema(ctx, baseId, val); a != nil {
 		return a, b
 	}
 
@@ -76,7 +76,7 @@ func ParseAny(ctx context.Context, baseId string, v any) (*jstypez.Typedef, *jst
 		elemType := val.Type().Elem()
 		elemZeroVal := reflect.Zero(elemType).Interface()
 
-		elemTdf, eTdfs := ParseAny(ctx, baseId+"Element", elemZeroVal)
+		elemTdf, eTdfs := p.ParseAny(ctx, baseId+"Element", elemZeroVal)
 		checker.StrEmpty(elemTdf.Head.Name, "elemTdf.Head.Name")
 		elemTdf.Head.Name = baseId + "Element"
 
@@ -97,8 +97,8 @@ func ParseAny(ctx context.Context, baseId string, v any) (*jstypez.Typedef, *jst
 		elemType := mapType.Elem()
 		elemZeroVal := reflect.Zero(elemType).Interface()
 
-		keyTdf, kTdfs := ParseAny(ctx, baseId+"Key", keyZeroVal)
-		valTdf, vTdfs := ParseAny(ctx, baseId+"Value", elemZeroVal)
+		keyTdf, kTdfs := p.ParseAny(ctx, baseId+"Key", keyZeroVal)
+		valTdf, vTdfs := p.ParseAny(ctx, baseId+"Value", elemZeroVal)
 
 		checker.StrEmpty(keyTdf.Head.Name, "keyTdf.Head.Name")
 		checker.StrEmpty(valTdf.Head.Name, "valTdf.Head.Name")
@@ -117,10 +117,9 @@ func ParseAny(ctx context.Context, baseId string, v any) (*jstypez.Typedef, *jst
 	default:
 		panic(fmt.Sprintf("unsupported type %T / %s: %#v", v, val.Kind(), v))
 	}
-
 }
 
-func checkSchema(ctx context.Context, baseId string, val reflect.Value) (*jstypez.Typedef, *jstypez.Typedefs) {
+func (p *Parser) checkSchema(ctx context.Context, baseId string, val reflect.Value) (*jstypez.Typedef, *jstypez.Typedefs) {
 	type S interface {
 		Schema() *schemaz.Schema
 	}
@@ -140,7 +139,7 @@ func checkSchema(ctx context.Context, baseId string, val reflect.Value) (*jstype
 	if s == nil {
 		return nil, nil
 	}
-	a, b := ParseSchema(ctx, baseId, s)
+	a, b := p.ParseSchema(ctx, baseId, s)
 	a.Head.Name = ""
 	return a, b
 }

@@ -45,7 +45,7 @@ func TestUnitDszApiTableList(t *testing.T) {
 func TestUnitDszApiTableListParseApi(t *testing.T) {
 	ctx := t.Context()
 	api := &dszapitablelist.Api{}
-	parsed := jsapi.ParseApi(ctx, api)
+	parsed := jsapi.NewSdk().ParseApi(ctx, api)
 	require.NotNil(t, parsed)
 	require.Equal(t, "dsz-table-list", parsed.Spec.Id)
 }

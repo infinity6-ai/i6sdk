@@ -9,24 +9,24 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
-func ParseSchema(ctx context.Context, baseId string, schema *schemaz.Schema) (*jstypez.Typedef, *jstypez.Typedefs) {
+func (p *Parser) ParseSchema(ctx context.Context, baseId string, schema *schemaz.Schema) (*jstypez.Typedef, *jstypez.Typedefs) {
 	var typedef *jstypez.Typedef
 	var typedefs *jstypez.Typedefs
 	if schema.Object != nil {
 		s := schema.Object(false)
-		typedef, typedefs = ParseSchemaObject(ctx, baseId, s)
+		typedef, typedefs = p.ParseSchemaObject(ctx, baseId, s)
 	}
 	if schema.UrlValue != nil {
 		s := schema.UrlValue()
-		typedef, typedefs = ParseSchemaUrlValue(ctx, baseId, s)
+		typedef, typedefs = p.ParseSchemaUrlValue(ctx, baseId, s)
 	}
 	if schema.Field != nil {
 		s := schema.Field()
-		typedef, typedefs = ParseSchemaField(ctx, baseId, s)
+		typedef, typedefs = p.ParseSchemaField(ctx, baseId, s)
 	}
 	if schema.Array != nil {
 		s := schema.Array()
-		typedef, typedefs = ParseSchemaArray(ctx, baseId, s)
+		typedef, typedefs = p.ParseSchemaArray(ctx, baseId, s)
 	}
 	if typedef == nil {
 		panic(fmt.Sprintf("unsupported: %#v", schema))

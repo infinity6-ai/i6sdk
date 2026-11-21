@@ -79,7 +79,7 @@ func TestUnitRelevanceFashionDashAttachedRevenueDataRefs(t *testing.T) {
 	require.NotNil(t, refs.Partitions)
 	require.NotNil(t, refs.Output)
 
-	tdInput, tdsInput := jsschema.ParseSchema(ctx, "attachedRevenueInput", refs.Input)
+	tdInput, tdsInput := jsschema.NewSdk().ParseSchema(ctx, "attachedRevenueInput", refs.Input)
 	require.NotNil(t, tdInput)
 	require.Equal(t, "attachedRevenueInput", tdInput.Head.Name)
 	require.Equal(t, "object", tdInput.Head.Typ)
@@ -95,7 +95,7 @@ func TestUnitRelevanceFashionDashAttachedRevenueDataRefs(t *testing.T) {
 	require.Equal(t, "attachedRevenueInputParams", inputProps["params"].Typ)
 	require.Contains(t, typedefNames(tdsInput), "attachedRevenueInputParams")
 
-	tdPartitions, tdsPartitions := jsschema.ParseSchema(ctx, "attachedRevenuePartitions", refs.Partitions)
+	tdPartitions, tdsPartitions := jsschema.NewSdk().ParseSchema(ctx, "attachedRevenuePartitions", refs.Partitions)
 	require.NotNil(t, tdPartitions)
 	require.Equal(t, "attachedRevenuePartitions", tdPartitions.Head.Name)
 	require.Equal(t, "object", tdPartitions.Head.Typ)
@@ -108,7 +108,7 @@ func TestUnitRelevanceFashionDashAttachedRevenueDataRefs(t *testing.T) {
 	require.Contains(t, partitionProps, "store_id")
 	require.Equal(t, "string", partitionProps["store_id"].Typ)
 
-	tdOutput, tdsOutput := jsschema.ParseSchema(ctx, "attachedRevenueOutput", refs.Output)
+	tdOutput, tdsOutput := jsschema.NewSdk().ParseSchema(ctx, "attachedRevenueOutput", refs.Output)
 	require.NotNil(t, tdOutput)
 	require.Equal(t, "attachedRevenueOutput", tdOutput.Head.Name)
 	require.Equal(t, "object", tdOutput.Head.Typ)

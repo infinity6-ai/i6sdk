@@ -8,9 +8,9 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
-func ParseSchemaArray(ctx context.Context, baseId string, s *schemaz.Array) (*jstypez.Typedef, *jstypez.Typedefs) {
+func (p *Parser) ParseSchemaArray(ctx context.Context, baseId string, s *schemaz.Array) (*jstypez.Typedef, *jstypez.Typedefs) {
 	element := s.Get(0, false)
-	eTypedef, eTypedefs := ParseSchema(ctx, baseId+"Element", element)
+	eTypedef, eTypedefs := p.ParseSchema(ctx, baseId+"Element", element)
 	typedef := &jstypez.Typedef{
 		Head: &jstypez.Tuple{Typ: fmt.Sprintf("Array<%s>", eTypedef.Head.Name)},
 	}

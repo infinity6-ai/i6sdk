@@ -21,8 +21,8 @@ func TestUnitWrite(t *testing.T) {
 	})
 
 	t.Run("with sdkfunc and api", func(t *testing.T) {
-		api := jsapi.ParseApi(ctx, routezsamplefraction.NewService().Api())
-		fn := jssdkfunc.ParseSdkFunc(ctx, &inferzrelevancefashionfbt.Func{})
+		api := jsapi.NewSdk().ParseApi(ctx, routezsamplefraction.NewService().Api())
+		fn := jssdkfunc.NewSdk().ParseSdkFunc(ctx, &inferzrelevancefashionfbt.Func{})
 		got := jswriter.Write(ctx, jswriter.Options{
 			Apis:     []*jsapi.Api{api},
 			SdkFuncs: []*jssdkfunc.SdkFunc{fn},

@@ -23,7 +23,7 @@ func TestUnitUserDatasetTokenRefreshDeleteApi(t *testing.T) {
 	apiCopy := jsonz.MustCopy(api, &userapidatasettokenrefreshdelete.Api{})
 	require.Equal(t, api.Req, apiCopy.Req)
 
-	parsed := jsapi.ParseApi(ctx, api)
+	parsed := jsapi.NewSdk().ParseApi(ctx, api)
 	require.NotNil(t, parsed)
 	require.Equal(t, "user-dataset-token-refresh-delete", parsed.Spec.Id)
 }

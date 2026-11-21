@@ -84,7 +84,7 @@ func TestUnitRelevanceFashionDashImpactedMetricsByShowcaseCategoryDataRefs(t *te
 	require.NotNil(t, refs.Partitions)
 	require.NotNil(t, refs.Output)
 
-	tdInput, tdsInput := jsschema.ParseSchema(ctx, "impactedMetricsByShowcaseCategoryInput", refs.Input)
+	tdInput, tdsInput := jsschema.NewSdk().ParseSchema(ctx, "impactedMetricsByShowcaseCategoryInput", refs.Input)
 	require.NotNil(t, tdInput)
 	require.Equal(t, "impactedMetricsByShowcaseCategoryInput", tdInput.Head.Name)
 	require.Equal(t, "object", tdInput.Head.Typ)
@@ -100,7 +100,7 @@ func TestUnitRelevanceFashionDashImpactedMetricsByShowcaseCategoryDataRefs(t *te
 	require.Equal(t, "impactedMetricsByShowcaseCategoryInputParams", inputProps["params"].Typ)
 	require.Contains(t, typedefNames(tdsInput), "impactedMetricsByShowcaseCategoryInputParams")
 
-	tdPartitions, tdsPartitions := jsschema.ParseSchema(ctx, "impactedMetricsByShowcaseCategoryPartitions", refs.Partitions)
+	tdPartitions, tdsPartitions := jsschema.NewSdk().ParseSchema(ctx, "impactedMetricsByShowcaseCategoryPartitions", refs.Partitions)
 	require.NotNil(t, tdPartitions)
 	require.Equal(t, "impactedMetricsByShowcaseCategoryPartitions", tdPartitions.Head.Name)
 	require.Equal(t, "object", tdPartitions.Head.Typ)
@@ -113,7 +113,7 @@ func TestUnitRelevanceFashionDashImpactedMetricsByShowcaseCategoryDataRefs(t *te
 	require.Contains(t, partitionProps, "store_id")
 	require.Equal(t, "string", partitionProps["store_id"].Typ)
 
-	tdOutput, tdsOutput := jsschema.ParseSchema(ctx, "impactedMetricsByShowcaseCategoryOutput", refs.Output)
+	tdOutput, tdsOutput := jsschema.NewSdk().ParseSchema(ctx, "impactedMetricsByShowcaseCategoryOutput", refs.Output)
 	require.NotNil(t, tdOutput)
 	require.Equal(t, "impactedMetricsByShowcaseCategoryOutput", tdOutput.Head.Name)
 	require.Equal(t, "object", tdOutput.Head.Typ)

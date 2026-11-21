@@ -226,7 +226,7 @@ func TestUnitParseApis(t *testing.T) {
 
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
-		actual := jsapi.ParseApis(ctx, s.in)
+		actual := jsapi.NewSdk().ParseApis(ctx, s.in)
 		jsonz.MustParse(jsonz.MustFormat(actual).String(), &actual)
 		require.Equal(t, s.want, actual)
 	}

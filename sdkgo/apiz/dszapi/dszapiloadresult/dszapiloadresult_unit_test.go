@@ -49,7 +49,7 @@ func TestUnitDszTableFileLoadApi(t *testing.T) {
 	require.Equal(t, "/api/ds/dataset/{dataset}/results/relevance-fashion-catalog", spec.Path)
 
 	// Verify Schema parsing and mapping
-	parsed := jsapi.ParseApi(ctx, api)
+	parsed := jsapi.NewSdk().ParseApi(ctx, api)
 	require.NotNil(t, parsed)
 	require.Equal(t, "dsz-result-relevance-fashion-catalog", parsed.Spec.Id)
 

@@ -51,7 +51,22 @@ type Apis struct {
 	Typedefs jstypez.Typedefs `json:"typedefs"`
 }
 
-func ParseApi(ctx context.Context, api apiz.Api) *Api {
+type Parser struct {
+	schemaParser *jsschema.Parser
+}
+
+func New(schemaParser *jsschema.Parser) *Parser {
+	if schemaParser == nil {
+		schemaParser = jsschema.NewSdk()
+	}
+	return &Parser{schemaParser: schemaParser}
+}
+
+func NewSdk() *Parser {
+	return New(jsschema.NewSdk())
+}
+
+func (p *Parser) ParseApi(ctx context.Context, api apiz.Api) *Api {
 	refs := api.ApiDataRefs()
 
 	apiId := ""
@@ -90,13 +105,13 @@ func ParseApi(ctx context.Context, api apiz.Api) *Api {
 			return
 		}
 		fieldName := ret.Spec.CamelId + strings.ToUpper(suffix[0:1]) + suffix[1:]
-		p, tdfs := jsschema.ParseSchema(ctx, fieldName, s)
-		checker.Equal("object", p.Head.Typ, "must be object")
+		td, tdfs := p.schemaParser.ParseSchema(ctx, fieldName, s)
+		checker.Equal("object", td.Head.Typ, "must be object")
 		out.Properties = &jstypez.Tuples{}
 		out.Head = &jstypez.Tuple{Typ: fieldName, Name: suffix}
-		p.Head.Summary = fmt.Sprintf("%s %s", ret.Spec.CamelId, suffix)
+		td.Head.Summary = fmt.Sprintf("%s %s", ret.Spec.CamelId, suffix)
 		ret.Typedefs.ExtractFrom(tdfs)
-		ret.Typedefs.Add(p)
+		ret.Typedefs.Add(td)
 	}
 
 	parseRefsV2(&ret.Req.Params, "params", refs.PathParams)
@@ -109,14 +124,14 @@ func ParseApi(ctx context.Context, api apiz.Api) *Api {
 	return ret
 }
 
-func ParseApis(ctx context.Context, apis []apiz.Api) *Apis {
+func (p *Parser) ParseApis(ctx context.Context, apis []apiz.Api) *Apis {
 	ret := Apis{
 		Apis:     make([]*Api, len(apis)),
 		Typedefs: jstypez.NewTypedefs(nil),
 	}
 	for idx, api := range apis {
 		logger.Info(ctx, "parsring js sdk api", map[string]any{"api": api.ApiSpec().Id})
-		parsed := ParseApi(ctx, api)
+		parsed := p.ParseApi(ctx, api)
 		ret.Typedefs.Merge(parsed.Typedefs)
 		ret.Apis[idx] = parsed
 	}

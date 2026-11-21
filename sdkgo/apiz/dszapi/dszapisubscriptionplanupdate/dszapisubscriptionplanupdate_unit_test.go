@@ -39,7 +39,7 @@ func TestUnitDszSubscriptionPlanUpdateApi(t *testing.T) {
 	})
 
 	t.Run("spec", func(t *testing.T) {
-		parsed := jsapi.ParseApi(ctx, &dszapisubscriptionplanupdate.Api{})
+		parsed := jsapi.NewSdk().ParseApi(ctx, &dszapisubscriptionplanupdate.Api{})
 		require.NotNil(t, parsed)
 		require.Equal(t, "dsz-update-subscription-plan", parsed.Spec.Id)
 		require.Equal(t, "POST", parsed.Spec.Method)

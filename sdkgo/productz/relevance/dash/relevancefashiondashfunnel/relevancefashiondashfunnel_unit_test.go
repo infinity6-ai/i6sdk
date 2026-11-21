@@ -77,7 +77,7 @@ func TestUnitRelevanceFashionDashFunnelDataRefs(t *testing.T) {
 	require.NotNil(t, refs.Partitions)
 	require.NotNil(t, refs.Output)
 
-	tdInput, tdsInput := jsschema.ParseSchema(ctx, "funnelInput", refs.Input)
+	tdInput, tdsInput := jsschema.NewSdk().ParseSchema(ctx, "funnelInput", refs.Input)
 	require.NotNil(t, tdInput)
 	require.Equal(t, "funnelInput", tdInput.Head.Name)
 	require.Equal(t, "object", tdInput.Head.Typ)
@@ -93,7 +93,7 @@ func TestUnitRelevanceFashionDashFunnelDataRefs(t *testing.T) {
 	require.Equal(t, "funnelInputParams", inputProps["params"].Typ)
 	require.Contains(t, typedefNames(tdsInput), "funnelInputParams")
 
-	tdPartitions, tdsPartitions := jsschema.ParseSchema(ctx, "funnelPartitions", refs.Partitions)
+	tdPartitions, tdsPartitions := jsschema.NewSdk().ParseSchema(ctx, "funnelPartitions", refs.Partitions)
 	require.NotNil(t, tdPartitions)
 	require.Equal(t, "funnelPartitions", tdPartitions.Head.Name)
 	require.Equal(t, "object", tdPartitions.Head.Typ)
@@ -106,7 +106,7 @@ func TestUnitRelevanceFashionDashFunnelDataRefs(t *testing.T) {
 	require.Contains(t, partitionProps, "store_id")
 	require.Equal(t, "string", partitionProps["store_id"].Typ)
 
-	tdOutput, tdsOutput := jsschema.ParseSchema(ctx, "funnelOutput", refs.Output)
+	tdOutput, tdsOutput := jsschema.NewSdk().ParseSchema(ctx, "funnelOutput", refs.Output)
 	require.NotNil(t, tdOutput)
 	require.Equal(t, "funnelOutput", tdOutput.Head.Name)
 	require.Equal(t, "object", tdOutput.Head.Typ)

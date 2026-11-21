@@ -11,25 +11,65 @@ import (
 	"go.code.infinity6.ai/sdkgo/genjsz/jstypez"
 )
 
-func knownTypes(ctx context.Context, baseId string, val reflect.Value) (*jstypez.Typedef, *jstypez.Typedefs) {
-	t := reflect.TypeOf(val.Interface()).String()
-	switch v := val.Interface().(type) {
-	case fsz.FileStat:
-		return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: jstypez.TypFileStat, GoTyp: t}}, nil
-	case time.Time:
-		return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: jstypez.TypTime, GoTyp: t}}, nil
-	case bigquery.NullString:
-		return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: jstypez.TypString, GoTyp: t}}, nil
-	case bigquery.NullFloat64, bigquery.NullInt64:
-		return &jstypez.Typedef{Head: &jstypez.Tuple{Typ: jstypez.TypNumber, GoTyp: t}}, nil
+type Parser struct {
+	known map[reflect.Type]*jstypez.Tuple
+}
+
+// New creates a new base Parser initialized with standard library types.
+func New() *Parser {
+	p := &Parser{
+		known: make(map[reflect.Type]*jstypez.Tuple),
+	}
+	p.AddKnownType(time.Time{}, jstypez.TypTime)
+	return p
+}
+
+// NewSdk creates a Parser pre-configured with SDK and cloud types (FileStat, BigQuery, etc.).
+func NewSdk() *Parser {
+	p := New()
+	p.AddKnownType(fsz.FileStat{}, jstypez.TypFileStat)
+	p.AddKnownType(bigquery.NullString{}, jstypez.TypString)
+	p.AddKnownType(bigquery.NullInt64{}, jstypez.TypNumber)
+	p.AddKnownType(bigquery.NullFloat64{}, jstypez.TypNumber)
+	return p
+}
+
+// AddKnownType registers how an external Go type is represented in JavaScript.
+// Supports fluent chaining.
+func (p *Parser) AddKnownType(sample any, jsType string) *Parser {
+	t := reflect.TypeOf(sample)
+	p.known[t] = &jstypez.Tuple{
+		Typ:   jsType,
+		GoTyp: t.String(),
+	}
+	return p
+}
+
+func (p *Parser) knownTypes(ctx context.Context, baseId string, val reflect.Value) (*jstypez.Typedef, *jstypez.Typedefs) {
+	if !val.IsValid() {
+		return nil, nil
+	}
+	v := val.Interface()
+	switch s := v.(type) {
 	case schemaz.Schema:
-		a, b := ParseSchema(ctx, baseId, &v)
+		a, b := p.ParseSchema(ctx, baseId, &s)
 		a.Head.Name = ""
 		return a, b
 	case *schemaz.Schema:
-		a, b := ParseSchema(ctx, baseId, v)
+		a, b := p.ParseSchema(ctx, baseId, s)
 		a.Head.Name = ""
 		return a, b
 	}
+
+	t := reflect.TypeOf(v)
+	if tuple, ok := p.known[t]; ok {
+		return &jstypez.Typedef{
+			Head: &jstypez.Tuple{
+				Typ:   tuple.Typ,
+				GoTyp: tuple.GoTyp,
+			},
+		}, nil
+	}
+
 	return nil, nil
 }

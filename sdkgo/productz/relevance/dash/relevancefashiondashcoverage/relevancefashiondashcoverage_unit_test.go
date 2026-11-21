@@ -69,13 +69,13 @@ func TestUnitRelevanceFashionDashCoverageDataRefs(t *testing.T) {
 	require.NotNil(t, refs.Partitions)
 	require.NotNil(t, refs.Output)
 
-	tdInput, _ := jsschema.ParseSchema(ctx, "coverageInput", refs.Input)
+	tdInput, _ := jsschema.NewSdk().ParseSchema(ctx, "coverageInput", refs.Input)
 	require.Equal(t, "object", tdInput.Head.Typ)
 
-	tdPartitions, _ := jsschema.ParseSchema(ctx, "coveragePartitions", refs.Partitions)
+	tdPartitions, _ := jsschema.NewSdk().ParseSchema(ctx, "coveragePartitions", refs.Partitions)
 	require.Equal(t, "object", tdPartitions.Head.Typ)
 
-	tdOutput, tdsOutput := jsschema.ParseSchema(ctx, "coverageOutput", refs.Output)
+	tdOutput, tdsOutput := jsschema.NewSdk().ParseSchema(ctx, "coverageOutput", refs.Output)
 	require.Equal(t, "object", tdOutput.Head.Typ)
 
 	outputProps := make(map[string]jstypez.Tuple)

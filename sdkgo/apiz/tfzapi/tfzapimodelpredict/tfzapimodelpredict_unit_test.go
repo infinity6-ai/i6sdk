@@ -42,7 +42,7 @@ func TestUnitModelPredictApi(t *testing.T) {
 	require.Equal(t, `[["a","b"]]`, apiCopy.Req.Inputs)
 	require.Equal(t, `{"output":{"c","d"}}`, apiCopy.Resp.Outputs)
 
-	parsed := jsapi.ParseApi(ctx, api)
+	parsed := jsapi.NewSdk().ParseApi(ctx, api)
 	require.NotNil(t, parsed)
 	require.Equal(t, "tfz-model-predict", parsed.Spec.Id)
 }

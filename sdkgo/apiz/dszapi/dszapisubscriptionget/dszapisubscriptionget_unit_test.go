@@ -52,7 +52,7 @@ func TestUnitDszGetSubscriptionApi(t *testing.T) {
 	})
 
 	t.Run("spec", func(t *testing.T) {
-		parsed := jsapi.ParseApi(ctx, &dszapisubscriptionget.Api{})
+		parsed := jsapi.NewSdk().ParseApi(ctx, &dszapisubscriptionget.Api{})
 		require.NotNil(t, parsed)
 		require.Equal(t, "dsz-get-subscription", parsed.Spec.Id)
 		require.Equal(t, "/api/ds/dataset/{dataset}/solution/{solution}/subscription", parsed.Spec.Path)

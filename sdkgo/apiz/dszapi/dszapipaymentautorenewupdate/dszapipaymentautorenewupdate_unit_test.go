@@ -39,7 +39,7 @@ func TestUnitDszPaymentAutoRenewUpdateApi(t *testing.T) {
 	})
 
 	t.Run("spec", func(t *testing.T) {
-		parsed := jsapi.ParseApi(ctx, &dszapipaymentautorenewupdate.Api{})
+		parsed := jsapi.NewSdk().ParseApi(ctx, &dszapipaymentautorenewupdate.Api{})
 		require.NotNil(t, parsed)
 		require.Equal(t, "dsz-update-payment-auto-renew", parsed.Spec.Id)
 		require.Equal(t, "POST", parsed.Spec.Method)

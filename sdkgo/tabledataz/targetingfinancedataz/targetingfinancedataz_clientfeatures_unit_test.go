@@ -97,12 +97,12 @@ func TestUnitClientFeaturesSchema(t *testing.T) {
 	ctx := t.Context()
 
 	t.Run("FeatureFloat Schema", func(t *testing.T) {
-		td, _ := jsschema.ParseSchema(ctx, "FeatureFloat", (&targetingfinancedataz.FeatureFloat{}).Schema())
+		td, _ := jsschema.NewSdk().ParseSchema(ctx, "FeatureFloat", (&targetingfinancedataz.FeatureFloat{}).Schema())
 		require.Equal(t, "FeatureFloat", td.Head.Name)
 	})
 
 	t.Run("ClientFeatures body", func(t *testing.T) {
-		td, tds := jsschema.ParseSchema(ctx, "ClientFeatures", (&targetingfinancedataz.ClientFeatures{}).SchemaBody())
+		td, tds := jsschema.NewSdk().ParseSchema(ctx, "ClientFeatures", (&targetingfinancedataz.ClientFeatures{}).SchemaBody())
 		require.Equal(t, "ClientFeatures", td.Head.Name)
 
 		props := map[string]jstypez.Tuple{}
@@ -121,7 +121,7 @@ func TestUnitClientFeaturesSchema(t *testing.T) {
 	})
 
 	t.Run("ClientFeatures query", func(t *testing.T) {
-		td, _ := jsschema.ParseSchema(ctx, "ClientFeatures", (&targetingfinancedataz.ClientFeatures{}).SchemaQuery())
+		td, _ := jsschema.NewSdk().ParseSchema(ctx, "ClientFeatures", (&targetingfinancedataz.ClientFeatures{}).SchemaQuery())
 		require.Equal(t, "ClientFeatures", td.Head.Name)
 	})
 }

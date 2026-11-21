@@ -106,7 +106,7 @@ func expectedFashionFbtSdkFunc() *jssdkfunc.SdkFunc {
 func TestUnitFashionFbtSdkFunc(t *testing.T) {
 	ctx := t.Context()
 	fn := &inferzrelevancefashionfbt.Func{}
-	actual := jssdkfunc.ParseSdkFunc(ctx, fn)
+	actual := jssdkfunc.NewSdk().ParseSdkFunc(ctx, fn)
 	jsonz.MustParse(jsonz.MustFormat(actual).String(), &actual)
 	expected := expectedFashionFbtSdkFunc()
 	require.Equal(t, expected, actual)
@@ -117,7 +117,7 @@ func TestUnitAllSdkFuncs(t *testing.T) {
 	funcs := sdkz.SdkFuncs()
 	require.NotEmpty(t, funcs)
 	for _, fn := range funcs {
-		expected := jssdkfunc.ParseSdkFunc(ctx, fn)
+		expected := jssdkfunc.NewSdk().ParseSdkFunc(ctx, fn)
 		var actual *jssdkfunc.SdkFunc
 		jsonz.MustParse(jsonz.MustFormat(expected).String(), &actual)
 		errorz.Check(os.MkdirAll("target/jssdkfunc/sdkfunc", os.ModePerm))

@@ -36,7 +36,7 @@ func TestUnitUserDatasetTokenAccessCreateApi(t *testing.T) {
 	require.Equal(t, api.Req, apiCopy.Req)
 	require.Equal(t, api.Resp, apiCopy.Resp)
 
-	parsed := jsapi.ParseApi(ctx, api)
+	parsed := jsapi.NewSdk().ParseApi(ctx, api)
 	require.NotNil(t, parsed)
 	require.Equal(t, "user-dataset-token-access-create", parsed.Spec.Id)
 }

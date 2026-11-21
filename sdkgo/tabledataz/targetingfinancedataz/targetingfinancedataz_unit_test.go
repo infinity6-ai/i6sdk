@@ -175,7 +175,7 @@ func TestUnitSchemas(t *testing.T) {
 	}
 
 	t.Run("ClientStatus body", func(t *testing.T) {
-		td, _ := jsschema.ParseSchema(ctx, "ClientStatus", (&targetingfinancedataz.ClientStatus{}).SchemaBody())
+		td, _ := jsschema.NewSdk().ParseSchema(ctx, "ClientStatus", (&targetingfinancedataz.ClientStatus{}).SchemaBody())
 		p := props(td)
 		require.Equal(t, jstypez.TypString, p["id"].Typ)
 		require.Equal(t, jstypez.TypTime, p["created_at"].Typ)
@@ -189,7 +189,7 @@ func TestUnitSchemas(t *testing.T) {
 	})
 
 	t.Run("ClientEvent body", func(t *testing.T) {
-		td, _ := jsschema.ParseSchema(ctx, "ClientEvent", (&targetingfinancedataz.ClientEvent{}).SchemaBody())
+		td, _ := jsschema.NewSdk().ParseSchema(ctx, "ClientEvent", (&targetingfinancedataz.ClientEvent{}).SchemaBody())
 		p := props(td)
 		require.Equal(t, jstypez.TypNumber, p["user_pc_cut"].Typ)
 		require.Equal(t, jstypez.TypString, p["item_tp_sub"].Typ)
@@ -202,7 +202,7 @@ func TestUnitSchemas(t *testing.T) {
 			"ClientEvent":  &targetingfinancedataz.ClientEvent{},
 			"Weight":       &targetingfinancedataz.Weight{},
 		} {
-			td, _ := jsschema.ParseSchema(ctx, name, s.SchemaQuery())
+			td, _ := jsschema.NewSdk().ParseSchema(ctx, name, s.SchemaQuery())
 			require.Equal(t, name, td.Head.Name)
 			require.NotPanics(t, func() { s.Table() })
 		}
