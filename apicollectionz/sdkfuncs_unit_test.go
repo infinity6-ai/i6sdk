@@ -1,27 +1,27 @@
-package sdkz_test
+package apicollectionz_test
 
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	"github.com/infinity6-ai/i6sdk/apicollectionz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/sdkfuncz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/sdkz"
+	"github.com/stretchr/testify/require"
 )
 
 func TestUnitSdkFuncs(t *testing.T) {
-	funcs := sdkz.SdkFuncs()
+	funcs := apicollectionz.SdkFuncs()
 	require.NotEmpty(t, funcs)
 
-	f := sdkz.SdkFunc("product-relevance-fashion-fbt")
+	f := apicollectionz.SdkFunc("product-relevance-fashion-fbt")
 	require.NotNil(t, f)
 	require.Equal(t, "product-relevance-fashion-fbt", f.SdkFuncSpec().Id)
 	require.Equal(t, "v1", f.SdkFuncSpec().Version)
 	require.Equal(t, sdkfuncz.TypClientInfer, f.SdkFuncSpec().Typ)
 
 	// Test aliases
-	sdkFuncs := sdkz.SdkFuncs()
+	sdkFuncs := apicollectionz.SdkFuncs()
 	require.Equal(t, len(funcs), len(sdkFuncs))
 
-	sdkFunc := sdkz.SdkFunc("product-relevance-fashion-fbt")
+	sdkFunc := apicollectionz.SdkFunc("product-relevance-fashion-fbt")
 	require.Equal(t, f, sdkFunc)
 }

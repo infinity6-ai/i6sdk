@@ -155,12 +155,12 @@ graph TD
 - [x] Verify each API module compiles and unit tests pass with dependencies only on `sdkcorez`.
 
 ### Phase 3: Unified Collection (`apicollectionz`)
-- [ ] Create `apicollectionz/` (`go.mod`):
+- [x] Create `apicollectionz/` (`go.mod`):
   - Move `sdkgo/sdkz/sdkz_apis.go` to `apicollectionz/apis.go`.
   - Move `sdkgo/sdkz/sdkz_sdkfuncz.go` to `apicollectionz/sdkfuncs.go`.
   - Wire dependencies from `apicollectionz` to `apiuserz`, `apidatasetz`, `apiingestz`, `apipipez`, `apitfz`, and `sdkcorez`.
   - Expose `Apis() []apiz.Api`, `Api(id string) apiz.Api`, `SdkFuncs() []sdkfuncz.Func`, and `SdkFunc(id string) sdkfuncz.Func`.
-- [ ] Verify `apicollectionz` unit tests pass.
+- [x] Verify `apicollectionz` unit tests pass.
 
 ### Phase 4: Molds, Generators & CLI (`mold`, `forgez`, `cmdz`)
 - [ ] Setup `mold/` as an independent module with its own `go.mod` (depends on `sdkcorez`).

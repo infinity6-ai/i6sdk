@@ -1,14 +1,14 @@
-package sdkz_test
+package apicollectionz_test
 
 import (
 	"testing"
 
+	"github.com/infinity6-ai/i6sdk/apicollectionz"
 	"github.com/stretchr/testify/require"
-	"go.code.infinity6.ai/sdkgo/sdkgo/sdkz"
 )
 
 func TestUnitApis(t *testing.T) {
-	apis := sdkz.Apis()
+	apis := apicollectionz.Apis()
 	require.NotEmpty(t, apis)
 
 	expectedIds := []string{
@@ -40,7 +40,7 @@ func TestUnitApis(t *testing.T) {
 
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
-		api := sdkz.Api(s.apiId)
+		api := apicollectionz.Api(s.apiId)
 		require.NotNil(t, api)
 		spec := api.ApiSpec()
 		require.Equal(t, s.apiId, spec.Id)
@@ -57,6 +57,6 @@ func TestUnitApis(t *testing.T) {
 
 func TestUnitApiNotFound(t *testing.T) {
 	require.Panics(t, func() {
-		sdkz.Api("non-existent-api-id")
+		apicollectionz.Api("non-existent-api-id")
 	})
 }

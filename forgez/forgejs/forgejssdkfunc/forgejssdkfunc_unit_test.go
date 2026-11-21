@@ -7,11 +7,11 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejssdkfunc"
 	"go.code.infinity6.ai/sdkgo/mold/moldsdkfunc"
+	"github.com/infinity6-ai/i6sdk/apicollectionz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/dash/relevancefashiondashfunnel"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/dash/relevancefashiondashlistshowcasecategories"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/inferz/inferzrelevancefashionfbt"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/sdkfuncz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/sdkz"
 )
 
 func TestUnitWrite(t *testing.T) {
@@ -292,7 +292,7 @@ export { SdkFuncs };
 
 func TestUnitAllSdkFuncs(t *testing.T) {
 	ctx := t.Context()
-	funcs := sdkz.SdkFuncs()
+	funcs := apicollectionz.SdkFuncs()
 	require.NotEmpty(t, funcs)
 	p := forgejssdkfunc.NewSdk()
 	for _, fn := range funcs {

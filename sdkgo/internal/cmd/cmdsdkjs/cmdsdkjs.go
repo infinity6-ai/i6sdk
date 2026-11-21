@@ -7,11 +7,11 @@ import (
 	"github.com/infinity6-ai/gox/commonz/filez"
 	"github.com/infinity6-ai/gox/commonz/logz"
 	"github.com/infinity6-ai/gox/routez/apispecz"
+	"github.com/infinity6-ai/i6sdk/apicollectionz"
 	"github.com/spf13/cobra"
 	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsbundle"
 	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsschema"
 	"go.code.infinity6.ai/sdkgo/mold/moldsdkfunc"
-	"go.code.infinity6.ai/sdkgo/sdkgo/sdkz"
 )
 
 type tlogger logz.Type
@@ -43,10 +43,10 @@ func prepareGenerateJsCmd() *cobra.Command {
 			apiParser := apispecz.New(schemaParser)
 			sdkFuncParser := moldsdkfunc.New(schemaParser)
 
-			apis := sdkz.Apis()
+			apis := apicollectionz.Apis()
 			parsedApis := apiParser.ParseApis(ctx, apis)
 
-			funcs := sdkz.SdkFuncs()
+			funcs := apicollectionz.SdkFuncs()
 			parsedSdkFuncs := sdkFuncParser.ParseSdkFuncs(ctx, funcs)
 
 			code := []byte(forgejsbundle.Write(ctx, forgejsbundle.Options{

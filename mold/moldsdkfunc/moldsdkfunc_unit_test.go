@@ -13,9 +13,9 @@ import (
 	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/mold/moldsdkfunc"
+	"github.com/infinity6-ai/i6sdk/apicollectionz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/inferz/inferzrelevancefashionfbt"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/sdkfuncz"
-	"go.code.infinity6.ai/sdkgo/sdkgo/sdkz"
 )
 
 func expectedFashionFbtSdkFunc() *moldsdkfunc.SdkFunc {
@@ -126,7 +126,7 @@ func TestUnitFashionFbtSdkFunc(t *testing.T) {
 
 func TestUnitAllSdkFuncs(t *testing.T) {
 	ctx := t.Context()
-	funcs := sdkz.SdkFuncs()
+	funcs := apicollectionz.SdkFuncs()
 	require.NotEmpty(t, funcs)
 	parser := moldsdkfunc.New(newSchemaParser())
 	for _, fn := range funcs {

@@ -1,4 +1,4 @@
-package sdkz
+package apicollectionz
 
 import (
 	"fmt"
