@@ -10,6 +10,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.code.infinity6.ai/sdkgo/forgez/forgejs/forgejsschema"
 	"go.code.infinity6.ai/sdkgo/sdkgo/grants"
+	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz/dummydataz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz/relevancefashiondataz"
+	"go.code.infinity6.ai/sdkgo/sdkgo/tabledataz/targetingfinancedataz"
 )
 
 type externalCustomType struct {
@@ -156,3 +159,28 @@ func TestUnitWriteTypedefs(t *testing.T) {
 		})
 	})
 }
+
+func TestUnitParseTableDataSchemas(t *testing.T) {
+	ctx := t.Context()
+	p := forgejsschema.NewSdk()
+
+	t.Run("dummy catalog data", func(t *testing.T) {
+		td, _ := p.ParseSchema(ctx, "DummyCatalogData", (&dummydataz.Catalog{}).SchemaQuery())
+		require.NotNil(t, td)
+		require.Equal(t, "DummyCatalogData", td.Head.Name)
+	})
+
+	t.Run("relevance fashion event", func(t *testing.T) {
+		td, tds := p.ParseSchema(ctx, "Event", (&relevancefashiondataz.Event{}).SchemaQuery())
+		require.NotNil(t, td)
+		require.Equal(t, "Event", td.Head.Name)
+		require.NotNil(t, tds)
+	})
+
+	t.Run("targeting finance client status", func(t *testing.T) {
+		td, _ := p.ParseSchema(ctx, "ClientStatus", (&targetingfinancedataz.ClientStatus{}).SchemaBody())
+		require.NotNil(t, td)
+		require.Equal(t, "ClientStatus", td.Head.Name)
+	})
+}
+
