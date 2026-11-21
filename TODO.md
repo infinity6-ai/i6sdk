@@ -32,12 +32,12 @@ To avoid churning 53+ test files across `sdkgo`, `i6sdk` will retain thin facade
     - Created `gox/schemaz/jstypez` with `Tuple`, `Tuples`, `Typedef`, `Typedefs`, `Typ*` constants, and `CustomType` / `CustomTypeSimple` interfaces.
     - Added `jstypez_typedefs_unit_test.go`.
     - Verified all unit tests pass in `gox/schemaz`.
-  - **2B (`gox/schemaz/jsschemaz`)**:
-    - Move `Parser`, `New()`, `AddKnownType()`, and instance methods (`ParseSchema`, `ParseAny`, `ParseSchemaObject`, etc.).
-    - Move `FormatTypedefs` (JSDoc typedef block formatter).
-    - Move `DescName`, `DescSummary`, and `Resolve`.
-    - Keep `gox/schemaz` cloud-agnostic (zero BigQuery dependencies).
-    - Validate unit tests in `gox/schemaz`.
+  - [x] **2B (`gox/schemaz/jsschemaz`)**:
+    - Created `gox/schemaz/jsschemaz` with `Parser`, `New()`, `AddKnownType()`, and instance methods (`ParseSchema`, `ParseAny`, `ParseSchemaObject`, etc.).
+    - Added `FormatTypedefs` (JSDoc typedef block formatter).
+    - Added `DescName`, `DescSummary`, and `Resolve`.
+    - Maintained cloud-agnostic design (zero BigQuery dependencies).
+    - Verified all unit tests pass in `gox/schemaz`.
   - **2C (`i6sdk/genjsz/jsschema`)**:
     - Update `genjsz/jsschema` to alias `jsschemaz.Parser` and provide `NewSdk()` registering BigQuery and `FileStat`.
     - Retain `WriteModuleTypedefs` in `i6sdk` (SDK-specific imports for `Services` and `ServiceOptions`).
