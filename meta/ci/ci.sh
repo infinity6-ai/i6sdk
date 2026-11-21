@@ -22,8 +22,8 @@ function cmd_test() {
 function cmd_release() {
   i6dev dever git-auth
   i6dev code github-to-ssh origin
-  # ./build.sh release_exists || ./build.sh release
-  false it is not working
+  ./build.sh release_exists # || ./build.sh release
+  # false it is not working
 }
 
 function cmd_deploy() {
