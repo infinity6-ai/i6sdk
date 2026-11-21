@@ -68,8 +68,10 @@ github.com/googleapis/gax-go/v2 v2.21.0 h1:h45NjjzEO3faG9Lg/cFrBh2PgegVVgzqKzuZl
 github.com/googleapis/gax-go/v2 v2.21.0/go.mod h1:But/NJU6TnZsrLai/xBAQLLz+Hc7fHZJt/hsCz3Fih4=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
-github.com/infinity6-ai/gox/commonz v0.0.53 h1:iFlHSVSlx5xQ1IwyTX2IUEgBSwIaaNt713dnMHMbl4o=
-github.com/infinity6-ai/gox/commonz v0.0.53/go.mod h1:9uLemXQ4CTQ2Mw9Pr5CxkRT26UIydWmuzDGp5pP1bu4=
+github.com/infinity6-ai/gox/commonz v0.0.73 h1:n94QBmZE/bWownIqLshHao3lREcM4IWCvmPA7BfG3/c=
+github.com/infinity6-ai/gox/commonz v0.0.73/go.mod h1:g4MXotYF6CmPzf8tG4+4D/a16PISOkUwaPz3MkdtgFo=
+github.com/infinity6-ai/gox/httpz v0.0.73 h1:bIxBYb5ZAjoNE8vfPRKn4eLO0vumPwoM6ia7ImddACc=
+github.com/infinity6-ai/gox/httpz v0.0.73/go.mod h1:wv6u67l5/qzKdbMSDO75n4lOMqzb8P8zdjqjkJGBZrI=
 github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 h1:GFCKgmp0tecUJ0sJuv4pzYCqS9+RGSn52M3FUwPs+uo=
 github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10/go.mod h1:t/avpk3KcrXxUnYOhZhMXJlSEyie6gQbtLq5NM3loB8=
 github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=

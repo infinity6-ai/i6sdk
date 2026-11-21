@@ -3,8 +3,10 @@ module go.code.infinity6.ai/sdkweb
 go 1.26.1
 
 require (
-	github.com/infinity6-ai/gox/commonz v0.0.53
+	github.com/infinity6-ai/gox/brwjsz v0.0.0-00010101000000-000000000000
+	github.com/infinity6-ai/gox/commonz v0.0.73
 	github.com/spf13/cobra v1.10.2
+	github.com/stretchr/testify v1.12.1
 	go.code.infinity6.ai/platform v1.2.70
 	go.code.infinity6.ai/web v1.2.57
 )
@@ -34,6 +36,7 @@ require (
 	github.com/googleapis/enterprise-certificate-proxy v0.3.14 // indirect
 	github.com/googleapis/gax-go/v2 v2.21.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
+	github.com/infinity6-ai/gox/httpz v0.0.73 // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/spf13/pflag v1.0.9 // indirect
 	github.com/spiffe/go-spiffe/v2 v2.6.0 // indirect
@@ -46,6 +49,7 @@ require (
 	go.opentelemetry.io/otel/sdk v1.43.0 // indirect
 	go.opentelemetry.io/otel/sdk/metric v1.43.0 // indirect
 	go.opentelemetry.io/otel/trace v1.43.0 // indirect
+	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/crypto v0.49.0 // indirect
 	golang.org/x/exp v0.0.0-20260824195058-e88cd73687aa // indirect
 	golang.org/x/net v0.52.0 // indirect
@@ -62,3 +66,5 @@ require (
 	google.golang.org/grpc v1.80.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
 )
+
+replace github.com/infinity6-ai/gox/brwjsz => ../../gox/brwjsz

@@ -39,17 +39,17 @@ sdkweblegacy/ (served as Site root)
     - Add unit/web tests in `gox/brwjsz/brwqunit` verifying that bare specifiers imported inside test modules resolve properly.
     - Run `cmd_unit_test.sh` in `gox/brwjsz`.
 
-- [ ] **Phase 2: Integrate `brwjsz` in `sdkweblegacy` (`i6sdk/sdkweblegacy`)**
-  - [ ] **2A (Dependency Configuration)**:
+- [x] **Phase 2: Integrate `brwjsz` in `sdkweblegacy` (`i6sdk/sdkweblegacy`)**
+  - [x] **2A (Dependency Configuration)**:
     - Add `github.com/infinity6-ai/gox/brwjsz` to `sdkweblegacy/go.mod`.
-  - [ ] **2B (Web Test Implementation)**:
+  - [x] **2B (Web Test Implementation)**:
     - Implement `TestWebSdk(t *testing.T)` in `sdkweblegacy` using `brwjsz.New` and `brwqunit.Test`.
     - Configure `Site` to serve `sdkweblegacy` directory.
     - Configure import map for:
       - `sql.js` -> `https://cdn.jsdelivr.net/npm/sql.js@1.14.2/+esm`
       - `@litertjs/core` -> `https://cdn.jsdelivr.net/npm/@litertjs/core@2.5.3/+esm`
     - Execute discovery or run individual suites (`sample-test.js`, `b64-test.js`, `auth-tokens-test.js`, `dash-test.js`, etc.).
-  - [ ] **2C (Headless & Visual Support)**:
+  - [x] **2C (Headless & Visual Support)**:
     - Respect `BRWJSZ_DISABLE_HEADLESS` configuration for debugging and visual test inspection.
 
 - [ ] **Phase 3: Tooling & Script Updates**
