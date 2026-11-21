@@ -1,5 +1,5 @@
 //go:generate go run . generate
-//go:generate go run github.com/infinity6-ai/gox/commonz staticz generate --dir src/site
+//go:generate go run github.com/infinity6-ai/gox/commonz@latest staticz generate --dir src/site
 package main
 
 import (
