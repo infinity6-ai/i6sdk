@@ -1,7 +1,5 @@
 #!/bin/bash -e
 
-export GIT_SSH_COMMAND="${GIT_SSH_COMMAND:-ssh}"
-
 [ "$I6DEV_DEBUG" != "true" ] || eval "$(i6dev meta debug i6sdk-build I6DEV_DEBUG)"
 
 function cmd_comps_list() {
