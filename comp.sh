@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+export GIT_SSH_COMMAND="${GIT_SSH_COMMAND:-ssh}"
+
 [ "$I6DEV_DEBUG" != "true" ] || eval "$(i6dev meta debug i6sdk-comp I6DEV_DEBUG)"
 
 function cmd_clean() {
@@ -83,7 +85,11 @@ function cmd_release() {
   done
   go mod tidy
   [ "x$(go run . version)" == "x$_version" ]
-  git add . && git commit -m "release: $_tag" && (git push origin HEAD 2>/dev/null || git push)
+  if [ -n "$(git status -s)" ]; then
+    git add .
+    git commit -m "release: $_tag"
+    git push origin HEAD 2>/dev/null || git push || true
+  fi
   git tag "$_tag"
   git push origin "$_tag"
 }
