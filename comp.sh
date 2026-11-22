@@ -66,7 +66,9 @@ function cmd_release() {
   local _version="${1?'_version'}"
   [ ! -z "$_version" ]
   [ -z "$(git status -s "$@")" ]
-  [ "x0" == "x$(git rev-list --count @{u}..HEAD)" ]
+  if git rev-parse --verify '@{u}' >/dev/null 2>&1; then
+    [ "x0" == "x$(git rev-list --count '@{u}..HEAD')" ]
+  fi
   local _tag="$_comp/$_version"
   if git show-ref --tags "$_tag" --quiet; then
     echo "tag already exists: $_tag" 1>&2
@@ -81,7 +83,7 @@ function cmd_release() {
   done
   go mod tidy
   [ "x$(go run . version)" == "x$_version" ]
-  git add . && git commit -m "release: $_tag" && git push
+  git add . && git commit -m "release: $_tag" && (git push origin HEAD 2>/dev/null || git push)
   git tag "$_tag"
   git push origin "$_tag"
 }

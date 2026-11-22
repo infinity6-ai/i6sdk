@@ -22,6 +22,8 @@ function cmd_test() {
 function cmd_release() {
   i6dev dever git-auth
   i6dev code github-to-ssh origin || true
+  local _branch="$(git branch --show-current 2>/dev/null || echo "master")"
+  git branch --set-upstream-to="origin/$_branch" "$_branch" 2>/dev/null || true
   ./build.sh release_exists || ./build.sh release
 }
 

@@ -104,7 +104,9 @@ function cmd_release() {
   if find . -name '*.go' | xargs grep go.code.infinity6.ai; then false i6sdk cannot use private deps; fi
   if find . -name 'go.mod' | xargs grep go.code.infinity6.ai; then false i6sdk cannot use private deps; fi
   [ -z "$(git status -s "$@")" ]
-  [ "x0" == "x$(git rev-list --count @{u}..HEAD)" ]
+  if git rev-parse --verify '@{u}' >/dev/null 2>&1; then
+    [ "x0" == "x$(git rev-list --count '@{u}..HEAD')" ]
+  fi
   local _version="$(./comp.sh versionz run version)"
   [ ! -z "$_version" ]
   if cmd_release_exists "$_version" >/dev/null; then
