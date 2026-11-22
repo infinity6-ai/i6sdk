@@ -1,7 +1,10 @@
 #!/bin/bash -xe
 
+export GIT_SSH_COMMAND="${GIT_SSH_COMMAND:-ssh}"
+
 function cmd_build() {
   ./meta/ci/ci.sh build
+  ./build.sh gomod_upgrade
   mkdir -p gen
   if ! i6dev code is-clean; then
     touch gen/dever.flag
