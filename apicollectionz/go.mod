@@ -5,13 +5,13 @@ go 1.26.1
 require (
 	github.com/infinity6-ai/gox/commonz v0.0.77
 	github.com/infinity6-ai/gox/routez v0.0.77
-	github.com/infinity6-ai/i6sdk/apidatasetz v0.0.2
-	github.com/infinity6-ai/i6sdk/apiingestz v0.0.2
-	github.com/infinity6-ai/i6sdk/apipipez v0.0.2
-	github.com/infinity6-ai/i6sdk/apitfz v0.0.2
-	github.com/infinity6-ai/i6sdk/apiuserz v0.0.2
-	github.com/infinity6-ai/i6sdk/sdkcorez v0.0.2
-	github.com/infinity6-ai/i6sdk/versionz v0.0.2
+	github.com/infinity6-ai/i6sdk/apidatasetz v0.0.3
+	github.com/infinity6-ai/i6sdk/apiingestz v0.0.3
+	github.com/infinity6-ai/i6sdk/apipipez v0.0.3
+	github.com/infinity6-ai/i6sdk/apitfz v0.0.3
+	github.com/infinity6-ai/i6sdk/apiuserz v0.0.3
+	github.com/infinity6-ai/i6sdk/sdkcorez v0.0.3
+	github.com/infinity6-ai/i6sdk/versionz v0.0.3
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.12.1
 )
@@ -28,7 +28,6 @@ require (
 	cloud.google.com/go/storage v1.70.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.35.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.57.0 // indirect
-	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/cloudmock v0.63.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.63.0 // indirect
 	github.com/apache/arrow-go/v18 v18.8.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
