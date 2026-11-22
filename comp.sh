@@ -18,6 +18,10 @@ function cmd_update() {
   cmd_codegen
 }
 
+function cmd_gomod_upgrade() {
+  i6dev golang gomod-update-i6
+}
+
 function cmd_run() {
   go run . "$@"
 }

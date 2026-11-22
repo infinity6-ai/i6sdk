@@ -67,6 +67,10 @@ function cmd_test() {
   cmd_comps_run test "$@"
 }
 
+function cmd_gomod_upgrade() {
+  cmd_comps_run gomod_upgrade "$@"
+}
+
 function cmd_test_web() {
   cmd_comps_run test_web "$@"
 }
