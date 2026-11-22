@@ -3,11 +3,11 @@ module github.com/infinity6-ai/i6sdk/apiingestz
 go 1.26.1
 
 require (
-	github.com/infinity6-ai/gox/commonz v0.0.77
-	github.com/infinity6-ai/gox/routez v0.0.77
-	github.com/infinity6-ai/gox/schemaz v0.0.77
-	github.com/infinity6-ai/i6sdk/sdkcorez v0.0.2
-	github.com/infinity6-ai/i6sdk/versionz v0.0.2
+	github.com/infinity6-ai/gox/commonz v0.0.78
+	github.com/infinity6-ai/gox/routez v0.0.78
+	github.com/infinity6-ai/gox/schemaz v0.0.78
+	github.com/infinity6-ai/i6sdk/sdkcorez v0.0.3
+	github.com/infinity6-ai/i6sdk/versionz v0.0.3
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.12.1
 )
