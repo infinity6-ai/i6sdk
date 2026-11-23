@@ -114,7 +114,7 @@ var (
 func Relevance() Entry     { return relevance }
 func Plat() Entry          { return plat }
 func DummySolution() Entry { return dummySolution }
-func PrcBidding() Entry    { return prcbidding }
+func Prcbidding() Entry    { return prcbidding }
 func Targeting() Entry     { return targeting }
 
 func ParseStr(out *Solution) func() *schemaz.Parser[string] {
