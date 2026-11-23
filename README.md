@@ -1,6 +1,7 @@
 # i6sdk Mono-Repo
 
-The unified SDK mono-repo for the Infinity6 platform, providing official language SDKs and automated multi-language client generators.
+
+he unified SDK mono-repo for the Infinity6 platform, providing official language SDKs and automated multi-language client generators.
 
 ## Architecture
 
