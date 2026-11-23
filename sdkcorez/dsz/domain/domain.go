@@ -9,6 +9,7 @@ import (
 )
 
 const (
+	main        = "main"
 	fashion     = "fashion"
 	plat        = "plat"
 	dummydomain = "dummydomain"
@@ -16,6 +17,7 @@ const (
 )
 
 var (
+	Main        = MustParse(main)
 	Fashion     = MustParse(fashion)
 	Plat        = MustParse(plat)
 	Dummydomain = MustParse(dummydomain)
@@ -52,7 +54,7 @@ func (d Domain) Validate(v string) error {
 	if err := validation.StrNotEmpty(v, "Domain cannot be empty"); err != nil {
 		return err
 	}
-	if err := validation.OneOf([]string{fashion, plat, dummydomain, finance}, v, "Domain"); err != nil {
+	if err := validation.OneOf([]string{main, fashion, plat, dummydomain, finance}, v, "Domain"); err != nil {
 		return err
 	}
 	return nil
