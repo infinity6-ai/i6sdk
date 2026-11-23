@@ -9,6 +9,7 @@ function cmd_image_download() {
 
 function cmd_build() {
   i6dev golang auth-meta
+  ./build.sh work_init
   ./build.sh update
 }
 
