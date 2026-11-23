@@ -19,9 +19,11 @@ class TestApis(unittest.TestCase):
             last_request["headers"] = headers
             last_request["body"] = body
             resp_body = {
-                "datasets": [
-                    {"dataset": "ds_fashion", "created_at": "2026-01-01T00:00:00Z"}
-                ]
+                "payload": {
+                    "datasets": [
+                        {"id": "ds_fashion", "name": "Fashion Dataset"}
+                    ]
+                }
             }
             return 200, {"content-type": "application/json"}, json.dumps(resp_body)
 
@@ -36,8 +38,10 @@ class TestApis(unittest.TestCase):
         resp = client.apis().dsz_list_datasets()
         self.assertTrue(resp.ok)
         data = resp.parse()
-        self.assertEqual(len(data["datasets"]), 1)
-        self.assertEqual(data["datasets"][0]["dataset"], "ds_fashion")
+        payload = data.get("payload") or {}
+        datasets = payload.get("datasets") or []
+        self.assertEqual(len(datasets), 1)
+        self.assertEqual(datasets[0].get("id"), "ds_fashion")
 
         self.assertEqual(last_request["method"], "GET")
         self.assertIn("bearer-token-xyz", last_request["headers"]["Authorization"])
@@ -61,13 +65,13 @@ class TestApis(unittest.TestCase):
 
         resp = client.apis().sample_fraction(
             req={
-                "params": {"numerator": 10, "denominator": 2},
-                "query": {"detail": "true"},
+                "params": {"numerator": 10.0, "denominator": 2.0},
+                "query": {"precision": 2},
             }
         )
         self.assertTrue(resp.ok)
-        self.assertIn("/10/2", last_request["url"])
-        self.assertIn("detail=true", last_request["url"])
+        self.assertIn("/10.0/2.0", last_request["url"])
+        self.assertIn("precision=2", last_request["url"])
 
         # Also verify camelCase alias
         self.assertTrue(hasattr(client.apis(), "sampleFraction"))

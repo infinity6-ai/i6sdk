@@ -43,6 +43,7 @@ class TestInvoker(unittest.TestCase):
         )
         self.assertFalse(resp.ok)
         self.assertIsNotNone(resp.error)
+        assert resp.error is not None
         self.assertEqual(resp.error["code"], "not_found")
         self.assertEqual(resp.error["status"], 404)
 

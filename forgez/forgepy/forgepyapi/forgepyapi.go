@@ -162,14 +162,14 @@ func writeApiDecl(b *strings.Builder, api *apispecz.Api) {
 		}
 		sort.Strings(labelKeys)
 
-		writeln(b, "    opts = dict(opts or {})")
+		writeln(b, "    effective_opts: Dict[str, Any] = dict(opts or {})")
 		writeln(b, "    labels = {")
 		for _, k := range labelKeys {
 			writeln(b, "        %q: %q,", k, api.Spec.Desc.Labels[k])
 		}
 		writeln(b, "    }")
-		writeln(b, "    labels.update(opts.get(\"labels\") or {})")
-		writeln(b, "    opts[\"labels\"] = labels")
+		writeln(b, "    labels.update(effective_opts.get(\"labels\") or {})")
+		writeln(b, "    effective_opts[\"labels\"] = labels")
 	}
 
 	writeln(b, "    invoke_kwargs: Dict[str, Any] = {")
@@ -191,7 +191,11 @@ func writeApiDecl(b *strings.Builder, api *apispecz.Api) {
 		writeln(b, "        \"json\": req.get(\"payload\"),")
 	}
 
-	writeln(b, "        \"opts\": opts,")
+	if api.Spec.Desc != nil && len(api.Spec.Desc.Labels) > 0 {
+		writeln(b, "        \"opts\": effective_opts,")
+	} else {
+		writeln(b, "        \"opts\": opts,")
+	}
 
 	if api.Spec.Desc != nil && api.Spec.Desc.Labels != nil && api.Spec.Desc.Labels["sinkable"] == "true" {
 		writeln(b, "        \"sinkable\": True,")

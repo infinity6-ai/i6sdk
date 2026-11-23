@@ -146,8 +146,9 @@ class Invoker:
 
         # 5. Timeout
         timeout = config.timeout
-        if req_opts and isinstance(req_opts, dict) and req_opts.get("timeout") is not None:
-            timeout = float(req_opts["timeout"])
+        if req_opts and isinstance(req_opts, dict):
+            if (t := req_opts.get("timeout")) is not None:
+                timeout = float(t)
 
         method = (opts.get("method") or "GET").upper()
 

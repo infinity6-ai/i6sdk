@@ -165,12 +165,20 @@ func FormatTypedefs(typedefs *typeastz.Typedefs) string {
 	}
 
 	var b strings.Builder
+	seen := map[string]bool{
+		"ServiceOptions": true,
+		"FileStat":       true,
+	}
 
 	for _, td := range all {
 		name := td.Head.Name
 		if name == typeastz.TypFileStat {
 			name = "FileStat"
 		}
+		if seen[name] {
+			continue
+		}
+		seen[name] = true
 
 		hasProps := td.Properties != nil && len(td.Properties.All()) > 0
 		hasKeywordOrSpecial := false
