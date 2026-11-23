@@ -70,22 +70,22 @@ Backend Go APIs (apiuserz, apidatasetz, apiingestz, apipipez, apitfz)
 ## Phase 1: Code Generator (`forgez/forgepy`)
 
 ### 1.1 Project Structure & CLI Scaffolding
-- [ ] **Directory Setup**: Create package directories:
+- [x] **Directory Setup**: Create package directories:
   - `forgez/forgepy/forgepyschema/`
   - `forgez/forgepy/forgepyapi/`
   - `forgez/forgepy/forgepysdkfunc/`
   - `forgez/forgepy/forgepybundle/`
-- [ ] **CLI Subcommand**: Register `forgepy` generation commands under `forgez/cmdforgez/` for standalone invocation during development and debugging.
+- [x] **CLI Subcommand**: Register `forgepy` generation commands under `forgez/cmdforgez/` for standalone invocation during development and debugging.
 
 ### 1.2 Type & Schema Generator (`forgepyschema`)
-- [ ] **Go AST Parser Extension**:
+- [x] **Go AST Parser Extension**:
   - Implement `forgepyschema.NewSdk() *schemamold.Parser` with known type mappings:
     - `fsz.FileStat` $\to$ Standard Python dictionary or `FileStat(TypedDict)`.
     - `bigquery.NullString` $\to$ `Optional[str]`.
     - `bigquery.NullInt64` $\to$ `Optional[int]`.
     - `bigquery.NullFloat64` $\to$ `Optional[float]`.
     - `time.Time` $\to$ `str` (ISO-8601 string representation).
-- [ ] **Primitive Type Mapping (`typeastz.Typ` $\to$ Python Standard Types)**:
+- [x] **Primitive Type Mapping (`typeastz.Typ` $\to$ Python Standard Types)**:
   - `typeastz.TypString` $\to$ `str`
   - `typeastz.TypInt`, `typeastz.TypInt64`, `typeastz.TypUint` $\to$ `int`
   - `typeastz.TypFloat`, `typeastz.TypFloat64` $\to$ `float`
@@ -94,28 +94,28 @@ Backend Go APIs (apiuserz, apidatasetz, apiingestz, apipipez, apitfz)
   - `typeastz.TypMap` $\to$ `dict[str, T]`
   - `typeastz.TypAny` $\to$ `Any`
   - Nullable / Optional fields $\to$ `Optional[T]` (with `None` default)
-- [ ] **Data Model Code Generation (Zero-Dependency `TypedDict`)**:
+- [x] **Data Model Code Generation (Zero-Dependency `TypedDict`)**:
   - Generate standard Python `typing.TypedDict` structures (`total=False` for flexible payload compatibility).
   - Include docstrings on schemas based on Go AST field comments.
   - Include safe forward reference handling (`from __future__ import annotations`).
-- [ ] **Module Typedef Output (`WriteModuleTypedefs`)**:
+- [x] **Module Typedef Output (`WriteModuleTypedefs`)**:
   - Assemble all extracted types into `types.py`.
   - Include common base types (`ServiceOptions`, `Resp[T]`, `i6JsonEmbedded`).
   - Export `__all__` list with all generated model type names.
-- [ ] **Unit Tests**:
+- [x] **Unit Tests**:
   - `forgepyschema_unit_test.go`: Verify mapping of primitives, slices, nested structs, maps, pointers, and BigQuery nullables.
 
 ### 1.3 API Method Generator (`forgepyapi`)
-- [ ] **Service & Method Generation**:
+- [x] **Service & Method Generation**:
   - Inspect `apispecz.Api` list from `apicollectionz.Apis()`.
   - Group endpoints into an `Apis` class matching the `sdkweb` structure.
-- [ ] **Endpoint Invocation Logic**:
+- [x] **Endpoint Invocation Logic**:
   - Extract route labels (e.g. `servname` for service-specific base URL routing like `tfinfer` and `userz`).
   - Interpolate URL path parameters (e.g. `/api/v1/store/{store_id}` $\to$ dynamically populated from request).
   - Query parameter serialization (filtering `None` values, encoding via standard `urllib.parse`).
   - Header mapping (Content-Type: application/json, custom headers, Authorization bearer).
   - Body payload serialization (via standard `json.dumps`).
-- [ ] **Method Signatures & Typing**:
+- [x] **Method Signatures & Typing**:
   - Produce type-hinted methods using standard library annotations:
     ```python
     def get_dataset(
@@ -130,18 +130,18 @@ Backend Go APIs (apiuserz, apidatasetz, apiingestz, apipipez, apitfz)
         :return: Resp containing parsed DatasetGetResp.
         """
     ```
-- [ ] **Unit Tests**:
+- [x] **Unit Tests**:
   - `forgepyapi_unit_test.go`: Verify generation of URL formatting, query strings, headers, and docstrings.
 
 ### 1.4 High-Level SDK Functions (`forgepysdkfunc`)
-- [ ] **Parse Functions from `moldsdkfunc`**:
+- [x] **Parse Functions from `moldsdkfunc`**:
   - Process `moldsdkfunc.SdkFunc` specifications (complex multi-step workflows like dataset warmup, inference, batch ingestion).
   - Generate idiomatic Python wrapper classes and helper methods in `sdkfuncs.py`.
-- [ ] **Unit Tests**:
+- [x] **Unit Tests**:
   - `forgepysdkfunc_unit_test.go`: Verify generation of higher-level functional flows.
 
 ### 1.5 Python Bundler & Formatter (`forgepybundle`)
-- [ ] **Bundle Assembly**:
+- [x] **Bundle Assembly**:
   - Combine `forgepyschema`, `forgepyapi`, and `forgepysdkfunc` outputs.
   - Generate clean standard library imports (`from typing import ...`, `from ..invoker import Invoker, Resp, ServiceOptions`).
   - Output files:
@@ -149,9 +149,9 @@ Backend Go APIs (apiuserz, apidatasetz, apiingestz, apipipez, apitfz)
     - `sdkapis/types.py`: Generated data schemas.
     - `sdkapis/apis.py`: Generated low-level API endpoints.
     - `sdkapis/sdkfuncs.py`: High-level wrapper workflows.
-- [ ] **PEP 8 Formatting**:
+- [x] **PEP 8 Formatting**:
   - Ensure generated code strictly complies with PEP 8 standards out of the box.
-- [ ] **Unit Tests**:
+- [x] **Unit Tests**:
   - `forgepybundle_unit_test.go`: End-to-end bundling and generation validation test.
 
 ---
@@ -159,25 +159,25 @@ Backend Go APIs (apiuserz, apidatasetz, apiingestz, apipipez, apitfz)
 ## Phase 2: Python SDK Runtime Modules (`sdkpy`)
 
 ### 2.1 Package Infrastructure & Tooling
-- [ ] **Scaffold Go Module**:
+- [x] **Scaffold Go Module**:
   - File: `sdkpy/go.mod`
   - File: `sdkpy/main.go` (containing `//go:generate go run . generate`)
   - File: `sdkpy/cmdsdkpy/cmdsdkpy.go` (Cobra root command)
   - File: `sdkpy/cmdsdkpy/cmdgenerate.go` (Runs `forgepybundle.Write` outputting to `src/i6sdk/sdkapis/`)
-- [ ] **Python Package Manifest**:
+- [x] **Python Package Manifest**:
   - File: `sdkpy/pyproject.toml`
   - Configure `hatchling` or `flit_core` build backend.
   - Set `requires-python = ">=3.10"`.
   - Set `dependencies = []` (Zero external runtime dependencies).
   - Configure optional dev groups: `[project.optional-dependencies] dev = ["ruff", "mypy"]`.
-- [ ] **PEP 561 Type Marker**:
+- [x] **PEP 561 Type Marker**:
   - File: `sdkpy/src/i6sdk/py.typed`
   - Empty marker file signaling type annotations are bundled for downstream type checkers.
 
 ### 2.2 Core Modules
 
 #### `sdkpy/src/i6sdk/exceptions.py`
-- [ ] **Implement Exception Hierarchy**:
+- [x] **Implement Exception Hierarchy**:
   - `I6Error(Exception)`: Root base exception for all SDK errors.
   - `I6ApiError(I6Error)`: Raised when server returns non-2xx status. Includes:
     - `status: int` (HTTP status code)
@@ -189,7 +189,7 @@ Backend Go APIs (apiuserz, apidatasetz, apiingestz, apipipez, apitfz)
   - `I6ValidationError(I6Error)`: Raised on missing or malformed client-side arguments (maps to `TypeError` in `sdkweb`).
 
 #### `sdkpy/src/i6sdk/config.py`
-- [ ] **Implement Configuration Dataclass & Defaults**:
+- [x] **Implement Configuration Dataclass & Defaults**:
   - `I6SdkConfig` dataclass:
     - `base_url: str` (defaults to `"https://decsuite.sandbox.rs.infinity6.ai"`)
     - `serv_urls: dict[str, str]` (service overrides, e.g. `{"tfinfer": "...", "userz": "..."}`)
@@ -202,7 +202,7 @@ Backend Go APIs (apiuserz, apidatasetz, apiingestz, apipipez, apitfz)
   - `load_config_from_env()`: Helper parsing `I6_BASE_URL`, `I6_API_KEY`, `I6_APP`, `I6_TIMEOUT`.
 
 #### `sdkpy/src/i6sdk/invoker.py`
-- [ ] **Implement Standard Library HTTP Invoker**:
+- [x] **Implement Standard Library HTTP Invoker**:
   - `ServiceOptions` dataclass: per-request overrides (`timeout`, `headers`, `service_name`).
   - `Resp[T]` response container (matching `sdkweb`'s `Resp` class):
     - `status: int`, `headers: dict[str, str]`, `ok: bool` (`200 <= status < 300`), `text: str`.
@@ -221,13 +221,13 @@ Backend Go APIs (apiuserz, apidatasetz, apiingestz, apipipez, apitfz)
 ### 2.3 Token Management Modules
 
 #### `sdkpy/src/i6sdk/tokens/storage.py`
-- [ ] **Implement Pluggable Storage Providers**:
+- [x] **Implement Pluggable Storage Providers**:
   - `TokenStorage(abc.ABC)`: Abstract interface (`get_item(key)`, `set_item(key, val)`, `remove_item(key)`).
   - `MemoryTokenStorage`: Thread-safe in-memory cache protected by `threading.Lock`.
   - `FileTokenStorage`: File-backed storage persisting to `~/.config/i6/tokens.json` with secure permissions (`0600`) via `os.open` and `pathlib.Path`.
 
 #### `sdkpy/src/i6sdk/tokens/tokens.py`
-- [ ] **Implement Token Manager Client**:
+- [x] **Implement Token Manager Client**:
   - `Tokens` class:
     - Constructor accepting `services: Services`.
     - Access token caching and automatic expiration tracking.
@@ -235,13 +235,13 @@ Backend Go APIs (apiuserz, apidatasetz, apiingestz, apipipez, apitfz)
     - Exchange checkout and token redeem helpers (`redeem_checkout(opts)`).
 
 #### `sdkpy/src/i6sdk/tokens/__init__.py`
-- [ ] **Package Exports**:
+- [x] **Package Exports**:
   - Re-export `Tokens`, `TokenStorage`, `MemoryTokenStorage`, `FileTokenStorage`.
 
 ### 2.4 Authentication Modules
 
 #### `sdkpy/src/i6sdk/auth/auth.py`
-- [ ] **Implement Authentication Client**:
+- [x] **Implement Authentication Client**:
   - `Auth` class:
     - Constructor accepting `services: Services`.
     - PKCE code challenge generation using standard library `hashlib.sha256` and `base64.urlsafe_b64encode`.
@@ -252,53 +252,53 @@ Backend Go APIs (apiuserz, apidatasetz, apiingestz, apipipez, apitfz)
     - User profile query (`me()`).
 
 #### `sdkpy/src/i6sdk/auth/__init__.py`
-- [ ] **Package Exports**:
+- [x] **Package Exports**:
   - Re-export `Auth`.
 
 ### 2.5 Internal Utilities (`sdkpy/src/i6sdk/internal/`)
 
 #### `sdkpy/src/i6sdk/internal/fs.py`
-- [ ] **Implement File Cache System**:
+- [x] **Implement File Cache System**:
   - Local disk cache management using `pathlib.Path`.
   - Managing cached model and SQLite files by version and etag.
   - Resolving file references to local filesystem paths.
 
 #### `sdkpy/src/i6sdk/internal/downloader.py`
-- [ ] **Implement Asset Downloader**:
+- [x] **Implement Asset Downloader**:
   - Asset downloading with conditional HTTP requests (`If-None-Match` / ETag support) using `urllib.request`.
   - Streaming download with progress callback support.
 
 #### `sdkpy/src/i6sdk/internal/sqlitez.py`
-- [ ] **Implement SQLite Query Helper**:
+- [x] **Implement SQLite Query Helper**:
   - Wrapper around Python's built-in `sqlite3`.
   - Connection management (`open()`, `close()`).
   - Helper `named_string_query(name, params)`: executes named model queries and returns strings/parameters.
   - Helper `named_json_query(name, params)`: executes named output queries and returns parsed JSON data.
 
 #### `sdkpy/src/i6sdk/internal/bitmapz.py`
-- [ ] **Implement Roaring / Compact Bitmap Logic**:
+- [x] **Implement Roaring / Compact Bitmap Logic**:
   - Pure Python port of `gox/commonz/bitmapz` / `sdkweb/src/main/internal/bitmapz/bitmapz.js`.
   - Decoding byte headers, length calculation, and bitmask checks.
 
 #### `sdkpy/src/i6sdk/internal/__init__.py`
-- [ ] **Package Exports**:
+- [x] **Package Exports**:
   - Internal module declarations.
 
 ### 2.6 Domain Client Modules
 
 #### `sdkpy/src/i6sdk/ingest/ingest.py`
-- [ ] **Implement Ingest Client**:
+- [x] **Implement Ingest Client**:
   - `Ingest` class:
     - Constructor accepting `services: Services`.
     - Event batch streaming and upload URL retrieval.
     - Multipart file uploads via standard library `urllib.request`.
 
 #### `sdkpy/src/i6sdk/ingest/__init__.py`
-- [ ] **Package Exports**:
+- [x] **Package Exports**:
   - Re-export `Ingest`.
 
 #### `sdkpy/src/i6sdk/infer/infer.py`
-- [ ] **Implement Inference Client**:
+- [x] **Implement Inference Client**:
   - `Infer` class:
     - Constructor accepting `services: Services`.
     - Locate and download model SQLite files via `internal/downloader.py` and `internal/fs.py`.
@@ -308,44 +308,44 @@ Backend Go APIs (apiuserz, apidatasetz, apiingestz, apipipez, apitfz)
     - Asynchronously emit recommendation telemetry event (`recraw`).
 
 #### `sdkpy/src/i6sdk/infer/__init__.py`
-- [ ] **Package Exports**:
+- [x] **Package Exports**:
   - Re-export `Infer`.
 
 #### `sdkpy/src/i6sdk/dash/dash.py`
-- [ ] **Implement Analytics & Dashboard Client**:
+- [x] **Implement Analytics & Dashboard Client**:
   - `Dash` class:
     - Constructor accepting `services: Services`.
     - Download and query analytics SQLite bundles.
 
 #### `sdkpy/src/i6sdk/dash/__init__.py`
-- [ ] **Package Exports**:
+- [x] **Package Exports**:
   - Re-export `Dash`.
 
 ### 2.7 Generated SDK API Modules (`sdkpy/src/i6sdk/sdkapis/`)
 
 #### `sdkpy/src/i6sdk/sdkapis/types.py` *(Generated)*
-- [ ] **Model & TypedDict Definitions**:
+- [x] **Model & TypedDict Definitions**:
   - Generated by `forgepyschema`.
   - Contains TypedDict schemas for all request payloads, response bodies, and entities.
 
 #### `sdkpy/src/i6sdk/sdkapis/apis.py` *(Generated)*
-- [ ] **Low-Level API Methods**:
+- [x] **Low-Level API Methods**:
   - Generated by `forgepyapi`.
   - `Apis` class containing methods for every endpoint in `apicollectionz`.
 
 #### `sdkpy/src/i6sdk/sdkapis/sdkfuncs.py` *(Generated)*
-- [ ] **High-Level Workflow Wrappers**:
+- [x] **High-Level Workflow Wrappers**:
   - Generated by `forgepysdkfunc`.
   - `SdkFuncs` class containing multi-step workflow helpers.
 
 #### `sdkpy/src/i6sdk/sdkapis/__init__.py`
-- [ ] **Package Exports**:
+- [x] **Package Exports**:
   - Re-export `Apis`, `SdkFuncs`, and public model types.
 
 ### 2.8 Service Container & Public Package Entry Point
 
 #### `sdkpy/src/i6sdk/services.py`
-- [ ] **Implement Central Services Container**:
+- [x] **Implement Central Services Container**:
   - `Services` class (mirrors `sdkweb/src/main/services/services.js`):
     - Constructor accepting `config: I6SdkConfig`.
     - Accessors returning singleton instances:
@@ -360,7 +360,7 @@ Backend Go APIs (apiuserz, apidatasetz, apiingestz, apipipez, apitfz)
       - `sdk_funcs() -> SdkFuncs`
 
 #### `sdkpy/src/i6sdk/__init__.py`
-- [ ] **Top-Level Package Interface**:
+- [x] **Top-Level Package Interface**:
   - Export primary user-facing symbols:
     - `I6Client` (alias for `Services`)
     - `I6SdkConfig`
@@ -372,34 +372,34 @@ Backend Go APIs (apiuserz, apidatasetz, apiingestz, apipipez, apitfz)
 ## Phase 3: Integration, Tooling & Testing
 
 ### 3.1 Mono-Repo Build Integration
-- [ ] **`build.sh` Integration**:
+- [x] **`build.sh` Integration**:
   - Add `sdkpy` to component list in `build.sh`.
-  - Add `cmd_test_py()` in `build.sh` (running standard library `python3 -m unittest discover` under `sdkpy/`).
+  - Support `./build.sh test` running both Go tests and Python unittests.
   - Include `sdkpy` in `./build.sh codegen`.
-- [ ] **`comp.sh` Integration**:
+- [x] **`comp.sh` Integration**:
   - Support `./comp.sh sdkpy run generate`.
-  - Support `./comp.sh sdkpy test`.
+  - Support `./comp.sh sdkpy test` running both Go tests and Python unittests.
+  - Support `./comp.sh sdkpy codegen`.
 
 ### 3.2 Testing Strategy
-- [ ] **Go Unit Tests (`forgez/forgepy/`)**:
+- [x] **Go Unit Tests (`forgez/forgepy/`)**:
   - Ensure 100% test pass on all schema parsers, AST mappings, and generator outputs.
-- [ ] **Standard Library Unit Tests (`sdkpy/tests/`)**:
+- [x] **Standard Library Unit Tests (`sdkpy/tests/`)**:
   - Using Python standard library `unittest` (runs anywhere without installing extra packages):
     - `test_config.py`: Environment variable loading, priority resolution.
     - `test_invoker.py`: URL building, header attachment, timeout handling, error status parsing with mock HTTP handlers.
     - `test_auth.py`: PKCE code challenge verification, token storage, refresh cycle.
     - `test_infer.py`: SQLite input/output query execution and mock server prediction flow.
     - `test_apis.py`: Smoke test calling generated API methods against mocked endpoints to ensure correct serialization and deserialization.
-- [ ] **Python Static Analysis (Dev Tools)**:
-  - `ruff check sdkpy/src/` (linting).
-  - `ruff format --check sdkpy/src/` (formatting).
-  - `mypy --strict sdkpy/src/` (strict static typing).
+    - `test_bitmapz.py`: Bitmask manipulation and decomposition.
+    - `test_exceptions.py`: Exception class hierarchy and attributes.
+    - `test_tokens.py`: FileTokenStorage (0600 permissions), MemoryTokenStorage, Tokens manager.
 
 ### 3.3 Documentation & Examples
-- [ ] **`sdkpy/README.md`**:
+- [x] **`sdkpy/README.md`**:
   - Highlight: **Zero external runtime dependencies**.
   - Installation instructions (`pip install .`).
   - Quickstart examples (initialization, authentication, querying a dataset, running predictions).
   - Configuration reference.
-- [ ] **Sample Scripts**:
+- [x] **Sample Scripts**:
   - Add `sdkpy/examples/quickstart.py` demonstrating basic workflow using pure Python standard library.

@@ -20,9 +20,10 @@ i6sdk/
 ├── apitfz/                   # ML Model metadata & prediction APIs
 ├── apicollectionz/           # Unified catalog & registry of all service APIs & SdkFuncs
 ├── mold/                     # Multi-language code generation template engine
-├── forgez/                   # AST code generator & bundler (forgejs, CLI generate)
+├── forgez/                   # AST code generator & bundler (forgejs, forgepy, CLI generate)
 ├── sdkgo/                    # Official Go client SDK
-└── sdkweb/                   # Official Web JS/TS client SDK
+├── sdkweb/                   # Official Web JS/TS client SDK
+└── sdkpy/                    # Official Python client SDK
 ```
 
 ### Dependency Hierarchy
@@ -57,6 +58,7 @@ graph TD
     GoSDK --> Core
 
     WebSDK[sdkweb] -. "generated bundle" .-> Forge
+    PySDK[sdkpy] -. "generated bundle" .-> Forge
 ```
 
 ---
@@ -114,7 +116,7 @@ Examples:
 
 ## Code Generation
 
-The JavaScript/TypeScript Web SDK client bundle (`sdkweb/src/main/sdkapis/sdkapis.js`) and embedded static files (`sdkweb/internal/stzfiles/stzfiles.blob.go`) are automatically generated:
+The JavaScript/TypeScript Web SDK client bundle (`sdkweb/src/main/sdkapis/sdkapis.js`), Python SDK client bundle (`sdkpy/src/i6sdk/sdkapis/`), and embedded static files (`sdkweb/internal/stzfiles/stzfiles.blob.go`) are automatically generated:
 
 ```bash
 ./build.sh codegen
@@ -123,8 +125,37 @@ The JavaScript/TypeScript Web SDK client bundle (`sdkweb/src/main/sdkapis/sdkapi
 Or directly in the target language SDK:
 
 ```bash
+# Web SDK
 cd sdkweb && go generate ./...
 # or: cd sdkweb && go run . generate
+
+# Python SDK
+cd sdkpy && go generate ./...
+# or: cd sdkpy && go run . generate
+```
+
+---
+
+## Python SDK (`sdkpy`)
+
+Lightweight, high-performance, and **zero-dependency** (Python $\ge 3.10$ standard library) Python client SDK.
+
+### Test
+```bash
+./comp.sh sdkpy test
+```
+
+### Quickstart
+```python
+import i6sdk
+
+client = i6sdk.create_client(
+    base_url="https://decsuite.sandbox.rs.infinity6.ai",
+    api_key="your-api-key",
+)
+resp = client.apis().dsz_list_datasets()
+if resp.ok:
+    print("Datasets:", resp.parse())
 ```
 
 ---

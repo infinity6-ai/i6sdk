@@ -1,4 +1,4 @@
-package relevancefashiondashdisplaymetrics
+package relevancefashiondashdisplaymetricsstatus
 
 import (
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
@@ -6,41 +6,33 @@ import (
 	"github.com/infinity6-ai/i6sdk/sdkcorez/sdkfuncz"
 )
 
-// Package relevancefashiondashdisplaymetrics implements the client query
-// product-relevance-fashion-dash-display-metrics: recommendation funnel metrics
-// grouped by display (showcase) and by recommendation origin, for one store and
+// Package relevancefashiondashdisplaymetricsstatus implements the client query
+// product-relevance-fashion-dash-display-metrics-status: recommendation funnel
+// metrics and status indicators grouped by display (showcase) for one store and
 // a year-month period.
 //
 // The SDK only declares the input and output schemas. The filters below are
 // applied by the query itself, which receives the params exactly as sent.
 
-// Special values accepted by Params.DisplayId. Any other value is a display id.
+// Special values used in Row.SrcDisplayId. Any other value is a display id.
 const (
-	// DisplayNoDisplay returns only rows whose display id is null, which are
-	// the displays that are not registered.
+	// DisplayNoDisplay identifies displays that are not registered.
 	DisplayNoDisplay = "NO_DISPLAY"
-	// DisplayAllDisplays returns rows of every display, registered or not.
-	DisplayAllDisplays = "ALL_DISPLAYS"
 )
 
-// Params are the query params. Optional ones are pointers so that absent and
-// null (nil) can be told apart from an explicit value.
+// Uplift indicator color values returned in Row.UpliftColor.
+const (
+	UpliftColorGreen  = "GREEN"
+	UpliftColorYellow = "YELLOW"
+	UpliftColorRed    = "RED"
+)
+
+// Params are the query params.
 type Params struct {
 	// MinYearMonth is the first year-month of the period, for example 2026-07.
 	MinYearMonth string
-	// MaxYearMonth is the last year-month of the period, for example 2026-09.
+	// MaxYearMonth is the last year-month of the period, for example 2026-11.
 	MaxYearMonth string
-	// FromRec is an optional tri-state filter on the recommendation origin:
-	//   nil (absent or null): returns all rows, recommended or not.
-	//   true: returns only rows that come from recommendations.
-	//   false: returns only rows that do not come from recommendations.
-	FromRec *bool
-	// DisplayId is an optional display filter, passed to the query as sent:
-	//   nil (absent or null): no display filter is requested.
-	//   DisplayNoDisplay: only rows whose display id is null.
-	//   DisplayAllDisplays: rows of all displays.
-	//   any other value: only rows of that display id.
-	DisplayId *string
 }
 
 // Partitions are the dash partitions.
@@ -49,16 +41,14 @@ type Partitions struct {
 	StoreId string
 }
 
-// Row is the metrics of one display and recommendation origin.
+// Row is the metrics and status of one display.
 type Row struct {
-	// SrcDisplayId is the source display id. It is nil for displays that are
-	// not registered.
-	SrcDisplayId *string
-	// FromRec is 1 when the row counts recommendation traffic and 0 otherwise.
-	FromRec int
-	// RecRaws is the number of raw recommendations. It is 0 when FromRec is 0.
+	// SrcDisplayId is the source display id, or DisplayNoDisplay ("NO_DISPLAY")
+	// for displays that are not registered.
+	SrcDisplayId string
+	// RecRaws is the number of raw recommendations.
 	RecRaws float64
-	// RecShows is the number of recommendations shown. It is 0 when FromRec is 0.
+	// RecShows is the number of recommendations shown.
 	RecShows float64
 	// Clicks is the number of clicks.
 	Clicks float64
@@ -66,13 +56,25 @@ type Row struct {
 	CartAdds float64
 	// Purchases is the number of purchases.
 	Purchases float64
+	// Revenue is the total revenue generated.
+	Revenue float64
+	// UniqueSessions is the count of unique sessions.
+	UniqueSessions float64
+	// LastDisplayActivity is the ISO-8601 timestamp of the last display activity.
+	LastDisplayActivity string
+	// Ctr is the click-through rate.
+	Ctr float64
 	// ConversionRate is purchases divided by clicks.
 	ConversionRate float64
+	// Uplift is the performance uplift value.
+	Uplift float64
+	// UpliftColor is the status indicator color for the uplift (e.g., GREEN, YELLOW, RED).
+	UpliftColor string
 }
 
 // Result is the query result.
 type Result struct {
-	// Rows has one row per display and recommendation origin.
+	// Rows has one row per display.
 	Rows []*Row
 }
 
@@ -88,7 +90,7 @@ type Resp struct {
 	Results Result
 }
 
-// Func is the client query product-relevance-fashion-dash-display-metrics.
+// Func is the client query product-relevance-fashion-dash-display-metrics-status.
 type Func struct {
 	Req  Req
 	Resp Resp
@@ -96,13 +98,13 @@ type Func struct {
 
 func (d *Func) SdkFuncSpec() sdkfuncz.Spec {
 	return sdkfuncz.Spec{
-		Id:      "product-relevance-fashion-dash-display-metrics",
+		Id:      "product-relevance-fashion-dash-display-metrics-status",
 		Version: "v1",
 		Typ:     sdkfuncz.TypClientQuery,
 		Desc: func() *schemaz.Desc {
 			return &schemaz.Desc{
-				Name:    "Get Display Metrics",
-				Summary: "Gets recommendation metrics by display for a store and period, optionally filtered by display and recommendation origin.",
+				Name:    "Get Display Metrics Status",
+				Summary: "Gets recommendation metrics, revenue, session counts, and uplift status by display for a store and period.",
 			}
 		},
 	}
@@ -128,14 +130,6 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 								"max_year_month": {
 									Desc:  &schemaz.Desc{Summary: "Last year-month of the period."},
 									Field: func() any { return &d.Req.Params.MaxYearMonth },
-								},
-								"from_rec": {
-									Desc:  &schemaz.Desc{Summary: "Recommendation filter: true, false, or null for all."},
-									Field: func() any { return &d.Req.Params.FromRec },
-								},
-								"display_id": {
-									Desc:  &schemaz.Desc{Summary: "Display filter: NO_DISPLAY, ALL_DISPLAYS or a display id."},
-									Field: func() any { return &d.Req.Params.DisplayId },
 								},
 							}
 						},
@@ -166,12 +160,8 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 									Object: func(_ bool) map[string]*schemaz.Schema {
 										return map[string]*schemaz.Schema{
 											"src_display_id": {
-												Desc:  &schemaz.Desc{Summary: "Display id, null if not registered."},
+												Desc:  &schemaz.Desc{Summary: "Display id, or NO_DISPLAY if not registered."},
 												Field: func() any { return &(*element).SrcDisplayId },
-											},
-											"from_rec": {
-												Desc:  &schemaz.Desc{Summary: "1 if from recommendations, else 0."},
-												Field: func() any { return &(*element).FromRec },
 											},
 											"recraws": {
 												Desc:  &schemaz.Desc{Summary: "Raw recommendations count."},
@@ -193,9 +183,33 @@ func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
 												Desc:  &schemaz.Desc{Summary: "Number of purchases."},
 												Field: func() any { return &(*element).Purchases },
 											},
+											"revenue": {
+												Desc:  &schemaz.Desc{Summary: "Total revenue generated."},
+												Field: func() any { return &(*element).Revenue },
+											},
+											"unique_sessions": {
+												Desc:  &schemaz.Desc{Summary: "Number of unique sessions."},
+												Field: func() any { return &(*element).UniqueSessions },
+											},
+											"last_display_activity": {
+												Desc:  &schemaz.Desc{Summary: "ISO-8601 timestamp of the last display activity."},
+												Field: func() any { return &(*element).LastDisplayActivity },
+											},
+											"ctr": {
+												Desc:  &schemaz.Desc{Summary: "Click-through rate."},
+												Field: func() any { return &(*element).Ctr },
+											},
 											"conversion_rate": {
 												Desc:  &schemaz.Desc{Summary: "Purchases divided by clicks."},
 												Field: func() any { return &(*element).ConversionRate },
+											},
+											"uplift": {
+												Desc:  &schemaz.Desc{Summary: "Performance uplift metric."},
+												Field: func() any { return &(*element).Uplift },
+											},
+											"uplift_color": {
+												Desc:  &schemaz.Desc{Summary: "Uplift status color indicator."},
+												Field: func() any { return &(*element).UpliftColor },
 											},
 										}
 									},

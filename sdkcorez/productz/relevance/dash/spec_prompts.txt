@@ -1,0 +1,21 @@
+named query:
+product-relevance-fashion-dash-coverage
+
+PARAMS:
+{"dataset":"xpto", "params":{"min_year_month": "2026-07", "max_year_month": "2026-09"}}
+
+OUTPUT:
+{"rows":[{"recomendation_coverage":1.0,"recommended_items":166,"recommendable_items":166,"long_tail_coverage":1.0,"top_1_coverage":1.0,"top_1_to_5_coverage":1.0,"top_5_to_10_coverage":1.0,"bottom_90_coverage":1.0}]}
+
+-----
+
+named query:
+product-relevance-fashion-dash-display-metrics-status
+
+PARAMS:
+.parameter set ?1 '{"dataset":"xpto2", "params":{"min_year_month": "2026-07", "max_year_month": "2026-11"}}'
+
+OUTPUT:
+{"rows":[{"src_display_id":"NO_DISPLAY","recraws":1241,"recshows":587,"clicks":14659,"cart_adds":4421,"purchases":1526,"revenue":709480.8,"unique_sessions":442310,"last_display_activity":"2026-11-09T19:08:32Z","ctr":24.9727427597956,"conversion_rate":0.104099870386793,"uplift":0.0,"uplift_color":"YELLOW"},{"src_display_id":"312ee60c-b9d1-4895-878b-5220b8fd84bc","recraws":628,"recshows":192,"clicks":11,"cart_adds":7,"purchases":4,"revenue":11943.6,"unique_sessions":184,"last_display_activity":"2026-11-06T21:24:55Z","ctr":0.0572916666666667,"conversion_rate":0.363636363636364,"uplift":2.49314905278208,"uplift_color":"GREEN"},{"src_display_id":"9a07a931-9e4d-46bf-93db-710708024f50","recraws":1168,"recshows":399,"clicks":48,"cart_adds":48,"purchases":18,"revenue":23377.9,"unique_sessions":864,"last_display_activity":"2026-11-09T19:07:59Z","ctr":0.120300751879699,"conversion_rate":0.375,"uplift":2.60230996068152,"uplift_color":"GREEN"}]}
+
+-----

@@ -8,7 +8,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/dash/relevancefashiondashattachedrevenue"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/dash/relevancefashiondashcoverage"
-	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/dash/relevancefashiondashdisplaymetrics"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/dash/relevancefashiondashdisplaymetricsstatus"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/dash/relevancefashiondashfunnel"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/dash/relevancefashiondashimpactedmetricsbyshowcasecategory"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/dash/relevancefashiondashimpactedmetricsbysku"
@@ -38,7 +38,7 @@ func init() {
 	add(&relevancefashiondashimpactedmetricsbyshowcasecategory.Func{})
 	add(&relevancefashiondashimpactedmetricsbysku.Func{})
 	add(&relevancefashiondashcoverage.Func{})
-	add(&relevancefashiondashdisplaymetrics.Func{})
+	add(&relevancefashiondashdisplaymetricsstatus.Func{})
 }
 
 func SdkFuncs() []sdkfuncz.Func {

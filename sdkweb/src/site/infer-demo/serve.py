@@ -22,4 +22,6 @@ class Handler(SimpleHTTPRequestHandler):
 # Always serve sdkweb, whatever the current directory is
 os.chdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 
+print('Index at: http://localhost:8000/static/infer-demo/index.html')
+
 ThreadingHTTPServer(("", 8000), Handler).serve_forever()
