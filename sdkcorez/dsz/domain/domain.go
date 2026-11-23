@@ -8,6 +8,20 @@ import (
 	"github.com/infinity6-ai/gox/schemaz/typeastz"
 )
 
+const (
+	fashion     = "fashion"
+	plat        = "plat"
+	dummydomain = "dummydomain"
+	finance     = "finance"
+)
+
+var (
+	Fashion     = MustParse(fashion)
+	Plat        = MustParse(plat)
+	Dummydomain = MustParse(dummydomain)
+	Finance     = MustParse(finance)
+)
+
 type Domain checked.Value[string]
 
 func (*Domain) JSType() string {
@@ -38,7 +52,7 @@ func (d Domain) Validate(v string) error {
 	if err := validation.StrNotEmpty(v, "Domain cannot be empty"); err != nil {
 		return err
 	}
-	if err := validation.OneOf([]string{"fashion", "plat", "dummydomain", "finance"}, v, "Domain"); err != nil {
+	if err := validation.OneOf([]string{fashion, plat, dummydomain, finance}, v, "Domain"); err != nil {
 		return err
 	}
 	return nil
