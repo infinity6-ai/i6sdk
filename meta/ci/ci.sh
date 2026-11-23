@@ -10,7 +10,9 @@ function cmd_image_download() {
 function cmd_build() {
   i6dev golang auth-meta
   ./build.sh work_init
+  ./build.sh gomod_replace_on
   ./build.sh update
+  ./build.sh gomod_replace_off
 }
 
 function cmd_test() {
@@ -18,6 +20,7 @@ function cmd_test() {
 }
 
 function cmd_release() {
+  rm -v go.work go.work.sum || true 
   i6dev dever git-auth
   i6dev code github-to-ssh origin || true
   local _branch="$(git branch --show-current 2>/dev/null || echo "master")"
