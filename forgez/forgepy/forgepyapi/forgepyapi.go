@@ -18,7 +18,7 @@ func NewSdk() *apispecz.Parser {
 	return apispecz.New(forgepyschema.NewSdk())
 }
 
-var pathParamRe = regexp.MustCompile(`\{([A-Za-z0-9_]+)\}`)
+var pathParamRe = regexp.MustCompile(`\{([A-Za-z0-9_]+)(\.\.\.)?\}`)
 
 func writeln(sb *strings.Builder, msg string, args ...any) {
 	_, err := fmt.Fprintf(sb, msg, args...)
@@ -114,7 +114,7 @@ func writeApiDecl(b *strings.Builder, api *apispecz.Api) {
 	writeln(b, "def %s(", methodName)
 	writeln(b, "    self,")
 	if hasReq {
-		writeln(b, "    req: %s,", reqType)
+		writeln(b, "    req: Optional[%s] = None,", reqType)
 	}
 	writeln(b, "    opts: Optional[ServiceOptions] = None,")
 	writeln(b, ") -> Resp[%s]:", respType)
@@ -142,7 +142,14 @@ func writeApiDecl(b *strings.Builder, api *apispecz.Api) {
 	pyPath := strings.TrimPrefix(api.Spec.Path, "/")
 	if hasParams {
 		// Use urllib.parse.quote for path parameters
-		interpolated := pathParamRe.ReplaceAllString(pyPath, "{quote(str((req.get('params') or {}).get('$1', '')))}")
+		interpolated := pathParamRe.ReplaceAllStringFunc(pyPath, func(m string) string {
+			sub := pathParamRe.FindStringSubmatch(m)
+			paramName := sub[1]
+			if len(sub) > 2 && sub[2] == "..." {
+				return fmt.Sprintf("{quote(str((req.get('params') or {}).get('%s', '')), safe='/')}", paramName)
+			}
+			return fmt.Sprintf("{quote(str((req.get('params') or {}).get('%s', '')))}", paramName)
+		})
 		writeln(b, "    path = f%q", interpolated)
 	} else {
 		writeln(b, "    path = %q", pyPath)
@@ -169,7 +176,7 @@ func writeApiDecl(b *strings.Builder, api *apispecz.Api) {
 	writeln(b, "        \"method\": %q,", api.Spec.Method)
 
 	if servName := servNameOf(api); servName != "" {
-		writeln(b, "        \"url\": f\"{((self._services.config().serv_urls or {}).get(%q) or self._services.config().base_url)}/{path}\",", servName)
+		writeln(b, "        \"url\": f\"{((self._services.config().serv_urls or {}).get('%s') or self._services.config().base_url)}/{path}\",", servName)
 	} else {
 		writeln(b, "        \"path\": path,")
 	}
