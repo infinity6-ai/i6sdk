@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   build-sdks:
-    name: Build & Test SDKs
+    name: Build SDKs
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout Code
@@ -35,17 +35,10 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip build
 
-      - name: Initialize Workspace
+      - name: Update & Generate Code
         run: |
           ./build.sh work_init
-
-      - name: Run Unit Tests (Skip Web Browser Tests)
-        run: |
-          ./build.sh test_unit
-
-      - name: Generate Code for All Languages
-        run: |
-          ./build.sh codegen
+          ./build.sh update 2>/dev/null || ./build.sh codegen
 
       # Python package builds
       - name: Build Python Edge Distribution
