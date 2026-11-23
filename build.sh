@@ -127,4 +127,8 @@ function cmd_version() {
   ./comp.sh versionz run version
 }
 
+function cmd_infer-demo() {
+  python ./sdkweb/src/site/infer-demo/serve.py
+}
+
 cd "$(dirname "$0")"; _cmd="${1?"cmd is required"}"; shift; "cmd_${_cmd}" "$@"
