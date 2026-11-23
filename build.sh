@@ -15,6 +15,7 @@ function cmd_comps_list() {
   echo "forgez"
   echo "sdkgo"
   echo "sdkweb"
+  echo "sdkpy"
 }
 
 function cmd_comps_exec() {
