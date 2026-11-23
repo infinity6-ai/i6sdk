@@ -6,7 +6,7 @@ require (
 	github.com/infinity6-ai/gox/commonz v0.0.78
 	github.com/infinity6-ai/gox/routez v0.0.78
 	github.com/infinity6-ai/i6sdk/apicollectionz v0.0.4
-	github.com/infinity6-ai/i6sdk/forgez v0.0.4
+	github.com/infinity6-ai/i6sdk/forgez v0.0.5-0.20261123230424-4a82c435b771
 	github.com/infinity6-ai/i6sdk/mold v0.0.4
 	github.com/infinity6-ai/i6sdk/versionz v0.0.4
 	github.com/spf13/cobra v1.10.2
