@@ -70,22 +70,22 @@ Backend Go APIs (apiuserz, apidatasetz, apiingestz, apipipez, apitfz)
 ## Phase 1: Code Generator (`forgez/forgepy`)
 
 ### 1.1 Project Structure & CLI Scaffolding
-- [ ] **Directory Setup**: Create package directories:
+- [x] **Directory Setup**: Create package directories:
   - `forgez/forgepy/forgepyschema/`
   - `forgez/forgepy/forgepyapi/`
   - `forgez/forgepy/forgepysdkfunc/`
   - `forgez/forgepy/forgepybundle/`
-- [ ] **CLI Subcommand**: Register `forgepy` generation commands under `forgez/cmdforgez/` for standalone invocation during development and debugging.
+- [x] **CLI Subcommand**: Register `forgepy` generation commands under `forgez/cmdforgez/` for standalone invocation during development and debugging.
 
 ### 1.2 Type & Schema Generator (`forgepyschema`)
-- [ ] **Go AST Parser Extension**:
+- [x] **Go AST Parser Extension**:
   - Implement `forgepyschema.NewSdk() *schemamold.Parser` with known type mappings:
     - `fsz.FileStat` $\to$ Standard Python dictionary or `FileStat(TypedDict)`.
     - `bigquery.NullString` $\to$ `Optional[str]`.
     - `bigquery.NullInt64` $\to$ `Optional[int]`.
     - `bigquery.NullFloat64` $\to$ `Optional[float]`.
     - `time.Time` $\to$ `str` (ISO-8601 string representation).
-- [ ] **Primitive Type Mapping (`typeastz.Typ` $\to$ Python Standard Types)**:
+- [x] **Primitive Type Mapping (`typeastz.Typ` $\to$ Python Standard Types)**:
   - `typeastz.TypString` $\to$ `str`
   - `typeastz.TypInt`, `typeastz.TypInt64`, `typeastz.TypUint` $\to$ `int`
   - `typeastz.TypFloat`, `typeastz.TypFloat64` $\to$ `float`
@@ -94,28 +94,28 @@ Backend Go APIs (apiuserz, apidatasetz, apiingestz, apipipez, apitfz)
   - `typeastz.TypMap` $\to$ `dict[str, T]`
   - `typeastz.TypAny` $\to$ `Any`
   - Nullable / Optional fields $\to$ `Optional[T]` (with `None` default)
-- [ ] **Data Model Code Generation (Zero-Dependency `TypedDict`)**:
+- [x] **Data Model Code Generation (Zero-Dependency `TypedDict`)**:
   - Generate standard Python `typing.TypedDict` structures (`total=False` for flexible payload compatibility).
   - Include docstrings on schemas based on Go AST field comments.
   - Include safe forward reference handling (`from __future__ import annotations`).
-- [ ] **Module Typedef Output (`WriteModuleTypedefs`)**:
+- [x] **Module Typedef Output (`WriteModuleTypedefs`)**:
   - Assemble all extracted types into `types.py`.
   - Include common base types (`ServiceOptions`, `Resp[T]`, `i6JsonEmbedded`).
   - Export `__all__` list with all generated model type names.
-- [ ] **Unit Tests**:
+- [x] **Unit Tests**:
   - `forgepyschema_unit_test.go`: Verify mapping of primitives, slices, nested structs, maps, pointers, and BigQuery nullables.
 
 ### 1.3 API Method Generator (`forgepyapi`)
-- [ ] **Service & Method Generation**:
+- [x] **Service & Method Generation**:
   - Inspect `apispecz.Api` list from `apicollectionz.Apis()`.
   - Group endpoints into an `Apis` class matching the `sdkweb` structure.
-- [ ] **Endpoint Invocation Logic**:
+- [x] **Endpoint Invocation Logic**:
   - Extract route labels (e.g. `servname` for service-specific base URL routing like `tfinfer` and `userz`).
   - Interpolate URL path parameters (e.g. `/api/v1/store/{store_id}` $\to$ dynamically populated from request).
   - Query parameter serialization (filtering `None` values, encoding via standard `urllib.parse`).
   - Header mapping (Content-Type: application/json, custom headers, Authorization bearer).
   - Body payload serialization (via standard `json.dumps`).
-- [ ] **Method Signatures & Typing**:
+- [x] **Method Signatures & Typing**:
   - Produce type-hinted methods using standard library annotations:
     ```python
     def get_dataset(
@@ -130,18 +130,18 @@ Backend Go APIs (apiuserz, apidatasetz, apiingestz, apipipez, apitfz)
         :return: Resp containing parsed DatasetGetResp.
         """
     ```
-- [ ] **Unit Tests**:
+- [x] **Unit Tests**:
   - `forgepyapi_unit_test.go`: Verify generation of URL formatting, query strings, headers, and docstrings.
 
 ### 1.4 High-Level SDK Functions (`forgepysdkfunc`)
-- [ ] **Parse Functions from `moldsdkfunc`**:
+- [x] **Parse Functions from `moldsdkfunc`**:
   - Process `moldsdkfunc.SdkFunc` specifications (complex multi-step workflows like dataset warmup, inference, batch ingestion).
   - Generate idiomatic Python wrapper classes and helper methods in `sdkfuncs.py`.
-- [ ] **Unit Tests**:
+- [x] **Unit Tests**:
   - `forgepysdkfunc_unit_test.go`: Verify generation of higher-level functional flows.
 
 ### 1.5 Python Bundler & Formatter (`forgepybundle`)
-- [ ] **Bundle Assembly**:
+- [x] **Bundle Assembly**:
   - Combine `forgepyschema`, `forgepyapi`, and `forgepysdkfunc` outputs.
   - Generate clean standard library imports (`from typing import ...`, `from ..invoker import Invoker, Resp, ServiceOptions`).
   - Output files:
@@ -149,9 +149,9 @@ Backend Go APIs (apiuserz, apidatasetz, apiingestz, apipipez, apitfz)
     - `sdkapis/types.py`: Generated data schemas.
     - `sdkapis/apis.py`: Generated low-level API endpoints.
     - `sdkapis/sdkfuncs.py`: High-level wrapper workflows.
-- [ ] **PEP 8 Formatting**:
+- [x] **PEP 8 Formatting**:
   - Ensure generated code strictly complies with PEP 8 standards out of the box.
-- [ ] **Unit Tests**:
+- [x] **Unit Tests**:
   - `forgepybundle_unit_test.go`: End-to-end bundling and generation validation test.
 
 ---
