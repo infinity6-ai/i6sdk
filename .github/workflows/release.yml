@@ -11,8 +11,8 @@ permissions:
   contents: write
 
 jobs:
-  build-python:
-    name: Build Python SDK
+  build-sdks:
+    name: Build & Test SDKs
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout Code
@@ -20,19 +20,34 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.26"
+          cache: false
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.10"
 
-      - name: Install Build Tooling
+      - name: Install Python Build Tools
         run: |
           python3 -m pip install --upgrade pip build
 
-      - name: Run Python Tests
+      - name: Initialize Workspace
         run: |
-          PYTHONPATH=sdkpy/src python3 -m unittest discover -s sdkpy/tests
+          ./build.sh work_init
 
+      - name: Run Unit Tests (Skip Web Browser Tests)
+        run: |
+          ./build.sh test_unit
+
+      - name: Generate Code for All Languages
+        run: |
+          ./build.sh codegen
+
+      # Python package builds
       - name: Build Python Edge Distribution
         if: github.ref_name == 'edge'
         run: |
@@ -52,18 +67,16 @@ jobs:
           cp "dist/i6sdk-${VERSION}-py3-none-any.whl" dist/i6sdk-latest-py3-none-any.whl
           cp "dist/i6sdk-${VERSION}.tar.gz" dist/i6sdk-latest.tar.gz
 
-      - name: Upload Python Artifacts
+      - name: Upload Release Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: python-dist
+          name: release-dist
           path: dist/*
           retention-days: 1
 
-  # Future language SDK builders (e.g. build-java, build-rust) can be plugged in here
-
   publish-release:
     name: Publish Release
-    needs: [build-python]
+    needs: [build-sdks]
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout Code
@@ -74,8 +87,8 @@ jobs:
       - name: Download Built Artifacts
         uses: actions/download-artifact@v4
         with:
+          name: release-dist
           path: release-assets
-          merge-multiple: true
 
       # -----------------------------------------------------------------
       # Case 1: Push to 'edge' branch -> Update in-place pre-release
