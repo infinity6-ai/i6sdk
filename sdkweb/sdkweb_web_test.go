@@ -15,8 +15,7 @@ import (
 )
 
 var defaultImportMap = map[string]string{
-	"sql.js":         "https://cdn.jsdelivr.net/npm/sql.js@1.14.2/+esm",
-	"@litertjs/core": "https://cdn.jsdelivr.net/npm/@litertjs/core@2.5.3/+esm",
+	"sql.js": "https://cdn.jsdelivr.net/npm/sql.js@1.14.2/+esm",
 }
 
 func findSdkWebDir(startDir string) string {

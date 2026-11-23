@@ -17,13 +17,14 @@ This document provides a comprehensive technical blueprint and task tracker for 
    - **Database**: Built-in `sqlite3` (no third-party WASM or wrapper libraries).
    - **Crypto / Encodings**: Built-in `hashlib`, `base64`, `secrets` (no external cryptography packages).
    - **Type System**: Python $\ge 3.10$ native type hints (no `typing-extensions`).
+   - **Inference**: Server-side model evaluation via `tfzModelPredict` API + local `sqlite3` queries (browser TFLite was dropped; no `tflite_runtime` needed).
 
 3. **Pluggable Fetcher Adapter (Optional Extensibility)**:
-   - Mirring `sdkweb`'s `fetcher` hook, `I6SdkConfig` supports an optional `fetcher` callable.
+   - Mirroring `sdkweb`'s `fetcher` hook, `I6SdkConfig` supports an optional `fetcher` callable.
    - Power users already running `httpx`, `aiohttp`, or `requests` in their applications can supply a custom adapter if desired, without making it a required dependency for everyone.
 
 4. **1-to-1 Conceptual Symmetry with `sdkweb`**:
-   - Reuses identical service architecture (`Services`, `Invoker`, `Auth`, `Tokens`, `Apis`, `SdkFuncs`).
+   - Reuses identical service architecture (`Services`, `Invoker`, `Auth`, `Tokens`, `Apis`, `SdkFuncs`, `Ingest`, `Infer`, `Dash`).
    - Reuses identical API specs (`apispecz.Api`) and schema ASTs (`typeastz.Typedefs`) via `forgepy`.
 
 ---
@@ -57,6 +58,10 @@ Backend Go APIs (apiuserz, apidatasetz, apiingestz, apipipez, apitfz)
     ├── services.py    (Services container managing clients, lifecycle, and config)
     ├── auth/          (Device code flow, PKCE via hashlib/secrets, token refresh)
     ├── tokens/        (Pluggable token storage: Memory, File ~/.config/i6/tokens.json)
+    ├── ingest/        (Ingestion client: batch, streaming, events)
+    ├── infer/         (Inference client: sqlite queries + server-side tfzModelPredict)
+    ├── dash/          (Dashboard & analytics queries)
+    ├── internal/      (Internal utils: downloader, fs cache, sqlitez, bitmapz)
     └── exceptions.py  (I6Error, I6ApiError with status & code matching sdkweb)
 ```
 
@@ -151,98 +156,216 @@ Backend Go APIs (apiuserz, apidatasetz, apiingestz, apipipez, apitfz)
 
 ---
 
-## Phase 2: Python SDK Runtime (`sdkpy`)
+## Phase 2: Python SDK Runtime Modules (`sdkpy`)
 
-### 2.1 Package Setup & Tooling Configuration
-- [ ] **Module & Directory Layout**:
-  - Create `sdkpy/` Go module (`go.mod`, `main.go`, `cmdsdkpy/`).
-  - Create Python source root under `sdkpy/src/i6sdk/`.
-- [ ] **Zero-Dependency `pyproject.toml`**:
-  - Build backend: `hatchling` or `flit_core` (standard, lightweight PEP 517 backends).
-  - Python version target: `>= 3.10`.
-  - **Runtime dependencies**:
-    ```toml
-    dependencies = []
-    ```
-  - Optional development dependency groups:
-    ```toml
-    [project.optional-dependencies]
-    dev = ["ruff", "mypy"]
-    test = ["pytest"]
-    ```
-- [ ] **Type Marker**:
-  - Add `src/i6sdk/py.typed` to signal PEP 561 compliance to type checkers.
+### 2.1 Package Infrastructure & Tooling
+- [ ] **Scaffold Go Module**:
+  - File: `sdkpy/go.mod`
+  - File: `sdkpy/main.go` (containing `//go:generate go run . generate`)
+  - File: `sdkpy/cmdsdkpy/cmdsdkpy.go` (Cobra root command)
+  - File: `sdkpy/cmdsdkpy/cmdgenerate.go` (Runs `forgepybundle.Write` outputting to `src/i6sdk/sdkapis/`)
+- [ ] **Python Package Manifest**:
+  - File: `sdkpy/pyproject.toml`
+  - Configure `hatchling` or `flit_core` build backend.
+  - Set `requires-python = ">=3.10"`.
+  - Set `dependencies = []` (Zero external runtime dependencies).
+  - Configure optional dev groups: `[project.optional-dependencies] dev = ["ruff", "mypy"]`.
+- [ ] **PEP 561 Type Marker**:
+  - File: `sdkpy/src/i6sdk/py.typed`
+  - Empty marker file signaling type annotations are bundled for downstream type checkers.
 
-### 2.2 Client Core Runtime (`sdkpy/src/i6sdk/`)
-- [ ] **Configuration (`config.py`)**:
-  - `I6SdkConfig` standard dataclass:
-    - `base_url`: Default API gateway URL (`https://decsuite.sandbox.rs.infinity6.ai`).
-    - `serv_urls`: Dict mapping service names (e.g. `tfinfer`, `userz`) to service-specific host URLs.
-    - `app`: Application identifier.
-    - `token`: Static bearer token / API key.
-    - `timeout`: Default request timeout in seconds (default `30.0`).
-    - `fetcher`: Optional custom HTTP callable `(url, method, headers, body, timeout) -> (status, headers, body)`.
-  - Auto-configuration from environment variables:
-    - `I6_BASE_URL`, `I6_API_KEY`, `I6_APP`, `I6_TIMEOUT`.
-- [ ] **Exceptions (`exceptions.py`)**:
-  - `I6Error(Exception)`: Base SDK exception.
-  - `I6ApiError(I6Error)`: Raised when server returns $\ge 400$. Attributes:
-    - `status: int`
+### 2.2 Core Modules
+
+#### `sdkpy/src/i6sdk/exceptions.py`
+- [ ] **Implement Exception Hierarchy**:
+  - `I6Error(Exception)`: Root base exception for all SDK errors.
+  - `I6ApiError(I6Error)`: Raised when server returns non-2xx status. Includes:
+    - `status: int` (HTTP status code)
     - `code: str` (matches `sdkweb`: `"unauthenticated"`, `"forbidden"`, `"not_found"`, `"unavailable"`, `"bad_request"`)
-    - `message: str`
-    - `cause: Any`
-  - `I6AuthError(I6Error)`: Authentication / PKCE / token errors.
-  - `I6ConnectionError(I6Error)`: Network / timeout failures wrapping `urllib.error.URLError`.
-  - `I6ValidationError(I6Error)`: Missing or invalid required parameters.
-- [ ] **Standard Library HTTP Invoker (`invoker.py`)**:
-  - `Invoker` class using standard `urllib.request` and `http.client`:
-    - Handles Keep-Alive connections and SSL verification.
-    - URL path template interpolation and query parameter encoding via `urllib.parse.urlencode`.
-    - Header injection (User-Agent: `i6sdk-python/<version>`, Authorization: Bearer, Content-Type: application/json).
-    - Request payload JSON serialization via standard `json.dumps`.
-  - `Resp[T]` container matching `sdkweb`'s `Resp`:
-    - `status: int`
-    - `headers: dict[str, str]`
-    - `ok: bool` (`200 <= status < 300`)
-    - `text: str`
-    - `error: Optional[dict]` (structured error object if `!ok`)
-    - `parse() -> T`: Returns parsed JSON data; raises `I6ApiError` if `!ok`.
-  - Support pluggable `fetcher` hook for users who supply custom async or third-party transports.
+    - `message: str` (error message or HTTP text)
+    - `cause: Any` (raw payload or upstream error cause)
+  - `I6AuthError(I6Error)`: Raised for authentication failures, expired tokens, or PKCE state mismatches.
+  - `I6ConnectionError(I6Error)`: Raised on network transport issues, DNS failures, or connection timeouts.
+  - `I6ValidationError(I6Error)`: Raised on missing or malformed client-side arguments (maps to `TypeError` in `sdkweb`).
 
-### 2.3 Authentication & Token Management (`sdkpy/src/i6sdk/auth/` & `tokens/`)
-- [ ] **Token Storage (`tokens/storage.py`)**:
-  - `TokenStorage` abstract base class (`abc.ABC`): `get(key)`, `set(key, val)`, `delete(key)`.
-  - `MemoryTokenStorage`: In-memory thread-safe dictionary using `threading.Lock`.
-  - `FileTokenStorage`: File-backed storage in `~/.config/i6/tokens.json` with restricted permissions (`0600`) using `os.open` and `pathlib.Path`.
-- [ ] **Auth Client (`auth/auth.py`)**:
-  - PKCE OAuth code challenge calculation using standard library `hashlib.sha256` and `base64.urlsafe_b64encode`.
-  - Random state/verifier generation using standard library `secrets.token_urlsafe`.
-  - Device code authentication flow (`userapiauthdevicecode` & `userapiauthdevicetoken`).
-  - Refresh token rotation (`userapiauthrefresh`).
-  - Token attenuation / scoped delegation (`userapidatasettokenaccessattenuate`).
+#### `sdkpy/src/i6sdk/config.py`
+- [ ] **Implement Configuration Dataclass & Defaults**:
+  - `I6SdkConfig` dataclass:
+    - `base_url: str` (defaults to `"https://decsuite.sandbox.rs.infinity6.ai"`)
+    - `serv_urls: dict[str, str]` (service overrides, e.g. `{"tfinfer": "...", "userz": "..."}`)
+    - `userz_url: Optional[str]` (direct auth service override)
+    - `app: str` (client app identifier, default `"default"`)
+    - `token: Optional[str]` (static bearer token / API key)
+    - `timeout: float` (HTTP timeout in seconds, default `30.0`)
+    - `fetcher: Optional[Callable]` (pluggable custom HTTP handler)
+  - `DEFAULT_CONFIG: I6SdkConfig`: Default instance matching sandbox environment.
+  - `load_config_from_env()`: Helper parsing `I6_BASE_URL`, `I6_API_KEY`, `I6_APP`, `I6_TIMEOUT`.
 
-### 2.4 Service Container (`services.py`) & Top-Level SDK API
-- [ ] **Service Orchestrator (`services.py`)**:
-  - `Services` container matching the TypeScript `Services` pattern:
-    - Holds reference to shared `I6SdkConfig` and `Invoker`.
-    - Lazy-initializes service clients (`auth`, `tokens`, `ingest`, `infer`, `dash`, `apis`).
-- [ ] **Top-Level Package Interface (`src/i6sdk/__init__.py`)**:
-  - Export primary user-facing entry points:
-    ```python
-    from i6sdk.services import Services as I6Client
-    from i6sdk.config import I6SdkConfig
-    from i6sdk.exceptions import I6Error, I6ApiError, I6AuthError
-    ```
-  - Convenience factory: `client = i6sdk.create_client(api_key="...", ...)`
+#### `sdkpy/src/i6sdk/invoker.py`
+- [ ] **Implement Standard Library HTTP Invoker**:
+  - `ServiceOptions` dataclass: per-request overrides (`timeout`, `headers`, `service_name`).
+  - `Resp[T]` response container (matching `sdkweb`'s `Resp` class):
+    - `status: int`, `headers: dict[str, str]`, `ok: bool` (`200 <= status < 300`), `text: str`.
+    - Property `error: Optional[dict]`: returns `{status, code, message, cause}` if `!ok`, `None` otherwise.
+    - Method `parse() -> T`: returns deserialized JSON data; raises `I6ApiError` if `!ok`.
+  - `Invoker` class:
+    - Constructor taking `services: Services`.
+    - Method `invoke(opts)`: Executes HTTP call via `urllib.request.Request` and `urllib.request.urlopen`.
+    - Handles URL path parameter interpolation (`/api/v1/store/{store_id}`).
+    - Handles query parameter encoding via `urllib.parse.urlencode`.
+    - Injects headers: `User-Agent: i6sdk-python/<version>`, `Content-Type: application/json`, `Authorization: Bearer <token>`.
+    - Serializes JSON payloads using standard `json.dumps`.
+    - Method `invoke_result(opts) -> Resp[T]`: Wraps execution into `Resp[T]` with lazy parser.
+    - Honors pluggable `fetcher` callable if configured in `I6SdkConfig`.
 
-### 2.5 Generator CLI Command (`sdkpy/cmdsdkpy/`)
-- [ ] **Generator Runner (`cmdsdkpy/cmdgenerate.go`)**:
-  - Implement Cobra CLI command matching `sdkweb/cmdsdkweb/cmdgenerate.go`.
-  - Load all registered APIs (`apicollectionz.Apis()`) and SDK functions (`apicollectionz.SdkFuncs()`).
-  - Invoke `forgepybundle.Write(ctx, opts)`.
-  - Write output files to `sdkpy/src/i6sdk/sdkapis/`.
-- [ ] **`go:generate` Directive**:
-  - Place `//go:generate go run . generate` inside `sdkpy/main.go`.
+### 2.3 Token Management Modules
+
+#### `sdkpy/src/i6sdk/tokens/storage.py`
+- [ ] **Implement Pluggable Storage Providers**:
+  - `TokenStorage(abc.ABC)`: Abstract interface (`get_item(key)`, `set_item(key, val)`, `remove_item(key)`).
+  - `MemoryTokenStorage`: Thread-safe in-memory cache protected by `threading.Lock`.
+  - `FileTokenStorage`: File-backed storage persisting to `~/.config/i6/tokens.json` with secure permissions (`0600`) via `os.open` and `pathlib.Path`.
+
+#### `sdkpy/src/i6sdk/tokens/tokens.py`
+- [ ] **Implement Token Manager Client**:
+  - `Tokens` class:
+    - Constructor accepting `services: Services`.
+    - Access token caching and automatic expiration tracking.
+    - Scoped attenuation method (`attenuate(opts)`).
+    - Exchange checkout and token redeem helpers (`redeem_checkout(opts)`).
+
+#### `sdkpy/src/i6sdk/tokens/__init__.py`
+- [ ] **Package Exports**:
+  - Re-export `Tokens`, `TokenStorage`, `MemoryTokenStorage`, `FileTokenStorage`.
+
+### 2.4 Authentication Modules
+
+#### `sdkpy/src/i6sdk/auth/auth.py`
+- [ ] **Implement Authentication Client**:
+  - `Auth` class:
+    - Constructor accepting `services: Services`.
+    - PKCE code challenge generation using standard library `hashlib.sha256` and `base64.urlsafe_b64encode`.
+    - Random state & verifier generation using standard library `secrets.token_urlsafe`.
+    - Device code authorization flow (`device_code_start()`, `device_code_poll()`).
+    - Password sign-in / sign-up methods (`sign_in()`, `sign_up()`, `sign_out()`).
+    - Refresh token rotation (`refresh_token()`).
+    - User profile query (`me()`).
+
+#### `sdkpy/src/i6sdk/auth/__init__.py`
+- [ ] **Package Exports**:
+  - Re-export `Auth`.
+
+### 2.5 Internal Utilities (`sdkpy/src/i6sdk/internal/`)
+
+#### `sdkpy/src/i6sdk/internal/fs.py`
+- [ ] **Implement File Cache System**:
+  - Local disk cache management using `pathlib.Path`.
+  - Managing cached model and SQLite files by version and etag.
+  - Resolving file references to local filesystem paths.
+
+#### `sdkpy/src/i6sdk/internal/downloader.py`
+- [ ] **Implement Asset Downloader**:
+  - Asset downloading with conditional HTTP requests (`If-None-Match` / ETag support) using `urllib.request`.
+  - Streaming download with progress callback support.
+
+#### `sdkpy/src/i6sdk/internal/sqlitez.py`
+- [ ] **Implement SQLite Query Helper**:
+  - Wrapper around Python's built-in `sqlite3`.
+  - Connection management (`open()`, `close()`).
+  - Helper `named_string_query(name, params)`: executes named model queries and returns strings/parameters.
+  - Helper `named_json_query(name, params)`: executes named output queries and returns parsed JSON data.
+
+#### `sdkpy/src/i6sdk/internal/bitmapz.py`
+- [ ] **Implement Roaring / Compact Bitmap Logic**:
+  - Pure Python port of `gox/commonz/bitmapz` / `sdkweb/src/main/internal/bitmapz/bitmapz.js`.
+  - Decoding byte headers, length calculation, and bitmask checks.
+
+#### `sdkpy/src/i6sdk/internal/__init__.py`
+- [ ] **Package Exports**:
+  - Internal module declarations.
+
+### 2.6 Domain Client Modules
+
+#### `sdkpy/src/i6sdk/ingest/ingest.py`
+- [ ] **Implement Ingest Client**:
+  - `Ingest` class:
+    - Constructor accepting `services: Services`.
+    - Event batch streaming and upload URL retrieval.
+    - Multipart file uploads via standard library `urllib.request`.
+
+#### `sdkpy/src/i6sdk/ingest/__init__.py`
+- [ ] **Package Exports**:
+  - Re-export `Ingest`.
+
+#### `sdkpy/src/i6sdk/infer/infer.py`
+- [ ] **Implement Inference Client**:
+  - `Infer` class:
+    - Constructor accepting `services: Services`.
+    - Locate and download model SQLite files via `internal/downloader.py` and `internal/fs.py`.
+    - Run input query via `internal/sqlitez.py` on local SQLite DB.
+    - **Call model prediction on server via `services.apis().tfz_model_predict(...)`** (no local TFLite or LiteRT runtime).
+    - Run output query via `internal/sqlitez.py` to produce final recommendation/ranking result.
+    - Asynchronously emit recommendation telemetry event (`recraw`).
+
+#### `sdkpy/src/i6sdk/infer/__init__.py`
+- [ ] **Package Exports**:
+  - Re-export `Infer`.
+
+#### `sdkpy/src/i6sdk/dash/dash.py`
+- [ ] **Implement Analytics & Dashboard Client**:
+  - `Dash` class:
+    - Constructor accepting `services: Services`.
+    - Download and query analytics SQLite bundles.
+
+#### `sdkpy/src/i6sdk/dash/__init__.py`
+- [ ] **Package Exports**:
+  - Re-export `Dash`.
+
+### 2.7 Generated SDK API Modules (`sdkpy/src/i6sdk/sdkapis/`)
+
+#### `sdkpy/src/i6sdk/sdkapis/types.py` *(Generated)*
+- [ ] **Model & TypedDict Definitions**:
+  - Generated by `forgepyschema`.
+  - Contains TypedDict schemas for all request payloads, response bodies, and entities.
+
+#### `sdkpy/src/i6sdk/sdkapis/apis.py` *(Generated)*
+- [ ] **Low-Level API Methods**:
+  - Generated by `forgepyapi`.
+  - `Apis` class containing methods for every endpoint in `apicollectionz`.
+
+#### `sdkpy/src/i6sdk/sdkapis/sdkfuncs.py` *(Generated)*
+- [ ] **High-Level Workflow Wrappers**:
+  - Generated by `forgepysdkfunc`.
+  - `SdkFuncs` class containing multi-step workflow helpers.
+
+#### `sdkpy/src/i6sdk/sdkapis/__init__.py`
+- [ ] **Package Exports**:
+  - Re-export `Apis`, `SdkFuncs`, and public model types.
+
+### 2.8 Service Container & Public Package Entry Point
+
+#### `sdkpy/src/i6sdk/services.py`
+- [ ] **Implement Central Services Container**:
+  - `Services` class (mirrors `sdkweb/src/main/services/services.js`):
+    - Constructor accepting `config: I6SdkConfig`.
+    - Accessors returning singleton instances:
+      - `config()` / `set_config(config)`
+      - `invoker() -> Invoker`
+      - `auth() -> Auth`
+      - `tokens() -> Tokens`
+      - `ingest() -> Ingest`
+      - `infer() -> Infer`
+      - `dash() -> Dash`
+      - `apis() -> Apis`
+      - `sdk_funcs() -> SdkFuncs`
+
+#### `sdkpy/src/i6sdk/__init__.py`
+- [ ] **Top-Level Package Interface**:
+  - Export primary user-facing symbols:
+    - `I6Client` (alias for `Services`)
+    - `I6SdkConfig`
+    - `I6Error`, `I6ApiError`, `I6AuthError`, `I6ConnectionError`, `I6ValidationError`
+  - Convenience factory: `create_client(...)`
 
 ---
 
@@ -251,7 +374,7 @@ Backend Go APIs (apiuserz, apidatasetz, apiingestz, apipipez, apitfz)
 ### 3.1 Mono-Repo Build Integration
 - [ ] **`build.sh` Integration**:
   - Add `sdkpy` to component list in `build.sh`.
-  - Add `cmd_test_py()` in `build.sh` (running `unittest` or `pytest` under `sdkpy/`).
+  - Add `cmd_test_py()` in `build.sh` (running standard library `python3 -m unittest discover` under `sdkpy/`).
   - Include `sdkpy` in `./build.sh codegen`.
 - [ ] **`comp.sh` Integration**:
   - Support `./comp.sh sdkpy run generate`.
@@ -265,6 +388,7 @@ Backend Go APIs (apiuserz, apidatasetz, apiingestz, apipipez, apitfz)
     - `test_config.py`: Environment variable loading, priority resolution.
     - `test_invoker.py`: URL building, header attachment, timeout handling, error status parsing with mock HTTP handlers.
     - `test_auth.py`: PKCE code challenge verification, token storage, refresh cycle.
+    - `test_infer.py`: SQLite input/output query execution and mock server prediction flow.
     - `test_apis.py`: Smoke test calling generated API methods against mocked endpoints to ensure correct serialization and deserialization.
 - [ ] **Python Static Analysis (Dev Tools)**:
   - `ruff check sdkpy/src/` (linting).
@@ -273,7 +397,7 @@ Backend Go APIs (apiuserz, apidatasetz, apiingestz, apipipez, apitfz)
 
 ### 3.3 Documentation & Examples
 - [ ] **`sdkpy/README.md`**:
-  - Highlight: **Zero external dependencies**.
+  - Highlight: **Zero external runtime dependencies**.
   - Installation instructions (`pip install .`).
   - Quickstart examples (initialization, authentication, querying a dataset, running predictions).
   - Configuration reference.

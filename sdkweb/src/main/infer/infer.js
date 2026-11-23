@@ -1,18 +1,17 @@
 /**
- * @fileoverview Runs an i6 model (e.g. "relevance-fashion-fbt") in the browser and returns the result.
+ * @fileoverview Runs an i6 model (e.g. "relevance-fashion-fbt") and returns the result.
  *
- * Flow: get the model's sqlite + tflite (URLs from the model signed-get API, or from the caller in tests),
+ * Flow: get the model's sqlite (URLs from the model signed-get API, or from the caller in tests),
  * run the named query `model-${modelName}-input` (its result is the model inputs, `{name: {data, shape}}`),
- * run the tflite model, and run the named query `model-${modelName}-output` with the model outputs.
+ * call the model on the server, and run the named query `model-${modelName}-output` with the model outputs.
  * Its result is returned as is. Nothing here is model specific.
  *
- * Set `window.I6_DEBUG = true` to see what happens in the console, and to get the model tensors in the "i6:infer-tensors" event.
+ * Set `window.I6_DEBUG = true` to see what happens in the console.
  */
 
 import { downloadFile, isPartitions, partitionsKey } from "../internal/assets/assets.js";
 import { fs } from "../internal/fs/fs.js";
 import { sqlitez } from "../internal/sqlitez/sqlitez.js";
-import { describeModel, loadModel, runModel } from "./litert.js";
 import { debugLogger } from "../internal/debug/debug.js";
 
 /**
@@ -41,9 +40,7 @@ import { debugLogger } from "../internal/debug/debug.js";
  * @property {string} sessionId - Id of the user session; sent in the recommendation events.
  * @property {string} userId - Id of the user; sent in the recommendation events.
  * @property {number} [limit] - Max number of results asked from the output query (its `?2`). Default 20.
- * @property {string} [sqliteUrl] - Tests only, together with `tfliteUrl`: URL of the sqlite (must answer HEAD with an etag). Default: the model API.
- * @property {string} [tfliteUrl] - Tests only, together with `sqliteUrl`: URL of the tflite.
- * @property {string} [litertWasm] - URL of the folder with the LiteRT wasm files (ending in "/"). Defaults to the jsdelivr copy.
+ * @property {string} [sqliteUrl] - Tests only: URL of the sqlite (must answer HEAD with an etag). Default: the model API.
  * @property {ServiceOptions} [serviceOptions] - Given to the API calls (the model API and the `recraw` event).
  */
 
@@ -167,11 +164,8 @@ class Infer {
 
     const conn = await sqlitez.open({ path: await fs.resolve(sqliteRef) })
     try {
-      // 2. The input query gives the model inputs: {name: {data, shape}}. The model compiles meanwhile.
-      const [inputs, compiled] = await Promise.all([
-        conn.namedStringQuery({ name: queryName("input"), params: [params] }),
-        // loadModel({ ref: tfliteRef, wasmUrl: opts.litertWasm }),
-      ])
+      // 2. The input query gives the model inputs: {name: {data, shape}}
+      const inputs = await conn.namedStringQuery({ name: queryName("input"), params: [params] })
       if (!inputs) throw new Error(`infer: ${queryName("input")} returned no model inputs`)
       debug(elapsed(), "2/4 input query", queryName("input"), "| bound as ?1:", params, "| returned (model inputs):", preview(inputs))
 
@@ -337,17 +331,6 @@ function preview(value, max = 600) {
 }
 
 /**
- * With `window.I6_DEBUG` set, tells the page what went into and came out of the model, as the "i6:infer-tensors" event
- * (`detail`: modelName, partitions, model, inputs, outputs). The demo shows it on screen. Outputs are copied to plain arrays.
- * @param {{modelName: string, partitions: Object<string, string>, model: Object, inputs: Object, outputs: Object<string, ArrayLike<number>>}} tensors
- */
-function announceTensors({ outputs, ...rest }) {
-  if (!globalThis.I6_DEBUG || typeof globalThis.dispatchEvent !== "function") return
-  const plain = Object.fromEntries(Object.entries(outputs).map(([name, values]) => [name, Array.from(values)]))
-  globalThis.dispatchEvent(new CustomEvent("i6:infer-tensors", { detail: { ...rest, outputs: plain } }))
-}
-
-/**
  * @param {InferUpdateOptions} opts - Options given to `Infer.update`.
  */
 function validateUpdate(opts) {
@@ -375,18 +358,6 @@ function validate(opts) {
   if (opts.limit !== undefined && !(Number.isInteger(opts.limit) && opts.limit > 0)) {
     throw new TypeError("infer: opts.limit must be a positive integer")
   }
-}
-
-/**
- * The values bound to the output query: `?1` the model outputs as `{name: {values: [...]}}` (plain arrays, which JSON
- * can hold), `?2` the limit.
- * @param {Record<string, ArrayLike<number>>} outputs - Model outputs (typed arrays).
- * @param {InferOptions} opts - Inference options.
- * @returns {Array<*>} The params of `namedJsonQuery`.
- */
-function outputQueryParams(outputs, opts) {
-  const named = Object.entries(outputs).map(([name, values]) => [name, { values: Array.from(values) }])
-  return [Object.fromEntries(named), opts.limit ?? DEFAULT_LIMIT]
 }
 
 /**

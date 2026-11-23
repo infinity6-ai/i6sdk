@@ -5,7 +5,6 @@
         // Test assets (gitignored): the test with the real model is skipped when they are not served
         const assets = {
             sqliteUrl: new URL('../main/infer/gen/sqlite.bin', location.href).href,
-            tfliteUrl: new URL('../main/infer/gen/model.tflite', location.href).href,
         }
         const base = { modelName: 'relevance-fashion-fbt', partitions: { store_id: 's1', version: 'v1' }, dataset: 'dectest', sessionId: 'sess-1', userId: 'user-1' }
         const cart = { skus: [{ sku_id: '150' }, { sku_id: '77' }] }
@@ -192,25 +191,6 @@
             // Second call right after should be a noop and return cached immediately
             const ref2 = await infer.update(opts)
             assert.deepEqual(ref2, ref1)
-        })
-
-        QUnit.test("runModel reports inputs that do not fit the model", async function (assert) {
-            if (!(await fetch(assets.tfliteUrl, { method: 'HEAD' })).ok) return assert.ok(true, 'skipped: no assets in src/infer/gen')
-
-            const { loadModel, runModel } = await import('../main/infer/litert.js')
-            const { downloader } = await import('../main/internal/downloader/downloader.js')
-            const ref = await downloader.update({ name: 'infer-relevance-fashion-fbt-tflite', url: assets.tfliteUrl })
-            const model = await loadModel({ ref })
-            const fields = { data: Array(70).fill(0), shape: [1, 10, 7] }
-            const padMask = { data: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0], shape: [1, 10] }
-
-            await assertRejects(assert, runModel(model, {}), /is missing/)
-            await assertRejects(assert, runModel(model, { fields: { data: [1, 2, 3] }, pad_mask: padMask }), /no shape/)
-            await assertRejects(assert, runModel(model, { fields: { data: [1, 2, 3], shape: [3] }, pad_mask: padMask }), /the model needs/)
-            await assertRejects(assert, runModel(model, { fields: { data: Array(69).fill(0), shape: [1, 10, 7] }, pad_mask: padMask }), /69 values/)
-
-            const outputs = await runModel(model, { fields, pad_mask: padMask })
-            assert.strictEqual(outputs.signature_probs.length, 7185)
         })
     })
 
