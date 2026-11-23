@@ -3,10 +3,10 @@ module github.com/infinity6-ai/i6sdk/sdkweb
 go 1.26.1
 
 require (
-	github.com/infinity6-ai/gox/brwjsz v0.0.78
-	github.com/infinity6-ai/gox/commonz v0.0.78
-	github.com/infinity6-ai/gox/httpz v0.0.78
-	github.com/infinity6-ai/gox/routez v0.0.78
+	github.com/infinity6-ai/gox/brwjsz v0.0.79
+	github.com/infinity6-ai/gox/commonz v0.0.79
+	github.com/infinity6-ai/gox/httpz v0.0.79
+	github.com/infinity6-ai/gox/routez v0.0.79
 	github.com/infinity6-ai/i6sdk/apicollectionz v0.0.7
 	github.com/infinity6-ai/i6sdk/forgez v0.0.7
 	github.com/infinity6-ai/i6sdk/mold v0.0.7
@@ -44,8 +44,8 @@ require (
 	github.com/googleapis/enterprise-certificate-proxy v0.3.25 // indirect
 	github.com/googleapis/gax-go/v2 v2.27.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
-	github.com/infinity6-ai/gox/fsz v0.0.78 // indirect
-	github.com/infinity6-ai/gox/schemaz v0.0.78 // indirect
+	github.com/infinity6-ai/gox/fsz v0.0.79 // indirect
+	github.com/infinity6-ai/gox/schemaz v0.0.79 // indirect
 	github.com/infinity6-ai/i6sdk/apidatasetz v0.0.7 // indirect
 	github.com/infinity6-ai/i6sdk/apiingestz v0.0.7 // indirect
 	github.com/infinity6-ai/i6sdk/apipipez v0.0.7 // indirect

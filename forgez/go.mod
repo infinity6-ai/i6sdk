@@ -4,10 +4,10 @@ go 1.26.1
 
 require (
 	cloud.google.com/go/bigquery v1.86.3
-	github.com/infinity6-ai/gox/commonz v0.0.78
-	github.com/infinity6-ai/gox/fsz v0.0.78
-	github.com/infinity6-ai/gox/routez v0.0.78
-	github.com/infinity6-ai/gox/schemaz v0.0.78
+	github.com/infinity6-ai/gox/commonz v0.0.79
+	github.com/infinity6-ai/gox/fsz v0.0.79
+	github.com/infinity6-ai/gox/routez v0.0.79
+	github.com/infinity6-ai/gox/schemaz v0.0.79
 	github.com/infinity6-ai/i6sdk/apicollectionz v0.0.7
 	github.com/infinity6-ai/i6sdk/apidatasetz v0.0.7
 	github.com/infinity6-ai/i6sdk/mold v0.0.7
