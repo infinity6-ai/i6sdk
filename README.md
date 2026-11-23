@@ -80,7 +80,15 @@ graph TD
   ```bash
   ./build.sh update
   ```
-- **Run code generation (JS SDK bundle):**
+- **Enable internal module replaces across all components:**
+  ```bash
+  ./build.sh gomod_replace_on
+  ```
+- **Drop internal module replaces across all components:**
+  ```bash
+  ./build.sh gomod_replace_off
+  ```
+- **Run code generation (JS & Python SDK bundles):**
   ```bash
   ./build.sh codegen
   ```

@@ -96,8 +96,35 @@ function cmd_release() {
   git push origin "$_tag"
 }
 
+function cmd_gomod_replace_on() {
+  local _go_base_path="$(_go_base_path)"
+  local _other=""
+  for _other in $(ls -d ../*/ 2>/dev/null | sed 's|^\.\./||; s|/$||'); do
+    local _mod="${_go_base_path}/$_other"
+    if [ "$_other" != "$_comp" ] && [ -f "../$_other/go.mod" ]; then
+      go mod edit -replace="${_mod}=../$_other"
+    fi
+  done
+}
+
+function cmd_gomod_replace_off() {
+  local _go_base_path="$(_go_base_path)"
+  local _other=""
+  for _other in $(ls -d ../*/ 2>/dev/null | sed 's|^\.\./||; s|/$||'); do
+    local _mod="${_go_base_path}/$_other"
+    if [ "$_other" != "$_comp" ]; then
+      go mod edit -dropreplace="${_mod}"
+    fi
+  done
+}
+
 function _go_base_path() {
-  GOWORK=off go list -m | rev | cut -d'/' -f2- | rev
+  local _p="$(head -n 1 go.mod 2>/dev/null | awk '{print $2}' | rev | cut -d'/' -f2- | rev)"
+  if [ -n "$_p" ]; then
+    echo "$_p"
+  else
+    GOWORK=off go list -m | rev | cut -d'/' -f2- | rev
+  fi
 }
 
 _comp="${1?"comp is required"}"; shift; 

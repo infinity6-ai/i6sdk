@@ -76,6 +76,14 @@ function cmd_gomod_upgrade() {
   cmd_comps_run gomod_upgrade "$@"
 }
 
+function cmd_gomod_replace_on() {
+  cmd_comps_run gomod_replace_on "$@"
+}
+
+function cmd_gomod_replace_off() {
+  cmd_comps_run gomod_replace_off "$@"
+}
+
 function cmd_test_web() {
   cmd_comps_run test_web "$@"
 }
