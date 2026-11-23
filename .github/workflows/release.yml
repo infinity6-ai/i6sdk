@@ -1,0 +1,106 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]*'
+    branches:
+      - 'edge'
+
+permissions:
+  contents: write
+
+jobs:
+  build-python:
+    name: Build Python SDK
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install Build Tooling
+        run: |
+          python3 -m pip install --upgrade pip build
+
+      - name: Run Python Tests
+        run: |
+          PYTHONPATH=sdkpy/src python3 -m unittest discover -s sdkpy/tests
+
+      - name: Build Python Edge Distribution
+        if: github.ref_name == 'edge'
+        run: |
+          mkdir -p dist
+          sed -i 's/version = .*/version = "0.0.0.dev0"/' sdkpy/pyproject.toml
+          python3 -m build sdkpy -o dist/
+          cp dist/*dev*.whl dist/i6sdk-edge-py3-none-any.whl
+          cp dist/*dev*.tar.gz dist/i6sdk-edge.tar.gz
+
+      - name: Build Python Tagged Distribution
+        if: startsWith(github.ref_name, 'v') && !contains(github.ref_name, '/')
+        run: |
+          mkdir -p dist
+          VERSION="${GITHUB_REF_NAME#v}"
+          sed -i "s/version = .*/version = \"${VERSION}\"/" sdkpy/pyproject.toml
+          python3 -m build sdkpy -o dist/
+          cp "dist/i6sdk-${VERSION}-py3-none-any.whl" dist/i6sdk-latest-py3-none-any.whl
+          cp "dist/i6sdk-${VERSION}.tar.gz" dist/i6sdk-latest.tar.gz
+
+      - name: Upload Python Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-dist
+          path: dist/*
+          retention-days: 1
+
+  # Future language SDK builders (e.g. build-java, build-rust) can be plugged in here
+
+  publish-release:
+    name: Publish Release
+    needs: [build-python]
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download Built Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+
+      # -----------------------------------------------------------------
+      # Case 1: Push to 'edge' branch -> Update in-place pre-release
+      # -----------------------------------------------------------------
+      - name: Update 'edge' Pre-Release In-Place
+        if: github.ref_name == 'edge'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git tag -f edge
+          git push -f origin edge
+          gh release delete edge --yes 2>/dev/null || true
+          gh release create edge release-assets/* \
+            --title "Edge Development Build" \
+            --notes "Continuous multi-language build updated on every push to the edge branch. Commit: ${{ github.sha }}" \
+            --prerelease
+
+      # -----------------------------------------------------------------
+      # Case 2: Tagged Release (vX.Y.Z) -> Publish Official Release
+      # -----------------------------------------------------------------
+      - name: Publish Tagged GitHub Release
+        if: startsWith(github.ref_name, 'v') && !contains(github.ref_name, '/')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" release-assets/* \
+            --title "Release ${GITHUB_REF_NAME}" \
+            --generate-notes
