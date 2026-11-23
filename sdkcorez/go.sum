@@ -90,8 +90,8 @@ github.com/infinity6-ai/gox/fsz v0.0.78 h1:V+LA1Td8uSXevGYATC7RGe2AedhhGffAa4Xjy
 github.com/infinity6-ai/gox/fsz v0.0.78/go.mod h1:urfHVEifpTJCKTCQyAFovQ7WOSu13k6ZV/zJQkNvqdw=
 github.com/infinity6-ai/gox/schemaz v0.0.78 h1:br6qWR4FocNjJgod8tKxp0Mb0ZprErk2He0WNLTVVew=
 github.com/infinity6-ai/gox/schemaz v0.0.78/go.mod h1:1j4IWahjQun4p8oRINtFglJgiErdAw7z/OWXAyJasE0=
-github.com/infinity6-ai/i6sdk/versionz v0.0.6 h1:beCoYTq3qhDx7y+4S6PRo0dU+GUaeYUnC1ZfdxWhs9w=
-github.com/infinity6-ai/i6sdk/versionz v0.0.6/go.mod h1:q8lqe8YsY3zForQBJArOKzMl2aAa6ScQYNLwsikc3pM=
+github.com/infinity6-ai/i6sdk/versionz v0.0.7 h1:Gtso7l7JtnSM2IhZ8UnP6xNajW6DbqLUv0FJVomjwBc=
+github.com/infinity6-ai/i6sdk/versionz v0.0.7/go.mod h1:q8lqe8YsY3zForQBJArOKzMl2aAa6ScQYNLwsikc3pM=
 github.com/klauspost/compress v1.19.2 h1:hMRETovs/pu/dVWN7zIT1PGG8t509MwT6bO7XSi26R8=
 github.com/klauspost/compress v1.19.2/go.mod h1:cwPg85FWrGar70rWktvGQj8/hthj3wpl0PGDogxkrSQ=
 github.com/klauspost/cpuid/v2 v2.4.0 h1:S6Hrbc7+ywsr0r+RLapfGBHfyefhCTwEh3A0tV913Dw=
