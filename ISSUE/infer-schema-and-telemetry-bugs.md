@@ -2,15 +2,27 @@
 
 **Component:** `sdkpy` (`i6sdk.infer.infer`)  
 **Severity:** Critical (Blocks model inference runtime and drops telemetry)  
-**Status:** Open  
+**Status:** Resolved  
 
 ---
 
 ## Summary
 
 This issue consolidates two critical defects in the Python `sdkpy` Inference runtime (`i6sdk.infer.infer`):
-1. **Model Fetch Schema Bug:** The API request to fetch model SQLite metadata (`dsz_model_get`) uses an outdated request payload format (query params instead of JSON body) and attempts to parse an incorrect response schema (`files["sqlite.bin"]` instead of `urls`). This causes inference to fail entirely against the live server.
-2. **Missing Telemetry Events:** The Python inference client does not dispatch `recraw` or `recshow` telemetry events to the data lake, and its `InferQueryOptions` completely omits `session_id` and `user_id`. This causes Python-based inferences to silently drop all recommendation analytics and feedback loops.
+1. **Model Fetch Schema Bug:** The API request to fetch model SQLite metadata (`dsz_model_get`) previously used an outdated request payload format (query params instead of JSON body) and attempted to parse an incorrect response schema (`files["sqlite.bin"]` instead of `urls`). This caused inference to fail entirely against the live server.
+2. **Missing Telemetry Events:** The Python inference client previously did not dispatch `recraw` or `recshow` telemetry events to the data lake, and its `InferQueryOptions` completely omitted `session_id` and `user_id`. This caused Python-based inferences to silently drop all recommendation analytics and feedback loops.
+
+---
+
+## Resolution
+
+1. Updated `_sqlite_url()` in `sdkpy/src/i6sdk/infer/infer.py` to send `model_version` and `model_partitions` in POST body payload and parse `resp.urls` for `name == "sqlite.bin"`.
+2. Added `session_id` and `user_id` to `InferQueryOptions` (with support for camelCase aliases).
+3. Added `_send_rec_event()` helper to construct and dispatch `relevance-fashion-event` (`recraw` and `recshow`) to `ingestz_event_relevance_fashion_event`.
+4. Enforced validation of required options (`model_name`, `dataset`, `session_id`, `user_id`, `partitions`, `params`, `limit`) in `Infer.run()` and emitted the `recraw` event.
+5. Implemented `select_results()` validation and emitted `recshow` event containing only displayed SKU IDs.
+6. Updated `default_select_results()` to support SKU objects in cart.
+7. Added unit test suite in `sdkpy/tests/test_infer.py` covering schema resolution, validation, `recraw`, and `recshow` event emission.
 
 ---
 

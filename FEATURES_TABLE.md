@@ -31,11 +31,11 @@ Specific language implementations, method signatures, behaviors, and nuances are
 | | **Upload Cancellation** | ❌ None | ✅ **Supported**<br>• Accepts standard DOM `AbortSignal` (`signal` option), rejecting promise with `AbortError`. | ❌ **None**<br>• In-flight uploads cannot be aborted. |
 | | **Signed Upload URL Request** | ❌ None | ⚠️ **Private**<br>• Handled via private `#getUrl()` helper inside `upload()`. | ✅ **Public Method**<br>• `ingest.get_url(dataset, table, partitions)` is a public API returning `{ingest_id, url}`. |
 | **Inference Engine** | **Named SQLite Execution (`run`)** | ❌ **None** | ✅ **Supported**<br>• Runs named query `model-{name}-input`.<br>• Calls `apis().tfzModelPredict()`.<br>• Runs output query `model-{name}-output`.<br>• Assigns `rec_id` via `crypto.randomUUID()`. | ✅ **Supported**<br>• Runs named query `model-{name}-input`.<br>• Calls `apis().tfz_model_predict()`.<br>• Runs output query `model-{name}-output`.<br>• Assigns `rec_id` via `uuid.uuid4()`. |
-| | **Telemetry Event Tracking** | ❌ **None** | ✅ **Automatic**<br>• `run()` emits `recraw` event with session ID, user ID, and results.<br>• `selectResults()` emits `recshow` event with shown SKUs.<br>• Calls `ingestzEventRelevanceFashionEvent`. | ❌ **None**<br>• Neither `recraw` nor `recshow` event is emitted.<br>• `session_id` and `user_id` are omitted from `InferQueryOptions`. |
-| | **Required Run Identifiers** | N/A | **`sessionId` & `userId` Required**<br>• Throws `TypeError` if `sessionId` or `userId` is omitted (needed for event attribution). | **Neither Required**<br>• `InferQueryOptions` takes only `dataset`, `model_name`, `partitions`, `params`. |
+| | **Telemetry Event Tracking** | ❌ **None** | ✅ **Automatic**<br>• `run()` emits `recraw` event with session ID, user ID, and results.<br>• `selectResults()` emits `recshow` event with shown SKUs.<br>• Calls `ingestzEventRelevanceFashionEvent`. | ✅ **Automatic**<br>• `run()` emits `recraw` event with session ID, user ID, and results.<br>• `select_results()` emits `recshow` event with shown SKUs.<br>• Calls `ingestz_event_relevance_fashion_event`. |
+| | **Required Run Identifiers** | N/A | **`sessionId` & `userId` Required**<br>• Throws `TypeError` if `sessionId` or `userId` is omitted (needed for event attribution). | **`session_id` & `user_id` Required**<br>• Raises `I6ValidationError` if `session_id` or `user_id` is omitted (supports camelCase aliases). |
 | | **Background Model Revalidation** | ❌ **None** | ✅ **Non-blocking**<br>• If model file is cached, `run()` executes against it immediately and triggers background revalidation (`this.update()`). | ❌ **Blocking**<br>• `update()` revalidates remote ETag synchronously before executing query. |
 | | **Bulk Preload / Warmup** | ❌ **None** | ✅ **`warmupDataset(opts)`**<br>• Top-level helper on `I6Sdk` to preload multiple model SQLite bundles in parallel on page load. | ❌ **None** |
-| | **Model Metadata Fetch Schema** | N/A | ✅ **Matches Server**<br>• Calls `dszModelGet` via POST body `{model_version, model_partitions}` and parses `resp.urls`. | ⚠️ **Schema Bug**<br>• Calls `dsz_model_get` with `query: partitions` and expects `resp.files['sqlite.bin']`. Fails against live server. |
+| | **Model Metadata Fetch Schema** | N/A | ✅ **Matches Server**<br>• Calls `dszModelGet` via POST body `{model_version, model_partitions}` and parses `resp.urls`. | ✅ **Matches Server**<br>• Calls `dsz_model_get` via POST body `{model_version, model_partitions}` and parses `resp.urls` for `sqlite.bin`. |
 | **Dashboard Analytics** | **Dash Query Execution** | ❌ **None** | ✅ **`dash.query(opts)`**<br>• Resolves signed SQLite URL via `dszSignedUrl` (`i6tb://results...`).<br>• Downloads asset, opens in SQLite, and runs named JSON query `dash-{name}`. | ✅ **`dash.query(opts)`**<br>• Resolves signed SQLite URL via `dsz_signed_url`.<br>• Downloads asset, opens in SQLite, and runs named JSON query `dash_name`. |
 | **Asset Caching & FS** | **Storage Backend** | ❌ **None** | ✅ **OPFS (Origin Private File System)**<br>• Operates under browser `navigator.storage.getDirectory()` path `i6/fs`. | ✅ **POSIX Disk Filesystem**<br>• Operates under `~/.cache/i6/sdkpy/fs` (configurable via `cache_dir`). |
 | | **ETag Cache Invalidation** | ❌ **None** | ✅ **Supported**<br>• Manages `{name}/version.txt`, `{name}/checkedat.txt`, `{name}/v{version}/etag.txt`, and `blob.bin`.<br>• Skips check if checked within 300s. | ✅ **Supported**<br>• Mirrors OPFS file structure and 300s check interval on local disk. |
@@ -53,30 +53,10 @@ Specific language implementations, method signatures, behaviors, and nuances are
 
 ## Detailed Nuances & Divergences
 
-### 1. Model Get API Divergence (`dsz_model_get`)
-* **`sdkweb` (Correct implementation matching server):**
-  ```javascript
-  const resp = await this._services.apis().dszModelGet({
-    params: { dataset, model_name: modelName },
-    payload: { model_version: opts.partitions.version, model_partitions: partitions },
-  });
-  const data = resp.parse();
-  const byName = Object.fromEntries((data?.urls ?? []).map((file) => [file.name, file.url]));
-  return { sqlite: byName["sqlite.bin"] };
-  ```
-* **`sdkpy` (Outdated schema):**
-  ```python
-  resp = self._services.apis().dsz_model_get(
-      req={
-          "params": {"dataset": dataset, "model_name": model_name},
-          "query": partitions,
-      }
-  )
-  data = resp.parse() or {}
-  sqlite_info = (data.get("files") or {}).get("sqlite.bin") or {}
-  url = sqlite_info.get("url")
-  ```
-  `sdkpy` passes partitions via query params rather than POST payload, and inspects `data["files"]["sqlite.bin"]` instead of `data["urls"]`.
+### 1. Model Get API (`dsz_model_get`)
+* Both `sdkweb` and `sdkpy` match the backend server schema:
+  - Request: `POST /api/model/dataset/{dataset}/signed-get/{model_name}` with JSON body `{"model_version": "...", "model_partitions": {...}}`.
+  - Response: Parses `resp.urls` to locate `name == "sqlite.bin"`.
 
 ### 2. Method Naming Discrepancies
 * **SdkFuncs Accessor:**
@@ -85,5 +65,4 @@ Specific language implementations, method signatures, behaviors, and nuances are
   * Supported across SDKs: Both `sdkweb` (`tokens.getValidAccessToken()`) and `sdkpy` (`tokens.get_valid_access_token()`) provide automatic silent renewal when tokens are expired or within a safety skew window. Both provide explicit expiration inspection helpers (`isAccessTokenExpired` / `is_access_token_expired`).
 
 ### 3. Telemetry in Inference
-* In `sdkweb`, calling `infer.run()` automatically emits a `recraw` event containing the raw recommendation results, session ID, and user ID to the ingestion pipeline. Subsequently, `infer.selectResults()` emits a `recshow` event containing only the displayed SKU IDs.
-* In `sdkpy`, no telemetry events are emitted, and the `Infer` client functions solely as an inference calculator.
+* In both `sdkweb` and `sdkpy`, calling `infer.run()` automatically emits a `recraw` event containing the raw recommendation results, session ID, and user ID to the ingestion pipeline (`ingestzEventRelevanceFashionEvent` / `ingestz_event_relevance_fashion_event`). Subsequently, `infer.selectResults()` / `infer.select_results()` emits a `recshow` event containing only the displayed SKU IDs.

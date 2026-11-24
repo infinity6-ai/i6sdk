@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import datetime
 import json
 import pathlib
 import time
@@ -32,10 +33,18 @@ class InferQueryOptions(TypedDict, total=False):
 
     dataset: str
     model_name: str
+    modelName: str
     partitions: Optional[Dict[str, str]]
     params: Optional[Dict[str, Any]]
+    session_id: str
+    sessionId: str
+    user_id: str
+    userId: str
+    limit: Optional[int]
     sqlite_url: Optional[str]
+    sqliteUrl: Optional[str]
     service_options: Optional[Union[ServiceOptions, Dict[str, Any]]]
+    serviceOptions: Optional[Union[ServiceOptions, Dict[str, Any]]]
 
 
 def partitions_key(partitions: Dict[str, str]) -> str:
@@ -52,22 +61,34 @@ def default_select_results(req: Any, results: Any) -> Dict[str, Any]:
     raw_results = results.get("results") or []
     cart_skus = set()
     if isinstance(req, dict):
-        cart_skus = set((req.get("input") or {}).get("skus") or [])
+        input_skus = (req.get("input") or {}).get("skus") or []
+        for s in input_skus:
+            if isinstance(s, dict):
+                if s.get("sku_id"):
+                    cart_skus.add(str(s["sku_id"]))
+            elif isinstance(s, str):
+                cart_skus.add(s)
 
     selected: List[Dict[str, Any]] = []
     seen_skus = set()
 
     for item in raw_results:
-        sku_id = item.get("sku_id")
-        if sku_id and sku_id not in cart_skus and sku_id not in seen_skus:
-            seen_skus.add(sku_id)
-            selected.append(
-                {
+        item_skus = item.get("skus") or []
+        if not item_skus and item.get("sku_id"):
+            item_skus = [{"sku_id": item["sku_id"]}]
+
+        for sku_obj in item_skus:
+            sku_id = sku_obj.get("sku_id") if isinstance(sku_obj, dict) else str(sku_obj)
+            if sku_id and sku_id not in cart_skus and sku_id not in seen_skus:
+                seen_skus.add(sku_id)
+                res_entry: Dict[str, Any] = {
                     "sku_id": sku_id,
                     "rating": item.get("rating", 0.0),
-                    "enriched": item.get("enriched"),
                 }
-            )
+                if item.get("enriched") is not None:
+                    res_entry["enriched"] = item["enriched"]
+                selected.append(res_entry)
+                break
 
     return {"results": selected}
 
@@ -85,14 +106,59 @@ class Infer:
         self._fs = fs or Fs()
         self._downloader = downloader or Downloader(self._fs)
 
+    def _send_rec_event(
+        self,
+        dataset: str,
+        model_name: str,
+        model_version: str,
+        store_id: str,
+        session_id: str,
+        user_id: str,
+        rec_id: str,
+        kind: str,
+        payload: Any,
+        service_options: Optional[Union[ServiceOptions, Dict[str, Any]]] = None,
+    ) -> None:
+        """Sends a recommendation telemetry event (recraw or recshow) to the data lake."""
+        event_id = str(uuid.uuid4())
+        created_at = (
+            datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%S") + "Z"
+        )
+        event_payload: Dict[str, Any] = {
+            "id": event_id,
+            "store_id": str(store_id),
+            "session_id": str(session_id),
+            "user_id": str(user_id),
+            "created_at": created_at,
+            kind: {
+                "rec_id": str(rec_id),
+                "model_id": str(model_name),
+                "model_version": str(model_version),
+                "payload": json.dumps(payload),
+            },
+        }
+
+        try:
+            self._services.apis().ingestz_event_relevance_fashion_event(
+                req={
+                    "params": {"dataset": dataset},
+                    "payload": event_payload,
+                },
+                opts=service_options,
+            )
+        except Exception:
+            # Telemetry dispatch should be non-fatal to the inference call
+            pass
+
     def _sqlite_url(self, opts: Union[InferQueryOptions, Dict[str, Any]]) -> str:
         """Retrieves the signed download URL for the model SQLite database."""
-        if direct_url := opts.get("sqlite_url"):
-            return direct_url
+        if direct_url := (opts.get("sqlite_url") or opts.get("sqliteUrl")):
+            return str(direct_url)
 
         dataset = opts.get("dataset", "")
-        model_name = opts.get("model_name", "")
+        model_name = opts.get("model_name") or opts.get("modelName") or ""
         partitions = opts.get("partitions") or {}
+        service_options = opts.get("service_options") or opts.get("serviceOptions")
 
         resp = self._services.apis().dsz_model_get(
             req={
@@ -100,9 +166,12 @@ class Infer:
                     "dataset": dataset,
                     "model_name": model_name,
                 },
-                "query": partitions,
+                "payload": {
+                    "model_version": partitions.get("version", ""),
+                    "model_partitions": partitions,
+                },
             },
-            opts=opts.get("service_options"),
+            opts=service_options,
         )
         if not resp.ok:
             raise I6ApiError(
@@ -110,17 +179,22 @@ class Infer:
                 status=resp.status,
             )
         data = resp.parse() or {}
-        sqlite_info = (data.get("files") or {}).get("sqlite.bin") or {}
-        url = sqlite_info.get("url")
+        urls = data.get("urls") or []
+        by_name = {
+            f.get("name"): f.get("url")
+            for f in urls
+            if isinstance(f, dict) and f.get("name") and f.get("url")
+        }
+        url = by_name.get("sqlite.bin")
         if not url:
             raise LookupError(f"Model {model_name} has no sqlite.bin file available.")
         return str(url)
 
     def update(self, opts: Union[InferQueryOptions, Dict[str, Any]]) -> pathlib.Path:
         """Preloads or revalidates the model SQLite bundle in the local cache."""
-        model_name = opts.get("model_name")
+        model_name = opts.get("model_name") or opts.get("modelName")
         if not model_name:
-            raise I6ValidationError("model_name is required")
+            raise I6ValidationError("infer: model_name is required")
         pkey = partitions_key(opts.get("partitions") or {})
         cache_name = f"infer-{model_name}-{pkey}-sqlite"
         url = self._sqlite_url(opts)
@@ -128,13 +202,35 @@ class Infer:
 
     def run(self, opts: Union[InferQueryOptions, Dict[str, Any]]) -> Dict[str, Any]:
         """Runs inference: local input query -> server-side prediction -> local output query."""
-        model_name = opts.get("model_name")
+        if not opts:
+            raise I6ValidationError("infer: opts is required")
+
+        model_name = opts.get("model_name") or opts.get("modelName")
         if not model_name:
-            raise I6ValidationError("model_name is required")
-        dataset = opts.get("dataset", "")
-        partitions = opts.get("partitions") or {}
+            raise I6ValidationError("infer: model_name is required")
+
+        dataset = opts.get("dataset")
+        if not dataset:
+            raise I6ValidationError("infer: dataset is required")
+
+        session_id = opts.get("session_id") or opts.get("sessionId")
+        user_id = opts.get("user_id") or opts.get("userId")
+        if not session_id or not user_id:
+            raise I6ValidationError("infer: session_id and user_id are required")
+
+        partitions = opts.get("partitions")
+        if not isinstance(partitions, dict):
+            raise I6ValidationError("infer: partitions must be a dictionary")
+
+        if opts.get("params") is None:
+            raise I6ValidationError("infer: params is required")
+
+        limit = opts.get("limit", 20)
+        if limit is not None and (not isinstance(limit, int) or limit <= 0):
+            raise I6ValidationError("infer: limit must be a positive integer")
+
+        service_options = opts.get("service_options") or opts.get("serviceOptions")
         params = opts.get("params")
-        service_options = opts.get("service_options")
 
         # 1. Download or get cached SQLite database
         sqlite_path = self.update(opts)
@@ -174,17 +270,84 @@ class Infer:
             model_outputs = json.loads(raw_outputs) if isinstance(raw_outputs, str) else raw_outputs
 
             # 4. Run output query to format final ranked recommendations
-            limit = opts.get("limit", 20)
             result = conn.named_json_query(name=query_output, params=[model_outputs, limit])
 
         rec_id = str(uuid.uuid4())
         results = dict(result or {})
         results["rec_id"] = rec_id
+
+        # 5. Dispatch recraw telemetry event
+        self._send_rec_event(
+            dataset=dataset,
+            model_name=model_name,
+            model_version=str(partitions.get("version", "")),
+            store_id=str(partitions.get("store_id", "1")),
+            session_id=str(session_id),
+            user_id=str(user_id),
+            rec_id=rec_id,
+            kind="recraw",
+            payload=results,
+            service_options=service_options,
+        )
+
         return results
 
     def select_results(self, opts: Dict[str, Any]) -> Dict[str, Any]:
-        """Applies selection logic and returns final recommendation payload."""
-        callback = opts.get("select_results") or default_select_results
+        """Applies selection logic, dispatches recshow telemetry, and returns final recommendation payload."""
+        if not opts:
+            raise I6ValidationError("infer: opts is required")
+
+        callback = opts.get("select_results") or opts.get("selectResults") or default_select_results
+        if not callable(callback):
+            raise TypeError("infer: select_results must be callable")
+
+        rec_id = opts.get("rec_id") or opts.get("recId")
+        if not rec_id:
+            raise I6ValidationError("infer: rec_id is required")
+
+        session_id = opts.get("session_id") or opts.get("sessionId")
+        user_id = opts.get("user_id") or opts.get("userId")
+        if not session_id or not user_id:
+            raise I6ValidationError("infer: session_id and user_id are required")
+
         req = opts.get("req")
         results = opts.get("results")
-        return callback(req, results)
+
+        selected = callback(req, results)
+        if not isinstance(selected, dict) or not isinstance(selected.get("results"), list):
+            raise TypeError("infer: select_results must return {'results': [...]}")
+
+        # The event carries only the sku ids
+        skus_list = []
+        for i, item in enumerate(selected["results"]):
+            sku_id = item.get("sku_id") if isinstance(item, dict) else None
+            if not sku_id:
+                raise TypeError(f"infer: select_results returned an item with no sku_id at results[{i}]")
+            skus_list.append({"sku_id": str(sku_id)})
+
+        shown = {"skus": skus_list}
+
+        dataset = opts.get("dataset") or (req.get("input") or {}).get("dataset") or ""
+        model_name = opts.get("model_name") or opts.get("modelName") or ""
+        partitions = opts.get("partitions") or {}
+        store_id = str(partitions.get("store_id") or (req.get("input") or {}).get("store_id") or "1")
+        model_version = str(partitions.get("version") or opts.get("model_version") or opts.get("modelVersion") or "")
+        service_options = opts.get("service_options") or opts.get("serviceOptions")
+
+        self._send_rec_event(
+            dataset=dataset,
+            model_name=model_name,
+            model_version=model_version,
+            store_id=store_id,
+            session_id=str(session_id),
+            user_id=str(user_id),
+            rec_id=str(rec_id),
+            kind="recshow",
+            payload=shown,
+            service_options=service_options,
+        )
+
+        return selected
+
+    selectResults = select_results
+
