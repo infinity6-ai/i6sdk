@@ -15,6 +15,7 @@ type Req struct {
 	Subgrants   grants.Grant      `json:"subgrants,omitempty"`
 	Newlabels   map[string]string `json:"newlabels,omitempty"`
 	ExpSeconds  int64             `json:"exp_seconds,omitempty"`
+	Unbound     bool              `json:"unbound,omitempty"`
 }
 
 type Resp struct {
@@ -83,6 +84,10 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 					"exp_seconds": {
 						Desc:  &schemaz.Desc{Summary: "Requested lifetime in seconds."},
 						Field: func() any { return &d.Req.ExpSeconds },
+					},
+					"unbound": {
+						Desc:  &schemaz.Desc{Summary: "If true, mints an unbound bearer token usable with Authorization: Bearer."},
+						Field: func() any { return &d.Req.Unbound },
 					},
 				}
 			},

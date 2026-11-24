@@ -235,6 +235,7 @@ class Tokens:
 
         payload: Dict[str, Any] = {
             "dataset": dataset,
+            "unbound": True,
         }
         if subsolution:
             payload["subsolution"] = subsolution
@@ -243,13 +244,12 @@ class Tokens:
         if exp_seconds:
             payload["exp_seconds"] = exp_seconds
 
-        body_bytes = json.dumps(payload, separators=(",", ":")).encode("utf-8")
         assertion_sig = build_refresh_assertion(
             priv_key=rf_token,
             dataset=dataset,
             method="POST",
             path="/api/userz/refresh-dataset",
-            body_bytes=body_bytes,
+            body_bytes=b"",
         )
 
         resp = self._services.apis().user_dataset_token_refresh(
