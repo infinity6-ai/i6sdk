@@ -26,9 +26,9 @@ const stored = (storage, key) => {
 }
 const sdkConfig = { 
   servUrls: {
-    decsuite: "https://decsuite.staging.rs.infinity6.ai",
-    userz: "https://userz.staging.rs.infinity6.ai",
-    tfinfer: "https://tfinfer.staging.lb.infinity6.ai",
+    decsuite: "https://decsuite.sandbox.rs.infinity6.ai",
+    userz: "https://userz.sandbox.rs.infinity6.ai",
+    tfinfer: "https://tfinfer.sandbox.lb.infinity6.ai",
   },
   // Login comes back to this same page, which finishes it below with handleCallback()
   userExchangeCallbackUrl: location.origin + location.pathname,
