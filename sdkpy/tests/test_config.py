@@ -17,14 +17,18 @@ class TestConfig(unittest.TestCase):
 
     def test_load_from_env(self) -> None:
         env_vars = {
-            "I6_BASE_URL": "https://api.test.i6.ai",
+            "I6_SDK_DECSUITE_URL": "https://decsuite.test.i6.ai",
+            "I6_SDK_TFINFER_URL": "https://tfinfer.test.i6.ai",
+            "I6_SDK_USERZ_URL": "https://userz.test.i6.ai",
             "I6_API_KEY": "test-key-123",
             "I6_APP": "my-app",
             "I6_TIMEOUT": "45.5",
         }
         with mock.patch.dict(os.environ, env_vars, clear=False):
             cfg = i6sdk.load_config_from_env()
-            self.assertEqual(cfg.serv_urls.get("decsuite"), "https://api.test.i6.ai")
+            self.assertEqual(cfg.serv_urls.get("decsuite"), "https://decsuite.test.i6.ai")
+            self.assertEqual(cfg.serv_urls.get("tfinfer"), "https://tfinfer.test.i6.ai")
+            self.assertEqual(cfg.serv_urls.get("userz"), "https://userz.test.i6.ai")
             self.assertEqual(cfg.token, "test-key-123")
             self.assertEqual(cfg.app, "my-app")
             self.assertEqual(cfg.timeout, 45.5)

@@ -20,12 +20,12 @@ pip install .
 ```python
 import i6sdk
 
-# Initialize client using environment variables (I6_BASE_URL, I6_API_KEY)
+# Initialize client using environment variables (I6_SDK_DECSUITE_URL, I6_API_KEY)
 client = i6sdk.create_client()
 
 # Or pass configuration explicitly
 config = i6sdk.I6SdkConfig(
-    base_url="https://decsuite.sandbox.rs.infinity6.ai",
+    serv_urls={"decsuite": "https://decsuite.sandbox.rs.infinity6.ai"},
     token="YOUR_API_KEY",
 )
 client = i6sdk.I6Client(config)

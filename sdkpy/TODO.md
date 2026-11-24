@@ -199,7 +199,7 @@ Backend Go APIs (apiuserz, apidatasetz, apiingestz, apipipez, apitfz)
     - `timeout: float` (HTTP timeout in seconds, default `30.0`)
     - `fetcher: Optional[Callable]` (pluggable custom HTTP handler)
   - `DEFAULT_CONFIG: I6SdkConfig`: Default instance matching sandbox environment.
-  - `load_config_from_env()`: Helper parsing `I6_BASE_URL`, `I6_API_KEY`, `I6_APP`, `I6_TIMEOUT`.
+  - `load_config_from_env()`: Helper parsing `I6_SDK_DECSUITE_URL`, `I6_API_KEY`, `I6_APP`, `I6_TIMEOUT`.
 
 #### `sdkpy/src/i6sdk/invoker.py`
 - [x] **Implement Standard Library HTTP Invoker**:

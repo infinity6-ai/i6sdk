@@ -2,6 +2,7 @@ package sdkgo
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/i6sdk/apicollectionz/apicollectionz"
@@ -9,20 +10,45 @@ import (
 	"github.com/infinity6-ai/i6sdk/versionz/version"
 )
 
+const (
+	DefaultDecsuiteUrl = "https://decsuite.sandbox.rs.infinity6.ai"
+	DefaultTfinferUrl  = "https://tfinfer.sandbox.lb.infinity6.ai"
+	DefaultUserzUrl    = "https://userz.sandbox.rs.infinity6.ai"
+)
+
 type Config struct {
 	ServUrls map[string]string
 	Client   *http.Client
 }
 
-func DefaultConfig() Config {
+func LoadConfigFromEnv() Config {
+	decsuiteUrl := DefaultDecsuiteUrl
+	if env := os.Getenv("I6_SDK_DECSUITE_URL"); env != "" {
+		decsuiteUrl = env
+	}
+
+	tfinferUrl := DefaultTfinferUrl
+	if env := os.Getenv("I6_SDK_TFINFER_URL"); env != "" {
+		tfinferUrl = env
+	}
+
+	userzUrl := DefaultUserzUrl
+	if env := os.Getenv("I6_SDK_USERZ_URL"); env != "" {
+		userzUrl = env
+	}
+
 	return Config{
 		ServUrls: map[string]string{
-			"decsuite": "https://decsuite.sandbox.rs.infinity6.ai",
-			"tfinfer":  "https://tfinfer.sandbox.lb.infinity6.ai",
-			"userz":    "https://userz.sandbox.rs.infinity6.ai",
+			"decsuite": decsuiteUrl,
+			"tfinfer":  tfinferUrl,
+			"userz":    userzUrl,
 		},
 		Client: http.DefaultClient,
 	}
+}
+
+func DefaultConfig() Config {
+	return LoadConfigFromEnv()
 }
 
 type Client struct {

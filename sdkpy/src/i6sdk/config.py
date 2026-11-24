@@ -34,10 +34,11 @@ DEFAULT_CONFIG = I6SdkConfig()
 
 def load_config_from_env() -> I6SdkConfig:
     """Creates an I6SdkConfig populated from environment variables."""
-    decsuite_url = os.environ.get("I6_BASE_URL", DEFAULT_DECSUITE_URL)
+    decsuite_url = os.environ.get("I6_SDK_DECSUITE_URL", DEFAULT_DECSUITE_URL)
+    tfinfer_url = os.environ.get("I6_SDK_TFINFER_URL", DEFAULT_TFINFER_URL)
+    userz_url = os.environ.get("I6_SDK_USERZ_URL", DEFAULT_USERZ_URL)
     token = os.environ.get("I6_API_KEY") or os.environ.get("I6_TOKEN")
     app = os.environ.get("I6_APP", "default")
-    userz_url = os.environ.get("I6_USERZ_URL")
 
     timeout_val = 30.0
     if timeout_env := os.environ.get("I6_TIMEOUT"):
@@ -48,11 +49,9 @@ def load_config_from_env() -> I6SdkConfig:
 
     serv_urls = {
         "decsuite": decsuite_url,
-        "tfinfer": DEFAULT_TFINFER_URL,
-        "userz": DEFAULT_USERZ_URL
+        "tfinfer": tfinfer_url,
+        "userz": userz_url,
     }
-    if tfinfer_url := os.environ.get("I6_TFINFER_URL"):
-        serv_urls["tfinfer"] = tfinfer_url
 
     return I6SdkConfig(
         serv_urls=serv_urls,

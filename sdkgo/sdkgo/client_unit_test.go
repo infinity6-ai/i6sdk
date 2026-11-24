@@ -23,3 +23,14 @@ func TestUnitClient(t *testing.T) {
 	require.NotNil(t, fn)
 	require.Equal(t, "product-relevance-fashion-fbt", fn.SdkFuncSpec().Id)
 }
+
+func TestUnitClientEnvConfig(t *testing.T) {
+	t.Setenv("I6_SDK_DECSUITE_URL", "https://custom-decsuite.test")
+	t.Setenv("I6_SDK_TFINFER_URL", "https://custom-tfinfer.test")
+	t.Setenv("I6_SDK_USERZ_URL", "https://custom-userz.test")
+
+	c := sdkgo.New()
+	require.Equal(t, "https://custom-decsuite.test", c.Config().ServUrls["decsuite"])
+	require.Equal(t, "https://custom-tfinfer.test", c.Config().ServUrls["tfinfer"])
+	require.Equal(t, "https://custom-userz.test", c.Config().ServUrls["userz"])
+}
