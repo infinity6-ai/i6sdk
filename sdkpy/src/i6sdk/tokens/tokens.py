@@ -36,6 +36,7 @@ class DatasetToken(TypedDict, total=False):
 
 USER_TOKEN_KEY = "i6_user_user_token"
 DATASET_TOKENS_KEY = "i6_dataset_access_tokens"
+DATASET_REFRESH_TOKENS_KEY = "i6_dataset_refresh_tokens"
 
 
 class Tokens:
@@ -78,6 +79,40 @@ class Tokens:
         """Clears all stored user and dataset tokens."""
         self.remove_user_token()
         self._storage.remove_item(DATASET_TOKENS_KEY)
+        self._storage.remove_item(DATASET_REFRESH_TOKENS_KEY)
+
+    def get_dataset_refresh_tokens_map(self) -> Dict[str, str]:
+        """Returns all stored dataset refresh tokens."""
+        val = self._storage.get_item(DATASET_REFRESH_TOKENS_KEY)
+        if not val:
+            return {}
+        try:
+            return json.loads(val)
+        except Exception:
+            return {}
+
+    def get_dataset_refresh_token(self, dataset: str) -> Optional[str]:
+        """Returns the stored dataset refresh token (Ed25519 private key/keypair) for dataset."""
+        m = self.get_dataset_refresh_tokens_map()
+        return m.get(dataset)
+
+    def set_dataset_refresh_token(self, dataset: str, token: Union[str, Dict[str, Any]]) -> None:
+        """Stores a dataset refresh token for machine robot authentication."""
+        if not dataset:
+            raise ValueError("dataset is required")
+        raw_key = token
+        if isinstance(token, dict):
+            raw_key = token.get("priv_key") or token.get("private_key") or json.dumps(token)
+        m = self.get_dataset_refresh_tokens_map()
+        m[dataset] = str(raw_key)
+        self._storage.set_item(DATASET_REFRESH_TOKENS_KEY, json.dumps(m))
+
+    def remove_dataset_refresh_token(self, dataset: str) -> None:
+        """Removes the stored dataset refresh token for the specified dataset."""
+        m = self.get_dataset_refresh_tokens_map()
+        if dataset in m:
+            del m[dataset]
+            self._storage.set_item(DATASET_REFRESH_TOKENS_KEY, json.dumps(m))
 
     def is_access_token_expired(
         self, token: Optional[UserToken] = None, skew_seconds: float = 30.0
@@ -184,6 +219,71 @@ class Tokens:
         now_ms = int(time.time() * 1000)
         return now_ms >= (expires_at - int(skew_seconds * 1000))
 
+    def refresh_dataset_access_token(
+        self,
+        dataset: str,
+        subsolution: Optional[str] = None,
+        subgrants: Optional[int] = None,
+        exp_seconds: Optional[int] = None,
+    ) -> Optional[DatasetToken]:
+        """Mints a fresh unbounded dataset access token using the stored dataset refresh token."""
+        rf_token = self.get_dataset_refresh_token(dataset)
+        if not rf_token:
+            return None
+
+        from ..internal.reqsign import build_refresh_assertion
+
+        payload: Dict[str, Any] = {
+            "dataset": dataset,
+        }
+        if subsolution:
+            payload["subsolution"] = subsolution
+        if subgrants:
+            payload["subgrants"] = subgrants
+        if exp_seconds:
+            payload["exp_seconds"] = exp_seconds
+
+        body_bytes = json.dumps(payload, separators=(",", ":")).encode("utf-8")
+        assertion_sig = build_refresh_assertion(
+            priv_key=rf_token,
+            dataset=dataset,
+            method="POST",
+            path="/api/userz/refresh-dataset",
+            body_bytes=body_bytes,
+        )
+
+        resp = self._services.apis().user_dataset_token_refresh(
+            req={
+                "headers": {
+                    "x-i6-signature": assertion_sig,
+                },
+                "payload": payload,
+            },
+            opts={
+                "labels": {"token_types": "none"},
+            },
+        )
+        if not resp.ok:
+            return None
+
+        data = resp.parse() or {}
+        access_tok = data.get("access_token")
+        if not access_tok:
+            return None
+
+        exp_at = data.get("expires_at", 0)
+        if 0 < exp_at < 10_000_000_000:
+            exp_at *= 1000
+
+        dt: DatasetToken = {
+            "dataset": data.get("dataset", dataset),
+            "access_token": access_tok,
+            "expires_at": int(exp_at),
+            "grants": int(data.get("grants", 0)),
+        }
+        self.set_dataset_token(dataset, dt)
+        return dt
+
     def get_valid_dataset_access_token(self, dataset: str, skew_seconds: float = 30.0) -> Optional[str]:
         """Retrieves a valid dataset access token string for the target dataset."""
         if not dataset:
@@ -199,6 +299,16 @@ class Tokens:
             if cached and not self.is_dataset_token_expired(cached, skew_seconds):
                 return cached.get("access_token")
 
+            # 1. If dataset refresh token is available for machine robots, refresh via Ed25519 assertion
+            if self.get_dataset_refresh_token(dataset):
+                try:
+                    dt = self.refresh_dataset_access_token(dataset)
+                    if dt and (tok := dt.get("access_token")):
+                        return tok
+                except Exception:
+                    pass
+
+            # 2. Otherwise fall back to user token
             user_token = self.get_valid_access_token(skew_seconds)
             if not user_token:
                 return None

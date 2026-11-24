@@ -218,6 +218,69 @@ class TestTokens(unittest.TestCase):
         # Exactly one network refresh should have occurred
         self.assertEqual(len(calls), 1)
 
+    def test_dataset_refresh_token_management(self) -> None:
+        client = I6Client(I6SdkConfig())
+        tokens = client.tokens()
+
+        self.assertIsNone(tokens.get_dataset_refresh_token("ds-robot"))
+        tokens.set_dataset_refresh_token("ds-robot", "secret-robot-key-abc")
+        self.assertEqual(tokens.get_dataset_refresh_token("ds-robot"), "secret-robot-key-abc")
+
+        tokens.remove_dataset_refresh_token("ds-robot")
+        self.assertIsNone(tokens.get_dataset_refresh_token("ds-robot"))
+
+    def test_machine_robot_dataset_refresh_token_auto_renewal(self) -> None:
+        from cryptography.hazmat.primitives import serialization
+        from cryptography.hazmat.primitives.asymmetric import ed25519
+        import base64
+        import json
+
+        priv = ed25519.Ed25519PrivateKey.generate()
+        raw_priv = priv.private_bytes(
+            serialization.Encoding.Raw, serialization.PrivateFormat.Raw, serialization.NoEncryption()
+        )
+        raw_pub = priv.public_key().public_bytes(
+            serialization.Encoding.Raw, serialization.PublicFormat.Raw
+        )
+        key_b64 = base64.urlsafe_b64encode(raw_priv + raw_pub).decode().rstrip("=")
+
+        calls = []
+
+        def mock_fetcher(
+            url: str, method: str, headers: dict, body: any, timeout: float
+        ) -> tuple[int, dict, str]:
+            calls.append({"url": url, "method": method, "headers": headers, "body": body})
+            if "/api/userz/refresh-dataset" in url:
+                # Verify that x-i6-signature header is present
+                sig = headers.get("x-i6-signature") or headers.get("X-I6-Signature")
+                self.assertIsNotNone(sig)
+                self.assertEqual(len(sig), 162)  # 121 raw bytes packed base64url
+
+                return 200, {"content-type": "application/json"}, json.dumps({
+                    "access_token": "robot-access-tok-123",
+                    "dataset": "dectest",
+                    "expires_at": 9999999999999,
+                    "grants": 15,
+                })
+            return 404, {}, ""
+
+        client = I6Client(I6SdkConfig(
+            serv_urls={"decsuite": "https://api.i6.test", "userz": "https://auth.i6.test"},
+            fetcher=mock_fetcher,
+        ))
+
+        # Configure machine robot credentials (no user credentials needed!)
+        client.tokens().set_dataset_refresh_token("dectest", key_b64)
+
+        # First call: automatically mints unbounded dataset access token using Ed25519 signature
+        tok = client.tokens().get_valid_dataset_access_token("dectest")
+        self.assertEqual(tok, "robot-access-tok-123")
+        self.assertEqual(len(calls), 1)
+
+        # Second call: uses cached token without network dispatch
+        cached_tok = client.tokens().get_valid_dataset_access_token("dectest")
+        self.assertEqual(cached_tok, "robot-access-tok-123")
+        self.assertEqual(len(calls), 1)
 
 
 if __name__ == "__main__":
