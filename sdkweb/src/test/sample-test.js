@@ -3,8 +3,11 @@
     QUnit.module("i6sdk-web", function () {
 
         QUnit.test("hello", async function (assert) {
-            // const { I6Sdk } = await import('../main/index.js')
-            assert.true(true)
+            const { I6Sdk } = await import('../main/index.js')
+            const sdk = new I6Sdk()
+            assert.strictEqual(sdk.config().app, "default")
+            const customSdk = new I6Sdk({ app: "my-app" })
+            assert.strictEqual(customSdk.config().app, "my-app")
         });
 
         QUnit.test("setConfig overwrites the given keys at any time", async function (assert) {

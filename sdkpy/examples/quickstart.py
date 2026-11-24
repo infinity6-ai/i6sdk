@@ -11,6 +11,9 @@ def main() -> None:
 
     print("Client initialized with serv_urls:", client.config().serv_urls)
 
+    me = client.auth().me()
+    print('me', me)
+
     # 2. Call an API endpoint (e.g. list datasets)
     resp = client.apis().dsz_list_datasets()
     if resp.ok:
@@ -18,6 +21,7 @@ def main() -> None:
         print("Successfully queried datasets:", data)
     else:
         print("Request failed:", resp.error)
+
 
     # 3. Use internal bitmask utilities
     from i6sdk.internal.bitmapz import contains_all, join

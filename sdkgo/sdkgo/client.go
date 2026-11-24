@@ -11,12 +11,14 @@ import (
 )
 
 const (
+	DefaultApp         = "default"
 	DefaultDecsuiteUrl = "https://decsuite.sandbox.rs.infinity6.ai"
 	DefaultTfinferUrl  = "https://tfinfer.sandbox.lb.infinity6.ai"
 	DefaultUserzUrl    = "https://userz.sandbox.rs.infinity6.ai"
 )
 
 type Config struct {
+	App      string
 	ServUrls map[string]string
 	Client   *http.Client
 }
@@ -38,6 +40,7 @@ func LoadConfigFromEnv() Config {
 	}
 
 	return Config{
+		App:      DefaultApp,
 		ServUrls: map[string]string{
 			"decsuite": decsuiteUrl,
 			"tfinfer":  tfinferUrl,

@@ -35,6 +35,7 @@ import { bitmapz } from "./internal/bitmapz/bitmapz.js";
  * @type {I6SdkConfig}
  */
 const DEFAULT_CONFIG = {
+  app: "default",
   servUrls: {
     "decsuite": "https://decsuite.sandbox.rs.infinity6.ai",
     "tfinfer": "https://tfinfer.sandbox.lb.infinity6.ai",

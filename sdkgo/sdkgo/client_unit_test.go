@@ -11,6 +11,7 @@ func TestUnitClient(t *testing.T) {
 	c := sdkgo.New()
 	require.NotNil(t, c)
 	require.NotEmpty(t, c.Version())
+	require.Equal(t, "default", c.Config().App)
 	require.NotEmpty(t, c.Config().ServUrls["decsuite"])
 	require.NotEmpty(t, c.Apis())
 	require.NotEmpty(t, c.SdkFuncs())
@@ -22,6 +23,13 @@ func TestUnitClient(t *testing.T) {
 	fn := c.SdkFunc("product-relevance-fashion-fbt")
 	require.NotNil(t, fn)
 	require.Equal(t, "product-relevance-fashion-fbt", fn.SdkFuncSpec().Id)
+}
+
+func TestUnitClientCustomConfig(t *testing.T) {
+	c := sdkgo.New(sdkgo.Config{
+		App: "custom-app",
+	})
+	require.Equal(t, "custom-app", c.Config().App)
 }
 
 func TestUnitClientEnvConfig(t *testing.T) {
