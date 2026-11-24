@@ -84,13 +84,13 @@ def main() -> None:
     })
     print("productRelevanceFashionDashDisplayMetricsStatusV1", result)
 
-    # 3. Use internal bitmask utilities
-    from i6sdk.internal.bitmapz import contains_all, join
+    # 3. Use bitmask utilities and Grants enum
+    from i6sdk import Grants, bitmapz
 
-    # Combine permissions: Read (8) + Write (4)
-    my_grants = join(4, 8)
+    # Combine permissions: Read + Write
+    my_grants = bitmapz.join(Grants.Read, Grants.Write)
     print(f"Combined bitmask: {my_grants}")
-    print(f"Has write permission: {contains_all(my_grants, 4)}")
+    print(f"Has write permission: {bitmapz.contains_all(my_grants, Grants.Write)}")
 
 
 if __name__ == "__main__":
