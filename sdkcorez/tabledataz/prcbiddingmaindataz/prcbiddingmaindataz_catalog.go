@@ -27,6 +27,26 @@ type GenericStringField struct {
 	Value string `json:"value" bigquery:"value"`
 }
 
+func (g *GenericStringField) Schema() *schemaz.Schema {
+	if g == nil {
+		g = &GenericStringField{}
+	}
+	return &schemaz.Schema{
+		Object: func(read bool) map[string]*schemaz.Schema {
+			return map[string]*schemaz.Schema{
+				"name": {
+					Desc:  &schemaz.Desc{Summary: "Name of the classification hierarchy level (e.g. department, category)."},
+					Field: func() any { return &g.Name },
+				},
+				"value": {
+					Desc:  &schemaz.Desc{Summary: "Value of the classification hierarchy level."},
+					Field: func() any { return &g.Value },
+				},
+			}
+		},
+	}
+}
+
 func (c *Catalog) Validate() error {
 	return tabledataz.FirstError(
 		tabledataz.Str("id", c.ID, 64),
@@ -64,6 +84,10 @@ func (c *Catalog) SchemaQuery() *schemaz.Schema {
 					Desc:     &schemaz.Desc{Summary: "Catalog entry id."},
 					UrlValue: schemaz.ParseStr(&c.ID),
 				},
+				"store_id": {
+					Desc:     &schemaz.Desc{Summary: "Store identifier."},
+					UrlValue: schemaz.ParseStr(&c.StoreId),
+				},
 				"desc": {
 					Desc:     &schemaz.Desc{Summary: "Catalog entry description."},
 					UrlValue: schemaz.ParseStr(&c.Desc),
@@ -79,6 +103,10 @@ func (c *Catalog) SchemaQuery() *schemaz.Schema {
 				"exclusive_sale": {
 					Desc:     &schemaz.Desc{Summary: "Catalog entry exclusive sale."},
 					UrlValue: schemaz.ParseStr(&c.ExclusiveSale),
+				},
+				"hierarchy": {
+					Desc:     &schemaz.Desc{Summary: "Classification hierarchy list."},
+					UrlValue: schemaz.ParseJson(&c.Hierarchy),
 				},
 			}
 		},
@@ -96,6 +124,10 @@ func (c *Catalog) SchemaBody() *schemaz.Schema {
 					Desc:  &schemaz.Desc{Summary: "Catalog entry id."},
 					Field: func() any { return &c.ID },
 				},
+				"store_id": {
+					Desc:  &schemaz.Desc{Summary: "Store identifier."},
+					Field: func() any { return &c.StoreId },
+				},
 				"desc": {
 					Desc:  &schemaz.Desc{Summary: "Catalog entry description."},
 					Field: func() any { return &c.Desc },
@@ -111,6 +143,15 @@ func (c *Catalog) SchemaBody() *schemaz.Schema {
 				"exclusive_sale": {
 					Desc:  &schemaz.Desc{Summary: "Catalog entry exclusive sale."},
 					Field: func() any { return &c.ExclusiveSale },
+				},
+				"hierarchy": {
+					Desc: &schemaz.Desc{Summary: "Classification hierarchy list."},
+					Array: schemaz.NewArray(schemaz.ArrayOptions[[]GenericStringField, GenericStringField]{
+						Slice: func() *[]GenericStringField { return &c.Hierarchy },
+						Get: func(idx int, element *GenericStringField) *schemaz.Schema {
+							return element.Schema()
+						},
+					}),
 				},
 			}
 		},
