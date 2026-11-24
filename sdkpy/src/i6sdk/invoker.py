@@ -114,6 +114,16 @@ class Resp(Generic[T]):
         return self._value  # type: ignore[return-value]
 
 
+def extract_dataset_from_url(url_str: str) -> Optional[str]:
+    """Extracts the dataset segment following '/dataset/' in an API path or URL."""
+    parsed = urllib.parse.urlparse(url_str)
+    parts = [p for p in parsed.path.split("/") if p]
+    for i, p in enumerate(parts):
+        if p == "dataset" and i + 1 < len(parts):
+            return parts[i + 1]
+    return None
+
+
 class Invoker:
     """HTTP dispatch engine executing requests using urllib.request."""
 
@@ -146,20 +156,42 @@ class Invoker:
             "Accept": "application/json",
         }
 
-        # Auth token injection
-        if token := self._services.tokens().get_token():
+        # Auth token resolution
+        token = None
+        req_opts = opts.get("opts")
+        labels = {}
+        if req_opts and isinstance(req_opts, dict):
+            if bearer := (req_opts.get("bearer_token") or req_opts.get("bearerToken")):
+                token = str(bearer)
+            labels = req_opts.get("labels") or {}
+
+        if not token and labels.get("token_types"):
+            token_types = str(labels["token_types"]).split("|")
+            for tt in token_types:
+                if tt == "none":
+                    token = None
+                    break
+                if tt == "dataset":
+                    if dataset := extract_dataset_from_url(target_url):
+                        token = self._services.tokens().get_valid_dataset_access_token(dataset)
+                elif tt == "user":
+                    token = self._services.tokens().get_token()
+                if token:
+                    break
+
+        if not token:
+            token = self._services.tokens().get_token()
+
+        if token:
             headers["Authorization"] = f"Bearer {token}"
 
         # Custom headers
         if custom_headers := opts.get("headers"):
             headers.update({str(k): str(v) for k, v in custom_headers.items() if v is not None})
 
-        req_opts = opts.get("opts")
         if req_opts and isinstance(req_opts, dict):
             if extra_headers := req_opts.get("headers"):
                 headers.update({str(k): str(v) for k, v in extra_headers.items() if v is not None})
-
-        print("invoker.debug", opts)
 
         # 4. Payload data
         body_bytes: Optional[bytes] = None

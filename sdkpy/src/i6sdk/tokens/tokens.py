@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 import time
+import urllib.parse
+import urllib.request
 from typing import TYPE_CHECKING, Any, Dict, Optional, TypedDict
 
 if TYPE_CHECKING:
@@ -105,3 +107,76 @@ class Tokens:
         if dataset in m:
             del m[dataset]
             self._storage.set_item(DATASET_TOKENS_KEY, json.dumps(m))
+
+    def is_dataset_token_expired(self, token: Optional[DatasetToken], skew_seconds: float = 30.0) -> bool:
+        """Checks whether the given dataset access token is expired or will expire within the given skew window."""
+        if not token or not token.get("access_token"):
+            return True
+        expires_at = token.get("expires_at", 0)
+        now_ms = int(time.time() * 1000)
+        return now_ms >= (expires_at - int(skew_seconds * 1000))
+
+    def get_valid_dataset_access_token(self, dataset: str, skew_seconds: float = 30.0) -> Optional[str]:
+        """Retrieves a valid dataset access token string for the target dataset."""
+        if not dataset:
+            return None
+
+        cached = self.get_dataset_token(dataset)
+        if cached and not self.is_dataset_token_expired(cached, skew_seconds):
+            return cached.get("access_token")
+
+        user_token = self.get_token()
+        if not user_token:
+            return None
+
+        userz_url = self._services.auth().userz_base_url().rstrip("/")
+        req_url = f"{userz_url}/api/userz/dataset-access-token/{urllib.parse.quote(dataset)}"
+
+        config = self._services.config()
+        if config.fetcher:
+            status, _, text = config.fetcher(
+                req_url,
+                "POST",
+                {
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {user_token}",
+                    "User-Agent": "i6sdk-python/0.0.1",
+                },
+                b"{}",
+                config.timeout,
+            )
+            if 200 <= status < 300:
+                data = json.loads(text) if text else {}
+                dt: DatasetToken = {
+                    "dataset": data.get("dataset", dataset),
+                    "access_token": data.get("access_token", ""),
+                    "expires_at": int(data.get("expires_at", 0)),
+                    "grants": int(data.get("grants", 0)),
+                }
+                self.set_dataset_token(dataset, dt)
+                return dt.get("access_token")
+            return None
+
+        req = urllib.request.Request(
+            req_url,
+            data=b"{}",
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {user_token}",
+                "User-Agent": "i6sdk-python/0.0.1",
+            },
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=config.timeout) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                dt: DatasetToken = {
+                    "dataset": data.get("dataset", dataset),
+                    "access_token": data.get("access_token", ""),
+                    "expires_at": int(data.get("expires_at", 0)),
+                    "grants": int(data.get("grants", 0)),
+                }
+                self.set_dataset_token(dataset, dt)
+                return dt.get("access_token")
+        except Exception:
+            return None

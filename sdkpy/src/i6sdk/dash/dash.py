@@ -41,35 +41,38 @@ class Dash:
         self._downloader = downloader or Downloader(self._fs)
 
     def _sqlite_url(self, opts: Union[DashQueryOptions, Dict[str, Any]]) -> str:
-        """Finds where the dash sqlite is: signed URL from model API or direct URL."""
+        """Finds where the dash sqlite is: signed URL from dsz_signed_url or direct URL."""
         if direct_url := opts.get("sqlite_url"):
             return direct_url
 
         dataset = opts.get("dataset", "")
         dash_name = opts.get("dash_name", "")
         partitions = opts.get("partitions") or {}
+        store_id = str(partitions.get("store_id", "1"))
 
-        resp = self._services.apis().dsz_model_get(
+        resp = self._services.apis().dsz_signed_url(
             req={
-                "params": {
-                    "dataset": dataset,
-                    "model_name": dash_name,
+                "params": {"dataset": dataset},
+                "payload": {
+                    "paths": [
+                        {"method": "GET", "path": f"i6tb://results.relevance-fashion-store-dash/store_id={store_id}/sqlite.bin"}
+                    ]
                 },
-                "query": partitions,
             },
             opts=opts.get("service_options"),
         )
         if not resp.ok:
             raise I6ApiError(
-                message=f"Failed to get dash metadata: {resp.text}",
+                message=f"dash: the api gave no sqlite.bin file: {resp.text}",
                 status=resp.status,
+                code=(resp.error or {}).get("code", "bad_request"),
             )
         data = resp.parse() or {}
-        sqlite_info = (data.get("files") or {}).get("sqlite.bin") or {}
-        url = sqlite_info.get("url")
-        if not url:
-            raise LookupError(f"Dash {dash_name} has no sqlite.bin file available.")
-        return str(url)
+        urls = data.get("urls") or []
+        first_url = urls[0].get("url") if urls else None
+        if not first_url:
+            raise LookupError(f"dash: the api gave no sqlite.bin file for {dash_name}: empty answer")
+        return str(first_url)
 
     def query(self, opts: Union[DashQueryOptions, Dict[str, Any]]) -> Any:
         """Downloads the dash sqlite, executes named query dash-{dash_name}, and returns result."""
