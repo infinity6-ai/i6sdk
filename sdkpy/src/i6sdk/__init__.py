@@ -21,8 +21,6 @@ from .tokens.storage import FileTokenStorage, MemoryTokenStorage, TokenStorage
 
 # Client alias
 I6Client = Services
-I6Client.bitmapz = bitmapz
-I6Client.Grants = Grants
 
 
 def create_client(

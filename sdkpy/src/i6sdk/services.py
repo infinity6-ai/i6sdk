@@ -9,8 +9,11 @@ import pathlib
 from .auth.auth import Auth
 from .config import DEFAULT_CONFIG, I6SdkConfig
 from .dash.dash import Dash
+from .exceptions import I6ValidationError
+from .grants import Grants
 from .infer.infer import Infer
 from .ingest.ingest import Ingest
+from .internal import bitmapz
 from .internal.downloader import Downloader
 from .internal.fs import Fs
 from .invoker import Invoker
@@ -22,6 +25,9 @@ from .tokens.tokens import Tokens
 
 class Services:
     """Service container orchestrating configuration and sub-clients."""
+
+    bitmapz = bitmapz
+    Grants = Grants
 
     def __init__(self, config: Optional[I6SdkConfig] = None) -> None:
         self._config: I6SdkConfig = config or DEFAULT_CONFIG
