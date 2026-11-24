@@ -52,8 +52,10 @@ class TestTokens(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             token_path = Path(tmpdir) / "test.tokens.json"
             client = create_client(storage=str(token_path))
-            self.assertIsInstance(client.tokens().storage, FileTokenStorage)
-            self.assertEqual(str(client.tokens().storage.path), str(token_path))
+            storage = client.tokens().storage
+            self.assertIsInstance(storage, FileTokenStorage)
+            assert isinstance(storage, FileTokenStorage)
+            self.assertEqual(str(storage.path), str(token_path))
 
 
 if __name__ == "__main__":

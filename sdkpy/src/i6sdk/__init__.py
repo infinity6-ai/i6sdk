@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Any, Optional
 
 from .config import DEFAULT_CONFIG, I6SdkConfig, load_config_from_env
 from .exceptions import (

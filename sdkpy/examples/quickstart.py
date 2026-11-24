@@ -46,7 +46,10 @@ def main() -> None:
         raise Exception('no user')
 
     user_id = me.get("user_id")
-    resp = client.apis().dsz_list_datasets(req={"params": {"userId": user_id}})
+    if not user_id:
+        raise Exception("no user id")
+
+    resp = client.apis().dsz_list_datasets(req={"params": {"userId": str(user_id)}})
     if resp.ok:
         data = resp.parse()
         print("Successfully queried datasets:", data)
