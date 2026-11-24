@@ -24,6 +24,7 @@ def create_client(
     serv_urls: Optional[dict[str, str]] = None,
     app: Optional[str] = None,
     timeout: Optional[float] = None,
+    storage: Optional[Any] = None,
 ) -> I6Client:
     """Convenience factory function creating an I6Client."""
     cfg = load_config_from_env()
@@ -33,6 +34,8 @@ def create_client(
         cfg.app = app
     if timeout is not None:
         cfg.timeout = timeout
+    if storage is not None:
+        cfg.storage = storage
     return I6Client(cfg)
 
 

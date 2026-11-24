@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional, Union
 
+import pathlib
+
 from .auth.auth import Auth
 from .config import DEFAULT_CONFIG, I6SdkConfig
 from .dash.dash import Dash
@@ -12,6 +14,7 @@ from .ingest.ingest import Ingest
 from .invoker import Invoker
 from .sdkapis.apis import Apis
 from .sdkapis.sdkfuncs import SdkFuncs
+from .tokens.storage import FileTokenStorage
 from .tokens.tokens import Tokens
 
 
@@ -53,7 +56,10 @@ class Services:
     def tokens(self) -> Tokens:
         """Returns the Token management client."""
         if self._tokens is None:
-            self._tokens = Tokens(self)
+            storage = self._config.storage
+            if isinstance(storage, (str, pathlib.Path)):
+                storage = FileTokenStorage(storage)
+            self._tokens = Tokens(self, storage=storage)
         return self._tokens
 
     def ingest(self) -> Ingest:
