@@ -29,7 +29,7 @@ func (w *Weight) GetCreatedAt() *time.Time {
 }
 
 func (w *Weight) Table() laketbnamez.TableName {
-	return laketbnamez.MustParse("finance-predictivecampaign-weights")
+	return laketbnamez.MustParse("targeting-finance-weights")
 }
 
 func (w *Weight) SetDataset(ds lakedsz.Dataset) {
@@ -45,7 +45,7 @@ func (w *Weight) SchemaQuery() *schemaz.Schema {
 		w = &Weight{}
 	}
 	return &schemaz.Schema{
-		Desc: &schemaz.Desc{Summary: "Weight is a row of the finance-predictivecampaign-weights table. The id is provided by the sender."},
+		Desc: &schemaz.Desc{Summary: "Weight is a row of the targeting-finance-weights table. The id is provided by the sender."},
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"id": {
@@ -66,7 +66,7 @@ func (w *Weight) SchemaBody() *schemaz.Schema {
 		w = &Weight{}
 	}
 	return &schemaz.Schema{
-		Desc: &schemaz.Desc{Summary: "Weight is a row of the finance-predictivecampaign-weights table. The id is provided by the sender."},
+		Desc: &schemaz.Desc{Summary: "Weight is a row of the targeting-finance-weights table. The id is provided by the sender."},
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"id": {

@@ -55,7 +55,7 @@ func (c *ClientFeatures) GetCreatedAt() *time.Time {
 }
 
 func (c *ClientFeatures) Table() laketbnamez.TableName {
-	return laketbnamez.MustParse("finance-predictivecampaign-client-features")
+	return laketbnamez.MustParse("targeting-finance-client-features")
 }
 
 func (c *ClientFeatures) SetDataset(ds lakedsz.Dataset) {
