@@ -25,8 +25,13 @@ const stored = (storage, key) => {
   } catch { return crypto.randomUUID() }
 }
 const sdkConfig = { 
-  servUrls: { decsuite: "https://decsuite.staging.rs.infinity6.ai" },
-  userExchangeCallbackUrl: new URL('./logincallback.html', location.href).href,
+  servUrls: {
+    decsuite: "https://decsuite.staging.rs.infinity6.ai",
+    userz: "https://userz.staging.rs.infinity6.ai",
+    tfinfer: "https://tfinfer.staging.lb.infinity6.ai",
+  },
+  // Login comes back to this same page, which finishes it below with handleCallback()
+  userExchangeCallbackUrl: location.origin + location.pathname,
 }
 // The config the SDK really runs with: the defaults (baseUrl) merged with ours
 const sdk = new I6Sdk()
