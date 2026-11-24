@@ -11,13 +11,20 @@ import (
 )
 
 type Catalog struct {
-	ID            string              `json:"id" bigquery:"id"`
-	Dataset       bigquery.NullString `json:"dataset" bigquery:"dataset"`
-	Desc          string              `json:"desc" bigquery:"desc"`
-	Supplier      string              `json:"supplier" bigquery:"supplier"`
-	Status        string              `json:"status" bigquery:"status"`
-	ExclusiveSale string              `json:"exclusive_sale" bigquery:"exclusive_sale"`
-	IngestedAt    string              `json:"ingested_at" bigquery:"ingested_at"`
+	ID            string               `json:"id" bigquery:"id"`
+	StoreId       string               `json:"store_id" bigquery:"store_id"`
+	Dataset       bigquery.NullString  `json:"dataset" bigquery:"dataset"`
+	Desc          string               `json:"desc" bigquery:"desc"`
+	Supplier      string               `json:"supplier" bigquery:"supplier"`
+	Status        string               `json:"status" bigquery:"status"`
+	ExclusiveSale string               `json:"exclusive_sale" bigquery:"exclusive_sale"`
+	Hierarchy     []GenericStringField `json:"hierarchy" bigquery:"hierarchy"`
+	IngestedAt    string               `json:"ingested_at" bigquery:"ingested_at"`
+}
+
+type GenericStringField struct {
+	Name  string `json:"name" bigquery:"name"`
+	Value string `json:"value" bigquery:"value"`
 }
 
 func (c *Catalog) Validate() error {
