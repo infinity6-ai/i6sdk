@@ -1,5 +1,11 @@
 """Quickstart example demonstrating i6sdk usage with zero external dependencies."""
 
+import pathlib
+import sys
+
+# Ensure local i6sdk package is importable when running example directly
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "src"))
+
 import i6sdk
 
 
@@ -36,11 +42,18 @@ def main() -> None:
         me = client.auth().me()
         print("Successfully authenticated as:", me)
 
-    # 2. Call an API endpoint (e.g. list datasets)
-    resp = client.apis().dsz_list_datasets()
+    if not me:
+        raise Exception('no user')
+
+    user_id = me.get("user_id")
+    if not user_id:
+        raise Exception("no user id")
+
+    resp = client.apis().dsz_list_datasets(req={"params": {"userId": str(user_id)}})
     if resp.ok:
         data = resp.parse()
         print("Successfully queried datasets:", data)
+        print("datasets", data["datasets"])
     else:
         print("Request failed:", resp.error)
 

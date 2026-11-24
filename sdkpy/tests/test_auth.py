@@ -34,6 +34,7 @@ class TestAuth(unittest.TestCase):
         client.tokens().set_user_token({"user_access_token": "valid-token"})
         user = client.auth().me()
         self.assertIsNotNone(user)
+        assert user is not None
         self.assertEqual(user.get("user_id"), "u-123")
 
     def test_device_code_flow(self) -> None:
@@ -68,7 +69,7 @@ class TestAuth(unittest.TestCase):
         self.assertEqual(flow["user_code"], "CODE-XYZ")
 
         token = client.auth().device_code_poll(device_code="dev-123", interval=0.01, timeout=2.0)
-        self.assertEqual(token["user_access_token"], "dev-token-abc")
+        self.assertEqual(token.get("user_access_token"), "dev-token-abc")
         self.assertEqual(client.tokens().get_token(), "dev-token-abc")
 
 
