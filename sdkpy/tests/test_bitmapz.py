@@ -66,6 +66,41 @@ class TestBitmapz(unittest.TestCase):
         self.assertTrue(bitmapz.contains_all(Grants.All, Grants.Read, Grants.Write))
         self.assertEqual(bitmapz.join(Grants.Read, Grants.Write), 12)
 
+    def test_deserialize_validation_errors(self) -> None:
+        from i6sdk.internal.bitmapz import deserialize, serialize
+
+        with self.assertRaisesRegex(ValueError, "data is empty"):
+            deserialize(b"")
+
+        with self.assertRaisesRegex(ValueError, "cannot exceed 8 bytes"):
+            deserialize(bytes([0x90, 0x01]))
+
+        with self.assertRaisesRegex(ValueError, "expected 1 byte for 4-bit value"):
+            deserialize(bytes([0x01, 0x02]))
+
+        with self.assertRaisesRegex(ValueError, "lower 4 bits must be 0"):
+            deserialize(bytes([0x11, 0x02]))
+
+        with self.assertRaisesRegex(ValueError, "invalid data length"):
+            deserialize(bytes([0x20, 0x01]))
+
+        with self.assertRaisesRegex(ValueError, "invalid data length"):
+            deserialize(bytes([0x10, 0x01, 0x02]))
+
+    def test_serialize_validation_errors(self) -> None:
+        from i6sdk.internal.bitmapz import serialize
+
+        with self.assertRaisesRegex(ValueError, "must be non-negative"):
+            serialize(-1)
+
+        with self.assertRaisesRegex(ValueError, "cannot exceed 8 bytes"):
+            serialize(1 << 65)
+
+    def test_set_alias(self) -> None:
+        from i6sdk import bitmapz
+
+        self.assertEqual(bitmapz.set(0, True, 4, 8), 12)
+        self.assertEqual(bitmapz.set(12, False, 4), 8)
 
 
 if __name__ == "__main__":
