@@ -14,9 +14,10 @@ class Fs:
 
     def __init__(self, base_dir: Optional[Union[pathlib.Path, str]] = None) -> None:
         if base_dir is None:
-            self.base_dir = pathlib.Path.home() / ".cache" / "i6"
+            root = pathlib.Path.home() / ".cache" / "i6"
         else:
-            self.base_dir = pathlib.Path(base_dir)
+            root = pathlib.Path(base_dir)
+        self.base_dir = root / "sdkpy" / "fs"
         self.base_dir.mkdir(parents=True, exist_ok=True)
         self._meta_file = self.base_dir / "meta.json"
         self._lock = threading.Lock()

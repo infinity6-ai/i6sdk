@@ -40,7 +40,7 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(client.config().app, "my-app")
         self.assertEqual(client.config().timeout, 45.5)
         self.assertEqual(client.config().cache_dir, "/tmp/custom-cache")
-        self.assertEqual(str(client.fs().base_dir), "/tmp/custom-cache")
+        self.assertEqual(str(client.fs().base_dir), "/tmp/custom-cache/sdkpy/fs")
         self.assertEqual(client.config().serv_urls.get("decsuite"), "https://custom.i6.ai")
 
 
