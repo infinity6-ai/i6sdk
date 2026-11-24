@@ -19,6 +19,7 @@ func TestUnitUserDatasetTokenRefreshApi(t *testing.T) {
 			Subgrants:   8,
 			Newlabels:   map[string]string{"task": "export"},
 			ExpSeconds:  1800,
+			Unbound:     true,
 		},
 		Resp: userapidatasettokenrefresh.Resp{
 			AccessToken: "fresh-access-tok-b64",

@@ -225,8 +225,9 @@ class Tokens:
         subsolution: Optional[str] = None,
         subgrants: Optional[int] = None,
         exp_seconds: Optional[int] = None,
+        unbound: bool = True,
     ) -> Optional[DatasetToken]:
-        """Mints a fresh unbounded dataset access token using the stored dataset refresh token."""
+        """Mints a fresh dataset access token using the stored dataset refresh token (unbound Bearer by default)."""
         rf_token = self.get_dataset_refresh_token(dataset)
         if not rf_token:
             return None
@@ -235,7 +236,7 @@ class Tokens:
 
         payload: Dict[str, Any] = {
             "dataset": dataset,
-            "unbound": True,
+            "unbound": unbound,
         }
         if subsolution:
             payload["subsolution"] = subsolution

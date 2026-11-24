@@ -276,6 +276,8 @@ class TestTokens(unittest.TestCase):
         tok = client.tokens().get_valid_dataset_access_token("dectest")
         self.assertEqual(tok, "robot-access-tok-123")
         self.assertEqual(len(calls), 1)
+        req_body = json.loads(calls[0]["body"]) if isinstance(calls[0]["body"], str) else (json.loads(calls[0]["body"].decode("utf-8")) if calls[0]["body"] else {})
+        self.assertTrue(req_body.get("unbound"))
 
         # Second call: uses cached token without network dispatch
         cached_tok = client.tokens().get_valid_dataset_access_token("dectest")
