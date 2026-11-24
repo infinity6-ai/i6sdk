@@ -165,22 +165,24 @@ class Invoker:
                 token = str(bearer)
             labels = req_opts.get("labels") or {}
 
+        none_required = False
         if not token and labels.get("token_types"):
             token_types = str(labels["token_types"]).split("|")
             for tt in token_types:
                 if tt == "none":
+                    none_required = True
                     token = None
                     break
                 if tt == "dataset":
                     if dataset := extract_dataset_from_url(target_url):
                         token = self._services.tokens().get_valid_dataset_access_token(dataset)
                 elif tt == "user":
-                    token = self._services.tokens().get_token()
+                    token = self._services.tokens().get_valid_access_token()
                 if token:
                     break
 
-        if not token:
-            token = self._services.tokens().get_token()
+        if not token and not none_required:
+            token = self._services.tokens().get_valid_access_token()
 
         if token:
             headers["Authorization"] = f"Bearer {token}"

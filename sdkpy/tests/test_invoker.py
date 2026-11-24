@@ -85,6 +85,48 @@ class TestInvoker(unittest.TestCase):
         self.assertEqual(call["headers"]["Authorization"], "Bearer secret-token")
         self.assertEqual(call["headers"]["Content-Type"], "application/json")
 
+    def test_invoker_silent_renewal_when_token_expired(self) -> None:
+        calls = []
+
+        def mock_fetcher(
+            url: str, method: str, headers: Dict[str, str], body: Any, timeout: float
+        ) -> Tuple[int, Dict[str, str], str]:
+            calls.append({"url": url, "method": method, "headers": headers})
+            if "/api/userz/refresh-user" in url:
+                return 200, {"content-type": "application/json"}, json.dumps({
+                    "user_access_token": "renewed-user-token",
+                    "user_refresh_token": "rotated-refresh",
+                    "user_id": "u-1",
+                    "expires_at": 9999999999999,
+                })
+            elif "/api/test" in url:
+                return 200, {"content-type": "application/json"}, json.dumps({"ok": True})
+            return 404, {}, ""
+
+        config = I6SdkConfig(
+            serv_urls={"decsuite": "https://api.i6.test"},
+            fetcher=mock_fetcher,
+        )
+        client = I6Client(config)
+        client.tokens().set_user_token({
+            "user_access_token": "expired-token",
+            "user_refresh_token": "valid-rf",
+            "user_id": "u-1",
+            "expires_at": 1000,
+        })
+
+        resp = client.invoker().invoke_result(
+            method="GET",
+            path="api/test",
+            opts={"labels": {"token_types": "user"}},
+        )
+        self.assertTrue(resp.ok)
+        self.assertEqual(len(calls), 2)
+        # First call was refresh, second call was api/test with renewed bearer token
+        self.assertIn("/api/userz/refresh-user", calls[0]["url"])
+        self.assertIn("/api/test", calls[1]["url"])
+        self.assertEqual(calls[1]["headers"]["Authorization"], "Bearer renewed-user-token")
+
 
 if __name__ == "__main__":
     unittest.main()

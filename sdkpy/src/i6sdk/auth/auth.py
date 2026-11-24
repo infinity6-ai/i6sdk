@@ -46,9 +46,13 @@ class Auth:
             return config.userz_url
         return config.serv_urls.get("decsuite", "")
 
+    def get_valid_access_token(self, skew_seconds: float = 30.0) -> Optional[str]:
+        """Retrieves a guaranteed-valid user access token string, silently refreshing if expired."""
+        return self._services.tokens().get_valid_access_token(skew_seconds)
+
     def me(self) -> Optional[AuthPayload]:
         """Fetches current authenticated user profile, or None if no user is logged in."""
-        if not self._services.tokens().get_token():
+        if not self.get_valid_access_token():
             return None
 
         resp = self._services.apis().user_auth_me()
@@ -121,20 +125,41 @@ class Auth:
         resp = self._services.apis().user_auth_refresh(
             req={
                 "payload": {
+                    "refresh_token": refresh_token,
                     "user_refresh_token": refresh_token,
                 }
-            }
+            },
+            opts={
+                "labels": {"token_types": "none"},
+            },
         )
         if not resp.ok:
             self._services.tokens().remove_user_token()
             raise I6AuthError(f"Token refresh failed ({resp.status}): {resp.text}")
 
         data = resp.parse() or {}
+        expires_at_val = data.get("expires_at")
+        if expires_at_val is not None:
+            expires_at = int(expires_at_val)
+            if 0 < expires_at < 10_000_000_000:
+                expires_at *= 1000
+        else:
+            expires_at = int(time.time() * 1000) + int(data.get("expires_in", 3600) * 1000)
+
+        rf_expires_at_val = data.get("refresh_token_expires_at")
+        if rf_expires_at_val is not None:
+            rf_expires_at: Optional[int] = int(rf_expires_at_val)
+            if rf_expires_at and 0 < rf_expires_at < 10_000_000_000:
+                rf_expires_at *= 1000
+        else:
+            rf_expires_at = ut.get("refresh_token_expires_at")
+
         refreshed: UserToken = {
             "user_access_token": data.get("user_access_token", ut.get("user_access_token", "")),
             "user_refresh_token": data.get("user_refresh_token", refresh_token),
             "user_id": data.get("user_id", ut.get("user_id", "")),
-            "expires_at": int(time.time() * 1000) + int(data.get("expires_in", 3600) * 1000),
+            "expires_at": expires_at,
+            "refresh_token_expires_at": rf_expires_at,
         }
         self._services.tokens().set_user_token(refreshed)
         return refreshed

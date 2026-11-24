@@ -37,6 +37,41 @@ class TestAuth(unittest.TestCase):
         assert user is not None
         self.assertEqual(user.get("user_id"), "u-123")
 
+    def test_me_when_token_expired_silently_renews(self) -> None:
+        calls = []
+
+        def mock_fetcher(
+            url: str, method: str, headers: Dict[str, str], body: Any, timeout: float
+        ) -> tuple[int, Dict[str, str], str]:
+            calls.append({"url": url, "headers": headers})
+            if "/api/userz/refresh-user" in url:
+                return 200, {"content-type": "application/json"}, json.dumps({
+                    "user_access_token": "renewed-token-999",
+                    "user_refresh_token": "new-rf",
+                    "user_id": "u-456",
+                    "expires_at": 9999999999999,
+                })
+            elif "/api/userz/auth/me" in url:
+                return 200, {"content-type": "application/json"}, json.dumps({
+                    "user_id": "u-456",
+                    "email": "renewed@infinity6.ai",
+                })
+            return 404, {}, ""
+
+        client = i6sdk.I6Client(i6sdk.I6SdkConfig(fetcher=mock_fetcher))
+        client.tokens().set_user_token({
+            "user_access_token": "expired-token",
+            "user_refresh_token": "valid-rf",
+            "user_id": "u-456",
+            "expires_at": 1000,
+        })
+        user = client.auth().me()
+        self.assertIsNotNone(user)
+        assert user is not None
+        self.assertEqual(user.get("user_id"), "u-456")
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(calls[1]["headers"]["Authorization"], "Bearer renewed-token-999")
+
     def test_device_code_flow(self) -> None:
         calls = []
 
