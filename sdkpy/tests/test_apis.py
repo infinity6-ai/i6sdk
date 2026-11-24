@@ -29,10 +29,10 @@ class TestApis(unittest.TestCase):
 
         config = I6SdkConfig(
             serv_urls={"decsuite": "https://api.i6.test"},
-            token="bearer-token-xyz",
             fetcher=mock_fetcher,
         )
         client = I6Client(config)
+        client.tokens().set_user_token({"user_access_token": "bearer-token-xyz"})
 
         # Call generated method
         resp = client.apis().dsz_list_datasets()
@@ -58,10 +58,10 @@ class TestApis(unittest.TestCase):
 
         config = I6SdkConfig(
             serv_urls={"decsuite": "https://api.i6.test"},
-            token="token-123",
             fetcher=mock_fetcher,
         )
         client = I6Client(config)
+        client.tokens().set_user_token({"user_access_token": "token-123"})
 
         resp = client.apis().sample_fraction(
             req={

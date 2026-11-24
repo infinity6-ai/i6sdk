@@ -4,10 +4,9 @@ import i6sdk
 
 
 def main() -> None:
-    # 1. Initialize SDK client (reads I6_SDK_DECSUITE_URL and I6_API_KEY from environment by default)
+    # 1. Initialize SDK client (reads I6_SDK_DECSUITE_URL from environment by default)
     client = i6sdk.create_client(
         serv_urls={"decsuite": "https://decsuite.sandbox.rs.infinity6.ai"},
-        api_key="your-api-key-here",
     )
 
     print("Client initialized with serv_urls:", client.config().serv_urls)

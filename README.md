@@ -159,8 +159,7 @@ Lightweight, high-performance, and **zero-dependency** (Python $\ge 3.10$ standa
 import i6sdk
 
 client = i6sdk.create_client(
-    base_url="https://decsuite.sandbox.rs.infinity6.ai",
-    api_key="your-api-key",
+    serv_urls={"decsuite": "https://decsuite.sandbox.rs.infinity6.ai"},
 )
 resp = client.apis().dsz_list_datasets()
 if resp.ok:

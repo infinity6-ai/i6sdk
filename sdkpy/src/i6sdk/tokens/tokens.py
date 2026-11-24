@@ -66,14 +66,14 @@ class Tokens:
         self._storage.remove_item(USER_TOKEN_KEY)
 
     def get_token(self) -> Optional[str]:
-        """Returns the active access token (user access token or config token)."""
+        """Returns the active access token (user access token)."""
         ut = self.get_user_token()
         if ut and (access_token := ut.get("user_access_token")):
             expires_at = ut.get("expires_at", 0)
             now_ms = int(time.time() * 1000)
             if expires_at == 0 or expires_at > now_ms:
                 return access_token
-        return self._services.config().token
+        return None
 
     def get_dataset_tokens_map(self) -> Dict[str, DatasetToken]:
         """Returns all cached dataset tokens."""

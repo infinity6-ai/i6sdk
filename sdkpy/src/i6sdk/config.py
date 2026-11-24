@@ -24,7 +24,6 @@ class I6SdkConfig:
     )
     userz_url: Optional[str] = None
     app: str = "default"
-    token: Optional[str] = None
     timeout: float = 30.0
     fetcher: Optional[Callable[..., Any]] = None
 
@@ -37,7 +36,6 @@ def load_config_from_env() -> I6SdkConfig:
     decsuite_url = os.environ.get("I6_SDK_DECSUITE_URL", DEFAULT_DECSUITE_URL)
     tfinfer_url = os.environ.get("I6_SDK_TFINFER_URL", DEFAULT_TFINFER_URL)
     userz_url = os.environ.get("I6_SDK_USERZ_URL", DEFAULT_USERZ_URL)
-    token = os.environ.get("I6_API_KEY") or os.environ.get("I6_TOKEN")
     app = os.environ.get("I6_APP", "default")
 
     timeout_val = 30.0
@@ -57,6 +55,5 @@ def load_config_from_env() -> I6SdkConfig:
         serv_urls=serv_urls,
         userz_url=userz_url,
         app=app,
-        token=token,
         timeout=timeout_val,
     )

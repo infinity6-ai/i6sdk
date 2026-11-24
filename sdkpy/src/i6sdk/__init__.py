@@ -21,15 +21,12 @@ I6Client = Services
 
 
 def create_client(
-    api_key: Optional[str] = None,
     serv_urls: Optional[dict[str, str]] = None,
     app: Optional[str] = None,
     timeout: Optional[float] = None,
 ) -> I6Client:
     """Convenience factory function creating an I6Client."""
     cfg = load_config_from_env()
-    if api_key is not None:
-        cfg.token = api_key
     if serv_urls is not None:
         cfg.serv_urls.update(serv_urls)
     if app is not None:

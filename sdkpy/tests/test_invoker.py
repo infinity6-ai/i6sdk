@@ -65,10 +65,10 @@ class TestInvoker(unittest.TestCase):
 
         config = I6SdkConfig(
             serv_urls={"decsuite": "https://api.i6.test"},
-            token="secret-token",
             fetcher=mock_fetcher,
         )
         client = I6Client(config)
+        client.tokens().set_user_token({"user_access_token": "secret-token"})
         resp = client.invoker().invoke_result(
             method="POST",
             path="api/test",

@@ -33,8 +33,8 @@ class TestTokens(unittest.TestCase):
             self.assertEqual(storage2.get_item("user"), "user-token-abc")
 
     def test_tokens_manager(self) -> None:
-        client = I6Client(I6SdkConfig(token="static-token"))
-        self.assertEqual(client.tokens().get_token(), "static-token")
+        client = I6Client(I6SdkConfig())
+        self.assertIsNone(client.tokens().get_token())
 
         user_token: UserToken = {
             "user_access_token": "dynamic-user-token",
@@ -46,7 +46,7 @@ class TestTokens(unittest.TestCase):
         self.assertEqual(client.tokens().get_token(), "dynamic-user-token")
 
         client.tokens().remove_user_token()
-        self.assertEqual(client.tokens().get_token(), "static-token")
+        self.assertIsNone(client.tokens().get_token())
 
 
 if __name__ == "__main__":

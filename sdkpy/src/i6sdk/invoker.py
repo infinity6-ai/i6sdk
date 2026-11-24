@@ -119,9 +119,6 @@ class Invoker:
         except Exception:
             pass
 
-        if not token and config.token:
-            token = config.token
-
         if token:
             headers["Authorization"] = f"Bearer {token}"
 
