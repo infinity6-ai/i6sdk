@@ -6,7 +6,21 @@ import json
 import urllib.error
 import urllib.parse
 import urllib.request
-from typing import Any, Callable, Dict, Generic, Optional, Tuple, TypeVar, TypedDict
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Generic,
+    Optional,
+    Tuple,
+    TypeVar,
+    TypedDict,
+    Union,
+)
+
+if TYPE_CHECKING:
+    from .services import Services
 
 from .config import I6SdkConfig
 from .exceptions import I6ApiError, I6ConnectionError
@@ -27,6 +41,15 @@ def code_from_status(status: int) -> str:
     return "bad_request"
 
 
+class ApiErrorDetail(TypedDict, total=False):
+    """Structured error details when an API request fails."""
+
+    status: int
+    code: str
+    message: str
+    cause: Optional[str]
+
+
 class ServiceOptions(TypedDict, total=False):
     """Optional per-request execution overrides."""
 
@@ -34,6 +57,19 @@ class ServiceOptions(TypedDict, total=False):
     headers: Optional[Dict[str, str]]
     labels: Optional[Dict[str, str]]
     service_name: Optional[str]
+
+
+class InvokeOptions(TypedDict, total=False):
+    """Options passed to the low-level HTTP invoker."""
+
+    method: str
+    url: Optional[str]
+    path: Optional[str]
+    query: Optional[Dict[str, Any]]
+    headers: Optional[Dict[str, str]]
+    json: Optional[Any]
+    body: Optional[bytes]
+    opts: Optional[Union[ServiceOptions, Dict[str, Any]]]
 
 
 class Resp(Generic[T]):
@@ -59,7 +95,7 @@ class Resp(Generic[T]):
         return 200 <= self.status < 300
 
     @property
-    def error(self) -> Optional[Dict[str, Any]]:
+    def error(self) -> Optional[ApiErrorDetail]:
         """Structured error details if request failed, None otherwise."""
         if self.ok:
             return None
@@ -78,13 +114,23 @@ class Resp(Generic[T]):
         return self._value  # type: ignore[return-value]
 
 
+def extract_dataset_from_url(url_str: str) -> Optional[str]:
+    """Extracts the dataset segment following '/dataset/' in an API path or URL."""
+    parsed = urllib.parse.urlparse(url_str)
+    parts = [p for p in parsed.path.split("/") if p]
+    for i, p in enumerate(parts):
+        if p == "dataset" and i + 1 < len(parts):
+            return parts[i + 1]
+    return None
+
+
 class Invoker:
     """HTTP dispatch engine executing requests using urllib.request."""
 
-    def __init__(self, services: Any) -> None:
+    def __init__(self, services: Services) -> None:
         self._services = services
 
-    def invoke(self, opts: Dict[str, Any]) -> Tuple[int, Dict[str, str], str]:
+    def invoke(self, opts: Union[InvokeOptions, Dict[str, Any]]) -> Tuple[int, Dict[str, str], str]:
         """Executes the HTTP call and returns (status, headers, text)."""
         config: I6SdkConfig = self._services.config()
 
@@ -110,15 +156,39 @@ class Invoker:
             "Accept": "application/json",
         }
 
-        # Auth token injection
-        if token := self._services.tokens().get_token():
+        # Auth token resolution
+        token = None
+        req_opts = opts.get("opts")
+        labels = {}
+        if req_opts and isinstance(req_opts, dict):
+            if bearer := (req_opts.get("bearer_token") or req_opts.get("bearerToken")):
+                token = str(bearer)
+            labels = req_opts.get("labels") or {}
+
+        if not token and labels.get("token_types"):
+            token_types = str(labels["token_types"]).split("|")
+            for tt in token_types:
+                if tt == "none":
+                    token = None
+                    break
+                if tt == "dataset":
+                    if dataset := extract_dataset_from_url(target_url):
+                        token = self._services.tokens().get_valid_dataset_access_token(dataset)
+                elif tt == "user":
+                    token = self._services.tokens().get_token()
+                if token:
+                    break
+
+        if not token:
+            token = self._services.tokens().get_token()
+
+        if token:
             headers["Authorization"] = f"Bearer {token}"
 
         # Custom headers
         if custom_headers := opts.get("headers"):
             headers.update({str(k): str(v) for k, v in custom_headers.items() if v is not None})
 
-        req_opts: Optional[ServiceOptions] = opts.get("opts")
         if req_opts and isinstance(req_opts, dict):
             if extra_headers := req_opts.get("headers"):
                 headers.update({str(k): str(v) for k, v in extra_headers.items() if v is not None})

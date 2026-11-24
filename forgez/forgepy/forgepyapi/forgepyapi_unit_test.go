@@ -81,8 +81,8 @@ func TestUnitWrite(t *testing.T) {
 			mustContain: []string{
 				"class Apis:",
 				"def sample_fraction(",
-				"req: Optional[apiSampleFractionReq] = None,",
-				"opts: Optional[ServiceOptions] = None,",
+				"req: Optional[Union[apiSampleFractionReq, Dict[str, Any]]] = None,",
+				"opts: Optional[Union[ServiceOptions, Dict[str, Any]]] = None,",
 				") -> Resp[apiSampleFractionRespPayload]:",
 				"Sample Fraction",
 				"Sample API that performs a fraction operation",

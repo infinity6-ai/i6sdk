@@ -11,6 +11,8 @@ from .config import DEFAULT_CONFIG, I6SdkConfig
 from .dash.dash import Dash
 from .infer.infer import Infer
 from .ingest.ingest import Ingest
+from .internal.downloader import Downloader
+from .internal.fs import Fs
 from .invoker import Invoker
 from .sdkapis.apis import Apis
 from .sdkapis.sdkfuncs import SdkFuncs
@@ -27,6 +29,11 @@ class Services:
         self._tokens: Optional[Tokens] = None
         self._apis: Optional[Apis] = None
         self._sdk_funcs: Optional[SdkFuncs] = None
+        self._fs: Optional[Fs] = None
+        self._downloader: Optional[Downloader] = None
+        self._infer: Optional[Infer] = None
+        self._dash: Optional[Dash] = None
+        self._ingest: Optional[Ingest] = None
 
     def config(self) -> I6SdkConfig:
         """Returns the active SDK configuration."""
@@ -40,8 +47,25 @@ class Services:
             for k, v in config.items():
                 if hasattr(self._config, k):
                     setattr(self._config, k, v)
+        # Invalidate cached services that depend on config
+        self._fs = None
+        self._downloader = None
+        self._infer = None
+        self._dash = None
 
     setConfig = set_config
+
+    def fs(self) -> Fs:
+        """Returns the shared local filesystem cache manager."""
+        if self._fs is None:
+            self._fs = Fs(base_dir=self._config.cache_dir)
+        return self._fs
+
+    def downloader(self) -> Downloader:
+        """Returns the shared file downloader."""
+        if self._downloader is None:
+            self._downloader = Downloader(self.fs())
+        return self._downloader
 
     def invoker(self) -> Invoker:
         """Returns an Invoker instance for executing HTTP requests."""
@@ -64,15 +88,21 @@ class Services:
 
     def ingest(self) -> Ingest:
         """Returns the Ingest client."""
-        return Ingest(self)
+        if self._ingest is None:
+            self._ingest = Ingest(self)
+        return self._ingest
 
     def infer(self) -> Infer:
         """Returns the Infer client."""
-        return Infer(self)
+        if self._infer is None:
+            self._infer = Infer(self, fs=self.fs(), downloader=self.downloader())
+        return self._infer
 
     def dash(self) -> Dash:
         """Returns the Dash analytics client."""
-        return Dash(self)
+        if self._dash is None:
+            self._dash = Dash(self, fs=self.fs(), downloader=self.downloader())
+        return self._dash
 
     def apis(self) -> Apis:
         """Returns the generated low-level APIs client."""

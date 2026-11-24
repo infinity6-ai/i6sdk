@@ -11,10 +11,11 @@ import i6sdk
 
 def main() -> None:
     # 1. Initialize SDK client (reads I6_SDK_DECSUITE_URL from environment by default)
-    # Persisting credentials to ./gen/sdkpy.tokens.json
+    # Persisting credentials to ./gen/sdkpy.tokens.json and caching SQLite bundles to ./gen/cache
     client = i6sdk.create_client(
         serv_urls={"decsuite": "https://decsuite.sandbox.rs.infinity6.ai"},
         storage="./gen/sdkpy.tokens.json",
+        cache_dir="./gen/cache",
     )
 
     print("Client initialized with serv_urls:", client.config().serv_urls)
@@ -33,10 +34,12 @@ def main() -> None:
             print(f"Confirmation code: {user_code}")
         print("Waiting for authorization in browser...")
 
+        interval = float(flow.get("interval_sec") or 5)
+        timeout = float(flow.get("expires_in_sec") or 300)
         client.auth().device_code_poll(
-            device_code=flow["device_code"],
-            interval=float(flow.get("interval_sec", 5)),
-            timeout=float(flow.get("expires_in_sec", 300)),
+            device_code=flow.get("device_code", ""),
+            interval=interval,
+            timeout=timeout,
         )
 
         me = client.auth().me()
@@ -49,7 +52,7 @@ def main() -> None:
     if not user_id:
         raise Exception("no user id")
 
-    resp = client.apis().dsz_list_datasets(req={"params": {"userId": str(user_id)}})
+    resp = client.apis().dsz_list_datasets(req={"params": {"userId": user_id}})
     if resp.ok:
         data = resp.parse()
         print("Successfully queried datasets:", data)
@@ -61,6 +64,25 @@ def main() -> None:
     else:
         print("Request failed:", resp.error)
 
+
+    # client.infer().run({
+    #     "dataset": "dectest",
+    #     "model_name": "relevance-fashion-fbt",
+    #     "partitions": {"store_id": "1"},
+    #     "params": {}
+    # })
+
+    result = client.sdkFuncs().productRelevanceFashionDashDisplayMetricsStatusV1({
+        "partitions": {"store_id": "1"},
+        "input": {
+            "dataset": "dectest",
+            "params": {
+                "min_year_month": "2026-08",
+                "max_year_month": "2027-12",                   
+            }
+        },
+    })
+    print("productRelevanceFashionDashDisplayMetricsStatusV1", result)
 
     # 3. Use internal bitmask utilities
     from i6sdk.internal.bitmapz import contains_all, join
