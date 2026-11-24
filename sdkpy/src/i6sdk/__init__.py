@@ -5,7 +5,14 @@ from __future__ import annotations
 import pathlib
 from typing import Any, Optional, Union
 
-from .config import DEFAULT_CONFIG, Fetcher, I6SdkConfig, load_config_from_env
+from .config import (
+    DEFAULT_CONFIG,
+    SANDBOX_SERV_URLS,
+    STAGING_SERV_URLS,
+    Fetcher,
+    I6SdkConfig,
+    load_config_from_env,
+)
 from .exceptions import (
     I6ApiError,
     I6AuthError,
@@ -50,6 +57,8 @@ __all__ = [
     "Services",
     "I6SdkConfig",
     "DEFAULT_CONFIG",
+    "STAGING_SERV_URLS",
+    "SANDBOX_SERV_URLS",
     "load_config_from_env",
     "create_client",
     "Fetcher",

@@ -14,6 +14,18 @@ DEFAULT_DECSUITE_URL = "https://decsuite.sandbox.rs.infinity6.ai"
 DEFAULT_TFINFER_URL = "https://tfinfer.sandbox.lb.infinity6.ai"
 DEFAULT_USERZ_URL = "https://userz.sandbox.rs.infinity6.ai"
 
+STAGING_SERV_URLS: Dict[str, str] = {
+    "decsuite": "https://decsuite.staging.rs.infinity6.ai",
+    "tfinfer": "https://tfinfer.staging.lb.infinity6.ai",
+    "userz": "https://userz.staging.rs.infinity6.ai",
+}
+
+SANDBOX_SERV_URLS: Dict[str, str] = {
+    "decsuite": DEFAULT_DECSUITE_URL,
+    "tfinfer": DEFAULT_TFINFER_URL,
+    "userz": DEFAULT_USERZ_URL,
+}
+
 
 class Fetcher(Protocol):
     """Protocol for custom HTTP fetchers intercepting SDK requests."""
