@@ -1,5 +1,5 @@
 // Serve: python static/infer-demo/serve.py -> http://localhost:8000/static/infer-demo/index.html
-import { I6Sdk } from '../../src/index.js'
+import { I6Sdk } from '../../main/index.js'
 
 // infer.js prints what it does when this is set (the log panel below shows it)
 window.I6_SDK_DEBUG = true
@@ -25,7 +25,7 @@ const stored = (storage, key) => {
   } catch { return crypto.randomUUID() }
 }
 const sdkConfig = { 
-  servUrls: { decsuite: "https://decsuite.sandbox.rs.infinity6.ai" },
+  servUrls: { decsuite: "https://decsuite.staging.rs.infinity6.ai" },
   userExchangeCallbackUrl: new URL('./logincallback.html', location.href).href,
 }
 // The config the SDK really runs with: the defaults (baseUrl) merged with ours

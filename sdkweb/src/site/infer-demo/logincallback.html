@@ -4,10 +4,10 @@
     aaa
 
     <script type="module">
-        import { I6Sdk } from '../../src/index.js'
+        import { I6Sdk } from '../../main/index.js'
         const sdk = new I6Sdk()
         const sdkConfig = {
-            servUrls: { decsuite: "https://decsuite.sandbox.rs.infinity6.ai" },
+            servUrls: { decsuite: "https://decsuite.staging.rs.infinity6.ai" },
         }
         sdk.setConfig(sdkConfig)
         await sdk.auth().handleCallback()
