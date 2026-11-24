@@ -12,7 +12,7 @@
 
 import { debugLogger } from '../debug/debug.js'
 
-/** Prints only when `window.I6_DEBUG` is true. */
+/** Prints only when `window.I6_SDK_DEBUG` is true. */
 const debug = debugLogger('fs')
 
 /** OPFS path of the store, relative to the origin's root directory. */

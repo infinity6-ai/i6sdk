@@ -6,7 +6,7 @@
 import { fs } from '../fs/fs.js'
 import { debugLogger } from '../debug/debug.js'
 
-/** Prints only when `window.I6_DEBUG` is true. */
+/** Prints only when `window.I6_SDK_DEBUG` is true. */
 const debug = debugLogger('downloader')
 
 /**

@@ -6,7 +6,7 @@
  * call the model on the server, and run the named query `model-${modelName}-output` with the model outputs.
  * Its result is returned as is. Nothing here is model specific.
  *
- * Set `window.I6_DEBUG = true` to see what happens in the console.
+ * Set `window.I6_SDK_DEBUG = true` to see what happens in the console.
  */
 
 import { downloadFile, isPartitions, partitionsKey } from "../internal/assets/assets.js";
@@ -69,7 +69,7 @@ const DEFAULT_LIMIT = 20
 /** Seconds before checking for model file updates in the background (5 minutes). */
 const UPDATE_INTERVAL = 5 * 60
 
-/** Prints only when `window.I6_DEBUG` is true. */
+/** Prints only when `window.I6_SDK_DEBUG` is true. */
 const debug = debugLogger("infer")
 
 /**

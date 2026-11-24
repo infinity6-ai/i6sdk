@@ -2,7 +2,7 @@
 import { I6Sdk } from '../../src/index.js'
 
 // infer.js prints what it does when this is set (the log panel below shows it)
-window.I6_DEBUG = true
+window.I6_SDK_DEBUG = true
 
 const $ = (id) => document.getElementById(id)
 

@@ -2,7 +2,7 @@
  * @fileoverview Queries an i6 dash in the browser: downloads the dash's sqlite, runs the named query
  * `dash-${dashName}` on it and returns its result as is. Nothing here is dash specific.
  *
- * Set `window.I6_DEBUG = true` to see what happens in the console.
+ * Set `window.I6_SDK_DEBUG = true` to see what happens in the console.
  */
 
 import { fs } from "../internal/fs/fs.js";
@@ -29,7 +29,7 @@ import { debugLogger } from "../internal/debug/debug.js";
 /** Name of the sqlite in the model API response. */
 const SQLITE_FILE = "sqlite.bin"
 
-/** Prints only when `window.I6_DEBUG` is true. */
+/** Prints only when `window.I6_SDK_DEBUG` is true. */
 const debug = debugLogger("dash")
 
 /**
