@@ -42,15 +42,16 @@ def main() -> None:
         me = client.auth().me()
         print("Successfully authenticated as:", me)
 
-    # 2. Call an API endpoint (e.g. list datasets)
-    user_id = me.get("user_id") if me else None
-    if user_id:
-        resp = client.apis().dsz_list_datasets(req={"params": {"userId": user_id}})
-        if resp.ok:
-            data = resp.parse()
-            print("Successfully queried datasets:", data)
-        else:
-            print("Request failed:", resp.error)
+    if not me:
+        raise Exception('no user')
+
+    user_id = me.get("user_id")
+    resp = client.apis().dsz_list_datasets(req={"params": {"userId": user_id}})
+    if resp.ok:
+        data = resp.parse()
+        print("Successfully queried datasets:", data)
+    else:
+        print("Request failed:", resp.error)
 
 
     # 3. Use internal bitmask utilities
