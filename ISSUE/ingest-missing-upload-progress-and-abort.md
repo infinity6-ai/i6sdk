@@ -2,13 +2,24 @@
 
 **Component:** `sdkpy` (`i6sdk.ingest.ingest`)  
 **Severity:** Medium (Degraded UX for large file uploads)  
-**Status:** Open  
+**Status:** Resolved  
 
 ---
 
 ## Summary
 
-In `sdkweb`, `ingest.upload()` supports real-time upload progress reporting via `onProgress({ loaded, total, percent })` and cancellation via standard `AbortSignal`. In `sdkpy`, `upload()` uses blocking `urllib.request.urlopen()` with no progress feedback and no cancellation mechanism, which causes poor observability and inability to abort large file or dataset uploads.
+In `sdkweb`, `ingest.upload()` supports real-time upload progress reporting via `onProgress({ loaded, total, percent })` and cancellation via standard `AbortSignal`. In `sdkpy`, `upload()` previously used blocking `urllib.request.urlopen()` with whole-file memory buffering, no progress feedback, and no cancellation mechanism.
+
+---
+
+## Resolution
+
+1. Updated `Ingest.upload()` in `sdkpy/src/i6sdk/ingest/ingest.py` to adopt a stream-first architecture accepting `stream: Union[BinaryIO, str, bytes]`.
+2. Implemented `ProgressStreamReader` to stream data in 64KB chunks with $O(1)$ memory usage.
+3. Added real-time progress callbacks (`on_progress` / `onProgress`) providing `{"loaded": int, "total": int, "percent": float}`.
+4. Added cancellation support via `cancel_event` (`threading.Event`) and `signal` alias, aborting in-flight uploads with `I6ValidationError`.
+5. Fixed `Ingest.get_url()` API schema bug to send `table`, `partitions`, and `amount: 1` in the POST body `payload` and extract signed URLs from `uploads[0]`.
+6. Added comprehensive unit tests in `sdkpy/tests/test_ingest.py`.
 
 ---
 

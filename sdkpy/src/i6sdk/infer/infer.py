@@ -327,10 +327,11 @@ class Infer:
 
         shown = {"skus": skus_list}
 
-        dataset = opts.get("dataset") or (req.get("input") or {}).get("dataset") or ""
+        req_input = (req.get("input") or {}) if isinstance(req, dict) else {}
+        dataset = opts.get("dataset") or req_input.get("dataset") or ""
         model_name = opts.get("model_name") or opts.get("modelName") or ""
         partitions = opts.get("partitions") or {}
-        store_id = str(partitions.get("store_id") or (req.get("input") or {}).get("store_id") or "1")
+        store_id = str(partitions.get("store_id") or req_input.get("store_id") or "1")
         model_version = str(partitions.get("version") or opts.get("model_version") or opts.get("modelVersion") or "")
         service_options = opts.get("service_options") or opts.get("serviceOptions")
 
