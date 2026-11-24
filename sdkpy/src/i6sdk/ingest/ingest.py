@@ -64,19 +64,17 @@ StreamInput = Union[
 
 
 class _NormalizedStream:
-    """Normalized stream descriptor with size, content type, and cleanup tracking."""
+    """Normalized stream descriptor with size and content type."""
 
     def __init__(
         self,
         stream_obj: BinaryIO,
         size: int,
         content_type: str,
-        should_close: bool = False,
     ) -> None:
         self.stream_obj = stream_obj
         self.size = size
         self.content_type = content_type
-        self.should_close = should_close
 
 
 class ProgressStreamReader:
@@ -174,7 +172,6 @@ def _normalize_stream(item: Any, default_content_type: str) -> _NormalizedStream
         stream_obj=stream_obj,
         size=calc_size,
         content_type=content_type,
-        should_close=False,
     )
 
 
@@ -287,129 +284,121 @@ class Ingest:
         count = len(normalized)
         total_bytes_all = sum(s.size for s in normalized)
 
-        try:
-            url_info = self.get_url(
-                dataset=dataset,
-                table=table,
-                partitions=partitions,
-                amount=count,
-                service_options=service_options,
+        url_info = self.get_url(
+            dataset=dataset,
+            table=table,
+            partitions=partitions,
+            amount=count,
+            service_options=service_options,
+        )
+        ingest_id = url_info["ingest_id"]
+        upload_urls = url_info["urls"]
+
+        if len(upload_urls) < count:
+            raise I6ApiError(
+                f"Server returned {len(upload_urls)} upload URLs for {count} streams"
             )
-            ingest_id = url_info["ingest_id"]
-            upload_urls = url_info["urls"]
 
-            if len(upload_urls) < count:
-                raise I6ApiError(
-                    f"Server returned {len(upload_urls)} upload URLs for {count} streams"
-                )
+        if abort_trigger is not None and getattr(abort_trigger, "is_set", lambda: False)():
+            raise I6ValidationError("Upload aborted by caller")
 
-            if abort_trigger is not None and getattr(abort_trigger, "is_set", lambda: False)():
-                raise I6ValidationError("Upload aborted by caller")
+        lock = threading.Lock()
+        bytes_transferred_per_stream = [0] * count
+        completed_streams_count = 0
 
-            lock = threading.Lock()
-            bytes_transferred_per_stream = [0] * count
-            completed_streams_count = 0
-
-            def make_stream_progress_cb(index: int) -> Callable[[int], None]:
-                def cb(loaded_chunk_bytes: int) -> None:
-                    with lock:
-                        bytes_transferred_per_stream[index] = loaded_chunk_bytes
-                        total_loaded = sum(bytes_transferred_per_stream)
-                        pct = (
-                            (total_loaded / total_bytes_all * 100.0)
-                            if total_bytes_all > 0
-                            else 100.0
-                        )
-                        if progress_cb is not None:
-                            try:
-                                progress_cb({
-                                    "loaded": total_loaded,
-                                    "total": total_bytes_all if total_bytes_all > 0 else total_loaded,
-                                    "percent": min(100.0, pct),
-                                    "completed_streams": completed_streams_count,
-                                    "total_streams": count,
-                                    "stream_index": index,
-                                })
-                            except Exception:
-                                pass
-
-                return cb
-
-            request_timeout = timeout or self._services.config().timeout or 120.0
-            config = self._services.config()
-
-            def upload_single_stream(index: int, item: _NormalizedStream, target_url: str) -> None:
-                nonlocal completed_streams_count
-                on_chunk_progress = make_stream_progress_cb(index)
-
-                reader = ProgressStreamReader(
-                    stream=item.stream_obj,
-                    total_size=item.size,
-                    on_chunk=on_chunk_progress,
-                    cancel_event=abort_trigger,
-                )
-
-                headers = {
-                    "Content-Type": item.content_type,
-                    "Content-Length": str(item.size),
-                }
-
-                if config.fetcher is not None:
-                    body_bytes = reader.read()
-                    status, _, text = config.fetcher(
-                        target_url,
-                        "PUT",
-                        headers,
-                        body_bytes,
-                        request_timeout,
-                    )
-                    if not (200 <= status < 300):
-                        raise I6ApiError(
-                            message=f"Upload PUT failed with HTTP {status}: {text}",
-                            status=status,
-                        )
-                else:
-                    req = urllib.request.Request(
-                        url=target_url,
-                        data=reader,
-                        headers=headers,
-                        method="PUT",
-                    )
-                    try:
-                        with urllib.request.urlopen(req, timeout=request_timeout) as resp:
-                            if not (200 <= resp.status < 300):
-                                raise I6ApiError(
-                                    message=f"Upload PUT failed with HTTP {resp.status}",
-                                    status=resp.status,
-                                )
-                    except I6ValidationError:
-                        raise
-                    except Exception as e:
-                        if abort_trigger is not None and getattr(abort_trigger, "is_set", lambda: False)():
-                            raise I6ValidationError("Upload aborted by caller") from e
-                        raise I6ApiError(message=f"Upload failed: {e}") from e
-
+        def make_stream_progress_cb(index: int) -> Callable[[int], None]:
+            def cb(loaded_chunk_bytes: int) -> None:
                 with lock:
-                    completed_streams_count += 1
-                on_chunk_progress(item.size)
+                    bytes_transferred_per_stream[index] = loaded_chunk_bytes
+                    total_loaded = sum(bytes_transferred_per_stream)
+                    pct = (
+                        (total_loaded / total_bytes_all * 100.0)
+                        if total_bytes_all > 0
+                        else 100.0
+                    )
+                    if progress_cb is not None:
+                        try:
+                            progress_cb({
+                                "loaded": total_loaded,
+                                "total": total_bytes_all if total_bytes_all > 0 else total_loaded,
+                                "percent": min(100.0, pct),
+                                "completed_streams": completed_streams_count,
+                                "total_streams": count,
+                                "stream_index": index,
+                            })
+                        except Exception:
+                            pass
 
-            workers = max(1, count)
-            with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
-                futures = [
-                    executor.submit(upload_single_stream, i, normalized[i], upload_urls[i])
-                    for i in range(count)
-                ]
-                for f in concurrent.futures.as_completed(futures):
-                    f.result()
+            return cb
 
-            return {
-                "ingest_id": ingest_id,
-                "count": count,
+        request_timeout = timeout or self._services.config().timeout or 120.0
+        config = self._services.config()
+
+        def upload_single_stream(index: int, item: _NormalizedStream, target_url: str) -> None:
+            nonlocal completed_streams_count
+            on_chunk_progress = make_stream_progress_cb(index)
+
+            reader = ProgressStreamReader(
+                stream=item.stream_obj,
+                total_size=item.size,
+                on_chunk=on_chunk_progress,
+                cancel_event=abort_trigger,
+            )
+
+            headers = {
+                "Content-Type": item.content_type,
+                "Content-Length": str(item.size),
             }
-        finally:
-            for it in normalized:
-                if it.should_close:
-                    try:
-                        it.stream_obj.close()
-                    except Exception:
-                        pass
+
+            if config.fetcher is not None:
+                body_bytes = reader.read()
+                status, _, text = config.fetcher(
+                    target_url,
+                    "PUT",
+                    headers,
+                    body_bytes,
+                    request_timeout,
+                )
+                if not (200 <= status < 300):
+                    raise I6ApiError(
+                        message=f"Upload PUT failed with HTTP {status}: {text}",
+                        status=status,
+                    )
+            else:
+                req = urllib.request.Request(
+                    url=target_url,
+                    data=reader,
+                    headers=headers,
+                    method="PUT",
+                )
+                try:
+                    with urllib.request.urlopen(req, timeout=request_timeout) as resp:
+                        if not (200 <= resp.status < 300):
+                            raise I6ApiError(
+                                message=f"Upload PUT failed with HTTP {resp.status}",
+                                status=resp.status,
+                            )
+                except I6ValidationError:
+                    raise
+                except Exception as e:
+                    if abort_trigger is not None and getattr(abort_trigger, "is_set", lambda: False)():
+                        raise I6ValidationError("Upload aborted by caller") from e
+                    raise I6ApiError(message=f"Upload failed: {e}") from e
+
+            with lock:
+                completed_streams_count += 1
+            on_chunk_progress(item.size)
+
+        workers = max(1, count)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
+            futures = [
+                executor.submit(upload_single_stream, i, normalized[i], upload_urls[i])
+                for i in range(count)
+            ]
+            for f in concurrent.futures.as_completed(futures):
+                f.result()
+
+        return {
+            "ingest_id": ingest_id,
+            "count": count,
+        }
