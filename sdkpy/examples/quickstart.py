@@ -1,5 +1,11 @@
 """Quickstart example demonstrating i6sdk usage with zero external dependencies."""
 
+import pathlib
+import sys
+
+# Ensure local i6sdk package is importable when running example directly
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "src"))
+
 import i6sdk
 
 
@@ -37,12 +43,14 @@ def main() -> None:
         print("Successfully authenticated as:", me)
 
     # 2. Call an API endpoint (e.g. list datasets)
-    resp = client.apis().dsz_list_datasets()
-    if resp.ok:
-        data = resp.parse()
-        print("Successfully queried datasets:", data)
-    else:
-        print("Request failed:", resp.error)
+    user_id = me.get("user_id") if me else None
+    if user_id:
+        resp = client.apis().dsz_list_datasets(req={"params": {"userId": user_id}})
+        if resp.ok:
+            data = resp.parse()
+            print("Successfully queried datasets:", data)
+        else:
+            print("Request failed:", resp.error)
 
 
     # 3. Use internal bitmask utilities
