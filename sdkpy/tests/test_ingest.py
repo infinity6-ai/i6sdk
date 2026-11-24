@@ -156,7 +156,7 @@ class TestIngest(unittest.TestCase):
                 cancel_event=cancel,
             )
 
-    def test_upload_file_path_string(self) -> None:
+    def test_upload_file_stream_and_reject_string_path(self) -> None:
         import tempfile
         from pathlib import Path
 
@@ -180,13 +180,24 @@ class TestIngest(unittest.TestCase):
             with open(file_path, "w") as f:
                 f.write("id,name\n1,alice\n")
 
-            res = client.ingest().upload(
-                dataset="dectest",
-                table="inbox_users",
-                partitions={"date": "2026-11-24"},
-                stream=file_path,
-            )
-            self.assertEqual(res["ingest_id"], "ing-file")
+            # Passing raw string path directly should be rejected with I6ValidationError
+            with self.assertRaises(I6ValidationError):
+                client.ingest().upload(
+                    dataset="dectest",
+                    table="inbox_users",
+                    partitions={"date": "2026-11-24"},
+                    stream=file_path,
+                )
+
+            # Passing opened BinaryIO stream should succeed
+            with open(file_path, "rb") as f:
+                res = client.ingest().upload(
+                    dataset="dectest",
+                    table="inbox_users",
+                    partitions={"date": "2026-11-24"},
+                    stream=f,
+                )
+                self.assertEqual(res["ingest_id"], "ing-file")
 
     def test_get_url_with_amount(self) -> None:
         calls = []
@@ -255,7 +266,6 @@ class TestIngest(unittest.TestCase):
             table="inbox_users",
             partitions={"date": "2026-11-24"},
             streams=streams,
-            concurrency=3,
             on_progress=progress_events.append,
         )
 

@@ -56,10 +56,9 @@ class SignedUrlResult(TypedDict):
 
 StreamInput = Union[
     BinaryIO,
-    str,
     bytes,
     bytearray,
-    Tuple[Union[BinaryIO, str, bytes, bytearray], int],
+    Tuple[Union[BinaryIO, bytes, bytearray], int],
     Dict[str, Any],
 ]
 
@@ -72,7 +71,7 @@ class _NormalizedStream:
         stream_obj: BinaryIO,
         size: int,
         content_type: str,
-        should_close: bool,
+        should_close: bool = False,
     ) -> None:
         self.stream_obj = stream_obj
         self.size = size
@@ -142,20 +141,15 @@ def _normalize_stream(item: Any, default_content_type: str) -> _NormalizedStream
         explicit_size = item.get("total_size") or item.get("totalSize") or item.get("size")
         content_type = item.get("content_type") or item.get("contentType") or default_content_type
 
-    should_close = False
+    if isinstance(source, str):
+        raise I6ValidationError(
+            "stream must be a BinaryIO object or bytes, not a file path string. Open files with open(path, 'rb') first."
+        )
+
     if isinstance(source, (bytes, bytearray)):
         raw_bytes = bytes(source)
         calc_size = len(raw_bytes)
         stream_obj: BinaryIO = io.BytesIO(raw_bytes)
-    elif isinstance(source, str):
-        if os.path.isfile(source):
-            calc_size = os.path.getsize(source)
-            stream_obj = open(source, "rb")
-            should_close = True
-        else:
-            raw_bytes = source.encode("utf-8")
-            calc_size = len(raw_bytes)
-            stream_obj = io.BytesIO(raw_bytes)
     elif hasattr(source, "read"):
         stream_obj = source
         if explicit_size is not None:
@@ -170,7 +164,7 @@ def _normalize_stream(item: Any, default_content_type: str) -> _NormalizedStream
                 calc_size = 0
     else:
         raise I6ValidationError(
-            f"Invalid stream item {type(source)!r}: expected BinaryIO, file path string, or bytes"
+            f"Invalid stream item {type(source)!r}: expected BinaryIO stream or bytes"
         )
 
     if explicit_size is not None:
@@ -180,7 +174,7 @@ def _normalize_stream(item: Any, default_content_type: str) -> _NormalizedStream
         stream_obj=stream_obj,
         size=calc_size,
         content_type=content_type,
-        should_close=should_close,
+        should_close=False,
     )
 
 
@@ -238,7 +232,6 @@ class Ingest:
         stream: Optional[StreamInput] = None,
         file: Optional[StreamInput] = None,
         total_size: Optional[int] = None,
-        concurrency: int = 4,
         content_type: str = "application/octet-stream",
         on_progress: Optional[Callable[[UploadProgress], None]] = None,
         onProgress: Optional[Callable[[UploadProgress], None]] = None,
@@ -247,7 +240,7 @@ class Ingest:
         timeout: Optional[float] = None,
         service_options: Optional[Union[ServiceOptions, Dict[str, Any]]] = None,
     ) -> UploadResult:
-        """Uploads one or more streams concurrently to the ingest service using signed PUT URLs."""
+        """Uploads one or more streams in parallel to the ingest service using signed PUT URLs."""
         if not dataset:
             raise I6ValidationError("dataset is required")
         if not table:
@@ -400,7 +393,7 @@ class Ingest:
                     completed_streams_count += 1
                 on_chunk_progress(item.size)
 
-            workers = max(1, min(concurrency, count))
+            workers = max(1, count)
             with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
                 futures = [
                     executor.submit(upload_single_stream, i, normalized[i], upload_urls[i])
