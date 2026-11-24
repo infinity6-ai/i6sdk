@@ -33,10 +33,12 @@ def main() -> None:
             print(f"Confirmation code: {user_code}")
         print("Waiting for authorization in browser...")
 
+        interval = float(flow.get("interval_sec") or 5)
+        timeout = float(flow.get("expires_in_sec") or 300)
         client.auth().device_code_poll(
-            device_code=flow["device_code"],
-            interval=float(flow.get("interval_sec", 5)),
-            timeout=float(flow.get("expires_in_sec", 300)),
+            device_code=flow.get("device_code", ""),
+            interval=interval,
+            timeout=timeout,
         )
 
         me = client.auth().me()

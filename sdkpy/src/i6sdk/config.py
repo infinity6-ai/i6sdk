@@ -3,12 +3,29 @@
 from __future__ import annotations
 
 import os
+import pathlib
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, Optional
+from typing import TYPE_CHECKING, Callable, Dict, Optional, Protocol, Union
+
+if TYPE_CHECKING:
+    from .tokens.storage import TokenStorage
 
 DEFAULT_DECSUITE_URL = "https://decsuite.sandbox.rs.infinity6.ai"
 DEFAULT_TFINFER_URL = "https://tfinfer.sandbox.lb.infinity6.ai"
 DEFAULT_USERZ_URL = "https://userz.sandbox.rs.infinity6.ai"
+
+
+class Fetcher(Protocol):
+    """Protocol for custom HTTP fetchers intercepting SDK requests."""
+
+    def __call__(
+        self,
+        url: str,
+        method: str,
+        headers: Dict[str, str],
+        body: Optional[bytes],
+        timeout: float,
+    ) -> tuple[int, Dict[str, str], str]: ...
 
 
 @dataclass
@@ -19,14 +36,14 @@ class I6SdkConfig:
         default_factory=lambda: {
             "decsuite": DEFAULT_DECSUITE_URL,
             "tfinfer": DEFAULT_TFINFER_URL,
-            "userz": DEFAULT_USERZ_URL
+            "userz": DEFAULT_USERZ_URL,
         }
     )
     userz_url: Optional[str] = None
     app: str = "default"
     timeout: float = 30.0
-    storage: Optional[Any] = None
-    fetcher: Optional[Callable[..., Any]] = None
+    storage: Optional[Union[str, pathlib.Path, TokenStorage]] = None
+    fetcher: Optional[Fetcher] = None
 
 
 DEFAULT_CONFIG = I6SdkConfig()

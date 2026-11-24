@@ -4,7 +4,10 @@ from __future__ import annotations
 
 import json
 import time
-from typing import Any, Dict, Optional, TypedDict
+from typing import TYPE_CHECKING, Any, Dict, Optional, TypedDict
+
+if TYPE_CHECKING:
+    from ..services import Services
 
 from .storage import MemoryTokenStorage, TokenStorage
 
@@ -35,7 +38,7 @@ DATASET_TOKENS_KEY = "i6_dataset_access_tokens"
 class Tokens:
     """Manages storage, retrieval, and lifecycle of user and dataset access tokens."""
 
-    def __init__(self, services: Any, storage: Optional[TokenStorage] = None) -> None:
+    def __init__(self, services: Services, storage: Optional[TokenStorage] = None) -> None:
         self._services = services
         self._storage: TokenStorage = storage or MemoryTokenStorage()
 

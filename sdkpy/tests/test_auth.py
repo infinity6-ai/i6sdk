@@ -65,8 +65,8 @@ class TestAuth(unittest.TestCase):
 
         client = i6sdk.I6Client(i6sdk.I6SdkConfig(fetcher=mock_fetcher))
         flow = client.auth().device_code_start()
-        self.assertEqual(flow["device_code"], "dev-123")
-        self.assertEqual(flow["user_code"], "CODE-XYZ")
+        self.assertEqual(flow.get("device_code"), "dev-123")
+        self.assertEqual(flow.get("user_code"), "CODE-XYZ")
 
         token = client.auth().device_code_poll(device_code="dev-123", interval=0.01, timeout=2.0)
         self.assertEqual(token.get("user_access_token"), "dev-token-abc")

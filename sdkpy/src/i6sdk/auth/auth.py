@@ -6,10 +6,17 @@ import base64
 import hashlib
 import secrets
 import time
-from typing import Any, Dict, Optional, TypedDict
+from typing import TYPE_CHECKING, Any, Dict, Optional, TypedDict
+
+if TYPE_CHECKING:
+    from ..services import Services
 
 from ..exceptions import I6AuthError
+from ..sdkapis.types import apiUserAuthDeviceCodeRespPayload, apiUserAuthMeRespPayload
 from ..tokens.tokens import UserToken
+
+AuthPayload = apiUserAuthMeRespPayload
+DeviceCodeFlow = apiUserAuthDeviceCodeRespPayload
 
 
 def generate_code_verifier(length: int = 64) -> str:
@@ -23,19 +30,10 @@ def generate_code_challenge(verifier: str) -> str:
     return base64.urlsafe_b64encode(digest).decode("ascii").rstrip("=")
 
 
-class AuthPayload(TypedDict, total=False):
-    """User profile information returned by /me endpoint."""
-
-    user_id: str
-    email_redacted: Optional[str]
-    providers: Optional[list[str]]
-    created_at: Optional[int]
-
-
 class Auth:
     """Authentication client handling login, sign-up, device flow, and token rotation."""
 
-    def __init__(self, services: Any) -> None:
+    def __init__(self, services: Services) -> None:
         self._services = services
 
     def userz_base_url(self) -> str:
@@ -48,7 +46,7 @@ class Auth:
             return config.userz_url
         return config.serv_urls.get("decsuite", "")
 
-    def me(self) -> Optional[Dict[str, Any]]:
+    def me(self) -> Optional[AuthPayload]:
         """Fetches current authenticated user profile, or None if no user is logged in."""
         if not self._services.tokens().get_token():
             return None
@@ -117,13 +115,13 @@ class Auth:
     def refresh(self) -> Optional[UserToken]:
         """Refreshes the user access token using the stored refresh token."""
         ut = self._services.tokens().get_user_token()
-        if not ut or not ut.get("user_refresh_token"):
+        if not ut or not (refresh_token := ut.get("user_refresh_token")):
             return None
 
         resp = self._services.apis().user_auth_refresh(
             req={
                 "payload": {
-                    "user_refresh_token": ut["user_refresh_token"],
+                    "user_refresh_token": refresh_token,
                 }
             }
         )
@@ -131,17 +129,17 @@ class Auth:
             self._services.tokens().remove_user_token()
             raise I6AuthError(f"Token refresh failed ({resp.status}): {resp.text}")
 
-        data = resp.parse()
+        data = resp.parse() or {}
         refreshed: UserToken = {
             "user_access_token": data.get("user_access_token", ut.get("user_access_token", "")),
-            "user_refresh_token": data.get("user_refresh_token", ut["user_refresh_token"]),
+            "user_refresh_token": data.get("user_refresh_token", refresh_token),
             "user_id": data.get("user_id", ut.get("user_id", "")),
             "expires_at": int(time.time() * 1000) + int(data.get("expires_in", 3600) * 1000),
         }
         self._services.tokens().set_user_token(refreshed)
         return refreshed
 
-    def device_code_start(self, client_id: Optional[str] = None) -> Dict[str, Any]:
+    def device_code_start(self, client_id: Optional[str] = None) -> DeviceCodeFlow:
         """Initiates an OAuth device authorization flow."""
         app_name = client_id or self._services.config().app
         resp = self._services.apis().user_auth_device_code(

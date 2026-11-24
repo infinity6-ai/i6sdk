@@ -6,12 +6,36 @@ import json
 import pathlib
 import time
 import uuid
-from typing import Any, Callable, Dict, List, Optional, TypedDict
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    TypedDict,
+    Union,
+)
+
+if TYPE_CHECKING:
+    from ..invoker import ServiceOptions
+    from ..services import Services
 
 from ..exceptions import I6ApiError, I6ValidationError
 from ..internal.downloader import Downloader
 from ..internal.fs import Fs
 from ..internal.sqlitez import sqlitez
+
+
+class InferQueryOptions(TypedDict, total=False):
+    """Options for model inference queries."""
+
+    dataset: str
+    model_name: str
+    partitions: Optional[Dict[str, str]]
+    params: Optional[Dict[str, Any]]
+    sqlite_url: Optional[str]
+    service_options: Optional[Union[ServiceOptions, Dict[str, Any]]]
 
 
 def partitions_key(partitions: Dict[str, str]) -> str:
@@ -53,7 +77,7 @@ class Infer:
 
     def __init__(
         self,
-        services: Any,
+        services: Services,
         fs: Optional[Fs] = None,
         downloader: Optional[Downloader] = None,
     ) -> None:
@@ -61,7 +85,7 @@ class Infer:
         self._fs = fs or Fs()
         self._downloader = downloader or Downloader(self._fs)
 
-    def _sqlite_url(self, opts: Dict[str, Any]) -> str:
+    def _sqlite_url(self, opts: Union[InferQueryOptions, Dict[str, Any]]) -> str:
         """Retrieves the signed download URL for the model SQLite database."""
         if direct_url := opts.get("sqlite_url"):
             return direct_url
@@ -92,15 +116,17 @@ class Infer:
             raise LookupError(f"Model {model_name} has no sqlite.bin file available.")
         return str(url)
 
-    def update(self, opts: Dict[str, Any]) -> pathlib.Path:
+    def update(self, opts: Union[InferQueryOptions, Dict[str, Any]]) -> pathlib.Path:
         """Preloads or revalidates the model SQLite bundle in the local cache."""
-        model_name = opts["model_name"]
+        model_name = opts.get("model_name")
+        if not model_name:
+            raise I6ValidationError("model_name is required")
         pkey = partitions_key(opts.get("partitions") or {})
         cache_name = f"infer-{model_name}-{pkey}-sqlite"
         url = self._sqlite_url(opts)
         return self._downloader.update(name=cache_name, url=url, min_preload_time=300.0)
 
-    def run(self, opts: Dict[str, Any]) -> Dict[str, Any]:
+    def run(self, opts: Union[InferQueryOptions, Dict[str, Any]]) -> Dict[str, Any]:
         """Runs inference: local input query -> server-side prediction -> local output query."""
         model_name = opts.get("model_name")
         if not model_name:

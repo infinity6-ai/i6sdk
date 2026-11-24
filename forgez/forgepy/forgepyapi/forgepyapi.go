@@ -117,9 +117,9 @@ func writeApiDecl(b *strings.Builder, api *apispecz.Api) {
 	writeln(b, "def %s(", methodName)
 	writeln(b, "    self,")
 	if hasReq {
-		writeln(b, "    req: Optional[%s] = None,", reqType)
+		writeln(b, "    req: Optional[Union[%s, Dict[str, Any]]] = None,", reqType)
 	}
-	writeln(b, "    opts: Optional[ServiceOptions] = None,")
+	writeln(b, "    opts: Optional[Union[ServiceOptions, Dict[str, Any]]] = None,")
 	writeln(b, ") -> Resp[%s]:", respType)
 
 	// Docstring

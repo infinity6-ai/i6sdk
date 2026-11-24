@@ -4,7 +4,11 @@ from __future__ import annotations
 
 import pathlib
 import urllib.request
-from typing import Any, Dict, Optional, TypedDict, Union
+from typing import TYPE_CHECKING, Any, Dict, Optional, TypedDict, Union
+
+if TYPE_CHECKING:
+    from ..invoker import ServiceOptions
+    from ..services import Services
 
 from ..exceptions import I6ApiError, I6ValidationError
 
@@ -15,10 +19,17 @@ class UploadResult(TypedDict):
     ingest_id: str
 
 
+class SignedUrlResult(TypedDict):
+    """Result of a signed upload URL request."""
+
+    ingest_id: str
+    url: str
+
+
 class Ingest:
     """Client for uploading files and data batches to the i6 ingestion service."""
 
-    def __init__(self, services: Any) -> None:
+    def __init__(self, services: Services) -> None:
         self._services = services
 
     def get_url(
@@ -26,8 +37,8 @@ class Ingest:
         dataset: str,
         table: str,
         partitions: Dict[str, str],
-        service_options: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, str]:
+        service_options: Optional[Union[ServiceOptions, Dict[str, Any]]] = None,
+    ) -> SignedUrlResult:
         """Requests a signed upload URL from the ingest service."""
         resp = self._services.apis().ingestz_get_url(
             req={
@@ -58,7 +69,7 @@ class Ingest:
         partitions: Dict[str, str],
         file: Union[pathlib.Path, str, bytes],
         content_type: str = "application/octet-stream",
-        service_options: Optional[Dict[str, Any]] = None,
+        service_options: Optional[Union[ServiceOptions, Dict[str, Any]]] = None,
     ) -> UploadResult:
         """Uploads a file or bytes buffer to the ingest service using a signed URL."""
         if not dataset:
