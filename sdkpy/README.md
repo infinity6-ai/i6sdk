@@ -103,3 +103,5 @@ The Python SDK mirrors the architecture of the Infinity6 TypeScript/Web SDK:
 - `client.infer()`: Offline SQLite query execution + server-side ML model predictions.
 - `client.ingest()`: Batch event streaming and data ingestion.
 - `client.dash()`: Analytics query execution.
+- `bitmapz`: Compact variable-length bitmask operations, serialization, and deserialization.
+- `Grants`: Permission bitmasks (`System`, `Admin`, `Write`, `Read`, `All`).
