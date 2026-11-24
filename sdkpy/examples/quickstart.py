@@ -53,7 +53,9 @@ def main() -> None:
     if resp.ok:
         data = resp.parse()
         print("Successfully queried datasets:", data)
-        print("datasets", data["datasets"])
+        datasets = data.get("datasets")
+        print("datasets", datasets)
+        print("datasets[0].id", datasets[0]["id"])
     else:
         print("Request failed:", resp.error)
 

@@ -110,6 +110,9 @@ func writeApiDecl(b *strings.Builder, api *apispecz.Api) {
 
 	reqType := apiId + "Req"
 	respType := apiId + "Resp"
+	if api.Resp.Payload.Head != nil && api.Resp.Payload.Head.Typ != "" {
+		respType = api.Resp.Payload.Head.Typ
+	}
 
 	writeln(b, "def %s(", methodName)
 	writeln(b, "    self,")
