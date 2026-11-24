@@ -25,6 +25,7 @@ class I6SdkConfig:
     userz_url: Optional[str] = None
     app: str = "default"
     timeout: float = 30.0
+    storage: Optional[Any] = None
     fetcher: Optional[Callable[..., Any]] = None
 
 

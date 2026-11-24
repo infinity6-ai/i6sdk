@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from i6sdk import I6Client, I6SdkConfig
+from i6sdk import I6Client, I6SdkConfig, create_client
 from i6sdk.tokens import FileTokenStorage, MemoryTokenStorage, UserToken
 
 
@@ -47,6 +47,13 @@ class TestTokens(unittest.TestCase):
 
         client.tokens().remove_user_token()
         self.assertIsNone(client.tokens().get_token())
+
+    def test_tokens_storage_string_config(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            token_path = Path(tmpdir) / "test.tokens.json"
+            client = create_client(storage=str(token_path))
+            self.assertIsInstance(client.tokens().storage, FileTokenStorage)
+            self.assertEqual(str(client.tokens().storage.path), str(token_path))
 
 
 if __name__ == "__main__":
