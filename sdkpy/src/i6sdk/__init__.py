@@ -13,12 +13,16 @@ from .exceptions import (
     I6Error,
     I6ValidationError,
 )
+from .grants import Grants
+from .internal import bitmapz
 from .invoker import Resp, ServiceOptions
 from .services import Services
 from .tokens.storage import FileTokenStorage, MemoryTokenStorage, TokenStorage
 
 # Client alias
 I6Client = Services
+I6Client.bitmapz = bitmapz
+I6Client.Grants = Grants
 
 
 def create_client(
@@ -61,4 +65,6 @@ __all__ = [
     "TokenStorage",
     "MemoryTokenStorage",
     "FileTokenStorage",
+    "Grants",
+    "bitmapz",
 ]
