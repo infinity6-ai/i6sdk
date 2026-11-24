@@ -81,9 +81,8 @@ Specific language implementations, method signatures, behaviors, and nuances are
 ### 2. Method Naming Discrepancies
 * **SdkFuncs Accessor:**
   * Aligned across SDKs: `sdk.funcs()` in `sdkweb` and `client.funcs()` in `sdkpy`.
-* **Token Expiration Checks:**
-  * In `sdkweb`: `tokens.isAccessTokenExpired()` and `tokens.isRefreshTokenExpired()` accept an explicit `skewSeconds` safety threshold.
-  * In `sdkpy`: Expiration check is embedded in `get_token()`, but silent refresh is not automated during standard API invocations.
+* **Token Expiration Checks & Renewal:**
+  * Supported across SDKs: Both `sdkweb` (`tokens.getValidAccessToken()`) and `sdkpy` (`tokens.get_valid_access_token()`) provide automatic silent renewal when tokens are expired or within a safety skew window. Both provide explicit expiration inspection helpers (`isAccessTokenExpired` / `is_access_token_expired`).
 
 ### 3. Telemetry in Inference
 * In `sdkweb`, calling `infer.run()` automatically emits a `recraw` event containing the raw recommendation results, session ID, and user ID to the ingestion pipeline. Subsequently, `infer.selectResults()` emits a `recshow` event containing only the displayed SKU IDs.
