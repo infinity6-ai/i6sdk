@@ -43,6 +43,7 @@ class I6SdkConfig:
     app: str = "default"
     timeout: float = 30.0
     storage: Optional[Union[str, pathlib.Path, TokenStorage]] = None
+    cache_dir: Optional[Union[str, pathlib.Path]] = None
     fetcher: Optional[Fetcher] = None
 
 
@@ -57,6 +58,9 @@ def load_config_from_env() -> I6SdkConfig:
         "userz": os.environ.get("I6_SDK_USERZ_URL", DEFAULT_USERZ_URL),
     }
 
+    cache_dir = os.environ.get("I6_SDK_CACHE_DIR")
+
     return I6SdkConfig(
         serv_urls=serv_urls,
+        cache_dir=cache_dir,
     )

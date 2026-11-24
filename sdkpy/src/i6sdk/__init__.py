@@ -26,6 +26,7 @@ def create_client(
     app: Optional[str] = None,
     timeout: Optional[float] = None,
     storage: Optional[Union[str, pathlib.Path, TokenStorage]] = None,
+    cache_dir: Optional[Union[str, pathlib.Path]] = None,
 ) -> I6Client:
     """Convenience factory function creating an I6Client."""
     cfg = load_config_from_env()
@@ -37,6 +38,8 @@ def create_client(
         cfg.timeout = timeout
     if storage is not None:
         cfg.storage = storage
+    if cache_dir is not None:
+        cfg.cache_dir = cache_dir
     return I6Client(cfg)
 
 
