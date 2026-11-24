@@ -2,57 +2,19 @@
 
 **Component:** `sdkpy` (`i6sdk.internal.bitmapz`, `i6sdk`)  
 **Severity:** Medium (Developer ergonomics and protocol compatibility)  
-**Status:** Open  
+**Status:** Resolved  
 
 ---
 
 ## Summary
 
-In `sdkweb`, the SDK exports an explicit `Grants` constant object and comprehensive `bitmapz` utilities, including binary serialization (`serialize` and `deserialize`) matching the core Go implementation in `commonz/bitmapz`. In `sdkpy`, `bitmapz.py` omits `serialize()` and `deserialize()`, and the SDK defines no `Grants` constants, forcing Python developers to deal with raw magic numbers (`1`, `2`, `4`, `8`, `15`) when handling permissions and dataset tokens.
+In `sdkweb`, the SDK exports an explicit `Grants` constant object and comprehensive `bitmapz` utilities, including binary serialization (`serialize` and `deserialize`) matching the core Go implementation in `commonz/bitmapz`. In `sdkpy`, `bitmapz.py` previously omitted `serialize()` and `deserialize()`, and the SDK defined no `Grants` constants, forcing Python developers to deal with raw magic numbers (`1`, `2`, `4`, `8`, `15`) when handling permissions and dataset tokens.
 
 ---
 
-## Root Cause Analysis
+## Resolution
 
-### 1. Missing Serialization in `sdkpy/src/i6sdk/internal/bitmapz.py`
-In `sdkweb/src/main/internal/bitmapz/bitmapz.js`:
-* `serialize(v)`: Encodes a bitmask into a compact variable-length `Uint8Array` (1-byte optimization for `<= 15`, multi-byte with length prefix for larger values).
-* `deserialize(bytes)`: Decodes the byte array back to a bitmask number/BigInt.
-
-In `sdkpy/src/i6sdk/internal/bitmapz.py`:
-* Only bitwise helpers (`join`, `contains_all`, `contains_any`, `split`, `set_bits`) are implemented.
-* `serialize` and `deserialize` are completely absent.
-
-### 2. Missing `Grants` Constants in `sdkpy`
-In `sdkweb/src/main/index.js`:
-```javascript
-const Grants = Object.freeze({
-  System: 1,
-  Admin: 2,
-  Write: 4,
-  Read: 8,
-  All: 15,
-});
-export { Grants };
-```
-In `sdkpy`:
-* No `Grants` class or enum is defined.
-* `bitmapz` is not exported from `i6sdk` package root.
-
----
-
-## Proposed Remediation
-
-1. Port `serialize()` and `deserialize()` to `sdkpy/src/i6sdk/internal/bitmapz.py` matching `sdkweb` and Go `commonz/bitmapz`.
-2. Add an `IntEnum` or frozen class `Grants` in `sdkpy`:
-```python
-from enum import IntEnum
-
-class Grants(IntEnum):
-    SYSTEM = 1
-    ADMIN = 2
-    WRITE = 4
-    READ = 8
-    ALL = 15
-```
-3. Export `Grants` and `bitmapz` from `i6sdk/__init__.py`.
+1. Added `serialize()` and `deserialize()` to `sdkpy/src/i6sdk/internal/bitmapz.py` matching Go `commonz/bitmapz` and `sdkweb/src/main/internal/bitmapz/bitmapz.js`.
+2. Created `Grants` enum (`IntEnum`) in `sdkpy/src/i6sdk/grants.py` with standard UPPERCASE values (`SYSTEM = 1`, `ADMIN = 2`, `WRITE = 4`, `READ = 8`, `ALL = 15`) and TitleCase aliases (`System`, `Admin`, `Write`, `Read`, `All`).
+3. Exported `Grants` and `bitmapz` at the root of `i6sdk` (`from i6sdk import Grants, bitmapz`), as well as attributes on `I6Client.Grants` and `I6Client.bitmapz`.
+4. Added comprehensive test coverage in `sdkpy/tests/test_bitmapz.py` validating standard serialization vectors and error conditions.
