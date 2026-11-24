@@ -76,6 +76,17 @@ class TestApis(unittest.TestCase):
         # Also verify camelCase alias
         self.assertTrue(hasattr(client.apis(), "sampleFraction"))
 
+    def test_funcs_accessor(self) -> None:
+        client = I6Client(I6SdkConfig())
+        # client.funcs() must return an SdkFuncs instance
+        funcs_instance = client.funcs()
+        self.assertIsNotNone(funcs_instance)
+        self.assertEqual(client.funcs(), funcs_instance)
+
+        # sdk_funcs and sdkFuncs must be removed
+        self.assertFalse(hasattr(client, "sdk_funcs"))
+        self.assertFalse(hasattr(client, "sdkFuncs"))
+
 
 if __name__ == "__main__":
     unittest.main()

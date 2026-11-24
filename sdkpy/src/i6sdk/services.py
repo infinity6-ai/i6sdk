@@ -28,7 +28,7 @@ class Services:
         self._auth: Optional[Auth] = None
         self._tokens: Optional[Tokens] = None
         self._apis: Optional[Apis] = None
-        self._sdk_funcs: Optional[SdkFuncs] = None
+        self._funcs: Optional[SdkFuncs] = None
         self._fs: Optional[Fs] = None
         self._downloader: Optional[Downloader] = None
         self._infer: Optional[Infer] = None
@@ -110,10 +110,9 @@ class Services:
             self._apis = Apis(self)
         return self._apis
 
-    def sdk_funcs(self) -> SdkFuncs:
+    def funcs(self) -> SdkFuncs:
         """Returns the generated high-level SDK workflow functions client."""
-        if self._sdk_funcs is None:
-            self._sdk_funcs = SdkFuncs(self)
-        return self._sdk_funcs
+        if self._funcs is None:
+            self._funcs = SdkFuncs(self)
+        return self._funcs
 
-    sdkFuncs = sdk_funcs

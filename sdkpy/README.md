@@ -97,7 +97,7 @@ else:
 The Python SDK mirrors the architecture of the Infinity6 TypeScript/Web SDK:
 
 - `client.apis()`: Auto-generated, type-safe API methods for every platform service.
-- `client.sdk_funcs()`: High-level recommendation and dashboard workflows.
+- `client.funcs()`: High-level recommendation and dashboard workflows.
 - `client.auth()`: PKCE OAuth, device code authentication, and token management.
 - `client.tokens()`: Token cache and scoped attenuation.
 - `client.infer()`: Offline SQLite query execution + server-side ML model predictions.

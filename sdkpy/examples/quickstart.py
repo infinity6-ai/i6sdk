@@ -72,7 +72,7 @@ def main() -> None:
     #     "params": {}
     # })
 
-    result = client.sdkFuncs().productRelevanceFashionDashDisplayMetricsStatusV1({
+    result = client.funcs().productRelevanceFashionDashDisplayMetricsStatusV1({
         "partitions": {"store_id": "1"},
         "input": {
             "dataset": "dectest",
