@@ -188,6 +188,94 @@ class TestIngest(unittest.TestCase):
             )
             self.assertEqual(res["ingest_id"], "ing-file")
 
+    def test_get_url_with_amount(self) -> None:
+        calls = []
+
+        def mock_fetcher(
+            url: str, method: str, headers: Dict[str, str], body: Any, timeout: float
+        ) -> Tuple[int, Dict[str, str], str]:
+            calls.append({"url": url, "body": body})
+            return 200, {"content-type": "application/json"}, json.dumps({
+                "ingest_id": "ing-multi",
+                "uploads": ["https://storage.test/p1", "https://storage.test/p2", "https://storage.test/p3"],
+            })
+
+        client = I6Client(I6SdkConfig(
+            serv_urls={"decsuite": "https://api.i6.test"},
+            fetcher=mock_fetcher,
+        ))
+
+        res = client.ingest().get_url(
+            dataset="dectest",
+            table="inbox_users",
+            partitions={"date": "2026-11-24"},
+            amount=3,
+        )
+
+        self.assertEqual(res["ingest_id"], "ing-multi")
+        self.assertEqual(len(res["urls"]), 3)
+        self.assertEqual(res["url"], "https://storage.test/p1")
+        body_dict = json.loads(calls[0]["body"])
+        self.assertEqual(body_dict.get("amount"), 3)
+
+    def test_upload_multiple_streams_concurrent(self) -> None:
+        calls = []
+        progress_events = []
+        lock = threading.Lock()
+
+        def mock_fetcher(
+            url: str, method: str, headers: Dict[str, str], body: Any, timeout: float
+        ) -> Tuple[int, Dict[str, str], str]:
+            with lock:
+                calls.append({"url": url, "method": method, "headers": headers, "body": body})
+            if "get-url" in url:
+                return 200, {"content-type": "application/json"}, json.dumps({
+                    "ingest_id": "ing-batch",
+                    "uploads": [
+                        "https://storage.test/shard1",
+                        "https://storage.test/shard2",
+                        "https://storage.test/shard3",
+                    ],
+                })
+            return 200, {}, ""
+
+        client = I6Client(I6SdkConfig(
+            serv_urls={"decsuite": "https://api.i6.test"},
+            fetcher=mock_fetcher,
+        ))
+
+        streams = [
+            io.BytesIO(b"shard-1-data"),
+            (io.BytesIO(b"shard-2-data"), 12),
+            b"shard-3-data",
+        ]
+
+        res = client.ingest().upload(
+            dataset="dectest",
+            table="inbox_users",
+            partitions={"date": "2026-11-24"},
+            streams=streams,
+            concurrency=3,
+            on_progress=progress_events.append,
+        )
+
+        self.assertEqual(res["ingest_id"], "ing-batch")
+        self.assertEqual(res["count"], 3)
+        # 1 get_url call + 3 PUT uploads = 4 calls
+        self.assertEqual(len(calls), 4)
+        put_urls = {c["url"] for c in calls if c["method"] == "PUT"}
+        self.assertEqual(put_urls, {
+            "https://storage.test/shard1",
+            "https://storage.test/shard2",
+            "https://storage.test/shard3",
+        })
+        self.assertTrue(len(progress_events) >= 3)
+        last_event = progress_events[-1]
+        self.assertEqual(last_event["percent"], 100.0)
+        self.assertEqual(last_event["completed_streams"], 3)
+        self.assertEqual(last_event["total_streams"], 3)
+
+
     def test_upload_validation_errors(self) -> None:
         client = I6Client(I6SdkConfig())
 
