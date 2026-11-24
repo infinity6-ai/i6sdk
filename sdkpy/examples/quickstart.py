@@ -64,6 +64,25 @@ def main() -> None:
         print("Request failed:", resp.error)
 
 
+    # client.infer().run({
+    #     "dataset": "dectest",
+    #     "model_name": "relevance-fashion-fbt",
+    #     "partitions": {"store_id": "1"},
+    #     "params": {}
+    # })
+
+    result = client.sdkFuncs().productRelevanceFashionDashDisplayMetricsStatusV1({
+        "partitions": {"store_id": "1"},
+        "input": {
+            "dataset": "dectest",
+            "params": {
+                "min_year_month": "2026-08",
+                "max_year_month": "2027-12",                   
+            }
+        },
+    })
+    print("productRelevanceFashionDashDisplayMetricsStatusV1", result)
+
     # 3. Use internal bitmask utilities
     from i6sdk.internal.bitmapz import contains_all, join
 

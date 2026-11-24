@@ -159,6 +159,8 @@ class Invoker:
             if extra_headers := req_opts.get("headers"):
                 headers.update({str(k): str(v) for k, v in extra_headers.items() if v is not None})
 
+        print("invoker.debug", opts)
+
         # 4. Payload data
         body_bytes: Optional[bytes] = None
         if (json_data := opts.get("json")) is not None:
