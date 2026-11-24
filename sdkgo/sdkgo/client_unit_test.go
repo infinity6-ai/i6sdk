@@ -11,7 +11,7 @@ func TestUnitClient(t *testing.T) {
 	c := sdkgo.New()
 	require.NotNil(t, c)
 	require.NotEmpty(t, c.Version())
-	require.NotEmpty(t, c.Config().BaseUrl)
+	require.NotEmpty(t, c.Config().ServUrls["decsuite"])
 	require.NotEmpty(t, c.Apis())
 	require.NotEmpty(t, c.SdkFuncs())
 

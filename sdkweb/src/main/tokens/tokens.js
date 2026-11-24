@@ -111,14 +111,14 @@ class Tokens {
    * Resolution precedence:
    * 1. `config.servUrls["userz"]`
    * 2. `config.userzUrl`
-   * 3. `config.baseUrl`
+   * 3. `config.servUrls?.["decsuite"]`
    * 4. Empty string fallback
    * @private
    * @returns {string} The base URL for userz.
    */
   _getUserzUrl() {
     const config = this._services.config();
-    return config.servUrls?.["userz"] || config.userzUrl || config.baseUrl || "";
+    return config.servUrls?.["userz"] || config.userzUrl || config.servUrls?.["decsuite"] || "";
   }
 
   /**
@@ -269,7 +269,7 @@ class Tokens {
    */
   async redeemCheckout(checkoutCode) {
     const config = this._services.config();
-    const baseUrl = config.servUrls?.["decsuite"] || config.decsuiteUrl || config.baseUrl || "";
+    const baseUrl = config.servUrls?.["decsuite"] || config.decsuiteUrl || "";
     const redeemUrl = `${baseUrl}/api/decsuite/auth/checkoutredeem`;
     const resp = await fetch(redeemUrl, {
       method: "POST",

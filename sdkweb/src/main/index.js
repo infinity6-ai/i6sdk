@@ -18,8 +18,7 @@ import { bitmapz } from "./internal/bitmapz/bitmapz.js";
 /**
  * Configuration options for the i6 SDK.
  * @typedef {Object} I6SdkConfig
- * @property {string} [baseUrl] - Base URL of the i6 server. Defaults to the sandbox environment.
- * @property {Record<string, string>} [servUrls] - Base URL of the other services, by the `servname` label of the api (e.g. `tfinfer`). An api whose service is not listed uses `baseUrl`.
+ * @property {Record<string, string>} [servUrls] - Base URL of the services, by the `servname` label of the api (e.g. `decsuite`, `tfinfer`). An api whose service is not listed uses `decsuite`.
  * @property {string} [userzUrl] - Direct base URL override for the i6userz authentication service.
  * @property {string} [userExchangeCallbackUrl] - Absolute URL of the application's exchange callback page handling PKCE token exchange.
  * @property {string} [callbackUrl] - Default application redirect URL after logout.
@@ -27,7 +26,6 @@ import { bitmapz } from "./internal/bitmapz/bitmapz.js";
  * @property {I6Storage | (() => I6Storage)} [storage] - Optional storage adapter for persistent token storage. Defaults to global `localStorage` when omitted.
  * @property {I6Storage | (() => I6Storage)} [localStorage] - Optional alias for persistent storage adapter (defaults to global `localStorage`).
  * @property {I6Storage | (() => I6Storage)} [sessionStorage] - Optional storage adapter for session-scoped data such as PKCE code verifier. Defaults to global `sessionStorage` when omitted.
- * @property {I6Storage | (() => I6Storage)} [storageSession] - Optional alias for session storage adapter.
  * @property {import("./invoker/invoker.js").Fetcher} [fetcher] - Custom fetch implementation for intercepting or proxying all SDK requests.
  * @property {import("./invoker/invoker.js").Fetcher} [fetch] - Optional alias for `fetcher`.
  */
@@ -37,13 +35,13 @@ import { bitmapz } from "./internal/bitmapz/bitmapz.js";
  * @type {I6SdkConfig}
  */
 const DEFAULT_CONFIG = {
-  baseUrl: "https://decsuite.sandbox.rs.infinity6.ai",
   servUrls: {
+    "decsuite": "https://decsuite.sandbox.rs.infinity6.ai",
     "tfinfer": "https://tfinfer.sandbox.lb.infinity6.ai",
     "userz": "https://userz.sandbox.rs.infinity6.ai"
   },
-  // baseUrl: "http://localhost:9021",
   // servUrls: {
+  //   "decsuite": "http://localhost:9021",
   //   "tfinfer": "http://localhost:9022",
   //   "userz": "http://localhost:9023"
   // },

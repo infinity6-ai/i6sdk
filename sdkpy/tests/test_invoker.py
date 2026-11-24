@@ -64,7 +64,7 @@ class TestInvoker(unittest.TestCase):
             return 200, {"content-type": "application/json"}, json.dumps({"count": 42})
 
         config = I6SdkConfig(
-            base_url="https://api.i6.test",
+            serv_urls={"decsuite": "https://api.i6.test"},
             token="secret-token",
             fetcher=mock_fetcher,
         )

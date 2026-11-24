@@ -9,14 +9,13 @@
 
         QUnit.test("setConfig overwrites the given keys at any time", async function (assert) {
             const { I6Sdk } = await import('../main/index.js')
-            const sdk = new I6Sdk({ baseUrl: 'http://a' })
+            const sdk = new I6Sdk({ servUrls: { decsuite: 'http://a' } })
             const servUrls = sdk.config().servUrls
-            assert.strictEqual(sdk.config().baseUrl, 'http://a')
+            assert.strictEqual(sdk.config().servUrls?.["decsuite"], 'http://a')
             assert.ok(servUrls, 'defaults are merged')
-            sdk.setConfig({ baseUrl: 'http://x' })
-            assert.strictEqual(sdk.config().baseUrl, 'http://x', 'given key is overwritten')
-            assert.deepEqual(sdk.config().servUrls, servUrls, 'other keys are kept')
-            assert.strictEqual(sdk.auth()._services.config().baseUrl, 'http://x', 'clients see the new config')
+            sdk.setConfig({ servUrls: { ...sdk.config().servUrls, decsuite: 'http://x' } })
+            assert.strictEqual(sdk.config().servUrls?.["decsuite"], 'http://x', 'given key is overwritten')
+            assert.strictEqual(sdk.auth()._services.config().servUrls?.["decsuite"], 'http://x', 'clients see the new config')
         });
 
         QUnit.test("warmupDataset validates its options", async function (assert) {

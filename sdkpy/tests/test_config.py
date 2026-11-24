@@ -10,7 +10,7 @@ import i6sdk
 class TestConfig(unittest.TestCase):
     def test_default_config(self) -> None:
         cfg = i6sdk.DEFAULT_CONFIG
-        self.assertEqual(cfg.base_url, "https://decsuite.sandbox.rs.infinity6.ai")
+        self.assertEqual(cfg.serv_urls.get("decsuite"), "https://decsuite.sandbox.rs.infinity6.ai")
         self.assertEqual(cfg.app, "default")
         self.assertEqual(cfg.timeout, 30.0)
         self.assertIsNone(cfg.token)
@@ -24,15 +24,15 @@ class TestConfig(unittest.TestCase):
         }
         with mock.patch.dict(os.environ, env_vars, clear=False):
             cfg = i6sdk.load_config_from_env()
-            self.assertEqual(cfg.base_url, "https://api.test.i6.ai")
+            self.assertEqual(cfg.serv_urls.get("decsuite"), "https://api.test.i6.ai")
             self.assertEqual(cfg.token, "test-key-123")
             self.assertEqual(cfg.app, "my-app")
             self.assertEqual(cfg.timeout, 45.5)
 
     def test_create_client_factory(self) -> None:
-        client = i6sdk.create_client(api_key="custom-key", base_url="https://custom.i6.ai")
+        client = i6sdk.create_client(api_key="custom-key", serv_urls={"decsuite": "https://custom.i6.ai"})
         self.assertEqual(client.config().token, "custom-key")
-        self.assertEqual(client.config().base_url, "https://custom.i6.ai")
+        self.assertEqual(client.config().serv_urls.get("decsuite"), "https://custom.i6.ai")
 
 
 if __name__ == "__main__":

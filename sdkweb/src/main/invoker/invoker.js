@@ -265,7 +265,7 @@ class Invoker {
      * @returns {Promise<Response>} A promise that resolves to the fetch Response.
      */
     async invoke(opts) {
-        opts.url = opts.url || `${this._services.config().baseUrl}/${opts.path}`
+        opts.url = opts.url || `${this._services.config().servUrls?.["decsuite"]}/${opts.path}`
 
         if (opts.query) {
             const search = new URLSearchParams()

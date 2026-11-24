@@ -149,12 +149,11 @@ func writeApiDecl(b *strings.Builder, api *apispecz.Api) {
 	writeln(b, "  return this._services.invoker().invokeResult({")
 	writeln(b, "    method: %q,", api.Spec.Method)
 
-	if servName := servNameOf(api); servName != "" {
-		// The api lives in another service: use its url from the config (servUrls), falling back to the baseUrl.
-		writeln(b, "    url: `${this._services.config().servUrls?.[%q] ?? this._services.config().baseUrl}/%s`,", servName, jsPath)
-	} else {
-		writeln(b, "    path: `%s`,", jsPath)
+	servName := servNameOf(api)
+	if servName == "" {
+		servName = "decsuite"
 	}
+	writeln(b, "    url: `${this._services.config().servUrls?.[%q] || \"\"}/%s`,", servName, jsPath)
 
 	if hasQuery {
 		writeln(b, "    query: req.query,")

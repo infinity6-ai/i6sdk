@@ -7,7 +7,7 @@
         import { I6Sdk } from '../../src/index.js'
         const sdk = new I6Sdk()
         const sdkConfig = {
-            baseUrl: "https://decsuite.sandbox.rs.infinity6.ai",
+            servUrls: { decsuite: "https://decsuite.sandbox.rs.infinity6.ai" },
         }
         sdk.setConfig(sdkConfig)
         await sdk.auth().handleCallback()

@@ -46,7 +46,7 @@ class Auth:
                 return serv_urls["userz"]
         if config.userz_url:
             return config.userz_url
-        return config.base_url
+        return config.serv_urls.get("decsuite", "")
 
     def me(self) -> Dict[str, Any]:
         """Fetches current authenticated user profile."""

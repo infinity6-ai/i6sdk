@@ -28,7 +28,7 @@ class TestApis(unittest.TestCase):
             return 200, {"content-type": "application/json"}, json.dumps(resp_body)
 
         config = I6SdkConfig(
-            base_url="https://api.i6.test",
+            serv_urls={"decsuite": "https://api.i6.test"},
             token="bearer-token-xyz",
             fetcher=mock_fetcher,
         )
@@ -57,7 +57,7 @@ class TestApis(unittest.TestCase):
             return 200, {"content-type": "application/json"}, json.dumps({"status": "ok"})
 
         config = I6SdkConfig(
-            base_url="https://api.i6.test",
+            serv_urls={"decsuite": "https://api.i6.test"},
             token="token-123",
             fetcher=mock_fetcher,
         )

@@ -225,7 +225,7 @@ func TestUnitWrite(t *testing.T) {
   async sampleFraction(req, opts) {
     return this._services.invoker().invokeResult({
       method: "POST",
-      path: ` + "`" + `api/gox/routez/sample/fraction/${encodeURIComponent(String(req.params.numerator))}/${encodeURIComponent(String(req.params.denominator))}` + "`" + `,
+      url: ` + "`" + `${this._services.config().servUrls?.["decsuite"] || ""}/api/gox/routez/sample/fraction/${encodeURIComponent(String(req.params.numerator))}/${encodeURIComponent(String(req.params.denominator))}` + "`" + `,
       query: req.query,
       headers: req.headers,
       json: req.payload,
@@ -304,7 +304,7 @@ export { Apis };
   async customAction(req, opts) {
     return this._services.invoker().invokeResult({
       method: "POST",
-      path: ` + "`" + `api/custom/action` + "`" + `,
+      url: ` + "`" + `${this._services.config().servUrls?.["decsuite"] || ""}/api/custom/action` + "`" + `,
       json: req.payload,
       opts: opts,
     });
@@ -329,7 +329,7 @@ export { Apis };
 			},
 		}
 		got := forgejsapi.Write(ctx, []*apispecz.Api{api})
-		require.Contains(t, got, "url: `${this._services.config().servUrls?.[\"tfinfer\"] ?? this._services.config().baseUrl}/api/custom/{id}`,")
+		require.Contains(t, got, "url: `${this._services.config().servUrls?.[\"tfinfer\"] || \"\"}/api/custom/{id}`,")
 		require.NotContains(t, got, "path:")
 	})
 }

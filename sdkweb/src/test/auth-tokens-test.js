@@ -33,7 +33,7 @@
         })
 
         QUnit.test("tokens() is exposed on sdk and manages token storage", async function (assert) {
-            const sdk = new I6Sdk({ baseUrl: 'http://test.api' })
+            const sdk = new I6Sdk({ servUrls: { decsuite: 'http://test.api' } })
             const tokens = sdk.tokens()
             assert.ok(tokens, "tokens service instance exists")
 
@@ -799,7 +799,7 @@
         QUnit.test("tokens.redeemCheckout performs POST /api/decsuite/auth/checkoutredeem and saves token in storage", async function (assert) {
             const storageMap = new Map()
             const sdk = new I6Sdk({
-                baseUrl: "https://decsuite.sandbox.rs.infinity6.ai",
+                servUrls: { decsuite: "https://decsuite.sandbox.rs.infinity6.ai" },
                 storage: {
                     getItem: (k) => storageMap.get(k) || null,
                     setItem: (k, v) => storageMap.set(k, v),
@@ -843,7 +843,7 @@
         QUnit.test("tokens.redeemCheckout returns dataset without storing it in UserToken", async function (assert) {
             const storageMap = new Map()
             const sdk = new I6Sdk({
-                baseUrl: "https://decsuite.test",
+                servUrls: { decsuite: "https://decsuite.test" },
                 storage: {
                     getItem: (k) => storageMap.get(k) || null,
                     setItem: (k, v) => storageMap.set(k, v),

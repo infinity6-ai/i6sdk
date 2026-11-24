@@ -175,11 +175,11 @@ func writeApiDecl(b *strings.Builder, api *apispecz.Api) {
 	writeln(b, "    invoke_kwargs: Dict[str, Any] = {")
 	writeln(b, "        \"method\": %q,", api.Spec.Method)
 
-	if servName := servNameOf(api); servName != "" {
-		writeln(b, "        \"url\": f\"{((self._services.config().serv_urls or {}).get('%s') or self._services.config().base_url)}/{path}\",", servName)
-	} else {
-		writeln(b, "        \"path\": path,")
+	servName := servNameOf(api)
+	if servName == "" {
+		servName = "decsuite"
 	}
+	writeln(b, "        \"url\": f\"{((self._services.config().serv_urls or {}).get('%s') or '')}/{path}\",", servName)
 
 	if hasQuery {
 		writeln(b, "        \"query\": req.get(\"query\"),")

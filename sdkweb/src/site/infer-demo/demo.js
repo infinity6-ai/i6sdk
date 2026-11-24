@@ -25,7 +25,7 @@ const stored = (storage, key) => {
   } catch { return crypto.randomUUID() }
 }
 const sdkConfig = { 
-  baseUrl: "https://decsuite.sandbox.rs.infinity6.ai",
+  servUrls: { decsuite: "https://decsuite.sandbox.rs.infinity6.ai" },
   userExchangeCallbackUrl: new URL('./logincallback.html', location.href).href,
 }
 // The config the SDK really runs with: the defaults (baseUrl) merged with ours

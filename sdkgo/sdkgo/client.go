@@ -10,17 +10,16 @@ import (
 )
 
 type Config struct {
-	BaseUrl  string
 	ServUrls map[string]string
 	Client   *http.Client
 }
 
 func DefaultConfig() Config {
 	return Config{
-		BaseUrl: "https://decsuite.sandbox.rs.infinity6.ai",
 		ServUrls: map[string]string{
-			"tfinfer": "https://tfinfer.sandbox.lb.infinity6.ai",
-			"userz":   "https://userz.sandbox.rs.infinity6.ai",
+			"decsuite": "https://decsuite.sandbox.rs.infinity6.ai",
+			"tfinfer":  "https://tfinfer.sandbox.lb.infinity6.ai",
+			"userz":    "https://userz.sandbox.rs.infinity6.ai",
 		},
 		Client: http.DefaultClient,
 	}

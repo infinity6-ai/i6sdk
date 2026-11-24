@@ -6,16 +6,21 @@ import os
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, Optional
 
-DEFAULT_BASE_URL = "https://decsuite.sandbox.rs.infinity6.ai"
+DEFAULT_DECSUITE_URL = "https://decsuite.sandbox.rs.infinity6.ai"
+DEFAULT_TFINFER_URL = "https://tfinfer.sandbox.lb.infinity6.ai"
+DEFAULT_USERZ_URL = "https://userz.sandbox.rs.infinity6.ai"
 
 
 @dataclass
 class I6SdkConfig:
     """Configuration options for Infinity6 SDK client."""
 
-    base_url: str = DEFAULT_BASE_URL
     serv_urls: Dict[str, str] = field(
-        default_factory=lambda: {"tfinfer": DEFAULT_BASE_URL}
+        default_factory=lambda: {
+            "decsuite": DEFAULT_DECSUITE_URL,
+            "tfinfer": DEFAULT_TFINFER_URL,
+            "userz": DEFAULT_USERZ_URL
+        }
     )
     userz_url: Optional[str] = None
     app: str = "default"
@@ -29,7 +34,7 @@ DEFAULT_CONFIG = I6SdkConfig()
 
 def load_config_from_env() -> I6SdkConfig:
     """Creates an I6SdkConfig populated from environment variables."""
-    base_url = os.environ.get("I6_BASE_URL", DEFAULT_BASE_URL)
+    decsuite_url = os.environ.get("I6_BASE_URL", DEFAULT_DECSUITE_URL)
     token = os.environ.get("I6_API_KEY") or os.environ.get("I6_TOKEN")
     app = os.environ.get("I6_APP", "default")
     userz_url = os.environ.get("I6_USERZ_URL")
@@ -41,12 +46,15 @@ def load_config_from_env() -> I6SdkConfig:
         except ValueError:
             pass
 
-    serv_urls = {"tfinfer": base_url}
+    serv_urls = {
+        "decsuite": decsuite_url,
+        "tfinfer": DEFAULT_TFINFER_URL,
+        "userz": DEFAULT_USERZ_URL
+    }
     if tfinfer_url := os.environ.get("I6_TFINFER_URL"):
         serv_urls["tfinfer"] = tfinfer_url
 
     return I6SdkConfig(
-        base_url=base_url,
         serv_urls=serv_urls,
         userz_url=userz_url,
         app=app,

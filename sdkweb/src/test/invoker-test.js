@@ -9,7 +9,7 @@
         hooks.beforeEach(async function () {
             ({ Invoker, Resp } = await import('../main/invoker/invoker.js'))
             realFetch = globalThis.fetch
-            invoker = new Invoker({ config: () => ({ baseUrl: 'https://api.test' }), tokens: () => ({ getValidAccessToken: async () => null, getValidDatasetAccessToken: async () => null }) })
+            invoker = new Invoker({ config: () => ({ servUrls: { decsuite: 'https://api.test' } }), tokens: () => ({ getValidAccessToken: async () => null, getValidDatasetAccessToken: async () => null }) })
         })
 
         hooks.afterEach(function () {
@@ -88,7 +88,7 @@
             globalThis.fetch = async () => new Response('global', { status: 200 })
             const configFetcher = async (url, opts) => new Response('{"id":"config-custom"}', { status: 200 })
             const customInvoker = new Invoker({
-                config: () => ({ baseUrl: 'https://api.test', fetcher: configFetcher }),
+                config: () => ({ servUrls: { decsuite: 'https://api.test' }, fetcher: configFetcher }),
                 tokens: () => ({ getValidAccessToken: async () => null, getValidDatasetAccessToken: async () => null })
             })
 
@@ -102,7 +102,7 @@
             globalThis.fetch = async () => new Response('global', { status: 200 })
             const configFetch = async (url, opts) => new Response('{"id":"config-alias"}', { status: 200 })
             const customInvoker = new Invoker({
-                config: () => ({ baseUrl: 'https://api.test', fetch: configFetch }),
+                config: () => ({ servUrls: { decsuite: 'https://api.test' }, fetch: configFetch }),
                 tokens: () => ({ getValidAccessToken: async () => null, getValidDatasetAccessToken: async () => null })
             })
 
@@ -116,7 +116,7 @@
             const configFetcher = async (url, opts) => new Response('{"id":"config-fetcher"}', { status: 200 })
             const reqFetcher = async (url, opts) => new Response('{"id":"req-fetcher"}', { status: 200 })
             const customInvoker = new Invoker({
-                config: () => ({ baseUrl: 'https://api.test', fetcher: configFetcher }),
+                config: () => ({ servUrls: { decsuite: 'https://api.test' }, fetcher: configFetcher }),
                 tokens: () => ({ getValidAccessToken: async () => null, getValidDatasetAccessToken: async () => null })
             })
 

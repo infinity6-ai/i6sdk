@@ -93,7 +93,8 @@ class Invoker:
             target_url = raw_url
         else:
             path = (opts.get("path") or "").lstrip("/")
-            target_url = f"{config.base_url.rstrip('/')}/{path}"
+            decsuite_url = config.serv_urls.get("decsuite", "")
+            target_url = f"{decsuite_url.rstrip('/')}/{path}"
 
         # 2. Query string
         if query := opts.get("query"):

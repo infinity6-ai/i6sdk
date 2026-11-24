@@ -58,14 +58,14 @@ class Auth {
    * Resolution precedence:
    * 1. `config.servUrls["userz"]`
    * 2. `config.userzUrl`
-   * 3. `config.baseUrl`
+   * 3. `config.servUrls?.["decsuite"]`
    * 4. Empty string fallback
    * @private
    * @returns {string} The base URL for userz.
    */
   _getUserzUrl() {
     const config = this._services.config();
-    return config.servUrls?.["userz"] || config.userzUrl || config.baseUrl || "";
+    return config.servUrls?.["userz"] || config.userzUrl || config.servUrls?.["decsuite"] || "";
   }
 
   /**
