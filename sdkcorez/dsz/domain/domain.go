@@ -9,19 +9,19 @@ import (
 )
 
 const (
-	main        = "main"
 	fashion     = "fashion"
 	plat        = "plat"
 	dummydomain = "dummydomain"
 	finance     = "finance"
+	margin      = "margin"
 )
 
 var (
-	Main        = MustParse(main)
 	Fashion     = MustParse(fashion)
 	Plat        = MustParse(plat)
 	Dummydomain = MustParse(dummydomain)
 	Finance     = MustParse(finance)
+	Margin      = MustParse(margin)
 )
 
 type Domain checked.Value[string]
@@ -54,7 +54,7 @@ func (d Domain) Validate(v string) error {
 	if err := validation.StrNotEmpty(v, "Domain cannot be empty"); err != nil {
 		return err
 	}
-	if err := validation.OneOf([]string{main, fashion, plat, dummydomain, finance}, v, "Domain"); err != nil {
+	if err := validation.OneOf([]string{fashion, plat, dummydomain, finance, margin}, v, "Domain"); err != nil {
 		return err
 	}
 	return nil
