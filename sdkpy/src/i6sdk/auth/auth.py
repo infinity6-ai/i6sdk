@@ -48,10 +48,15 @@ class Auth:
             return config.userz_url
         return config.serv_urls.get("decsuite", "")
 
-    def me(self) -> Dict[str, Any]:
-        """Fetches current authenticated user profile."""
+    def me(self) -> Optional[Dict[str, Any]]:
+        """Fetches current authenticated user profile, or None if no user is logged in."""
+        if not self._services.tokens().get_token():
+            return None
+
         resp = self._services.apis().user_auth_me()
         if not resp.ok:
+            if resp.status == 401:
+                return None
             raise I6AuthError(f"Failed to fetch user profile ({resp.status}): {resp.text}")
         return resp.parse() or {}
 

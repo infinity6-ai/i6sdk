@@ -111,15 +111,7 @@ class Invoker:
         }
 
         # Auth token injection
-        token = None
-        try:
-            tokens_mgr = self._services.tokens()
-            if hasattr(tokens_mgr, "get_token"):
-                token = tokens_mgr.get_token()
-        except Exception:
-            pass
-
-        if token:
+        if token := self._services.tokens().get_token():
             headers["Authorization"] = f"Bearer {token}"
 
         # Custom headers
