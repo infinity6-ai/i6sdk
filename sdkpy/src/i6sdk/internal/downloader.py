@@ -18,7 +18,7 @@ class Downloader:
 
     def __init__(self, fs: Optional[Fs] = None) -> None:
         self.fs = fs or Fs()
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
 
     def update(
         self,
@@ -54,21 +54,6 @@ class Downloader:
         headers: Dict[str, str] = {
             "User-Agent": "i6sdk-python/0.0.1",
         }
-
-        # 1. Probe remote ETag via HEAD request if possible
-        remote_etag = None
-        try:
-            head_req = urllib.request.Request(url=url, headers=headers, method="HEAD")
-            with urllib.request.urlopen(head_req, timeout=min(timeout, 10.0)) as head_resp:
-                remote_etag = head_resp.headers.get("etag") or head_resp.headers.get("ETag")
-        except Exception:
-            pass
-
-        if current and remote_etag and current.etag == remote_etag:
-            self.fs.touch(name)
-            return self.fs.resolve(name, current.version)
-
-        # 2. Prepare GET request with If-None-Match if current version exists
         if current and current.etag:
             headers["If-None-Match"] = current.etag
 
@@ -77,7 +62,7 @@ class Downloader:
         new_ref: Optional[FileRef] = None
         try:
             with urllib.request.urlopen(req, timeout=timeout) as resp:
-                resp_etag = resp.headers.get("etag") or resp.headers.get("ETag") or remote_etag or ""
+                resp_etag = resp.headers.get("etag") or resp.headers.get("ETag") or ""
                 new_ref = self.fs.create(name, etag=resp_etag)
                 target_path = self.fs.resolve(name, new_ref.version)
                 tmp_path = target_path.with_suffix(".tmp")

@@ -30,7 +30,7 @@ class Fs:
             root = pathlib.Path(base_dir)
         self.base_dir = root / "sdkpy" / "fs"
         self.base_dir.mkdir(parents=True, exist_ok=True)
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
 
     def _file_dir(self, name: str) -> pathlib.Path:
         safe_name = name.replace("/", "_").replace("\\", "_")
