@@ -63,7 +63,7 @@ func (c *ClientEvent) GetCreatedAt() *time.Time {
 }
 
 func (c *ClientEvent) Table() laketbnamez.TableName {
-	return laketbnamez.MustParse("finance-predictivecampaign-client-events")
+	return laketbnamez.MustParse("targeting-finance-client-events")
 }
 
 func (c *ClientEvent) SetDataset(ds lakedsz.Dataset) {
@@ -79,7 +79,7 @@ func (c *ClientEvent) SchemaQuery() *schemaz.Schema {
 		c = &ClientEvent{}
 	}
 	return &schemaz.Schema{
-		Desc: &schemaz.Desc{Summary: "ClientEvent is a row of the finance-predictivecampaign-client-events table. The id is provided by the sender."},
+		Desc: &schemaz.Desc{Summary: "ClientEvent is a row of the targeting-finance-client-events table. The id is provided by the sender."},
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"id": {
@@ -192,7 +192,7 @@ func (c *ClientEvent) SchemaBody() *schemaz.Schema {
 		c = &ClientEvent{}
 	}
 	return &schemaz.Schema{
-		Desc: &schemaz.Desc{Summary: "ClientEvent is a row of the finance-predictivecampaign-client-events table. The id is provided by the sender."},
+		Desc: &schemaz.Desc{Summary: "ClientEvent is a row of the targeting-finance-client-events table. The id is provided by the sender."},
 		Object: func(read bool) map[string]*schemaz.Schema {
 			return map[string]*schemaz.Schema{
 				"id": {
