@@ -55,7 +55,9 @@ def main() -> None:
         print("Successfully queried datasets:", data)
         datasets = data.get("datasets")
         print("datasets", datasets)
-        print("datasets[0].id", datasets[0]["id"])
+        if datasets:
+            print("datasets[0].id", datasets[0].get("id"))
+            print("datasets[0].name", datasets[0].get("grants"))
     else:
         print("Request failed:", resp.error)
 
