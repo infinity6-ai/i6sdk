@@ -36,15 +36,40 @@ class TestAuth(unittest.TestCase):
         self.assertIsNotNone(user)
         self.assertEqual(user.get("user_id"), "u-123")
 
-    def test_me_when_unauthorized_401(self) -> None:
+    def test_device_code_flow(self) -> None:
+        calls = []
+
         def mock_fetcher(
             url: str, method: str, headers: Dict[str, str], body: Any, timeout: float
         ) -> tuple[int, Dict[str, str], str]:
-            return 401, {"content-type": "application/json"}, json.dumps({"error": "unauthorized"})
+            calls.append(url)
+            if "/api/userz/auth/device/code" in url:
+                return 200, {"content-type": "application/json"}, json.dumps({
+                    "device_code": "dev-123",
+                    "user_code": "CODE-XYZ",
+                    "verification_uri": "https://auth.i6.test/device",
+                    "verification_uri_complete": "https://auth.i6.test/device?code=CODE-XYZ",
+                    "interval_sec": 1,
+                    "expires_in_sec": 60,
+                })
+            elif "/api/userz/auth/device/token" in url:
+                return 200, {"content-type": "application/json"}, json.dumps({
+                    "status": "authorized",
+                    "user_access_token": "dev-token-abc",
+                    "user_refresh_token": "dev-refresh-xyz",
+                    "user_id": "u-dev-1",
+                    "expires_at": 9999999999999,
+                })
+            return 404, {}, ""
 
         client = i6sdk.I6Client(i6sdk.I6SdkConfig(fetcher=mock_fetcher))
-        client.tokens().set_user_token({"user_access_token": "expired-token"})
-        self.assertIsNone(client.auth().me())
+        flow = client.auth().device_code_start()
+        self.assertEqual(flow["device_code"], "dev-123")
+        self.assertEqual(flow["user_code"], "CODE-XYZ")
+
+        token = client.auth().device_code_poll(device_code="dev-123", interval=0.01, timeout=2.0)
+        self.assertEqual(token["user_access_token"], "dev-token-abc")
+        self.assertEqual(client.tokens().get_token(), "dev-token-abc")
 
 
 if __name__ == "__main__":

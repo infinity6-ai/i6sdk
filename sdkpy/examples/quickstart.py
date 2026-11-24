@@ -12,7 +12,27 @@ def main() -> None:
     print("Client initialized with serv_urls:", client.config().serv_urls)
 
     me = client.auth().me()
-    print('me', me)
+    print("me:", me)
+
+    if not me:
+        print("\nNo active user session. Initiating OAuth device authorization...")
+        flow = client.auth().device_code_start()
+        verify_url = flow.get("verification_uri_complete") or flow.get("verification_uri")
+        user_code = flow.get("user_code")
+
+        print(f"Please visit: {verify_url}")
+        if user_code:
+            print(f"Confirmation code: {user_code}")
+        print("Waiting for authorization in browser...")
+
+        client.auth().device_code_poll(
+            device_code=flow["device_code"],
+            interval=float(flow.get("interval_sec", 5)),
+            timeout=float(flow.get("expires_in_sec", 300)),
+        )
+
+        me = client.auth().me()
+        print("Successfully authenticated as:", me)
 
     # 2. Call an API endpoint (e.g. list datasets)
     resp = client.apis().dsz_list_datasets()
