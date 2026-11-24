@@ -45,17 +45,19 @@ def main() -> None:
     # unbounded dataset access tokens on demand without requiring a user session.
     client.tokens().set_dataset_refresh_token(dataset, token_data)
 
-    # 4. Target Table & Partitions from lakezprcbiddingmain/prcbiddingmain_catalog.go:
+    # 4. Target Table & Partitions from lakezprcbiddingmargin/prcbiddingmargin_catalog.go:
     # Table: "prcbidding-margin-catalog"
-    # Partitions: ["ingested_at", "store_id"]
+    # Table definition partitions: ["ingested_at", "store_id"]
+    # Note: 'ingested_at' is automatically assigned by the server from the generated IngestId.
+    # The client specifies the operational partitions:
     table_name = "prcbidding-margin-catalog"
     store_id = "1"
-    ingested_at = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
 
     partitions = {
-        "ingested_at": ingested_at,
         "store_id": store_id,
     }
+
+    now_iso = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT00:00:00Z")
 
     # 5. Prepare sample catalog data conforming to prcbiddingmaindataz.Catalog schema
     catalog_items = [
@@ -71,7 +73,7 @@ def main() -> None:
                 {"name": "category", "value": "Tops"},
                 {"name": "subcategory", "value": "Shirts"},
             ],
-            "ingested_at": f"{ingested_at}T00:00:00Z",
+            "ingested_at": now_iso,
         },
         {
             "id": "SKU-JEANS-02",
@@ -85,7 +87,7 @@ def main() -> None:
                 {"name": "category", "value": "Bottoms"},
                 {"name": "subcategory", "value": "Jeans"},
             ],
-            "ingested_at": f"{ingested_at}T00:00:00Z",
+            "ingested_at": now_iso,
         },
         {
             "id": "SKU-JACKET-03",
@@ -98,7 +100,7 @@ def main() -> None:
                 {"name": "department", "value": "Outerwear"},
                 {"name": "category", "value": "Jackets"},
             ],
-            "ingested_at": f"{ingested_at}T00:00:00Z",
+            "ingested_at": now_iso,
         },
     ]
 
