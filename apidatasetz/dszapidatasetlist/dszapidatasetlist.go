@@ -1,3 +1,4 @@
+//go:generate go run github.com/infinity6-ai/i6sdk/mold schemagen .
 package dszapidatasetlist
 
 import (
@@ -12,23 +13,45 @@ type Solution struct {
 	Name string `json:"name"`
 }
 
-type Dataset struct {
-	Id     string       `json:"id"`
-	Name   string       `json:"name"`
-	Grants grants.Grant `json:"grants"`
-}
-
-type DszListDatasetsReq struct {
+// Params contains path parameters embedded in the route URL.
+type Params struct {
+	// User identifier (id).
 	UserId string `json:"userId"`
 }
 
-type DszListDatasetsResp struct {
+// Dataset represents an Infinity6 dataset container and permissions.
+type Dataset struct {
+	// Unique identifier of the dataset.
+	Id string `json:"id"`
+	// Human-readable name of the dataset.
+	Name string `json:"name"`
+	// Compact grant bitmask held by the user on this dataset.
+	Grants grants.Grant `json:"grants"`
+}
+
+// Payload represents the JSON HTTP response payload.
+type Payload struct {
+	// List of datasets available to the user.
 	Datasets []*Dataset `json:"datasets"`
 }
 
+// Req encapsulates all incoming HTTP data for the endpoint.
+type Req struct {
+	Params *Params `json:"params,omitempty"`
+}
+
+// Resp encapsulates all outgoing HTTP data for the endpoint.
+type Resp struct {
+	Payload *Payload `json:"payload"`
+}
+
+// Backwards-compatible aliases.
+type DszListDatasetsReq = Req
+type DszListDatasetsResp = Resp
+
 type Api struct {
-	Req  *DszListDatasetsReq  `json:"req"`
-	Resp *DszListDatasetsResp `json:"resp"`
+	Req  *Req  `json:"req"`
+	Resp *Resp `json:"resp"`
 }
 
 func (d *Api) ApiSpec() apiz.ApiSpec {
@@ -45,71 +68,5 @@ func (d *Api) ApiSpec() apiz.ApiSpec {
 		},
 		Method: "GET",
 		Path:   "/api/ds/user-id/{userId}/datasets",
-	}
-}
-
-func (d *Api) ApiDataRefs() *apiz.DataRefs {
-	return &apiz.DataRefs{
-		PathParams: &schemaz.Schema{
-			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && d.Req == nil {
-					return nil
-				}
-				if d.Req == nil {
-					d.Req = &DszListDatasetsReq{}
-				}
-				return map[string]*schemaz.Schema{
-					"userId": {
-						Desc:     &schemaz.Desc{Summary: "User identifier (id)."},
-						UrlValue: schemaz.ParseStr(&d.Req.UserId),
-					},
-				}
-			},
-		},
-		QueryParams: nil,
-		ReqHeaders:  nil,
-		ReqBody:     nil,
-		RespHeaders: nil,
-		RespBody: &schemaz.Schema{
-			Desc: &schemaz.Desc{Summary: "Response containing the list of datasets."},
-			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && d.Resp == nil {
-					return nil
-				}
-				if d.Resp == nil {
-					d.Resp = &DszListDatasetsResp{}
-				}
-				return map[string]*schemaz.Schema{
-					"datasets": {
-						Desc: &schemaz.Desc{Summary: "List of datasets available to the user."},
-						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Dataset, *Dataset]{
-							Slice:      func() *[]*Dataset { return &d.Resp.Datasets },
-							NewElement: func(idx int) *Dataset { return &Dataset{} },
-							Get: func(idx int, element **Dataset) *schemaz.Schema {
-								return &schemaz.Schema{
-									Desc: &schemaz.Desc{Summary: "Dataset object."},
-									Object: func(_ bool) map[string]*schemaz.Schema {
-										return map[string]*schemaz.Schema{
-											"id": {
-												Desc:  &schemaz.Desc{Summary: "Unique identifier of the dataset."},
-												Field: func() any { return &(*element).Id },
-											},
-											"name": {
-												Desc:  &schemaz.Desc{Summary: "Human-readable name of the dataset."},
-												Field: func() any { return &(*element).Name },
-											},
-											"grants": {
-												Desc:  &schemaz.Desc{Summary: "Compact grant bitmask held by the user on this dataset."},
-												Field: func() any { return &(*element).Grants },
-											},
-										}
-									},
-								}
-							},
-						}),
-					},
-				}
-			},
-		},
 	}
 }
