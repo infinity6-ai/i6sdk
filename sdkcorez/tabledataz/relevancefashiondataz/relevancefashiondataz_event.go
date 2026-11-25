@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/infinity6-ai/gox/commonz/dataz"
 	"github.com/infinity6-ai/gox/commonz/validation"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
@@ -20,12 +19,12 @@ import (
 //   - DisplayId and UserId are optional.
 //   - Dataset and IngestedAt are read-only fields populated by the system during ingestion.
 type Event struct {
-	ID             string           `json:"id" bigquery:"id"`
-	Dataset        dataz.NullString `json:"dataset" bigquery:"dataset"`
-	StoreId        string           `json:"store_id" bigquery:"store_id"`
-	SessionId      string           `json:"session_id" bigquery:"session_id"`
-	DisplayId      dataz.NullString `json:"display_id" bigquery:"display_id"`
-	UserId         dataz.NullString `json:"user_id" bigquery:"user_id"`
+	ID             string   `json:"id" bigquery:"id"`
+	Dataset        *string  `json:"dataset" bigquery:"dataset"`
+	StoreId        string   `json:"store_id" bigquery:"store_id"`
+	SessionId      string   `json:"session_id" bigquery:"session_id"`
+	DisplayId      *string  `json:"display_id" bigquery:"display_id"`
+	UserId         *string  `json:"user_id" bigquery:"user_id"`
 	Click          *Click              `json:"click,omitempty" bigquery:"click,nullable"`
 	AddToCart      *AddToCart          `json:"add_to_cart,omitempty" bigquery:"add_to_cart,nullable"`
 	RemoveFromCart *RemoveFromCart     `json:"remove_from_cart,omitempty" bigquery:"remove_from_cart,nullable"`

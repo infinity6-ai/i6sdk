@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/infinity6-ai/gox/commonz/dataz"
 	"github.com/infinity6-ai/gox/commonz/validation"
 )
 
@@ -53,11 +52,11 @@ func MaxLen(field, v string, maxLen int) error {
 }
 
 // NullMaxLen checks the length of an optional string when present.
-func NullMaxLen(field string, v dataz.NullString, maxLen int) error {
-	if !v.Valid {
+func NullMaxLen(field string, v *string, maxLen int) error {
+	if v == nil {
 		return nil
 	}
-	return MaxLen(field, v.StringVal, maxLen)
+	return MaxLen(field, *v, maxLen)
 }
 
 // OneOf checks that a string is one of the allowed choices.
@@ -74,11 +73,11 @@ func Between[T cmp.Ordered](field string, v, min, max T) error {
 }
 
 // NullIntBetween checks the range of an optional integer when present.
-func NullIntBetween(field string, v dataz.NullInt64, min, max int64) error {
-	if !v.Valid {
+func NullIntBetween(field string, v *int64, min, max int64) error {
+	if v == nil {
 		return nil
 	}
-	return Between(field, v.Int64, min, max)
+	return Between(field, *v, min, max)
 }
 
 // Flag checks that an integer flag is 0 or 1.
@@ -87,6 +86,6 @@ func Flag(field string, v int64) error {
 }
 
 // NullFlag checks that an optional integer flag is 0 or 1 when present.
-func NullFlag(field string, v dataz.NullInt64) error {
+func NullFlag(field string, v *int64) error {
 	return NullIntBetween(field, v, 0, 1)
 }

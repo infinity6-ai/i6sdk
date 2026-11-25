@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/infinity6-ai/gox/commonz/dataz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/tabledataz"
 	"github.com/stretchr/testify/require"
 )
@@ -29,7 +28,7 @@ func TestUnitValidateHelpers(t *testing.T) {
 		require.NoError(t, tabledataz.Str("f", "abc", 3))
 		require.ErrorContains(t, tabledataz.Str("f", "", 3), "f is required")
 		require.ErrorContains(t, tabledataz.Str("f", "abcd", 3), "at most 3 characters")
-		require.NoError(t, tabledataz.NullMaxLen("f", dataz.NullString{}, 1))
+		require.NoError(t, tabledataz.NullMaxLen("f", nil, 1))
 		require.ErrorContains(t, tabledataz.NullMaxLen("f", tabledataz.NewBqNullString("ab"), 1), "failed to validate f")
 	})
 
@@ -44,7 +43,7 @@ func TestUnitValidateHelpers(t *testing.T) {
 		require.ErrorContains(t, tabledataz.Between("f", -1, 0, 3), "f must be >= 0")
 		require.NoError(t, tabledataz.Flag("f", 1))
 		require.ErrorContains(t, tabledataz.Flag("f", 2), "failed to validate f")
-		require.NoError(t, tabledataz.NullFlag("f", dataz.NullInt64{}))
+		require.NoError(t, tabledataz.NullFlag("f", nil))
 		require.ErrorContains(t, tabledataz.NullFlag("f", tabledataz.NewBqNullInt64(2)), "failed to validate f")
 	})
 }

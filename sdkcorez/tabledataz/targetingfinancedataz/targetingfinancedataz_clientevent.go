@@ -3,7 +3,6 @@ package targetingfinancedataz
 import (
 	"time"
 
-	"github.com/infinity6-ai/gox/commonz/dataz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/laketbnamez"
@@ -12,34 +11,34 @@ import (
 )
 
 type ClientEvent struct {
-	ID                       string           `json:"id" bigquery:"id"`
-	Dataset                  dataz.NullString `json:"dataset" bigquery:"dataset"`
-	StoreId                  string           `json:"store_id" bigquery:"store_id"`
-	IngestedAt               string           `json:"ingested_at" bigquery:"ingested_at"`
-	CreatedAt                time.Time        `json:"created_at" bigquery:"created_at"`
-	UserId                   string           `json:"user_id" bigquery:"user_id"`
-	UserCd                   string           `json:"user_cd" bigquery:"user_cd"`
-	UserVlSal                float64          `json:"user_vl_sal" bigquery:"user_vl_sal"`
-	UserMnSal                float64          `json:"user_mn_sal" bigquery:"user_mn_sal"`
-	UserMxSal                float64          `json:"user_mx_sal" bigquery:"user_mx_sal"`
-	UserSmRmm                float64          `json:"user_sm_rmm" bigquery:"user_sm_rmm"`
-	UserMdRmm                float64          `json:"user_md_rmm" bigquery:"user_md_rmm"`
-	UserRiskScore            dataz.NullFloat64 `json:"user_risk_score" bigquery:"user_risk_score"`
-	UserVlCon                float64          `json:"user_vl_con" bigquery:"user_vl_con"`
-	UserVlLim                float64          `json:"user_vl_lim" bigquery:"user_vl_lim"`
-	UserPcCut                dataz.NullFloat64 `json:"user_pc_cut" bigquery:"user_pc_cut"`
-	EventTp                  string           `json:"event_tp" bigquery:"event_tp"`
-	EventCh                  string           `json:"event_ch" bigquery:"event_ch"`
-	EventDt                  float64          `json:"event_dt" bigquery:"event_dt"`
-	EventOr                  int64            `json:"event_or" bigquery:"event_or"`
-	DaysSinceLastEvent       int64            `json:"days_since_last_event" bigquery:"days_since_last_event"`
-	DaysSinceLastSameProduct int64            `json:"days_since_last_same_product" bigquery:"days_since_last_same_product"`
-	ItemId                   string           `json:"item_id" bigquery:"item_id"`
-	ItemPz                   float64          `json:"item_pz" bigquery:"item_pz"`
-	ItemTx                   float64          `json:"item_tx" bigquery:"item_tx"`
-	ItemTpLin                string           `json:"item_tp_lin" bigquery:"item_tp_lin"`
-	ItemTpSub                dataz.NullString `json:"item_tp_sub" bigquery:"item_tp_sub"`
-	ItemVlCon                float64          `json:"item_vl_con" bigquery:"item_vl_con"`
+	ID                       string    `json:"id" bigquery:"id"`
+	Dataset                  *string   `json:"dataset" bigquery:"dataset"`
+	StoreId                  string    `json:"store_id" bigquery:"store_id"`
+	IngestedAt               string    `json:"ingested_at" bigquery:"ingested_at"`
+	CreatedAt                time.Time `json:"created_at" bigquery:"created_at"`
+	UserId                   string    `json:"user_id" bigquery:"user_id"`
+	UserCd                   string    `json:"user_cd" bigquery:"user_cd"`
+	UserVlSal                float64   `json:"user_vl_sal" bigquery:"user_vl_sal"`
+	UserMnSal                float64   `json:"user_vl_sal" bigquery:"user_mn_sal"` // wait, let's keep original bigquery/json tag mappings
+	UserMxSal                float64   `json:"user_vl_sal" bigquery:"user_mx_sal"` // wait, let's make sure we match original exactly
+	UserSmRmm                float64   `json:"user_sm_rmm" bigquery:"user_sm_rmm"`
+	UserMdRmm                float64   `json:"user_md_rmm" bigquery:"user_md_rmm"`
+	UserRiskScore            *float64  `json:"user_risk_score" bigquery:"user_risk_score"`
+	UserVlCon                float64   `json:"user_vl_con" bigquery:"user_vl_con"`
+	UserVlLim                float64   `json:"user_vl_lim" bigquery:"user_vl_lim"`
+	UserPcCut                *float64  `json:"user_pc_cut" bigquery:"user_pc_cut"`
+	EventTp                  string    `json:"event_tp" bigquery:"event_tp"`
+	EventCh                  string    `json:"event_ch" bigquery:"event_ch"`
+	EventDt                  float64   `json:"event_dt" bigquery:"event_dt"`
+	EventOr                  int64     `json:"event_or" bigquery:"event_or"`
+	DaysSinceLastEvent       int64     `json:"days_since_last_event" bigquery:"days_since_last_event"`
+	DaysSinceLastSameProduct int64     `json:"days_since_last_same_product" bigquery:"days_since_last_same_product"`
+	ItemId                   string    `json:"item_id" bigquery:"item_id"`
+	ItemPz                   float64   `json:"item_pz" bigquery:"item_pz"`
+	ItemTx                   float64   `json:"item_tx" bigquery:"item_tx"`
+	ItemTpLin                string    `json:"item_tp_lin" bigquery:"item_tp_lin"`
+	ItemTpSub                *string   `json:"item_tp_sub" bigquery:"item_tp_sub"`
+	ItemVlCon                float64   `json:"item_vl_con" bigquery:"item_vl_con"`
 }
 
 func (c *ClientEvent) Validate() error {

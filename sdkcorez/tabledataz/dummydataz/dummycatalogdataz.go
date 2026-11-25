@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/infinity6-ai/gox/commonz/dataz"
 	"github.com/infinity6-ai/gox/commonz/validation"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
@@ -12,13 +11,13 @@ import (
 )
 
 type Catalog struct {
-	Id          string           `json:"id" bigquery:"id"`
-	Dataset     dataz.NullString `json:"dataset" bigquery:"dataset"`
-	Product     string           `json:"product" bigquery:"product"`
-	Price       float64          `json:"price" bigquery:"price"`
-	QtInventory int64            `json:"qt_inventory" bigquery:"qt_inventory"`
-	StoreId     string           `json:"store_id" bigquery:"store_id"`
-	IngestedAt  string           `json:"ingested_at" bigquery:"ingested_at"`
+	Id          string   `json:"id" bigquery:"id"`
+	Dataset     *string  `json:"dataset" bigquery:"dataset"`
+	Product     string   `json:"product" bigquery:"product"`
+	Price       float64  `json:"price" bigquery:"price"`
+	QtInventory int64    `json:"qt_inventory" bigquery:"qt_inventory"`
+	StoreId     string   `json:"store_id" bigquery:"store_id"`
+	IngestedAt  string   `json:"ingested_at" bigquery:"ingested_at"`
 }
 
 func (c *Catalog) Validate() error {
@@ -49,10 +48,8 @@ func (c *Catalog) Table() laketbnamez.TableName {
 }
 
 func (c *Catalog) SetDataset(ds lakedsz.Dataset) {
-	c.Dataset = dataz.NullString{
-		StringVal: ds.String(),
-		Valid:     true,
-	}
+	val := ds.String()
+	c.Dataset = &val
 }
 
 func (c *Catalog) SetIngestedAt(p string) {

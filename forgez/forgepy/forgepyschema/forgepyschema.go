@@ -7,7 +7,6 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/infinity6-ai/gox/commonz/dataz"
 	"github.com/infinity6-ai/gox/commonz/errorz"
 	"github.com/infinity6-ai/gox/fsz/fsz"
 	"github.com/infinity6-ai/gox/schemaz/schemamold"
@@ -45,10 +44,7 @@ func isValidIdentifier(s string) bool {
 // NewSdk returns a schemamold.Parser configured with SDK known types.
 func NewSdk() *schemamold.Parser {
 	return schemamold.New().
-		AddKnownType(fsz.FileStat{}, typeastz.TypFileStat).
-		AddKnownType(dataz.NullString{}, typeastz.TypString).
-		AddKnownType(dataz.NullInt64{}, typeastz.TypNumber).
-		AddKnownType(dataz.NullFloat64{}, typeastz.TypNumber)
+		AddKnownType(fsz.FileStat{}, typeastz.TypFileStat)
 }
 
 var arrayRe = regexp.MustCompile(`^Array<(.+)>$`)

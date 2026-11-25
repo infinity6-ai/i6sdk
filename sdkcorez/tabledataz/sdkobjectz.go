@@ -3,7 +3,6 @@ package tabledataz
 import (
 	"time"
 
-	"github.com/infinity6-ai/gox/commonz/dataz"
 	"github.com/infinity6-ai/gox/commonz/strconvz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
@@ -20,85 +19,77 @@ type TableData interface {
 	GetCreatedAt() *time.Time
 }
 
-func NewBqNullString(val string) dataz.NullString {
-	return dataz.NullString{
-		StringVal: val,
-		Valid:     true,
-	}
+func NewBqNullString(val string) *string {
+	return &val
 }
 
-func ParseBqNullString(out *dataz.NullString) func() *schemaz.Parser[string] {
+func ParseBqNullString(out **string) func() *schemaz.Parser[string] {
 	return func() *schemaz.Parser[string] {
 		return &schemaz.Parser[string]{
 			Parse: func(v string) {
-				*out = dataz.NullString{
-					StringVal: v,
-					Valid:     v != "",
+				if v == "" {
+					*out = nil
+				} else {
+					*out = &v
 				}
 			},
 			Format: func() (string, any) {
-				if !out.Valid {
+				if *out == nil {
 					return "", *out
 				}
-				return out.StringVal, *out
+				return **out, *out
 			},
 		}
 	}
 }
 
-func NewBqNullFloat64(val float64) dataz.NullFloat64 {
-	return dataz.NullFloat64{
-		Float64: val,
-		Valid:   true,
-	}
+func NewBqNullFloat64(val float64) *float64 {
+	return &val
 }
 
-func NewBqNullInt64(val int64) dataz.NullInt64 {
-	return dataz.NullInt64{
-		Int64: val,
-		Valid: true,
-	}
+func NewBqNullInt64(val int64) *int64 {
+	return &val
 }
 
-func ParseBqNullFloat64(out *dataz.NullFloat64) func() *schemaz.Parser[string] {
+func ParseBqNullFloat64(out **float64) func() *schemaz.Parser[string] {
 	return func() *schemaz.Parser[string] {
 		return &schemaz.Parser[string]{
 			Parse: func(v string) {
 				if v == "" {
-					*out = dataz.NullFloat64{}
+					*out = nil
 					return
 				}
 				var f float64
 				strconvz.MustParseNumberInto(v, &f)
-				*out = NewBqNullFloat64(f)
+				*out = &f
 			},
 			Format: func() (string, any) {
-				if !out.Valid {
+				if *out == nil {
 					return "", *out
 				}
-				return strconvz.FormatNumber(out.Float64), *out
+				return strconvz.FormatNumber(**out), *out
 			},
 		}
 	}
 }
 
-func ParseBqNullInt64(out *dataz.NullInt64) func() *schemaz.Parser[string] {
+func ParseBqNullInt64(out **int64) func() *schemaz.Parser[string] {
 	return func() *schemaz.Parser[string] {
 		return &schemaz.Parser[string]{
 			Parse: func(v string) {
 				if v == "" {
-					*out = dataz.NullInt64{}
+					*out = nil
 					return
 				}
 				var i int64
 				strconvz.MustParseNumberInto(v, &i)
-				*out = NewBqNullInt64(i)
+				*out = &i
 			},
 			Format: func() (string, any) {
-				if !out.Valid {
+				if *out == nil {
 					return "", *out
 				}
-				return strconvz.FormatNumber(out.Int64), *out
+				return strconvz.FormatNumber(**out), *out
 			},
 		}
 	}

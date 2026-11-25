@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/infinity6-ai/gox/commonz/dataz"
 	"github.com/infinity6-ai/gox/commonz/validation"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
@@ -14,9 +13,9 @@ import (
 )
 
 type ClientFeatures struct {
-	ID            string           `json:"id" bigquery:"id"`
-	Dataset       dataz.NullString `json:"dataset" bigquery:"dataset"`
-	StoreId       string           `json:"store_id" bigquery:"store_id"`
+	ID            string         `json:"id" bigquery:"id"`
+	Dataset       *string        `json:"dataset" bigquery:"dataset"`
+	StoreId       string         `json:"store_id" bigquery:"store_id"`
 	IngestedAt    string           `json:"ingested_at" bigquery:"ingested_at"`
 	CreatedAt     time.Time        `json:"created_at" bigquery:"created_at"`
 	FeaturesFloat []*FeatureFloat  `json:"features_float" bigquery:"features_float"`
