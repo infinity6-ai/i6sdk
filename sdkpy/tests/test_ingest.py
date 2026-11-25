@@ -71,7 +71,7 @@ class TestIngest(unittest.TestCase):
             dataset="dectest",
             table="inbox_users",
             partitions={"date": "2026-11-24"},
-            stream=stream,
+            streams=[stream],
         )
 
         self.assertEqual(res["ingest_id"], "ing-stream")
@@ -99,7 +99,7 @@ class TestIngest(unittest.TestCase):
             dataset="dectest",
             table="inbox_users",
             partitions={"date": "2026-11-24"},
-            stream=payload,
+            streams=[payload],
             on_progress=progress_events.append,
         )
 
@@ -120,7 +120,7 @@ class TestIngest(unittest.TestCase):
                 dataset="dectest",
                 table="inbox_users",
                 partitions={"date": "2026-11-24"},
-                stream=b"data",
+                streams=[b"data"],
                 cancel_event=cancel,
             )
 
@@ -151,7 +151,7 @@ class TestIngest(unittest.TestCase):
                 dataset="dectest",
                 table="inbox_users",
                 partitions={"date": "2026-11-24"},
-                stream=b"X" * 100000,
+                streams=[b"X" * 100000],
                 on_progress=on_prog,
                 cancel_event=cancel,
             )
@@ -186,7 +186,7 @@ class TestIngest(unittest.TestCase):
                     dataset="dectest",
                     table="inbox_users",
                     partitions={"date": "2026-11-24"},
-                    stream=file_path,
+                    streams=[file_path],
                 )
 
             # Passing opened BinaryIO stream should succeed
@@ -195,7 +195,7 @@ class TestIngest(unittest.TestCase):
                     dataset="dectest",
                     table="inbox_users",
                     partitions={"date": "2026-11-24"},
-                    stream=f,
+                    streams=[f],
                 )
                 self.assertEqual(res["ingest_id"], "ing-file")
 
@@ -309,7 +309,7 @@ class TestIngest(unittest.TestCase):
             dataset="dectest",
             table="inbox_users",
             partitions={"date": "2026-11-24"},
-            stream=b"payload_bytes",
+            streams=[b"payload_bytes"],
         )
 
         put_calls = [c for c in calls if c["method"] == "PUT"]
@@ -324,13 +324,16 @@ class TestIngest(unittest.TestCase):
         client = I6Client(I6SdkConfig())
 
         with self.assertRaises(I6ValidationError):
-            client.ingest().upload(dataset="", table="t", partitions={}, stream=b"data")
+            client.ingest().upload(dataset="", table="t", partitions={}, streams=[b"data"])
 
         with self.assertRaises(I6ValidationError):
-            client.ingest().upload(dataset="d", table="", partitions={}, stream=b"data")
+            client.ingest().upload(dataset="d", table="", partitions={}, streams=[b"data"])
 
         with self.assertRaises(I6ValidationError):
-            client.ingest().upload(dataset="d", table="t", partitions={}, stream=None)
+            client.ingest().upload(dataset="d", table="t", partitions={}, streams=[])
+
+        with self.assertRaises(I6ValidationError):
+            client.ingest().upload(dataset="d", table="t", partitions={}, streams=None)  # type: ignore[arg-type]
 
 
 if __name__ == "__main__":
