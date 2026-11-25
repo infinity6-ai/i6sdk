@@ -45,10 +45,6 @@ type Resp struct {
 	Payload *Payload `json:"payload"`
 }
 
-// Backwards-compatible aliases.
-type DszListDatasetsReq = Req
-type DszListDatasetsResp = Resp
-
 // List Datasets
 // Lists all datasets available to the user.
 type Api struct {
