@@ -2,9 +2,6 @@ package apicollectionz
 
 import (
 	"context"
-	"github.com/infinity6-ai/i6sdk/apiingestz/ingestzapibatchsummary"
-	"github.com/infinity6-ai/i6sdk/apipipez/pipezstartbatchingest"
-	"github.com/infinity6-ai/i6sdk/apipipez/pipezstartmain"
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapicustomerportalcreate"
@@ -31,10 +28,13 @@ import (
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapitableget"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapitablelist"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapitokendelete"
+	"github.com/infinity6-ai/i6sdk/apiingestz/ingestzapibatchsummary"
 	"github.com/infinity6-ai/i6sdk/apiingestz/ingestzapievent"
 	"github.com/infinity6-ai/i6sdk/apiingestz/ingestzapigeturl"
 	"github.com/infinity6-ai/i6sdk/apipipez/pipezget"
 	"github.com/infinity6-ai/i6sdk/apipipez/pipezlist"
+	"github.com/infinity6-ai/i6sdk/apipipez/pipezstartbatchingest"
+	"github.com/infinity6-ai/i6sdk/apipipez/pipezstartmain"
 	"github.com/infinity6-ai/i6sdk/apipipez/scheduleractivate"
 	"github.com/infinity6-ai/i6sdk/apipipez/schedulerdeactivate"
 	"github.com/infinity6-ai/i6sdk/apitfz/tfzapimodelmetadata"
@@ -71,139 +71,151 @@ type SdkApis struct {
 	Invoker InvokerFunc
 }
 
-func (a *SdkApis) DszApiLoadResultBatchSummary(ctx context.Context, api *dszapiloadresult.Api[*platformresultz.BatchSummary]) (int, error) {
+func (a *SdkApis) DszCreateCustomerPortal(ctx context.Context, api *dszapicustomerportalcreate.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) DszApiLoadResultCatalogSimple(ctx context.Context, api *dszapiloadresult.Api[*relevancefashionresultz.CatalogSimple]) (int, error) {
+func (a *SdkApis) DszCreateIngestionToken(ctx context.Context, api *dszapiingestiontokencreate.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Dszapicustomerportalcreate(ctx context.Context, api *dszapicustomerportalcreate.Api) (int, error) {
+func (a *SdkApis) DszCreateRecsysToken(ctx context.Context, api *dszapirecsystokencreate.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Dszapidatasetlist(ctx context.Context, api *dszapidatasetlist.Api) (int, error) {
+func (a *SdkApis) DszCreateStore(ctx context.Context, api *dszapistorecreate.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Dszapidatasetsolutions(ctx context.Context, api *dszapidatasetsolutions.Api) (int, error) {
+func (a *SdkApis) DszDatasetSolutions(ctx context.Context, api *dszapidatasetsolutions.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Dszapidomainsolutionget(ctx context.Context, api *dszapidomainsolutionget.Api) (int, error) {
+func (a *SdkApis) DszDeleteToken(ctx context.Context, api *dszapitokendelete.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Dszapiingestiontokencreate(ctx context.Context, api *dszapiingestiontokencreate.Api) (int, error) {
+func (a *SdkApis) DszDomainGet(ctx context.Context, api *dszapidomainsolutionget.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Dszapiingestiontokenslist(ctx context.Context, api *dszapiingestiontokenslist.Api) (int, error) {
+func (a *SdkApis) DszGetSubscription(ctx context.Context, api *dszapisubscriptionget.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Dszapimodelget(ctx context.Context, api *dszapimodelget.Api) (int, error) {
+func (a *SdkApis) DszListDatasets(ctx context.Context, api *dszapidatasetlist.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Dszapipaymentautorenewupdate(ctx context.Context, api *dszapipaymentautorenewupdate.Api) (int, error) {
+func (a *SdkApis) DszListIngestionTokens(ctx context.Context, api *dszapiingestiontokenslist.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Dszapipaymentlist(ctx context.Context, api *dszapipaymentlist.Api) (int, error) {
+func (a *SdkApis) DszListPayments(ctx context.Context, api *dszapipaymentlist.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Dszapiplanlist(ctx context.Context, api *dszapiplanlist.Api) (int, error) {
+func (a *SdkApis) DszListPlans(ctx context.Context, api *dszapiplanlist.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Dszapirecsystokencreate(ctx context.Context, api *dszapirecsystokencreate.Api) (int, error) {
+func (a *SdkApis) DszListRecsysTokens(ctx context.Context, api *dszapirecsystokenslist.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Dszapirecsystokenslist(ctx context.Context, api *dszapirecsystokenslist.Api) (int, error) {
+func (a *SdkApis) DszListStores(ctx context.Context, api *dszapistorelist.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Dszapisignedurl(ctx context.Context, api *dszapisignedurl.Api) (int, error) {
+func (a *SdkApis) DszModelGet(ctx context.Context, api *dszapimodelget.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Dszapistorecreate(ctx context.Context, api *dszapistorecreate.Api) (int, error) {
+func (a *SdkApis) DszResultLastBatchSummary(ctx context.Context, api *dszapiloadresult.Api[*platformresultz.BatchSummary]) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Dszapistoredisplaycreate(ctx context.Context, api *dszapistoredisplaycreate.Api) (int, error) {
+func (a *SdkApis) DszResultRelevanceFashionCatalog(ctx context.Context, api *dszapiloadresult.Api[*relevancefashionresultz.CatalogSimple]) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Dszapistoredisplaylist(ctx context.Context, api *dszapistoredisplaylist.Api) (int, error) {
+func (a *SdkApis) DszSignedUrl(ctx context.Context, api *dszapisignedurl.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Dszapistorelist(ctx context.Context, api *dszapistorelist.Api) (int, error) {
+func (a *SdkApis) DszStoreDisplayCreate(ctx context.Context, api *dszapistoredisplaycreate.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Dszapistripecheckout(ctx context.Context, api *dszapistripecheckout.Api) (int, error) {
+func (a *SdkApis) DszStoreDisplayList(ctx context.Context, api *dszapistoredisplaylist.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Dszapisubscriptionget(ctx context.Context, api *dszapisubscriptionget.Api) (int, error) {
+func (a *SdkApis) DszStripeCheckout(ctx context.Context, api *dszapistripecheckout.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Dszapisubscriptionplanupdate(ctx context.Context, api *dszapisubscriptionplanupdate.Api) (int, error) {
+func (a *SdkApis) DszTableGet(ctx context.Context, api *dszapitableget.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Dszapitableget(ctx context.Context, api *dszapitableget.Api) (int, error) {
+func (a *SdkApis) DszTableList(ctx context.Context, api *dszapitablelist.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Dszapitablelist(ctx context.Context, api *dszapitablelist.Api) (int, error) {
+func (a *SdkApis) DszUpdatePaymentAutoRenew(ctx context.Context, api *dszapipaymentautorenewupdate.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Dszapitokendelete(ctx context.Context, api *dszapitokendelete.Api) (int, error) {
+func (a *SdkApis) DszUpdateSubscriptionPlan(ctx context.Context, api *dszapisubscriptionplanupdate.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) IngestzApiEventCatalog(ctx context.Context, api *ingestzapievent.Api[*relevancefashiondataz.Catalog]) (int, error) {
+func (a *SdkApis) IngestzEventRelevanceFashionCatalog(ctx context.Context, api *ingestzapievent.Api[*relevancefashiondataz.Catalog]) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) IngestzApiEventEvent(ctx context.Context, api *ingestzapievent.Api[*relevancefashiondataz.Event]) (int, error) {
+func (a *SdkApis) IngestzEventRelevanceFashionEvent(ctx context.Context, api *ingestzapievent.Api[*relevancefashiondataz.Event]) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) IngestzApiGetUrl(ctx context.Context, api *ingestzapigeturl.Api) (int, error) {
+func (a *SdkApis) IngestzGetUrl(ctx context.Context, api *ingestzapigeturl.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Ingestzapibatchsummary(ctx context.Context, api *ingestzapibatchsummary.Api) (int, error) {
+func (a *SdkApis) IngestzLastBatchSummary(ctx context.Context, api *ingestzapibatchsummary.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Ingestzapigeturl(ctx context.Context, api *ingestzapigeturl.Api) (int, error) {
+func (a *SdkApis) PipezGet(ctx context.Context, api *pipezget.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Pipezget(ctx context.Context, api *pipezget.Api) (int, error) {
+func (a *SdkApis) PipezList(ctx context.Context, api *pipezlist.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Pipezlist(ctx context.Context, api *pipezlist.Api) (int, error) {
+func (a *SdkApis) PipezSchedulerActivateRelevanceFashionRelevanceFashionBatchIngest(ctx context.Context, api *scheduleractivate.Api[*relevancefashionpipez.BatchIngest]) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Pipezstartbatchingest(ctx context.Context, api *pipezstartbatchingest.Api) (int, error) {
+func (a *SdkApis) PipezSchedulerActivateRelevanceFashionRelevanceFashionMain(ctx context.Context, api *scheduleractivate.Api[*relevancefashionpipez.Main]) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Pipezstartmain(ctx context.Context, api *pipezstartmain.Api) (int, error) {
+func (a *SdkApis) PipezSchedulerDeactivateRelevanceFashionRelevanceFashionBatchIngest(ctx context.Context, api *schedulerdeactivate.Api[*relevancefashionpipez.BatchIngest]) (int, error) {
+	return a.Invoker(ctx, api)
+}
+
+func (a *SdkApis) PipezSchedulerDeactivateRelevanceFashionRelevanceFashionMain(ctx context.Context, api *schedulerdeactivate.Api[*relevancefashionpipez.Main]) (int, error) {
+	return a.Invoker(ctx, api)
+}
+
+func (a *SdkApis) PipezStartRelevanceFashionRelevanceFashionBatchIngest(ctx context.Context, api *pipezstartbatchingest.Api) (int, error) {
+	return a.Invoker(ctx, api)
+}
+
+func (a *SdkApis) PipezStartRelevanceFashionRelevanceFashionMain(ctx context.Context, api *pipezstartmain.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
@@ -211,99 +223,83 @@ func (a *SdkApis) RoutezSampleFraction(ctx context.Context, api *routezsamplefra
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) SchedulerActivateBatchIngest(ctx context.Context, api *scheduleractivate.Api[*relevancefashionpipez.BatchIngest]) (int, error) {
+func (a *SdkApis) TfzModelMetadata(ctx context.Context, api *tfzapimodelmetadata.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) SchedulerActivateMain(ctx context.Context, api *scheduleractivate.Api[*relevancefashionpipez.Main]) (int, error) {
+func (a *SdkApis) TfzModelPredict(ctx context.Context, api *tfzapimodelpredict.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) SchedulerDeactivateBatchIngest(ctx context.Context, api *schedulerdeactivate.Api[*relevancefashionpipez.BatchIngest]) (int, error) {
+func (a *SdkApis) UserAuthDeviceCode(ctx context.Context, api *userapiauthdevicecode.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) SchedulerDeactivateMain(ctx context.Context, api *schedulerdeactivate.Api[*relevancefashionpipez.Main]) (int, error) {
+func (a *SdkApis) UserAuthDeviceToken(ctx context.Context, api *userapiauthdevicetoken.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Tfzapimodelmetadata(ctx context.Context, api *tfzapimodelmetadata.Api) (int, error) {
+func (a *SdkApis) UserAuthExchange(ctx context.Context, api *userapiauthexchange.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Tfzapimodelpredict(ctx context.Context, api *tfzapimodelpredict.Api) (int, error) {
+func (a *SdkApis) UserAuthGoogle(ctx context.Context, api *userapiauthgoogle.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Userapiauthdevicecode(ctx context.Context, api *userapiauthdevicecode.Api) (int, error) {
+func (a *SdkApis) UserAuthLogout(ctx context.Context, api *userapiauthlogout.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Userapiauthdevicetoken(ctx context.Context, api *userapiauthdevicetoken.Api) (int, error) {
+func (a *SdkApis) UserAuthMe(ctx context.Context, api *userapiauthme.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Userapiauthexchange(ctx context.Context, api *userapiauthexchange.Api) (int, error) {
+func (a *SdkApis) UserAuthPasswordReset(ctx context.Context, api *userapiauthpasswordreset.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Userapiauthgoogle(ctx context.Context, api *userapiauthgoogle.Api) (int, error) {
+func (a *SdkApis) UserAuthPasswordSignin(ctx context.Context, api *userapiauthpasswordsignin.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Userapiauthlogout(ctx context.Context, api *userapiauthlogout.Api) (int, error) {
+func (a *SdkApis) UserAuthPasswordSignup(ctx context.Context, api *userapiauthpasswordsignup.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Userapiauthme(ctx context.Context, api *userapiauthme.Api) (int, error) {
+func (a *SdkApis) UserAuthRefresh(ctx context.Context, api *userapiauthrefresh.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Userapiauthpasswordreset(ctx context.Context, api *userapiauthpasswordreset.Api) (int, error) {
+func (a *SdkApis) UserConfSettings(ctx context.Context, api *userapiconfsettings.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Userapiauthpasswordsignin(ctx context.Context, api *userapiauthpasswordsignin.Api) (int, error) {
+func (a *SdkApis) UserDatasetTokenAccessAttenuate(ctx context.Context, api *userapidatasettokenaccessattenuate.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Userapiauthpasswordsignup(ctx context.Context, api *userapiauthpasswordsignup.Api) (int, error) {
+func (a *SdkApis) UserDatasetTokenAccessCreate(ctx context.Context, api *userapidatasettokenaccesscreate.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Userapiauthrefresh(ctx context.Context, api *userapiauthrefresh.Api) (int, error) {
+func (a *SdkApis) UserDatasetTokenRefresh(ctx context.Context, api *userapidatasettokenrefresh.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Userapiconfsettings(ctx context.Context, api *userapiconfsettings.Api) (int, error) {
+func (a *SdkApis) UserDatasetTokenRefreshCreate(ctx context.Context, api *userapidatasettokenrefreshcreate.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Userapidatasettokenaccessattenuate(ctx context.Context, api *userapidatasettokenaccessattenuate.Api) (int, error) {
+func (a *SdkApis) UserDatasetTokenRefreshDelete(ctx context.Context, api *userapidatasettokenrefreshdelete.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Userapidatasettokenaccesscreate(ctx context.Context, api *userapidatasettokenaccesscreate.Api) (int, error) {
+func (a *SdkApis) UserDatasetTokenRefreshList(ctx context.Context, api *userapidatasettokenrefreshlist.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) Userapidatasettokenrefresh(ctx context.Context, api *userapidatasettokenrefresh.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) Userapidatasettokenrefreshcreate(ctx context.Context, api *userapidatasettokenrefreshcreate.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) Userapidatasettokenrefreshdelete(ctx context.Context, api *userapidatasettokenrefreshdelete.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) Userapidatasettokenrefreshlist(ctx context.Context, api *userapidatasettokenrefreshlist.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) Userapitokencheck(ctx context.Context, api *userapitokencheck.Api) (int, error) {
+func (a *SdkApis) UserTokenCheck(ctx context.Context, api *userapitokencheck.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
