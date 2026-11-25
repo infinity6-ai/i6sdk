@@ -1,11 +1,11 @@
-"""Example: Uploading multiple large files (10 x 100MB) using the Infinity6 Ingestion API.
+"""Example: Uploading multiple large files (10 x 20MB) using the Infinity6 Ingestion API.
 
 This script demonstrates streaming multi-file / multi-part data batches to the
 Infinity6 ingestion service in parallel.
 
 Target Table: prcbidding-margin-catalog (from lakezprcbiddingmain/prcbiddingmain_catalog.go)
 Table Partitions: ingested_at, store_id
-Files: 10 large NDJSON files (~100MB each) located in the repository's `gen/` directory.
+Files: 10 large NDJSON files (~20MB each) located in the repository's `gen/` directory.
 """
 
 from __future__ import annotations
@@ -29,7 +29,7 @@ if str(_SRC_DIR) not in sys.path:
 # Default target directory for generated files
 DEFAULT_GEN_DIR = _REPO_ROOT / "gen"
 TARGET_FILE_COUNT = 10
-TARGET_FILE_SIZE_BYTES = 100 * 1024 * 1024  # 100 MiB per file (~1 GB total across 10 files)
+TARGET_FILE_SIZE_BYTES = 20 * 1024 * 1024  # 20 MiB per file (~200 MB total across 10 files)
 
 
 def generate_single_file(filepath: pathlib.Path, file_index: int, target_size: int) -> int:
@@ -41,7 +41,7 @@ def generate_single_file(filepath: pathlib.Path, file_index: int, target_size: i
         '"hierarchy":[{"name":"department","value":"Apparel"},'
         '{"name":"category","value":"Outerwear"},{"name":"subcategory","value":"Jackets"}]}\n'
     )
-    batch_size = 10000
+    batch_size = 2000
     written = 0
     item_idx = 0
 
@@ -62,23 +62,32 @@ def ensure_large_files(
     gen_dir: pathlib.Path,
     count: int = TARGET_FILE_COUNT,
     target_size_bytes: int = TARGET_FILE_SIZE_BYTES,
+    force: bool = False,
 ) -> List[pathlib.Path]:
-    """Ensures that the required large NDJSON files exist in gen_dir, generating any that are missing."""
+    """Ensures that the required large NDJSON files exist in gen_dir, generating any that are missing or wrong size."""
     gen_dir.mkdir(parents=True, exist_ok=True)
     file_paths: List[pathlib.Path] = []
+    target_mb = target_size_bytes / (1024 * 1024)
 
-    print(f"Checking for {count} large files (target: {target_size_bytes / (1024 * 1024):.0f} MB each) in {gen_dir}...")
+    print(f"Checking for {count} large files (target: {target_mb:.0f} MB each) in {gen_dir}...")
     for i in range(1, count + 1):
         filename = f"ingestion_large_{i:02d}.json"
         path = gen_dir / filename
         file_paths.append(path)
 
-        if path.is_file() and path.stat().st_size >= target_size_bytes:
+        # Check if file exists and its size is reasonably close (>= target and <= 1.3 * target)
+        is_valid_size = (
+            path.is_file()
+            and path.stat().st_size >= target_size_bytes
+            and path.stat().st_size <= target_size_bytes * 1.3
+        )
+
+        if not force and is_valid_size:
             current_mb = path.stat().st_size / (1024 * 1024)
             print(f"  [{i:02d}/{count:02d}] {filename} exists ({current_mb:.1f} MB) - OK")
         else:
             print(
-                f"  [{i:02d}/{count:02d}] Generating {filename} (~{target_size_bytes / (1024 * 1024):.0f} MB)...",
+                f"  [{i:02d}/{count:02d}] Generating {filename} (~{target_mb:.0f} MB)...",
                 end="",
                 flush=True,
             )
@@ -100,6 +109,11 @@ def main() -> None:
         help="Only generate the 10 large files in gen/ without uploading",
     )
     parser.add_argument(
+        "--force-generate",
+        action="store_true",
+        help="Force regeneration of files even if they already exist",
+    )
+    parser.add_argument(
         "--gen-dir",
         type=pathlib.Path,
         default=DEFAULT_GEN_DIR,
@@ -108,7 +122,12 @@ def main() -> None:
     args = parser.parse_args()
 
     # 1. Ensure all 10 large files exist in gen/
-    files = ensure_large_files(args.gen_dir, count=TARGET_FILE_COUNT, target_size_bytes=TARGET_FILE_SIZE_BYTES)
+    files = ensure_large_files(
+        args.gen_dir,
+        count=TARGET_FILE_COUNT,
+        target_size_bytes=TARGET_FILE_SIZE_BYTES,
+        force=args.force_generate,
+    )
     if args.generate_only:
         print("Generation complete (--generate-only requested). Exiting.")
         return
