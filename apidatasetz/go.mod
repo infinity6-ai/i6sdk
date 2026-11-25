@@ -20,7 +20,6 @@ require (
 	cloud.google.com/go/auth/oauth2adapt v0.3.1 // indirect
 	cloud.google.com/go/compute/metadata v0.10.0 // indirect
 	cloud.google.com/go/iam v1.15.1 // indirect
-	cloud.google.com/go/longrunning v1.5.0 // indirect
 	cloud.google.com/go/monitoring v1.31.0 // indirect
 	cloud.google.com/go/storage v1.70.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.35.0 // indirect
@@ -69,3 +68,27 @@ require (
 	google.golang.org/grpc v1.85.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
 )
+
+replace github.com/infinity6-ai/i6sdk/apicollectionz => ../apicollectionz
+
+replace github.com/infinity6-ai/i6sdk/apiingestz => ../apiingestz
+
+replace github.com/infinity6-ai/i6sdk/apipipez => ../apipipez
+
+replace github.com/infinity6-ai/i6sdk/apitfz => ../apitfz
+
+replace github.com/infinity6-ai/i6sdk/apiuserz => ../apiuserz
+
+replace github.com/infinity6-ai/i6sdk/forgez => ../forgez
+
+replace github.com/infinity6-ai/i6sdk/mold => ../mold
+
+replace github.com/infinity6-ai/i6sdk/sdkcorez => ../sdkcorez
+
+replace github.com/infinity6-ai/i6sdk/sdkgo => ../sdkgo
+
+replace github.com/infinity6-ai/i6sdk/sdkpy => ../sdkpy
+
+replace github.com/infinity6-ai/i6sdk/sdkweb => ../sdkweb
+
+replace github.com/infinity6-ai/i6sdk/versionz => ../versionz

@@ -56,6 +56,10 @@ function cmd_uphead() {
   cmd_comps_run uphead "$@"
 }
 
+function cmd_tidy() {
+  cmd_comps_run tidy "$@"
+}
+
 function cmd_update() {
   cmd_comps_run update "$@"
 }
