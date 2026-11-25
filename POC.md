@@ -268,10 +268,13 @@ resp, err := client.Datasets().List(ctx, &dszapidatasetlist.Req{
 })
 ```
 
-#### 3. Backend Pipeline Bridge Pattern (Path 2B)
-For polymorphic pipeline endpoints (e.g. `pipezstart`), backend services adapt concrete envelope APIs through the lightweight `PipeStarterApi` bridge without sacrificing Go generics:
+#### 3. Universal Rule for Generic `[T]` APIs & Backend Bridge Pattern (Option A / Path 2B)
+To ensure 100% parity across TypeScript, Python, and Go SDKs, and full compatibility with `schemagen` and `apisgen`, **no generic `type Api[T ...]` structs remain in the public SDK surface**. Every polymorphic API family is resolved using:
+1. **Concrete Envelope Packages (`i6sdk`)**: Each concrete instantiation (per table, pipe, or result) receives its own dedicated package with explicit envelopes, godoc, and `<MethodName>Id` stub struct.
+2. **Backend Bridge Interface (`../*`)**: Sibling backend service runners remain generic `Service[A BridgeApi]`, adapting concrete APIs via a lightweight bridge interface with `newT[A]()` dynamic pointer allocation.
 
 ```go
+// Example: In backend runner (i6pipez)
 type PipeStarterApi interface {
     apiz.Api
     Dataset() lakedsz.Dataset
@@ -283,7 +286,21 @@ type PipezStartService[A PipeStarterApi] struct {
     api A
 }
 ```
-This enables both concrete envelope APIs (`pipezstartbatchingest.Api`) and legacy generic templates (`pipezstart.Api[T]`) to be served by the exact same backend service runner.
+
+This pattern applies universally across all 5 polymorphic API families:
+- `pipezstart.Api[T]` $\rightarrow$ `pipezstartbatchingest` & `pipezstartmain` (Bridge: `PipeStarterApi`) `[DONE]`
+- `ingestzapievent.Api[T]` $\rightarrow$ `ingestzapieventcatalog` & `ingestzapieventevent` (Bridge: `EventIngestApi`) `[DONE]`
+- `ingestzapistream.Api[T]` $\rightarrow$ `ingestzapistreamcatalog` & `ingestzapistreamevent` (Bridge: `StreamIngestApi`) `[DONE]`
+- `scheduleractivate.Api[T]` $\rightarrow$ `scheduleractivatebatchingest` & `scheduleractivatemain` (Bridge: `SchedulerActivatorApi`) `[STEP 3]`
+- `schedulerdeactivate.Api[T]` $\rightarrow$ `schedulerdeactivatebatchingest` & `schedulerdeactivatemain` (Bridge: `SchedulerDeactivatorApi`) `[STEP 3]`
+- `dszapiloadresult.Api[T]` $\rightarrow$ `dszapiloadresultcatalog` & `dszapiloadresultbatchsummary` (Bridge: `LoadResultApi`) `[STEP 5]`
+
+#### 4. Clean Checkouts & SdkApis Method Promotion (`<MethodName>Id`)
+1. **Compile-time safety on fresh clones**: Every API package defines a concrete stub struct `type <MethodName>Id struct{}` with an actionable panic.
+2. **Method promotion**: `SdkApis` in `apicollectionz/apis.go` embeds these stub structs, statically promoting every API method to the client without requiring `.gen.go` files on disk.
+3. **Automated Codegen (`mold apisgen`)**: Emits `apis.gen.go` with real delegating methods that cleanly shadow the embedded stubs.
+4. **Single Source of Truth**: The Go method name on `<MethodName>Id` defines the API ID via `camelz.P(name).QL()`.
+5. **Zero-Underscore Rule**: API IDs must **never contain underscores (`_`)**. Kebab-case with hyphens (`-`) is strictly enforced across all IDs.
 
 ---
 
@@ -300,43 +317,54 @@ This enables both concrete envelope APIs (`pipezstartbatchingest.Api`) and legac
 
 ## 6. Implementation Plan & Milestones
 
-### Phase 1: Prototype `schemagen`
-- Build prototype CLI in `cmd/schemagen` or `schemaz/cmdschemagen`.
-- Test on a single endpoint (e.g. `apidatasetz/dszapidatasetlist`).
+### Phase 1: Prototype `schemagen` [DONE]
+- Build prototype CLI in `mold/schemagen`.
+- Test on a single endpoint (`apidatasetz/dszapidatasetlist`).
 - Verify that generated `ApiDataRefs()` matches the expected schema and passes unit tests.
 
-### Phase 2: Verify Multi-Language Codegen
+### Phase 2: Verify Multi-Language Codegen [DONE]
 - Run `./comp.sh forgez test` and `./build.sh codegen`.
 - Confirm that `sdkweb` (`sdkapis.js`) and `sdkpy` (`apis.py`, `types.py`) produce identical outputs with preserved JSDoc/docstrings.
 
-### Phase 3: Rollout Across API Modules & Backend Service Projects
+### Phase 2.5: SdkApis & Stub Architecture [DONE]
+- Refactor `apicollectionz` to a concrete `SdkApis` struct with embedded stub promotion.
+- Build `mold apisgen` to automate `apis.gen.go` generation.
+- Enforce zero underscores across all API IDs.
+
+### Phase 3: Rollout Across API Modules & Backend Service Projects [IN PROGRESS]
 
 Each `api*z` module in `i6sdk` pairs with a corresponding backend service repository in the workspace that implements its handlers:
 
-| SDK API Module (`i6sdk`) | Backend Service Project (`../*`) | Scope & Key Endpoints | Status |
-|:---|:---|:---|:---|
-| `apidatasetz/` | `i6datasetz/` | ~22 endpoints (`dszapidatasetlist`, `dszapistore*`, `dszapipayment*`, etc.) | Prototype validated (`dszapidatasetlist`) |
-| `apipipez/` | `i6pipez/` | 5 endpoints (`pipezstartbatchingest`, `pipezstartmain`, `pipezget`, etc.) | Prototype validated (`pipezstart*`) |
-| `apiuserz/` | `i6userz/` | ~18 endpoints (`userapiauth*`, `userapidatasettoken*`, `userapitokencheck`) | Pending Phase 3 rollout |
-| `apiingestz/` | `i6ingestz/` | 4 endpoints (`ingestzapievent`, `ingestzapistream`, `ingestzapigeturl`, etc.) | Pending Phase 3 rollout |
-| `apitfz/` | `i6tfz/` | 2 endpoints (`tfzapimodelmetadata`, `tfzapimodelpredict`) | Pending Phase 3 rollout |
-| - | `i6decsuite/` | Aggregator service referencing `userapiauthexchange` | Synchronize during `apiuserz` |
+| Step | SDK API Module (`i6sdk`) | Backend Service Project (`../*`) | Scope & Key Endpoints | Status |
+|:---:|:---|:---|:---|:---|
+| **1** | `apitfz/` | `i6tfz/` | 2 endpoints (`tfzapimodelmetadata`, `tfzapimodelpredict`) | **DONE** (100% green in both repos) |
+| **2** | `apiingestz/` | `i6ingestz/` | 6 concrete endpoints (split `event[T]` & `stream[T]`, `batchsummary`, `geturl`) | **DONE** (100% green in both repos) |
+| **3** | `apipipez/` | `i6pipez/` | 6 concrete endpoints (`pipezget`, `pipezlist`, split `scheduleractivate[T]` & `schedulerdeactivate[T]`) | **IN PROGRESS** (Next step) |
+| **4** | `apiuserz/` | `i6userz/` + `i6decsuite/` | 18 endpoints (`userapiauth*`, `userapidatasettoken*`, `userapitokencheck`) | Pending Step 4 |
+| **5** | `apidatasetz/` | `i6datasetz/` | 24 concrete endpoints (split `dszapiloadresult[T]`, remaining 22 dataset endpoints) | Pending Step 5 |
 
 #### Synchronized Refactoring Workflow (Per Domain Module)
 1. **Refactor API Contract (`i6sdk/api*z`)**:
+   - For generic families, split into concrete packages following Option A.
    - Convert requests and responses to explicit `{Params, Query, Headers, Payload}` envelopes.
-   - Replace handwritten `ApiSpec()` with `ApiRoute() apiz.ApiSpec`.
+   - Replace handwritten `ApiSpec()` with `ApiRoute() apiz.ApiSpec` (omitting `Id`).
+   - Define concrete `<MethodName>Id struct{}` with stub method.
    - Embed `apiz.UnimplementedApi` with `json:"-"`.
+   - Add rich Go doc comments on structs and fields for automatic schema documentation.
    - Add `//go:generate go run github.com/infinity6-ai/i6sdk/mold schemagen .`.
    - Run `go generate ./...` to produce `<endpoint>.gen.go`.
-2. **Update Backend Service Handler (`i6*`)**:
+2. **Register in `apicollectionz`**:
+   - Embed `<MethodName>Id` in `SdkApis`.
+   - Run `go generate ./...` in `apicollectionz` to execute `apisgen` and emit `apis.gen.go`.
+3. **Update Backend Service Handler (`i6*`)**:
+   - For generic families, implement Path 2B bridge interface runner.
    - Update handler to read inputs from `d.api.Req.Params`, `d.api.Req.Payload`, etc.
    - Update handler to write response to `d.api.Resp = &<endpoint>.Resp{ Payload: ... }`.
    - Update service unit tests to instantiate envelopes.
-3. **Validate Pair**:
-   - Run `./comp.sh <module> test` in `i6sdk`.
+4. **Validate Pair**:
+   - Run `./comp.sh <module> test` and `./comp.sh apicollectionz test` in `i6sdk`.
    - Run `go test -v ./...` in the backend service project.
-   - Run `./comp.sh forgez test` and `./build.sh codegen` to confirm downstream parity.
+   - Run `./build.sh codegen && ./build.sh test` to confirm multi-language parity.
 
 ### Phase 4: Build `sdkgo` Runtime
 - Implement `I6Client`, `Invoker`, and `Tokens` (thread-safe double-checked renewal).
