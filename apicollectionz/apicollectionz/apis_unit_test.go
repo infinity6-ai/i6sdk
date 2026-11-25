@@ -1,9 +1,12 @@
 package apicollectionz_test
 
 import (
+	"context"
 	"testing"
 
+	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/i6sdk/apicollectionz/apicollectionz"
+	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapidatasetlist"
 	"github.com/stretchr/testify/require"
 )
 
@@ -59,4 +62,19 @@ func TestUnitApiNotFound(t *testing.T) {
 	require.Panics(t, func() {
 		apicollectionz.Api("non-existent-api-id")
 	})
+}
+
+func TestUnitSdkApisMethodShadowing(t *testing.T) {
+	called := false
+	apis := &apicollectionz.SdkApis{
+		Invoker: func(ctx context.Context, api apiz.Api) (int, error) {
+			called = true
+			return 200, nil
+		},
+	}
+
+	code, err := apis.DszListDatasets(context.Background(), &dszapidatasetlist.Api{})
+	require.NoError(t, err)
+	require.Equal(t, 200, code)
+	require.True(t, called)
 }

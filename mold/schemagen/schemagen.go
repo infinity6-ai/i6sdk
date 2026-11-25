@@ -124,7 +124,7 @@ func collectTypeInfo(pkg *ast.Package, docPkg *doc.Package) *typeInfo {
 						info.hasApiSpec = true
 					}
 				}
-				if recvType == "UnimplementedId" {
+				if strings.HasSuffix(recvType, "Id") && recvType != "Api" {
 					info.apiMethodName = fd.Name.Name
 				}
 			}

@@ -1,3 +1,4 @@
+//go:generate go run github.com/infinity6-ai/i6sdk/mold apisgen .
 package apicollectionz
 
 import (
@@ -69,7 +70,10 @@ import (
 type InvokerFunc func(ctx context.Context, api apiz.Api) (int, error)
 
 type SdkApis struct {
-	dszapidatasetlist.UnimplementedId
+	dszapidatasetlist.DszListDatasetsId
+	pipezstartbatchingest.PipezStartRelevanceFashionRelevanceFashionBatchIngestId
+	pipezstartmain.PipezStartRelevanceFashionRelevanceFashionMainId
+
 	Invoker InvokerFunc
 }
 
@@ -213,13 +217,13 @@ func (a *SdkApis) PipezSchedulerDeactivateRelevanceFashionRelevanceFashionMain(c
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) PipezStartRelevanceFashionRelevanceFashionBatchIngest(ctx context.Context, api *pipezstartbatchingest.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
+// func (a *SdkApis) PipezStartRelevanceFashionRelevanceFashionBatchIngest(ctx context.Context, api *pipezstartbatchingest.Api) (int, error) {
+// 	return a.Invoker(ctx, api)
+// }
 
-func (a *SdkApis) PipezStartRelevanceFashionRelevanceFashionMain(ctx context.Context, api *pipezstartmain.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
+// func (a *SdkApis) PipezStartRelevanceFashionRelevanceFashionMain(ctx context.Context, api *pipezstartmain.Api) (int, error) {
+// 	return a.Invoker(ctx, api)
+// }
 
 func (a *SdkApis) RoutezSampleFraction(ctx context.Context, api *routezsamplefraction.FractionApi) (int, error) {
 	return a.Invoker(ctx, api)

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/infinity6-ai/i6sdk/mold/apisgen"
 	"github.com/infinity6-ai/i6sdk/mold/schemagen"
 	"github.com/infinity6-ai/i6sdk/versionz/version"
 	"github.com/spf13/cobra"
@@ -25,8 +26,35 @@ func Prepare(ctx context.Context) *cobra.Command {
 	})
 
 	rootCmd.AddCommand(prepareSchemagenCmd())
+	rootCmd.AddCommand(prepareApisgenCmd())
 
 	return rootCmd
+}
+
+func prepareApisgenCmd() *cobra.Command {
+	var dir string
+	cmd := &cobra.Command{
+		Use:   "apisgen [dir]",
+		Short: "generate SdkApis method delegations for apicollectionz",
+		Args:  cobra.MaximumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			targetDir := dir
+			if len(args) > 0 {
+				targetDir = args[0]
+			}
+			if targetDir == "" {
+				targetDir = "."
+			}
+			outFile, err := apisgen.GenerateDir(targetDir)
+			if err != nil {
+				return err
+			}
+			fmt.Printf("Generated %s\n", outFile)
+			return nil
+		},
+	}
+	cmd.Flags().StringVar(&dir, "dir", ".", "target package directory")
+	return cmd
 }
 
 func prepareSchemagenCmd() *cobra.Command {

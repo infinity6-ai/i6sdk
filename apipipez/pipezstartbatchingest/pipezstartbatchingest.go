@@ -2,6 +2,8 @@
 package pipezstartbatchingest
 
 import (
+	"context"
+
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
@@ -52,7 +54,6 @@ type Api struct {
 
 func (d *Api) ApiRoute() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id:     "pipez-start-relevance-fashion-relevance-fashion-batch-ingest",
 		Method: "POST",
 		Path:   "/api/pipe/dataset/{dataset}/start/relevance_fashion/relevance-fashion-batch-ingest",
 		Desc: func() *schemaz.Desc {
@@ -63,6 +64,12 @@ func (d *Api) ApiRoute() apiz.ApiSpec {
 			}
 		},
 	}
+}
+
+type PipezStartRelevanceFashionRelevanceFashionBatchIngestId struct{}
+
+func (PipezStartRelevanceFashionRelevanceFashionBatchIngestId) PipezStartRelevanceFashionRelevanceFashionBatchIngest(ctx context.Context, api *Api) (int, error) {
+	panic("PipezStartRelevanceFashionRelevanceFashionBatchIngest not implemented: run 'go generate ./...'")
 }
 
 func (d *Api) Dataset() lakedsz.Dataset {

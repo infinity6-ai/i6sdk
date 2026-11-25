@@ -57,7 +57,6 @@ type Api struct {
 
 func (d *Api) ApiRoute() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		// Id:     "dsz-list-datasets",
 		Method: "GET",
 		Path:   "/api/ds/user-id/{userId}/datasets",
 		Desc: func() *schemaz.Desc {
@@ -70,13 +69,8 @@ func (d *Api) ApiRoute() apiz.ApiSpec {
 	}
 }
 
-type Id interface {
-	DszListDatasets(ctx context.Context, api *Api) (int, error)
-}
+type DszListDatasetsId struct{}
 
-type UnimplementedId struct {
-}
-
-func (UnimplementedId) DszListDatasets(ctx context.Context, api *Api) (int, error) {
+func (DszListDatasetsId) DszListDatasets(ctx context.Context, api *Api) (int, error) {
 	panic("DszListDatasets not implemented: run 'go generate ./...'")
 }
