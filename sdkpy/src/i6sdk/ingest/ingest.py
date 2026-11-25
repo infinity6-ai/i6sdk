@@ -64,17 +64,15 @@ StreamInput = Union[
 
 
 class _NormalizedStream:
-    """Normalized stream descriptor with size and content type."""
+    """Normalized stream descriptor with size."""
 
     def __init__(
         self,
         stream_obj: BinaryIO,
         size: int,
-        content_type: str,
     ) -> None:
         self.stream_obj = stream_obj
         self.size = size
-        self.content_type = content_type
 
 
 class ProgressStreamReader:
@@ -126,10 +124,9 @@ class ProgressStreamReader:
         return self._total_size
 
 
-def _normalize_stream(item: Any, default_content_type: str) -> _NormalizedStream:
+def _normalize_stream(item: Any) -> _NormalizedStream:
     """Normalizes any supported stream input into a _NormalizedStream."""
     explicit_size: Optional[int] = None
-    content_type = default_content_type
     source: Any = item
 
     if isinstance(item, tuple) and len(item) == 2:
@@ -137,7 +134,6 @@ def _normalize_stream(item: Any, default_content_type: str) -> _NormalizedStream
     elif isinstance(item, dict):
         source = item.get("stream")
         explicit_size = item.get("total_size") or item.get("totalSize") or item.get("size")
-        content_type = item.get("content_type") or item.get("contentType") or default_content_type
 
     if isinstance(source, str):
         raise I6ValidationError(
@@ -171,7 +167,6 @@ def _normalize_stream(item: Any, default_content_type: str) -> _NormalizedStream
     return _NormalizedStream(
         stream_obj=stream_obj,
         size=calc_size,
-        content_type=content_type,
     )
 
 
@@ -229,7 +224,6 @@ class Ingest:
         stream: Optional[StreamInput] = None,
         file: Optional[StreamInput] = None,
         total_size: Optional[int] = None,
-        content_type: str = "application/octet-stream",
         on_progress: Optional[Callable[[UploadProgress], None]] = None,
         onProgress: Optional[Callable[[UploadProgress], None]] = None,
         cancel_event: Optional[threading.Event] = None,
@@ -279,7 +273,7 @@ class Ingest:
             raise I6ValidationError("Upload aborted by caller")
 
         normalized: List[_NormalizedStream] = [
-            _normalize_stream(it, content_type) for it in raw_items
+            _normalize_stream(it) for it in raw_items
         ]
         count = len(normalized)
         total_bytes_all = sum(s.size for s in normalized)
@@ -346,7 +340,6 @@ class Ingest:
             )
 
             headers = {
-                "Content-Type": item.content_type,
                 "Content-Length": str(item.size),
             }
 

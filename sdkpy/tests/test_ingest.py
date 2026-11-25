@@ -286,6 +286,40 @@ class TestIngest(unittest.TestCase):
         self.assertEqual(last_event["total_streams"], 3)
 
 
+    def test_upload_no_content_type_header(self) -> None:
+        calls = []
+
+        def mock_fetcher(
+            url: str, method: str, headers: Dict[str, str], body: Any, timeout: float
+        ) -> Tuple[int, Dict[str, str], str]:
+            calls.append({"url": url, "method": method, "headers": headers})
+            if "get-url" in url:
+                return 200, {"content-type": "application/json"}, json.dumps({
+                    "ingest_id": "ing-no-ct",
+                    "uploads": ["https://storage.test/upload/no-ct"],
+                })
+            return 200, {}, ""
+
+        client = I6Client(I6SdkConfig(
+            serv_urls={"decsuite": "https://api.i6.test"},
+            fetcher=mock_fetcher,
+        ))
+
+        client.ingest().upload(
+            dataset="dectest",
+            table="inbox_users",
+            partitions={"date": "2026-11-24"},
+            stream=b"payload_bytes",
+        )
+
+        put_calls = [c for c in calls if c["method"] == "PUT"]
+        self.assertEqual(len(put_calls), 1)
+        headers = put_calls[0]["headers"]
+        self.assertIn("Content-Length", headers)
+        self.assertEqual(headers["Content-Length"], str(len(b"payload_bytes")))
+        self.assertNotIn("Content-Type", headers)
+        self.assertNotIn("content-type", headers)
+
     def test_upload_validation_errors(self) -> None:
         client = I6Client(I6SdkConfig())
 

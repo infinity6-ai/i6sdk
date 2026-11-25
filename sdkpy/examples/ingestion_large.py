@@ -248,7 +248,6 @@ def main() -> None:
             table=table_name,
             partitions=partitions,
             streams=file_handles,
-            content_type="application/x-ndjson",
             on_progress=on_progress,
             timeout=600.0,
         )

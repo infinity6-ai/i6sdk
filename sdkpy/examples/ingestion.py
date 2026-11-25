@@ -98,7 +98,6 @@ def main() -> None:
             table=table_name,
             partitions=partitions,
             streams=[stream],
-            content_type="application/x-ndjson",
             on_progress=on_progress,
         )
         print(f"\nUpload complete!")
