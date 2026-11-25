@@ -73,7 +73,6 @@ def main() -> None:
                 {"name": "category", "value": "Tops"},
                 {"name": "subcategory", "value": "Shirts"},
             ],
-            "ingested_at": now_iso,
         },
         {
             "id": "SKU-JEANS-02",
@@ -87,7 +86,6 @@ def main() -> None:
                 {"name": "category", "value": "Bottoms"},
                 {"name": "subcategory", "value": "Jeans"},
             ],
-            "ingested_at": now_iso,
         },
         {
             "id": "SKU-JACKET-03",
@@ -100,7 +98,6 @@ def main() -> None:
                 {"name": "department", "value": "Outerwear"},
                 {"name": "category", "value": "Jackets"},
             ],
-            "ingested_at": now_iso,
         },
     ]
 
