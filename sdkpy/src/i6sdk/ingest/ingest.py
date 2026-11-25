@@ -54,13 +54,14 @@ class SignedUrlResult(TypedDict):
     urls: List[str]
 
 
-StreamInput = Union[
+StreamItem = Union[
     BinaryIO,
     bytes,
     bytearray,
     Tuple[Union[BinaryIO, bytes, bytearray], int],
-    Dict[str, Any],
 ]
+
+StreamInput = StreamItem
 
 
 class _NormalizedStream:
@@ -131,9 +132,6 @@ def _normalize_stream(item: Any) -> _NormalizedStream:
 
     if isinstance(item, tuple) and len(item) == 2:
         source, explicit_size = item
-    elif isinstance(item, dict):
-        source = item.get("stream")
-        explicit_size = item.get("total_size") or item.get("totalSize") or item.get("size")
 
     if isinstance(source, str):
         raise I6ValidationError(
@@ -220,10 +218,7 @@ class Ingest:
         dataset: str,
         table: str,
         partitions: Dict[str, str],
-        streams: Optional[Union[StreamInput, Sequence[StreamInput]]] = None,
-        stream: Optional[StreamInput] = None,
-        file: Optional[StreamInput] = None,
-        total_size: Optional[int] = None,
+        streams: Sequence[StreamItem],
         on_progress: Optional[Callable[[UploadProgress], None]] = None,
         onProgress: Optional[Callable[[UploadProgress], None]] = None,
         cancel_event: Optional[threading.Event] = None,
@@ -236,35 +231,19 @@ class Ingest:
             raise I6ValidationError("dataset is required")
         if not table:
             raise I6ValidationError("table is required")
+        if streams is None:
+            raise I6ValidationError("streams is required")
 
-        # Resolve inputs
-        raw_items: List[Any] = []
-        if streams is not None:
-            if isinstance(streams, (list, tuple)):
-                raw_items = list(streams)
-            else:
-                raw_items = [streams]
-        elif stream is not None:
-            raw_items = [stream]
-        elif file is not None:
-            raw_items = [file]
+        if isinstance(streams, (list, tuple)):
+            raw_items = list(streams)
         else:
-            raise I6ValidationError("streams or stream is required")
+            try:
+                raw_items = list(streams)
+            except TypeError:
+                raise I6ValidationError("streams must be a Sequence of StreamItem")
 
-        if not raw_items or raw_items == [None]:
+        if not raw_items:
             raise I6ValidationError("streams cannot be empty")
-
-        # Apply total_size override if single stream
-        if len(raw_items) == 1 and total_size is not None:
-            single = raw_items[0]
-            if isinstance(single, tuple) and len(single) == 2:
-                raw_items[0] = (single[0], total_size)
-            elif isinstance(single, dict):
-                single_dict = dict(single)
-                single_dict["total_size"] = total_size
-                raw_items[0] = single_dict
-            else:
-                raw_items[0] = (single, total_size)
 
         progress_cb = on_progress or onProgress
         abort_trigger = cancel_event if cancel_event is not None else signal
