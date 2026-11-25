@@ -3,7 +3,7 @@
 ## Executive Summary
 
 This POC proposes a two-part architectural evolution for the Infinity6 SDK mono-repo:
-1. **Automate `ApiDataRefs` via Explicit Envelopes**: Standardize all API definitions around explicit request/response sub-struct envelopes (`Req{Params, Query, Headers, Body}` and `Resp{Headers, Body}`) with standard `json:"..."` tags. An automated generator (`schemagen`) reads standard Go doc comments (`// ...`) and generates `ApiDataRefs()`.
+1. **Automate `ApiDataRefs` via Explicit Envelopes**: Standardize all API definitions around explicit request/response sub-struct envelopes (`Req{Params, Query, Headers, Payload}` and `Resp{Headers, Payload}`) with standard `json:"..."` tags. An automated generator (`schemagen`) reads standard Go doc comments (`// ...`) and generates `ApiDataRefs()`.
 2. **Build `sdkgo` Manually**: Rather than attempting full AST code generation for the Go client SDK (`forgego`), implement `sdkgo` manually with idiomatic Go ergonomics, thread-safe token management, streaming file ingestion, and local SQLite inference, consuming the generated API definitions.
 
 ---
@@ -62,8 +62,8 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 │  Go Source File (e.g. dszapidatasetlist.go)            │
 │  - Clean struct definitions                            │
 │  - Go doc comments (// ...)                            │
-│  - Standard Req{Params, Query, Headers, Body}          │
-│  - Standard Resp{Headers, Body}                        │
+│  - Standard Req{Params, Query, Headers, Payload}       │
+│  - Standard Resp{Headers, Payload}                     │
 │  - Pure `json:"..."` tags (no custom DSL)              │
 └───────────────────────────┬────────────────────────────┘
                             │
@@ -93,7 +93,9 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
 
 ### A. The Standard Request & Response Envelopes
 
-Every API defines its HTTP contract using explicit sub-structs corresponding directly to HTTP transport slots:
+Every API defines its HTTP contract using explicit sub-structs corresponding directly to HTTP transport slots.
+
+**Key Rule: Unused slots are simply omitted from the struct.** If an endpoint has no body (e.g. `GET`), no query string, or no headers, omit the field completely.
 
 ```go
 package dszapidatasetlist
@@ -104,18 +106,6 @@ import "github.com/infinity6-ai/i6sdk/sdkcorez/grants"
 type Params struct {
     // Unique user identifier.
     UserId string `json:"userId"`
-}
-
-// Query contains URL query parameters (?key=value).
-type Query struct {
-    // Optional filter flag.
-    ActiveOnly bool `json:"activeOnly,omitempty"`
-}
-
-// Headers contains explicit HTTP request headers.
-type Headers struct {
-    // Optional client correlation ID.
-    CorrelationId string `json:"x-correlation-id,omitempty"`
 }
 
 // Dataset represents an Infinity6 dataset container and permissions.
@@ -130,23 +120,22 @@ type Dataset struct {
     Grants grants.Grant `json:"grants"`
 }
 
-// Body represents the JSON HTTP response payload.
-type Body struct {
+// Payload represents the JSON HTTP response payload.
+type Payload struct {
     // Datasets accessible to the requester.
     Datasets []*Dataset `json:"datasets"`
 }
 
 // Req encapsulates all incoming HTTP data for the endpoint.
+// Unused slots (Query, Headers, Payload) are omitted.
 type Req struct {
-    Params  *Params  `json:"params,omitempty"`
-    Query   *Query   `json:"query,omitempty"`
-    Headers *Headers `json:"headers,omitempty"`
-    Body    *struct{} `json:"body,omitempty"` // empty/omitted if no body
+    Params *Params `json:"params,omitempty"`
 }
 
 // Resp encapsulates all outgoing HTTP data for the endpoint.
+// Unused slots (Headers) are omitted.
 type Resp struct {
-    Body *Body `json:"body"`
+    Payload *Payload `json:"payload"`
 }
 
 type Api struct {
@@ -155,8 +144,6 @@ type Api struct {
 }
 ```
 
-*(Endpoints that do not use `Query`, `Headers`, or `Params` simply omit those fields or set them to `nil`).*
-
 ---
 
 ### B. Why Explicit Envelopes Are Superior
@@ -164,37 +151,42 @@ type Api struct {
 1. **Zero Custom Tag DSL**:
    - No need to invent, parse, or maintain custom tags like `apiz:"param,..."` or `apiz:"header,..."`.
    - Standard `json:"..."` tags handle naming and serialization natively.
-2. **Trivial Generator Implementation**:
-   Mapping to `apiz.DataRefs` is 1:1 and deterministic:
-   - `Req.Params`  $\rightarrow$ `DataRefs.PathParams`
-   - `Req.Query`   $\rightarrow$ `DataRefs.QueryParams`
-   - `Req.Headers` $\rightarrow$ `DataRefs.ReqHeaders`
-   - `Req.Body`    $\rightarrow$ `DataRefs.ReqBody`
-   - `Resp.Headers` $\rightarrow$ `DataRefs.RespHeaders`
-   - `Resp.Body`   $\rightarrow$ `DataRefs.RespBody`
-3. **1:1 Parity with TypeScript and Python**:
-   - `sdkweb` (`forgejs`) and `sdkpy` (`forgepy`) already generate types matching this exact structure:
+2. **100% Multi-Language Parity (`Payload`)**:
+   - `sdkweb` (`forgejs`) and `sdkpy` (`forgepy`) already generate types with `{ params, query, headers, payload }`:
      - Python: `req = {"params": {...}, "query": {...}, "payload": {...}}`
      - TypeScript: `req = { params: {...}, query: {...}, payload: {...} }`
-   - Adopting this in Go creates complete conceptual parity across all languages.
+   - Using `Payload` in Go brings all three SDKs into complete cross-language naming and structural symmetry. (Note: `schemagen` can also treat `Body` as an alias for `Payload` if preferred).
+3. **Trivial Generator Implementation**:
+   Mapping to `apiz.DataRefs` is 1:1 and deterministic:
+   - `Req.Params`   $\rightarrow$ `DataRefs.PathParams`
+   - `Req.Query`    $\rightarrow$ `DataRefs.QueryParams`
+   - `Req.Headers`  $\rightarrow$ `DataRefs.ReqHeaders`
+   - `Req.Payload`  $\rightarrow$ `DataRefs.ReqBody`
+   - `Resp.Headers` $\rightarrow$ `DataRefs.RespHeaders`
+   - `Resp.Payload` $\rightarrow$ `DataRefs.RespBody`
 4. **Clean Serialization & No Payload Leaks**:
-   - `json.Marshal(req.Body)` marshals *strictly* the body payload. Path parameters and headers can never accidentally leak into the HTTP body.
+   - `json.Marshal(req.Payload)` marshals *strictly* the body payload. Path parameters and headers can never accidentally leak into the HTTP body.
 5. **No Parameter Collisions**:
-   - Eliminates naming ambiguities when a path parameter and a body field share the same identifier (e.g. `/datasets/{id}` with `{ "id": ... }` in the body).
+   - Eliminates naming ambiguities when a path parameter and a body field share the same identifier (e.g. `/datasets/{id}` with `{ "id": ... }` in the payload).
 
 ---
 
 ### C. `schemagen` Generator Engine
 
 The generator runs via `go generate ./...` or `./build.sh codegen`:
+
 1. **Parse Go AST & Doc Comments**:
    Uses standard library `go/parser` (with `parser.ParseComments`) and `go/doc` to extract doc comments preceding each type and field.
 2. **Direct Envelope Mapping**:
    Inspects `Req` and `Resp` fields:
-   - For each populated envelope field (`Params`, `Query`, `Headers`, `Body`), recursively walks the child struct fields.
-   - Generates the standard `schemaz.Schema` closures and pointer bindings.
+   - Evaluates populated envelope fields (`Params`, `Query`, `Headers`, `Payload`). Unpopulated or omitted slots automatically map to `nil` in `apiz.DataRefs`.
+   - Recursively walks child struct fields to generate standard `schemaz.Schema` closures and pointer bindings.
    - Maps field doc comments directly into `schemaz.Desc{Summary: docText}`.
-3. **Output**:
+3. **Domain Types & `checked.Value[T]` Resolution**:
+   Infinity6 APIs frequently use domain-validated types (e.g. `lakedsz.Dataset`, `solution.Solution`, `grants.Grant`):
+   - **`checked.Value[T]` / `JSType()`**: Types implementing `JSType() string` or embedding `checked.Value[T]` are recognized automatically; `schemagen` targets their underlying primitive schema (`TypString`, `TypInt`, etc.) and binds their `MustParse` / `Get()` accessors.
+   - **Primitive Aliases**: Types like `type Grant uint8` are mapped directly to their primitive base types with full enum comment extraction.
+4. **Output**:
    Emits `<package>.gen.go` implementing `func (d *Api) ApiDataRefs() *apiz.DataRefs`.
 
 ---
@@ -240,7 +232,7 @@ if err != nil {
     log.Fatalf("API error: %v", err)
 }
 
-fmt.Printf("Found %d datasets\n", len(api.Resp.Body.Datasets))
+fmt.Printf("Found %d datasets\n", len(api.Resp.Payload.Datasets))
 ```
 
 #### 2. Service Facades (`client.Datasets()`, `client.Auth()`, etc.)
@@ -275,7 +267,7 @@ resp, err := client.Datasets().List(ctx, &dszapidatasetlist.Req{
 - Confirm that `sdkweb` (`sdkapis.js`) and `sdkpy` (`apis.py`, `types.py`) produce identical outputs with preserved JSDoc/docstrings.
 
 ### Phase 3: Rollout Across API Modules
-- Refactor API packages to the `{Params, Query, Headers, Body}` envelope convention.
+- Refactor API packages to the `{Params, Query, Headers, Payload}` envelope convention (omitting unused slots).
 - Add `//go:generate` directives and remove handwritten `ApiDataRefs()`.
 - Update `comp.sh` and `build.sh` codegen steps.
 
