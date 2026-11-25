@@ -57,8 +57,6 @@ def main() -> None:
         "store_id": store_id,
     }
 
-    now_iso = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT00:00:00Z")
-
     # 5. Read sample catalog data from JSON Lines (NDJSON) file
     import pathlib
     data_path = pathlib.Path(__file__).resolve().parent / "ingestion.json"
