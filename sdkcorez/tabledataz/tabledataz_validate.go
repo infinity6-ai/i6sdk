@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"cloud.google.com/go/bigquery"
+	"github.com/infinity6-ai/gox/commonz/dataz"
 	"github.com/infinity6-ai/gox/commonz/validation"
 )
 
@@ -53,7 +53,7 @@ func MaxLen(field, v string, maxLen int) error {
 }
 
 // NullMaxLen checks the length of an optional string when present.
-func NullMaxLen(field string, v bigquery.NullString, maxLen int) error {
+func NullMaxLen(field string, v dataz.NullString, maxLen int) error {
 	if !v.Valid {
 		return nil
 	}
@@ -74,7 +74,7 @@ func Between[T cmp.Ordered](field string, v, min, max T) error {
 }
 
 // NullIntBetween checks the range of an optional integer when present.
-func NullIntBetween(field string, v bigquery.NullInt64, min, max int64) error {
+func NullIntBetween(field string, v dataz.NullInt64, min, max int64) error {
 	if !v.Valid {
 		return nil
 	}
@@ -87,6 +87,6 @@ func Flag(field string, v int64) error {
 }
 
 // NullFlag checks that an optional integer flag is 0 or 1 when present.
-func NullFlag(field string, v bigquery.NullInt64) error {
+func NullFlag(field string, v dataz.NullInt64) error {
 	return NullIntBetween(field, v, 0, 1)
 }

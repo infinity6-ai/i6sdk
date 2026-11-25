@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"cloud.google.com/go/bigquery"
+	"github.com/infinity6-ai/gox/commonz/dataz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/tabledataz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/tabledataz/targetingfinancedataz"
 	"github.com/stretchr/testify/require"
@@ -116,7 +116,7 @@ func TestUnitClientStatusValidation(t *testing.T) {
 		check(t, scenario{mutate: func(s *targetingfinancedataz.ClientStatus) { s.UserFlAtr = tabledataz.NewBqNullInt64(5) }, errMsg: "failed to validate user_fl_atr"})
 	})
 	t.Run("optional flag null is valid", func(t *testing.T) {
-		check(t, scenario{mutate: func(s *targetingfinancedataz.ClientStatus) { s.UserFlAtr = bigquery.NullInt64{} }})
+		check(t, scenario{mutate: func(s *targetingfinancedataz.ClientStatus) { s.UserFlAtr = dataz.NullInt64{} }})
 	})
 	t.Run("user_cd_suf too long", func(t *testing.T) {
 		check(t, scenario{mutate: func(s *targetingfinancedataz.ClientStatus) { s.UserCdSuf = "ABCD" }, errMsg: "failed to validate user_cd_suf"})

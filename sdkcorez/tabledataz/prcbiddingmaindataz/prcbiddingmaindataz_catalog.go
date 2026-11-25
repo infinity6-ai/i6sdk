@@ -3,7 +3,7 @@ package prcbiddingmaindataz
 import (
 	"time"
 
-	"cloud.google.com/go/bigquery"
+	"github.com/infinity6-ai/gox/commonz/dataz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/laketbnamez"
@@ -13,7 +13,7 @@ import (
 type Catalog struct {
 	ID            string               `json:"id" bigquery:"id"`
 	StoreId       string               `json:"store_id" bigquery:"store_id"`
-	Dataset       bigquery.NullString  `json:"dataset" bigquery:"dataset"`
+	Dataset       dataz.NullString     `json:"dataset" bigquery:"dataset"`
 	Desc          string               `json:"desc" bigquery:"desc"`
 	Supplier      string               `json:"supplier" bigquery:"supplier"`
 	Status        string               `json:"status" bigquery:"status"`

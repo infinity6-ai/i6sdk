@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"cloud.google.com/go/bigquery"
+	"github.com/infinity6-ai/gox/commonz/dataz"
 	"github.com/infinity6-ai/gox/commonz/validation"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
@@ -14,12 +14,12 @@ import (
 )
 
 type ClientFeatures struct {
-	ID            string              `json:"id" bigquery:"id"`
-	Dataset       bigquery.NullString `json:"dataset" bigquery:"dataset"`
-	StoreId       string              `json:"store_id" bigquery:"store_id"`
-	IngestedAt    string              `json:"ingested_at" bigquery:"ingested_at"`
-	CreatedAt     time.Time           `json:"created_at" bigquery:"created_at"`
-	FeaturesFloat []*FeatureFloat     `json:"features_float" bigquery:"features_float"`
+	ID            string           `json:"id" bigquery:"id"`
+	Dataset       dataz.NullString `json:"dataset" bigquery:"dataset"`
+	StoreId       string           `json:"store_id" bigquery:"store_id"`
+	IngestedAt    string           `json:"ingested_at" bigquery:"ingested_at"`
+	CreatedAt     time.Time        `json:"created_at" bigquery:"created_at"`
+	FeaturesFloat []*FeatureFloat  `json:"features_float" bigquery:"features_float"`
 }
 
 func (c *ClientFeatures) Validate() error {

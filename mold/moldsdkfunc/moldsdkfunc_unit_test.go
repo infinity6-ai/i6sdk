@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"cloud.google.com/go/bigquery"
+	"github.com/infinity6-ai/gox/commonz/dataz"
 	"github.com/infinity6-ai/gox/commonz/errorz"
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/infinity6-ai/gox/fsz/fsz"
@@ -109,9 +109,9 @@ func expectedFashionFbtSdkFunc() *moldsdkfunc.SdkFunc {
 func newSchemaParser() *schemamold.Parser {
 	return schemamold.New().
 		AddKnownType(fsz.FileStat{}, typeastz.TypFileStat).
-		AddKnownType(bigquery.NullString{}, typeastz.TypString).
-		AddKnownType(bigquery.NullInt64{}, typeastz.TypNumber).
-		AddKnownType(bigquery.NullFloat64{}, typeastz.TypNumber)
+		AddKnownType(dataz.NullString{}, typeastz.TypString).
+		AddKnownType(dataz.NullInt64{}, typeastz.TypNumber).
+		AddKnownType(dataz.NullFloat64{}, typeastz.TypNumber)
 }
 
 func TestUnitFashionFbtSdkFunc(t *testing.T) {

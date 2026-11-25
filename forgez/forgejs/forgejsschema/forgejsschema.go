@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"cloud.google.com/go/bigquery"
+	"github.com/infinity6-ai/gox/commonz/dataz"
 	"github.com/infinity6-ai/gox/fsz/fsz"
 	"github.com/infinity6-ai/gox/schemaz/schemamold"
 	"github.com/infinity6-ai/gox/schemaz/typeastz"
@@ -13,9 +13,9 @@ import (
 func NewSdk() *schemamold.Parser {
 	return schemamold.New().
 		AddKnownType(fsz.FileStat{}, typeastz.TypFileStat).
-		AddKnownType(bigquery.NullString{}, typeastz.TypString).
-		AddKnownType(bigquery.NullInt64{}, typeastz.TypNumber).
-		AddKnownType(bigquery.NullFloat64{}, typeastz.TypNumber)
+		AddKnownType(dataz.NullString{}, typeastz.TypString).
+		AddKnownType(dataz.NullInt64{}, typeastz.TypNumber).
+		AddKnownType(dataz.NullFloat64{}, typeastz.TypNumber)
 }
 
 func WriteModuleTypedefs(ctx context.Context, typedefs typeastz.Typedefs) string {

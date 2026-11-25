@@ -3,7 +3,7 @@ package targetingfinancedataz
 import (
 	"time"
 
-	"cloud.google.com/go/bigquery"
+	"github.com/infinity6-ai/gox/commonz/dataz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/laketbnamez"
@@ -12,48 +12,48 @@ import (
 )
 
 type ClientStatus struct {
-	ID            string               `json:"id" bigquery:"id"`
-	Dataset       bigquery.NullString  `json:"dataset" bigquery:"dataset"`
-	StoreId       string               `json:"store_id" bigquery:"store_id"`
-	IngestedAt    string               `json:"ingested_at" bigquery:"ingested_at"`
-	CreatedAt     time.Time            `json:"created_at" bigquery:"created_at"`
-	UserId        string               `json:"user_id" bigquery:"user_id"`
-	UserCd        string               `json:"user_cd" bigquery:"user_cd"`
-	UserVlSal     float64              `json:"user_vl_sal" bigquery:"user_vl_sal"`
-	UserMnSal     float64              `json:"user_mn_sal" bigquery:"user_mn_sal"`
-	UserMxSal     float64              `json:"user_mx_sal" bigquery:"user_mx_sal"`
-	UserSmRmm     float64              `json:"user_sm_rmm" bigquery:"user_sm_rmm"`
-	UserMdRmm     float64              `json:"user_md_rmm" bigquery:"user_md_rmm"`
-	UserMnRmm     float64              `json:"user_mn_rmm" bigquery:"user_mn_rmm"`
-	UserVlIrf     float64              `json:"user_vl_irf" bigquery:"user_vl_irf"`
-	UserVlEmp     float64              `json:"user_vl_emp" bigquery:"user_vl_emp"`
-	UserVlEpg     bigquery.NullFloat64 `json:"user_vl_epg" bigquery:"user_vl_epg"`
-	UserNrDep     int64                `json:"user_nr_dep" bigquery:"user_nr_dep"`
-	UserNrCad     bigquery.NullInt64   `json:"user_nr_cad" bigquery:"user_nr_cad"`
-	UserVlCad     bigquery.NullFloat64 `json:"user_vl_cad" bigquery:"user_vl_cad"`
-	UserSgGen     string               `json:"user_sg_gen" bigquery:"user_sg_gen"`
-	UserTpRen     string               `json:"user_tp_ren" bigquery:"user_tp_ren"`
-	UserFlCon     int64                `json:"user_fl_con" bigquery:"user_fl_con"`
-	UserCdSuf     string               `json:"user_cd_suf" bigquery:"user_cd_suf"`
-	UserCdMun     string               `json:"user_cd_mun" bigquery:"user_cd_mun"`
-	UserPrCep     bigquery.NullString  `json:"user_pr_cep" bigquery:"user_pr_cep"`
-	UserFlCco     int64                `json:"user_fl_cco" bigquery:"user_fl_cco"`
-	UserCdSeg     string               `json:"user_cd_seg" bigquery:"user_cd_seg"`
-	UserDsAcopen  int64                `json:"user_ds_acopen" bigquery:"user_ds_acopen"`
-	UserVlLim     float64              `json:"user_vl_lim" bigquery:"user_vl_lim"`
-	UserVlCon     float64              `json:"user_vl_con" bigquery:"user_vl_con"`
-	UserFlCar     int64                `json:"user_fl_car" bigquery:"user_fl_car"`
-	UserVlCar     float64              `json:"user_vl_car" bigquery:"user_vl_car"`
-	UserVlCut     float64              `json:"user_vl_cut" bigquery:"user_vl_cut"`
-	UserPcCut     bigquery.NullString  `json:"user_pc_cut" bigquery:"user_pc_cut"`
-	UserMdTcr     float64              `json:"user_md_tcr" bigquery:"user_md_tcr"`
-	UserPqTcr     float64              `json:"user_pq_tcr" bigquery:"user_pq_tcr"`
-	UserSqTcr     float64              `json:"user_sq_tcr" bigquery:"user_sq_tcr"`
-	UserTqTcr     float64              `json:"user_tq_tcr" bigquery:"user_tq_tcr"`
-	UserMxTcr     float64              `json:"user_mx_tcr" bigquery:"user_mx_tcr"`
-	UserRiskScore bigquery.NullFloat64 `json:"user_risk_score" bigquery:"user_risk_score"`
-	UserFlAtr     bigquery.NullInt64   `json:"user_fl_atr" bigquery:"user_fl_atr"`
-	UserVlAtr     float64              `json:"user_vl_atr" bigquery:"user_vl_atr"`
+	ID            string            `json:"id" bigquery:"id"`
+	Dataset       dataz.NullString  `json:"dataset" bigquery:"dataset"`
+	StoreId       string            `json:"store_id" bigquery:"store_id"`
+	IngestedAt    string            `json:"ingested_at" bigquery:"ingested_at"`
+	CreatedAt     time.Time         `json:"created_at" bigquery:"created_at"`
+	UserId        string            `json:"user_id" bigquery:"user_id"`
+	UserCd        string            `json:"user_cd" bigquery:"user_cd"`
+	UserVlSal     float64           `json:"user_vl_sal" bigquery:"user_vl_sal"`
+	UserMnSal     float64           `json:"user_mn_sal" bigquery:"user_mn_sal"`
+	UserMxSal     float64           `json:"user_mx_sal" bigquery:"user_mx_sal"`
+	UserSmRmm     float64           `json:"user_sm_rmm" bigquery:"user_sm_rmm"`
+	UserMdRmm     float64           `json:"user_md_rmm" bigquery:"user_md_rmm"`
+	UserMnRmm     float64           `json:"user_mn_rmm" bigquery:"user_mn_rmm"`
+	UserVlIrf     float64           `json:"user_vl_irf" bigquery:"user_vl_irf"`
+	UserVlEmp     float64           `json:"user_vl_emp" bigquery:"user_vl_emp"`
+	UserVlEpg     dataz.NullFloat64 `json:"user_vl_epg" bigquery:"user_vl_epg"`
+	UserNrDep     int64             `json:"user_nr_dep" bigquery:"user_nr_dep"`
+	UserNrCad     dataz.NullInt64   `json:"user_nr_cad" bigquery:"user_nr_cad"`
+	UserVlCad     dataz.NullFloat64 `json:"user_vl_cad" bigquery:"user_vl_cad"`
+	UserSgGen     string            `json:"user_sg_gen" bigquery:"user_sg_gen"`
+	UserTpRen     string            `json:"user_tp_ren" bigquery:"user_tp_ren"`
+	UserFlCon     int64             `json:"user_fl_con" bigquery:"user_fl_con"`
+	UserCdSuf     string            `json:"user_cd_suf" bigquery:"user_cd_suf"`
+	UserCdMun     string            `json:"user_cd_mun" bigquery:"user_cd_mun"`
+	UserPrCep     dataz.NullString  `json:"user_pr_cep" bigquery:"user_pr_cep"`
+	UserFlCco     int64             `json:"user_fl_cco" bigquery:"user_fl_cco"`
+	UserCdSeg     string            `json:"user_cd_seg" bigquery:"user_cd_seg"`
+	UserDsAcopen  int64             `json:"user_ds_acopen" bigquery:"user_ds_acopen"`
+	UserVlLim     float64           `json:"user_vl_lim" bigquery:"user_vl_lim"`
+	UserVlCon     float64           `json:"user_vl_con" bigquery:"user_vl_con"`
+	UserFlCar     int64             `json:"user_fl_car" bigquery:"user_fl_car"`
+	UserVlCar     float64           `json:"user_vl_car" bigquery:"user_vl_car"`
+	UserVlCut     float64           `json:"user_vl_cut" bigquery:"user_vl_cut"`
+	UserPcCut     dataz.NullString  `json:"user_pc_cut" bigquery:"user_pc_cut"`
+	UserMdTcr     float64           `json:"user_md_tcr" bigquery:"user_md_tcr"`
+	UserPqTcr     float64           `json:"user_pq_tcr" bigquery:"user_pq_tcr"`
+	UserSqTcr     float64           `json:"user_sq_tcr" bigquery:"user_sq_tcr"`
+	UserTqTcr     float64           `json:"user_tq_tcr" bigquery:"user_tq_tcr"`
+	UserMxTcr     float64           `json:"user_mx_tcr" bigquery:"user_mx_tcr"`
+	UserRiskScore dataz.NullFloat64 `json:"user_risk_score" bigquery:"user_risk_score"`
+	UserFlAtr     dataz.NullInt64   `json:"user_fl_atr" bigquery:"user_fl_atr"`
+	UserVlAtr     float64           `json:"user_vl_atr" bigquery:"user_vl_atr"`
 }
 
 func (c *ClientStatus) Validate() error {

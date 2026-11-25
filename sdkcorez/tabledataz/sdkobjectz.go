@@ -3,7 +3,7 @@ package tabledataz
 import (
 	"time"
 
-	"cloud.google.com/go/bigquery"
+	"github.com/infinity6-ai/gox/commonz/dataz"
 	"github.com/infinity6-ai/gox/commonz/strconvz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
@@ -20,18 +20,18 @@ type TableData interface {
 	GetCreatedAt() *time.Time
 }
 
-func NewBqNullString(val string) bigquery.NullString {
-	return bigquery.NullString{
+func NewBqNullString(val string) dataz.NullString {
+	return dataz.NullString{
 		StringVal: val,
 		Valid:     true,
 	}
 }
 
-func ParseBqNullString(out *bigquery.NullString) func() *schemaz.Parser[string] {
+func ParseBqNullString(out *dataz.NullString) func() *schemaz.Parser[string] {
 	return func() *schemaz.Parser[string] {
 		return &schemaz.Parser[string]{
 			Parse: func(v string) {
-				*out = bigquery.NullString{
+				*out = dataz.NullString{
 					StringVal: v,
 					Valid:     v != "",
 				}
@@ -46,26 +46,26 @@ func ParseBqNullString(out *bigquery.NullString) func() *schemaz.Parser[string] 
 	}
 }
 
-func NewBqNullFloat64(val float64) bigquery.NullFloat64 {
-	return bigquery.NullFloat64{
+func NewBqNullFloat64(val float64) dataz.NullFloat64 {
+	return dataz.NullFloat64{
 		Float64: val,
 		Valid:   true,
 	}
 }
 
-func NewBqNullInt64(val int64) bigquery.NullInt64 {
-	return bigquery.NullInt64{
+func NewBqNullInt64(val int64) dataz.NullInt64 {
+	return dataz.NullInt64{
 		Int64: val,
 		Valid: true,
 	}
 }
 
-func ParseBqNullFloat64(out *bigquery.NullFloat64) func() *schemaz.Parser[string] {
+func ParseBqNullFloat64(out *dataz.NullFloat64) func() *schemaz.Parser[string] {
 	return func() *schemaz.Parser[string] {
 		return &schemaz.Parser[string]{
 			Parse: func(v string) {
 				if v == "" {
-					*out = bigquery.NullFloat64{}
+					*out = dataz.NullFloat64{}
 					return
 				}
 				var f float64
@@ -82,12 +82,12 @@ func ParseBqNullFloat64(out *bigquery.NullFloat64) func() *schemaz.Parser[string
 	}
 }
 
-func ParseBqNullInt64(out *bigquery.NullInt64) func() *schemaz.Parser[string] {
+func ParseBqNullInt64(out *dataz.NullInt64) func() *schemaz.Parser[string] {
 	return func() *schemaz.Parser[string] {
 		return &schemaz.Parser[string]{
 			Parse: func(v string) {
 				if v == "" {
-					*out = bigquery.NullInt64{}
+					*out = dataz.NullInt64{}
 					return
 				}
 				var i int64
