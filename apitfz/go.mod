@@ -3,9 +3,9 @@ module github.com/infinity6-ai/i6sdk/apitfz
 go 1.26.1
 
 require (
-	github.com/infinity6-ai/gox/commonz v0.0.79
-	github.com/infinity6-ai/gox/routez v0.0.79
-	github.com/infinity6-ai/gox/schemaz v0.0.79
+	github.com/infinity6-ai/gox/commonz v0.0.80
+	github.com/infinity6-ai/gox/routez v0.0.80
+	github.com/infinity6-ai/gox/schemaz v0.0.80
 	github.com/infinity6-ai/i6sdk/sdkcorez v0.0.9
 	github.com/infinity6-ai/i6sdk/versionz v0.0.9
 	github.com/spf13/cobra v1.10.2

@@ -4,10 +4,10 @@ go 1.26.1
 
 require (
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.39.0
-	github.com/infinity6-ai/gox/commonz v0.0.79
-	github.com/infinity6-ai/gox/cryptz v0.0.79
-	github.com/infinity6-ai/gox/fsz v0.0.79
-	github.com/infinity6-ai/gox/schemaz v0.0.79
+	github.com/infinity6-ai/gox/commonz v0.0.80
+	github.com/infinity6-ai/gox/cryptz v0.0.80
+	github.com/infinity6-ai/gox/fsz v0.0.80
+	github.com/infinity6-ai/gox/schemaz v0.0.80
 	github.com/infinity6-ai/i6sdk/versionz v0.0.9
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.12.1
