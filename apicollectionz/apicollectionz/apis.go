@@ -36,7 +36,8 @@ import (
 	"github.com/infinity6-ai/i6sdk/apiingestz/ingestzapigeturl"
 	"github.com/infinity6-ai/i6sdk/apipipez/pipezget"
 	"github.com/infinity6-ai/i6sdk/apipipez/pipezlist"
-	"github.com/infinity6-ai/i6sdk/apipipez/pipezstart"
+	"github.com/infinity6-ai/i6sdk/apipipez/pipezstartbatchingest"
+	"github.com/infinity6-ai/i6sdk/apipipez/pipezstartmain"
 	"github.com/infinity6-ai/i6sdk/apipipez/scheduleractivate"
 	"github.com/infinity6-ai/i6sdk/apipipez/schedulerdeactivate"
 	"github.com/infinity6-ai/i6sdk/apitfz/tfzapimodelmetadata"
@@ -91,7 +92,8 @@ func init() {
 	add(&dszapitableget.Api{})
 	add(&dszapitablelist.Api{})
 	add(dszapiloadresult.AllApis()...)
-	add(pipezstart.AllApis()...)
+	add(&pipezstartbatchingest.Api{})
+	add(&pipezstartmain.Api{})
 	add(scheduleractivate.AllApis()...)
 	add(schedulerdeactivate.AllApis()...)
 	add(&pipezlist.Api{})

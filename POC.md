@@ -268,6 +268,23 @@ resp, err := client.Datasets().List(ctx, &dszapidatasetlist.Req{
 })
 ```
 
+#### 3. Backend Pipeline Bridge Pattern (Path 2B)
+For polymorphic pipeline endpoints (e.g. `pipezstart`), backend services adapt concrete envelope APIs through the lightweight `PipeStarterApi` bridge without sacrificing Go generics:
+
+```go
+type PipeStarterApi interface {
+    apiz.Api
+    Dataset() lakedsz.Dataset
+    Pipe() pipez.Pipe
+    SetRespId(id string)
+}
+
+type PipezStartService[A any] struct {
+    api A
+}
+```
+This enables both concrete envelope APIs (`pipezstartbatchingest.Api`) and legacy generic templates (`pipezstart.Api[T]`) to be served by the exact same backend service runner.
+
 ---
 
 ## 5. Benefits & Downstream Compatibility
