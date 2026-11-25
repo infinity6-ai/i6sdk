@@ -70,27 +70,3 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20261110000943-09e21b237f2c // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
 )
-
-replace github.com/infinity6-ai/i6sdk/apicollectionz => ../apicollectionz
-
-replace github.com/infinity6-ai/i6sdk/apidatasetz => ../apidatasetz
-
-replace github.com/infinity6-ai/i6sdk/apiingestz => ../apiingestz
-
-replace github.com/infinity6-ai/i6sdk/apipipez => ../apipipez
-
-replace github.com/infinity6-ai/i6sdk/apitfz => ../apitfz
-
-replace github.com/infinity6-ai/i6sdk/apiuserz => ../apiuserz
-
-replace github.com/infinity6-ai/i6sdk/forgez => ../forgez
-
-replace github.com/infinity6-ai/i6sdk/mold => ../mold
-
-replace github.com/infinity6-ai/i6sdk/sdkgo => ../sdkgo
-
-replace github.com/infinity6-ai/i6sdk/sdkpy => ../sdkpy
-
-replace github.com/infinity6-ai/i6sdk/sdkweb => ../sdkweb
-
-replace github.com/infinity6-ai/i6sdk/versionz => ../versionz
