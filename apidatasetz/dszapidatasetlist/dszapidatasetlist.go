@@ -49,25 +49,25 @@ type Resp struct {
 type DszListDatasetsReq = Req
 type DszListDatasetsResp = Resp
 
+// List Datasets
+// Lists all datasets available to the user.
 type Api struct {
-	apiz.UnimplementedDataRefs `json:"-"`
-	Req                        *Req  `json:"req"`
-	Resp                       *Resp `json:"resp"`
+	apiz.UnimplementedApi `json:"-"`
+	Req                   *Req  `json:"req"`
+	Resp                  *Resp `json:"resp"`
 }
 
-func (d *Api) ApiSpec() apiz.ApiSpec {
+func (d *Api) ApiRoute() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id: "dsz-list-datasets",
+		Id:     "dsz-list-datasets",
+		Method: "GET",
+		Path:   "/api/ds/user-id/{userId}/datasets",
 		Desc: func() *schemaz.Desc {
 			return &schemaz.Desc{
-				Name:    "List Datasets",
-				Summary: "Lists all datasets available to the user.",
 				Labels: map[string]string{
 					speclabeltokentype.Key: speclabeltokentype.User,
 				},
 			}
 		},
-		Method: "GET",
-		Path:   "/api/ds/user-id/{userId}/datasets",
 	}
 }
