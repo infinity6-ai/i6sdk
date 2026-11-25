@@ -100,4 +100,60 @@ type Api struct {
 			},
 		})
 	})
+
+	t.Run("Generates enriched ApiSpec and ApiDataRefs when ApiRoute is defined", func(t *testing.T) {
+		source := `package sampleapi
+
+import (
+	"github.com/infinity6-ai/gox/routez/apiz"
+	"github.com/infinity6-ai/gox/schemaz/schemaz"
+)
+
+type Params struct {
+	Id string ` + "`json:\"id\"`" + `
+}
+
+type Req struct {
+	Params *Params ` + "`json:\"params\"`" + `
+}
+
+type Resp struct{}
+
+// Sample Item Get
+// Retrieves a single item record from the dataset.
+type Api struct {
+	Req  *Req  ` + "`json:\"req\"`" + `
+	Resp *Resp ` + "`json:\"resp\"`" + `
+}
+
+func (d *Api) ApiRoute() apiz.ApiSpec {
+	return apiz.ApiSpec{
+		Id:     "sample-item-get",
+		Method: "GET",
+		Path:   "/items/{id}",
+		Desc: func() *schemaz.Desc {
+			return &schemaz.Desc{
+				Labels: map[string]string{"servname": "sample"},
+			}
+		},
+	}
+}
+`
+		check(t, testScenario{
+			name:     "Generates enriched ApiSpec and ApiDataRefs when ApiRoute is defined",
+			goSource: source,
+			expectedInGen: []string{
+				"func (d *Api) ApiSpec() apiz.ApiSpec {",
+				"spec := d.ApiRoute()",
+				"origDesc := spec.Desc",
+				"if desc.Name == \"\" {",
+				"desc.Name = \"Sample Item Get\"",
+				"if desc.Summary == \"\" {",
+				"desc.Summary = \"Retrieves a single item record from the dataset.\"",
+				"return desc",
+				"return spec",
+				"func (d *Api) ApiDataRefs() *apiz.DataRefs {",
+			},
+		})
+	})
 }

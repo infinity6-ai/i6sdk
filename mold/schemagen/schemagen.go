@@ -76,21 +76,44 @@ func ParseAndGenerate(dir string) ([]byte, string, error) {
 }
 
 type typeInfo struct {
-	structs    map[string]*ast.StructType
-	typeDocs   map[string]string
-	fieldDocs  map[string]map[string]string // structName -> fieldName -> doc
-	fieldTypes map[string]map[string]string // structName -> fieldName -> typeString
+	structs     map[string]*ast.StructType
+	typeDocs    map[string]string
+	rawTypeDocs map[string]string
+	fieldDocs   map[string]map[string]string // structName -> fieldName -> doc
+	fieldTypes  map[string]map[string]string // structName -> fieldName -> typeString
+	hasApiRoute bool
+	hasApiSpec  bool
+	pkgDoc      string
 }
 
 func collectTypeInfo(pkg *ast.Package, docPkg *doc.Package) *typeInfo {
 	info := &typeInfo{
-		structs:    make(map[string]*ast.StructType),
-		typeDocs:   make(map[string]string),
-		fieldDocs:  make(map[string]map[string]string),
-		fieldTypes: make(map[string]map[string]string),
+		structs:     make(map[string]*ast.StructType),
+		typeDocs:    make(map[string]string),
+		rawTypeDocs: make(map[string]string),
+		fieldDocs:   make(map[string]map[string]string),
+		fieldTypes:  make(map[string]map[string]string),
+		pkgDoc:      docPkg.Doc,
+	}
+
+	for _, file := range pkg.Files {
+		for _, decl := range file.Decls {
+			if fd, ok := decl.(*ast.FuncDecl); ok && fd.Recv != nil && len(fd.Recv.List) > 0 {
+				recvType, _ := resolveTypeName(fd.Recv.List[0].Type)
+				if recvType == "Api" {
+					if fd.Name.Name == "ApiRoute" {
+						info.hasApiRoute = true
+					}
+					if fd.Name.Name == "ApiSpec" {
+						info.hasApiSpec = true
+					}
+				}
+			}
+		}
 	}
 
 	for _, t := range docPkg.Types {
+		info.rawTypeDocs[t.Name] = t.Doc
 		info.typeDocs[t.Name] = cleanDoc(t.Doc)
 		info.fieldDocs[t.Name] = make(map[string]string)
 		info.fieldTypes[t.Name] = make(map[string]string)
@@ -141,6 +164,42 @@ func generateApiDataRefs(pkgName string, apiStruct *ast.StructType, info *typeIn
 	b.WriteString("\t\"github.com/infinity6-ai/gox/routez/apiz\"\n")
 	b.WriteString("\t\"github.com/infinity6-ai/gox/schemaz/schemaz\"\n")
 	b.WriteString(")\n\n")
+
+	if info.hasApiRoute && !info.hasApiSpec {
+		apiDoc := info.rawTypeDocs["Api"]
+		if apiDoc == "" {
+			apiDoc = info.pkgDoc
+		}
+		title, summary := splitDocTitleAndSummary(apiDoc)
+		if title == "" {
+			title = pkgName
+		}
+		if summary == "" {
+			summary = title
+		}
+
+		b.WriteString("func (d *Api) ApiSpec() apiz.ApiSpec {\n")
+		b.WriteString("\tspec := d.ApiRoute()\n")
+		b.WriteString("\torigDesc := spec.Desc\n")
+		b.WriteString("\tspec.Desc = func() *schemaz.Desc {\n")
+		b.WriteString("\t\tvar desc *schemaz.Desc\n")
+		b.WriteString("\t\tif origDesc != nil {\n")
+		b.WriteString("\t\t\tdesc = origDesc()\n")
+		b.WriteString("\t\t}\n")
+		b.WriteString("\t\tif desc == nil {\n")
+		b.WriteString("\t\t\tdesc = &schemaz.Desc{}\n")
+		b.WriteString("\t\t}\n")
+		b.WriteString("\t\tif desc.Name == \"\" {\n")
+		b.WriteString(fmt.Sprintf("\t\t\tdesc.Name = %q\n", title))
+		b.WriteString("\t\t}\n")
+		b.WriteString("\t\tif desc.Summary == \"\" {\n")
+		b.WriteString(fmt.Sprintf("\t\t\tdesc.Summary = %q\n", summary))
+		b.WriteString("\t\t}\n")
+		b.WriteString("\t\treturn desc\n")
+		b.WriteString("\t}\n")
+		b.WriteString("\treturn spec\n")
+		b.WriteString("}\n\n")
+	}
 
 	b.WriteString("func (d *Api) ApiDataRefs() *apiz.DataRefs {\n")
 	b.WriteString("\treturn &apiz.DataRefs{\n")
@@ -491,4 +550,32 @@ func cleanDoc(text string) string {
 		}
 	}
 	return strings.Join(cleaned, " ")
+}
+
+func splitDocTitleAndSummary(rawDoc string) (string, string) {
+	trimmed := strings.TrimSpace(rawDoc)
+	if trimmed == "" {
+		return "", ""
+	}
+	lines := strings.Split(trimmed, "\n")
+	var cleanLines []string
+	for _, l := range lines {
+		t := strings.TrimSpace(l)
+		if t != "" {
+			cleanLines = append(cleanLines, t)
+		}
+	}
+	if len(cleanLines) == 0 {
+		return "", ""
+	}
+	if len(cleanLines) == 1 {
+		line := cleanLines[0]
+		if idx := strings.Index(line, ". "); idx > 0 {
+			return strings.TrimSuffix(line[:idx], "."), strings.TrimSpace(line[idx+2:])
+		}
+		return line, line
+	}
+	title := strings.TrimSuffix(cleanLines[0], ".")
+	summary := strings.Join(cleanLines[1:], " ")
+	return title, summary
 }

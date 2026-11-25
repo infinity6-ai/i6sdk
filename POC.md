@@ -138,11 +138,37 @@ type Resp struct {
     Payload *Payload `json:"payload"`
 }
 
+// List Datasets
+// Lists all datasets available to the user.
 type Api struct {
-    Req  *Req  `json:"req"`
-    Resp *Resp `json:"resp"`
+    apiz.UnimplementedApi `json:"-"`
+    Req                   *Req  `json:"req"`
+    Resp                  *Resp `json:"resp"`
+}
+
+func (d *Api) ApiRoute() apiz.ApiSpec {
+    return apiz.ApiSpec{
+        Id:     "dsz-list-datasets",
+        Method: "GET",
+        Path:   "/api/ds/user-id/{userId}/datasets",
+        Desc: func() *schemaz.Desc {
+            return &schemaz.Desc{
+                Labels: map[string]string{
+                    speclabeltokentype.Key: speclabeltokentype.User,
+                },
+            }
+        },
+    }
 }
 ```
+
+Both `ApiSpec()` and `ApiDataRefs()` are generated into `<package>.gen.go`:
+- `ApiSpec()` calls `ApiRoute() apiz.ApiSpec` and **enriches only non-already informed values**:
+  - `Name` and `Summary` are populated from the doc comments above `type Api struct` only if they were not explicitly defined in `ApiRoute()`.
+  - All existing `Labels`, custom IDs, and route configurations in `ApiRoute()` are preserved intact.
+  - Zero generation-specific types are required in `gox` (standard `apiz.ApiSpec` is used directly).
+- `ApiDataRefs()` is generated from the `{Params, Query, Headers, Payload}` envelope sub-structs.
+- `apiz.UnimplementedApi` satisfies the `apiz.Api` interface at compile time prior to running `go generate`, panicking with an actionable message if invoked before generation.
 
 ---
 
