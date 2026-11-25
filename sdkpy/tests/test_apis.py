@@ -35,7 +35,7 @@ class TestApis(unittest.TestCase):
         client.tokens().set_user_token({"user_access_token": "bearer-token-xyz"})
 
         # Call generated method
-        resp = client.apis().dsz_list_datasets()
+        resp = client.apis().dsz_list_datasets(req={"params": {"userId": "user_42"}})
         self.assertTrue(resp.ok)
         data = resp.parse()
         payload = data.get("payload") or {}
@@ -44,7 +44,67 @@ class TestApis(unittest.TestCase):
         self.assertEqual(datasets[0].get("id"), "ds_fashion")
 
         self.assertEqual(last_request["method"], "GET")
+        self.assertIn("/api/ds/user-id/user_42/datasets", last_request["url"])
         self.assertIn("bearer-token-xyz", last_request["headers"]["Authorization"])
+
+    def test_generated_pipez_start_batch_ingest_envelope(self) -> None:
+        last_request = {}
+
+        def mock_fetcher(
+            url: str, method: str, headers: Dict[str, str], body: Any, timeout: float
+        ) -> Tuple[int, Dict[str, str], str]:
+            last_request["url"] = url
+            last_request["method"] = method
+            last_request["body"] = body
+            resp_body = {"payload": {"id": "run_batch_123"}}
+            return 200, {"content-type": "application/json"}, json.dumps(resp_body)
+
+        config = I6SdkConfig(
+            serv_urls={"decsuite": "https://api.i6.test"},
+            fetcher=mock_fetcher,
+        )
+        client = I6Client(config)
+
+        resp = client.apis().pipez_start_relevance_fashion_relevance_fashion_batch_ingest(
+            req={
+                "params": {"dataset": "my-fashion-dataset"},
+                "payload": {"ingest_id": "ingest_456", "table": "catalog"},
+            }
+        )
+        self.assertTrue(resp.ok)
+        self.assertEqual(resp.parse(), {"payload": {"id": "run_batch_123"}})
+        self.assertIn("/api/pipe/dataset/my-fashion-dataset/start/relevance_fashion/relevance-fashion-batch-ingest", last_request["url"])
+        self.assertEqual(last_request["method"], "POST")
+        raw_body = last_request.get("body")
+        parsed_body = json.loads(raw_body.decode("utf-8") if isinstance(raw_body, bytes) else raw_body)
+        self.assertEqual(parsed_body, {"ingest_id": "ingest_456", "table": "catalog"})
+
+    def test_generated_pipez_start_main_envelope(self) -> None:
+        last_request = {}
+
+        def mock_fetcher(
+            url: str, method: str, headers: Dict[str, str], body: Any, timeout: float
+        ) -> Tuple[int, Dict[str, str], str]:
+            last_request["url"] = url
+            last_request["method"] = method
+            resp_body = {"payload": {"id": "run_main_789"}}
+            return 200, {"content-type": "application/json"}, json.dumps(resp_body)
+
+        config = I6SdkConfig(
+            serv_urls={"decsuite": "https://api.i6.test"},
+            fetcher=mock_fetcher,
+        )
+        client = I6Client(config)
+
+        resp = client.apis().pipez_start_relevance_fashion_relevance_fashion_main(
+            req={
+                "params": {"dataset": "my-fashion-dataset"},
+            }
+        )
+        self.assertTrue(resp.ok)
+        self.assertEqual(resp.parse(), {"payload": {"id": "run_main_789"}})
+        self.assertIn("/api/pipe/dataset/my-fashion-dataset/start/relevance_fashion/relevance-fashion-main", last_request["url"])
+        self.assertEqual(last_request["method"], "POST")
 
     def test_generated_api_path_interpolation(self) -> None:
         last_request = {}
