@@ -3,12 +3,12 @@ module github.com/infinity6-ai/i6sdk/apidatasetz
 go 1.26.1
 
 require (
-	github.com/infinity6-ai/gox/commonz v0.0.79
-	github.com/infinity6-ai/gox/fsz v0.0.79
-	github.com/infinity6-ai/gox/routez v0.0.79
-	github.com/infinity6-ai/gox/schemaz v0.0.79
-	github.com/infinity6-ai/i6sdk/sdkcorez v0.0.9
-	github.com/infinity6-ai/i6sdk/versionz v0.0.9
+	github.com/infinity6-ai/gox/commonz v0.0.80
+	github.com/infinity6-ai/gox/fsz v0.0.80
+	github.com/infinity6-ai/gox/routez v0.0.80
+	github.com/infinity6-ai/gox/schemaz v0.0.80
+	github.com/infinity6-ai/i6sdk/sdkcorez v0.0.10
+	github.com/infinity6-ai/i6sdk/versionz v0.0.10
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.12.1
 )
@@ -20,7 +20,6 @@ require (
 	cloud.google.com/go/auth/oauth2adapt v0.3.1 // indirect
 	cloud.google.com/go/compute/metadata v0.10.0 // indirect
 	cloud.google.com/go/iam v1.15.1 // indirect
-	cloud.google.com/go/longrunning v1.5.0 // indirect
 	cloud.google.com/go/monitoring v1.31.0 // indirect
 	cloud.google.com/go/storage v1.70.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.35.0 // indirect

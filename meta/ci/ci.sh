@@ -9,10 +9,12 @@ function cmd_image_download() {
 
 function cmd_build() {
   i6dev golang auth-meta
+  ./build.sh uphead
   ./build.sh work_init
-  ./build.sh gomod_replace_on
-  ./build.sh update
-  ./build.sh gomod_replace_off
+  # ./build.sh gomod_replace_on
+  ./build.sh tidy
+  ./build.sh codegen
+  # ./build.sh gomod_replace_off
 }
 
 function cmd_test() {

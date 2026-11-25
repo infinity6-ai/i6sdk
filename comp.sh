@@ -13,8 +13,12 @@ function cmd_go() {
   go "$@"
 }
 
-function cmd_update() {
+function cmd_tidy() {
   go mod tidy
+}
+
+function cmd_update() {
+  cmd_tidy
   cmd_codegen
 }
 
