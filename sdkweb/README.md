@@ -6,7 +6,7 @@ The JavaScript SDK for the Infinity6 platform, for the browser. It is served by
 ## Quick start
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/infinity6-ai/i6sdk@sdkweb-dist-v0.0.4/sdkweb/dist/bundle/i6sdk-web.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/infinity6-ai/i6sdk@sdkweb-dist-v0.0.8/sdkweb/dist/bundle/i6sdk-web.min.js"></script>
 <script>
   const sdk = new I6Sdk();
   // sdk.auth(), sdk.tokens(), sdk.ingest(), sdk.infer(), sdk.dash(), sdk.apis(), sdk.funcs()
@@ -17,7 +17,7 @@ Prefer ES modules? Use:
 
 ```html
 <script type="module">
-  import { I6Sdk } from "https://cdn.jsdelivr.net/gh/infinity6-ai/i6sdk@sdkweb-dist-v0.0.4/sdkweb/dist/module-min/index.js";
+  import { I6Sdk } from "https://cdn.jsdelivr.net/gh/infinity6-ai/i6sdk@sdkweb-dist-v0.0.8/sdkweb/dist/module-min/index.js";
   const sdk = new I6Sdk();
 </script>
 ```
@@ -45,7 +45,7 @@ Everything inside `dist/` is available, including every subfolder.
 Every release is a git tag named:
 
 ```
-sdkweb-dist-v<major>.<minor>.<patch>        e.g. sdkweb-dist-v0.0.4
+sdkweb-dist-v<major>.<minor>.<patch>        e.g. sdkweb-dist-v0.0.8
 ```
 
 - **A tag never changes.** A file under a tag is the same forever and jsDelivr caches it
@@ -62,8 +62,8 @@ See which versions exist:
 Upgrading means changing the tag in your URLs:
 
 ```diff
-- https://cdn.jsdelivr.net/gh/infinity6-ai/i6sdk@sdkweb-dist-v0.0.4/sdkweb/dist/bundle/i6sdk-web.min.js
-+ https://cdn.jsdelivr.net/gh/infinity6-ai/i6sdk@sdkweb-dist-v0.0.5/sdkweb/dist/bundle/i6sdk-web.min.js
+- https://cdn.jsdelivr.net/gh/infinity6-ai/i6sdk@sdkweb-dist-v0.0.7/sdkweb/dist/bundle/i6sdk-web.min.js
++ https://cdn.jsdelivr.net/gh/infinity6-ai/i6sdk@sdkweb-dist-v0.0.8/sdkweb/dist/bundle/i6sdk-web.min.js
 ```
 
 ### Latest
@@ -108,7 +108,7 @@ The same SDK split into files, with their imports between them. Load `index.js` 
 fetches the rest by itself:
 
 ```js
-import { I6Sdk, Resp, bitmapz, Grants } from "https://cdn.jsdelivr.net/gh/infinity6-ai/i6sdk@sdkweb-dist-v0.0.4/sdkweb/dist/module-min/index.js";
+import { I6Sdk, Resp, bitmapz, Grants } from "https://cdn.jsdelivr.net/gh/infinity6-ai/i6sdk@sdkweb-dist-v0.0.8/sdkweb/dist/module-min/index.js";
 ```
 
 | Path | Contents |
@@ -136,15 +136,15 @@ For a single file with everything, use `bundle/i6sdk-web.d.ts`.
 To get autocomplete in your editor, download the declarations into your project:
 
 ```bash
-curl -L -o i6sdk-web.d.ts https://cdn.jsdelivr.net/gh/infinity6-ai/i6sdk@sdkweb-dist-v0.0.4/sdkweb/dist/bundle/i6sdk-web.d.ts
+curl -L -o i6sdk-web.d.ts https://cdn.jsdelivr.net/gh/infinity6-ai/i6sdk@sdkweb-dist-v0.0.8/sdkweb/dist/bundle/i6sdk-web.d.ts
 ```
 
 ### Browse the files
 
 Open a folder URL ending in `/` to get a listing:
 
-- https://cdn.jsdelivr.net/gh/infinity6-ai/i6sdk@sdkweb-dist-v0.0.4/sdkweb/dist/
-- https://cdn.jsdelivr.net/gh/infinity6-ai/i6sdk@sdkweb-dist-v0.0.4/sdkweb/dist/module/
+- https://cdn.jsdelivr.net/gh/infinity6-ai/i6sdk@sdkweb-dist-v0.0.8/sdkweb/dist/
+- https://cdn.jsdelivr.net/gh/infinity6-ai/i6sdk@sdkweb-dist-v0.0.8/sdkweb/dist/module/
 
 ---
 

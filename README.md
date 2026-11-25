@@ -147,7 +147,7 @@ cd sdkpy && go generate ./...
 
 ## Python SDK (`sdkpy`)
 
-Lightweight, high-performance, and **zero-dependency** (Python $\ge 3.10$ standard library) Python client SDK.
+Lightweight, high-performance Python client SDK for Python $\ge 3.10$ with minimal runtime dependencies (`cryptography`).
 
 ### Test
 ```bash
