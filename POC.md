@@ -105,7 +105,7 @@ import "github.com/infinity6-ai/i6sdk/sdkcorez/grants"
 // Params contains path parameters embedded in the route URL.
 type Params struct {
     // Unique user identifier.
-    UserId string `json:"userId"`
+    UserId string `json:"userId"` 
 }
 
 // Dataset represents an Infinity6 dataset container and permissions.
