@@ -309,10 +309,34 @@ This enables both concrete envelope APIs (`pipezstartbatchingest.Api`) and legac
 - Run `./comp.sh forgez test` and `./build.sh codegen`.
 - Confirm that `sdkweb` (`sdkapis.js`) and `sdkpy` (`apis.py`, `types.py`) produce identical outputs with preserved JSDoc/docstrings.
 
-### Phase 3: Rollout Across API Modules
-- Refactor API packages to the `{Params, Query, Headers, Payload}` envelope convention (omitting unused slots).
-- Add `//go:generate` directives and remove handwritten `ApiDataRefs()`.
-- Update `comp.sh` and `build.sh` codegen steps.
+### Phase 3: Rollout Across API Modules & Backend Service Projects
+
+Each `api*z` module in `i6sdk` pairs with a corresponding backend service repository in the workspace that implements its handlers:
+
+| SDK API Module (`i6sdk`) | Backend Service Project (`../*`) | Scope & Key Endpoints | Status |
+|:---|:---|:---|:---|
+| `apidatasetz/` | `i6datasetz/` | ~22 endpoints (`dszapidatasetlist`, `dszapistore*`, `dszapipayment*`, etc.) | Prototype validated (`dszapidatasetlist`) |
+| `apipipez/` | `i6pipez/` | 5 endpoints (`pipezstartbatchingest`, `pipezstartmain`, `pipezget`, etc.) | Prototype validated (`pipezstart*`) |
+| `apiuserz/` | `i6userz/` | ~18 endpoints (`userapiauth*`, `userapidatasettoken*`, `userapitokencheck`) | Pending Phase 3 rollout |
+| `apiingestz/` | `i6ingestz/` | 4 endpoints (`ingestzapievent`, `ingestzapistream`, `ingestzapigeturl`, etc.) | Pending Phase 3 rollout |
+| `apitfz/` | `i6tfz/` | 2 endpoints (`tfzapimodelmetadata`, `tfzapimodelpredict`) | Pending Phase 3 rollout |
+| - | `i6decsuite/` | Aggregator service referencing `userapiauthexchange` | Synchronize during `apiuserz` |
+
+#### Synchronized Refactoring Workflow (Per Domain Module)
+1. **Refactor API Contract (`i6sdk/api*z`)**:
+   - Convert requests and responses to explicit `{Params, Query, Headers, Payload}` envelopes.
+   - Replace handwritten `ApiSpec()` with `ApiRoute() apiz.ApiSpec`.
+   - Embed `apiz.UnimplementedApi` with `json:"-"`.
+   - Add `//go:generate go run github.com/infinity6-ai/i6sdk/mold schemagen .`.
+   - Run `go generate ./...` to produce `<endpoint>.gen.go`.
+2. **Update Backend Service Handler (`i6*`)**:
+   - Update handler to read inputs from `d.api.Req.Params`, `d.api.Req.Payload`, etc.
+   - Update handler to write response to `d.api.Resp = &<endpoint>.Resp{ Payload: ... }`.
+   - Update service unit tests to instantiate envelopes.
+3. **Validate Pair**:
+   - Run `./comp.sh <module> test` in `i6sdk`.
+   - Run `go test -v ./...` in the backend service project.
+   - Run `./comp.sh forgez test` and `./build.sh codegen` to confirm downstream parity.
 
 ### Phase 4: Build `sdkgo` Runtime
 - Implement `I6Client`, `Invoker`, and `Tokens` (thread-safe double-checked renewal).
