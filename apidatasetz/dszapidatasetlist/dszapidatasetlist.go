@@ -50,8 +50,9 @@ type DszListDatasetsReq = Req
 type DszListDatasetsResp = Resp
 
 type Api struct {
-	Req  *Req  `json:"req"`
-	Resp *Resp `json:"resp"`
+	apiz.UnimplementedDataRefs `json:"-"`
+	Req                        *Req  `json:"req"`
+	Resp                       *Resp `json:"resp"`
 }
 
 func (d *Api) ApiSpec() apiz.ApiSpec {
