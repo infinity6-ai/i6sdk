@@ -14,24 +14,30 @@ import (
 func TestUnitIngestzBatchSummaryApi(t *testing.T) {
 	api := &ingestzapibatchsummary.Api{
 		Req: &ingestzapibatchsummary.Req{
-			Dataset: lakedsz.MustParse("my-dataset"),
-			Table:   laketbnamez.MustParse("my-table"),
-			StoreId: storeid.MustParse("store-123"),
+			Params: &ingestzapibatchsummary.ReqParams{
+				Dataset: lakedsz.MustParse("my-dataset"),
+			},
+			Query: &ingestzapibatchsummary.ReqQuery{
+				Table:   laketbnamez.MustParse("my-table"),
+				StoreId: storeid.MustParse("store-123"),
+			},
 		},
 		Resp: &ingestzapibatchsummary.Resp{
-			StoreId:    storeid.MustParse("store-123"),
-			RowCount:   5000,
-			IngestedAt: "2026-10-16T12:00:00Z",
-			ColumnSummaries: []*ingestzapibatchsummary.ColumnSummary{
-				{
-					ColumnName:    "id",
-					DistinctCount: 5000,
-					NullCount:     0,
-				},
-				{
-					ColumnName:    "category",
-					DistinctCount: 12,
-					NullCount:     15,
+			Payload: &ingestzapibatchsummary.RespPayload{
+				StoreId:    storeid.MustParse("store-123"),
+				RowCount:   5000,
+				IngestedAt: "2026-10-16T12:00:00Z",
+				ColumnSummaries: []ingestzapibatchsummary.ColumnSummary{
+					{
+						ColumnName:    "id",
+						DistinctCount: 5000,
+						NullCount:     0,
+					},
+					{
+						ColumnName:    "category",
+						DistinctCount: 12,
+						NullCount:     15,
+					},
 				},
 			},
 		},
@@ -39,21 +45,21 @@ func TestUnitIngestzBatchSummaryApi(t *testing.T) {
 
 	api2 := jsonz.MustCopy(api, &ingestzapibatchsummary.Api{})
 
-	require.Equal(t, api.Req.Dataset, api2.Req.Dataset)
-	require.Equal(t, api.Req.Table, api2.Req.Table)
-	require.Equal(t, api.Req.StoreId, api2.Req.StoreId)
+	require.Equal(t, api.Req.Params.Dataset, api2.Req.Params.Dataset)
+	require.Equal(t, api.Req.Query.Table, api2.Req.Query.Table)
+	require.Equal(t, api.Req.Query.StoreId, api2.Req.Query.StoreId)
 
 	require.NotNil(t, api2.Resp)
-	require.Equal(t, api.Resp.StoreId, api2.Resp.StoreId)
-	require.Equal(t, api.Resp.RowCount, api2.Resp.RowCount)
-	require.Equal(t, api.Resp.IngestedAt, api2.Resp.IngestedAt)
+	require.Equal(t, api.Resp.Payload.StoreId, api2.Resp.Payload.StoreId)
+	require.Equal(t, api.Resp.Payload.RowCount, api2.Resp.Payload.RowCount)
+	require.Equal(t, api.Resp.Payload.IngestedAt, api2.Resp.Payload.IngestedAt)
 
-	require.Equal(t, len(api.Resp.ColumnSummaries), len(api2.Resp.ColumnSummaries))
-	require.Equal(t, api.Resp.ColumnSummaries[0].ColumnName, api2.Resp.ColumnSummaries[0].ColumnName)
-	require.Equal(t, api.Resp.ColumnSummaries[0].DistinctCount, api2.Resp.ColumnSummaries[0].DistinctCount)
-	require.Equal(t, api.Resp.ColumnSummaries[0].NullCount, api2.Resp.ColumnSummaries[0].NullCount)
+	require.Equal(t, len(api.Resp.Payload.ColumnSummaries), len(api2.Resp.Payload.ColumnSummaries))
+	require.Equal(t, api.Resp.Payload.ColumnSummaries[0].ColumnName, api2.Resp.Payload.ColumnSummaries[0].ColumnName)
+	require.Equal(t, api.Resp.Payload.ColumnSummaries[0].DistinctCount, api2.Resp.Payload.ColumnSummaries[0].DistinctCount)
+	require.Equal(t, api.Resp.Payload.ColumnSummaries[0].NullCount, api2.Resp.Payload.ColumnSummaries[0].NullCount)
 
-	require.Equal(t, api.Resp.ColumnSummaries[1].ColumnName, api2.Resp.ColumnSummaries[1].ColumnName)
-	require.Equal(t, api.Resp.ColumnSummaries[1].DistinctCount, api2.Resp.ColumnSummaries[1].DistinctCount)
-	require.Equal(t, api.Resp.ColumnSummaries[1].NullCount, api2.Resp.ColumnSummaries[1].NullCount)
+	spec := api.ApiSpec()
+	require.Equal(t, "ingestz-last-batch-summary", spec.Id)
+	require.Equal(t, "Get Last Successful Ingestion Data Summary", spec.Desc().Name)
 }

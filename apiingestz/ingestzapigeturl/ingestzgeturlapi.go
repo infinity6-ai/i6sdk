@@ -1,100 +1,73 @@
+//go:generate go run github.com/infinity6-ai/i6sdk/mold schemagen .
 package ingestzapigeturl
 
 import (
+	"context"
+
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/ingestztoken"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/laketbnamez"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/speclabels/speclabeltokentype"
 )
 
-type GetUrlReq struct {
-	Dataset    lakedsz.Dataset
-	Table      laketbnamez.TableName
-	Partitions map[string]string
-	Amount     int
+type ReqParams struct {
+	// Name of the dataset that receives the uploaded files.
+	Dataset lakedsz.Dataset `json:"dataset"`
 }
 
-type GetUrlResp struct {
-	Uploads  []string
-	IngestId ingestztoken.IngestToken
+// Request payload containing the target table, partition key/values, and requested URL amount.
+type ReqPayload struct {
+	// Name of the table, inside the dataset, that receives the uploaded files.
+	Table laketbnamez.TableName `json:"table"`
+	// Partition key/value pairs that select the table partition the files are ingested into.
+	Partitions map[string]string `json:"partitions,omitempty"`
+	// Number of presigned upload URLs to generate.
+	Amount int `json:"amount"`
 }
 
-func (*GetUrlResp) JSType() string {
-	return typeastz.TypObject
+type Req struct {
+	Params  *ReqParams  `json:"params,omitempty"`
+	Payload *ReqPayload `json:"payload,omitempty"`
 }
 
+// Presigned upload URLs and the ingestion token that identifies this ingestion.
+type RespPayload struct {
+	// Presigned PUT URLs, one per requested file; upload each file to its URL.
+	Uploads []string `json:"uploads"`
+	// Ingestion token that identifies this ingestion and ties the uploaded files together.
+	IngestId ingestztoken.IngestToken `json:"ingest_id"`
+}
+
+type Resp struct {
+	Payload *RespPayload `json:"payload,omitempty"`
+}
+
+// Get Ingestion Upload URLs
+// Generates presigned PUT URLs and an ingestion token for uploading files into a target dataset table and partitions.
 type Api struct {
-	Req  GetUrlReq
-	Resp GetUrlResp
+	apiz.UnimplementedApi `json:"-"`
+	Req                   *Req  `json:"req,omitempty"`
+	Resp                  *Resp `json:"resp,omitempty"`
 }
 
-func (d *Api) ApiSpec() apiz.ApiSpec {
+func (d *Api) ApiRoute() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id: "ingestz-get-url",
+		Method: "POST",
+		Path:   "/api/ingest/dataset/{dataset}/get-url",
 		Desc: func() *schemaz.Desc {
 			return &schemaz.Desc{
-				Name:    "Get Ingestion Upload URLs",
-				Summary: "Generates presigned PUT URLs and an ingestion token for uploading files into a target dataset table and partitions.",
 				Labels: map[string]string{
 					speclabeltokentype.Key: speclabeltokentype.Dataset,
 				},
 			}
 		},
-		Method: "POST",
-		Path:   "/api/ingest/dataset/{dataset}/get-url",
 	}
 }
 
-func (d *Api) ApiDataRefs() *apiz.DataRefs {
-	return &apiz.DataRefs{
-		PathParams: &schemaz.Schema{
-			Object: func(read bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"dataset": {
-						Desc:     &schemaz.Desc{Summary: "Name of the dataset that receives the uploaded files."},
-						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
-					},
-				}
-			},
-		},
-		QueryParams: nil,
-		ReqHeaders:  nil,
-		ReqBody: &schemaz.Schema{
-			Object: func(read bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"table": {
-						Desc:  &schemaz.Desc{Summary: "Name of the table, inside the dataset, that receives the uploaded files."},
-						Field: func() any { return &d.Req.Table },
-					},
-					"partitions": {
-						Desc:  &schemaz.Desc{Summary: "Partition key/value pairs that select the table partition the files are ingested into."},
-						Field: func() any { return &d.Req.Partitions },
-					},
-					"amount": {
-						Desc:  &schemaz.Desc{Summary: "Number of presigned upload URLs to generate."},
-						Field: func() any { return &d.Req.Amount },
-					},
-				}
-			},
-		},
-		RespHeaders: nil,
-		RespBody: &schemaz.Schema{
-			Desc: &schemaz.Desc{Name: "Get URL Response", Summary: "Presigned upload URLs and the ingestion token that identifies this ingestion."},
-			Object: func(read bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"uploads": {
-						Desc:  &schemaz.Desc{Summary: "Presigned PUT URLs, one per requested file; upload each file to its URL."},
-						Field: func() any { return &d.Resp.Uploads },
-					},
-					"ingest_id": {
-						Desc:  &schemaz.Desc{Name: "Ingest ID", Summary: "Ingestion token that identifies this ingestion and ties the uploaded files together."},
-						Field: func() any { return &d.Resp.IngestId },
-					},
-				}
-			},
-		},
-	}
+type IngestzGetUrlId struct{}
+
+func (IngestzGetUrlId) IngestzGetUrl(ctx context.Context, api *Api) (int, error) {
+	panic("IngestzGetUrl not implemented: run 'go generate ./...'")
 }

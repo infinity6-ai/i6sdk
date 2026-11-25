@@ -33,8 +33,11 @@ import (
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapitablelist"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapitokendelete"
 	"github.com/infinity6-ai/i6sdk/apiingestz/ingestzapibatchsummary"
-	"github.com/infinity6-ai/i6sdk/apiingestz/ingestzapievent"
+	"github.com/infinity6-ai/i6sdk/apiingestz/ingestzapieventcatalog"
+	"github.com/infinity6-ai/i6sdk/apiingestz/ingestzapieventevent"
 	"github.com/infinity6-ai/i6sdk/apiingestz/ingestzapigeturl"
+	"github.com/infinity6-ai/i6sdk/apiingestz/ingestzapistreamcatalog"
+	"github.com/infinity6-ai/i6sdk/apiingestz/ingestzapistreamevent"
 	"github.com/infinity6-ai/i6sdk/apipipez/pipezget"
 	"github.com/infinity6-ai/i6sdk/apipipez/pipezlist"
 	"github.com/infinity6-ai/i6sdk/apipipez/pipezstartbatchingest"
@@ -64,13 +67,18 @@ import (
 	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/pipez/relevancefashionpipez"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/resultz/platformresultz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/resultz/relevancefashionresultz"
-	"github.com/infinity6-ai/i6sdk/sdkcorez/tabledataz/relevancefashiondataz"
 )
 
 type InvokerFunc func(ctx context.Context, api apiz.Api) (int, error)
 
 type SdkApis struct {
 	dszapidatasetlist.DszListDatasetsId
+	ingestzapibatchsummary.IngestzLastBatchSummaryId
+	ingestzapieventcatalog.IngestzEventRelevanceFashionCatalogId
+	ingestzapieventevent.IngestzEventRelevanceFashionEventId
+	ingestzapigeturl.IngestzGetUrlId
+	ingestzapistreamcatalog.IngestzStreamRelevanceFashionCatalogId
+	ingestzapistreamevent.IngestzStreamRelevanceFashionEventId
 	pipezstartbatchingest.PipezStartRelevanceFashionRelevanceFashionBatchIngestId
 	pipezstartmain.PipezStartRelevanceFashionRelevanceFashionMainId
 	tfzapimodelmetadata.TfzModelMetadataId
@@ -179,21 +187,21 @@ func (a *SdkApis) DszUpdateSubscriptionPlan(ctx context.Context, api *dszapisubs
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) IngestzEventRelevanceFashionCatalog(ctx context.Context, api *ingestzapievent.Api[*relevancefashiondataz.Catalog]) (int, error) {
-	return a.Invoker(ctx, api)
-}
+// func (a *SdkApis) IngestzEventRelevanceFashionCatalog(ctx context.Context, api *ingestzapievent.Api[*relevancefashiondataz.Catalog]) (int, error) {
+// 	return a.Invoker(ctx, api)
+// }
 
-func (a *SdkApis) IngestzEventRelevanceFashionEvent(ctx context.Context, api *ingestzapievent.Api[*relevancefashiondataz.Event]) (int, error) {
-	return a.Invoker(ctx, api)
-}
+// func (a *SdkApis) IngestzEventRelevanceFashionEvent(ctx context.Context, api *ingestzapievent.Api[*relevancefashiondataz.Event]) (int, error) {
+// 	return a.Invoker(ctx, api)
+// }
 
-func (a *SdkApis) IngestzGetUrl(ctx context.Context, api *ingestzapigeturl.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
+// func (a *SdkApis) IngestzGetUrl(ctx context.Context, api *ingestzapigeturl.Api) (int, error) {
+// 	return a.Invoker(ctx, api)
+// }
 
-func (a *SdkApis) IngestzLastBatchSummary(ctx context.Context, api *ingestzapibatchsummary.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
+// func (a *SdkApis) IngestzLastBatchSummary(ctx context.Context, api *ingestzapibatchsummary.Api) (int, error) {
+// 	return a.Invoker(ctx, api)
+// }
 
 func (a *SdkApis) PipezGet(ctx context.Context, api *pipezget.Api) (int, error) {
 	return a.Invoker(ctx, api)
