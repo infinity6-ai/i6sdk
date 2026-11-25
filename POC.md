@@ -279,7 +279,7 @@ type PipeStarterApi interface {
     SetRespId(id string)
 }
 
-type PipezStartService[A any] struct {
+type PipezStartService[A PipeStarterApi] struct {
     api A
 }
 ```
