@@ -2,6 +2,9 @@ package apicollectionz
 
 import (
 	"context"
+	"reflect"
+	"sync"
+
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/routez/sampleroutez/routezsamplefraction"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapicustomerportalcreate"
@@ -61,13 +64,12 @@ import (
 	"github.com/infinity6-ai/i6sdk/sdkcorez/resultz/platformresultz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/resultz/relevancefashionresultz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/tabledataz/relevancefashiondataz"
-	"reflect"
-	"sync"
 )
 
 type InvokerFunc func(ctx context.Context, api apiz.Api) (int, error)
 
 type SdkApis struct {
+	dszapidatasetlist.UnimplementedId
 	Invoker InvokerFunc
 }
 
@@ -103,9 +105,9 @@ func (a *SdkApis) DszGetSubscription(ctx context.Context, api *dszapisubscriptio
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) DszListDatasets(ctx context.Context, api *dszapidatasetlist.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
+// func (a *SdkApis) DszListDatasets(ctx context.Context, api *dszapidatasetlist.Api) (int, error) {
+// 	return a.Invoker(ctx, api)
+// }
 
 func (a *SdkApis) DszListIngestionTokens(ctx context.Context, api *dszapiingestiontokenslist.Api) (int, error) {
 	return a.Invoker(ctx, api)

@@ -2,6 +2,8 @@
 package dszapidatasetlist
 
 import (
+	"context"
+
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/grants"
@@ -55,7 +57,7 @@ type Api struct {
 
 func (d *Api) ApiRoute() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id:     "dsz-list-datasets",
+		// Id:     "dsz-list-datasets",
 		Method: "GET",
 		Path:   "/api/ds/user-id/{userId}/datasets",
 		Desc: func() *schemaz.Desc {
@@ -66,4 +68,15 @@ func (d *Api) ApiRoute() apiz.ApiSpec {
 			}
 		},
 	}
+}
+
+type Id interface {
+	DszListDatasets(ctx context.Context, api *Api) (int, error)
+}
+
+type UnimplementedId struct {
+}
+
+func (UnimplementedId) DszListDatasets(ctx context.Context, api *Api) (int, error) {
+	panic("DszListDatasets not implemented: run 'go generate ./...'")
 }

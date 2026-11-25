@@ -13,6 +13,8 @@ import (
 	"path/filepath"
 	"reflect"
 	"strings"
+
+	"github.com/infinity6-ai/gox/commonz/stringz/camelz"
 )
 
 // GenerateDir parses Go source files in the specified directory, identifies the Api struct,
@@ -81,10 +83,11 @@ type typeInfo struct {
 	rawTypeDocs map[string]string
 	fieldDocs   map[string]map[string]string // structName -> fieldName -> doc
 	fieldTypes  map[string]map[string]string // structName -> fieldName -> typeString
-	imports     map[string]string            // alias -> importPath
-	hasApiRoute bool
-	hasApiSpec  bool
-	pkgDoc      string
+	imports       map[string]string            // alias -> importPath
+	hasApiRoute   bool
+	hasApiSpec    bool
+	apiMethodName string
+	pkgDoc        string
 }
 
 func collectTypeInfo(pkg *ast.Package, docPkg *doc.Package) *typeInfo {
@@ -120,6 +123,9 @@ func collectTypeInfo(pkg *ast.Package, docPkg *doc.Package) *typeInfo {
 					if fd.Name.Name == "ApiSpec" {
 						info.hasApiSpec = true
 					}
+				}
+				if recvType == "UnimplementedId" {
+					info.apiMethodName = fd.Name.Name
 				}
 			}
 		}
@@ -187,6 +193,12 @@ func generateApiDataRefs(pkgName string, apiStruct *ast.StructType, info *typeIn
 
 		bodyBuf.WriteString("func (d *Api) ApiSpec() apiz.ApiSpec {\n")
 		bodyBuf.WriteString("\tspec := d.ApiRoute()\n")
+		if info.apiMethodName != "" {
+			inferredId := camelz.P(info.apiMethodName).QL()
+			bodyBuf.WriteString("\tif spec.Id == \"\" {\n")
+			bodyBuf.WriteString(fmt.Sprintf("\t\tspec.Id = %q\n", inferredId))
+			bodyBuf.WriteString("\t}\n")
+		}
 		bodyBuf.WriteString("\torigDesc := spec.Desc\n")
 		bodyBuf.WriteString("\tspec.Desc = func() *schemaz.Desc {\n")
 		bodyBuf.WriteString("\t\tvar desc *schemaz.Desc\n")

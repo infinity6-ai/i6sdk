@@ -2,6 +2,7 @@ package schedulerdeactivate
 
 import (
 	"reflect"
+	"strings"
 
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
@@ -37,8 +38,9 @@ func newT[T any]() T {
 
 func (d *Api[T]) ApiSpec() apiz.ApiSpec {
 	p := newT[T]()
+	domain := strings.ReplaceAll(p.SolutionDomain().String(), "_", "-")
 	return apiz.ApiSpec{
-		Id: "pipez-scheduler-deactivate-" + p.SolutionDomain().String() + "-" + p.Pipename(),
+		Id: "pipez-scheduler-deactivate-" + domain + "-" + p.Pipename(),
 		Desc: func() *schemaz.Desc {
 			return &schemaz.Desc{
 				Name:    "Deactivate Pipeline Scheduler",

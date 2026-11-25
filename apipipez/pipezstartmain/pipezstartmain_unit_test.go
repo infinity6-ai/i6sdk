@@ -37,7 +37,7 @@ func TestUnitPipezStartMainApi(t *testing.T) {
 		require.Equal(t, api.Resp, apiCopy.Resp)
 
 		spec := api.ApiSpec()
-		require.Equal(t, "pipez-start-relevance_fashion-relevance-fashion-main", spec.Id)
+		require.Equal(t, "pipez-start-relevance-fashion-relevance-fashion-main", spec.Id)
 		require.Equal(t, "POST", spec.Method)
 		require.Equal(t, "/api/pipe/dataset/{dataset}/start/relevance_fashion/relevance-fashion-main", spec.Path)
 		require.NotNil(t, spec.Desc)

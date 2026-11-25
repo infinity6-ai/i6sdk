@@ -52,7 +52,7 @@ type Api struct {
 
 func (d *Api) ApiRoute() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id:     "pipez-start-relevance_fashion-relevance-fashion-batch-ingest",
+		Id:     "pipez-start-relevance-fashion-relevance-fashion-batch-ingest",
 		Method: "POST",
 		Path:   "/api/pipe/dataset/{dataset}/start/relevance_fashion/relevance-fashion-batch-ingest",
 		Desc: func() *schemaz.Desc {
