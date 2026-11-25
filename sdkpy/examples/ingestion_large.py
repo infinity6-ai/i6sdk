@@ -15,8 +15,10 @@ import datetime
 import json
 import os
 import pathlib
+import random
 import sys
 import time
+import uuid
 from typing import List
 
 # Ensure local i6sdk package is importable when running example directly
@@ -31,26 +33,62 @@ DEFAULT_GEN_DIR = _REPO_ROOT / "gen"
 TARGET_FILE_COUNT = 10
 TARGET_FILE_SIZE_BYTES = 20 * 1024 * 1024  # 20 MiB per file (~200 MB total across 10 files)
 
+ADJECTIVES = ["Classic", "Modern", "Slim", "Heavy", "Casual", "Sport", "Vintage", "Waterproof", "Thermal", "Flex"]
+NOUNS = ["Shirt", "Jeans", "Jacket", "Coat", "Sneaker", "Sweater", "Hoodie", "Pants", "Vest", "Boots"]
+DEPARTMENTS = ["Apparel", "Footwear", "Accessories", "Sporting Goods", "Outdoor"]
+SUPPLIERS = ["Acme Group", "Nordic Wear", "DenimCo", "Peak Outfitters", "Summit Labs", "Apex Apparel", "Prime Goods"]
+
 
 def generate_single_file(filepath: pathlib.Path, file_index: int, target_size: int) -> int:
-    """Generates a single NDJSON file filled with valid catalog records up to target_size."""
-    template = (
-        '{"id":"SKU-%02d-%07d","store_id":"1",'
-        '"desc":"Performance Catalog Item %02d-%07d",'
-        '"supplier":"Acme Global Suppliers Ltd","status":"ACTIVE","exclusive_sale":"NO",'
-        '"hierarchy":[{"name":"department","value":"Apparel"},'
-        '{"name":"category","value":"Outerwear"},{"name":"subcategory","value":"Jackets"}]}\n'
-    )
+    """Generates a single NDJSON file filled with valid, randomized catalog records up to target_size.
+
+    Includes random entropy, varied attributes, and unique IDs per record to prevent any
+    caching, hashing, or deduplication across uploads in GCS or downstream pipelines.
+    """
+    run_seed = uuid.uuid4().hex[:8]
     batch_size = 2000
     written = 0
     item_idx = 0
 
+    template = (
+        '{"id":"SKU-%s-%02d-%07d-%s","store_id":"1",'
+        '"desc":"%s %s Item %s [%s]",'
+        '"supplier":"%s-%s","status":"ACTIVE","exclusive_sale":"%s",'
+        '"hierarchy":[{"name":"department","value":"%s"},'
+        '{"name":"category","value":"%s"},{"name":"subcategory","value":"%s"}]}\n'
+    )
+
     with open(filepath, "wb") as f:
         while written < target_size:
-            chunk = "".join(
-                template % (file_index, item_idx + i, file_index, item_idx + i)
-                for i in range(batch_size)
-            ).encode("utf-8")
+            lines = []
+            for i in range(batch_size):
+                idx = item_idx + i
+                rand_entropy = os.urandom(4).hex()
+                adj = random.choice(ADJECTIVES)
+                noun = random.choice(NOUNS)
+                dept = random.choice(DEPARTMENTS)
+                supplier = random.choice(SUPPLIERS)
+                sup_code = os.urandom(2).hex()
+                sale = "YES" if idx % 5 == 0 else "NO"
+                lines.append(
+                    template % (
+                        run_seed,
+                        file_index,
+                        idx,
+                        rand_entropy,
+                        adj,
+                        noun,
+                        rand_entropy,
+                        idx,
+                        supplier,
+                        sup_code,
+                        sale,
+                        dept,
+                        noun,
+                        f"{adj} {noun}",
+                    )
+                )
+            chunk = "".join(lines).encode("utf-8")
             f.write(chunk)
             written += len(chunk)
             item_idx += batch_size
