@@ -73,6 +73,8 @@ type SdkApis struct {
 	dszapidatasetlist.DszListDatasetsId
 	pipezstartbatchingest.PipezStartRelevanceFashionRelevanceFashionBatchIngestId
 	pipezstartmain.PipezStartRelevanceFashionRelevanceFashionMainId
+	tfzapimodelmetadata.TfzModelMetadataId
+	tfzapimodelpredict.TfzModelPredictId
 
 	Invoker InvokerFunc
 }
@@ -229,13 +231,13 @@ func (a *SdkApis) RoutezSampleFraction(ctx context.Context, api *routezsamplefra
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) TfzModelMetadata(ctx context.Context, api *tfzapimodelmetadata.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
+// func (a *SdkApis) TfzModelMetadata(ctx context.Context, api *tfzapimodelmetadata.Api) (int, error) {
+// 	return a.Invoker(ctx, api)
+// }
 
-func (a *SdkApis) TfzModelPredict(ctx context.Context, api *tfzapimodelpredict.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
+// func (a *SdkApis) TfzModelPredict(ctx context.Context, api *tfzapimodelpredict.Api) (int, error) {
+// 	return a.Invoker(ctx, api)
+// }
 
 func (a *SdkApis) UserAuthDeviceCode(ctx context.Context, api *userapiauthdevicecode.Api) (int, error) {
 	return a.Invoker(ctx, api)

@@ -1,110 +1,71 @@
+//go:generate go run github.com/infinity6-ai/i6sdk/mold schemagen .
 package tfzapimodelpredict
 
 import (
+	"context"
+
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/speclabels/speclabeltokentype"
 )
 
+type ReqParams struct {
+	// Dataset identifier.
+	Dataset string `json:"dataset"`
+	// Model name.
+	ModelName string `json:"model_name"`
+	// Model version.
+	Version string `json:"version"`
+}
+
+// Model inputs and partitions.
+type ReqPayload struct {
+	// Model inputs.
+	Inputs string `json:"inputs"`
+	// Model partition key/value pairs.
+	ModelPartitions map[string]string `json:"model_partitions,omitempty"`
+}
+
 type Req struct {
-	Dataset         string
-	ModelName       string
-	Version         string
-	ModelPartitions map[string]string
-	Inputs          string
+	Params  *ReqParams  `json:"params,omitempty"`
+	Payload *ReqPayload `json:"payload,omitempty"`
+}
+
+// Response containing the model outputs.
+type RespPayload struct {
+	// Model outputs.
+	Outputs string `json:"outputs"`
 }
 
 type Resp struct {
-	Outputs string
+	Payload *RespPayload `json:"payload,omitempty"`
 }
 
+// Model Predict
+// Runs a prediction of a dataset model version on the inference service (tfinfer), sending the model inputs and the model partitions and returning the model outputs.
 type Api struct {
-	Req  *Req
-	Resp *Resp
+	apiz.UnimplementedApi `json:"-"`
+	Req                   *Req  `json:"req,omitempty"`
+	Resp                  *Resp `json:"resp,omitempty"`
 }
 
-func (d *Api) ApiSpec() apiz.ApiSpec {
+func (d *Api) ApiRoute() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id: "tfz-model-predict",
-		Desc: func() *schemaz.Desc {
-			return &schemaz.Desc{
-				Name:    "Model Predict",
-				Summary: "Runs a prediction of a dataset model version on the inference service (tfinfer), sending the model inputs and the model partitions and returning the model outputs.",
-				Labels: map[string]string{
-					speclabeltokentype.Key: speclabeltokentype.Dataset, "servname": "tfinfer"},
-			}
-		},
 		Method: "POST",
 		Path:   "/api/model/dataset/{dataset}/{model_name}/{version}/predict",
+		Desc: func() *schemaz.Desc {
+			return &schemaz.Desc{
+				Labels: map[string]string{
+					speclabeltokentype.Key: speclabeltokentype.Dataset,
+					"servname":             "tfinfer",
+				},
+			}
+		},
 	}
 }
 
-func (d *Api) ApiDataRefs() *apiz.DataRefs {
-	return &apiz.DataRefs{
-		PathParams: &schemaz.Schema{
-			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && d.Req == nil {
-					return nil
-				}
-				if d.Req == nil {
-					d.Req = &Req{}
-				}
-				return map[string]*schemaz.Schema{
-					"dataset": {
-						Desc:     &schemaz.Desc{Summary: "Dataset identifier."},
-						UrlValue: schemaz.ParseStr(&d.Req.Dataset),
-					},
-					"model_name": {
-						Desc:     &schemaz.Desc{Summary: "Model name."},
-						UrlValue: schemaz.ParseStr(&d.Req.ModelName),
-					},
-					"version": {
-						Desc:     &schemaz.Desc{Summary: "Model version."},
-						UrlValue: schemaz.ParseStr(&d.Req.Version),
-					},
-				}
-			},
-		},
-		QueryParams: nil,
-		ReqHeaders:  nil,
-		ReqBody: &schemaz.Schema{
-			Desc: &schemaz.Desc{Summary: "Model inputs and partitions."},
-			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && d.Req == nil {
-					return nil
-				}
-				if d.Req == nil {
-					d.Req = &Req{}
-				}
-				return map[string]*schemaz.Schema{
-					"inputs": {
-						Desc:  &schemaz.Desc{Summary: "Model inputs."},
-						Field: func() any { return &d.Req.Inputs },
-					},
-					"model_partitions": {
-						Desc:  &schemaz.Desc{Summary: "Model partition key/value pairs."},
-						Field: func() any { return &d.Req.ModelPartitions },
-					},
-				}
-			},
-		},
-		RespHeaders: nil,
-		RespBody: &schemaz.Schema{
-			Desc: &schemaz.Desc{Summary: "Response containing the model outputs."},
-			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && d.Resp == nil {
-					return nil
-				}
-				if d.Resp == nil {
-					d.Resp = &Resp{}
-				}
-				return map[string]*schemaz.Schema{
-					"outputs": {
-						Desc:  &schemaz.Desc{Summary: "Model outputs."},
-						Field: func() any { return &d.Resp.Outputs },
-					},
-				}
-			},
-		},
-	}
+type TfzModelPredictId struct{}
+
+func (TfzModelPredictId) TfzModelPredict(ctx context.Context, api *Api) (int, error) {
+	panic("TfzModelPredict not implemented: run 'go generate ./...'")
 }
