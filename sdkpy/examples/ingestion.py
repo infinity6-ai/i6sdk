@@ -59,53 +59,21 @@ def main() -> None:
 
     now_iso = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT00:00:00Z")
 
-    # 5. Prepare sample catalog data conforming to prcbiddingmaindataz.Catalog schema
-    catalog_items = [
-        {
-            "id": "SKU-OXFORD-01",
-            "store_id": store_id,
-            "desc": "Classic Cotton Oxford Button-Down Shirt",
-            "supplier": "Acme Apparel Group",
-            "status": "ACTIVE",
-            "exclusive_sale": "NO",
-            "hierarchy": [
-                {"name": "department", "value": "Apparel"},
-                {"name": "category", "value": "Tops"},
-                {"name": "subcategory", "value": "Shirts"},
-            ],
-        },
-        {
-            "id": "SKU-JEANS-02",
-            "store_id": store_id,
-            "desc": "Slim Fit Stretch Denim Jeans",
-            "supplier": "Denim Co.",
-            "status": "ACTIVE",
-            "exclusive_sale": "YES",
-            "hierarchy": [
-                {"name": "department", "value": "Apparel"},
-                {"name": "category", "value": "Bottoms"},
-                {"name": "subcategory", "value": "Jeans"},
-            ],
-        },
-        {
-            "id": "SKU-JACKET-03",
-            "store_id": store_id,
-            "desc": "Waterproof Outdoor Windbreaker Jacket",
-            "supplier": "NorthPeak Outfitters",
-            "status": "ACTIVE",
-            "exclusive_sale": "NO",
-            "hierarchy": [
-                {"name": "department", "value": "Outerwear"},
-                {"name": "category", "value": "Jackets"},
-            ],
-        },
-    ]
+    # 5. Read sample catalog data from JSON Lines (NDJSON) file
+    import pathlib
+    data_path = pathlib.Path(__file__).resolve().parent / "ingestion.json"
+    if not data_path.is_file():
+        print(f"Error: Data file not found: {data_path}", file=sys.stderr)
+        sys.exit(1)
 
-    # 6. Format as Newline-Delimited JSON (NDJSON) and wrap in a BinaryIO stream
-    ndjson_data = "\n".join(json.dumps(row) for row in catalog_items).encode("utf-8") + b"\n"
+    with open(data_path, "rb") as f:
+        ndjson_data = f.read()
+
+    # 6. Wrap in a BinaryIO stream for uploading
     stream = io.BytesIO(ndjson_data)
+    record_count = len([line for line in ndjson_data.split(b"\n") if line.strip()])
 
-    print(f"Prepared {len(catalog_items)} catalog records ({len(ndjson_data)} bytes).")
+    print(f"Read {record_count} catalog records ({len(ndjson_data)} bytes) from {data_path.name}.")
     print(f"Target: Table='{table_name}', Partitions={partitions}")
 
     from i6sdk.ingest import UploadProgress
