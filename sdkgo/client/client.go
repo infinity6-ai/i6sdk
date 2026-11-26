@@ -3,7 +3,6 @@ package client
 import (
 	"context"
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -16,6 +15,7 @@ import (
 	"github.com/infinity6-ai/i6sdk/sdkcorez/sdkfuncz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/speclabels/speclabeltokentype"
 	"github.com/infinity6-ai/i6sdk/sdkgo/config"
+	"github.com/infinity6-ai/i6sdk/sdkgo/internal/fszcache"
 	"github.com/infinity6-ai/i6sdk/sdkgo/tokens"
 	"github.com/infinity6-ai/i6sdk/sdkgo/tokenstore"
 )
@@ -152,12 +152,11 @@ func New(opts config.Options) (*I6Client, error) {
 		}
 		c.cacheUrl = urlz.MustParse("file://" + filepath.Clean(absDir))
 	} else {
-		homeDir, err := os.UserHomeDir()
+		defUrl, err := fszcache.DefaultBaseUrl()
 		if err != nil {
-			homeDir = os.TempDir()
+			return nil, fmt.Errorf("failed to resolve default cache url: %w", err)
 		}
-		defaultCache := filepath.Join(homeDir, ".cache", "i6", "sdkgo", "fs")
-		c.cacheUrl = urlz.MustParse("file://" + filepath.Clean(defaultCache))
+		c.cacheUrl = defUrl
 	}
 
 	// 5. Token store

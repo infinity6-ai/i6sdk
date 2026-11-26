@@ -10,41 +10,45 @@ import (
 	"testing"
 	"time"
 
+	"github.com/infinity6-ai/gox/commonz/urlz"
 	"github.com/infinity6-ai/i6sdk/sdkgo/internal/fszcache"
 	"github.com/stretchr/testify/require"
 )
 
 func TestUnitFsLifecycle(t *testing.T) {
+	ctx := context.Background()
 	tmpDir, err := os.MkdirTemp("", "i6-fszcache-test-*")
 	require.NoError(t, err)
 	defer os.RemoveAll(tmpDir)
 
-	fs, err := fszcache.NewFs(tmpDir)
+	baseUrl := urlz.MustParse("file://" + filepath.Clean(tmpDir))
+	fs, err := fszcache.NewFs(baseUrl)
 	require.NoError(t, err)
-	require.Equal(t, tmpDir, fs.BaseDir())
+	require.Equal(t, baseUrl.String(), fs.BaseUrl().String())
 
-	t.Run("DefaultBaseDir resolves successfully", func(t *testing.T) {
-		def, err := fszcache.DefaultBaseDir()
+	t.Run("DefaultBaseUrl resolves successfully", func(t *testing.T) {
+		def, err := fszcache.DefaultBaseUrl()
 		require.NoError(t, err)
-		require.NotEmpty(t, def)
-		require.Contains(t, def, "fs")
+		require.NotNil(t, def)
+		require.Equal(t, "file", def.Scheme)
+		require.Contains(t, def.String(), "fs")
 	})
 
 	t.Run("Create version and write etag", func(t *testing.T) {
-		ref, err := fs.Create("model/catalog", `"etag-1"`)
+		ref, err := fs.Create(ctx, "model/catalog", `"etag-1"`)
 		require.NoError(t, err)
 		require.Equal(t, "model/catalog", ref.Name)
 		require.NotEmpty(t, ref.Version)
 		require.Equal(t, `"etag-1"`, ref.Etag)
 
 		// Create again with same etag reuses version
-		ref2, err := fs.Create("model/catalog", `"etag-1"`)
+		ref2, err := fs.Create(ctx, "model/catalog", `"etag-1"`)
 		require.NoError(t, err)
 		require.Equal(t, ref.Version, ref2.Version)
 	})
 
 	t.Run("Resolve, Write blob, and Release version", func(t *testing.T) {
-		ref, err := fs.Create("dash/funnel", `"etag-v1"`)
+		ref, err := fs.Create(ctx, "dash/funnel", `"etag-v1"`)
 		require.NoError(t, err)
 
 		blobPath := fs.Resolve("dash/funnel", ref.Version)
@@ -54,16 +58,16 @@ func TestUnitFsLifecycle(t *testing.T) {
 		err = os.WriteFile(blobPath, []byte("sqlite-binary-data-v1"), 0644)
 		require.NoError(t, err)
 
-		released, err := fs.Release("dash/funnel", ref.Version)
+		released, err := fs.Release(ctx, "dash/funnel", ref.Version)
 		require.NoError(t, err)
 		require.Equal(t, ref.Version, released.Version)
 		require.NotEmpty(t, released.CheckedAt)
 
 		// Exists is now true
-		require.True(t, fs.Exists("dash/funnel"))
+		require.True(t, fs.Exists(ctx, "dash/funnel"))
 
 		// Get without version returns released version
-		current, err := fs.Get("dash/funnel")
+		current, err := fs.Get(ctx, "dash/funnel")
 		require.NoError(t, err)
 		require.NotNil(t, current)
 		require.Equal(t, ref.Version, current.Version)
@@ -77,22 +81,22 @@ func TestUnitFsLifecycle(t *testing.T) {
 
 	t.Run("CleanFile prunes older versions on release", func(t *testing.T) {
 		asset := "dash/retention"
-		ref1, err := fs.Create(asset, `"v1"`)
+		ref1, err := fs.Create(ctx, asset, `"v1"`)
 		require.NoError(t, err)
 		blob1 := fs.Resolve(asset, ref1.Version)
 		err = os.WriteFile(blob1, []byte("v1"), 0644)
 		require.NoError(t, err)
-		_, err = fs.Release(asset, ref1.Version)
+		_, err = fs.Release(ctx, asset, ref1.Version)
 		require.NoError(t, err)
 
 		time.Sleep(10 * time.Millisecond) // ensure distinct ISO timestamp
 
-		ref2, err := fs.Create(asset, `"v2"`)
+		ref2, err := fs.Create(ctx, asset, `"v2"`)
 		require.NoError(t, err)
 		blob2 := fs.Resolve(asset, ref2.Version)
 		err = os.WriteFile(blob2, []byte("v2"), 0644)
 		require.NoError(t, err)
-		_, err = fs.Release(asset, ref2.Version)
+		_, err = fs.Release(ctx, asset, ref2.Version)
 		require.NoError(t, err)
 
 		// v1 directory should have been cleaned
@@ -107,25 +111,25 @@ func TestUnitFsLifecycle(t *testing.T) {
 	})
 
 	t.Run("Touch updates checkedat timestamp", func(t *testing.T) {
-		ts1 := fs.Touch("asset1")
+		ts1 := fs.Touch(ctx, "asset1")
 		require.NotEmpty(t, ts1)
 
 		custom := "2026-11-26T15:00:00.000Z"
-		ts2 := fs.Touch("asset1", custom)
+		ts2 := fs.Touch(ctx, "asset1", custom)
 		require.Equal(t, custom, ts2)
 	})
 
 	t.Run("Delete removes asset directory", func(t *testing.T) {
-		ref, err := fs.Create("to_delete", "etag")
+		ref, err := fs.Create(ctx, "to_delete", "etag")
 		require.NoError(t, err)
 		blob := fs.Resolve("to_delete", ref.Version)
 		_ = os.WriteFile(blob, []byte("data"), 0644)
-		_, _ = fs.Release("to_delete", ref.Version)
-		require.True(t, fs.Exists("to_delete"))
+		_, _ = fs.Release(ctx, "to_delete", ref.Version)
+		require.True(t, fs.Exists(ctx, "to_delete"))
 
-		err = fs.Delete("to_delete")
+		err = fs.Delete(ctx, "to_delete")
 		require.NoError(t, err)
-		require.False(t, fs.Exists("to_delete"))
+		require.False(t, fs.Exists(ctx, "to_delete"))
 	})
 }
 
@@ -135,7 +139,8 @@ func TestUnitDownloader(t *testing.T) {
 	require.NoError(t, err)
 	defer os.RemoveAll(tmpDir)
 
-	fs, err := fszcache.NewFs(tmpDir)
+	baseUrl := urlz.MustParse("file://" + filepath.Clean(tmpDir))
+	fs, err := fszcache.NewFs(baseUrl)
 	require.NoError(t, err)
 	downloader := fszcache.NewDownloader(fs)
 
@@ -157,7 +162,7 @@ func TestUnitDownloader(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, "sqlite-initial-binary", string(content))
 
-		ref, err := fs.Get("dash/metrics")
+		ref, err := fs.Get(ctx, "dash/metrics")
 		require.NoError(t, err)
 		require.NotNil(t, ref)
 		require.Equal(t, `"etag-initial"`, ref.Etag)
@@ -192,14 +197,14 @@ func TestUnitDownloader(t *testing.T) {
 		defer ts.Close()
 
 		// Force minPreloadTime = 0 to trigger remote check
-		beforeRef, _ := fs.Get("dash/metrics")
+		beforeRef, _ := fs.Get(ctx, "dash/metrics")
 		time.Sleep(10 * time.Millisecond)
 
 		filePath, err := downloader.Update(ctx, "dash/metrics", ts.URL, 0)
 		require.NoError(t, err)
 		require.Equal(t, int32(1), atomic.LoadInt32(&serverHits))
 
-		afterRef, _ := fs.Get("dash/metrics")
+		afterRef, _ := fs.Get(ctx, "dash/metrics")
 		require.Equal(t, beforeRef.Version, afterRef.Version)
 		require.GreaterOrEqual(t, afterRef.CheckedAt, beforeRef.CheckedAt)
 
@@ -216,7 +221,7 @@ func TestUnitDownloader(t *testing.T) {
 		}))
 		defer ts.Close()
 
-		oldRef, _ := fs.Get("dash/metrics")
+		oldRef, _ := fs.Get(ctx, "dash/metrics")
 
 		time.Sleep(10 * time.Millisecond)
 		filePath, err := downloader.Update(ctx, "dash/metrics", ts.URL, 0)
@@ -226,7 +231,7 @@ func TestUnitDownloader(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, "sqlite-updated-binary", string(content))
 
-		newRef, _ := fs.Get("dash/metrics")
+		newRef, _ := fs.Get(ctx, "dash/metrics")
 		require.NotEqual(t, oldRef.Version, newRef.Version)
 		require.Equal(t, `"etag-updated"`, newRef.Etag)
 	})

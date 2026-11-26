@@ -1,13 +1,20 @@
 package fszcache
 
 import (
+	"bytes"
+	"context"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/infinity6-ai/gox/commonz/urlz"
+	"github.com/infinity6-ai/gox/fsz/fsz"
 )
 
 // FileRef represents a reference to a specific version of a stored asset.
@@ -18,177 +25,174 @@ type FileRef struct {
 	CheckedAt string `json:"checked_at,omitempty"`
 }
 
-// Fs manages the local versioned cache directory matching sdkweb (OPFS) and sdkpy layout.
-// Layout:
+// Fs manages a versioned cache rooted at a gox/fsz URL.
+// Layout under baseUrl:
 //
-//	<base_dir>/<safe_name>/
+//	<baseUrl>/<safe_name>/
 //	├── version.txt          (current released version)
 //	├── checkedat.txt        (timestamp of last remote check)
 //	└── v<version>/
 //	    ├── etag.txt         (remote content ETag)
 //	    └── blob.bin         (binary asset content)
 type Fs struct {
-	baseDir string
+	baseUrl *urlz.Url
 	mu      sync.RWMutex
 }
 
-// DefaultBaseDir returns the default cache root path (~/.cache/i6/sdkgo/fs).
-func DefaultBaseDir() (string, error) {
+// DefaultBaseUrl returns the default cache root URL: file://$HOME/.cache/i6/sdkgo/fs.
+func DefaultBaseUrl() (*urlz.Url, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		homeDir = os.TempDir()
 	}
-	return filepath.Join(homeDir, ".cache", "i6", "sdkgo", "fs"), nil
+	p := filepath.Join(homeDir, ".cache", "i6", "sdkgo", "fs")
+	u, err := urlz.Parse("file://" + filepath.Clean(p))
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse default cache url: %w", err)
+	}
+	return u, nil
 }
 
-// NewFs creates a new versioned filesystem store rooted at baseDir.
-// If baseDir is empty, DefaultBaseDir() is used.
-func NewFs(baseDir string) (*Fs, error) {
-	if baseDir == "" {
-		def, err := DefaultBaseDir()
+// NewFs creates a new versioned filesystem store rooted at baseUrl.
+// If baseUrl is nil, DefaultBaseUrl() is used.
+func NewFs(baseUrl *urlz.Url) (*Fs, error) {
+	if baseUrl == nil {
+		def, err := DefaultBaseUrl()
 		if err != nil {
-			return nil, fmt.Errorf("failed to resolve default base dir: %w", err)
+			return nil, fmt.Errorf("failed to resolve default cache url: %w", err)
 		}
-		baseDir = def
-	}
-	baseDir = filepath.Clean(baseDir)
-	if err := os.MkdirAll(baseDir, 0755); err != nil {
-		return nil, fmt.Errorf("failed to create cache base dir %s: %w", baseDir, err)
+		baseUrl = def
 	}
 	return &Fs{
-		baseDir: baseDir,
+		baseUrl: baseUrl,
 	}, nil
 }
 
-// BaseDir returns the root directory of the cache.
-func (f *Fs) BaseDir() string {
-	return f.baseDir
+// BaseUrl returns the root URL of the cache store.
+func (f *Fs) BaseUrl() *urlz.Url {
+	return f.baseUrl
 }
 
-func (f *Fs) fileDir(name string) string {
+func (f *Fs) fileUrl(name string) *urlz.Url {
 	safeName := strings.ReplaceAll(name, "/", "_")
 	safeName = strings.ReplaceAll(safeName, "\\", "_")
-	return filepath.Join(f.baseDir, safeName)
+	return f.baseUrl.MustJoinPathString(safeName)
 }
 
-// Resolve returns the absolute path for a version's blob.bin (defaults to released version).
-func (f *Fs) Resolve(name string, version ...string) string {
+// ResolveUrl returns the *urlz.Url for a version's blob.bin (defaults to released version).
+func (f *Fs) ResolveUrl(name string, version ...string) *urlz.Url {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
 
-	fileDir := f.fileDir(name)
+	fileUrl := f.fileUrl(name)
 	ver := ""
 	if len(version) > 0 && version[0] != "" {
 		ver = version[0]
 	} else {
-		verFile := filepath.Join(fileDir, "version.txt")
-		if raw, err := os.ReadFile(verFile); err == nil {
-			ver = strings.TrimSpace(string(raw))
-		}
+		verText, _ := f.readText(context.Background(), fileUrl.MustJoinPathString("version.txt"))
+		ver = strings.TrimSpace(verText)
 	}
-	return filepath.Join(fileDir, "v"+ver, "blob.bin")
+	return fileUrl.MustJoinPathString("v"+ver, "blob.bin")
+}
+
+// Resolve returns the filesystem path string for a version's blob.bin if backed by file:// scheme,
+// or the string representation of the URL for non-file schemes.
+func (f *Fs) Resolve(name string, version ...string) string {
+	u := f.ResolveUrl(name, version...)
+	if u.Scheme == "file" && u.Path != nil {
+		return filepath.Clean(u.Path.String())
+	}
+	return u.String()
 }
 
 // Get resolves a version of a file, or returns nil if not found.
-func (f *Fs) Get(name string, version ...string) (*FileRef, error) {
+func (f *Fs) Get(ctx context.Context, name string, version ...string) (*FileRef, error) {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
 
-	fileDir := f.fileDir(name)
-	info, err := os.Stat(fileDir)
-	if err != nil || !info.IsDir() {
-		return nil, nil
-	}
+	fileUrl := f.fileUrl(name)
 
-	releasedVersion := ""
-	verFile := filepath.Join(fileDir, "version.txt")
-	if raw, err := os.ReadFile(verFile); err == nil {
-		releasedVersion = strings.TrimSpace(string(raw))
-	}
-
+	releasedVersion, _ := f.readText(ctx, fileUrl.MustJoinPathString("version.txt"))
 	ver := ""
 	if len(version) > 0 && version[0] != "" {
 		ver = version[0]
 	} else {
-		ver = releasedVersion
+		ver = strings.TrimSpace(releasedVersion)
 	}
 	if ver == "" {
 		return nil, nil
 	}
 
-	verDir := filepath.Join(fileDir, "v"+ver)
-	blobFile := filepath.Join(verDir, "blob.bin")
-	blobInfo, err := os.Stat(blobFile)
-	if err != nil || blobInfo.IsDir() {
+	verDirUrl := fileUrl.MustJoinPathString("v" + ver)
+	blobUrl := verDirUrl.MustJoinPathString("blob.bin")
+	stat, err := fsz.Stat(ctx, blobUrl)
+	if err != nil || stat == nil {
 		return nil, nil
 	}
 
-	etag := ""
-	etagFile := filepath.Join(verDir, "etag.txt")
-	if raw, err := os.ReadFile(etagFile); err == nil {
-		etag = strings.TrimSpace(string(raw))
-	}
+	etag, _ := f.readText(ctx, verDirUrl.MustJoinPathString("etag.txt"))
 
 	checkedAt := ""
-	if len(version) == 0 || version[0] == releasedVersion {
-		checkedFile := filepath.Join(fileDir, "checkedat.txt")
-		if raw, err := os.ReadFile(checkedFile); err == nil {
-			checkedAt = strings.TrimSpace(string(raw))
-		}
+	if len(version) == 0 || version[0] == strings.TrimSpace(releasedVersion) {
+		checkedAt, _ = f.readText(ctx, fileUrl.MustJoinPathString("checkedat.txt"))
 	}
 
 	return &FileRef{
 		Name:      name,
 		Version:   ver,
-		Etag:      etag,
-		CheckedAt: checkedAt,
+		Etag:      strings.TrimSpace(etag),
+		CheckedAt: strings.TrimSpace(checkedAt),
 	}, nil
+}
+
+func isVersionDir(name string) bool {
+	return strings.HasPrefix(name, "v") && len(name) > 1 && name[1] >= '0' && name[1] <= '9'
 }
 
 // Create creates an unreleased version directory and writes etag.txt.
 // If an existing version matching etag is already present, it is reused.
-func (f *Fs) Create(name string, etag string) (*FileRef, error) {
+func (f *Fs) Create(ctx context.Context, name string, etag string) (*FileRef, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
-	fileDir := f.fileDir(name)
-	if err := os.MkdirAll(fileDir, 0755); err != nil {
-		return nil, fmt.Errorf("failed to create file directory for %s: %w", name, err)
-	}
+	fileUrl := f.fileUrl(name)
 
 	// Check if latest existing version directory matches this etag
-	entries, err := os.ReadDir(fileDir)
-	if err == nil {
-		var vDirs []string
-		for _, e := range entries {
-			if e.IsDir() && strings.HasPrefix(e.Name(), "v") {
-				vDirs = append(vDirs, e.Name())
+	var vDirs []string
+	_ = fsz.Lister(ctx, fileUrl, fsz.Walker{
+		Pager: func(page []*fsz.FileStat, _ string) error {
+			for _, item := range page {
+				if item.Url != nil {
+					baseName := filepath.Base(item.Url.Path.String())
+					if isVersionDir(baseName) {
+						vDirs = append(vDirs, baseName)
+					}
+				}
 			}
-		}
-		if len(vDirs) > 0 {
-			sort.Strings(vDirs)
-			latest := vDirs[len(vDirs)-1]
-			latestEtagFile := filepath.Join(fileDir, latest, "etag.txt")
-			if raw, err := os.ReadFile(latestEtagFile); err == nil && strings.TrimSpace(string(raw)) == etag {
-				ver := strings.TrimPrefix(latest, "v")
-				return &FileRef{
-					Name:    name,
-					Version: ver,
-					Etag:    etag,
-				}, nil
-			}
+			return nil
+		},
+	})
+
+	if len(vDirs) > 0 {
+		sort.Strings(vDirs)
+		latest := vDirs[len(vDirs)-1]
+		latestEtag, err := f.readText(ctx, fileUrl.MustJoinPathString(latest, "etag.txt"))
+		if err == nil && strings.TrimSpace(latestEtag) == etag {
+			ver := strings.TrimPrefix(latest, "v")
+			return &FileRef{
+				Name:    name,
+				Version: ver,
+				Etag:    etag,
+			}, nil
 		}
 	}
 
 	version := time.Now().UTC().Format("2006-01-02T15:04:05.000Z")
-	verDir := filepath.Join(fileDir, "v"+version)
-	if err := os.MkdirAll(verDir, 0755); err != nil {
-		return nil, fmt.Errorf("failed to create version directory %s: %w", verDir, err)
-	}
+	verDirUrl := fileUrl.MustJoinPathString("v" + version)
+	etagUrl := verDirUrl.MustJoinPathString("etag.txt")
 
-	etagFile := filepath.Join(verDir, "etag.txt")
-	if err := os.WriteFile(etagFile, []byte(etag), 0644); err != nil {
-		return nil, fmt.Errorf("failed to write etag file %s: %w", etagFile, err)
+	if err := fsz.Upload(ctx, etagUrl, nil, strings.NewReader(etag)); err != nil {
+		return nil, fmt.Errorf("failed to upload etag to %s: %w", etagUrl, err)
 	}
 
 	return &FileRef{
@@ -200,127 +204,147 @@ func (f *Fs) Create(name string, etag string) (*FileRef, error) {
 
 // Release marks a version as the released (current) version, updates checkedat.txt,
 // and deletes versions older than the released version.
-func (f *Fs) Release(name string, version string) (*FileRef, error) {
+func (f *Fs) Release(ctx context.Context, name string, version string) (*FileRef, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
-	fileDir := f.fileDir(name)
-	verDir := filepath.Join(fileDir, "v"+version)
-	blobFile := filepath.Join(verDir, "blob.bin")
-	if info, err := os.Stat(blobFile); err != nil || info.IsDir() {
+	fileUrl := f.fileUrl(name)
+	verDirUrl := fileUrl.MustJoinPathString("v" + version)
+	blobUrl := verDirUrl.MustJoinPathString("blob.bin")
+
+	stat, err := fsz.Stat(ctx, blobUrl)
+	if err != nil || stat == nil {
 		return nil, fmt.Errorf("fs: version %s of %s does not exist or has no blob.bin", version, name)
 	}
 
-	verFile := filepath.Join(fileDir, "version.txt")
-	if err := os.WriteFile(verFile, []byte(version), 0644); err != nil {
+	verFileUrl := fileUrl.MustJoinPathString("version.txt")
+	if err := fsz.Upload(ctx, verFileUrl, nil, strings.NewReader(version)); err != nil {
 		return nil, fmt.Errorf("failed to write version.txt: %w", err)
 	}
 
-	checkedAt := f.touchLocked(name)
-	f.cleanFileLocked(name)
+	checkedAt := f.touchLocked(ctx, name)
+	f.cleanFileLocked(ctx, name)
 
-	etag := ""
-	if raw, err := os.ReadFile(filepath.Join(verDir, "etag.txt")); err == nil {
-		etag = strings.TrimSpace(string(raw))
-	}
+	etag, _ := f.readText(ctx, verDirUrl.MustJoinPathString("etag.txt"))
 
 	return &FileRef{
 		Name:      name,
 		Version:   version,
-		Etag:      etag,
+		Etag:      strings.TrimSpace(etag),
 		CheckedAt: checkedAt,
 	}, nil
 }
 
 // Touch updates checkedat.txt to now (or custom ISO timestamp).
-func (f *Fs) Touch(name string, checkedAt ...string) string {
+func (f *Fs) Touch(ctx context.Context, name string, checkedAt ...string) string {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	return f.touchLocked(name, checkedAt...)
+	return f.touchLocked(ctx, name, checkedAt...)
 }
 
-func (f *Fs) touchLocked(name string, checkedAt ...string) string {
-	fileDir := f.fileDir(name)
-	_ = os.MkdirAll(fileDir, 0755)
-
+func (f *Fs) touchLocked(ctx context.Context, name string, checkedAt ...string) string {
+	fileUrl := f.fileUrl(name)
 	ts := time.Now().UTC().Format("2006-01-02T15:04:05.000Z")
 	if len(checkedAt) > 0 && checkedAt[0] != "" {
 		ts = checkedAt[0]
 	}
 
-	checkedFile := filepath.Join(fileDir, "checkedat.txt")
-	_ = os.WriteFile(checkedFile, []byte(ts), 0644)
+	checkedUrl := fileUrl.MustJoinPathString("checkedat.txt")
+	_ = fsz.Upload(ctx, checkedUrl, nil, strings.NewReader(ts))
 	return ts
 }
 
 // Discard removes an unreleased version directory.
-func (f *Fs) Discard(name string, version string) error {
+func (f *Fs) Discard(ctx context.Context, name string, version string) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
-	fileDir := f.fileDir(name)
-	verFile := filepath.Join(fileDir, "version.txt")
-	if raw, err := os.ReadFile(verFile); err == nil && strings.TrimSpace(string(raw)) == version {
+	fileUrl := f.fileUrl(name)
+	verFileUrl := fileUrl.MustJoinPathString("version.txt")
+	if released, err := f.readText(ctx, verFileUrl); err == nil && strings.TrimSpace(released) == version {
 		return fmt.Errorf("fs: version %s of %s is the released version", version, name)
 	}
 
-	verDir := filepath.Join(fileDir, "v"+version)
-	_ = os.RemoveAll(verDir)
-	return nil
+	verDirUrl := fileUrl.MustJoinPathString("v" + version)
+	return fsz.RmTree(ctx, verDirUrl)
 }
 
 // CleanFile removes versions older than the released version for an asset.
-func (f *Fs) CleanFile(name string) {
+func (f *Fs) CleanFile(ctx context.Context, name string) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	f.cleanFileLocked(name)
+	f.cleanFileLocked(ctx, name)
 }
 
-func (f *Fs) cleanFileLocked(name string) {
-	fileDir := f.fileDir(name)
-	verFile := filepath.Join(fileDir, "version.txt")
-	raw, err := os.ReadFile(verFile)
-	if err != nil {
+func (f *Fs) cleanFileLocked(ctx context.Context, name string) {
+	fileUrl := f.fileUrl(name)
+	releasedVer, err := f.readText(ctx, fileUrl.MustJoinPathString("version.txt"))
+	if err != nil || strings.TrimSpace(releasedVer) == "" {
 		return
 	}
-	released := "v" + strings.TrimSpace(string(raw))
+	released := "v" + strings.TrimSpace(releasedVer)
 
-	entries, err := os.ReadDir(fileDir)
-	if err != nil {
-		return
-	}
-	for _, e := range entries {
-		if e.IsDir() && strings.HasPrefix(e.Name(), "v") && e.Name() < released {
-			_ = os.RemoveAll(filepath.Join(fileDir, e.Name()))
-		}
-	}
+	_ = fsz.Lister(ctx, fileUrl, fsz.Walker{
+		Pager: func(page []*fsz.FileStat, _ string) error {
+			for _, item := range page {
+				if item.Url != nil {
+					baseName := filepath.Base(item.Url.Path.String())
+					if isVersionDir(baseName) && baseName < released {
+						_ = fsz.RmTree(ctx, item.Url)
+					}
+				}
+			}
+			return nil
+		},
+	})
 }
 
 // Clean removes older versions across all stored assets.
-func (f *Fs) Clean() {
+func (f *Fs) Clean(ctx context.Context) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
-	entries, err := os.ReadDir(f.baseDir)
-	if err != nil {
-		return
-	}
-	for _, e := range entries {
-		if e.IsDir() {
-			f.cleanFileLocked(e.Name())
-		}
-	}
+	_ = fsz.Lister(ctx, f.baseUrl, fsz.Walker{
+		Pager: func(page []*fsz.FileStat, _ string) error {
+			for _, item := range page {
+				if item.Url != nil {
+					baseName := filepath.Base(item.Url.Path.String())
+					f.cleanFileLocked(ctx, baseName)
+				}
+			}
+			return nil
+		},
+	})
 }
 
 // Exists checks if a released version of the asset exists.
-func (f *Fs) Exists(name string) bool {
-	ref, _ := f.Get(name)
+func (f *Fs) Exists(ctx context.Context, name string) bool {
+	ref, _ := f.Get(ctx, name)
 	return ref != nil
 }
 
 // Delete removes the entire asset folder.
-func (f *Fs) Delete(name string) error {
+func (f *Fs) Delete(ctx context.Context, name string) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	return os.RemoveAll(f.fileDir(name))
+	return fsz.RmTree(ctx, f.fileUrl(name))
+}
+
+func (f *Fs) readText(ctx context.Context, u *urlz.Url) (string, error) {
+	var content string
+	err := fsz.Download(ctx, u, func(found bool, _ http.Header, reader io.Reader) error {
+		if !found || reader == nil {
+			return nil
+		}
+		raw, err := io.ReadAll(reader)
+		if err != nil {
+			return err
+		}
+		content = string(bytes.TrimSpace(raw))
+		return nil
+	})
+	if err != nil {
+		return "", err
+	}
+	return content, nil
 }

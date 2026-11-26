@@ -3,12 +3,12 @@ package fszcache
 import (
 	"context"
 	"fmt"
-	"io"
 	"net/http"
-	"os"
-	"path/filepath"
 	"sync"
 	"time"
+
+	"github.com/infinity6-ai/gox/commonz/urlz"
+	"github.com/infinity6-ai/gox/fsz/fsz"
 )
 
 // Downloader manages downloading remote assets into the versioned Fs store with ETag caching.
@@ -47,7 +47,7 @@ func (d *Downloader) Update(
 	d.mu.Lock()
 	defer d.mu.Unlock()
 
-	current, _ := d.fs.Get(name)
+	current, _ := d.fs.Get(ctx, name)
 
 	// Check if cached version is within preload TTL
 	if minPreloadTime > 0 && current != nil && current.CheckedAt != "" {
@@ -99,7 +99,7 @@ func (d *Downloader) fetchAndUpdate(
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusNotModified && current != nil {
-		d.fs.Touch(name)
+		d.fs.Touch(ctx, name)
 		return d.fs.Resolve(name, current.Version), nil
 	}
 
@@ -111,42 +111,29 @@ func (d *Downloader) fetchAndUpdate(
 	}
 
 	respEtag := resp.Header.Get("ETag")
-	newRef, err := d.fs.Create(name, respEtag)
+	newRef, err := d.fs.Create(ctx, name, respEtag)
 	if err != nil {
 		return "", fmt.Errorf("failed to create version for %s: %w", name, err)
 	}
 
-	targetPath := d.fs.Resolve(name, newRef.Version)
-	tmpPath := targetPath + ".tmp"
-
-	// Ensure parent directory exists
-	if err := os.MkdirAll(filepath.Dir(targetPath), 0755); err != nil {
-		_ = d.fs.Discard(name, newRef.Version)
-		return "", fmt.Errorf("failed to create directory for %s: %w", targetPath, err)
-	}
-
-	tmpFile, err := os.Create(tmpPath)
+	targetUrl := d.fs.ResolveUrl(name, newRef.Version)
+	tmpUrl, err := urlz.Parse(targetUrl.String() + ".tmp")
 	if err != nil {
-		_ = d.fs.Discard(name, newRef.Version)
-		return "", fmt.Errorf("failed to create tmp file %s: %w", tmpPath, err)
+		_ = d.fs.Discard(ctx, name, newRef.Version)
+		return "", fmt.Errorf("failed to create tmp url for %s: %w", targetUrl, err)
 	}
 
-	buf := make([]byte, 64*1024)
-	if _, err := io.CopyBuffer(tmpFile, resp.Body, buf); err != nil {
-		_ = tmpFile.Close()
-		_ = os.Remove(tmpPath)
-		_ = d.fs.Discard(name, newRef.Version)
-		return "", fmt.Errorf("failed to stream download into %s: %w", tmpPath, err)
-	}
-	_ = tmpFile.Close()
-
-	if err := os.Rename(tmpPath, targetPath); err != nil {
-		_ = os.Remove(tmpPath)
-		_ = d.fs.Discard(name, newRef.Version)
-		return "", fmt.Errorf("failed to atomically rename %s to %s: %w", tmpPath, targetPath, err)
+	if err := fsz.Upload(ctx, tmpUrl, nil, resp.Body); err != nil {
+		_ = d.fs.Discard(ctx, name, newRef.Version)
+		return "", fmt.Errorf("failed to upload stream to %s: %w", tmpUrl, err)
 	}
 
-	released, err := d.fs.Release(name, newRef.Version)
+	if err := fsz.Move(ctx, tmpUrl, targetUrl); err != nil {
+		_ = d.fs.Discard(ctx, name, newRef.Version)
+		return "", fmt.Errorf("failed to atomically move %s to %s: %w", tmpUrl, targetUrl, err)
+	}
+
+	released, err := d.fs.Release(ctx, name, newRef.Version)
 	if err != nil {
 		return "", fmt.Errorf("failed to release version %s for %s: %w", newRef.Version, name, err)
 	}
