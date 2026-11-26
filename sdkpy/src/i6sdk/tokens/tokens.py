@@ -386,3 +386,174 @@ class Tokens:
             except Exception:
                 return None
 
+    def ingest_token(self, token_str: str, dataset: Optional[str] = None) -> Dict[str, Any]:
+        """Inspects a token string, automatically determines its type,
+        stores it in the token store following mutual exclusivity rules, and returns metadata."""
+        token_str = (token_str or "").strip()
+        if not token_str:
+            raise ValueError("token string cannot be empty")
+
+        target_ds = (dataset or "").strip()
+
+        # 1. Check if token is an Ed25519 dataset refresh key
+        from ..internal.reqsign import parse_ed25519_private_key
+        try:
+            parse_ed25519_private_key(token_str)
+            is_ed25519 = True
+        except Exception:
+            is_ed25519 = False
+
+        if is_ed25519:
+            if not target_ds and token_str.startswith("{"):
+                try:
+                    d = json.loads(token_str)
+                    if isinstance(d, dict) and d.get("dataset"):
+                        target_ds = d["dataset"]
+                except Exception:
+                    pass
+            if not target_ds:
+                raise ValueError("dataset identifier is required for dataset refresh token")
+            self.set_dataset_refresh_token(target_ds, token_str)
+            return {
+                "type": "dataset_refresh",
+                "dataset": target_ds,
+            }
+
+        # 2. Check via /api/userz/token/check API if services wired
+        if self._services and self._services.apis():
+            try:
+                resp = self._services.apis().user_token_check(
+                    req={"payload": {"token": token_str}},
+                    opts={"labels": {"token_types": "none"}},
+                )
+                if resp.ok:
+                    data = resp.parse() or {}
+                    diag = data.get("diagnostics") or {}
+                    exp_at = diag.get("expires_at", 0)
+                    if 0 < exp_at < 10_000_000_000:
+                        exp_at *= 1000
+
+                    user_id = diag.get("user_id")
+                    if user_id:
+                        ut: UserToken = {
+                            "user_access_token": token_str,
+                            "user_id": user_id,
+                            "expires_at": int(exp_at),
+                        }
+                        self.set_user_token(ut)
+                        return {
+                            "type": "user_access",
+                            "user_id": user_id,
+                            "expires_at": int(exp_at),
+                        }
+
+                    ds = diag.get("dataset") or target_ds
+                    if ds:
+                        dt: DatasetToken = {
+                            "dataset": ds,
+                            "access_token": token_str,
+                            "expires_at": int(exp_at),
+                            "grants": int(diag.get("grants", 0)),
+                        }
+                        self.set_dataset_token(ds, dt)
+                        return {
+                            "type": "dataset_bearer",
+                            "dataset": ds,
+                            "expires_at": int(exp_at),
+                        }
+            except Exception:
+                pass
+
+            # 3. Check if token is an opaque user refresh token
+            try:
+                r_resp = self._services.apis().user_auth_refresh(
+                    req={"payload": {"refresh_token": token_str}},
+                    opts={"labels": {"token_types": "none"}},
+                )
+                if r_resp.ok:
+                    r_data = r_resp.parse() or {}
+                    exp_at = r_data.get("expires_at", 0)
+                    if 0 < exp_at < 10_000_000_000:
+                        exp_at *= 1000
+                    ut = {
+                        "user_access_token": r_data.get("user_access_token", ""),
+                        "user_refresh_token": r_data.get("user_refresh_token", ""),
+                        "user_id": r_data.get("user_id", ""),
+                        "expires_at": int(exp_at),
+                    }
+                    self.set_user_token(ut)
+                    return {
+                        "type": "user_refresh",
+                        "expires_at": int(exp_at),
+                    }
+            except Exception:
+                pass
+
+        # 4. Offline JWT inspection heuristic
+        parts = token_str.split(".")
+        if len(parts) == 3:
+            import base64
+            payload_b64 = parts[1]
+            rem = len(payload_b64) % 4
+            if rem != 0:
+                payload_b64 += "=" * (4 - rem)
+            try:
+                raw_bytes = base64.urlsafe_b64decode(payload_b64)
+                claims = json.loads(raw_bytes)
+                exp_at = int(claims.get("exp", 0))
+                if 0 < exp_at < 10_000_000_000:
+                    exp_at *= 1000
+
+                ds_val = claims.get("dataset") or target_ds
+                if ds_val:
+                    dt = {
+                        "dataset": ds_val,
+                        "access_token": token_str,
+                        "expires_at": exp_at,
+                    }
+                    self.set_dataset_token(ds_val, dt)
+                    return {
+                        "type": "dataset_bearer",
+                        "dataset": ds_val,
+                        "expires_at": exp_at,
+                    }
+
+                uid = claims.get("sub") or claims.get("user_id")
+                if uid:
+                    ut = {
+                        "user_access_token": token_str,
+                        "user_id": uid,
+                        "expires_at": exp_at,
+                    }
+                    self.set_user_token(ut)
+                    return {
+                        "type": "user_access",
+                        "user_id": uid,
+                        "expires_at": exp_at,
+                    }
+            except Exception:
+                pass
+
+        # 5. Fallback based on target_ds
+        if target_ds:
+            dt = {
+                "dataset": target_ds,
+                "access_token": token_str,
+                "expires_at": 0,
+            }
+            self.set_dataset_token(target_ds, dt)
+            return {
+                "type": "dataset_bearer",
+                "dataset": target_ds,
+            }
+
+        # Fallback as user access token
+        ut = {
+            "user_access_token": token_str,
+            "expires_at": 0,
+        }
+        self.set_user_token(ut)
+        return {
+            "type": "user_access",
+        }
+

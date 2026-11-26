@@ -463,3 +463,63 @@ func TestUnitDatasetTokenDerivation(t *testing.T) {
 		require.Equal(t, int32(1), atomic.LoadInt32(&robotCalls))
 	})
 }
+
+func TestUnitIngestToken(t *testing.T) {
+	ctx := t.Context()
+
+	t.Run("Ingests Ed25519 dataset refresh token", func(t *testing.T) {
+		store := tokenstore.NewMemory()
+		mgr := tokens.New(tokens.ManagerOptions{Store: store})
+
+		_, privKey, err := ed25519.GenerateKey(rand.Reader)
+		require.NoError(t, err)
+		privKeyB64 := base64.RawURLEncoding.EncodeToString(privKey)
+
+		res, err := mgr.IngestToken(ctx, privKeyB64, "my-dataset")
+		require.NoError(t, err)
+		require.Equal(t, tokens.TokenTypeDatasetRefresh, res.Type)
+		require.Equal(t, "my-dataset", res.Dataset)
+
+		got, err := mgr.GetDatasetRefreshToken(ctx, "my-dataset")
+		require.NoError(t, err)
+		require.Equal(t, privKeyB64, got)
+	})
+
+	t.Run("Ingests offline dataset bearer JWT token", func(t *testing.T) {
+		store := tokenstore.NewMemory()
+		mgr := tokens.New(tokens.ManagerOptions{Store: store})
+
+		header := base64.RawURLEncoding.EncodeToString([]byte(`{"alg":"none"}`))
+		payload := base64.RawURLEncoding.EncodeToString([]byte(`{"dataset":"fashion-ds","exp":1895000000}`))
+		jwt := fmt.Sprintf("%s.%s.sig", header, payload)
+
+		res, err := mgr.IngestToken(ctx, jwt)
+		require.NoError(t, err)
+		require.Equal(t, tokens.TokenTypeDatasetBearer, res.Type)
+		require.Equal(t, "fashion-ds", res.Dataset)
+
+		dt, err := mgr.GetDatasetToken(ctx, "fashion-ds")
+		require.NoError(t, err)
+		require.NotNil(t, dt)
+		require.Equal(t, "fashion-ds", dt.Dataset)
+	})
+
+	t.Run("Ingests offline user access JWT token", func(t *testing.T) {
+		store := tokenstore.NewMemory()
+		mgr := tokens.New(tokens.ManagerOptions{Store: store})
+
+		header := base64.RawURLEncoding.EncodeToString([]byte(`{"alg":"none"}`))
+		payload := base64.RawURLEncoding.EncodeToString([]byte(`{"sub":"usr_999","exp":1895000000}`))
+		jwt := fmt.Sprintf("%s.%s.sig", header, payload)
+
+		res, err := mgr.IngestToken(ctx, jwt)
+		require.NoError(t, err)
+		require.Equal(t, tokens.TokenTypeUserAccess, res.Type)
+		require.Equal(t, "usr_999", res.UserId)
+
+		ut, err := mgr.GetUserToken(ctx)
+		require.NoError(t, err)
+		require.NotNil(t, ut)
+		require.Equal(t, "usr_999", ut.UserId)
+	})
+}

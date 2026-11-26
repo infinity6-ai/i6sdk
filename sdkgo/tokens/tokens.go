@@ -17,6 +17,7 @@ import (
 	"github.com/infinity6-ai/i6sdk/apiuserz/userapidatasettokenaccesscreate"
 	"github.com/infinity6-ai/i6sdk/apiuserz/userapidatasettokenrefresh"
 	"github.com/infinity6-ai/i6sdk/apiuserz/userapiauthrefresh"
+	"github.com/infinity6-ai/i6sdk/apiuserz/userapitokencheck"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/solution"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/grants"
@@ -653,6 +654,241 @@ func (m *Manager) GetValidDatasetAccessToken(ctx context.Context, dataset string
 	}
 
 	return dt.AccessToken, nil
+}
+
+// IngestTokenType represents the identified type of an ingested token.
+type IngestTokenType string
+
+const (
+	TokenTypeUserAccess     IngestTokenType = "user_access"
+	TokenTypeUserRefresh    IngestTokenType = "user_refresh"
+	TokenTypeDatasetRefresh IngestTokenType = "dataset_refresh"
+	TokenTypeDatasetBearer  IngestTokenType = "dataset_bearer"
+)
+
+// IngestResult represents the outcome of an IngestToken operation.
+type IngestResult struct {
+	Type      IngestTokenType `json:"type"`
+	Dataset   string          `json:"dataset,omitempty"`
+	UserId    string          `json:"user_id,omitempty"`
+	ExpiresAt int64           `json:"expires_at,omitempty"`
+}
+
+// IngestToken inspects a token string, automatically determines its type,
+// stores it in the token store following mutual exclusivity rules, and returns metadata.
+func (m *Manager) IngestToken(ctx context.Context, tokenStr string, dataset ...string) (*IngestResult, error) {
+	tokenStr = strings.TrimSpace(tokenStr)
+	if tokenStr == "" {
+		return nil, fmt.Errorf("token string cannot be empty")
+	}
+
+	targetDs := ""
+	if len(dataset) > 0 && dataset[0] != "" {
+		targetDs = dataset[0]
+	}
+
+	// 1. Check if token is an Ed25519 dataset refresh key (JSON, base64url, hex, raw)
+	if _, err := parseEd25519PrivateKey(tokenStr); err == nil {
+		if targetDs == "" && strings.HasPrefix(tokenStr, "{") {
+			var d map[string]any
+			if err := json.Unmarshal([]byte(tokenStr), &d); err == nil {
+				if ds, ok := d["dataset"].(string); ok && ds != "" {
+					targetDs = ds
+				}
+			}
+		}
+		if targetDs == "" {
+			return nil, fmt.Errorf("dataset identifier is required for dataset refresh token")
+		}
+		if err := m.SetDatasetRefreshToken(ctx, targetDs, tokenStr); err != nil {
+			return nil, fmt.Errorf("failed to store dataset refresh token: %w", err)
+		}
+		return &IngestResult{
+			Type:    TokenTypeDatasetRefresh,
+			Dataset: targetDs,
+		}, nil
+	}
+
+	// 2. Check if token can be validated via UserTokenCheck API
+	if m.apis != nil {
+		checkApi := &userapitokencheck.Api{
+			Req: &userapitokencheck.Req{
+				Payload: &userapitokencheck.ReqPayload{
+					Token: tokenStr,
+				},
+			},
+		}
+		status, err := m.apis.UserTokenCheck(ctx, checkApi)
+		if err == nil && status == 200 && checkApi.Resp != nil && checkApi.Resp.Payload != nil {
+			diag := checkApi.Resp.Payload.Diagnostics
+			expAt := diag.ExpiresAt
+			if 0 < expAt && expAt < 10_000_000_000 {
+				expAt *= 1000
+			}
+
+			if diag.UserId != "" {
+				ut := &UserToken{
+					UserAccessToken: tokenStr,
+					UserId:          diag.UserId,
+					ExpiresAt:       expAt,
+				}
+				if err := m.SetUserToken(ctx, ut); err != nil {
+					return nil, fmt.Errorf("failed to store user access token: %w", err)
+				}
+				return &IngestResult{
+					Type:      TokenTypeUserAccess,
+					UserId:    diag.UserId,
+					ExpiresAt: expAt,
+				}, nil
+			}
+
+			ds := diag.Dataset
+			if ds == "" {
+				ds = targetDs
+			}
+			if ds != "" {
+				dt := &DatasetToken{
+					Dataset:     ds,
+					AccessToken: tokenStr,
+					ExpiresAt:   expAt,
+					Grants:      grants.Grant(diag.Grants),
+				}
+				if err := m.SetDatasetToken(ctx, ds, dt); err != nil {
+					return nil, fmt.Errorf("failed to store dataset bearer token: %w", err)
+				}
+				return &IngestResult{
+					Type:      TokenTypeDatasetBearer,
+					Dataset:   ds,
+					ExpiresAt: expAt,
+				}, nil
+			}
+		}
+
+		// 3. Check if token is an opaque user refresh token
+		refreshApi := &userapiauthrefresh.Api{
+			Req: &userapiauthrefresh.Req{
+				Payload: &userapiauthrefresh.ReqPayload{
+					RefreshToken: tokenStr,
+				},
+			},
+		}
+		rStatus, rErr := m.apis.UserAuthRefresh(ctx, refreshApi)
+		if rErr == nil && rStatus == 200 && refreshApi.Resp != nil && refreshApi.Resp.Payload != nil {
+			p := refreshApi.Resp.Payload
+			expAt := p.ExpiresAt
+			if 0 < expAt && expAt < 10_000_000_000 {
+				expAt *= 1000
+			}
+			var rfExp *int64
+			if p.RefreshTokenExpiresAt > 0 {
+				val := p.RefreshTokenExpiresAt
+				if val < 10_000_000_000 {
+					val *= 1000
+				}
+				rfExp = &val
+			}
+			ut := &UserToken{
+				UserAccessToken:       p.UserAccessToken,
+				UserRefreshToken:      p.UserRefreshToken,
+				UserId:                p.UserId,
+				ExpiresAt:             expAt,
+				RefreshTokenExpiresAt: rfExp,
+			}
+			if err := m.SetUserToken(ctx, ut); err != nil {
+				return nil, fmt.Errorf("failed to store refreshed user token: %w", err)
+			}
+			return &IngestResult{
+				Type:      TokenTypeUserRefresh,
+				ExpiresAt: expAt,
+			}, nil
+		}
+	}
+
+	// 4. Offline JWT inspection heuristic (when APIs are unavailable or mock offline)
+	parts := strings.Split(tokenStr, ".")
+	if len(parts) == 3 {
+		payloadB64 := parts[1]
+		if rem := len(payloadB64)%4; rem != 0 {
+			payloadB64 += strings.Repeat("=", 4-rem)
+		}
+		rawBytes, err := base64.URLEncoding.DecodeString(payloadB64)
+		if err == nil {
+			var claims map[string]any
+			if err := json.Unmarshal(rawBytes, &claims); err == nil {
+				expAt := int64(0)
+				if expVal, ok := claims["exp"].(float64); ok {
+					expAt = int64(expVal)
+					if expAt < 10_000_000_000 {
+						expAt *= 1000
+					}
+				}
+
+				if dsVal, ok := claims["dataset"].(string); ok && dsVal != "" {
+					dt := &DatasetToken{
+						Dataset:     dsVal,
+						AccessToken: tokenStr,
+						ExpiresAt:   expAt,
+					}
+					if err := m.SetDatasetToken(ctx, dsVal, dt); err != nil {
+						return nil, fmt.Errorf("failed to store dataset bearer token: %w", err)
+					}
+					return &IngestResult{
+						Type:      TokenTypeDatasetBearer,
+						Dataset:   dsVal,
+						ExpiresAt: expAt,
+					}, nil
+				}
+
+				uid := ""
+				if sub, ok := claims["sub"].(string); ok {
+					uid = sub
+				} else if u, ok := claims["user_id"].(string); ok {
+					uid = u
+				}
+				if uid != "" {
+					ut := &UserToken{
+						UserAccessToken: tokenStr,
+						UserId:          uid,
+						ExpiresAt:       expAt,
+					}
+					if err := m.SetUserToken(ctx, ut); err != nil {
+						return nil, fmt.Errorf("failed to store user access token: %w", err)
+					}
+					return &IngestResult{
+						Type:      TokenTypeUserAccess,
+						UserId:    uid,
+						ExpiresAt: expAt,
+					}, nil
+				}
+			}
+		}
+	}
+
+	// 5. Default fallback based on target dataset parameter
+	if targetDs != "" {
+		dt := &DatasetToken{
+			Dataset:     targetDs,
+			AccessToken: tokenStr,
+		}
+		if err := m.SetDatasetToken(ctx, targetDs, dt); err != nil {
+			return nil, fmt.Errorf("failed to store dataset bearer token: %w", err)
+		}
+		return &IngestResult{
+			Type:    TokenTypeDatasetBearer,
+			Dataset: targetDs,
+		}, nil
+	}
+
+	// Fallback as user access token
+	ut := &UserToken{
+		UserAccessToken: tokenStr,
+	}
+	if err := m.SetUserToken(ctx, ut); err != nil {
+		return nil, fmt.Errorf("failed to store user access token: %w", err)
+	}
+	return &IngestResult{
+		Type: TokenTypeUserAccess,
+	}, nil
 }
 
 // parseEd25519PrivateKey parses an Ed25519 private key from various input representations:

@@ -345,6 +345,48 @@ class TestTokens(unittest.TestCase):
         self.assertEqual(tokens.get_dataset_tokens_map(), {})
         self.assertEqual(tokens.get_dataset_refresh_tokens_map(), {})
 
+    def test_ingest_token_ed25519(self):
+        client = I6Client(I6SdkConfig())
+        tokens = client.tokens()
+        from cryptography.hazmat.primitives.asymmetric import ed25519
+        from cryptography.hazmat.primitives import serialization
+        import base64
+
+        priv = ed25519.Ed25519PrivateKey.generate()
+        raw_bytes = priv.private_bytes(
+            serialization.Encoding.Raw,
+            serialization.PrivateFormat.Raw,
+            serialization.NoEncryption(),
+        )
+        priv_b64 = base64.urlsafe_b64encode(raw_bytes).decode("utf-8").rstrip("=")
+
+        res = tokens.ingest_token(priv_b64, dataset="my-ds")
+        self.assertEqual(res["type"], "dataset_refresh")
+        self.assertEqual(res["dataset"], "my-ds")
+        self.assertEqual(tokens.get_dataset_refresh_token("my-ds"), priv_b64)
+
+    def test_ingest_token_jwt_offline(self):
+        client = I6Client(I6SdkConfig())
+        tokens = client.tokens()
+        import base64
+
+        header = base64.urlsafe_b64encode(b'{"alg":"none"}').decode("utf-8").rstrip("=")
+        payload = base64.urlsafe_b64encode(b'{"dataset":"fashion-ds","exp":1895000000}').decode("utf-8").rstrip("=")
+        jwt_ds = f"{header}.{payload}.sig"
+
+        res = tokens.ingest_token(jwt_ds)
+        self.assertEqual(res["type"], "dataset_bearer")
+        self.assertEqual(res["dataset"], "fashion-ds")
+        self.assertIsNotNone(tokens.get_dataset_token("fashion-ds"))
+
+        # User access JWT
+        u_payload = base64.urlsafe_b64encode(b'{"sub":"usr_777","exp":1895000000}').decode("utf-8").rstrip("=")
+        jwt_u = f"{header}.{u_payload}.sig"
+        res_u = tokens.ingest_token(jwt_u)
+        self.assertEqual(res_u["type"], "user_access")
+        self.assertEqual(res_u["user_id"], "usr_777")
+        self.assertIsNotNone(tokens.get_user_token())
+
 
 if __name__ == "__main__":
     unittest.main()
