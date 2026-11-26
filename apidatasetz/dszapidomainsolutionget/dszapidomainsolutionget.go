@@ -1,154 +1,75 @@
+//go:generate go run github.com/infinity6-ai/i6sdk/mold schemagen .
 package dszapidomainsolutionget
 
 import (
-	"reflect"
-
-	"github.com/infinity6-ai/i6sdk/sdkcorez/speclabels/speclabeltokentype"
+	"context"
 
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/domain"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/solution"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/storeid"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/speclabels/speclabeltokentype"
 )
-
-type DszSolutionDomainGetReq struct {
-	Dataset lakedsz.Dataset
-	StoreId storeid.StoreId
-}
 
 type SolutionDomain struct {
 	Solution solution.Solution `json:"solution"`
 	Domain   domain.Domain     `json:"domain"`
 }
 
-func (s *SolutionDomain) Schema() *schemaz.Schema {
-	return &schemaz.Schema{
-		Desc: &schemaz.Desc{Summary: "Solution and domain configuration mapping for a store."},
-		Object: func(read bool) map[string]*schemaz.Schema {
-			return map[string]*schemaz.Schema{
-				"solution": {
-					Desc:  &schemaz.Desc{Summary: "Solution type, such as relevance."},
-					Field: func() any { return &s.Solution },
-				},
-				"domain": {
-					Desc:  &schemaz.Desc{Summary: "Domain associated with the solution (e.g. relevance_fashion)."},
-					Field: func() any { return &s.Domain },
-				},
-			}
-		},
-	}
+type ReqParams struct {
+	// Dataset identifier.
+	Dataset lakedsz.Dataset `json:"dataset"`
 }
 
-func (s *SolutionDomain) JSTypedef() (*typeastz.Typedef, *typeastz.Typedefs) {
-	t := reflect.TypeOf(*s).String()
-	td := &typeastz.Typedef{
-		Head:       &typeastz.Tuple{Typ: typeastz.TypObject, GoTyp: t, Name: ""},
-		Properties: &typeastz.Tuples{},
-	}
-	td.Properties.Add(
-		typeastz.Tuple{Typ: typeastz.TypString, GoTyp: reflect.TypeOf(s.Solution).String(), Name: "solution"},
-		typeastz.Tuple{Typ: typeastz.TypString, GoTyp: reflect.TypeOf(s.Domain).String(), Name: "domain"},
-	)
-	return td, nil
+type ReqQuery struct {
+	// Store ID to query.
+	StoreId storeid.StoreId `json:"store_id"`
 }
 
-type DszSolutionDomainGetResp struct {
-	Dataset   lakedsz.Dataset  `json:"dataset"`
+type Req struct {
+	Params *ReqParams `json:"params,omitempty"`
+	Query  *ReqQuery  `json:"query,omitempty"`
+}
+
+type RespPayload struct {
+	// Dataset identifier.
+	Dataset lakedsz.Dataset `json:"dataset"`
+	// Store ID queried.
+	StoreId storeid.StoreId `json:"store_id"`
+	// Solution domain mappings.
 	Solutions []SolutionDomain `json:"solutions"`
-	StoreId   storeid.StoreId  `json:"store_id"`
 }
 
+type Resp struct {
+	Payload *RespPayload `json:"payload,omitempty"`
+}
+
+// Get Store Solution Domain
+// Retrieves the solution domain for a store within a dataset.
 type Api struct {
-	Req  *DszSolutionDomainGetReq  `json:"req"`
-	Resp *DszSolutionDomainGetResp `json:"resp"`
+	apiz.UnimplementedApi `json:"-"`
+	Req                   *Req  `json:"req,omitempty"`
+	Resp                  *Resp `json:"resp,omitempty"`
 }
 
-func (d *Api) ApiSpec() apiz.ApiSpec {
+func (d *Api) ApiRoute() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id: "dsz-domain-get",
+		Method: "GET",
+		Path:   "/api/ds/dataset/{dataset}/store/solution-domain",
 		Desc: func() *schemaz.Desc {
 			return &schemaz.Desc{
-				Name:    "Get Solution Domain",
-				Summary: "Retrieves the active solutions and their corresponding domains for a given store in a dataset.",
 				Labels: map[string]string{
 					speclabeltokentype.Key: speclabeltokentype.Dataset,
 				},
 			}
 		},
-		Method: "GET",
-		Path:   "/api/ds/dataset/{dataset}/store/solution-domain",
 	}
 }
 
-func (d *Api) ApiDataRefs() *apiz.DataRefs {
-	return &apiz.DataRefs{
-		PathParams: &schemaz.Schema{
-			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && d.Req == nil {
-					return nil
-				}
-				if d.Req == nil {
-					d.Req = &DszSolutionDomainGetReq{}
-				}
-				return map[string]*schemaz.Schema{
-					"dataset": {
-						Desc:     &schemaz.Desc{Summary: "Dataset identifier containing the store."},
-						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
-					},
-				}
-			},
-		},
-		QueryParams: &schemaz.Schema{
-			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && d.Req == nil {
-					return nil
-				}
-				if d.Req == nil {
-					d.Req = &DszSolutionDomainGetReq{}
-				}
-				return map[string]*schemaz.Schema{
-					"store_id": {
-						Desc:     &schemaz.Desc{Summary: "Store identifier to query solutions and domains for."},
-						UrlValue: schemaz.ParseStrGet(&d.Req.StoreId, storeid.MustParse),
-					},
-				}
-			},
-		},
-		ReqHeaders:  nil,
-		ReqBody:     nil,
-		RespHeaders: nil,
-		RespBody: &schemaz.Schema{
-			Desc: &schemaz.Desc{Summary: "Response containing solutions and domains for the store."},
-			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && d.Resp == nil {
-					return nil
-				}
-				if d.Resp == nil {
-					d.Resp = &DszSolutionDomainGetResp{}
-				}
-				return map[string]*schemaz.Schema{
-					"dataset": {
-						Desc:  &schemaz.Desc{Summary: "Dataset identifier."},
-						Field: func() any { return &d.Resp.Dataset },
-					},
-					"solutions": {
-						Desc: &schemaz.Desc{Summary: "List of solution and domain configurations mapping to this store."},
-						Array: schemaz.NewArray(schemaz.ArrayOptions[[]SolutionDomain, SolutionDomain]{
-							Slice: func() *[]SolutionDomain { return &d.Resp.Solutions },
-							Get: func(idx int, element *SolutionDomain) *schemaz.Schema {
-								return element.Schema()
-							},
-						}),
-					},
-					"store_id": {
-						Desc:  &schemaz.Desc{Summary: "Store identifier."},
-						Field: func() any { return &d.Resp.StoreId },
-					},
-				}
-			},
-		},
-	}
+type DszDomainGetId struct{}
+
+func (DszDomainGetId) DszDomainGet(ctx context.Context, api *Api) (int, error) {
+	panic("DszDomainGet not implemented: run 'go generate ./...'")
 }

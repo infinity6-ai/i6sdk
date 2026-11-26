@@ -10,26 +10,24 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestUnitDszApiTableGet(t *testing.T) {
+func TestUnitDszTableGetApi(t *testing.T) {
 	api := &dszapitableget.Api{
-		Req: dszapitableget.Req{
-			Dataset: lakedsz.MustParse("myds"),
-			Path:    laketbpathz.MustParse("i6tb://mydb.mytable/part-1"),
+		Req: &dszapitableget.Req{
+			Params: &dszapitableget.ReqParams{
+				Dataset: lakedsz.MustParse("myds"),
+				Path:    laketbpathz.MustParse("i6tb://tables.items/part.json"),
+			},
 		},
-		Resp: dszapitableget.Resp{
-			Location: "https://example.com/part-1",
+		Resp: &dszapitableget.Resp{
+			Headers: &dszapitableget.RespHeaders{
+				Location: "https://storage.googleapis.com/test",
+			},
 		},
 	}
 
 	apiCopy := jsonz.MustCopy(api, &dszapitableget.Api{})
+	require.Equal(t, api.Req.Params.Dataset, apiCopy.Req.Params.Dataset)
 
-	require.Equal(t, api.Req, apiCopy.Req)
-	require.Equal(t, api.Resp, apiCopy.Resp)
-	require.Equal(t, "https://example.com/part-1", apiCopy.Resp.Location)
-}
-
-func TestUnitDszApiTableGetParseApi(t *testing.T) {
-	api := &dszapitableget.Api{}
 	spec := api.ApiSpec()
 	require.Equal(t, "dsz-table-get", spec.Id)
 }

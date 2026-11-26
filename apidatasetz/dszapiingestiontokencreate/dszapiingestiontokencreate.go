@@ -1,66 +1,53 @@
+//go:generate go run github.com/infinity6-ai/i6sdk/mold schemagen .
 package dszapiingestiontokencreate
 
 import (
+	"context"
+
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/dsztoken"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/speclabels/speclabeltokentype"
 )
 
-type DszCreateIngestionTokenReq struct {
-	Dataset    lakedsz.Dataset `json:"dataset"`
-	Annotation string          `json:"annotation"`
+type ReqParams struct {
+	// Dataset identifier.
+	Dataset lakedsz.Dataset `json:"dataset"`
 }
 
+type ReqPayload struct {
+	// Optional description note.
+	Annotation string `json:"annotation,omitempty"`
+}
+
+type Req struct {
+	Params  *ReqParams  `json:"params,omitempty"`
+	Payload *ReqPayload `json:"payload,omitempty"`
+}
+
+// Create Ingestion Token
+// Creates a legacy ingestion token for dataset ingestion.
 type Api struct {
-	Req  DszCreateIngestionTokenReq `json:"req"`
-	Resp dsztoken.DatasetToken      `json:"resp"`
+	apiz.UnimplementedApi `json:"-"`
+	Req                   *Req `json:"req,omitempty"`
 }
 
-func (d *Api) ApiSpec() apiz.ApiSpec {
+func (d *Api) ApiRoute() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id: "dsz-create-ingestion-token",
+		Method: "POST",
+		Path:   "/api/ds/dataset/{dataset}/ingestiontoken/create",
 		Desc: func() *schemaz.Desc {
 			return &schemaz.Desc{
-				Name:    "Create Ingestion Token",
-				Summary: "Creates a write token for data ingestion into a specific dataset.",
 				Labels: map[string]string{
 					speclabeltokentype.Key: speclabeltokentype.Dataset,
 				},
 			}
 		},
-		Method: "POST",
-		Path:   "/api/ds/dataset/{dataset}/ingestiontoken/create",
 	}
 }
 
-func (d *Api) ApiDataRefs() *apiz.DataRefs {
-	return &apiz.DataRefs{
-		PathParams: &schemaz.Schema{
-			Object: func(read bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"dataset": {
-						Desc:     &schemaz.Desc{Summary: "Dataset to create the ingestion token for."},
-						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
-					},
-				}
-			},
-		},
-		QueryParams: nil,
-		ReqHeaders:  nil,
-		ReqBody: &schemaz.Schema{
-			Desc: &schemaz.Desc{Summary: "Ingestion token configuration request."},
-			Object: func(read bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"annotation": {
-						Desc:  &schemaz.Desc{Summary: "Optional note or annotation identifying the purpose of this token."},
-						Field: func() any { return &d.Req.Annotation },
-					},
-				}
-			},
-		},
-		RespHeaders: nil,
-		RespBody:    d.Resp.Schema(),
-	}
+type DszCreateIngestionTokenId struct{}
+
+func (DszCreateIngestionTokenId) DszCreateIngestionToken(ctx context.Context, api *Api) (int, error) {
+	panic("DszCreateIngestionToken not implemented: run 'go generate ./...'")
 }

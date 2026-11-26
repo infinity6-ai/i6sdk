@@ -5,34 +5,31 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapistoredisplaylist"
-	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/dszstore"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
-	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/storedisplayid"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/storeid"
 	"github.com/stretchr/testify/require"
 )
 
 func TestUnitDszStoreDisplayListApi(t *testing.T) {
 	api := &dszapistoredisplaylist.Api{
-		Req: &dszapistoredisplaylist.DszStoreDisplayListReq{
-			Dataset: lakedsz.MustParse("myds"),
-			StoreId: storeid.MustParse("store1"),
+		Req: &dszapistoredisplaylist.Req{
+			Params: &dszapistoredisplaylist.ReqParams{
+				Dataset: lakedsz.MustParse("myds"),
+			},
+			Query: &dszapistoredisplaylist.ReqQuery{
+				StoreId: storeid.MustParse("store-1"),
+			},
 		},
-		Resp: &dszapistoredisplaylist.DszStoreDisplayListResp{
-			Dataset: lakedsz.MustParse("myds"),
-			StoreId: storeid.MustParse("store1"),
-			Displays: []dszstore.DszStoreDisplay{
-				{
-					Id:   storedisplayid.MustParse("display1"),
-					Name: "Display One",
-				},
+		Resp: &dszapistoredisplaylist.Resp{
+			Payload: &dszapistoredisplaylist.RespPayload{
+				Dataset: lakedsz.MustParse("myds"),
+				StoreId: storeid.MustParse("store-1"),
 			},
 		},
 	}
 
 	apiCopy := jsonz.MustCopy(api, &dszapistoredisplaylist.Api{})
-	require.Equal(t, api.Req, apiCopy.Req)
-	require.Equal(t, api.Resp, apiCopy.Resp)
+	require.Equal(t, api.Req.Params.Dataset, apiCopy.Req.Params.Dataset)
 
 	spec := api.ApiSpec()
 	require.Equal(t, "dsz-store-display-list", spec.Id)

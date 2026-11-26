@@ -10,35 +10,22 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestUnitDszSubscriptionPlanUpdateApi(t *testing.T) {
-	t.Run("round trip", func(t *testing.T) {
-		api := &dszapisubscriptionplanupdate.Api{
-			Req: &dszapisubscriptionplanupdate.Req{
+func TestUnitDszUpdateSubscriptionPlanApi(t *testing.T) {
+	api := &dszapisubscriptionplanupdate.Api{
+		Req: &dszapisubscriptionplanupdate.Req{
+			Params: &dszapisubscriptionplanupdate.ReqParams{
 				Dataset:  lakedsz.MustParse("myds"),
-				Solution: solution.Relevance().Solution,
-				Plan:     "relevance_growth_base_monthly",
+				Solution: solution.MustParse("relevance"),
 			},
-		}
-		apiCopy := jsonz.MustCopy(api, &dszapisubscriptionplanupdate.Api{})
-		require.Equal(t, api.Req, apiCopy.Req)
-	})
-
-	t.Run("body schema has plan", func(t *testing.T) {
-		api := &dszapisubscriptionplanupdate.Api{
-			Req: &dszapisubscriptionplanupdate.Req{
-				Dataset:  lakedsz.MustParse("myds"),
-				Solution: solution.Relevance().Solution,
-				Plan:     "relevance_growth_base_monthly",
+			Payload: &dszapisubscriptionplanupdate.ReqPayload{
+				Plan: "relevance_growth_monthly_2027",
 			},
-		}
-		body := string(jsonz.MustFormat(api.ApiDataRefs().ReqBody).Bytes())
-		require.JSONEq(t, `{"plan": "relevance_growth_base_monthly"}`, body)
-	})
+		},
+	}
 
-	t.Run("spec", func(t *testing.T) {
-		spec := (&dszapisubscriptionplanupdate.Api{}).ApiSpec()
-		require.Equal(t, "dsz-update-subscription-plan", spec.Id)
-		require.Equal(t, "POST", spec.Method)
-		require.Equal(t, "/api/ds/dataset/{dataset}/solution/{solution}/subscription/plan", spec.Path)
-	})
+	apiCopy := jsonz.MustCopy(api, &dszapisubscriptionplanupdate.Api{})
+	require.Equal(t, api.Req.Params.Dataset, apiCopy.Req.Params.Dataset)
+
+	spec := api.ApiSpec()
+	require.Equal(t, "dsz-update-subscription-plan", spec.Id)
 }

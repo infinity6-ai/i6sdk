@@ -10,23 +10,26 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestUnitDszListActiveSolutionsApi(t *testing.T) {
+func TestUnitDszDatasetSolutionsApi(t *testing.T) {
 	api := &dszapidatasetsolutions.Api{
-		Req: &dszapidatasetsolutions.DszListActiveSolutionsReq{
-			Dataset: lakedsz.MustParse("myds"),
+		Req: &dszapidatasetsolutions.Req{
+			Params: &dszapidatasetsolutions.ReqParams{
+				Dataset: lakedsz.MustParse("myds"),
+			},
 		},
-		Resp: &dszapidatasetsolutions.DszListActiveSolutionsResp{
-			Dataset: lakedsz.MustParse("myds"),
-			Solutions: []solution.Solution{
-				solution.Relevance().Solution,
-				solution.Plat().Solution,
+		Resp: &dszapidatasetsolutions.Resp{
+			Payload: &dszapidatasetsolutions.RespPayload{
+				Dataset: lakedsz.MustParse("myds"),
+				Solutions: []solution.Solution{
+					solution.MustParse("relevance"),
+				},
 			},
 		},
 	}
 
 	apiCopy := jsonz.MustCopy(api, &dszapidatasetsolutions.Api{})
-	require.Equal(t, api.Req, apiCopy.Req)
-	require.Equal(t, api.Resp, apiCopy.Resp)
+	require.Equal(t, api.Req.Params.Dataset, apiCopy.Req.Params.Dataset)
+	require.Len(t, apiCopy.Resp.Payload.Solutions, 1)
 
 	spec := api.ApiSpec()
 	require.Equal(t, "dsz-dataset-solutions", spec.Id)

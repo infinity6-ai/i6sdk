@@ -1,6 +1,9 @@
+//go:generate go run github.com/infinity6-ai/i6sdk/mold schemagen .
 package dszapisubscriptionplanupdate
 
 import (
+	"context"
+
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
@@ -8,75 +11,46 @@ import (
 	"github.com/infinity6-ai/i6sdk/sdkcorez/speclabels/speclabeltokentype"
 )
 
+type ReqParams struct {
+	// Dataset identifier.
+	Dataset lakedsz.Dataset `json:"dataset"`
+	// Solution product.
+	Solution solution.Solution `json:"solution"`
+}
+
+type ReqPayload struct {
+	// Lookup key of new Stripe price.
+	Plan string `json:"plan"`
+}
+
 type Req struct {
-	Dataset  lakedsz.Dataset
-	Solution solution.Solution
-	Plan     string
+	Params  *ReqParams  `json:"params,omitempty"`
+	Payload *ReqPayload `json:"payload,omitempty"`
 }
 
+// Update Subscription Plan
+// Updates the plan (price) of the Stripe subscription for a dataset product/solution.
 type Api struct {
-	Req *Req
+	apiz.UnimplementedApi `json:"-"`
+	Req                   *Req `json:"req,omitempty"`
 }
 
-func (d *Api) ApiSpec() apiz.ApiSpec {
+func (d *Api) ApiRoute() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id: "dsz-update-subscription-plan",
+		Method: "POST",
+		Path:   "/api/ds/dataset/{dataset}/solution/{solution}/subscription/plan",
 		Desc: func() *schemaz.Desc {
 			return &schemaz.Desc{
-				Name:    "Update Subscription Plan",
-				Summary: "Updates the plan (price) of the Stripe subscription for a dataset product/solution.",
 				Labels: map[string]string{
 					speclabeltokentype.Key: speclabeltokentype.Dataset,
 				},
 			}
 		},
-		Method: "POST",
-		Path:   "/api/ds/dataset/{dataset}/solution/{solution}/subscription/plan",
 	}
 }
 
-func (d *Api) ApiDataRefs() *apiz.DataRefs {
-	return &apiz.DataRefs{
-		PathParams: &schemaz.Schema{
-			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && d.Req == nil {
-					return nil
-				}
-				if d.Req == nil {
-					d.Req = &Req{}
-				}
-				return map[string]*schemaz.Schema{
-					"dataset": {
-						Desc:     &schemaz.Desc{Summary: "Dataset of the subscription"},
-						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
-					},
-					"solution": {
-						Desc:     &schemaz.Desc{Summary: "Solution (product) of the subscription"},
-						UrlValue: schemaz.ParseStrGet(&d.Req.Solution, solution.MustParse),
-					},
-				}
-			},
-		},
-		QueryParams: nil,
-		ReqHeaders:  nil,
-		ReqBody: &schemaz.Schema{
-			Desc: &schemaz.Desc{Summary: "Subscription plan update parameters"},
-			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && d.Req == nil {
-					return nil
-				}
-				if d.Req == nil {
-					d.Req = &Req{}
-				}
-				return map[string]*schemaz.Schema{
-					"plan": {
-						Desc:  &schemaz.Desc{Summary: "Lookup key of the new Stripe price"},
-						Field: func() any { return &d.Req.Plan },
-					},
-				}
-			},
-		},
-		RespHeaders: nil,
-		RespBody:    nil,
-	}
+type DszUpdateSubscriptionPlanId struct{}
+
+func (DszUpdateSubscriptionPlanId) DszUpdateSubscriptionPlan(ctx context.Context, api *Api) (int, error) {
+	panic("DszUpdateSubscriptionPlan not implemented: run 'go generate ./...'")
 }

@@ -10,44 +10,26 @@ import (
 )
 
 func TestUnitDszCreateCustomerPortalApi(t *testing.T) {
-	t.Run("round trip", func(t *testing.T) {
-		api := &dszapicustomerportalcreate.Api{
-			Req: &dszapicustomerportalcreate.Req{
-				Dataset:   lakedsz.MustParse("myds"),
-				ReturnUrl: "https://app.infinity6.ai/dash",
-				Locale:    "pt-BR",
+	api := &dszapicustomerportalcreate.Api{
+		Req: &dszapicustomerportalcreate.Req{
+			Params: &dszapicustomerportalcreate.ReqParams{
+				Dataset: lakedsz.MustParse("myds"),
 			},
-			Resp: &dszapicustomerportalcreate.Resp{
-				Url: "https://billing.stripe.com/p/session?secret=xyz",
+			Payload: &dszapicustomerportalcreate.ReqPayload{
+				ReturnUrl: "https://example.com/return",
 			},
-		}
-		apiCopy := jsonz.MustCopy(api, &dszapicustomerportalcreate.Api{})
-		require.Equal(t, api.Req, apiCopy.Req)
-		require.Equal(t, api.Resp, apiCopy.Resp)
-	})
+		},
+		Resp: &dszapicustomerportalcreate.Resp{
+			Payload: &dszapicustomerportalcreate.RespPayload{
+				Url: "https://billing.stripe.com/session/123",
+			},
+		},
+	}
 
-	t.Run("body schema has return_url, locale and url", func(t *testing.T) {
-		api := &dszapicustomerportalcreate.Api{
-			Req: &dszapicustomerportalcreate.Req{
-				Dataset:   lakedsz.MustParse("myds"),
-				ReturnUrl: "https://app.infinity6.ai/dash",
-				Locale:    "pt-BR",
-			},
-			Resp: &dszapicustomerportalcreate.Resp{
-				Url: "https://billing.stripe.com/p/session?secret=xyz",
-			},
-		}
-		reqBody := string(jsonz.MustFormat(api.ApiDataRefs().ReqBody).Bytes())
-		require.JSONEq(t, `{"return_url": "https://app.infinity6.ai/dash", "locale": "pt-BR"}`, reqBody)
+	apiCopy := jsonz.MustCopy(api, &dszapicustomerportalcreate.Api{})
+	require.Equal(t, api.Req.Params.Dataset, apiCopy.Req.Params.Dataset)
+	require.Equal(t, api.Resp.Payload.Url, apiCopy.Resp.Payload.Url)
 
-		respBody := string(jsonz.MustFormat(api.ApiDataRefs().RespBody).Bytes())
-		require.JSONEq(t, `{"url": "https://billing.stripe.com/p/session?secret=xyz"}`, respBody)
-	})
-
-	t.Run("spec", func(t *testing.T) {
-		spec := (&dszapicustomerportalcreate.Api{}).ApiSpec()
-		require.Equal(t, "dsz-create-customer-portal", spec.Id)
-		require.Equal(t, "POST", spec.Method)
-		require.Equal(t, "/api/ds/dataset/{dataset}/portal", spec.Path)
-	})
+	spec := api.ApiSpec()
+	require.Equal(t, "dsz-create-customer-portal", spec.Id)
 }

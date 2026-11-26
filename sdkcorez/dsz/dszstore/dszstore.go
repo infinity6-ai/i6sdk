@@ -48,3 +48,21 @@ type DszStoreDisplay struct {
 	Name      string
 	ModelName string
 }
+
+func (d *DszStoreDisplay) Schema() *schemaz.Schema {
+	return &schemaz.Schema{
+		Desc: &schemaz.Desc{Summary: "Store display configuration details."},
+		Object: func(_ bool) map[string]*schemaz.Schema {
+			return map[string]*schemaz.Schema{
+				"id": {
+					Desc:  &schemaz.Desc{Summary: "Unique identifier of the store display."},
+					Field: func() any { return &d.Id },
+				},
+				"name": {
+					Desc:  &schemaz.Desc{Summary: "Human-readable name of the store display."},
+					Field: func() any { return &d.Name },
+				},
+			}
+		},
+	}
+}

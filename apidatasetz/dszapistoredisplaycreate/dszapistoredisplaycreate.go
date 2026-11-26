@@ -1,6 +1,9 @@
+//go:generate go run github.com/infinity6-ai/i6sdk/mold schemagen .
 package dszapistoredisplaycreate
 
 import (
+	"context"
+
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/dszstore"
@@ -9,121 +12,56 @@ import (
 	"github.com/infinity6-ai/i6sdk/sdkcorez/speclabels/speclabeltokentype"
 )
 
-type DszStoreDisplayCreateReq struct {
-	Dataset lakedsz.Dataset          `json:"dataset"`
-	StoreId storeid.StoreId          `json:"store_id"`
+type ReqParams struct {
+	// Dataset identifier.
+	Dataset lakedsz.Dataset `json:"dataset"`
+}
+
+type ReqPayload struct {
+	// Store ID.
+	StoreId storeid.StoreId `json:"store_id"`
+	// Store display details.
 	Display dszstore.DszStoreDisplay `json:"display"`
 }
 
-type DszStoreDisplayCreateResp struct {
+type Req struct {
+	Params  *ReqParams  `json:"params,omitempty"`
+	Payload *ReqPayload `json:"payload,omitempty"`
+}
+
+type RespPayload struct {
+	// Created store display details.
 	Display dszstore.DszStoreDisplay `json:"display"`
 }
 
+type Resp struct {
+	Payload *RespPayload `json:"payload,omitempty"`
+}
+
+// Create Store Display
+// Creates or updates a store display configuration.
 type Api struct {
-	Req  *DszStoreDisplayCreateReq  `json:"req"`
-	Resp *DszStoreDisplayCreateResp `json:"resp"`
+	apiz.UnimplementedApi `json:"-"`
+	Req                   *Req  `json:"req,omitempty"`
+	Resp                  *Resp `json:"resp,omitempty"`
 }
 
-func (d *Api) ApiSpec() apiz.ApiSpec {
+func (d *Api) ApiRoute() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id: "dsz-store-display-create",
+		Method: "POST",
+		Path:   "/api/ds/dataset/{dataset}/store/display/create",
 		Desc: func() *schemaz.Desc {
 			return &schemaz.Desc{
-				Name:    "Create Store Display",
-				Summary: "Creates a store display configuration mapping for a store under a specific dataset.",
 				Labels: map[string]string{
 					speclabeltokentype.Key: speclabeltokentype.Dataset,
 				},
 			}
 		},
-		Method: "POST",
-		Path:   "/api/ds/dataset/{dataset}/store/display/create",
 	}
 }
 
-func (d *Api) ApiDataRefs() *apiz.DataRefs {
-	return &apiz.DataRefs{
-		PathParams: &schemaz.Schema{
-			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && d.Req == nil {
-					return nil
-				}
-				if d.Req == nil {
-					d.Req = &DszStoreDisplayCreateReq{}
-				}
-				return map[string]*schemaz.Schema{
-					"dataset": {
-						Desc:     &schemaz.Desc{Summary: "Dataset containing the store."},
-						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
-					},
-				}
-			},
-		},
-		QueryParams: nil,
-		ReqHeaders:  nil,
-		ReqBody: &schemaz.Schema{
-			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && d.Req == nil {
-					return nil
-				}
-				if d.Req == nil {
-					d.Req = &DszStoreDisplayCreateReq{}
-				}
-				return map[string]*schemaz.Schema{
-					"store_id": {
-						Desc:  &schemaz.Desc{Summary: "Unique identifier of the store."},
-						Field: func() any { return &d.Req.StoreId },
-					},
-					"display": {
-						Desc: &schemaz.Desc{Summary: "Store display configuration details."},
-						Object: func(read bool) map[string]*schemaz.Schema {
-							return map[string]*schemaz.Schema{
-								"id": {
-									Desc:  &schemaz.Desc{Summary: "Unique identifier of the store display."},
-									Field: func() any { return &d.Req.Display.Id },
-								},
-								"name": {
-									Desc:  &schemaz.Desc{Summary: "Human-readable name of the store display."},
-									Field: func() any { return &d.Req.Display.Name },
-								},
-								"model_name": {
-									Desc:  &schemaz.Desc{Summary: "Name of the recommendation/relevance model associated with this display."},
-									Field: func() any { return &d.Req.Display.ModelName },
-								},
-							}
-						},
-					},
-				}
-			},
-		},
-		RespHeaders: nil,
-		RespBody: &schemaz.Schema{
-			Desc: &schemaz.Desc{Summary: "Response body confirming the created store display configuration."},
-			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && d.Resp == nil {
-					return nil
-				}
-				if d.Resp == nil {
-					d.Resp = &DszStoreDisplayCreateResp{}
-				}
-				return map[string]*schemaz.Schema{
-					"display": {
-						Desc: &schemaz.Desc{Summary: "Created store display configuration details."},
-						Object: func(read bool) map[string]*schemaz.Schema {
-							return map[string]*schemaz.Schema{
-								"id": {
-									Desc:  &schemaz.Desc{Summary: "Unique identifier of the store display."},
-									Field: func() any { return &d.Resp.Display.Id },
-								},
-								"name": {
-									Desc:  &schemaz.Desc{Summary: "Human-readable name of the store display."},
-									Field: func() any { return &d.Resp.Display.Name },
-								},
-							}
-						},
-					},
-				}
-			},
-		},
-	}
+type DszStoreDisplayCreateId struct{}
+
+func (DszStoreDisplayCreateId) DszStoreDisplayCreate(ctx context.Context, api *Api) (int, error) {
+	panic("DszStoreDisplayCreate not implemented: run 'go generate ./...'")
 }

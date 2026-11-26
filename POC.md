@@ -291,9 +291,9 @@ This pattern applies universally across all 5 polymorphic API families:
 - `pipezstart.Api[T]` $\rightarrow$ `pipezstartbatchingest` & `pipezstartmain` (Bridge: `PipeStarterApi`) `[DONE]`
 - `ingestzapievent.Api[T]` $\rightarrow$ `ingestzapieventcatalog` & `ingestzapieventevent` (Bridge: `EventIngestApi`) `[DONE]`
 - `ingestzapistream.Api[T]` $\rightarrow$ `ingestzapistreamcatalog` & `ingestzapistreamevent` (Bridge: `StreamIngestApi`) `[DONE]`
-- `scheduleractivate.Api[T]` $\rightarrow$ `scheduleractivatebatchingest` & `scheduleractivatemain` (Bridge: `SchedulerActivatorApi`) `[STEP 3]`
-- `schedulerdeactivate.Api[T]` $\rightarrow$ `schedulerdeactivatebatchingest` & `schedulerdeactivatemain` (Bridge: `SchedulerDeactivatorApi`) `[STEP 3]`
-- `dszapiloadresult.Api[T]` $\rightarrow$ `dszapiloadresultcatalog` & `dszapiloadresultbatchsummary` (Bridge: `LoadResultApi`) `[STEP 5]`
+- `scheduleractivate.Api[T]` $\rightarrow$ `scheduleractivatebatchingest` & `scheduleractivatemain` (Bridge: `SchedulerActivatorApi`) `[DONE]`
+- `schedulerdeactivate.Api[T]` $\rightarrow$ `schedulerdeactivatebatchingest` & `schedulerdeactivatemain` (Bridge: `SchedulerDeactivatorApi`) `[DONE]`
+- `dszapiloadresult.Api[T]` $\rightarrow$ `dszapiloadresultcatalog` & `dszapiloadresultbatchsummary` (Bridge: `LoadResultApi`) `[DONE]`
 
 #### 4. Clean Checkouts & SdkApis Method Promotion (`<MethodName>Id`)
 1. **Compile-time safety on fresh clones**: Every API package defines a concrete stub struct `type <MethodName>Id struct{}` with an actionable panic.
@@ -331,7 +331,7 @@ This pattern applies universally across all 5 polymorphic API families:
 - Build `mold apisgen` to automate `apis.gen.go` generation.
 - Enforce zero underscores across all API IDs.
 
-### Phase 3: Rollout Across API Modules & Backend Service Projects [IN PROGRESS]
+### Phase 3: Rollout Across API Modules & Backend Service Projects [DONE]
 
 Each `api*z` module in `i6sdk` pairs with a corresponding backend service repository in the workspace that implements its handlers:
 
@@ -341,7 +341,7 @@ Each `api*z` module in `i6sdk` pairs with a corresponding backend service reposi
 | **2** | `apiingestz/` | `i6ingestz/` | 6 concrete endpoints (split `event[T]` & `stream[T]`, `batchsummary`, `geturl`) | **DONE** (100% green in both repos) |
 | **3** | `apipipez/` | `i6pipez/` | 8 concrete endpoints (`pipezget`, `pipezlist`, split `pipezstart[T]`, `scheduleractivate[T]` & `schedulerdeactivate[T]`) | **DONE** (100% green in both repos) |
 | **4** | `apiuserz/` | `i6userz/` + `i6decsuite/` | 18 endpoints (`userapiauth*`, `userapidatasettoken*`, `userapitokencheck`) | **DONE** (100% green across all 3 repos) |
-| **5** | `apidatasetz/` | `i6datasetz/` | 24 concrete endpoints (split `dszapiloadresult[T]`, remaining 22 dataset endpoints) | **NEXT** (Phase 3 Step 5) |
+| **5** | `apidatasetz/` | `i6datasetz/` | 24 concrete endpoints (split `dszapiloadresult[T]`, remaining 22 dataset endpoints) | **DONE** (100% green in both repos) |
 
 #### Synchronized Refactoring Workflow (Per Domain Module)
 1. **Refactor API Contract (`i6sdk/api*z`)**:

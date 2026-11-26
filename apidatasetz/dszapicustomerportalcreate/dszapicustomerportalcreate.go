@@ -1,102 +1,65 @@
+//go:generate go run github.com/infinity6-ai/i6sdk/mold schemagen .
 package dszapicustomerportalcreate
 
 import (
+	"context"
+
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/speclabels/speclabeltokentype"
 )
 
+type ReqParams struct {
+	// Dataset identifier.
+	Dataset lakedsz.Dataset `json:"dataset"`
+}
+
+type ReqPayload struct {
+	// Return URL after customer portal session.
+	ReturnUrl string `json:"return_url"`
+	// Preferred locale for customer portal.
+	Locale string `json:"locale,omitempty"`
+}
+
 type Req struct {
-	Dataset   lakedsz.Dataset
-	ReturnUrl string
-	Locale    string
+	Params  *ReqParams  `json:"params,omitempty"`
+	Payload *ReqPayload `json:"payload,omitempty"`
+}
+
+type RespPayload struct {
+	// Stripe customer portal URL.
+	Url string `json:"url"`
 }
 
 type Resp struct {
-	Url string
+	Payload *RespPayload `json:"payload,omitempty"`
 }
 
+// Create Customer Portal
+// Creates a customer portal session for managing subscription and billing.
 type Api struct {
-	Req  *Req
-	Resp *Resp
+	apiz.UnimplementedApi `json:"-"`
+	Req                   *Req  `json:"req,omitempty"`
+	Resp                  *Resp `json:"resp,omitempty"`
 }
 
-func (d *Api) ApiSpec() apiz.ApiSpec {
+func (d *Api) ApiRoute() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id: "dsz-create-customer-portal",
+		Method: "POST",
+		Path:   "/api/ds/dataset/{dataset}/portal",
 		Desc: func() *schemaz.Desc {
 			return &schemaz.Desc{
-				Name:    "Create Customer Portal",
-				Summary: "Creates a Stripe billing portal session URL where the user can manage cards, auto-renew, and plans.",
 				Labels: map[string]string{
 					speclabeltokentype.Key: speclabeltokentype.Dataset,
 				},
 			}
 		},
-		Method: "POST",
-		Path:   "/api/ds/dataset/{dataset}/portal",
 	}
 }
 
-func (d *Api) ApiDataRefs() *apiz.DataRefs {
-	return &apiz.DataRefs{
-		PathParams: &schemaz.Schema{
-			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && d.Req == nil {
-					return nil
-				}
-				if d.Req == nil {
-					d.Req = &Req{}
-				}
-				return map[string]*schemaz.Schema{
-					"dataset": {
-						Desc:     &schemaz.Desc{Summary: "Dataset of the customer"},
-						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
-					},
-				}
-			},
-		},
-		QueryParams: nil,
-		ReqHeaders:  nil,
-		ReqBody: &schemaz.Schema{
-			Desc: &schemaz.Desc{Summary: "Customer portal parameters"},
-			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && d.Req == nil {
-					return nil
-				}
-				if d.Req == nil {
-					d.Req = &Req{}
-				}
-				return map[string]*schemaz.Schema{
-					"return_url": {
-						Desc:  &schemaz.Desc{Summary: "URL where the user is redirected when leaving the portal"},
-						Field: func() any { return &d.Req.ReturnUrl },
-					},
-					"locale": {
-						Desc:  &schemaz.Desc{Summary: "Locale for the portal interface, defaults to en-US if empty (e.g. pt-BR, en-US)"},
-						Field: func() any { return &d.Req.Locale },
-					},
-				}
-			},
-		},
-		RespHeaders: nil,
-		RespBody: &schemaz.Schema{
-			Desc: &schemaz.Desc{Summary: "Customer portal session response"},
-			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && d.Resp == nil {
-					return nil
-				}
-				if d.Resp == nil {
-					d.Resp = &Resp{}
-				}
-				return map[string]*schemaz.Schema{
-					"url": {
-						Desc:  &schemaz.Desc{Summary: "URL of the Stripe customer portal session"},
-						Field: func() any { return &d.Resp.Url },
-					},
-				}
-			},
-		},
-	}
+type DszCreateCustomerPortalId struct{}
+
+func (DszCreateCustomerPortalId) DszCreateCustomerPortal(ctx context.Context, api *Api) (int, error) {
+	panic("DszCreateCustomerPortal not implemented: run 'go generate ./...'")
 }

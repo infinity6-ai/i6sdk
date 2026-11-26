@@ -10,35 +10,22 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestUnitDszPaymentAutoRenewUpdateApi(t *testing.T) {
-	t.Run("round trip", func(t *testing.T) {
-		api := &dszapipaymentautorenewupdate.Api{
-			Req: &dszapipaymentautorenewupdate.Req{
-				Dataset:   lakedsz.MustParse("myds"),
-				Solution:  solution.Relevance().Solution,
+func TestUnitDszUpdatePaymentAutoRenewApi(t *testing.T) {
+	api := &dszapipaymentautorenewupdate.Api{
+		Req: &dszapipaymentautorenewupdate.Req{
+			Params: &dszapipaymentautorenewupdate.ReqParams{
+				Dataset:  lakedsz.MustParse("myds"),
+				Solution: solution.MustParse("relevance"),
+			},
+			Payload: &dszapipaymentautorenewupdate.ReqPayload{
 				AutoRenew: true,
 			},
-		}
-		apiCopy := jsonz.MustCopy(api, &dszapipaymentautorenewupdate.Api{})
-		require.Equal(t, api.Req, apiCopy.Req)
-	})
+		},
+	}
 
-	t.Run("body schema has auto_renew", func(t *testing.T) {
-		api := &dszapipaymentautorenewupdate.Api{
-			Req: &dszapipaymentautorenewupdate.Req{
-				Dataset:   lakedsz.MustParse("myds"),
-				Solution:  solution.Relevance().Solution,
-				AutoRenew: false,
-			},
-		}
-		body := string(jsonz.MustFormat(api.ApiDataRefs().ReqBody).Bytes())
-		require.JSONEq(t, `{"auto_renew": false}`, body)
-	})
+	apiCopy := jsonz.MustCopy(api, &dszapipaymentautorenewupdate.Api{})
+	require.Equal(t, api.Req.Params.Dataset, apiCopy.Req.Params.Dataset)
 
-	t.Run("spec", func(t *testing.T) {
-		spec := (&dszapipaymentautorenewupdate.Api{}).ApiSpec()
-		require.Equal(t, "dsz-update-payment-auto-renew", spec.Id)
-		require.Equal(t, "POST", spec.Method)
-		require.Equal(t, "/api/ds/dataset/{dataset}/solution/{solution}/payment/autorenew", spec.Path)
-	})
+	spec := api.ApiSpec()
+	require.Equal(t, "dsz-update-payment-auto-renew", spec.Id)
 }

@@ -364,17 +364,24 @@ func generateApiDataRefs(pkgName string, apiStruct *ast.StructType, info *typeIn
 	return b.Bytes(), nil
 }
 
-func writeUrlValueSlot(b *bytes.Buffer, slotName, slotField, typeName string, st *ast.StructType, reqIsPtr, slotIsPtr bool, info *typeInfo, neededImports map[string]string) {
+func writeUrlValueSlot(b *bytes.Buffer, slotName, slotField, typeName string, st *ast.StructType, parentIsPtr, slotIsPtr bool, info *typeInfo, neededImports map[string]string) {
 	b.WriteString(fmt.Sprintf("\t\t%s: &schemaz.Schema{\n", slotName))
 	b.WriteString("\t\t\tObject: func(read bool) map[string]*schemaz.Schema {\n")
 
-	if reqIsPtr {
-		b.WriteString("\t\t\t\tif read && d.Req == nil {\n\t\t\t\t\treturn nil\n\t\t\t\t}\n")
-		b.WriteString("\t\t\t\tif d.Req == nil {\n\t\t\t\t\td.Req = &Req{}\n\t\t\t\t}\n")
+	parentPrefix := "d.Req"
+	parentType := "Req"
+	if slotName == "RespHeaders" {
+		parentPrefix = "d.Resp"
+		parentType = "Resp"
+	}
+
+	if parentIsPtr {
+		b.WriteString(fmt.Sprintf("\t\t\t\tif read && %s == nil {\n\t\t\t\t\treturn nil\n\t\t\t\t}\n", parentPrefix))
+		b.WriteString(fmt.Sprintf("\t\t\t\tif %s == nil {\n\t\t\t\t\t%s = &%s{}\n\t\t\t\t}\n", parentPrefix, parentPrefix, parentType))
 	}
 	if slotIsPtr {
-		b.WriteString(fmt.Sprintf("\t\t\t\tif read && d.Req.%s == nil {\n\t\t\t\t\treturn nil\n\t\t\t\t}\n", slotField))
-		b.WriteString(fmt.Sprintf("\t\t\t\tif d.Req.%s == nil {\n\t\t\t\t\td.Req.%s = &%s{}\n\t\t\t\t}\n", slotField, slotField, typeName))
+		b.WriteString(fmt.Sprintf("\t\t\t\tif read && %s.%s == nil {\n\t\t\t\t\treturn nil\n\t\t\t\t}\n", parentPrefix, slotField))
+		b.WriteString(fmt.Sprintf("\t\t\t\tif %s.%s == nil {\n\t\t\t\t\t%s.%s = &%s{}\n\t\t\t\t}\n", parentPrefix, slotField, parentPrefix, slotField, typeName))
 	}
 
 	b.WriteString("\t\t\t\treturn map[string]*schemaz.Schema{\n")
@@ -386,7 +393,7 @@ func writeUrlValueSlot(b *bytes.Buffer, slotName, slotField, typeName string, st
 			}
 			for _, ident := range f.Names {
 				docStr := info.fieldDocs[typeName][ident.Name]
-				urlParser := resolveUrlParser(f.Type, fmt.Sprintf("&d.Req.%s.%s", slotField, ident.Name), neededImports, info.imports)
+				urlParser := resolveUrlParser(f.Type, fmt.Sprintf("&%s.%s.%s", parentPrefix, slotField, ident.Name), slotName, neededImports, info.imports)
 				b.WriteString(fmt.Sprintf("\t\t\t\t\t%q: {\n", jsonTag))
 				if docStr != "" {
 					b.WriteString(fmt.Sprintf("\t\t\t\t\t\tDesc: &schemaz.Desc{Summary: %q},\n", docStr))
@@ -445,6 +452,20 @@ func writePayloadSlot(b *bytes.Buffer, slotName, accessor, slotField, typeName s
 }
 
 func writeFieldSchema(b *bytes.Buffer, indent, jsonTag, docStr string, expr ast.Expr, accessor string, info *typeInfo, neededImports map[string]string) {
+	fieldTypeStr, isPtr := resolveTypeName(expr)
+	if isPtr && strings.Contains(fieldTypeStr, ".") && !strings.Contains(fieldTypeStr, "time.Time") && !strings.Contains(fieldTypeStr, "fsz.FileStat") {
+		pkgAlias := strings.Split(fieldTypeStr, ".")[0]
+		if impPath, ok := info.imports[pkgAlias]; ok {
+			neededImports[pkgAlias] = impPath
+		}
+		rawType := strings.TrimPrefix(fieldTypeStr, "*")
+		b.WriteString(fmt.Sprintf("%s%q: func() *schemaz.Schema {\n", indent, jsonTag))
+		b.WriteString(fmt.Sprintf("%s\tif %s == nil {\n%s\t\t%s = new(%s)\n%s\t}\n", indent, accessor, indent, accessor, rawType, indent))
+		b.WriteString(fmt.Sprintf("%s\treturn %s.Schema()\n", indent, accessor))
+		b.WriteString(fmt.Sprintf("%s}(),\n", indent))
+		return
+	}
+
 	b.WriteString(fmt.Sprintf("%s%q: {\n", indent, jsonTag))
 	if docStr != "" {
 		b.WriteString(fmt.Sprintf("%s\tDesc: &schemaz.Desc{Summary: %q},\n", indent, docStr))
@@ -463,7 +484,7 @@ func writeFieldSchema(b *bytes.Buffer, indent, jsonTag, docStr string, expr ast.
 		if elemStruct, ok := info.structs[elemTypeStr]; ok {
 			elemDoc := info.typeDocs[elemTypeStr]
 			b.WriteString(fmt.Sprintf("%s\tArray: schemaz.NewArray(schemaz.ArrayOptions[%s, %s]{\n", indent, sliceType, elemType))
-			b.WriteString(fmt.Sprintf("%s\t\tSlice: func() *%s { return &%s },\n", indent, sliceType, accessor))
+			b.WriteString(fmt.Sprintf("%s\t\tSlice: func() *%s {\n%s\t\t\tif %s == nil {\n%s\t\t\t\t%s = %s{}\n%s\t\t\t}\n%s\t\t\treturn &%s\n%s\t\t},\n", indent, sliceType, indent, accessor, indent, accessor, sliceType, indent, indent, accessor, indent))
 			if isPtr {
 				b.WriteString(fmt.Sprintf("%s\t\tNewElement: func(idx int) %s { return &%s{} },\n", indent, elemType, elemTypeStr))
 				b.WriteString(fmt.Sprintf("%s\t\tGet: func(idx int, element *%s) *schemaz.Schema {\n", indent, elemType))
@@ -491,12 +512,7 @@ func writeFieldSchema(b *bytes.Buffer, indent, jsonTag, docStr string, expr ast.
 					} else {
 						eAccessor = fmt.Sprintf("element.%s", eIdent.Name)
 					}
-					b.WriteString(fmt.Sprintf("%s\t\t\t\t\t\t%q: {\n", indent, eTag))
-					if eDoc != "" {
-						b.WriteString(fmt.Sprintf("%s\t\t\t\t\t\t\tDesc: &schemaz.Desc{Summary: %q},\n", indent, eDoc))
-					}
-					b.WriteString(fmt.Sprintf("%s\t\t\t\t\t\t\tField: func() any { return &%s },\n", indent, eAccessor))
-					b.WriteString(fmt.Sprintf("%s\t\t\t\t\t\t},\n", indent))
+					writeFieldSchema(b, indent+"\t\t\t\t\t\t", eTag, eDoc, ef.Type, eAccessor, info, neededImports)
 				}
 			}
 			b.WriteString(fmt.Sprintf("%s\t\t\t\t\t}\n", indent))
@@ -507,25 +523,26 @@ func writeFieldSchema(b *bytes.Buffer, indent, jsonTag, docStr string, expr ast.
 			b.WriteString(fmt.Sprintf("%s},\n", indent))
 			return
 		} else if strings.Contains(elemTypeStr, ".") {
+			if elemTypeStr == "solution.Solution" {
+				b.WriteString(fmt.Sprintf("%s\tField: func() any { return &%s },\n", indent, accessor))
+				b.WriteString(fmt.Sprintf("%s},\n", indent))
+				return
+			}
 			pkgAlias := strings.Split(elemTypeStr, ".")[0]
 			if impPath, ok := info.imports[pkgAlias]; ok {
 				neededImports[pkgAlias] = impPath
 			}
 			b.WriteString(fmt.Sprintf("%s\tArray: schemaz.NewArray(schemaz.ArrayOptions[%s, %s]{\n", indent, sliceType, elemType))
-			b.WriteString(fmt.Sprintf("%s\t\tSlice: func() *%s { return &%s },\n", indent, sliceType, accessor))
+			b.WriteString(fmt.Sprintf("%s\t\tSlice: func() *%s {\n%s\t\t\tif %s == nil {\n%s\t\t\t\t%s = %s{}\n%s\t\t\t}\n%s\t\t\treturn &%s\n%s\t\t},\n", indent, sliceType, indent, accessor, indent, accessor, sliceType, indent, indent, accessor, indent))
 			if isPtr {
 				rawType := strings.TrimPrefix(elemType, "*")
 				b.WriteString(fmt.Sprintf("%s\t\tNewElement: func(idx int) %s { return &%s{} },\n", indent, elemType, rawType))
 				b.WriteString(fmt.Sprintf("%s\t\tGet: func(idx int, element *%s) *schemaz.Schema {\n", indent, elemType))
-				if strings.HasSuffix(elemTypeStr, "Pipeline") {
-					b.WriteString(fmt.Sprintf("%s\t\t\treturn (*element).Schema()\n", indent))
-				} else {
-					b.WriteString(fmt.Sprintf("%s\t\t\treturn (*element).SchemaQuery()\n", indent))
-				}
+				b.WriteString(fmt.Sprintf("%s\t\t\treturn (*element).Schema()\n", indent))
 			} else {
 				b.WriteString(fmt.Sprintf("%s\t\tNewElement: func(idx int) %s { return %s{} },\n", indent, elemType, elemTypeStr))
 				b.WriteString(fmt.Sprintf("%s\t\tGet: func(idx int, element *%s) *schemaz.Schema {\n", indent, elemType))
-				b.WriteString(fmt.Sprintf("%s\t\t\treturn element.SchemaQuery()\n", indent))
+				b.WriteString(fmt.Sprintf("%s\t\t\treturn element.Schema()\n", indent))
 			}
 			b.WriteString(fmt.Sprintf("%s\t\t},\n", indent))
 			b.WriteString(fmt.Sprintf("%s\t}),\n", indent))
@@ -534,7 +551,7 @@ func writeFieldSchema(b *bytes.Buffer, indent, jsonTag, docStr string, expr ast.
 		}
 	}
 
-	fieldTypeStr, isPtr := resolveTypeName(expr)
+	fieldTypeStr, isPtr = resolveTypeName(expr)
 	if fieldStruct, ok := info.structs[fieldTypeStr]; ok {
 		b.WriteString(fmt.Sprintf("%s\tObject: func(read bool) map[string]*schemaz.Schema {\n", indent))
 		if isPtr {
@@ -559,27 +576,12 @@ func writeFieldSchema(b *bytes.Buffer, indent, jsonTag, docStr string, expr ast.
 		return
 	}
 
-	if isPtr && strings.Contains(fieldTypeStr, ".") {
-		pkgAlias := strings.Split(fieldTypeStr, ".")[0]
-		if impPath, ok := info.imports[pkgAlias]; ok {
-			neededImports[pkgAlias] = impPath
-		}
-		rawType := strings.TrimPrefix(fieldTypeStr, "*")
-		b.WriteString(fmt.Sprintf("%s\tObject: func(read bool) map[string]*schemaz.Schema {\n", indent))
-		b.WriteString(fmt.Sprintf("%s\t\tif read && %s == nil {\n%s\t\t\treturn nil\n%s\t\t}\n", indent, accessor, indent, indent))
-		b.WriteString(fmt.Sprintf("%s\t\tif %s == nil {\n%s\t\t\t%s = new(%s)\n%s\t\t}\n", indent, accessor, indent, accessor, rawType, indent))
-		b.WriteString(fmt.Sprintf("%s\t\treturn %s.Schema().Object(read)\n", indent, accessor))
-		b.WriteString(fmt.Sprintf("%s\t},\n", indent))
-		b.WriteString(fmt.Sprintf("%s},\n", indent))
-		return
-	}
-
 	// Normal Field binding
 	b.WriteString(fmt.Sprintf("%s\tField: func() any { return &%s },\n", indent, accessor))
 	b.WriteString(fmt.Sprintf("%s},\n", indent))
 }
 
-func resolveUrlParser(expr ast.Expr, ptrAccessor string, neededImports map[string]string, availableImports map[string]string) string {
+func resolveUrlParser(expr ast.Expr, ptrAccessor, slotName string, neededImports map[string]string, availableImports map[string]string) string {
 	typeName, _ := resolveTypeName(expr)
 	if strings.Contains(typeName, ".") {
 		parts := strings.Split(typeName, ".")
@@ -600,7 +602,47 @@ func resolveUrlParser(expr ast.Expr, ptrAccessor string, neededImports map[strin
 			if impPath, ok := availableImports[pkgAlias]; ok {
 				neededImports[pkgAlias] = impPath
 			}
-			return fmt.Sprintf("schemaz.ParseStrGet(%s, storeid.MustParse)", ptrAccessor)
+			return fmt.Sprintf(`schemaz.ParseStrGet(%s, func(v string) storeid.StoreId {
+							if v == "" {
+								return storeid.StoreId{}
+							}
+							return storeid.MustParse(v)
+						})`, ptrAccessor)
+		}
+		if pkgAlias == "solution" {
+			if impPath, ok := availableImports[pkgAlias]; ok {
+				neededImports[pkgAlias] = impPath
+			}
+			return fmt.Sprintf("schemaz.ParseStrGet(%s, solution.MustParse)", ptrAccessor)
+		}
+		if pkgAlias == "fszsignmethod" {
+			if impPath, ok := availableImports[pkgAlias]; ok {
+				neededImports[pkgAlias] = impPath
+			}
+			return fmt.Sprintf("schemaz.ParseStrGet(%s, fszsignmethod.MustParseOptional)", ptrAccessor)
+		}
+		if pkgAlias == "laketbpathz" {
+			if impPath, ok := availableImports[pkgAlias]; ok {
+				neededImports[pkgAlias] = impPath
+			}
+			if slotName == "PathParams" {
+				neededImports["strings"] = "strings"
+				return fmt.Sprintf(`func() *schemaz.Parser[string] {
+								return &schemaz.Parser[string]{
+									Parse: func(v string) {
+										*%s = laketbpathz.MustParse("i6tb://" + v)
+									},
+									Format: func() (string, any) {
+										var v string
+										if (*%s).Optional().IsPresent() {
+											v = strings.TrimPrefix((*%s).Get(), "i6tb://")
+										}
+										return v, v
+									},
+								}
+							}`, ptrAccessor, ptrAccessor, ptrAccessor)
+			}
+			return fmt.Sprintf("schemaz.ParseStrGet(%s, laketbpathz.MustParse)", ptrAccessor)
 		}
 		if pkgAlias == "solutiondomain" {
 			if impPath, ok := availableImports[pkgAlias]; ok {
@@ -615,7 +657,7 @@ func resolveUrlParser(expr ast.Expr, ptrAccessor string, neededImports map[strin
 	case "uint", "uint8", "uint16", "uint32", "uint64":
 		return fmt.Sprintf("schemaz.ParseUint(%s)", ptrAccessor)
 	case "bool":
-		return fmt.Sprintf("schemaz.ParseBool(%s)", ptrAccessor)
+		return fmt.Sprintf("schemaz.ParseStrBool(%s)", ptrAccessor)
 	case "float32", "float64":
 		return fmt.Sprintf("schemaz.ParseFloat(%s)", ptrAccessor)
 	default:

@@ -1,6 +1,9 @@
+//go:generate go run github.com/infinity6-ai/i6sdk/mold schemagen .
 package dszapistorecreate
 
 import (
+	"context"
+
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/dszstore"
@@ -8,67 +11,44 @@ import (
 	"github.com/infinity6-ai/i6sdk/sdkcorez/speclabels/speclabeltokentype"
 )
 
-type DszCreateStoreReq struct {
-	Dataset lakedsz.Dataset
-	Store   dszstore.DszStore
+type ReqParams struct {
+	// Dataset identifier.
+	Dataset lakedsz.Dataset `json:"dataset"`
 }
 
+type ReqPayload struct {
+	// Store details.
+	Store dszstore.DszStore `json:"store"`
+}
+
+type Req struct {
+	Params  *ReqParams  `json:"params,omitempty"`
+	Payload *ReqPayload `json:"payload,omitempty"`
+}
+
+// Create Store
+// Registers a new store in a dataset.
 type Api struct {
-	Req *DszCreateStoreReq
+	apiz.UnimplementedApi `json:"-"`
+	Req                   *Req `json:"req,omitempty"`
 }
 
-func (d *Api) ApiSpec() apiz.ApiSpec {
+func (d *Api) ApiRoute() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id: "dsz-create-store",
+		Method: "POST",
+		Path:   "/api/ds/dataset/{dataset}/store/create",
 		Desc: func() *schemaz.Desc {
 			return &schemaz.Desc{
-				Name:    "Create Store",
-				Summary: "Creates a store configuration under a specific dataset.",
 				Labels: map[string]string{
 					speclabeltokentype.Key: speclabeltokentype.Dataset,
 				},
 			}
 		},
-		Method: "POST",
-		Path:   "/api/ds/dataset/{dataset}/store/create",
 	}
 }
 
-func (d *Api) ApiDataRefs() *apiz.DataRefs {
-	return &apiz.DataRefs{
-		PathParams: &schemaz.Schema{
-			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && d.Req == nil {
-					return nil
-				}
-				if d.Req == nil {
-					d.Req = &DszCreateStoreReq{}
-				}
-				return map[string]*schemaz.Schema{
-					"dataset": {
-						Desc:     &schemaz.Desc{Summary: "Dataset containing the store config to create."},
-						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
-					},
-				}
-			},
-		},
-		QueryParams: nil,
-		ReqHeaders:  nil,
-		ReqBody: &schemaz.Schema{
-			Desc: &schemaz.Desc{Summary: "Request body containing store configuration parameters."},
-			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && d.Req == nil {
-					return nil
-				}
-				if d.Req == nil {
-					d.Req = &DszCreateStoreReq{}
-				}
-				return map[string]*schemaz.Schema{
-					"store": d.Req.Store.Schema(),
-				}
-			},
-		},
-		RespHeaders: nil,
-		RespBody:    nil,
-	}
+type DszCreateStoreId struct{}
+
+func (DszCreateStoreId) DszCreateStore(ctx context.Context, api *Api) (int, error) {
+	panic("DszCreateStore not implemented: run 'go generate ./...'")
 }

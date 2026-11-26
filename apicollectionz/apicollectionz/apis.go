@@ -14,7 +14,8 @@ import (
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapidomainsolutionget"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapiingestiontokencreate"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapiingestiontokenslist"
-	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapiloadresult"
+	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapiloadresultbatchsummary"
+	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapiloadresultcatalog"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapimodelget"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapipaymentautorenewupdate"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapipaymentlist"
@@ -66,14 +67,36 @@ import (
 	"github.com/infinity6-ai/i6sdk/apiuserz/userapidatasettokenrefreshdelete"
 	"github.com/infinity6-ai/i6sdk/apiuserz/userapidatasettokenrefreshlist"
 	"github.com/infinity6-ai/i6sdk/apiuserz/userapitokencheck"
-	"github.com/infinity6-ai/i6sdk/sdkcorez/resultz/platformresultz"
-	"github.com/infinity6-ai/i6sdk/sdkcorez/resultz/relevancefashionresultz"
 )
 
 type InvokerFunc func(ctx context.Context, api apiz.Api) (int, error)
 
 type SdkApis struct {
+	dszapicustomerportalcreate.DszCreateCustomerPortalId
 	dszapidatasetlist.DszListDatasetsId
+	dszapidatasetsolutions.DszDatasetSolutionsId
+	dszapidomainsolutionget.DszDomainGetId
+	dszapiingestiontokencreate.DszCreateIngestionTokenId
+	dszapiingestiontokenslist.DszListIngestionTokensId
+	dszapiloadresultbatchsummary.DszResultLastBatchSummaryId
+	dszapiloadresultcatalog.DszResultRelevanceFashionCatalogId
+	dszapimodelget.DszModelGetId
+	dszapipaymentautorenewupdate.DszUpdatePaymentAutoRenewId
+	dszapipaymentlist.DszListPaymentsId
+	dszapiplanlist.DszListPlansId
+	dszapirecsystokencreate.DszCreateRecsysTokenId
+	dszapirecsystokenslist.DszListRecsysTokensId
+	dszapisignedurl.DszSignedUrlId
+	dszapistorecreate.DszCreateStoreId
+	dszapistoredisplaycreate.DszStoreDisplayCreateId
+	dszapistoredisplaylist.DszStoreDisplayListId
+	dszapistorelist.DszListStoresId
+	dszapistripecheckout.DszStripeCheckoutId
+	dszapisubscriptionget.DszGetSubscriptionId
+	dszapisubscriptionplanupdate.DszUpdateSubscriptionPlanId
+	dszapitableget.DszTableGetId
+	dszapitablelist.DszTableListId
+	dszapitokendelete.DszDeleteTokenId
 	ingestzapibatchsummary.IngestzLastBatchSummaryId
 	ingestzapieventcatalog.IngestzEventRelevanceFashionCatalogId
 	ingestzapieventevent.IngestzEventRelevanceFashionEventId
@@ -111,154 +134,6 @@ type SdkApis struct {
 
 	Invoker InvokerFunc
 }
-
-func (a *SdkApis) DszCreateCustomerPortal(ctx context.Context, api *dszapicustomerportalcreate.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) DszCreateIngestionToken(ctx context.Context, api *dszapiingestiontokencreate.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) DszCreateRecsysToken(ctx context.Context, api *dszapirecsystokencreate.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) DszCreateStore(ctx context.Context, api *dszapistorecreate.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) DszDatasetSolutions(ctx context.Context, api *dszapidatasetsolutions.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) DszDeleteToken(ctx context.Context, api *dszapitokendelete.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) DszDomainGet(ctx context.Context, api *dszapidomainsolutionget.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) DszGetSubscription(ctx context.Context, api *dszapisubscriptionget.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-// func (a *SdkApis) DszListDatasets(ctx context.Context, api *dszapidatasetlist.Api) (int, error) {
-// 	return a.Invoker(ctx, api)
-// }
-
-func (a *SdkApis) DszListIngestionTokens(ctx context.Context, api *dszapiingestiontokenslist.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) DszListPayments(ctx context.Context, api *dszapipaymentlist.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) DszListPlans(ctx context.Context, api *dszapiplanlist.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) DszListRecsysTokens(ctx context.Context, api *dszapirecsystokenslist.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) DszListStores(ctx context.Context, api *dszapistorelist.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) DszModelGet(ctx context.Context, api *dszapimodelget.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) DszResultLastBatchSummary(ctx context.Context, api *dszapiloadresult.Api[*platformresultz.BatchSummary]) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) DszResultRelevanceFashionCatalog(ctx context.Context, api *dszapiloadresult.Api[*relevancefashionresultz.CatalogSimple]) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) DszSignedUrl(ctx context.Context, api *dszapisignedurl.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) DszStoreDisplayCreate(ctx context.Context, api *dszapistoredisplaycreate.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) DszStoreDisplayList(ctx context.Context, api *dszapistoredisplaylist.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) DszStripeCheckout(ctx context.Context, api *dszapistripecheckout.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) DszTableGet(ctx context.Context, api *dszapitableget.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) DszTableList(ctx context.Context, api *dszapitablelist.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) DszUpdatePaymentAutoRenew(ctx context.Context, api *dszapipaymentautorenewupdate.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) DszUpdateSubscriptionPlan(ctx context.Context, api *dszapisubscriptionplanupdate.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-// func (a *SdkApis) IngestzEventRelevanceFashionCatalog(ctx context.Context, api *ingestzapievent.Api[*relevancefashiondataz.Catalog]) (int, error) {
-// 	return a.Invoker(ctx, api)
-// }
-
-// func (a *SdkApis) IngestzEventRelevanceFashionEvent(ctx context.Context, api *ingestzapievent.Api[*relevancefashiondataz.Event]) (int, error) {
-// 	return a.Invoker(ctx, api)
-// }
-
-// func (a *SdkApis) IngestzGetUrl(ctx context.Context, api *ingestzapigeturl.Api) (int, error) {
-// 	return a.Invoker(ctx, api)
-// }
-
-// func (a *SdkApis) IngestzLastBatchSummary(ctx context.Context, api *ingestzapibatchsummary.Api) (int, error) {
-// 	return a.Invoker(ctx, api)
-// }
-
-// func (a *SdkApis) PipezGet(ctx context.Context, api *pipezget.Api) (int, error) {
-// 	return a.Invoker(ctx, api)
-// }
-
-// func (a *SdkApis) PipezList(ctx context.Context, api *pipezlist.Api) (int, error) {
-// 	return a.Invoker(ctx, api)
-// }
-
-// func (a *SdkApis) PipezSchedulerActivateRelevanceFashionRelevanceFashionBatchIngest(ctx context.Context, api *scheduleractivatebatchingest.Api) (int, error) {
-// 	return a.Invoker(ctx, api)
-// }
-
-// func (a *SdkApis) PipezSchedulerActivateRelevanceFashionRelevanceFashionMain(ctx context.Context, api *scheduleractivatemain.Api) (int, error) {
-// 	return a.Invoker(ctx, api)
-// }
-
-// func (a *SdkApis) PipezSchedulerDeactivateRelevanceFashionRelevanceFashionBatchIngest(ctx context.Context, api *schedulerdeactivatebatchingest.Api) (int, error) {
-// 	return a.Invoker(ctx, api)
-// }
-
-// func (a *SdkApis) PipezSchedulerDeactivateRelevanceFashionRelevanceFashionMain(ctx context.Context, api *schedulerdeactivatemain.Api) (int, error) {
-// 	return a.Invoker(ctx, api)
-// }
-
-// func (a *SdkApis) PipezStartRelevanceFashionRelevanceFashionBatchIngest(ctx context.Context, api *pipezstartbatchingest.Api) (int, error) {
-// 	return a.Invoker(ctx, api)
-// }
-
-// func (a *SdkApis) PipezStartRelevanceFashionRelevanceFashionMain(ctx context.Context, api *pipezstartmain.Api) (int, error) {
-// 	return a.Invoker(ctx, api)
-// }
 
 func (a *SdkApis) RoutezSampleFraction(ctx context.Context, api *routezsamplefraction.FractionApi) (int, error) {
 	return a.Invoker(ctx, api)

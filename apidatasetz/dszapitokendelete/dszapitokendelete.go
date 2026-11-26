@@ -1,63 +1,53 @@
+//go:generate go run github.com/infinity6-ai/i6sdk/mold schemagen .
 package dszapitokendelete
 
 import (
+	"context"
+
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/speclabels/speclabeltokentype"
 )
 
-type DszDeleteTokenReq struct {
+type ReqParams struct {
+	// Dataset identifier.
 	Dataset lakedsz.Dataset `json:"dataset"`
-	Token   string          `json:"token"`
 }
 
+type ReqQuery struct {
+	// Token identifier to revoke.
+	Token string `json:"token"`
+}
+
+type Req struct {
+	Params *ReqParams `json:"params,omitempty"`
+	Query  *ReqQuery  `json:"query,omitempty"`
+}
+
+// Delete Dataset Token
+// Revokes a legacy dataset token.
 type Api struct {
-	Req DszDeleteTokenReq `json:"req"`
+	apiz.UnimplementedApi `json:"-"`
+	Req                   *Req `json:"req,omitempty"`
 }
 
-func (d *Api) ApiSpec() apiz.ApiSpec {
+func (d *Api) ApiRoute() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id: "dsz-delete-token",
+		Method: "DELETE",
+		Path:   "/api/ds/dataset/{dataset}/token/delete",
 		Desc: func() *schemaz.Desc {
 			return &schemaz.Desc{
-				Name:    "Delete Token",
-				Summary: "Deletes (revokes) a specific token (e.g. ingestion or recsys token) associated with a dataset.",
 				Labels: map[string]string{
 					speclabeltokentype.Key: speclabeltokentype.Dataset,
 				},
 			}
 		},
-		Method: "DELETE",
-		Path:   "/api/ds/dataset/{dataset}/token/delete",
 	}
 }
 
-func (d *Api) ApiDataRefs() *apiz.DataRefs {
-	return &apiz.DataRefs{
-		PathParams: &schemaz.Schema{
-			Object: func(read bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"dataset": {
-						Desc:     &schemaz.Desc{Summary: "The dataset whose token should be deleted."},
-						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
-					},
-				}
-			},
-		},
-		QueryParams: &schemaz.Schema{
-			Object: func(read bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"token": {
-						Desc:     &schemaz.Desc{Summary: "The token identifier (jti) to be deleted/revoked."},
-						UrlValue: schemaz.ParseStr(&d.Req.Token),
-					},
-				}
-			},
-		},
-		ReqHeaders:  nil,
-		ReqBody:     nil,
-		RespHeaders: nil,
-		RespBody:    nil,
-	}
+type DszDeleteTokenId struct{}
+
+func (DszDeleteTokenId) DszDeleteToken(ctx context.Context, api *Api) (int, error) {
+	panic("DszDeleteToken not implemented: run 'go generate ./...'")
 }
