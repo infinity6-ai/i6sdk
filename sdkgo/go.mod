@@ -4,9 +4,11 @@ go 1.26.1
 
 require (
 	github.com/infinity6-ai/gox/commonz v0.0.82
+	github.com/infinity6-ai/gox/fsz v0.0.82
 	github.com/infinity6-ai/gox/httpz v0.0.82
 	github.com/infinity6-ai/gox/routez v0.0.82
 	github.com/infinity6-ai/i6sdk/apicollectionz v0.0.18
+	github.com/infinity6-ai/i6sdk/apidatasetz v0.0.18
 	github.com/infinity6-ai/i6sdk/apiuserz v0.0.18
 	github.com/infinity6-ai/i6sdk/sdkcorez v0.0.18
 	github.com/infinity6-ai/i6sdk/versionz v0.0.18
@@ -39,9 +41,8 @@ require (
 	github.com/googleapis/enterprise-certificate-proxy v0.3.25 // indirect
 	github.com/googleapis/gax-go/v2 v2.27.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
-	github.com/infinity6-ai/gox/fsz v0.0.82 // indirect
+	github.com/infinity6-ai/gox/cryptz v0.0.82 // indirect
 	github.com/infinity6-ai/gox/schemaz v0.0.82 // indirect
-	github.com/infinity6-ai/i6sdk/apidatasetz v0.0.18 // indirect
 	github.com/infinity6-ai/i6sdk/apiingestz v0.0.18 // indirect
 	github.com/infinity6-ai/i6sdk/apipipez v0.0.18 // indirect
 	github.com/infinity6-ai/i6sdk/apitfz v0.0.18 // indirect
@@ -65,6 +66,7 @@ require (
 	golang.org/x/oauth2 v0.38.0 // indirect
 	golang.org/x/sync v0.25.0 // indirect
 	golang.org/x/sys v0.50.0 // indirect
+	golang.org/x/term v0.48.0 // indirect
 	golang.org/x/text v0.44.0 // indirect
 	golang.org/x/time v0.16.0 // indirect
 	google.golang.org/api v0.312.0 // indirect
