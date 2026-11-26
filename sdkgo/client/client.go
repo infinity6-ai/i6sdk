@@ -14,23 +14,13 @@ import (
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/i6sdk/apicollectionz/apicollectionz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/sdkfuncz"
-)
-
-const (
-	// Default Sandbox URLs
-	DefaultDecsuiteUrl = "https://decsuite.sandbox.rs.infinity6.ai"
-	DefaultTfinferUrl  = "https://tfinfer.sandbox.lb.infinity6.ai"
-	DefaultUserzUrl    = "https://userz.sandbox.rs.infinity6.ai"
-
-	// Staging URLs
-	StagingDecsuiteUrl = "https://decsuite.staging.rs.infinity6.ai"
-	StagingTfinferUrl  = "https://tfinfer.staging.lb.infinity6.ai"
-	StagingUserzUrl    = "https://userz.staging.rs.infinity6.ai"
+	"github.com/infinity6-ai/i6sdk/sdkgo/config"
+	"github.com/infinity6-ai/i6sdk/sdkgo/tokenstore"
 )
 
 // I6Client is the primary client for the Infinity6 SDK.
 type I6Client struct {
-	tokenStore   TokenStore
+	tokenStore   tokenstore.Store
 	cacheUrl     *urlz.Url
 	memoryCache  bool
 	initialToken string
@@ -48,7 +38,7 @@ type I6Client struct {
 }
 
 // New constructs an I6Client configured with the provided Options.
-func New(opts Options) (*I6Client, error) {
+func New(opts config.Options) (*I6Client, error) {
 	ctx := context.Background()
 	c := &I6Client{
 		initialToken: opts.Token,
@@ -57,7 +47,7 @@ func New(opts Options) (*I6Client, error) {
 	// 1. Resolve URLs
 	decUrlStr := opts.Urls.Decsuite
 	if decUrlStr == "" {
-		decUrlStr = DefaultDecsuiteUrl
+		decUrlStr = config.DefaultDecsuiteUrl
 	}
 	decUrl, err := urlz.Parse(decUrlStr)
 	if err != nil {
@@ -67,7 +57,7 @@ func New(opts Options) (*I6Client, error) {
 
 	tfUrlStr := opts.Urls.Tfinfer
 	if tfUrlStr == "" {
-		tfUrlStr = DefaultTfinferUrl
+		tfUrlStr = config.DefaultTfinferUrl
 	}
 	tfUrl, err := urlz.Parse(tfUrlStr)
 	if err != nil {
@@ -77,7 +67,7 @@ func New(opts Options) (*I6Client, error) {
 
 	userUrlStr := opts.Urls.Userz
 	if userUrlStr == "" {
-		userUrlStr = DefaultUserzUrl
+		userUrlStr = config.DefaultUserzUrl
 	}
 	userUrl, err := urlz.Parse(userUrlStr)
 	if err != nil {
@@ -133,7 +123,7 @@ func New(opts Options) (*I6Client, error) {
 	if opts.TokenStore != nil {
 		c.tokenStore = opts.TokenStore
 	} else {
-		c.tokenStore = newMemoryTokenStore()
+		c.tokenStore = tokenstore.NewMemory()
 	}
 
 	// 6. Initialize SdkApis with apiclientz invoker dispatching by service path
@@ -221,7 +211,7 @@ func (c *I6Client) IsMemoryCache() bool {
 }
 
 // TokenStore returns the active token persistence store.
-func (c *I6Client) TokenStore() TokenStore {
+func (c *I6Client) TokenStore() tokenstore.Store {
 	return c.tokenStore
 }
 

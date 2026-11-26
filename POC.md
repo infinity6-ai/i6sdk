@@ -498,11 +498,13 @@ Each `api*z` module in `i6sdk` pairs with a corresponding backend service reposi
    - Confirm `./build.sh codegen && ./build.sh test` generates identical Python and Web SDKs.
 
 ### Phase 4: Build `sdkgo` Runtime [IN PROGRESS]
-- **Step 1: Client Lifecycle & Configuration (`sdkgo/client`) [DONE]**:
-  - Implemented `I6Client` container with typed `Options` struct (`Token`, `Urls`, `Cache`, `TokenStore`, `Http`).
-  - Powered by three `httpzclient.Client` instances (`decsuite`, `tfinfer`, `userz`) with automatic bearer token filter.
+- **Step 1: Client Lifecycle & Configuration (`sdkgo/client`, `sdkgo/config`, `sdkgo/tokenstore`) [DONE]**:
+  - Implemented leaf package `sdkgo/tokenstore` (`Store` interface, `NewMemory()` in-memory implementation) with zero dependencies.
+  - Implemented leaf package `sdkgo/config` (`Options`, `UrlOptions`, `CacheOptions`, `SandboxUrls`, `StagingUrls`).
+  - Implemented `sdkgo/client` with single non-variadic constructor `client.New(opts config.Options)`.
+  - Configured three `httpzclient.Client` instances (`decsuite`, `tfinfer`, `userz`) with automatic bearer token filter.
   - Standardized on mandatory explicit configuration and constant sandbox/staging presets (`SandboxUrls`, `StagingUrls`) without implicit environment variable fallbacks.
-  - Added unit test suite `client_unit_test.go` verifying options, path routing, and HTTP client propagation.
+  - Added unit test suites `tokenstore_unit_test.go`, `config_unit_test.go`, and `client_unit_test.go`.
 - **Step 2: Token Management & Multi-Tier Storage (`sdkgo/tokens`)**:
   - Implement `TokenStore` interface with `MemoryTokenStore` (default in-memory with `sync.RWMutex`), `FszTokenStore` (atomic persistence over `gox/fsz`), and custom pluggable stores.
   - Implement double-checked locking, automatic background renewal before expiration, and dataset token derivation.

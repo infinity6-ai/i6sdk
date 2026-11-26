@@ -1,8 +1,21 @@
-package client
+package config
 
 import (
 	"github.com/infinity6-ai/gox/commonz/urlz"
 	"github.com/infinity6-ai/gox/httpz/httpzclient"
+	"github.com/infinity6-ai/i6sdk/sdkgo/tokenstore"
+)
+
+const (
+	// Default Sandbox URLs
+	DefaultDecsuiteUrl = "https://decsuite.sandbox.rs.infinity6.ai"
+	DefaultTfinferUrl  = "https://tfinfer.sandbox.lb.infinity6.ai"
+	DefaultUserzUrl    = "https://userz.sandbox.rs.infinity6.ai"
+
+	// Staging URLs
+	StagingDecsuiteUrl = "https://decsuite.staging.rs.infinity6.ai"
+	StagingTfinferUrl  = "https://tfinfer.staging.lb.infinity6.ai"
+	StagingUserzUrl    = "https://userz.staging.rs.infinity6.ai"
 )
 
 // Options holds all configuration parameters for creating an I6Client.
@@ -17,7 +30,7 @@ type Options struct {
 	Cache CacheOptions
 
 	// TokenStore customizes token persistence (defaults to in-memory).
-	TokenStore TokenStore
+	TokenStore tokenstore.Store
 
 	// Http configures options for the underlying httpzclient instances.
 	Http httpzclient.Options

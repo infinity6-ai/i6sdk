@@ -10,6 +10,7 @@ import (
 	"github.com/infinity6-ai/gox/httpz/httpzclient"
 	"github.com/infinity6-ai/i6sdk/apiuserz/userapiauthlogout"
 	"github.com/infinity6-ai/i6sdk/sdkgo/client"
+	"github.com/infinity6-ai/i6sdk/sdkgo/config"
 	"github.com/stretchr/testify/require"
 )
 
@@ -33,7 +34,7 @@ func (c *customTokenStore) Delete(_ context.Context, key string) error {
 
 func TestUnitClientConstruction(t *testing.T) {
 	type testScenario struct {
-		opts            client.Options
+		opts            config.Options
 		wantDecsuite    string
 		wantTfinfer     string
 		wantUserz       string
@@ -86,9 +87,9 @@ func TestUnitClientConstruction(t *testing.T) {
 
 	t.Run("Default client construction with sandbox URLs", func(t *testing.T) {
 		check(t, testScenario{
-			wantDecsuite:    client.DefaultDecsuiteUrl,
-			wantTfinfer:     client.DefaultTfinferUrl,
-			wantUserz:       client.DefaultUserzUrl,
+			wantDecsuite:    config.DefaultDecsuiteUrl,
+			wantTfinfer:     config.DefaultTfinferUrl,
+			wantUserz:       config.DefaultUserzUrl,
 			wantMemoryCache: false,
 			wantCacheScheme: "file",
 		})
@@ -96,9 +97,9 @@ func TestUnitClientConstruction(t *testing.T) {
 
 	t.Run("Client construction with explicit UrlOptions", func(t *testing.T) {
 		check(t, testScenario{
-			opts: client.Options{
+			opts: config.Options{
 				Token: "my-token",
-				Urls: client.UrlOptions{
+				Urls: config.UrlOptions{
 					Decsuite: "https://custom.decsuite.ai",
 					Tfinfer:  "https://custom.tfinfer.ai",
 					Userz:    "https://custom.userz.ai",
@@ -115,12 +116,12 @@ func TestUnitClientConstruction(t *testing.T) {
 
 	t.Run("Client construction with StagingUrls preset", func(t *testing.T) {
 		check(t, testScenario{
-			opts: client.Options{
-				Urls: client.StagingUrls,
+			opts: config.Options{
+				Urls: config.StagingUrls,
 			},
-			wantDecsuite:    client.StagingDecsuiteUrl,
-			wantTfinfer:     client.StagingTfinferUrl,
-			wantUserz:       client.StagingUserzUrl,
+			wantDecsuite:    config.StagingDecsuiteUrl,
+			wantTfinfer:     config.StagingTfinferUrl,
+			wantUserz:       config.StagingUserzUrl,
 			wantMemoryCache: false,
 			wantCacheScheme: "file",
 		})
@@ -128,12 +129,12 @@ func TestUnitClientConstruction(t *testing.T) {
 
 	t.Run("In-memory cache option enables memoryCache flag", func(t *testing.T) {
 		check(t, testScenario{
-			opts: client.Options{
-				Cache: client.CacheOptions{Memory: true},
+			opts: config.Options{
+				Cache: config.CacheOptions{Memory: true},
 			},
-			wantDecsuite:    client.DefaultDecsuiteUrl,
-			wantTfinfer:     client.DefaultTfinferUrl,
-			wantUserz:       client.DefaultUserzUrl,
+			wantDecsuite:    config.DefaultDecsuiteUrl,
+			wantTfinfer:     config.DefaultTfinferUrl,
+			wantUserz:       config.DefaultUserzUrl,
 			wantMemoryCache: true,
 			wantCacheScheme: "",
 		})
@@ -141,12 +142,12 @@ func TestUnitClientConstruction(t *testing.T) {
 
 	t.Run("Custom cache directory option sets file scheme url", func(t *testing.T) {
 		check(t, testScenario{
-			opts: client.Options{
-				Cache: client.CacheOptions{Dir: "/tmp/custom-i6-cache"},
+			opts: config.Options{
+				Cache: config.CacheOptions{Dir: "/tmp/custom-i6-cache"},
 			},
-			wantDecsuite:    client.DefaultDecsuiteUrl,
-			wantTfinfer:     client.DefaultTfinferUrl,
-			wantUserz:       client.DefaultUserzUrl,
+			wantDecsuite:    config.DefaultDecsuiteUrl,
+			wantTfinfer:     config.DefaultTfinferUrl,
+			wantUserz:       config.DefaultUserzUrl,
 			wantMemoryCache: false,
 			wantCacheScheme: "file",
 		})
@@ -155,12 +156,12 @@ func TestUnitClientConstruction(t *testing.T) {
 	t.Run("Custom cache url option configures exact url", func(t *testing.T) {
 		customUrl := urlz.MustParse("file:///var/custom/cache")
 		check(t, testScenario{
-			opts: client.Options{
-				Cache: client.CacheOptions{Url: customUrl},
+			opts: config.Options{
+				Cache: config.CacheOptions{Url: customUrl},
 			},
-			wantDecsuite:    client.DefaultDecsuiteUrl,
-			wantTfinfer:     client.DefaultTfinferUrl,
-			wantUserz:       client.DefaultUserzUrl,
+			wantDecsuite:    config.DefaultDecsuiteUrl,
+			wantTfinfer:     config.DefaultTfinferUrl,
+			wantUserz:       config.DefaultUserzUrl,
 			wantMemoryCache: false,
 			wantCacheScheme: "file",
 		})
@@ -168,7 +169,7 @@ func TestUnitClientConstruction(t *testing.T) {
 
 	t.Run("Custom token store is successfully registered", func(t *testing.T) {
 		myStore := &customTokenStore{val: "secret"}
-		c, err := client.New(client.Options{TokenStore: myStore})
+		c, err := client.New(config.Options{TokenStore: myStore})
 		require.NoError(t, err)
 		require.Equal(t, myStore, c.TokenStore())
 
@@ -178,7 +179,7 @@ func TestUnitClientConstruction(t *testing.T) {
 	})
 
 	t.Run("Path routing dispatches to corresponding service clients", func(t *testing.T) {
-		c, err := client.New(client.Options{})
+		c, err := client.New(config.Options{})
 		require.NoError(t, err)
 
 		userClient := c.ClientForPath("/api/userz/auth/me")
@@ -196,7 +197,7 @@ func TestUnitClientConstruction(t *testing.T) {
 
 	t.Run("Custom httpzclient Options are propagated", func(t *testing.T) {
 		customCalled := false
-		c, err := client.New(client.Options{
+		c, err := client.New(config.Options{
 			Http: httpzclient.Options{
 				GetClient: func(ctx context.Context) *http.Client {
 					customCalled = true
@@ -219,9 +220,9 @@ func TestUnitClientConstruction(t *testing.T) {
 		}))
 		defer ts.Close()
 
-		c, err := client.New(client.Options{
+		c, err := client.New(config.Options{
 			Token: "my-secret-token",
-			Urls: client.UrlOptions{
+			Urls: config.UrlOptions{
 				Userz: ts.URL,
 			},
 		})
