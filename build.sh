@@ -56,6 +56,10 @@ function cmd_i6gox_set_version() {
   cmd_comps_run i6gox_set_version "$@"
 }
 
+function cmd_i6sdk_set_version() {
+  cmd_comps_run i6sdk_set_version "$@"
+}
+
 function cmd_uphead() {
   cmd_comps_run uphead "$@"
 }
