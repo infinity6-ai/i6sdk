@@ -94,13 +94,13 @@ function cmd_release() {
     echo "tag already exists: $_tag" 1>&2
     false
   fi
-  local _go_base_path="$(_go_base_path)"
-  local _go_dep_mod=""
-  GOWORK=off go list -mod=readonly -m "$_go_base_path/..." | \
-    grep "^$_go_base_path/.*\ v" | \
-    cut -d' ' -f1 | while read _go_dep_mod; do
-    go mod edit -require="${_go_dep_mod}@${_version}"
-  done
+  # local _go_base_path="$(_go_base_path)"
+  # local _go_dep_mod=""
+  # GOWORK=off go list -mod=readonly -m "$_go_base_path/..." | \
+  #   grep "^$_go_base_path/.*\ v" | \
+  #   cut -d' ' -f1 | while read _go_dep_mod; do
+  #   go mod edit -require="${_go_dep_mod}@${_version}"
+  # done
   go mod tidy
   [ "x$(go run . version)" == "x$_version" ]
   if [ -n "$(git status -s)" ]; then
