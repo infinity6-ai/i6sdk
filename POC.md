@@ -497,10 +497,11 @@ Each `api*z` module in `i6sdk` pairs with a corresponding backend service reposi
    - Run `./comp.sh apicollectionz test`, `./comp.sh mold test`, and `./comp.sh forgez test`.
    - Confirm `./build.sh codegen && ./build.sh test` generates identical Python and Web SDKs.
 
-### Phase 4: Build `sdkgo` Runtime
-- **Step 1: Client Lifecycle & Configuration (`sdkgo/client`)**:
-  - Implement `I6Client` container with functional options (`WithToken`, `WithBaseUrl`, `WithCacheDir`, `WithCacheUrl`, `WithMemoryCache`).
-  - Implement environment variable loading (`I6_TOKEN`, `I6_BASE_URL`).
+### Phase 4: Build `sdkgo` Runtime [IN PROGRESS]
+- **Step 1: Client Lifecycle & Configuration (`sdkgo/client`) [DONE]**:
+  - Implemented `I6Client` container with functional options (`WithToken`, `WithBaseUrl`, `WithHttpClient`, `WithCacheDir`, `WithCacheUrl`, `WithMemoryCache`, `WithTokenStore`).
+  - Implemented environment variable fallbacks (`I6_TOKEN`, `I6_BASE_URL`).
+  - Added unit test suite `client_unit_test.go` verifying all options and defaults.
 - **Step 2: Token Management & Multi-Tier Storage (`sdkgo/tokens`)**:
   - Implement `TokenStore` interface with `MemoryTokenStore` (default in-memory with `sync.RWMutex`), `FszTokenStore` (atomic persistence over `gox/fsz`), and custom pluggable stores.
   - Implement double-checked locking, automatic background renewal before expiration, and dataset token derivation.
