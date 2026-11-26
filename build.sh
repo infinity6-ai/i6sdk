@@ -156,7 +156,8 @@ function cmd_release_resume() {
     echo "release already exists: $_version" 1>&2
     false
   fi
-  GOWORK=off cmd_comps_run release_exists "$_version" || GOWORK=off cmd_comps_run release "$_version"
+  GOWORK=off cmd_comps_run release_exists "$_version" || echo xxxxxxxxx #GOWORK=off cmd_comps_run release "$_version"
+  false
   git tag "$_version"
   git push origin "$_version"
 }
