@@ -53,7 +53,7 @@ function cmd_i6gox_set_version() {
   GOWORK=off go list -mod=readonly -m "github.com/infinity6-ai/gox/..." | \
     grep "^github.com/infinity6-ai/gox/...*\ v" | \
     cut -d' ' -f1 | while read _go_dep_mod; do
-    go get --require "${_go_dep_mod}@$_gox_version"
+    echo go mod edit --require "${_go_dep_mod}@$_gox_version"
   done
 }
 
