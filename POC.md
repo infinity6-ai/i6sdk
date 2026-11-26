@@ -547,10 +547,25 @@ Each `api*z` module in `i6sdk` pairs with a corresponding backend service reposi
   - Verified end-to-end API execution against `httptest.Server` with bearer authentication in `client_unit_test.go`.
 - **Step 4: Ingestion Engine (`sdkgo/ingest`)**:
   - Multi-stream chunked uploads with concurrency control, retry policies, and progress callback hooks.
-- **Step 5: `fsz`-Backed SQLite Cache & Engine (`sdkgo/dash`, `sdkgo/internal/fszcache`)**:
-  - ETag-versioned conditional downloader using `gox/fsz` (`If-None-Match`, `fsz.Upload`, atomic `fsz.Move`).
-  - Read-only connection manager using pure-Go `github.com/ncruces/go-sqlite3`.
-  - Stored `namedqueries` query runner with JSON parameter binding (`?1`) and `ret` column parsing.
+- **Step 5A: Versioned Filesystem Store & Conditional Downloader (`sdkgo/internal/fszcache`)**:
+  - Implement versioned directory layout identical to `sdkweb` (OPFS) and `sdkpy` (`internal/fs.py`):
+    - `{name}/version.txt`: currently released ISO timestamp version
+    - `{name}/checkedat.txt`: timestamp of last remote check
+    - `{name}/v{version}/etag.txt`: ETag of remote content
+    - `{name}/v{version}/blob.bin`: local artifact content
+  - Implement `Fs` store (`Get`, `Create`, `Release`, `Touch`, `Discard`, `CleanFile`, `Clean`, `Resolve`, `Delete`).
+  - Implement conditional `Downloader` (`Update`):
+    - TTL bypass when `time.Now() - checked_at < min_preload_time` (zero network overhead).
+    - Conditional HTTP `GET` with `If-None-Match: <etag>`.
+    - Handles HTTP 304 (touch `checkedat.txt` and return existing `blob.bin`).
+    - Handles HTTP 200 (stream to `blob.bin.tmp`, atomic rename, update `version.txt`, and prune older versions).
+  - Add unit test suite `fszcache_unit_test.go` covering cache hits, TTL bypass, 304 revalidation, and 200 updates.
+- **Step 5B: SQLite Dash Engine (`sdkgo/dash`, `sdkgo/internal/sqlitez`)**:
+  - Pure-Go CGO-free SQLite connection runner using `github.com/ncruces/go-sqlite3`.
+  - Stored `namedqueries` query runner: `SELECT query FROM namedqueries WHERE name = ?` with JSON parameter binding (`?1`) and typed unmarshaling of column `ret`.
+  - Analytical artifact resolution via `client.Apis().DszSignedUrl(...)` for `i6tb://results.relevance-fashion-store-dash/store_id={store_id}/sqlite.bin`.
+  - High-level `Dash.Query` analytical runner with partition key hashing and downloader integration.
+  - Add unit test suite `dash_unit_test.go` verifying query execution against generated SQLite binaries.
 - **Step 6: Inference Orchestrator (`sdkgo/infer`)**:
   - 3-step inference pipeline: local candidate query (`input`), server-side `TfzModelPredict`, and local ranking/hydration (`output`).
 - **Step 7: Workflow Facade (`client.Funcs()` & `SdkFuncInvokerFunc`)**:
