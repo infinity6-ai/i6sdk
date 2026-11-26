@@ -1,18 +1,38 @@
-# SDK Docs Generator — Plan
+# SDK Docs Site — Plan
 
-We generate a customer-facing `sdkpy/SDK.md` from the docstrings we already have. It is built by `./build.sh docs`, with no LLM and nothing written by hand. The design works for any language: adding one means writing one small extractor script.
+We build an interactive HTML reference for the i6 SDK, like Swagger. Every method has its own static page with its docs and a code box: the VS Code editor (Monaco), with autocomplete for the methods and for the request JSON. The user signs in, changes the call and presses **Run**, and the call runs for real in the browser.
 
-**How it works, in one line:** a per-language script reads the code and prints JSON in one shared format; one Go command turns that JSON into Markdown.
+We build it once, on **sdkweb**, because sdkweb runs in the browser. There is no page per language.
+
+**The pages are static.** All the docs are plain HTML written at build time, nothing is rendered in the browser. Google can index every page, and every method has its own URL to share. JavaScript only adds the interactive parts on top (the editor, **Run**, sign in, search).
+
+**How it works, in one line:** forge already has every API spec, and a small script reads the handwritten modules from the SDK types; one Go command turns both into static HTML pages.
 
 ```
-sdkpy/docgen.py  ──JSON (stdin)──►  forgez docs  ──►  sdkpy/SDK.md
-(Python ast, stdlib only)           (Go: check + render)
+apicollectionz ─► forge (parse, in process) ──────────┐
+                                                      ├─► go run . docs ─► target/docs/*.html  (static, one page per method)
+sdkweb src ─► tsc ─► dts-bundle-generator ─► i6sdk-web.d.ts
+                                    │                 │
+                                    └─► docgen.mjs ─► sdk.json (handwritten modules)
+                                    └─► Monaco autocomplete (loaded by the pages)
 ```
 
-- **Scope of v1:** sdkpy only.
-- **Customer experience does not change.** No public name, signature or behaviour changes. We only add `SDK.md` and edit docstrings and comments.
-- **Missing docs fail the build from day 1.**
-- **Out of scope:** an HTML site, guides and tutorials (they stay in `README.md`), and other SDKs (see "Adding a language").
+- **Scope:** sdkweb only.
+- **Customer API does not change.** No public name, signature or behaviour changes. We add the docs build and edit JSDoc comments.
+- **Hosting:** GitHub Pages, through the existing `i6pages` repo (`cdn.infinity6.ai/docs/`), the same way `tokens/` is released today. There is one copy, for the latest release; older versions are not kept.
+- **Out of scope:** the Python and Go SDKs, guides and tutorials (they stay in the READMEs).
+
+---
+
+## What changed from the first plan
+
+| Before | Now |
+| --- | --- |
+| A Markdown file, `sdkpy/SDK.md` | Static HTML pages for sdkweb, one per method |
+| One extractor per language (`docgen.py`, …) | Forge for the APIs (in process), one small script for the handwritten modules |
+| Read-only | Code box with autocomplete, sign in, and a **Run** button |
+| HTTP method and path hidden (old decision 8) | Shown, like Swagger: forge has them (`POST /api/ds/dataset/{dataset}/portal`) |
+| Python examples | JS examples, written the way customers call the SDK: `sdk.apis().dszCreateCustomerPortal(...)` |
 
 ---
 
@@ -20,349 +40,211 @@ sdkpy/docgen.py  ──JSON (stdin)──►  forgez docs  ──►  sdkpy/SDK.
 
 | # | Decision | Why |
 | --- | --- | --- |
-| 1 | The extractor reads **all** code, generated (`sdkapis/`) included | One path for everything. No Go-side spec reader, per-language adapters or drift tests |
-| 2 | One Go package, `forgez/forgedoc`, holds the format, the check and the renderer | One place to read, one place to test |
-| 3 | The renderer is plain Go (`strings.Builder` + `fmt`), not `text/template` | About 200 lines anyone can follow; no template funcs |
-| 4 | The extractor is piped into the renderer from a shell script | No `go:embed`, no temp files, no exec wrapper |
-| 5 | The extractor lives in the SDK (`sdkpy/docgen.py`), outside `src/` | It ships with the code it reads, and isn't in the wheel |
-| 6 | Request and response fields are written inline under each method, flattened with dotted names | Customers see what to send and what comes back without jumping around |
-| 7 | `SDK.md` is committed next to the code; the release regenerates it and refuses a dirty tree | Reviewable in PRs, readable on GitHub, and needs no extra check code |
-| 8 | HTTP method and path are not shown | The Python code doesn't have them, and customers don't see them today either |
-| 9 | Methods that return an `internal/` class are hidden (`Services.fs()`, `downloader()`, `invoker()`) | They are plumbing, not customer API |
-| 10 | Constructors (`__init__`) are documented only for classes in `__all__` | Customers get `Auth`, `Infer`, … from `client.auth()` and never build them |
-| 11 | Wrapper fields (`params`, `payload`, `query`, `headers`, `input`, `partitions`, `output`) need no doc | Their type is a record that is flattened into dotted rows, so they never appear as a row |
-| 12 | camelCase twins (`modelName` next to `model_name`) are merged into one row, "also `modelName`", like method aliases | Customers see one entry per thing, and the twin needs no separate doc |
-| 13 | Overriding methods get their own docstrings; no doc inheritance | No extra rule in the extractor; only 8 short docstrings |
-| 14 | `bitmapz` stays public and documented | It is in `__all__` and customers use it for grants |
-| 15 | Sections have friendly titles ("Inference", "API reference") taken from the first line of each module docstring | Customers think in features, not import paths; we control the words in the code |
-| 16 | Method headings show how customers call them: `client.infer().run`, not `Infer.run` | Copy-paste ready; matches the README's `client = i6sdk.create_client()` |
-| 17 | Sections follow the customer journey: client, configuration, auth, tokens, ingestion, inference, dashboards, API reference, workflows, then errors and helpers | It falls out of the walk order, so no config file is needed |
+| 1 | Only sdkweb | It runs in the browser, so the pages can run real calls with it |
+| 2 | **Static pages, built at build time.** Docs are never rendered in the browser | Google indexes them, and links can be shared. The pages work (read-only) with JavaScript off |
+| 3 | One page per method, plus one page per section and an index | Every method gets its own URL, title and description, so it shows up in search results and can be shared: `cdn.infinity6.ai/docs/apis/dsz-create-customer-portal.html` |
+| 4 | One Go command, `go run . docs` in sdkweb, writes every page with `html/template` | Go, like the rest of forge. `html/template` escapes everything, so no doc text can break the page |
+| 5 | The API docs come from forge, in process: `docs` calls the same parse as `generate` | Same parse that writes `sdkapis.js`, so the docs can't drift from the code. No JSON file in between |
+| 6 | The handwritten modules (auth, tokens, ingest, infer, dash, `I6Sdk`) are read from the bundled `.d.ts` by `sdkweb/docgen.mjs`, which writes `sdk.json` for `docs` | They are not in forge. The `.d.ts` is also what Monaco uses, so the docs and the autocomplete always agree |
+| 7 | One real bundled `i6sdk-web.d.ts`, built with `dts-bundle-generator` (already a dev dependency) | The current one is the module files joined with `cat`; its relative imports don't resolve, so Monaco would show `any`. The new one also fixes the file customers download for their editors |
+| 8 | TypeScript 5 next to TypeScript 7, as a dev dependency. TypeScript 7 keeps building the code (`tsc`); TypeScript 5 is used by `dts-bundle-generator` and `docgen.mjs` | `dts-bundle-generator` needs the TypeScript 5 API: with TypeScript 7 it crashes on load. TypeScript 7 has an API only under `typescript/unstable/…`, which can break in any 7.x release. Since TypeScript 5 is needed for the bundler anyway, `docgen.mjs` uses it too |
+| 9 | The code box is a **JS** box per method, prefilled with the call, not a separate JSON body editor | Monaco completes the methods *and* the request fields from the same `.d.ts` |
+| 10 | The example in the box is written into the static page at build time, from the request typedef, with an empty value per field | Google sees it, and it is readable without JavaScript. Monaco takes it over when **Try it** is opened |
+| 11 | The SDK is set up in the page the way we tell customers to: `new I6Sdk({ servUrls, app, userExchangeCallbackUrl })`. A bar at the top of every page always shows that config and the sign-in state | Users see exactly what the calls use, and the example is the code they will write |
+| 12 | Sign in is the SDK's own flow (`sdk.auth().requireUser()`), from the top bar | Nothing new to build; the page gets real user and dataset tokens |
+| 13 | No confirm before calls that change data | The user signs in with their own account and presses **Run** on purpose |
+| 14 | Missing docs fail the build | Docs can't get worse over time |
+| 15 | Monaco is loaded from jsDelivr at a pinned version. Doc text is rendered at build time by a small Markdown renderer in `docs` (Step 3), not a library | No npm or bundler for the pages, like the rest of `src/site/`. The docs use only a few Markdown features, so about 80 lines cover them with no new dependency, and every word is in the static HTML |
+| 16 | Generated pages are not committed: `docs` writes to `target/docs/`, and the release copies them to `i6pages` | They are built from code we already commit, and `i6pages` keeps the published copy |
+| 17 | **Try it** has an `inspect(x)` function that prints everything about what it is given: a call shows the HTTP requests the SDK made and what came back, a method shows its docs | Swagger shows the raw request and response; `inspect` gives the same, and more, from the code box. It exists only in the docs page, so the SDK's customer API does not change |
 
 ---
 
-## What we do first
+## Which methods get a page, and which can run
 
-1. **Agree on what is public** (Python):
-    - Names in `sdkpy/src/i6sdk/__init__.py` `__all__`.
-    - Classes named in the parameter or return annotations of a public method, followed transitively. `Services.apis() -> Apis` and `Services.infer() -> Infer` are how `Apis`, `Infer`, `Tokens`, `Auth`, `Ingest`, `Dash` and `SdkFuncs` get in, and `Infer.run(opts: InferQueryOptions)` is how `InferQueryOptions` gets in.
-    - Never: names starting with `_`; dunders, except `__init__` on classes in `__all__`; classes defined under `internal/` unless `__all__` re-exports them (`bitmapz`); and methods whose return type is such an internal class.
-2. **Agree on the docstring format.** It's the one the generated code already uses:
-    - Module docstring: the first line is the section title, short and customer-facing ("Inference"), and the rest is the section intro.
-    - The text before the first `:field:` line is the description, kept as Markdown.
-    - `:param name: text` documents a parameter, and `:return: text` documents the return value.
-    - Record fields (`TypedDict`, `@dataclass`) are documented with the `#` comment line(s) directly above the field. In generated types, the `[Go: …] - ` prefix is stripped, so customers never see Go type names.
-3. **Fix the docs listed in "Doc fixes" below.** Once Steps 1 and 2 exist, `./build.sh docs` prints the exact list (`file:line: name: missing doc`). We fix all of it before Step 3 turns the check on in the release.
+The question was whether the handwritten modules belong in the page. They do: login, upload, inference and dashboards are the main things customers do with the SDK. They don't all get **Try it**, though.
 
----
-
-## Doc fixes
-
-This list comes from a quick scan of the current code on 2026-11-25 using the rules above. The check in Step 1 gives the exact list. Docstrings and comments are the only changes: no names, signatures or behaviour.
-
-**Module docstrings**: the first line becomes the section title. The current one-line docstring moves to the second paragraph as the intro. Proposed titles, in the order they appear in `SDK.md`:
-
-| File | Title |
-| --- | --- |
-| `__init__.py` | Getting a client |
-| `services.py` | Client |
-| `config.py` | Configuration |
-| `auth/auth.py` | Authentication |
-| `tokens/tokens.py` | Tokens |
-| `ingest/ingest.py` | Data ingestion |
-| `infer/infer.py` | Inference |
-| `dash/dash.py` | Dashboards |
-| `sdkapis/apis.py` (generated: `forgepybundle.go`, line 91) | API reference |
-| `sdkapis/sdkfuncs.py` (generated: `forgepybundle.go`, line 103) | Workflows |
-| `sdkapis/types.py` (generated: `forgepyschema.go`, line 279) | API types (only types not already inlined under a method) |
-| `exceptions.py` | Errors |
-| `invoker.py` | Responses |
-| `tokens/storage.py` | Token storage |
-| `grants.py` | Permissions |
-| `internal/bitmapz.py` | Bitmasks |
-
-**Generated code (good shape).** 766 fields; every leaf field in the API specs already has a description. Only two hardcoded types lack docs:
-
-| Where | What to fix |
-| --- | --- |
-| `forgez/forgepy/forgepyschema/forgepyschema.go` (the hardcoded `FileStat` block) | `#` comments on 7 fields: `url`, `content_type`, `md5`, `size`, `etag`, `created_at`, `updated_at` |
-| `ServiceOptions` | Nothing in the generator: the duplicate in `sdkapis/types.py` is skipped in favour of the one in `invoker.py` (below) |
-
-**Handwritten methods**: missing `:param` lines.
-
-| File | Methods |
-| --- | --- |
-| `__init__.py` | `create_client` (5 params) |
-| `services.py` | `Services.__init__` (no docstring), `set_config` |
-| `auth/auth.py` | `get_valid_access_token`, `sign_in`, `sign_up`, `device_code_start`, `device_code_poll` |
-| `tokens/tokens.py` | `set_user_token`, `get/set/remove_dataset_refresh_token`, `is_access_token_expired`, `is_refresh_token_expired`, `get_valid_access_token`, `get/set/remove_dataset_token`, `is_dataset_token_expired`, `refresh_dataset_access_token` (5 params), `get_valid_dataset_access_token`; the `storage` property (no docstring) |
-| `tokens/storage.py` | `TokenStorage.get/set/remove_item`; `MemoryTokenStorage` and `FileTokenStorage`: `__init__` and `get/set/remove_item` (no docstrings) |
-| `infer/infer.py` | `update`, `run`, `select_results` (`opts`) |
-| `ingest/ingest.py` | `get_url` (5 params), `upload` (9 params; `onProgress` is merged into `on_progress`, and `signal` is a different name, so it gets its own doc) |
-| `dash/dash.py` | `query` (`opts`) |
-| `exceptions.py` | `I6Error.__init__`, `I6ApiError.__init__` (no docstrings) |
-| `invoker.py` | `Resp.__init__` (no docstring) |
-| `internal/bitmapz.py` | `contains_all`, `contains_any`, `split`, `set_bits`, `serialize`, `deserialize` |
-
-**Handwritten records**: missing `#` comments on fields.
-
-| File | Type (fields) |
-| --- | --- |
-| `config.py` | `I6SdkConfig` (7) |
-| `invoker.py` | `ServiceOptions` (4) |
-| `infer/infer.py` | `InferQueryOptions` (9; the 5 camelCase twins are merged and need no doc) |
-| `dash/dash.py` | `DashQueryOptions` (6) |
-| `ingest/ingest.py` | `UploadProgress` (6), `UploadResult` (2), `SignedUrlResult` (3) |
-| `tokens/tokens.py` | `UserToken` (5), `DatasetToken` (4) |
-
-Plus a `#` comment above each public constant in `config.py` (`DEFAULT_CONFIG`, `STAGING_SERV_URLS`, `SANDBOX_SERV_URLS`). Records that are only reachable through hidden methods (`FileRef`, `InvokeOptions`, `ApiErrorDetail`) are not documented, so they need no fixes.
-
-**Total:** 16 module titles, about 45 methods and 60 fields. Most fixes are one line each.
-
----
-
-## Step 1 — `forgez/forgedoc`: format, check, render
-
-### The format
-
-These are the only types. The extractor prints exactly this JSON.
-
-```go
-package forgedoc
-
-// Package is the whole doc of one SDK.
-type Package struct {
-	Lang    string   `json:"lang"` // code fence language: "python"
-	Name    string   `json:"name"` // "i6sdk"
-	Modules []Module `json:"modules"`
-}
-
-type Module struct {
-	Path  string  `json:"path"`  // "i6sdk.infer"
-	Title string  `json:"title"` // "Inference": first line of the module docstring
-	Doc   string  `json:"doc,omitempty"` // the rest of the module docstring
-	Funcs []Func  `json:"funcs,omitempty"`
-	Types []Type  `json:"types,omitempty"`
-	Vars  []Field `json:"vars,omitempty"` // public module constants
-}
-
-type Func struct {
-	Name      string   `json:"name"`      // "dsz_list_datasets"
-	Signature string   `json:"signature"` // in the SDK's language, without self
-	Doc       string   `json:"doc"`       // Markdown
-	Params    []Field  `json:"params,omitempty"`
-	Returns   *Field   `json:"returns,omitempty"` // Name is empty
-	Aliases   []string `json:"aliases,omitempty"` // ["dszListDatasets"]
-}
-
-// Type is a class, a record, an enum or an alias. The renderer looks at what is
-// set, not at a kind: Fields and no Methods = record; Alias set = alias.
-type Type struct {
-	Name    string   `json:"name"`
-	Doc     string   `json:"doc"`
-	Call    string   `json:"call,omitempty"`  // how customers reach it: "client.infer()"
-	Alias   string   `json:"alias,omitempty"` // I6Client = Services
-	Bases   []string `json:"bases,omitempty"` // I6ApiError -> ["I6Error"]
-	Fields  []Field  `json:"fields,omitempty"`
-	Methods []Func   `json:"methods,omitempty"`
-}
-
-// Field is a record field, an enum member, a constant or a parameter.
-type Field struct {
-	Name    string   `json:"name"`
-	Type    string   `json:"type,omitempty"`    // opaque, in the SDK's language
-	Value   string   `json:"value,omitempty"`   // default, enum value or constant value
-	Doc     string   `json:"doc,omitempty"`
-	Aliases []string `json:"aliases,omitempty"` // ["modelName"]: same field, other spelling
-}
-```
-
-There is no schema version. The extractor and the renderer live in the same repo and change in the same PR, and `Decode` uses `DisallowUnknownFields`, so a mismatch fails at once.
-
-### The functions
-
-```go
-func Decode(r io.Reader) (*Package, error)    // json.Decoder + DisallowUnknownFields
-func Check(p *Package) []string               // every missing doc; empty = ok
-func Render(p *Package, title string) []byte  // Markdown, deterministic
-```
-
-**`Check`** returns *all* problems at once, so one run gives the whole to-do list. Each of these is reported:
-
-- a `Module` with an empty `Title`;
-- a `Func`, `Type` or method with an empty `Doc`;
-- a `Param` with an empty `Doc`;
-- a record `Field` or a `Var` with an empty `Doc`, except a field whose type is itself a record (it is flattened into dotted rows and never shown as a row);
-- two types with the same `Name` (which would break links).
-
-`Returns.Doc` is optional: "Returns the Infer client." already says it in the summary.
-
-**`Render`** writes, in this order:
-
-1. The title, then the `<!-- Generated by ./build.sh docs. Do not edit. -->` line, then a contents list linking every module by its `Title`.
-2. One `## <Title>` section per module, in extractor order: the module doc, then constants, functions and types. A module with nothing left to show (for example, every type was inlined) is skipped.
-3. For each func: a `###` heading, the signature in a code fence, the doc, a parameter table, the return type, and "Also: `dszListDatasets`" when it has aliases. The heading is `Call.name` when the type has a `Call` (`client.apis().dsz_list_datasets`), and `Type.name` otherwise (`Resp.parse`).
-4. **Inline request and response.** For each param and for the return value, the renderer finds the record types whose names appear in the type string, for example `Optional[apiDszCreateCustomerPortalReq]` or `Resp[apiDszCreateCustomerPortalResp]`. It writes their fields as one flat table, following nested records with dotted names. Each type is followed once per func, so cycles stop.
-5. Records that are inlined somewhere are not listed again. Every other type gets its own `###` with its doc, bases, and a fields table (enum values show in the `Value` column).
-6. Every type name in a type string links to that type's anchor.
-7. A field or param with `Aliases` shows them in its name cell: `model_name`<br>also `modelName`.
-
-Output for one generated method:
-
-~~~markdown
-### client.apis().dsz_create_customer_portal
-
-```python
-def dsz_create_customer_portal(req: Optional[apiDszCreateCustomerPortalReq] = None, opts: Optional[ServiceOptions] = None) -> Resp[apiDszCreateCustomerPortalResp]
-```
-
-Create Customer Portal
-
-Creates a Stripe billing portal session URL where the user can manage cards, auto-renew, and plans.
-
-| Parameter | Type | Default | Description |
+| Module | Page | Try it | Why |
 | --- | --- | --- | --- |
-| req | Optional[apiDszCreateCustomerPortalReq] | None | apiDszCreateCustomerPortalReq request payload. |
-| opts | Optional[[ServiceOptions](#serviceoptions)] | None | Optional per-request execution overrides. |
-
-**Request** (`req`)
-
-| Field | Type | Description |
-| --- | --- | --- |
-| params.dataset | str | Dataset of the customer |
-| payload.locale | str | Locale for the portal interface, defaults to en-US if empty (e.g. pt-BR, en-US) |
-| payload.return_url | str | URL where the user is redirected when leaving the portal |
-
-**Returns** [Resp](#resp)[apiDszCreateCustomerPortalResp]
-
-| Field | Type | Description |
-| --- | --- | --- |
-| payload.url | str | URL of the Stripe customer portal session |
-
-Also: `dszCreateCustomerPortal`
-~~~
-
-**Deterministic output.** No dates and no versions, and order comes only from the JSON. The same code always gives the same bytes, so `git status` shows a change only when the docs changed.
-
-### The command
-
-`forgez docs` is added next to the existing `forgez py` in `forgez/cmdforgez`:
-
-```bash
-forgez docs --title "i6sdk — Python SDK reference" --out SDK.md   # reads the JSON on stdin
-```
-
-The command runs `Decode`, then `Check`. If `Check` finds problems, it prints every one and exits 1. Otherwise it runs `Render` and writes `--out` only if the bytes changed.
-
-### Tests
-
-- `testdata/pkg.json` → `testdata/pkg.md`: a golden test that covers every rule above, including nested inline records and a cycle. `go test ./... -update` rewrites the golden file.
-- A table test for `Check`: one case per rule.
+| API reference (`sdk.apis()`, about 63 methods) | yes | yes | Plain JSON in, JSON out. The core of the Swagger part |
+| Workflows (`sdk.funcs()`) | yes | yes | Same as the APIs |
+| `I6Sdk`, config | yes | no | Shown in the top bar instead (decision 11) |
+| Auth (`sdk.auth()`) | yes | no | The top bar already does sign in and sign out. Running `requireUser` from a box would redirect away from the page |
+| Tokens (`sdk.tokens()`) | yes | no | The SDK manages tokens by itself; customers only read about them |
+| Inference (`sdk.infer().run`, …) | yes | yes | JSON options, JSON result |
+| Dashboards (`sdk.dash().query`) | yes | yes | JSON options, JSON result |
+| Ingestion (`sdk.ingest().upload`) | yes | no | An upload writes real data into a dataset |
+| Errors, `Resp`, `bitmapz`, `Grants` | yes | no | Types and helpers, nothing to call on the server |
 
 ---
 
-## Step 2 — `sdkpy/docgen.py`: the Python extractor
+## The page
 
-One script, Python 3.10+, standard library only, about 200 lines. It reads source files with `ast` and never imports the SDK, so there are no side effects.
-
-```bash
-python3 -I docgen.py src/i6sdk i6sdk   # prints the JSON on stdout
+```
+┌───────────────────────────────────────────────────────────────────────────┐
+│ i6 SDK docs   [search]                                                    │
+│ ┌ SDK config ───────────────────────────────────────────┐  ┌ Account ───┐ │
+│ │ const sdk = new I6Sdk({                               │  │ Signed in  │ │
+│ │   app: "default",                                     │  │ ana@acme   │ │
+│ │   servUrls: { decsuite: "https://decsuite.sandbox…",  │  │ [Sign out] │ │
+│ │               tfinfer: "…", userz: "…" },             │  └────────────┘ │
+│ │   userExchangeCallbackUrl: "…/docs/callback.html",    │                 │
+│ │ })                                          [Edit]    │                 │
+│ └───────────────────────────────────────────────────────┘                 │
+├────────────┬──────────────────────────────────────────────────────────────┤
+│ Auth       │ POST  /api/ds/dataset/{dataset}/portal       token: dataset  │
+│ Tokens     │ sdk.apis().dszCreateCustomerPortal                           │
+│ Ingestion  │                                                              │
+│ Inference  │ Create Customer Portal                                       │
+│ Dashboards │ Creates a Stripe billing portal session URL where ...        │
+│ API ▾      │                                                              │
+│  dsz       │ Request                                                      │
+│  pipez     │ | Field           | Type   | Description             |       │
+│  ...       │ | params.dataset  | string | Dataset of the customer |       │
+│ Workflows  │ | payload.locale  | string | Locale for the portal … |       │
+│            │                                                              │
+│            │ Response                                                     │
+│            │ | payload.url     | string | URL of the Stripe …     |       │
+│            │                                                              │
+│            │ ┌ Try it ───────────────────────────────────────────────┐    │
+│            │ │ return await sdk.apis().dszCreateCustomerPortal({      │    │
+│            │ │   params: { dataset: "" },                            │    │
+│            │ │   payload: { locale: "", return_url: "" },            │    │
+│            │ │ })                                                    │    │
+│            │ └──────────────────────────────────────── [Run] [Reset]─┘    │
+│            │ ┌ Result ───────────────────────────────────────────────┐    │
+│            │ │ 200  { "payload": { "url": "https://..." } }          │    │
+│            │ └───────────────────────────────────────────────────────┘    │
+└────────────┴──────────────────────────────────────────────────────────────┘
 ```
 
-**The walk**
+**Static parts (in the HTML file):** the nav, the method's HTTP method and path, the call path, the token type it needs (`labels.token_types`), name, summary and description text (rendered from Markdown at build time, decision 15), the request and response fields as flat tables with dotted names (nested records are followed once, so cycles stop), the example code, and the page `<title>` and `<meta name="description">` from the method's name and summary. Each field row also has an anchor, so a link can point to one field.
 
-1. Read `__all__` from `src/i6sdk/__init__.py`. Follow each `from .x import y` to the module that defines `y`.
-2. Walk **depth-first**, starting with the `__all__` names in order. From each public class, follow the parameter and return annotations of its public methods, in source order, to classes in the package. Skip `internal/` unless the class is in `__all__`. A method whose return type is a skipped internal class is hidden (`Services.fs()`, `downloader()`, `invoker()`). `__init__` is kept only for classes in `__all__`.
-3. If two modules define the same name (for example, `ServiceOptions` exists both in `invoker.py` and in `sdkapis/types.py`), keep the one reached from `__all__`.
-4. Output modules in the order they are first reached. `__all__` starts with `I6Client`, so the client comes first and its methods (`config`, `auth`, `tokens`, `ingest`, `infer`, `dash`, `apis`, `funcs`) set the order of the next sections. The rest of `__all__` (errors, `Resp`, storage, `Grants`, `bitmapz`) follows. This gives the order in the "Module docstrings" table.
-5. **Call paths.** The client class (the target of `I6Client`) gets `Call = "client"`, the variable name the README uses. A class reached through a method with no params gets its parent's `Call` + `.method()`, for example `client.infer()` for `Infer`. Every other class has no `Call`.
+**Interactive parts (JavaScript on top):**
 
-**How Python maps to the format**
+- **SDK config bar**, on every page. It shows the `new I6Sdk({...})` call the page uses, with the SDK's defaults (read from `sdk.config()`) and the docs' own `userExchangeCallbackUrl`. **Edit** opens it in Monaco, so the user can point to another environment the same way a customer would. The edited config is kept in `localStorage`, so it stays while moving between pages, and **Reset** goes back to the defaults.
+- **Account**, on every page: **Sign in** (the SDK's PKCE flow, coming back to the same page through `callback.html`), the signed-in user, and **Sign out**. **Run** without signing in shows "Sign in to run".
+- **Try it:** Monaco takes over the static example when the user opens it, so pages stay light. **Run** runs the box as the body of an `async` function with `sdk` in scope. What it returns is shown as JSON; a `Resp` shows its status and payload. `console.log` in the box goes to the result panel too (reusing `src/site/console.js`). **Reset** puts the example back.
+- **`inspect(x)`**, in every **Try it** box (see "The `inspect` function" below).
+- **Search:** filters the nav links already in the page. No extra file.
 
-| Python | Format |
+**Also written by `docs`:** `sitemap.xml` (every page, for Google), `callback.html` (the PKCE return page), and `404.html`.
+
+---
+
+## The `inspect` function
+
+`inspect` is a function every **Try it** box has, next to `sdk`. It prints everything about what it is given into the result panel, and returns it unchanged, so it can wrap any call:
+
+```js
+const resp = await inspect(sdk.apis().dszCreateCustomerPortal({
+  params: { dataset: "acme" },
+  payload: { locale: "en-US", return_url: "https://acme.com" },
+}))
+```
+
+**What it prints, by what it is given:**
+
+| Given | It prints |
 | --- | --- |
-| `def` / method | `Func`. `Signature` = `ast.unparse` of the args and the return annotation, without `self`. `Params` keep their annotation as `Type` and their default as `Value` |
-| `alias = method` in a class body (`dszListDatasets = dsz_list_datasets`) | added to the method's `Aliases` |
-| a field or param whose name is the camelCase of another one in the same record or signature (`modelName` → `model_name`, `onProgress` → `on_progress`) | added to that field's `Aliases`, not emitted on its own. camelCase = split on `_`, then capitalise every part after the first |
-| class with methods | `Type` with `Methods`; `__init__` params document the constructor |
-| `TypedDict`, `@dataclass` | `Type` with `Fields`; a dataclass default goes in `Value` |
-| `IntEnum` | `Type` with `Fields` (`Value` = the number); a member that repeats an earlier value is skipped (`Grants.System`) |
-| `Name = Other` in `__all__` | `Type` with `Alias` (`I6Client = Services`) |
-| class bases | `Bases` |
-| constant in `__all__` | `Module.Vars`; `Value` = `ast.unparse`, cut at 200 characters |
+| A call (the promise of an SDK method) | Every HTTP request the SDK made for that call, in order: method, full URL, headers, body, then the status, headers, body and time of each response. This includes the requests the SDK makes by itself, such as getting a dataset token. Then the value the call returned, or the error it threw |
+| A `Resp` | Its status, headers and payload |
+| An SDK method (`inspect(sdk.apis().dszCreateCustomerPortal)`) | Its docs, as on its page: summary, HTTP method and path, token type, the request and response fields, and a link to its page. The docs come from `methods.json`, written by `docs` |
+| An error (`I6ApiError`, …) | Its class, message, status and details |
+| Anything else | The value in full, as JSON, with nested objects open |
 
-**Docstrings:** in a module docstring, the first line goes in `Module.Title` and the rest in `Module.Doc`. Elsewhere, the text before the first `:field:` line goes in `Doc`; `:param x:` lines go in `Params[x].Doc`, and `:return:` goes in `Returns.Doc`. A param's type always comes from the annotation, never from the docstring.
-
-**Field comments:** the `#` lines directly above a field or constant, read from the source by line number. A leading `[Go: …] - ` is removed.
-
-**Errors:** a name in `__all__` that can't be resolved exits 1 with `file:line: message`.
-
-**Tests:** `sdkpy/tests/test_docgen.py` runs the script on a small fixture package in `sdkpy/tests/docgen_fixture/` and compares the output with an expected JSON file. It runs with the existing unit tests (`cmd_unit_test.sh`), so nothing new is needed in CI.
+- **Tokens are hidden by default.** `Authorization` headers and token fields are printed as `Bearer eyJh…(hidden)`, so a screenshot or a copied result doesn't leak them. A **Show tokens** toggle on the result panel prints them in full; it is off on every page load.
+- **How it sees the requests:** the page wraps the browser's `window.fetch` with a recorder before it creates `sdk`. Wrapping `fetch`, and not using the SDK's `fetcher` config, is needed because `auth.js` and `tokens.js` call `fetch` directly (token exchange, refresh, `me`), so a `fetcher` would miss them. The SDK and the user's config are not touched. `inspect` of a call shows the requests made since the **Run** started or since the previous `inspect` returned, so in code that awaits one call after another, each call shows its own requests.
+- **How it knows which method it got:** it compares the function with the methods of the SDK objects the page has (`sdk`, `sdk.apis()`, `sdk.infer()`, …), not by its name. So `inspect(sdk.infer().run)` finds `Infer.run`, even though other classes may also have a `run`. A function that isn't an SDK method is printed like any other value.
+- **Types:** the page adds `declare function inspect<T>(x: T): T` to Monaco, so it autocompletes and the type of the wrapped call is kept.
+- **Explained in the docs:** every **Try it** box has a one-line hint under it: "Wrap a call in `inspect(...)` to see the requests it makes."
 
 ---
 
-## Step 3 — Build wiring
+## Step 1 — The bundled `.d.ts`
 
-We follow the existing `cmd_unit_test.sh` pattern: a component with a `cmd_docs.sh` takes part in docs, and the others are skipped.
-
-**`sdkpy/cmd_docs.sh`** (new):
-
-```bash
-#!/bin/bash -e
-set -o pipefail
-go run . generate
-python3 -I docgen.py src/i6sdk i6sdk \
-  | go run github.com/infinity6-ai/i6sdk/forgez docs --title "i6sdk — Python SDK reference" --out SDK.md
-```
-
-**`comp.sh`** (new function):
-
-```bash
-function cmd_docs() {
-  [ ! -f cmd_docs.sh ] || ./cmd_docs.sh "$@"
-}
-```
-
-**`build.sh`** (new command, plus one line in `cmd_release`):
-
-```bash
-function cmd_docs() {
-  cmd_comps_run docs "$@"
-}
-
-function cmd_release() {
-  ...
-  cmd_docs                        # new: fails on missing docs; a stale SDK.md makes the tree dirty
-  [ -z "$(git status -s "$@")" ]  # existing check, unchanged
-  ...
-}
-```
-
-**Also:** one line in `sdkpy/README.md` linking to `SDK.md`, and `*/SDK.md linguist-generated=true` in `.gitattributes` so GitHub folds the diff in PRs.
+- `sdkweb/package.json`: add TypeScript 5 for the tools that need its API (decision 8): `"typescript5": "npm:typescript@5"` for `docgen.mjs`, and `"overrides": { "dts-bundle-generator": { "typescript": "^5" } }` so `dts-bundle-generator` gets TypeScript 5 while the project keeps TypeScript 7.
+- `sdkweb/build.sh bundle`: replace the `find … -exec cat` line with `dts-bundle-generator`, which writes one real `dist/bundle/i6sdk-web.d.ts` from the `tsc` output (`dist/types/index.d.ts`). Only what is reachable from the exports is in it, so unexported helper modules drop out by themselves.
 
 ---
 
-## Adding a language
+## Step 2 — `sdkweb/docgen.mjs`: the handwritten modules
 
-Adding a language means writing one extractor script and one `cmd_docs.sh`. `forgedoc`, `comp.sh` and `build.sh` don't change.
+A Node script, about 150 lines. It reads `dist/bundle/i6sdk-web.d.ts` with the TypeScript compiler API and prints `target/sdk.json`. `tsc` has already turned the JSDoc into regular declarations, so the script only walks them: classes, methods, params, return types and typedefs, with their docs.
 
-| SDK | Extractor | Notes |
-| --- | --- | --- |
-| sdkweb (JS) | `sdkweb/docgen.mjs` using `acorn` + `comment-parser` (dev dependencies) | TypeScript 7 has no compiler API we can call from a script. JSDoc `@typedef`/`@property` become records |
-| sdkgo | `go/doc` (stdlib), in-process | Waits until sdkgo has SDK code |
+- **Dependency:** TypeScript 5, through the `typescript5` alias from Step 1 (`import ts from "typescript5"`). See decision 8.
+- **What it skips:** `Apis` and `SdkFuncs`, because `docs` gets those from forge, and any member starting with `_` or `#private`.
+- **Call paths:** `I6Sdk` is `sdk`. A class reached through a method with no params gets its parent's call path plus `.method()`, for example `sdk.infer()` for `Infer`.
+- **Missing docs:** a method, param, typedef or field with no doc is printed as `name: missing doc`, and the script exits 1.
+- **Test:** a small fixture `.d.ts` and the expected JSON, run by `go test` from `cmdsdkweb` (it runs the script with `node`).
 
 ---
 
-## Effort and risks
+## Step 3 — `go run . docs`: the static pages
 
-About **4.25 working days** to a complete `sdkpy/SDK.md`. These are estimates for one engineer.
+A new command in `sdkweb/cmdsdkweb`, next to `generate`:
 
-| Step | Estimate |
+```bash
+go run . docs --sdk target/sdk.json --out target/docs --base-url https://cdn.infinity6.ai/docs
+```
+
+1. Parses the APIs and SdkFuncs the same way `generate` does, with the same few calls (`apicollectionz.Apis()`, `apispecz.New(...).ParseApis`, …). `generate` is left untouched.
+2. Reads `sdk.json`.
+3. Checks the docs: an API, SdkFunc or leaf field with an empty summary is reported (`api id: field: missing doc`). If any are found, it prints them all and exits 1. Today every API field has a summary, so this only guards the future; the fix goes in the `apicollectionz` spec.
+4. Writes the pages with `html/template` from templates in `sdkweb/cmdsdkweb/docstpl/` (embedded with `go:embed`): `index.html`, one page per section, one page per method, `sitemap.xml`, `methods.json`, `callback.html`, `404.html`. It also copies `src/site/docs/` (the JS and CSS), `dist/bundle/i6sdk-web.d.ts` and `dist/bundle/i6sdk-web.min.js` next to them.
+5. Renders the doc text with a small Markdown renderer (`docsmd.go`, about 80 lines), at build time. It covers exactly what the docs use today:
+
+    | Markdown | Uses today | HTML |
+    | --- | --- | --- |
+    | Paragraphs (blank lines) | everywhere | `<p>` |
+    | Inline code `` `x` `` | 161 | `<code>` |
+    | Lists (`- item`, `1. item`) | 35 | `<ul>`, `<ol>` |
+    | Code blocks (three backticks) | 7 | `<pre><code>` |
+    | Bold `**x**` | 1 | `<strong>` |
+    | JSDoc links `{@link Auth#handleCallback}` | 9 | a link to that method's page |
+
+    The text is escaped first and the tags are added after, so doc text can't inject HTML. Anything outside the table shows as plain text; if a doc needs more, we add it to the renderer.
+6. The output is deterministic: no dates, and the order comes only from the code. The same code always gives the same files.
+
+**Tests:** a golden test on one API page (`dsz-create-customer-portal.html`) and one handwritten page (`infer-run.html`), a table test for the check, one case per rule, and a table test for the Markdown renderer, one case per row of its table (plus one for escaping). `go test ./... -update` rewrites the golden files.
+
+---
+
+## Step 4 — The interactive parts
+
+`sdkweb/src/site/docs/` (handwritten, plain JS, no build step):
+
+| File | What it does |
 | --- | --- |
-| 1 — `forgedoc` + `forgez docs` + tests | 1.5 d |
-| 2 — `docgen.py` + tests | 1.5 d |
-| Doc fixes (16 module titles, about 45 methods, 60 fields) | 1 d |
-| 3 — wiring | 0.25 d |
+| `docs.css` | Styles (same look as `console.html`) |
+| `bar.js` | SDK config bar and account box: creates `sdk` from the saved or default config, **Edit**, **Reset**, **Sign in**, **Sign out** |
+| `tryit.js` | Loads Monaco and `i6sdk-web.d.ts` on the first **Try it**, adds `declare const sdk: I6Sdk`, runs the code, shows the result |
+| `inspect.js` | `inspect(x)` and the request recorder that wraps `window.fetch` |
+| `search.js` | Filters the nav links in the page |
 
-- **Docs are only as good as the docstrings.** The check fails on any gap from day 1, so docs can't get worse over time.
-- **New API fields without descriptions** will fail the build. The fix goes in the `apicollectionz` spec, and every future SDK benefits.
-- **Large file.** `types.py` alone is 2,525 lines. Inlining keeps related fields next to their method; if the file still gets too long, splitting it is a renderer-only change.
+**Which SDK runs:** the `i6sdk-web.min.js` that `docs` copies next to the pages, so the pages always run the SDK they were built from, with no version to match and nothing to wait for on jsDelivr. Locally it is the same: rerun `build.sh docs` to see an SDK change.
+
+---
+
+## Step 5 — Build wiring and release
+
+- `sdkweb/build.sh docs` (new): `bundle`, then `node docgen.mjs`, then `go run . docs`.
+- `sdkweb/build.sh release`: runs `docs`, then one more `rsync` line, like `tokens/` today: `target/docs/` goes to `../../i6pages/docs/`.
+- Local preview: the dev server gets a `/docs/*` route that serves `target/docs/` (`http://127.0.0.1:8043/docs/index.html`).
+- A browser test in `sdkweb_web_test.go` (`TestWeb…`, like the existing ones): opens a few pages, checks the static content is there, and checks that every generated example has no type errors in Monaco. This catches a broken example or a broken `.d.ts` before release.
+- One line in `sdkweb/README.md` linking to the docs.
+
+---
+
+## Step 6 — Doc fixes
+
+Once Step 2 and Step 3 exist, the build prints the exact list of missing docs. We fix all of them in JSDoc comments only: no names, signatures or behaviour.
+
+---
+
+## Risks
+
+- **Sign in and CORS.** **Run** only works once the docs origin is allowed by i6userz and the APIs. That is decided outside this plan; the docs and the autocomplete work without it.
+- **Running code changes real data.** The page uses the user's own tokens, so it can only do what the user can already do.
+- **Two TypeScript versions.** TypeScript 5 will get old. When the TypeScript 7 API is stable, `docgen.mjs` can move to it; only that script changes.
+- **Monaco from a CDN.** It is pinned to one version, so it can't change under us. Reading the docs works offline from the cache, but **Try it** needs the network anyway.
