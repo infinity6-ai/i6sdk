@@ -8,9 +8,12 @@ import (
 
 	"github.com/infinity6-ai/gox/commonz/urlz"
 	"github.com/infinity6-ai/gox/httpz/httpzclient"
+	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapistorelist"
 	"github.com/infinity6-ai/i6sdk/apiuserz/userapiauthlogout"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
 	"github.com/infinity6-ai/i6sdk/sdkgo/client"
 	"github.com/infinity6-ai/i6sdk/sdkgo/config"
+	"github.com/infinity6-ai/i6sdk/sdkgo/tokens"
 	"github.com/stretchr/testify/require"
 )
 
@@ -245,6 +248,74 @@ func TestUnitClientConstruction(t *testing.T) {
 			Req: &userapiauthlogout.Req{},
 		}
 		status, err := c.Apis().UserAuthLogout(t.Context(), api)
+		require.NoError(t, err)
+		require.Equal(t, http.StatusOK, status)
+	})
+
+	t.Run("Apis automatically uses dynamic user token from Tokens manager", func(t *testing.T) {
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			require.Equal(t, "/api/userz/auth/logout", r.URL.Path)
+			require.Equal(t, "Bearer dynamic-user-jwt", r.Header.Get("Authorization"))
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte(`{}`))
+		}))
+		defer ts.Close()
+
+		c, err := client.New(config.Options{
+			Urls: config.UrlOptions{
+				Userz: ts.URL,
+			},
+		})
+		require.NoError(t, err)
+		require.NotNil(t, c.Tokens())
+
+		// Store dynamic user token
+		err = c.Tokens().SetUserToken(t.Context(), &tokens.UserToken{
+			UserAccessToken: "dynamic-user-jwt",
+		})
+		require.NoError(t, err)
+
+		api := &userapiauthlogout.Api{
+			Req: &userapiauthlogout.Req{},
+		}
+		status, err := c.Apis().UserAuthLogout(t.Context(), api)
+		require.NoError(t, err)
+		require.Equal(t, http.StatusOK, status)
+	})
+
+	t.Run("Apis automatically uses dynamic dataset token for dataset routes", func(t *testing.T) {
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			require.Equal(t, "/api/ds/dataset/test-ds/store/list", r.URL.Path)
+			require.Equal(t, "Bearer dynamic-dataset-token", r.Header.Get("Authorization"))
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte(`{"payload":{"dataset":"test-ds","stores":[]}}`))
+		}))
+		defer ts.Close()
+
+		c, err := client.New(config.Options{
+			Urls: config.UrlOptions{
+				Decsuite: ts.URL,
+			},
+		})
+		require.NoError(t, err)
+
+		// Store dynamic dataset token
+		err = c.Tokens().SetDatasetToken(t.Context(), "test-ds", &tokens.DatasetToken{
+			Dataset:     "test-ds",
+			AccessToken: "dynamic-dataset-token",
+		})
+		require.NoError(t, err)
+
+		api := &dszapistorelist.Api{
+			Req: &dszapistorelist.Req{
+				Params: &dszapistorelist.ReqParams{
+					Dataset: lakedsz.MustParse("test-ds"),
+				},
+			},
+		}
+		status, err := c.Apis().DszListStores(t.Context(), api)
 		require.NoError(t, err)
 		require.Equal(t, http.StatusOK, status)
 	})

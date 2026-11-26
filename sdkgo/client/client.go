@@ -14,13 +14,28 @@ import (
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/i6sdk/apicollectionz/apicollectionz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/sdkfuncz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/speclabels/speclabeltokentype"
 	"github.com/infinity6-ai/i6sdk/sdkgo/config"
+	"github.com/infinity6-ai/i6sdk/sdkgo/tokens"
 	"github.com/infinity6-ai/i6sdk/sdkgo/tokenstore"
 )
+
+type authSkipKey struct{}
+
+func extractDatasetFromPath(path string) string {
+	parts := strings.Split(strings.Trim(path, "/"), "/")
+	for i, p := range parts {
+		if p == "dataset" && i+1 < len(parts) {
+			return parts[i+1]
+		}
+	}
+	return ""
+}
 
 // I6Client is the primary client for the Infinity6 SDK.
 type I6Client struct {
 	tokenStore   tokenstore.Store
+	tokens       *tokens.Manager
 	cacheUrl     *urlz.Url
 	memoryCache  bool
 	initialToken string
@@ -75,10 +90,36 @@ func New(opts config.Options) (*I6Client, error) {
 	}
 	c.userzUrl = userUrl
 
-	// 2. Auth filter for bearer token injection
+	// 2. Auth filter for bearer token injection (supports dynamic user and dataset tokens)
 	authFilter := func(ctx context.Context, req *httpzrequest.Req, next httpzclient.Handler) (*httpzclient.Resp, error) {
-		if c.initialToken != "" && req.Headers.Get("Authorization") == "" {
-			req.Headers.Set("Authorization", "Bearer "+c.initialToken)
+		if ctx.Value(authSkipKey{}) != true && req.Headers.Get("Authorization") == "" {
+			var tokenToInject string
+			var pathStr string
+			if req.Path != nil {
+				pathStr = req.Path.String()
+			} else if req.Url != nil && req.Url.Path != nil {
+				pathStr = req.Url.Path.String()
+			}
+
+			if ds := extractDatasetFromPath(pathStr); ds != "" && c.tokens != nil {
+				if dsTok, err := c.tokens.GetValidDatasetAccessToken(ctx, ds); err == nil && dsTok != "" {
+					tokenToInject = dsTok
+				}
+			}
+
+			if tokenToInject == "" && c.tokens != nil {
+				if usrTok, err := c.tokens.GetValidAccessToken(ctx); err == nil && usrTok != "" {
+					tokenToInject = usrTok
+				}
+			}
+
+			if tokenToInject == "" && c.initialToken != "" {
+				tokenToInject = c.initialToken
+			}
+
+			if tokenToInject != "" {
+				req.Headers.Set("Authorization", "Bearer "+tokenToInject)
+			}
 		}
 		return next(ctx, req)
 	}
@@ -129,12 +170,26 @@ func New(opts config.Options) (*I6Client, error) {
 	// 6. Initialize SdkApis with apiclientz invoker dispatching by service path
 	c.apis = &apicollectionz.SdkApis{
 		Invoker: func(ctx context.Context, api apiz.Api) (int, error) {
-			targetClient := c.ClientForPath(api.ApiSpec().Path)
+			spec := api.ApiSpec()
+			targetClient := c.ClientForPath(spec.Path)
+			if spec.Desc != nil {
+				if desc := spec.Desc(); desc != nil && desc.Labels != nil && desc.Labels[speclabeltokentype.Key] == speclabeltokentype.None {
+					ctx = context.WithValue(ctx, authSkipKey{}, true)
+				}
+			}
 			return apiclientz.Do(ctx, targetClient, api)
 		},
 	}
 
-	// 7. Initialize SdkFuncs with fallback invoker (wired in Step 4.7)
+	// 7. Token manager
+	c.tokens = tokens.New(tokens.ManagerOptions{
+		Store:        c.tokenStore,
+		Apis:         c.apis,
+		UserzBaseUrl: c.userzUrl,
+		InitialToken: c.initialToken,
+	})
+
+	// 8. Initialize SdkFuncs with fallback invoker (wired in Step 4.7)
 	c.funcs = &apicollectionz.SdkFuncs{
 		Invoker: func(ctx context.Context, fn sdkfuncz.Func) (int, error) {
 			return 501, fmt.Errorf("sdkfunc invoker not yet wired: step 4.7")
@@ -218,4 +273,9 @@ func (c *I6Client) TokenStore() tokenstore.Store {
 // InitialToken returns the initial token provided to the client.
 func (c *I6Client) InitialToken() string {
 	return c.initialToken
+}
+
+// Tokens returns the Token Manager instance.
+func (c *I6Client) Tokens() *tokens.Manager {
+	return c.tokens
 }

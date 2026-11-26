@@ -535,9 +535,13 @@ Each `api*z` module in `i6sdk` pairs with a corresponding backend service reposi
   - Configured three `httpzclient.Client` instances (`decsuite`, `tfinfer`, `userz`) with automatic bearer token filter.
   - Standardized on mandatory explicit configuration and constant sandbox/staging presets (`SandboxUrls`, `StagingUrls`) without implicit environment variable fallbacks.
   - Added unit test suites `tokenstore_unit_test.go`, `config_unit_test.go`, and `client_unit_test.go`.
-- **Step 2: Token Management & Multi-Tier Storage (`sdkgo/tokens`)**:
-  - Implement `TokenStore` interface with `MemoryTokenStore` (default in-memory with `sync.RWMutex`), `FszTokenStore` (atomic persistence over `gox/fsz`), and custom pluggable stores.
-  - Implement double-checked locking, automatic background renewal before expiration, and dataset token derivation.
+- **Step 2: Token Management & Multi-Tier Storage (`sdkgo/tokens`, `sdkgo/tokenstore`) [DONE]**:
+  - Implemented persistent atomic filesystem storage `tokenstore.NewFsz(url)` using `gox/fsz` (`fsz.Download`, `fsz.Upload` to `.tmp`, and `fsz.Move`) with 0600 file permissions and default URL resolution `DefaultFszUrl()`.
+  - Implemented `sdkgo/tokens` (`Manager`, `UserToken`, `DatasetToken`, `DatasetTokenOptions`) with CRUD operations for user tokens, cached dataset access tokens, and machine robot Ed25519 refresh keys.
+  - Implemented thread-safe double-checked locking with silent token renewal for expired user access tokens via `UserAuthRefresh` (`/api/userz/refresh-user`).
+  - Implemented dual-strategy dataset token retrieval (`GetValidDatasetAccessToken`): machine robot Ed25519 refresh assertion (`UserDatasetTokenRefresh` with 121B packed assertion) and interactive human user token derivation (`UserDatasetTokenAccessCreate` via `/api/userz/dataset-access-token/{dataset}`).
+  - Integrated `tokens.Manager` into `sdkgo/client`, exposing `client.Tokens()` and wiring the dynamic `authFilter` to automatically resolve and inject appropriate bearer credentials (with dataset route extraction).
+  - Added comprehensive unit test suites in `tokenstore_unit_test.go`, `tokens_unit_test.go`, and `client_unit_test.go`.
 - **Step 3: Transport Invoker (`sdkgo/invoker` via `apiclientz`) [DONE]**:
   - Wired `client.Apis()` directly to `apiclientz.Do(ctx, targetClient, api)` dispatching by API spec path.
   - Verified end-to-end API execution against `httptest.Server` with bearer authentication in `client_unit_test.go`.
