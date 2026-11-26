@@ -139,7 +139,7 @@ function cmd_release() {
     false
   fi
   GOWORK= ./build.sh codegen
-  GOWORK=off cmd_comps_run release "$_version"
+  GOWORK=off cmd_comps_run release_exists "$_version" || GOWORK=off cmd_comps_run release "$_version"
   git tag "$_version"
   git push origin "$_version"
 }
