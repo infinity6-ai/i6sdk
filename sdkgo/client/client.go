@@ -16,6 +16,7 @@ import (
 	"github.com/infinity6-ai/i6sdk/sdkcorez/speclabels/speclabeltokentype"
 	"github.com/infinity6-ai/i6sdk/sdkgo/config"
 	"github.com/infinity6-ai/i6sdk/sdkgo/dash"
+	"github.com/infinity6-ai/i6sdk/sdkgo/infer"
 	"github.com/infinity6-ai/i6sdk/sdkgo/internal/fszcache"
 	"github.com/infinity6-ai/i6sdk/sdkgo/tokens"
 	"github.com/infinity6-ai/i6sdk/sdkgo/tokenstore"
@@ -52,6 +53,7 @@ type I6Client struct {
 	apis  *apicollectionz.SdkApis
 	funcs *apicollectionz.SdkFuncs
 	dash  *dash.Client
+	infer *infer.Client
 }
 
 // New constructs an I6Client configured with the provided Options.
@@ -190,7 +192,7 @@ func New(opts config.Options) (*I6Client, error) {
 		InitialToken: c.initialToken,
 	})
 
-	// 8. Dash analytical query runner
+	// 8. Dash analytical query runner & Infer model runner
 	fsStore, err := fszcache.NewFs(c.cacheUrl)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize fszcache store: %w", err)
@@ -200,14 +202,20 @@ func New(opts config.Options) (*I6Client, error) {
 		Apis:       c.apis,
 		Downloader: downloader,
 	})
+	c.infer = infer.New(infer.Options{
+		Apis:       c.apis,
+		Downloader: downloader,
+	})
 
-	// 9. Initialize SdkFuncs with Dash delegator for client analytical queries
+	// 9. Initialize SdkFuncs with Dash & Infer delegators
 	c.funcs = &apicollectionz.SdkFuncs{
 		Invoker: func(ctx context.Context, fn sdkfuncz.Func) (int, error) {
 			spec := fn.SdkFuncSpec()
 			switch spec.Typ {
 			case sdkfuncz.TypClientQuery:
 				return c.dash.Execute(ctx, fn)
+			case sdkfuncz.TypClientInfer:
+				return c.infer.Execute(ctx, fn)
 			default:
 				return 501, fmt.Errorf("sdkfunc typ %q not yet implemented", spec.Typ)
 			}
@@ -301,4 +309,9 @@ func (c *I6Client) Tokens() *tokens.Manager {
 // Dash returns the Dash analytical query runner.
 func (c *I6Client) Dash() *dash.Client {
 	return c.dash
+}
+
+// Infer returns the Infer model execution runner.
+func (c *I6Client) Infer() *infer.Client {
+	return c.infer
 }

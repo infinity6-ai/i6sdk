@@ -568,10 +568,18 @@ Each `api*z` module in `i6sdk` pairs with a corresponding backend service reposi
   - Implemented `dash.Client` with `PartitionsKey` deterministic hashing, `fszcache` downloader integration, and `Execute(ctx, fn)` workflow runner.
   - Integrated `dash.Client` into `sdkgo/client`, exposing `client.Dash()` and wiring `client.Funcs()` to automatically dispatch all `TypClientQuery` analytical workflows to Dash.
   - Added unit test suites `sqlitez_unit_test.go`, `dash_unit_test.go`, and end-to-end workflow verification in `client_unit_test.go`.
-- **Step 6: Inference Orchestrator (`sdkgo/infer`)**:
-  - 3-step inference pipeline: local candidate query (`input`), server-side `TfzModelPredict`, and local ranking/hydration (`output`).
-- **Step 7: Workflow Facade (`client.Funcs()` & `SdkFuncInvokerFunc`)**:
-  - Implement `apicollectionz.SdkFuncInvokerFunc` inside `I6Client`, routing `TypClientQuery` to `Dash` and `TypClientInfer` to `Infer`.
-  - Wire `client.Funcs()` with full 1:1 workflow method parity against Python and Web.
+- **Step 6: Inference Orchestrator (`sdkgo/infer`) [DONE]**:
+  - Implemented 3-step inference pipeline in `infer.Client`:
+    - Step 1: Local SQLite query `model-{name}-input` generates candidate tensors.
+    - Step 2: Server-side `client.Apis().TfzModelPredict(...)` evaluates candidates.
+    - Step 3: Local SQLite query `model-{name}-output` hydrates and ranks recommendations.
+  - Implemented model artifact signed URL resolution via `client.Apis().DszModelGet(...)` targeting `sqlite.bin`.
+  - Implemented `DefaultSelectResults` to filter cart SKUs, deduplicate recommendations, and dispatch `recshow` telemetry.
+  - Implemented non-blocking lake telemetry dispatch (`recraw` and `recshow`) via `client.Apis().IngestzEventRelevanceFashionEvent(...)`.
+  - Added unit test suite `infer_unit_test.go` covering candidate generation, model scoring, cart filtering, telemetry dispatch, and `Execute(ctx, fn)`.
+- **Step 7: Workflow Facade (`client.Funcs()` & `SdkFuncInvokerFunc`) [DONE]**:
+  - Implemented `apicollectionz.SdkFuncInvokerFunc` in `I6Client`, dispatching `TypClientQuery` to `Dash` and `TypClientInfer` to `Infer`.
+  - Wired all 8 typed workflow methods on `client.Funcs()` (`ProductRelevanceFashionDashFunnelV1`, `ProductRelevanceFashionFbtV1`, etc.) with full 1:1 parity against Python (`client.funcs()`) and Web (`client.funcs()`).
+  - Added end-to-end integration tests in `client_unit_test.go` verifying that `client.Funcs()` calls execute through Dash and Infer runners and populate response outputs.
 - **Step 8: Automated Verification**:
   - Comprehensive unit testing (`TestUnit*`) following mono-repo standards and validating parity against `FEATURES_TABLE.md`.

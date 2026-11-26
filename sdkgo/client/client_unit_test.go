@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/infinity6-ai/gox/commonz/urlz"
@@ -16,6 +17,7 @@ import (
 	"github.com/infinity6-ai/i6sdk/apiuserz/userapiauthlogout"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/dash/relevancefashiondashfunnel"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/inferz/inferzrelevancefashionfbt"
 	"github.com/infinity6-ai/i6sdk/sdkgo/client"
 	"github.com/infinity6-ai/i6sdk/sdkgo/config"
 	"github.com/infinity6-ai/i6sdk/sdkgo/tokens"
@@ -393,5 +395,92 @@ func TestUnitClientConstruction(t *testing.T) {
 		require.Len(t, fn.Resp.Output.Results.Rows, 1)
 		require.Equal(t, "view", fn.Resp.Output.Results.Rows[0].EventType)
 		require.Equal(t, "999", fn.Resp.Output.Results.Rows[0].QtEvents)
+	})
+
+	t.Run("Funcs executes inference workflow via Infer runner", func(t *testing.T) {
+		tmpDir, err := os.MkdirTemp("", "client-infer-test-*")
+		require.NoError(t, err)
+		defer os.RemoveAll(tmpDir)
+
+		dbPath := filepath.Join(tmpDir, "model.sqlite")
+		db, err := sql.Open("sqlite", dbPath)
+		require.NoError(t, err)
+		_, err = db.Exec("CREATE TABLE namedqueries (name TEXT PRIMARY KEY, query TEXT NOT NULL)")
+		require.NoError(t, err)
+		_, err = db.Exec(`
+			INSERT INTO namedqueries (name, query) VALUES 
+			('model-relevance-fashion-fbt-input', 'SELECT json_object("tensors", ?1) AS ret'),
+			('model-relevance-fashion-fbt-output', 'SELECT json_object("results", json_array(json_object("sku_id", "rec-item-1", "rating", 0.99))) AS ret')
+		`)
+		require.NoError(t, err)
+		db.Close()
+
+		dbBytes, err := os.ReadFile(dbPath)
+		require.NoError(t, err)
+
+		tsStorage := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("ETag", `"etag-model"`)
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(dbBytes)
+		}))
+		defer tsStorage.Close()
+
+		// Server handling decsuite (dszapimodelget, ingestz) and tfinfer (tfzapimodelpredict)
+		tsDecsuite := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte(`{}`))
+		}))
+		defer tsDecsuite.Close()
+
+		tsTfinfer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			if strings.Contains(r.URL.Path, "/signed-get/") {
+				_, _ = w.Write([]byte(fmt.Sprintf(`{"urls":[{"name":"sqlite.bin","url":%q}]}`, tsStorage.URL)))
+			} else {
+				_, _ = w.Write([]byte(`{"outputs":"{\"scores\":[0.99]}"}`))
+			}
+		}))
+		defer tsTfinfer.Close()
+
+		c, err := client.New(config.Options{
+			Urls: config.UrlOptions{
+				Decsuite: tsDecsuite.URL,
+				Tfinfer:  tsTfinfer.URL,
+			},
+			Cache: config.CacheOptions{
+				Dir: filepath.Join(tmpDir, "cache"),
+			},
+		})
+		require.NoError(t, err)
+		require.NotNil(t, c.Infer())
+		require.NotNil(t, c.Funcs())
+
+		fn := &inferzrelevancefashionfbt.Func{
+			Req: &inferzrelevancefashionfbt.Req{
+				Input: &inferzrelevancefashionfbt.ReqInput{
+					Dataset:   lakedsz.MustParse("fashion-ds"),
+					SessionId: "session-123",
+					UserId:    "user-456",
+					Skus: []*inferzrelevancefashionfbt.Sku{
+						{SkuId: "cart-sku"},
+					},
+				},
+				Partitions: &inferzrelevancefashionfbt.ReqPartitions{
+					StoreId: "1",
+				},
+			},
+		}
+
+		status, err := c.Funcs().ProductRelevanceFashionFbtV1(t.Context(), fn)
+		require.NoError(t, err)
+		require.Equal(t, http.StatusOK, status)
+		require.NotNil(t, fn.Resp)
+		require.NotNil(t, fn.Resp.Output)
+		require.Len(t, fn.Resp.Output.Results, 1)
+		require.Equal(t, 0.99, fn.Resp.Output.Results[0].Rating)
+		require.Len(t, fn.Resp.Output.Results[0].Skus, 1)
+		require.Equal(t, "rec-item-1", fn.Resp.Output.Results[0].Skus[0].SkuId)
 	})
 }
