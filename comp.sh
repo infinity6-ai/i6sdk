@@ -56,6 +56,7 @@ function cmd_i6gox_set_version() {
 function cmd_i6sdk_set_version() {
   local _version="${1?'_version'}"
   sed -i "s/\(github.com\/infinity6-ai\/i6sdk\/\w\+\)\s\+v[0-9][a-zA-Z0-9\._-]\+/\1 $_version/g" go.mod
+  go mod tidy
 }
 
 function cmd_test_manual() {
@@ -93,6 +94,7 @@ function cmd_release() {
     echo "tag already exists: $_tag" 1>&2
     false
   fi
+  i6sdk_set_version "$_version"
   # local _go_base_path="$(_go_base_path)"
   # local _go_dep_mod=""
   # GOWORK=off go list -mod=readonly -m "$_go_base_path/..." | \
@@ -100,7 +102,7 @@ function cmd_release() {
   #   cut -d' ' -f1 | while read _go_dep_mod; do
   #   go mod edit -require="${_go_dep_mod}@${_version}"
   # done
-  go mod tidy
+  # go mod tidy
   [ "x$(go run . version)" == "x$_version" ]
   if [ -n "$(git status -s)" ]; then
     git add .
