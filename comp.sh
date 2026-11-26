@@ -50,6 +50,7 @@ function cmd_test_remote() {
 function cmd_i6gox_set_version() {
   local _gox_version="${1?'_gox_version'}"
   sed -i "s/\(github.com\/infinity6-ai\/gox\/\w\+\)\s\+v[0-9][a-zA-Z0-9\.\-_]\+/\1 $_gox_version/g" go.mod
+  go mod tidy
 }
 
 function cmd_test_manual() {

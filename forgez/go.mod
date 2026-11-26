@@ -3,10 +3,10 @@ module github.com/infinity6-ai/i6sdk/forgez
 go 1.26.1
 
 require (
-	github.com/infinity6-ai/gox/commonz v0.0.80
-	github.com/infinity6-ai/gox/fsz v0.0.80
-	github.com/infinity6-ai/gox/routez v0.0.80
-	github.com/infinity6-ai/gox/schemaz v0.0.80
+	github.com/infinity6-ai/gox/commonz v0.0.82
+	github.com/infinity6-ai/gox/fsz v0.0.82
+	github.com/infinity6-ai/gox/routez v0.0.82
+	github.com/infinity6-ai/gox/schemaz v0.0.82
 	github.com/infinity6-ai/i6sdk/apicollectionz v0.0.10
 	github.com/infinity6-ai/i6sdk/apidatasetz v0.0.11-0.20261126020737-a176a134044f
 	github.com/infinity6-ai/i6sdk/mold v0.0.11-0.20261126020737-a176a134044f
