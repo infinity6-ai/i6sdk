@@ -14,6 +14,7 @@ function cmd_comps_list() {
   echo "mold"
   echo "forgez"
   echo "sdkgo"
+  echo "i6cli"
   echo "sdkweb"
   echo "sdkpy"
 }
