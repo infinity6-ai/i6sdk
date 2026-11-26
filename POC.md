@@ -527,7 +527,7 @@ Each `api*z` module in `i6sdk` pairs with a corresponding backend service reposi
    - Run `./comp.sh apicollectionz test`, `./comp.sh mold test`, and `./comp.sh forgez test`.
    - Confirm `./build.sh codegen && ./build.sh test` generates identical Python and Web SDKs.
 
-### Phase 4: Build `sdkgo` Runtime [IN PROGRESS]
+### Phase 4: Build `sdkgo` Runtime [DONE]
 - **Step 1: Client Lifecycle & Configuration (`sdkgo/client`, `sdkgo/config`, `sdkgo/tokenstore`) [DONE]**:
   - Implemented leaf package `sdkgo/tokenstore` (`Store` interface, `NewMemory()` in-memory implementation) with zero dependencies.
   - Implemented leaf package `sdkgo/config` (`Options`, `UrlOptions`, `CacheOptions`, `SandboxUrls`, `StagingUrls`).
@@ -545,8 +545,13 @@ Each `api*z` module in `i6sdk` pairs with a corresponding backend service reposi
 - **Step 3: Transport Invoker (`sdkgo/invoker` via `apiclientz`) [DONE]**:
   - Wired `client.Apis()` directly to `apiclientz.Do(ctx, targetClient, api)` dispatching by API spec path.
   - Verified end-to-end API execution against `httptest.Server` with bearer authentication in `client_unit_test.go`.
-- **Step 4: Ingestion Engine (`sdkgo/ingest`)**:
-  - Multi-stream chunked uploads with concurrency control, retry policies, and progress callback hooks.
+- **Step 4: Ingestion Engine (`sdkgo/ingest`) [DONE]**:
+  - Implemented `ingest.Client` supporting presigned PUT URL acquisition via `client.Apis().IngestzGetUrl(...)`.
+  - Implemented multi-stream parallel chunked uploads with worker pool concurrency control (`Workers`), context cancellation, and per-stream timeouts.
+  - Implemented stream item factories: `FromBytes`, `FromString`, `FromReader`, and `FromFile` with automatic file size detection.
+  - Implemented byte-accurate upload progress tracking (`UploadProgress` callback: `Loaded`, `Total`, `Percent`, `CompletedStreams`, `TotalStreams`, `StreamIndex`).
+  - Integrated `ingest.Client` into `sdkgo/client`, exposing `client.Ingest() *ingest.Client`.
+  - Added unit test suite `ingest_unit_test.go` covering stream factories, URL generation, parallel uploads with progress assertions, context cancellation, and HTTP error handling.
 - **Step 5A: Versioned Filesystem Store & Conditional Downloader (`sdkgo/internal/fszcache`) [DONE]**:
   - Implemented versioned directory layout identical to `sdkweb` (OPFS) and `sdkpy` (`internal/fs.py`):
     - `{name}/version.txt`: currently released ISO timestamp version
@@ -581,5 +586,7 @@ Each `api*z` module in `i6sdk` pairs with a corresponding backend service reposi
   - Implemented `apicollectionz.SdkFuncInvokerFunc` in `I6Client`, dispatching `TypClientQuery` to `Dash` and `TypClientInfer` to `Infer`.
   - Wired all 8 typed workflow methods on `client.Funcs()` (`ProductRelevanceFashionDashFunnelV1`, `ProductRelevanceFashionFbtV1`, etc.) with full 1:1 parity against Python (`client.funcs()`) and Web (`client.funcs()`).
   - Added end-to-end integration tests in `client_unit_test.go` verifying that `client.Funcs()` calls execute through Dash and Infer runners and populate response outputs.
-- **Step 8: Automated Verification**:
-  - Comprehensive unit testing (`TestUnit*`) following mono-repo standards and validating parity against `FEATURES_TABLE.md`.
+- **Step 8: Automated Verification [DONE]**:
+  - Comprehensive unit testing (`TestUnit*`) following mono-repo standards across all `sdkgo` packages: `tokenstore`, `tokens`, `config`, `fszcache`, `sqlitez`, `dash`, `infer`, `ingest`, and `client`.
+  - Verified 100% build and test pass across all 13 mono-repo components (`./build.sh test`).
+  - Updated `FEATURES_TABLE.md` documenting full feature parity for `sdkgo`.

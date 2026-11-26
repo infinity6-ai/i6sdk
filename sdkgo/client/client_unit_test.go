@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -20,6 +21,7 @@ import (
 	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/inferz/inferzrelevancefashionfbt"
 	"github.com/infinity6-ai/i6sdk/sdkgo/client"
 	"github.com/infinity6-ai/i6sdk/sdkgo/config"
+	"github.com/infinity6-ai/i6sdk/sdkgo/ingest"
 	"github.com/infinity6-ai/i6sdk/sdkgo/tokens"
 	"github.com/stretchr/testify/require"
 	_ "modernc.org/sqlite"
@@ -482,5 +484,40 @@ func TestUnitClientConstruction(t *testing.T) {
 		require.Equal(t, 0.99, fn.Resp.Output.Results[0].Rating)
 		require.Len(t, fn.Resp.Output.Results[0].Skus, 1)
 		require.Equal(t, "rec-item-1", fn.Resp.Output.Results[0].Skus[0].SkuId)
+	})
+
+	t.Run("Ingest uploads streams via client.Ingest()", func(t *testing.T) {
+		tsStorage := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			require.Equal(t, http.MethodPut, r.Method)
+			body, _ := io.ReadAll(r.Body)
+			require.Equal(t, []byte("ingest test data"), body)
+			w.WriteHeader(http.StatusOK)
+		}))
+		defer tsStorage.Close()
+
+		tsApi := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			require.Equal(t, "/api/ingest/dataset/test-ds/get-url", r.URL.Path)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte(fmt.Sprintf(`{"ingest_id":"ingest-test-tok","uploads":[%q]}`, tsStorage.URL)))
+		}))
+		defer tsApi.Close()
+
+		c, err := client.New(config.Options{
+			Urls: config.UrlOptions{
+				Decsuite: tsApi.URL,
+			},
+		})
+		require.NoError(t, err)
+		require.NotNil(t, c.Ingest())
+
+		res, err := c.Ingest().Upload(t.Context(), ingest.UploadOptions{
+			Dataset: "test-ds",
+			Table:   "catalog",
+			Streams: []ingest.StreamItem{ingest.FromString("ingest test data")},
+		})
+		require.NoError(t, err)
+		require.Equal(t, "ingest-test-tok", res.IngestId)
+		require.Equal(t, 1, res.Count)
 	})
 }
