@@ -59,6 +59,7 @@ All commands under `i6 tokens dataset` inherit the persistent flag `--dataset <d
 - **Standard Bearer Access Tokens (`i6 tokens dataset bearer`)**:
   Unbound bearer tokens usable directly in `Authorization: Bearer <token>` without request signing:
   - `i6 tokens dataset bearer create [--grants=0x0F] [--exp=3600]`: Mints a fresh short-lived unbound bearer token.
+  - `i6 tokens dataset bearer refresh [--dataset-refresh-token-jti <jti>]`: Forces renewal of the dataset bearer token. If `--dataset-refresh-token-jti` is provided, uses that specific stored dataset refresh token to sign a `RefreshAssertion`; otherwise, uses the default stored robot key for the dataset or falls back to user session exchange.
   - `i6 tokens dataset bearer get`: Displays cached bearer token metadata (dataset, solution, grants, expiry) without revealing the raw token.
   - `i6 tokens dataset bearer expose`: Prints raw JWT bearer token string to stdout (ideal for scripting and `curl`).
   - `i6 tokens dataset bearer check`: Cryptographically validates the token against `/api/userz/token/check`.
@@ -136,6 +137,12 @@ $I6_CLI_CONFIG_DIR/ (defaults to $HOME/.config/i6/)
         ├── dash/
         └── infer/
 ```
+
+### Core Invariant: One Profile = Exactly One User
+Each CLI configuration profile belongs strictly to **one human user identity**.
+- User session credentials (`i6_user_user_token`) stored in `$I6_CLI_CONFIG_DIR/[profile]/tokens.db` represent a single authenticated user.
+- To operate under a different user account, tenant, or client organization, switch profiles via `I6_CLI_CONFIG_PROFILE=<profile>` (e.g. `work`, `staging-admin`).
+- This completely prevents multi-tenant session collisions, accidental token cross-contamination, and concurrent database lock contention.
 
 ### Configuration Hierarchy & Resolution Order
 1. **Zero-Disk Inline JSON**: If `I6_CLI_CONFIG_JSON` is populated, parse in-memory immediately using `tokenstore.NewMemory()` (bypasses filesystem reads, ideal for CI/CD runners).
@@ -243,7 +250,7 @@ In `.github/workflows/release.yml`:
   - [ ] Implement `i6 auth logout`, `status`, and `expose`.
   - [ ] Implement `i6 tokens refresh` for active user credentials.
   - [ ] Implement `i6 tokens dataset [--dataset <dataset>]` persistent flag with subcommands:
-    - `bearer [create|get|expose|check|delete]` (unbound bearer access tokens)
+    - `bearer [create|refresh|get|expose|check|delete]` (unbound bearer access tokens; refresh supports optional --dataset-refresh-token-jti)
     - `bounded [create|get|expose|check|delete]` (sender-constrained PoP tokens)
     - `refresh [create|list|delete|expose|export|import]` (machine/robot Ed25519 tokens):
       - `create` (mints on server, stores in local tokens.db)
