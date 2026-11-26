@@ -4,10 +4,10 @@ go 1.26.1
 
 require (
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.39.0
-	github.com/infinity6-ai/gox/commonz v0.0.80
-	github.com/infinity6-ai/gox/cryptz v0.0.80
-	github.com/infinity6-ai/gox/fsz v0.0.80
-	github.com/infinity6-ai/gox/schemaz v0.0.80
+	github.com/infinity6-ai/gox/commonz v0.0.82
+	github.com/infinity6-ai/gox/cryptz v0.0.82
+	github.com/infinity6-ai/gox/fsz v0.0.82
+	github.com/infinity6-ai/gox/schemaz v0.0.82
 	github.com/infinity6-ai/i6sdk/versionz v0.0.11-0.20261126020737-a176a134044f
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.12.1
@@ -70,27 +70,3 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20261110000943-09e21b237f2c // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
 )
-
-replace github.com/infinity6-ai/i6sdk/apicollectionz => ../apicollectionz
-
-replace github.com/infinity6-ai/i6sdk/apidatasetz => ../apidatasetz
-
-replace github.com/infinity6-ai/i6sdk/apiingestz => ../apiingestz
-
-replace github.com/infinity6-ai/i6sdk/apipipez => ../apipipez
-
-replace github.com/infinity6-ai/i6sdk/apitfz => ../apitfz
-
-replace github.com/infinity6-ai/i6sdk/apiuserz => ../apiuserz
-
-replace github.com/infinity6-ai/i6sdk/forgez => ../forgez
-
-replace github.com/infinity6-ai/i6sdk/mold => ../mold
-
-replace github.com/infinity6-ai/i6sdk/sdkgo => ../sdkgo
-
-replace github.com/infinity6-ai/i6sdk/sdkpy => ../sdkpy
-
-replace github.com/infinity6-ai/i6sdk/sdkweb => ../sdkweb
-
-replace github.com/infinity6-ai/i6sdk/versionz => ../versionz

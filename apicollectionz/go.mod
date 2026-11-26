@@ -3,8 +3,8 @@ module github.com/infinity6-ai/i6sdk/apicollectionz
 go 1.26.1
 
 require (
-	github.com/infinity6-ai/gox/commonz v0.0.80
-	github.com/infinity6-ai/gox/routez v0.0.80
+	github.com/infinity6-ai/gox/commonz v0.0.82
+	github.com/infinity6-ai/gox/routez v0.0.82
 	github.com/infinity6-ai/i6sdk/apidatasetz v0.0.11-0.20261126020737-a176a134044f
 	github.com/infinity6-ai/i6sdk/apiingestz v0.0.11-0.20261126020737-a176a134044f
 	github.com/infinity6-ai/i6sdk/apipipez v0.0.11-0.20261126020737-a176a134044f
@@ -41,8 +41,8 @@ require (
 	github.com/googleapis/enterprise-certificate-proxy v0.3.25 // indirect
 	github.com/googleapis/gax-go/v2 v2.27.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
-	github.com/infinity6-ai/gox/fsz v0.0.80 // indirect
-	github.com/infinity6-ai/gox/schemaz v0.0.80 // indirect
+	github.com/infinity6-ai/gox/fsz v0.0.82 // indirect
+	github.com/infinity6-ai/gox/schemaz v0.0.82 // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/spf13/pflag v1.1.0 // indirect
 	github.com/spiffe/go-spiffe/v2 v2.8.1 // indirect
@@ -72,27 +72,3 @@ require (
 	google.golang.org/grpc v1.85.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
 )
-
-replace github.com/infinity6-ai/i6sdk/apidatasetz => ../apidatasetz
-
-replace github.com/infinity6-ai/i6sdk/apiingestz => ../apiingestz
-
-replace github.com/infinity6-ai/i6sdk/apipipez => ../apipipez
-
-replace github.com/infinity6-ai/i6sdk/apitfz => ../apitfz
-
-replace github.com/infinity6-ai/i6sdk/apiuserz => ../apiuserz
-
-replace github.com/infinity6-ai/i6sdk/forgez => ../forgez
-
-replace github.com/infinity6-ai/i6sdk/mold => ../mold
-
-replace github.com/infinity6-ai/i6sdk/sdkcorez => ../sdkcorez
-
-replace github.com/infinity6-ai/i6sdk/sdkgo => ../sdkgo
-
-replace github.com/infinity6-ai/i6sdk/sdkpy => ../sdkpy
-
-replace github.com/infinity6-ai/i6sdk/sdkweb => ../sdkweb
-
-replace github.com/infinity6-ai/i6sdk/versionz => ../versionz
