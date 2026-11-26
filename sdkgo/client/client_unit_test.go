@@ -85,11 +85,37 @@ func TestUnitClientConstruction(t *testing.T) {
 		}
 	}
 
-	t.Run("Default client construction with sandbox URLs", func(t *testing.T) {
+	t.Run("Default client construction with production URLs", func(t *testing.T) {
 		check(t, testScenario{
-			wantDecsuite:    config.DefaultDecsuiteUrl,
-			wantTfinfer:     config.DefaultTfinferUrl,
-			wantUserz:       config.DefaultUserzUrl,
+			wantDecsuite:    config.ProdDecsuiteUrl,
+			wantTfinfer:     config.ProdTfinferUrl,
+			wantUserz:       config.ProdUserzUrl,
+			wantMemoryCache: false,
+			wantCacheScheme: "file",
+		})
+	})
+
+	t.Run("Client construction with SandboxUrls preset", func(t *testing.T) {
+		check(t, testScenario{
+			opts: config.Options{
+				Urls: config.SandboxUrls,
+			},
+			wantDecsuite:    config.SandboxDecsuiteUrl,
+			wantTfinfer:     config.SandboxTfinferUrl,
+			wantUserz:       config.SandboxUserzUrl,
+			wantMemoryCache: false,
+			wantCacheScheme: "file",
+		})
+	})
+
+	t.Run("Client construction with StagingUrls preset", func(t *testing.T) {
+		check(t, testScenario{
+			opts: config.Options{
+				Urls: config.StagingUrls,
+			},
+			wantDecsuite:    config.StagingDecsuiteUrl,
+			wantTfinfer:     config.StagingTfinferUrl,
+			wantUserz:       config.StagingUserzUrl,
 			wantMemoryCache: false,
 			wantCacheScheme: "file",
 		})
@@ -109,19 +135,6 @@ func TestUnitClientConstruction(t *testing.T) {
 			wantTfinfer:     "https://custom.tfinfer.ai",
 			wantUserz:       "https://custom.userz.ai",
 			wantToken:       "my-token",
-			wantMemoryCache: false,
-			wantCacheScheme: "file",
-		})
-	})
-
-	t.Run("Client construction with StagingUrls preset", func(t *testing.T) {
-		check(t, testScenario{
-			opts: config.Options{
-				Urls: config.StagingUrls,
-			},
-			wantDecsuite:    config.StagingDecsuiteUrl,
-			wantTfinfer:     config.StagingTfinferUrl,
-			wantUserz:       config.StagingUserzUrl,
 			wantMemoryCache: false,
 			wantCacheScheme: "file",
 		})

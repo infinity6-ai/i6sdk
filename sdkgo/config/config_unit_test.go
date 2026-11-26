@@ -8,10 +8,20 @@ import (
 )
 
 func TestUnitConfigPresets(t *testing.T) {
+	t.Run("ProdUrls contains production endpoints and is the default", func(t *testing.T) {
+		require.Equal(t, config.ProdDecsuiteUrl, config.ProdUrls.Decsuite)
+		require.Equal(t, config.ProdTfinferUrl, config.ProdUrls.Tfinfer)
+		require.Equal(t, config.ProdUserzUrl, config.ProdUrls.Userz)
+
+		require.Equal(t, config.ProdDecsuiteUrl, config.DefaultDecsuiteUrl)
+		require.Equal(t, config.ProdTfinferUrl, config.DefaultTfinferUrl)
+		require.Equal(t, config.ProdUserzUrl, config.DefaultUserzUrl)
+	})
+
 	t.Run("SandboxUrls contains sandbox endpoints", func(t *testing.T) {
-		require.Equal(t, config.DefaultDecsuiteUrl, config.SandboxUrls.Decsuite)
-		require.Equal(t, config.DefaultTfinferUrl, config.SandboxUrls.Tfinfer)
-		require.Equal(t, config.DefaultUserzUrl, config.SandboxUrls.Userz)
+		require.Equal(t, config.SandboxDecsuiteUrl, config.SandboxUrls.Decsuite)
+		require.Equal(t, config.SandboxTfinferUrl, config.SandboxUrls.Tfinfer)
+		require.Equal(t, config.SandboxUserzUrl, config.SandboxUrls.Userz)
 	})
 
 	t.Run("StagingUrls contains staging endpoints", func(t *testing.T) {

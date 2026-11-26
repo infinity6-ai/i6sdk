@@ -7,15 +7,25 @@ import (
 )
 
 const (
-	// Default Sandbox URLs
-	DefaultDecsuiteUrl = "https://decsuite.sandbox.rs.infinity6.ai"
-	DefaultTfinferUrl  = "https://tfinfer.sandbox.lb.infinity6.ai"
-	DefaultUserzUrl    = "https://userz.sandbox.rs.infinity6.ai"
+	// Production URLs ([service].app.infinity6.ai) - DEFAULT
+	ProdDecsuiteUrl = "https://decsuite.app.infinity6.ai"
+	ProdTfinferUrl  = "https://tfinfer.app.infinity6.ai"
+	ProdUserzUrl    = "https://userz.app.infinity6.ai"
 
 	// Staging URLs
 	StagingDecsuiteUrl = "https://decsuite.staging.rs.infinity6.ai"
 	StagingTfinferUrl  = "https://tfinfer.staging.lb.infinity6.ai"
 	StagingUserzUrl    = "https://userz.staging.rs.infinity6.ai"
+
+	// Sandbox URLs
+	SandboxDecsuiteUrl = "https://decsuite.sandbox.rs.infinity6.ai"
+	SandboxTfinferUrl  = "https://tfinfer.sandbox.lb.infinity6.ai"
+	SandboxUserzUrl    = "https://userz.sandbox.rs.infinity6.ai"
+
+	// Defaults point to Production
+	DefaultDecsuiteUrl = ProdDecsuiteUrl
+	DefaultTfinferUrl  = ProdTfinferUrl
+	DefaultUserzUrl    = ProdUserzUrl
 )
 
 // Options holds all configuration parameters for creating an I6Client.
@@ -23,7 +33,7 @@ type Options struct {
 	// Token is the initial authentication bearer token.
 	Token string
 
-	// Urls specifies custom service endpoints. If empty, sandbox defaults are used.
+	// Urls specifies custom service endpoints. If empty, production defaults are used.
 	Urls UrlOptions
 
 	// Cache configures SQLite analytical bundle storage.
@@ -38,9 +48,9 @@ type Options struct {
 
 // UrlOptions configures individual service endpoints.
 type UrlOptions struct {
-	Decsuite string // Defaults to https://decsuite.sandbox.rs.infinity6.ai
-	Tfinfer  string // Defaults to https://tfinfer.sandbox.lb.infinity6.ai
-	Userz    string // Defaults to https://userz.sandbox.rs.infinity6.ai
+	Decsuite string // Defaults to https://decsuite.app.infinity6.ai
+	Tfinfer  string // Defaults to https://tfinfer.app.infinity6.ai
+	Userz    string // Defaults to https://userz.app.infinity6.ai
 }
 
 // CacheOptions configures analytical bundle caching.
@@ -50,11 +60,11 @@ type CacheOptions struct {
 	Memory bool      // Ephemeral in-memory SQLite execution
 }
 
-// SandboxUrls contains the default sandbox service endpoints.
-var SandboxUrls = UrlOptions{
-	Decsuite: DefaultDecsuiteUrl,
-	Tfinfer:  DefaultTfinferUrl,
-	Userz:    DefaultUserzUrl,
+// ProdUrls contains the production service endpoints (default).
+var ProdUrls = UrlOptions{
+	Decsuite: ProdDecsuiteUrl,
+	Tfinfer:  ProdTfinferUrl,
+	Userz:    ProdUserzUrl,
 }
 
 // StagingUrls contains the staging service endpoints.
@@ -62,4 +72,11 @@ var StagingUrls = UrlOptions{
 	Decsuite: StagingDecsuiteUrl,
 	Tfinfer:  StagingTfinferUrl,
 	Userz:    StagingUserzUrl,
+}
+
+// SandboxUrls contains the sandbox service endpoints.
+var SandboxUrls = UrlOptions{
+	Decsuite: SandboxDecsuiteUrl,
+	Tfinfer:  SandboxTfinferUrl,
+	Userz:    SandboxUserzUrl,
 }
