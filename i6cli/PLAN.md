@@ -18,7 +18,7 @@
 ```
  ┌────────────────────────────────────────────────────────────────────────┐
  │                         i6 Command Line Tool                           │
- │   Global Flags: --profile, --env, --token, --dataset, -o/--output      │
+ │   Global Persistent Flag: --config <path>                              │
  └───────────────────────────────────┬────────────────────────────────────┘
                                      │
  ┌───────────────────────────────────▼────────────────────────────────────┐
@@ -109,9 +109,12 @@ $I6_CLI_BASE_DIR/ (defaults to $HOME/.config/i6/cli/)
 
 ### Configuration Hierarchy
 Resolution priority for CLI execution:
-1. **Explicit CLI Flags** (e.g. `--token`, `--dataset`, `--env`, `--profile`)
-2. **Active Profile Configuration** (`$I6_CLI_BASE_DIR/config.json`)
-3. **Environment Directory Override** (`I6_CLI_BASE_DIR`, defaulting to `$HOME/.config/i6/cli/`)
+1. **Global Persistent Flag `--config <path>`**: Targets custom config directory or file (`i6 --config "my/custom/path"`).
+2. **Environment Variable Override (`I6_CLI_BASE_DIR`)**: Overrides base directory if `--config` is not passed.
+3. **Default System Path**: `$HOME/.config/i6/cli/`
+4. **Active Profile in `config.json`**: Resolved environment preset (`sandbox`, `staging`, `production`), default dataset, and settings.
+
+Specific subcommands take positional arguments or command-scoped flags (e.g. `i6 dataset list --output=json`), preventing flag pollution on the root command.
 
 ---
 
@@ -200,8 +203,9 @@ In `.github/workflows/release.yml`:
   - [x] Scaffold `i6cli/` directory, `go.mod`, `main.go`, and `cmdcli/cmdcli.go`.
   - [x] Integrate with `build.sh` (`cmd_comps_list`), `comp.sh`, and root `go.work`.
   - [x] Verify test execution via `./comp.sh i6cli test` and `./build.sh test`.
-  - [ ] Wire root command global flags (`--profile`, `--env`, `--token`, `--dataset`, `-o/--output`, `-v/-q`).
-  - [ ] Implement `internal/cliconfig` (profile and file resolution) and `internal/outfmt` (table/JSON formatting).
+  - [ ] Wire root command persistent flag (`--config <path>`).
+  - [ ] Implement `internal/cliconfig` (base dir, profile, and config.json resolution).
+  - [ ] Implement `internal/outfmt` (table/JSON formatting for subcommands).
 
 - [ ] **Phase 2: Authentication & Token Engine (`auth`, `tokens`, `config`)**
   - [ ] Implement `i6 auth login` (Device code flow with polling + manual token input).
