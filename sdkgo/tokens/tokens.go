@@ -674,18 +674,26 @@ type IngestResult struct {
 	ExpiresAt int64           `json:"expires_at,omitempty"`
 }
 
+// IngestOptions configures token ingestion.
+type IngestOptions struct {
+	Dataset string
+	Offline bool
+}
+
 // IngestToken inspects a token string, automatically determines its type,
 // stores it in the token store following mutual exclusivity rules, and returns metadata.
-func (m *Manager) IngestToken(ctx context.Context, tokenStr string, dataset ...string) (*IngestResult, error) {
+// When opts.Offline is true, it performs offline parsing without attempting server network calls.
+func (m *Manager) IngestToken(ctx context.Context, tokenStr string, options ...IngestOptions) (*IngestResult, error) {
 	tokenStr = strings.TrimSpace(tokenStr)
 	if tokenStr == "" {
 		return nil, fmt.Errorf("token string cannot be empty")
 	}
 
-	targetDs := ""
-	if len(dataset) > 0 && dataset[0] != "" {
-		targetDs = dataset[0]
+	var opts IngestOptions
+	if len(options) > 0 {
+		opts = options[0]
 	}
+	targetDs := strings.TrimSpace(opts.Dataset)
 
 	// 1. Check if token is an Ed25519 dataset refresh key (JSON, base64url, hex, raw)
 	if _, err := parseEd25519PrivateKey(tokenStr); err == nil {
@@ -709,8 +717,8 @@ func (m *Manager) IngestToken(ctx context.Context, tokenStr string, dataset ...s
 		}, nil
 	}
 
-	// 2. Check if token can be validated via UserTokenCheck API
-	if m.apis != nil {
+	// 2. Check if token can be validated via server APIs unless offline mode is requested
+	if !opts.Offline && m.apis != nil {
 		checkApi := &userapitokencheck.Api{
 			Req: &userapitokencheck.Req{
 				Payload: &userapitokencheck.ReqPayload{

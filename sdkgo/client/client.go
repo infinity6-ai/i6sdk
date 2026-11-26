@@ -336,6 +336,6 @@ func (c *I6Client) IngestClient() *httpzclient.Client {
 
 // IngestToken inspects a token string, automatically determines its type,
 // stores it in the token store following mutual exclusivity rules, and returns metadata.
-func (c *I6Client) IngestToken(ctx context.Context, tokenStr string, dataset ...string) (*tokens.IngestResult, error) {
-	return c.tokens.IngestToken(ctx, tokenStr, dataset...)
+func (c *I6Client) IngestToken(ctx context.Context, tokenStr string, options ...tokens.IngestOptions) (*tokens.IngestResult, error) {
+	return c.tokens.IngestToken(ctx, tokenStr, options...)
 }

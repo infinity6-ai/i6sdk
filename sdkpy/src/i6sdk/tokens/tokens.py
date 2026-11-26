@@ -386,7 +386,7 @@ class Tokens:
             except Exception:
                 return None
 
-    def ingest_token(self, token_str: str, dataset: Optional[str] = None) -> Dict[str, Any]:
+    def ingest_token(self, token_str: str, dataset: Optional[str] = None, offline: bool = False) -> Dict[str, Any]:
         """Inspects a token string, automatically determines its type,
         stores it in the token store following mutual exclusivity rules, and returns metadata."""
         token_str = (token_str or "").strip()
@@ -419,8 +419,8 @@ class Tokens:
                 "dataset": target_ds,
             }
 
-        # 2. Check via /api/userz/token/check API if services wired
-        if self._services and self._services.apis():
+        # 2. Check via /api/userz/token/check API unless offline mode is requested
+        if not offline and self._services and self._services.apis():
             try:
                 resp = self._services.apis().user_token_check(
                     req={"payload": {"token": token_str}},

@@ -382,7 +382,7 @@ class TestTokens(unittest.TestCase):
         # User access JWT
         u_payload = base64.urlsafe_b64encode(b'{"sub":"usr_777","exp":1895000000}').decode("utf-8").rstrip("=")
         jwt_u = f"{header}.{u_payload}.sig"
-        res_u = tokens.ingest_token(jwt_u)
+        res_u = tokens.ingest_token(jwt_u, offline=True)
         self.assertEqual(res_u["type"], "user_access")
         self.assertEqual(res_u["user_id"], "usr_777")
         self.assertIsNotNone(tokens.get_user_token())

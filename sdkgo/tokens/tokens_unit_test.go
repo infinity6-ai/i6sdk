@@ -475,7 +475,7 @@ func TestUnitIngestToken(t *testing.T) {
 		require.NoError(t, err)
 		privKeyB64 := base64.RawURLEncoding.EncodeToString(privKey)
 
-		res, err := mgr.IngestToken(ctx, privKeyB64, "my-dataset")
+		res, err := mgr.IngestToken(ctx, privKeyB64, tokens.IngestOptions{Dataset: "my-dataset"})
 		require.NoError(t, err)
 		require.Equal(t, tokens.TokenTypeDatasetRefresh, res.Type)
 		require.Equal(t, "my-dataset", res.Dataset)
@@ -483,6 +483,28 @@ func TestUnitIngestToken(t *testing.T) {
 		got, err := mgr.GetDatasetRefreshToken(ctx, "my-dataset")
 		require.NoError(t, err)
 		require.Equal(t, privKeyB64, got)
+	})
+
+	t.Run("Explicit Offline mode skips server check", func(t *testing.T) {
+		store := tokenstore.NewMemory()
+		serverCalled := false
+		apis := &apicollectionz.SdkApis{
+			Invoker: func(_ context.Context, _ apiz.Api) (int, error) {
+				serverCalled = true
+				return 500, fmt.Errorf("should not be called in offline mode")
+			},
+		}
+		mgr := tokens.New(tokens.ManagerOptions{Store: store, Apis: apis})
+
+		header := base64.RawURLEncoding.EncodeToString([]byte(`{"alg":"none"}`))
+		payload := base64.RawURLEncoding.EncodeToString([]byte(`{"dataset":"offline-ds","exp":1895000000}`))
+		jwt := fmt.Sprintf("%s.%s.sig", header, payload)
+
+		res, err := mgr.IngestToken(ctx, jwt, tokens.IngestOptions{Offline: true})
+		require.NoError(t, err)
+		require.False(t, serverCalled, "server should not be contacted in offline mode")
+		require.Equal(t, tokens.TokenTypeDatasetBearer, res.Type)
+		require.Equal(t, "offline-ds", res.Dataset)
 	})
 
 	t.Run("Ingests offline dataset bearer JWT token", func(t *testing.T) {
