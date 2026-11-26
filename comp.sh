@@ -49,13 +49,7 @@ function cmd_test_remote() {
 
 function cmd_i6gox_set_version() {
   local _gox_version="${1?'_gox_version'}"
-  local _go_dep_mod=""
-  GOWORK=off go list -mod=readonly -m "github.com/infinity6-ai/gox/..." 1>/dev/null
-  GOWORK=off go list -mod=readonly -m "github.com/infinity6-ai/gox/..." | \
-    grep "^github.com/infinity6-ai/gox/...*\ v" | \
-    cut -d' ' -f1 | while read _go_dep_mod; do
-    echo go mod edit --require "${_go_dep_mod}@$_gox_version"
-  done
+  sed -i "s/\(github.com\/infinity6-ai\/gox\/\w\+\)\s\+v[0-9][a-zA-Z0-9\.\-_]\+/\1 $_gox_version/g" go.mod
 }
 
 function cmd_test_manual() {
