@@ -321,6 +321,49 @@ To achieve complete structural and architectural symmetry across the entire SDK,
 4. **`sdkgo` Client Runtime (`client.Funcs()`)**:
    - `client.Funcs()` exposes the generated typed workflow methods in Go, dispatching to `client.Infer()` or `client.Dash()` behind the scenes, matching Python (`client.funcs()`) and Web (`client.funcs()`).
 
+#### 6. SQLite Analytical Execution & `fsz`-Backed Caching Engine (`sdkgo`)
+Client analytical workflows (`dash` and `infer`) execute pre-aggregated SQLite databases (`sqlite.bin`) locally on client hardware, avoiding central database bottlenecks and enabling sub-millisecond query execution.
+
+1. **Analytical Execution Lifecycle**:
+   - **Artifact Resolution**: The client calls `client.Apis().DszSignedUrl(...)` to obtain a presigned download URL for `i6tb://results.relevance-fashion-store-dash/store_id={store_id}/sqlite.bin`.
+   - **`namedqueries` Table Pattern**: Every bundle contains a metadata table:
+     ```sql
+     CREATE TABLE namedqueries (name TEXT PRIMARY KEY, query TEXT);
+     ```
+     The client queries `SELECT query FROM namedqueries WHERE name = ?` using the function's kebab-case ID (e.g. `product-relevance-fashion-dash-funnel`).
+   - **JSON Parameter Binding**: Input parameters (`fn.Req.Input.Params`) are JSON-marshaled and bound to positional placeholder `?1`. The query executes SQLite's native JSON operators and returns a single row with column `ret`.
+   - **Typed Unmarshaling**: The client unmarshals column `ret` directly into the typed response struct `fn.Resp.Output`.
+   - **Inference 3-Step Sandwich**: For `TypClientInfer`, execution runs local candidate generation (`name = "input"`), calls `TfzModelPredict` over HTTP, and runs local hydration/ranking (`name = "output"`).
+
+2. **`fsz`-Backed Versioned Cache Strategy**:
+   The local cache is implemented using Infinity6's universal filesystem abstraction `gox/fsz` rooted at an `*urlz.Url` (e.g. `file:///home/user/.cache/i6/sdkgo/fs/`):
+   - **Directory Layout**: Identical to Python (`sdkpy/internal/fs.py`) and Web (`sdkweb/internal/fs/`):
+     ```
+     <rootUrl>/<safe_name>/
+     ├── version.txt       ("2026-11-25T22:00:00.000Z")
+     ├── checkedat.txt     ("2026-11-25T22:15:00.000Z")
+     └── v2026-11-25T22:00:00.000Z/
+         ├── etag.txt      ("\"68b329da...\"")
+         └── blob.bin      (The SQLite binary file)
+     ```
+   - **Conditional HTTP Revalidation**: Sends `If-None-Match: <etag>`.
+     - **HTTP 304**: Touches `checkedat.txt` via `fsz` and reuses the local SQLite file with zero download overhead.
+     - **HTTP 200**: Streams into `blob.bin.tmp` via `fsz.Upload`, atomically renames via `fsz.Move`, releases the version, and prunes older versions with `fsz.RmTree`.
+   - **Preload TTL**: Bypasses network revalidation entirely if verified within `min_preload_time` (default: 300s).
+
+3. **Pure-Go CGO-Free SQLite Driver**:
+   To prevent CGO cross-compilation and container deployment hurdles, `sdkgo` uses:
+   ```go
+   github.com/ncruces/go-sqlite3
+   ```
+   A pure-Go, WebAssembly-driven SQLite engine supporting JSON1 extensions out of the box with zero C dependencies. SQLite files are opened in read-only mode (`file:<path>?mode=ro`).
+
+4. **Pluggable Cache Configuration (`sdkgo` Options)**:
+   Users configure caching via functional options on `sdkgo.NewClient`:
+   - `WithCacheDir(dir string)`: Sets local filesystem cache directory (converted to `file://` URL).
+   - `WithCacheUrl(url *urlz.Url)`: Uses any custom `fsz` provider scheme (e.g. `file://`, custom memory/cloud schemes).
+   - `WithMemoryCache()`: Ephemeral in-memory execution (`file:memdb?mode=memory&cache=shared`) for serverless or read-only container runtimes.
+
 ---
 
 ## 5. Benefits & Downstream Compatibility
@@ -403,7 +446,22 @@ Each `api*z` module in `i6sdk` pairs with a corresponding backend service reposi
    - Confirm `./build.sh codegen && ./build.sh test` generates identical Python and Web SDKs.
 
 ### Phase 4: Build `sdkgo` Runtime
-- Implement `I6Client`, `Invoker`, and `Tokens` (thread-safe double-checked renewal).
-- Implement `Ingest`, `Infer`, and `Dash`.
-- Wire `client.Apis()` and `client.Funcs()` to runtime invokers.
-- Add test coverage (`TestUnit*`) following mono-repo testing standards.
+- **Step 1: Client Lifecycle & Configuration (`sdkgo/client`)**:
+  - Implement `I6Client` container with functional options (`WithToken`, `WithBaseUrl`, `WithCacheDir`, `WithCacheUrl`, `WithMemoryCache`).
+  - Implement environment variable loading (`I6_TOKEN`, `I6_BASE_URL`).
+- **Step 2: Token Management (`sdkgo/tokens`)**:
+  - Thread-safe caching with double-checked locking (`sync.RWMutex`), silent renewal before expiration, and dataset token derivation.
+- **Step 3: Transport Invoker (`sdkgo/invoker`)**:
+  - Implement `Invoker` executing `client.Apis().<Method>(ctx, api)` over HTTP with structured error handling.
+- **Step 4: Ingestion Engine (`sdkgo/ingest`)**:
+  - Multi-stream chunked uploads with concurrency control, retry policies, and progress callback hooks.
+- **Step 5: `fsz`-Backed SQLite Cache & Engine (`sdkgo/dash`, `sdkgo/internal/fszcache`)**:
+  - ETag-versioned conditional downloader using `gox/fsz` (`If-None-Match`, `fsz.Upload`, atomic `fsz.Move`).
+  - Read-only connection manager using pure-Go `github.com/ncruces/go-sqlite3`.
+  - Stored `namedqueries` query runner with JSON parameter binding (`?1`) and `ret` column parsing.
+- **Step 6: Inference Orchestrator (`sdkgo/infer`)**:
+  - 3-step inference pipeline: local candidate query (`input`), server-side `TfzModelPredict`, and local ranking/hydration (`output`).
+- **Step 7: Workflow Facade (`client.Funcs()`)**:
+  - Wire `client.Funcs()` delegating to `Dash` and `Infer` workflows with full 1:1 parity against Python and Web.
+- **Step 8: Automated Verification**:
+  - Comprehensive unit testing (`TestUnit*`) following mono-repo standards and validating parity against `FEATURES_TABLE.md`.
