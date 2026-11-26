@@ -547,19 +547,20 @@ Each `api*z` module in `i6sdk` pairs with a corresponding backend service reposi
   - Verified end-to-end API execution against `httptest.Server` with bearer authentication in `client_unit_test.go`.
 - **Step 4: Ingestion Engine (`sdkgo/ingest`)**:
   - Multi-stream chunked uploads with concurrency control, retry policies, and progress callback hooks.
-- **Step 5A: Versioned Filesystem Store & Conditional Downloader (`sdkgo/internal/fszcache`)**:
-  - Implement versioned directory layout identical to `sdkweb` (OPFS) and `sdkpy` (`internal/fs.py`):
+- **Step 5A: Versioned Filesystem Store & Conditional Downloader (`sdkgo/internal/fszcache`) [DONE]**:
+  - Implemented versioned directory layout identical to `sdkweb` (OPFS) and `sdkpy` (`internal/fs.py`):
     - `{name}/version.txt`: currently released ISO timestamp version
     - `{name}/checkedat.txt`: timestamp of last remote check
     - `{name}/v{version}/etag.txt`: ETag of remote content
     - `{name}/v{version}/blob.bin`: local artifact content
-  - Implement `Fs` store (`Get`, `Create`, `Release`, `Touch`, `Discard`, `CleanFile`, `Clean`, `Resolve`, `Delete`).
-  - Implement conditional `Downloader` (`Update`):
+  - Implemented `Fs` store (`Get`, `Create`, `Release`, `Touch`, `Discard`, `CleanFile`, `Clean`, `Resolve`, `Delete`) with thread-safe `sync.RWMutex`.
+  - Implemented conditional `Downloader` (`Update`):
     - TTL bypass when `time.Now() - checked_at < min_preload_time` (zero network overhead).
     - Conditional HTTP `GET` with `If-None-Match: <etag>`.
-    - Handles HTTP 304 (touch `checkedat.txt` and return existing `blob.bin`).
-    - Handles HTTP 200 (stream to `blob.bin.tmp`, atomic rename, update `version.txt`, and prune older versions).
-  - Add unit test suite `fszcache_unit_test.go` covering cache hits, TTL bypass, 304 revalidation, and 200 updates.
+    - Handles HTTP 304 (touches `checkedat.txt` and returns existing `blob.bin`).
+    - Handles HTTP 200 (streams to `blob.bin.tmp`, atomic rename, updates `version.txt`, and prunes older versions).
+    - Stale cache fallback on upstream network errors.
+  - Added unit test suite `fszcache_unit_test.go` covering cache hits, TTL bypass, 304 revalidation, 200 updates, and error fallbacks.
 - **Step 5B: SQLite Dash Engine (`sdkgo/dash`, `sdkgo/internal/sqlitez`)**:
   - Pure-Go CGO-free SQLite connection runner using `github.com/ncruces/go-sqlite3`.
   - Stored `namedqueries` query runner: `SELECT query FROM namedqueries WHERE name = ?` with JSON parameter binding (`?1`) and typed unmarshaling of column `ret`.
