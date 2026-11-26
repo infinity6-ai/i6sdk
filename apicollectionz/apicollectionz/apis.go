@@ -1,4 +1,4 @@
-//go:generate go run github.com/infinity6-ai/i6sdk/mold apisgen .
+//go:generate go run github.com/infinity6-ai/i6sdk/mold@latest apisgen .
 package apicollectionz
 
 import (

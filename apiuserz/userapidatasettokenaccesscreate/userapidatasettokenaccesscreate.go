@@ -1,4 +1,4 @@
-//go:generate go run github.com/infinity6-ai/i6sdk/mold schemagen .
+//go:generate go run github.com/infinity6-ai/i6sdk/mold@latest schemagen .
 package userapidatasettokenaccesscreate
 
 import (
