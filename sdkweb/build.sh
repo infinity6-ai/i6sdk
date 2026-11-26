@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+export GOWORK="${GOWORK:-off}"
+
 function cmd_npm_install() {
     npm install
 }
@@ -12,9 +14,9 @@ function cmd_bundle() {
     # 1. Generate the standard .d.ts files into dist/types
     npx tsc
 
-    # 2. Stitch them all into one giant file for IDEs & LLMs
+    # 2. Bundle declarations into one file for IDEs & Monaco autocomplete
     mkdir -p dist/bundle
-    find dist/types -name "*.d.ts" -exec cat {} + > dist/bundle/i6sdk-web.d.ts
+    npx dts-bundle-generator --export-referenced-types=false -o dist/bundle/i6sdk-web.d.ts dist/types/index.d.ts
 
     # 3. Build the JavaScript bundles and modules
     npx esbuild src/main/index.js --bundle --sourcemap --outfile=dist/bundle/i6sdk-web.js
