@@ -126,6 +126,7 @@ function cmd_release_exists() {
 }
 
 function cmd_release() {
+  GOWORK= cmd_codegen
   if find . -name '*.go' | xargs grep go.code.infinity6.ai; then false i6sdk cannot use private deps; fi
   if find . -name 'go.mod' | xargs grep go.code.infinity6.ai; then false i6sdk cannot use private deps; fi
   [ -z "$(git status -s "$@")" ]
@@ -145,6 +146,7 @@ function cmd_release() {
 }
 
 function cmd_release_resume() {
+  GOWORK= cmd_codegen
   if find . -name '*.go' | xargs grep go.code.infinity6.ai; then false i6sdk cannot use private deps; fi
   if find . -name 'go.mod' | xargs grep go.code.infinity6.ai; then false i6sdk cannot use private deps; fi
   [ -z "$(git status -s "$@")" ]
