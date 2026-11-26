@@ -82,15 +82,15 @@ function cmd_uphead() {
   done
 }
 
-function cmd_release_exists() {
-  local _version="${1:-$(../comp.sh versionz run version)}"
-  [ ! -z "$_version" ]
-  git fetch --tags origin 2>/dev/null || git fetch --tags 2>/dev/null || true
-  git rev-parse -q --verify "refs/tags/$_comp/$_version" >/dev/null 2>&1 || \
-    git rev-parse -q --verify "refs/tags/$_comp/$_version^{commit}" >/dev/null 2>&1 || \
-    git tag -l | grep -q "^$_comp/$_version$" || \
-    [ -n "$(git ls-remote --tags origin "refs/tags/$_comp/$_version" 2>/dev/null)" ]
-}
+# function cmd_release_exists() {
+#   local _version="${1:-$(../comp.sh versionz run version)}"
+#   [ ! -z "$_version" ]
+#   git fetch --tags origin 2>/dev/null || git fetch --tags 2>/dev/null || true
+#   git rev-parse -q --verify "refs/tags/$_comp/$_version" >/dev/null 2>&1 || \
+#     git rev-parse -q --verify "refs/tags/$_comp/$_version^{commit}" >/dev/null 2>&1 || \
+#     git tag -l | grep -q "^$_comp/$_version$" || \
+#     [ -n "$(git ls-remote --tags origin "refs/tags/$_comp/$_version" 2>/dev/null)" ]
+# }
 
 function cmd_release() {
   local _version="${1?'_version'}"
@@ -102,25 +102,25 @@ function cmd_release() {
   local _tag="$_comp/$_version"
   if git show-ref --tags "$_tag" --quiet; then
     echo "tag already exists: $_tag" 1>&2
-    false
+  else
+    cmd_i6sdk_set_version "$_version"
+    # local _go_base_path="$(_go_base_path)"
+    # local _go_dep_mod=""
+    # GOWORK=off go list -mod=readonly -m "$_go_base_path/..." | \
+    #   grep "^$_go_base_path/.*\ v" | \
+    #   cut -d' ' -f1 | while read _go_dep_mod; do
+    #   go mod edit -require="${_go_dep_mod}@${_version}"
+    # done
+    # go mod tidy
+    [ "x$(go run . version)" == "x$_version" ]
+    if [ -n "$(git status -s)" ]; then
+      git add .
+      git commit -m "release: $_tag"
+      git push origin HEAD 2>/dev/null || git push || true
+    fi
+    git tag "$_tag"
+    git push origin "$_tag"
   fi
-  cmd_i6sdk_set_version "$_version"
-  # local _go_base_path="$(_go_base_path)"
-  # local _go_dep_mod=""
-  # GOWORK=off go list -mod=readonly -m "$_go_base_path/..." | \
-  #   grep "^$_go_base_path/.*\ v" | \
-  #   cut -d' ' -f1 | while read _go_dep_mod; do
-  #   go mod edit -require="${_go_dep_mod}@${_version}"
-  # done
-  # go mod tidy
-  [ "x$(go run . version)" == "x$_version" ]
-  if [ -n "$(git status -s)" ]; then
-    git add .
-    git commit -m "release: $_tag"
-    git push origin HEAD 2>/dev/null || git push || true
-  fi
-  git tag "$_tag"
-  git push origin "$_tag"
 }
 
 function cmd_gomod_replace_on() {
