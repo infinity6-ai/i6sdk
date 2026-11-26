@@ -271,9 +271,12 @@ func (c *Client) Run(ctx context.Context, opts QueryOptions) (map[string]any, er
 		return nil, fmt.Errorf("infer: apis client not wired for tfzModelPredict")
 	}
 
-	predictVersion := "v1"
-	if opts.Partitions != nil && opts.Partitions["version"] != "" {
+	predictVersion := ""
+	if opts.Partitions != nil {
 		predictVersion = opts.Partitions["version"]
+	}
+	if predictVersion == "" {
+		return nil, fmt.Errorf("infer: partitions['version'] is required")
 	}
 
 	predictApi := &tfzapimodelpredict.Api{
@@ -432,12 +435,8 @@ func (c *Client) Execute(ctx context.Context, fn sdkfuncz.Func) (int, error) {
 	if partitions == nil {
 		partitions = make(map[string]string)
 	}
-	if partitions["version"] == "" {
-		if spec.Version != "" {
-			partitions["version"] = spec.Version
-		} else {
-			partitions["version"] = "v1"
-		}
+	if partitions["version"] == "" && spec.Version != "" {
+		partitions["version"] = spec.Version
 	}
 
 	opts := QueryOptions{

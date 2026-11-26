@@ -270,6 +270,24 @@ func TestUnitInfer3StepPipeline(t *testing.T) {
 		require.Equal(t, "sku-rec-1", shownList[0].(map[string]any)["sku_id"])
 		require.Equal(t, "sku-rec-2", shownList[1].(map[string]any)["sku_id"])
 	})
+
+	t.Run("Run without partitions version returns error", func(t *testing.T) {
+		_, err := client.Run(ctx, infer.QueryOptions{
+			Dataset:   "fashion-ds",
+			ModelName: "relevance-fashion-fbt",
+			SessionId: "sess-123",
+			UserId:    "user-456",
+			Params: map[string]any{
+				"skus": []any{"sku-10"},
+			},
+			Partitions: map[string]string{
+				"store_id": "1",
+				// no version provided
+			},
+		})
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "partitions['version'] is required")
+	})
 }
 
 func TestUnitInferExecuteSdkFunc(t *testing.T) {
