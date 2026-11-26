@@ -103,7 +103,7 @@ function cmd_release() {
   if cmd_release_exists "$_version"; then
     echo "tag already exists: $_tag" 1>&2
   else
-    cmd_i6sdk_set_version "$_version"
+    GOPRIVATE=github.com/infinity6-ai/* cmd_i6sdk_set_version "$_version"
     # local _go_base_path="$(_go_base_path)"
     # local _go_dep_mod=""
     # GOWORK=off go list -mod=readonly -m "$_go_base_path/..." | \
