@@ -122,12 +122,12 @@ Every CLI option can be overridden by environment variables:
 i6cli/
 ├── go.mod
 ├── go.sum
-├── main.go                       # Minimal entrypoint calling cmdi6cli.Execute()
+├── main.go                       # Minimal entrypoint calling cmdcli.Execute()
 ├── PLAN.md                       # This plan
 ├── README.md                     # CLI installation and usage guide
-├── cmdi6cli/
-│   ├── cmdi6cli.go               # Root command, global flags, version
-│   ├── cmdi6cli_unit_test.go
+├── cmdcli/
+│   ├── cmdcli.go                 # Root command, global flags, version
+│   ├── cmdcli_unit_test.go
 │   ├── auth.go                   # i6 auth subcommands
 │   ├── tokens.go                 # i6 tokens subcommands
 │   ├── dataset.go                # i6 dataset subcommands
@@ -198,29 +198,30 @@ In `.github/workflows/release.yml`:
 ## 7. Phased Implementation Roadmap
 
 - [ ] **Phase 1: Foundation & Scaffolding**
-  - Scaffold `i6cli/` directory, `go.mod`, and `main.go`.
-  - Wire root command in `cmdi6cli` with global flags (`--profile`, `--env`, `--token`, `--dataset`, `-o/--output`, `-v/-q`).
-  - Implement `internal/cliconfig` (profile and file resolution) and `internal/outfmt` (table/JSON formatting).
-  - Integrate with `build.sh` (`cmd_comps_list`), `comp.sh`, and root `go.work`.
+  - [x] Scaffold `i6cli/` directory, `go.mod`, `main.go`, and `cmdcli/cmdcli.go`.
+  - [x] Integrate with `build.sh` (`cmd_comps_list`), `comp.sh`, and root `go.work`.
+  - [x] Verify test execution via `./comp.sh i6cli test` and `./build.sh test`.
+  - [ ] Wire root command global flags (`--profile`, `--env`, `--token`, `--dataset`, `-o/--output`, `-v/-q`).
+  - [ ] Implement `internal/cliconfig` (profile and file resolution) and `internal/outfmt` (table/JSON formatting).
 
 - [ ] **Phase 2: Authentication & Token Engine (`auth`, `tokens`, `config`)**
-  - Implement `i6 auth login` (Device code flow with polling + manual token input).
-  - Implement `i6 auth logout`, `status`, and `token`.
-  - Implement `i6 tokens create`, `list`, `delete`, and `refresh`.
-  - Implement `i6 config set-profile`, `set-env`, `set-dataset`, `show`.
+  - [ ] Implement `i6 auth login` (Device code flow with polling + manual token input).
+  - [ ] Implement `i6 auth logout`, `status`, and `token`.
+  - [ ] Implement `i6 tokens create`, `list`, `delete`, and `refresh`.
+  - [ ] Implement `i6 config set-profile`, `set-env`, `set-dataset`, `show`.
 
 - [ ] **Phase 3: Ingestion & Dataset Management (`ingest`, `dataset`)**
-  - Implement `i6 ingest upload` with multi-stream parallel worker execution and live terminal progress bars.
-  - Implement `i6 ingest get-url` and `summary`.
-  - Implement `i6 dataset list`, `get`, `table`, and `store`.
+  - [ ] Implement `i6 ingest upload` with multi-stream parallel worker execution and live terminal progress bars.
+  - [ ] Implement `i6 ingest get-url` and `summary`.
+  - [ ] Implement `i6 dataset list`, `get`, `table`, and `store`.
 
 - [ ] **Phase 4: Analytics, Inference & Typed Workflows (`dash`, `infer`, `pipe`, `run`)**
-  - Implement `i6 dash query` with table output.
-  - Implement `i6 infer run` and `metadata`.
-  - Implement `i6 pipe list`, `get`, `start`.
-  - Implement `i6 run` for typed `SdkFuncs` dispatch.
+  - [ ] Implement `i6 dash query` with table output.
+  - [ ] Implement `i6 infer run` and `metadata`.
+  - [ ] Implement `i6 pipe list`, `get`, `start`.
+  - [ ] Implement `i6 run` for typed `SdkFuncs` dispatch.
 
 - [ ] **Phase 5: Release Packaging & Automation**
-  - Add static binary cross-compilation matrix to `.github/workflows/release.yml`.
-  - Add `install.sh` shell script for instant installation.
-  - Write `i6cli/README.md` with complete command reference and quickstart examples.
+  - [ ] Add static binary cross-compilation matrix to `.github/workflows/release.yml`.
+  - [ ] Add `install.sh` shell script for instant installation.
+  - [ ] Write `i6cli/README.md` with complete command reference and quickstart examples.
