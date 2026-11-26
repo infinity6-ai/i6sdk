@@ -157,6 +157,7 @@ function cmd_release_resume() {
     echo "release already exists: $_version" 1>&2
     false
   fi
+  GOWORK= cmd_codegen
   GOWORK=off cmd_comps_run release "$_version"
   git tag "$_version"
   git push origin "$_version"
