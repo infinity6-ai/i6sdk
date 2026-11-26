@@ -19,7 +19,7 @@ from .internal.fs import Fs
 from .invoker import Invoker
 from .sdkapis.apis import Apis
 from .sdkapis.sdkfuncs import SdkFuncs
-from .tokens.storage import FileTokenStorage
+from .tokens.storage import SqliteTokenStorage
 from .tokens.tokens import Tokens
 
 
@@ -88,7 +88,7 @@ class Services:
         if self._tokens is None:
             storage = self._config.storage
             if isinstance(storage, (str, pathlib.Path)):
-                storage = FileTokenStorage(storage)
+                storage = SqliteTokenStorage(storage)
             self._tokens = Tokens(self, storage=storage)
         return self._tokens
 

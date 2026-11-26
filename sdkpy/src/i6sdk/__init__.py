@@ -24,7 +24,7 @@ from .grants import Grants
 from .internal import bitmapz
 from .invoker import Resp, ServiceOptions
 from .services import Services
-from .tokens.storage import FileTokenStorage, MemoryTokenStorage, TokenStorage
+from .tokens.storage import FileTokenStorage, MemoryTokenStorage, SqliteTokenStorage, TokenStorage
 
 # Client alias
 I6Client = Services
@@ -71,6 +71,7 @@ __all__ = [
     "ServiceOptions",
     "TokenStorage",
     "MemoryTokenStorage",
+    "SqliteTokenStorage",
     "FileTokenStorage",
     "Grants",
     "bitmapz",

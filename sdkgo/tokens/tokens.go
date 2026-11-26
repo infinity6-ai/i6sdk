@@ -28,15 +28,27 @@ const (
 	// UserTokenKey is the storage key for user authentication tokens.
 	UserTokenKey = "i6_user_user_token"
 
-	// DatasetTokensKey is the storage key for cached dataset access tokens.
-	DatasetTokensKey = "i6_dataset_access_tokens"
+	// DatasetTokenPrefix is the key prefix for cached dataset access tokens.
+	DatasetTokenPrefix = "i6_ds:"
 
-	// DatasetRefreshTokensKey is the storage key for machine robot dataset refresh keys.
+	// DatasetRefreshPrefix is the key prefix for machine robot dataset refresh keys.
+	DatasetRefreshPrefix = "i6_rf:"
+
+	// Deprecated: Monolithic storage keys retained for backward compatibility constants.
+	DatasetTokensKey        = "i6_dataset_access_tokens"
 	DatasetRefreshTokensKey = "i6_dataset_refresh_tokens"
 
 	// DefaultSkewSeconds is the default clock skew window applied before token expiration.
 	DefaultSkewSeconds = 30.0
 )
+
+func datasetTokenKey(dataset string) string {
+	return DatasetTokenPrefix + dataset
+}
+
+func datasetRefreshKey(dataset string) string {
+	return DatasetRefreshPrefix + dataset
+}
 
 // UserToken represents authenticated human user credentials.
 type UserToken struct {
@@ -151,10 +163,10 @@ func (m *Manager) ClearTokens(ctx context.Context) error {
 	if err := m.RemoveUserToken(ctx); err != nil {
 		return err
 	}
-	if err := m.store.Delete(ctx, DatasetTokensKey); err != nil {
+	if err := m.store.DeletePrefix(ctx, DatasetTokenPrefix); err != nil {
 		return fmt.Errorf("failed to delete dataset tokens: %w", err)
 	}
-	if err := m.store.Delete(ctx, DatasetRefreshTokensKey); err != nil {
+	if err := m.store.DeletePrefix(ctx, DatasetRefreshPrefix); err != nil {
 		return fmt.Errorf("failed to delete dataset refresh tokens: %w", err)
 	}
 	return nil
@@ -162,27 +174,28 @@ func (m *Manager) ClearTokens(ctx context.Context) error {
 
 // GetDatasetRefreshTokensMap returns the map of dataset IDs to machine robot refresh keys.
 func (m *Manager) GetDatasetRefreshTokensMap(ctx context.Context) (map[string]string, error) {
-	val, err := m.store.Get(ctx, DatasetRefreshTokensKey)
+	rawMap, err := m.store.ListPrefix(ctx, DatasetRefreshPrefix)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get dataset refresh tokens: %w", err)
+		return nil, fmt.Errorf("failed to list dataset refresh tokens: %w", err)
 	}
-	if strings.TrimSpace(val) == "" {
-		return make(map[string]string), nil
-	}
-	var tokens map[string]string
-	if err := json.Unmarshal([]byte(val), &tokens); err != nil {
-		return make(map[string]string), nil
+	tokens := make(map[string]string, len(rawMap))
+	for k, v := range rawMap {
+		ds := strings.TrimPrefix(k, DatasetRefreshPrefix)
+		tokens[ds] = v
 	}
 	return tokens, nil
 }
 
 // GetDatasetRefreshToken returns the machine robot Ed25519 refresh key for the given dataset.
 func (m *Manager) GetDatasetRefreshToken(ctx context.Context, dataset string) (string, error) {
-	tokens, err := m.GetDatasetRefreshTokensMap(ctx)
-	if err != nil {
-		return "", err
+	if dataset == "" {
+		return "", fmt.Errorf("dataset identifier cannot be empty")
 	}
-	return tokens[dataset], nil
+	val, err := m.store.Get(ctx, datasetRefreshKey(dataset))
+	if err != nil {
+		return "", fmt.Errorf("failed to get dataset refresh token for %q: %w", dataset, err)
+	}
+	return val, nil
 }
 
 // SetDatasetRefreshToken stores a machine robot Ed25519 refresh key for the given dataset.
@@ -190,64 +203,60 @@ func (m *Manager) SetDatasetRefreshToken(ctx context.Context, dataset string, ke
 	if dataset == "" {
 		return fmt.Errorf("dataset identifier cannot be empty")
 	}
-	tokens, err := m.GetDatasetRefreshTokensMap(ctx)
-	if err != nil {
-		return err
+	if key == "" {
+		return m.RemoveDatasetRefreshToken(ctx, dataset)
 	}
-	tokens[dataset] = key
-	raw, err := json.Marshal(tokens)
-	if err != nil {
-		return fmt.Errorf("failed to marshal dataset refresh tokens map: %w", err)
-	}
-	if err := m.store.Set(ctx, DatasetRefreshTokensKey, string(raw)); err != nil {
-		return fmt.Errorf("failed to store dataset refresh tokens: %w", err)
+	if err := m.store.Set(ctx, datasetRefreshKey(dataset), key); err != nil {
+		return fmt.Errorf("failed to store dataset refresh token for %q: %w", dataset, err)
 	}
 	return nil
 }
 
 // RemoveDatasetRefreshToken deletes the stored refresh key for the given dataset.
 func (m *Manager) RemoveDatasetRefreshToken(ctx context.Context, dataset string) error {
-	tokens, err := m.GetDatasetRefreshTokensMap(ctx)
-	if err != nil {
-		return err
+	if dataset == "" {
+		return fmt.Errorf("dataset identifier cannot be empty")
 	}
-	if _, exists := tokens[dataset]; !exists {
-		return nil
-	}
-	delete(tokens, dataset)
-	raw, err := json.Marshal(tokens)
-	if err != nil {
-		return fmt.Errorf("failed to marshal dataset refresh tokens map: %w", err)
-	}
-	if err := m.store.Set(ctx, DatasetRefreshTokensKey, string(raw)); err != nil {
-		return fmt.Errorf("failed to update dataset refresh tokens: %w", err)
+	if err := m.store.Delete(ctx, datasetRefreshKey(dataset)); err != nil {
+		return fmt.Errorf("failed to delete dataset refresh token for %q: %w", dataset, err)
 	}
 	return nil
 }
 
 // GetDatasetTokensMap returns all cached dataset access tokens.
 func (m *Manager) GetDatasetTokensMap(ctx context.Context) (map[string]*DatasetToken, error) {
-	val, err := m.store.Get(ctx, DatasetTokensKey)
+	rawMap, err := m.store.ListPrefix(ctx, DatasetTokenPrefix)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get dataset access tokens: %w", err)
+		return nil, fmt.Errorf("failed to list dataset access tokens: %w", err)
 	}
-	if strings.TrimSpace(val) == "" {
-		return make(map[string]*DatasetToken), nil
-	}
-	var tokens map[string]*DatasetToken
-	if err := json.Unmarshal([]byte(val), &tokens); err != nil {
-		return make(map[string]*DatasetToken), nil
+	tokens := make(map[string]*DatasetToken, len(rawMap))
+	for k, v := range rawMap {
+		ds := strings.TrimPrefix(k, DatasetTokenPrefix)
+		var dt DatasetToken
+		if err := json.Unmarshal([]byte(v), &dt); err == nil {
+			tokens[ds] = &dt
+		}
 	}
 	return tokens, nil
 }
 
 // GetDatasetToken returns the cached dataset access token for the target dataset.
 func (m *Manager) GetDatasetToken(ctx context.Context, dataset string) (*DatasetToken, error) {
-	tokens, err := m.GetDatasetTokensMap(ctx)
-	if err != nil {
-		return nil, err
+	if dataset == "" {
+		return nil, fmt.Errorf("dataset identifier cannot be empty")
 	}
-	return tokens[dataset], nil
+	val, err := m.store.Get(ctx, datasetTokenKey(dataset))
+	if err != nil {
+		return nil, fmt.Errorf("failed to get dataset access token for %q: %w", dataset, err)
+	}
+	if strings.TrimSpace(val) == "" {
+		return nil, nil
+	}
+	var dt DatasetToken
+	if err := json.Unmarshal([]byte(val), &dt); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal dataset token for %q: %w", dataset, err)
+	}
+	return &dt, nil
 }
 
 // SetDatasetToken stores a cached dataset access token.
@@ -255,37 +264,26 @@ func (m *Manager) SetDatasetToken(ctx context.Context, dataset string, token *Da
 	if dataset == "" {
 		return fmt.Errorf("dataset identifier cannot be empty")
 	}
-	tokens, err := m.GetDatasetTokensMap(ctx)
-	if err != nil {
-		return err
+	if token == nil {
+		return m.RemoveDatasetToken(ctx, dataset)
 	}
-	tokens[dataset] = token
-	raw, err := json.Marshal(tokens)
+	raw, err := json.Marshal(token)
 	if err != nil {
-		return fmt.Errorf("failed to marshal dataset tokens map: %w", err)
+		return fmt.Errorf("failed to marshal dataset token for %q: %w", dataset, err)
 	}
-	if err := m.store.Set(ctx, DatasetTokensKey, string(raw)); err != nil {
-		return fmt.Errorf("failed to store dataset tokens: %w", err)
+	if err := m.store.Set(ctx, datasetTokenKey(dataset), string(raw)); err != nil {
+		return fmt.Errorf("failed to store dataset token for %q: %w", dataset, err)
 	}
 	return nil
 }
 
 // RemoveDatasetToken removes the cached access token for the target dataset.
 func (m *Manager) RemoveDatasetToken(ctx context.Context, dataset string) error {
-	tokens, err := m.GetDatasetTokensMap(ctx)
-	if err != nil {
-		return err
+	if dataset == "" {
+		return fmt.Errorf("dataset identifier cannot be empty")
 	}
-	if _, exists := tokens[dataset]; !exists {
-		return nil
-	}
-	delete(tokens, dataset)
-	raw, err := json.Marshal(tokens)
-	if err != nil {
-		return fmt.Errorf("failed to marshal dataset tokens map: %w", err)
-	}
-	if err := m.store.Set(ctx, DatasetTokensKey, string(raw)); err != nil {
-		return fmt.Errorf("failed to update dataset tokens: %w", err)
+	if err := m.store.Delete(ctx, datasetTokenKey(dataset)); err != nil {
+		return fmt.Errorf("failed to delete dataset token for %q: %w", dataset, err)
 	}
 	return nil
 }

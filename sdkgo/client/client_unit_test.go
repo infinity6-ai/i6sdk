@@ -45,6 +45,19 @@ func (c *customTokenStore) Delete(_ context.Context, key string) error {
 	return nil
 }
 
+func (c *customTokenStore) DeletePrefix(_ context.Context, prefix string) error {
+	c.val = ""
+	return nil
+}
+
+func (c *customTokenStore) ListPrefix(_ context.Context, prefix string) (map[string]string, error) {
+	return map[string]string{"key": c.val}, nil
+}
+
+func (c *customTokenStore) Close() error {
+	return nil
+}
+
 func TestUnitClientConstruction(t *testing.T) {
 	type testScenario struct {
 		opts            config.Options

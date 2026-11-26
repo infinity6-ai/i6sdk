@@ -186,7 +186,7 @@ cd sdkpy && go generate ./...
 High-performance, concurrency-safe Go client SDK built natively for Go applications and backend microservices:
 
 - **Path-Based Service Routing**: Automatically routes requests across Infinity6 backend services (`decsuite`, `tfinfer`, `userz`) based on endpoint path prefixes.
-- **Pluggable Token Storage**: Pure in-memory caching (`tokenstore.NewMemory()`) and persistent URL-addressed filesystem storage (`tokenstore.NewFsz()`).
+- **Pluggable Token Storage**: Pure in-memory caching (`tokenstore.NewMemory()`) and persistent WAL-mode SQLite database storage (`tokenstore.NewSqlite()`).
 - **Zero CGO**: Pure Go implementation with zero external C dependencies.
 
 ### Test

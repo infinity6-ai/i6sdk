@@ -35,8 +35,20 @@ class DatasetToken(TypedDict, total=False):
 
 
 USER_TOKEN_KEY = "i6_user_user_token"
+DATASET_TOKEN_PREFIX = "i6_ds:"
+DATASET_REFRESH_PREFIX = "i6_rf:"
+
+# Deprecated monolithic aliases retained for compatibility
 DATASET_TOKENS_KEY = "i6_dataset_access_tokens"
 DATASET_REFRESH_TOKENS_KEY = "i6_dataset_refresh_tokens"
+
+
+def _dataset_token_key(dataset: str) -> str:
+    return f"{DATASET_TOKEN_PREFIX}{dataset}"
+
+
+def _dataset_refresh_key(dataset: str) -> str:
+    return f"{DATASET_REFRESH_PREFIX}{dataset}"
 
 
 class Tokens:
@@ -78,23 +90,22 @@ class Tokens:
     def clear_tokens(self) -> None:
         """Clears all stored user and dataset tokens."""
         self.remove_user_token()
-        self._storage.remove_item(DATASET_TOKENS_KEY)
-        self._storage.remove_item(DATASET_REFRESH_TOKENS_KEY)
+        self._storage.delete_prefix(DATASET_TOKEN_PREFIX)
+        self._storage.delete_prefix(DATASET_REFRESH_PREFIX)
 
     def get_dataset_refresh_tokens_map(self) -> Dict[str, str]:
         """Returns all stored dataset refresh tokens."""
-        val = self._storage.get_item(DATASET_REFRESH_TOKENS_KEY)
-        if not val:
-            return {}
-        try:
-            return json.loads(val)
-        except Exception:
-            return {}
+        raw_map = self._storage.list_prefix(DATASET_REFRESH_PREFIX)
+        return {
+            k[len(DATASET_REFRESH_PREFIX):]: v
+            for k, v in raw_map.items()
+        }
 
     def get_dataset_refresh_token(self, dataset: str) -> Optional[str]:
         """Returns the stored dataset refresh token (Ed25519 private key/keypair) for dataset."""
-        m = self.get_dataset_refresh_tokens_map()
-        return m.get(dataset)
+        if not dataset:
+            return None
+        return self._storage.get_item(_dataset_refresh_key(dataset))
 
     def set_dataset_refresh_token(self, dataset: str, token: Union[str, Dict[str, Any]]) -> None:
         """Stores a dataset refresh token for machine robot authentication."""
@@ -103,16 +114,13 @@ class Tokens:
         raw_key = token
         if isinstance(token, dict):
             raw_key = token.get("priv_key") or token.get("private_key") or json.dumps(token)
-        m = self.get_dataset_refresh_tokens_map()
-        m[dataset] = str(raw_key)
-        self._storage.set_item(DATASET_REFRESH_TOKENS_KEY, json.dumps(m))
+        self._storage.set_item(_dataset_refresh_key(dataset), str(raw_key))
 
     def remove_dataset_refresh_token(self, dataset: str) -> None:
         """Removes the stored dataset refresh token for the specified dataset."""
-        m = self.get_dataset_refresh_tokens_map()
-        if dataset in m:
-            del m[dataset]
-            self._storage.set_item(DATASET_REFRESH_TOKENS_KEY, json.dumps(m))
+        if not dataset:
+            return
+        self._storage.remove_item(_dataset_refresh_key(dataset))
 
     def is_access_token_expired(
         self, token: Optional[UserToken] = None, skew_seconds: float = 30.0
@@ -185,31 +193,39 @@ class Tokens:
 
     def get_dataset_tokens_map(self) -> Dict[str, DatasetToken]:
         """Returns all cached dataset tokens."""
-        val = self._storage.get_item(DATASET_TOKENS_KEY)
-        if not val:
-            return {}
-        try:
-            return json.loads(val)
-        except Exception:
-            return {}
+        raw_map = self._storage.list_prefix(DATASET_TOKEN_PREFIX)
+        tokens: Dict[str, DatasetToken] = {}
+        for k, v in raw_map.items():
+            ds = k[len(DATASET_TOKEN_PREFIX):]
+            try:
+                tokens[ds] = json.loads(v)
+            except Exception:
+                pass
+        return tokens
 
     def get_dataset_token(self, dataset: str) -> Optional[DatasetToken]:
         """Returns the cached dataset token for the specified dataset."""
-        m = self.get_dataset_tokens_map()
-        return m.get(dataset)
+        if not dataset:
+            return None
+        val = self._storage.get_item(_dataset_token_key(dataset))
+        if not val:
+            return None
+        try:
+            return json.loads(val)
+        except Exception:
+            return None
 
     def set_dataset_token(self, dataset: str, token: DatasetToken) -> None:
         """Stores a dataset token."""
-        m = self.get_dataset_tokens_map()
-        m[dataset] = token
-        self._storage.set_item(DATASET_TOKENS_KEY, json.dumps(m))
+        if not dataset:
+            raise ValueError("dataset is required")
+        self._storage.set_item(_dataset_token_key(dataset), json.dumps(token))
 
     def remove_dataset_token(self, dataset: str) -> None:
         """Removes the cached token for the specified dataset."""
-        m = self.get_dataset_tokens_map()
-        if dataset in m:
-            del m[dataset]
-            self._storage.set_item(DATASET_TOKENS_KEY, json.dumps(m))
+        if not dataset:
+            return
+        self._storage.remove_item(_dataset_token_key(dataset))
 
     def is_dataset_token_expired(self, token: Optional[DatasetToken], skew_seconds: float = 30.0) -> bool:
         """Checks whether the given dataset access token is expired or will expire within the given skew window."""

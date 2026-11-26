@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 
 from i6sdk import I6Client, I6SdkConfig, create_client
-from i6sdk.tokens import FileTokenStorage, MemoryTokenStorage, UserToken
+from i6sdk.tokens import FileTokenStorage, MemoryTokenStorage, SqliteTokenStorage, UserToken
 
 
 class TestTokens(unittest.TestCase):
@@ -15,13 +15,21 @@ class TestTokens(unittest.TestCase):
         self.assertIsNone(storage.get_item("key1"))
         storage.set_item("key1", "val1")
         self.assertEqual(storage.get_item("key1"), "val1")
+
+        # Prefix list & delete
+        storage.set_item("i6_ds:orders", "ord")
+        storage.set_item("i6_ds:users", "usr")
+        self.assertEqual(len(storage.list_prefix("i6_ds:")), 2)
+        storage.delete_prefix("i6_ds:")
+        self.assertEqual(len(storage.list_prefix("i6_ds:")), 0)
+
         storage.remove_item("key1")
         self.assertIsNone(storage.get_item("key1"))
 
-    def test_file_token_storage(self) -> None:
+    def test_sqlite_token_storage(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
-            file_path = Path(tmpdir) / "tokens.json"
-            storage = FileTokenStorage(file_path)
+            file_path = Path(tmpdir) / "tokens.db"
+            storage = SqliteTokenStorage(file_path)
             storage.set_item("user", "user-token-abc")
             self.assertEqual(storage.get_item("user"), "user-token-abc")
 
@@ -29,9 +37,19 @@ class TestTokens(unittest.TestCase):
             mode = file_path.stat().st_mode & 0o777
             self.assertEqual(mode, 0o600)
 
+            # Prefix list & delete
+            storage.set_item("i6_ds:orders", "ord")
+            storage.set_item("i6_ds:users", "usr")
+            self.assertEqual(len(storage.list_prefix("i6_ds:")), 2)
+            storage.delete_prefix("i6_ds:")
+            self.assertEqual(len(storage.list_prefix("i6_ds:")), 0)
+            self.assertEqual(storage.get_item("user"), "user-token-abc")
+
             # Re-read from another instance
-            storage2 = FileTokenStorage(file_path)
+            storage2 = SqliteTokenStorage(file_path)
             self.assertEqual(storage2.get_item("user"), "user-token-abc")
+            storage.close()
+            storage2.close()
 
     def test_tokens_manager(self) -> None:
         client = I6Client(I6SdkConfig())
@@ -51,12 +69,13 @@ class TestTokens(unittest.TestCase):
 
     def test_tokens_storage_string_config(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
-            token_path = Path(tmpdir) / "test.tokens.json"
+            token_path = Path(tmpdir) / "test.tokens.db"
             client = create_client(storage=str(token_path))
             storage = client.tokens().storage
-            self.assertIsInstance(storage, FileTokenStorage)
-            assert isinstance(storage, FileTokenStorage)
+            self.assertIsInstance(storage, SqliteTokenStorage)
+            assert isinstance(storage, SqliteTokenStorage)
             self.assertEqual(str(storage.path), str(token_path))
+            storage.close()
 
     def test_silent_renewal_when_access_token_expired(self) -> None:
         calls = []
@@ -283,6 +302,45 @@ class TestTokens(unittest.TestCase):
         cached_tok = client.tokens().get_valid_dataset_access_token("dectest")
         self.assertEqual(cached_tok, "robot-access-tok-123")
         self.assertEqual(len(calls), 1)
+
+    def test_granular_dataset_tokens_crud_and_clear(self) -> None:
+        client = I6Client(I6SdkConfig())
+        tokens = client.tokens()
+
+        # Initially empty
+        self.assertIsNone(tokens.get_dataset_token("ds1"))
+        self.assertEqual(tokens.get_dataset_tokens_map(), {})
+
+        # Set dataset token
+        dt1 = {"dataset": "ds1", "access_token": "tok1", "expires_at": 9999999999999, "grants": 1}
+        dt2 = {"dataset": "ds2", "access_token": "tok2", "expires_at": 9999999999999, "grants": 2}
+        tokens.set_dataset_token("ds1", dt1)
+        tokens.set_dataset_token("ds2", dt2)
+
+        self.assertEqual(tokens.get_dataset_token("ds1"), dt1)
+        self.assertEqual(tokens.get_dataset_token("ds2"), dt2)
+        m = tokens.get_dataset_tokens_map()
+        self.assertEqual(len(m), 2)
+        self.assertEqual(m["ds1"]["access_token"], "tok1")
+        self.assertEqual(m["ds2"]["access_token"], "tok2")
+
+        # Set user token and refresh tokens
+        tokens.set_user_token({"user_access_token": "u1", "expires_at": 9999999999999})
+        tokens.set_dataset_refresh_token("ds1", "rf1")
+
+        # Remove single dataset token
+        tokens.remove_dataset_token("ds1")
+        self.assertIsNone(tokens.get_dataset_token("ds1"))
+        self.assertIsNotNone(tokens.get_dataset_token("ds2"))
+        self.assertEqual(tokens.get_dataset_refresh_token("ds1"), "rf1")
+
+        # Clear tokens
+        tokens.clear_tokens()
+        self.assertIsNone(tokens.get_user_token())
+        self.assertIsNone(tokens.get_dataset_token("ds2"))
+        self.assertIsNone(tokens.get_dataset_refresh_token("ds1"))
+        self.assertEqual(tokens.get_dataset_tokens_map(), {})
+        self.assertEqual(tokens.get_dataset_refresh_tokens_map(), {})
 
 
 if __name__ == "__main__":
