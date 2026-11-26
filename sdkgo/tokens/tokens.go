@@ -145,9 +145,13 @@ func (m *Manager) SetUserToken(ctx context.Context, token *UserToken) error {
 		return fmt.Errorf("failed to marshal user token: %w", err)
 	}
 	// Mutual exclusivity: clear any machine robot refresh keys
-	_ = m.store.DeletePrefix(ctx, DatasetRefreshPrefix)
+	if err := m.store.DeletePrefix(ctx, DatasetRefreshPrefix); err != nil {
+		return fmt.Errorf("failed to clear robot refresh tokens: %w", err)
+	}
 	// Clear any previous derived dataset tokens
-	_ = m.store.DeletePrefix(ctx, DatasetTokenPrefix)
+	if err := m.store.DeletePrefix(ctx, DatasetTokenPrefix); err != nil {
+		return fmt.Errorf("failed to clear derived dataset tokens: %w", err)
+	}
 
 	if err := m.store.Set(ctx, UserTokenKey, string(raw)); err != nil {
 		return fmt.Errorf("failed to store user token: %w", err)
@@ -213,11 +217,17 @@ func (m *Manager) SetDatasetRefreshToken(ctx context.Context, dataset string, ke
 		return m.RemoveDatasetRefreshToken(ctx, dataset)
 	}
 	// Mutual exclusivity: clear any user session
-	_ = m.store.Delete(ctx, UserTokenKey)
+	if err := m.store.Delete(ctx, UserTokenKey); err != nil {
+		return fmt.Errorf("failed to clear user session: %w", err)
+	}
 	// Exactly one robot key: clear any previous robot keys
-	_ = m.store.DeletePrefix(ctx, DatasetRefreshPrefix)
+	if err := m.store.DeletePrefix(ctx, DatasetRefreshPrefix); err != nil {
+		return fmt.Errorf("failed to clear robot refresh tokens: %w", err)
+	}
 	// Clear any previous derived dataset tokens
-	_ = m.store.DeletePrefix(ctx, DatasetTokenPrefix)
+	if err := m.store.DeletePrefix(ctx, DatasetTokenPrefix); err != nil {
+		return fmt.Errorf("failed to clear derived dataset tokens: %w", err)
+	}
 
 	if err := m.store.Set(ctx, datasetRefreshKey(dataset), key); err != nil {
 		return fmt.Errorf("failed to store dataset refresh token for %q: %w", dataset, err)
@@ -404,7 +414,9 @@ func (m *Manager) GetValidAccessToken(ctx context.Context, skewSeconds ...float6
 	status, err := m.apis.UserAuthRefresh(ctx, refreshApi)
 	if err != nil || status < 200 || status >= 300 || refreshApi.Resp == nil || refreshApi.Resp.Payload == nil {
 		if status == 401 || status == 403 {
-			_ = m.RemoveUserToken(ctx)
+			if removeErr := m.RemoveUserToken(ctx); removeErr != nil {
+				return "", fmt.Errorf("token rejected with status %d and failed to remove invalid user token: %w", status, removeErr)
+			}
 		}
 		if m.initialToken != "" {
 			return m.initialToken, nil
