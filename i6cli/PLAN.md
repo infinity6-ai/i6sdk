@@ -61,10 +61,9 @@ Each profile maintains **one active credential per dataset** (`i6_ds:<dataset>` 
 
 - **Active Bearer Access Tokens (`i6 tokens dataset bearer`)**:
   - `i6 tokens dataset bearer create [--grants=0x0F] [--exp=3600]`: Mints a fresh short-lived unbound bearer token and saves it in `tokens.db`.
-  - `i6 tokens dataset bearer refresh`: Forces renewal of the active bearer token using the stored robot key (`i6_rf:<dataset>`) or falling back to user session exchange.
-  - `i6 tokens dataset bearer get`: Displays cached bearer token metadata (dataset, solution, grants, expiry) without revealing the raw token.
-  - `i6 tokens dataset bearer expose`: Prints raw JWT bearer token string to stdout (ideal for scripting and `curl`).
-  - `i6 tokens dataset bearer check`: Cryptographically validates the token against `/api/userz/token/check`.
+  - `i6 tokens dataset bearer get [--refreshed]`: Displays cached bearer token metadata (dataset, solution, grants, expiry) without revealing the raw token. With `--refreshed`, automatically refreshes the token if missing or expired.
+  - `i6 tokens dataset bearer expose [--refreshed]`: Prints raw JWT bearer token string to stdout (ideal for scripting and `curl`). With `--refreshed`, automatically refreshes the token if missing or expired before printing.
+  - `i6 tokens dataset bearer check [--refreshed]`: Cryptographically validates the token against `/api/userz/token/check`. With `--refreshed`, refreshes before checking if expired.
   - `i6 tokens dataset bearer delete`: Removes the cached bearer token from local `tokens.db`.
 
 - **Active Sender-Constrained PoP Tokens (`i6 tokens dataset bounded`)**:
@@ -258,7 +257,7 @@ In `.github/workflows/release.yml`:
   - [ ] Implement `i6 auth logout`, `status`, and `expose`.
   - [ ] Implement `i6 tokens refresh` for active user credentials.
   - [ ] Implement `i6 tokens dataset [--dataset <dataset>]` persistent flag for local `tokens.db`:
-    - `bearer [create|refresh|get|expose|check|delete]` (unbound bearer access tokens)
+    - `bearer [create|get|expose|check|delete]` (unbound bearer tokens; get, expose, and check support --refreshed)
     - `bounded [create|get|expose|check|delete]` (sender-constrained PoP tokens)
     - `refresh [get|expose|export|import|delete]` (active Ed25519 robot key for dataset)
 
