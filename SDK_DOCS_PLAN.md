@@ -48,16 +48,15 @@ sdkweb src ─► tsc ─► dts-bundle-generator ─► i6sdk-web.d.ts
 | 6 | The handwritten modules (auth, tokens, ingest, infer, dash, `I6Sdk`) are read from the bundled `.d.ts` by `sdkweb/docgen.mjs`, which writes `sdk.json` for `docs` | They are not in forge. The `.d.ts` is also what Monaco uses, so the docs and the autocomplete always agree |
 | 7 | One real bundled `i6sdk-web.d.ts`, built with `dts-bundle-generator` (already a dev dependency) | The current one is the module files joined with `cat`; its relative imports don't resolve, so Monaco would show `any`. The new one also fixes the file customers download for their editors |
 | 8 | TypeScript 5 next to TypeScript 7, as a dev dependency. TypeScript 7 keeps building the code (`tsc`); TypeScript 5 is used by `dts-bundle-generator` and `docgen.mjs` | `dts-bundle-generator` needs the TypeScript 5 API: with TypeScript 7 it crashes on load. TypeScript 7 has an API only under `typescript/unstable/…`, which can break in any 7.x release. Since TypeScript 5 is needed for the bundler anyway, `docgen.mjs` uses it too |
-| 9 | Private members never show: they get `@internal` in their JSDoc and `tsconfig.json` gets `stripInternal`; `docgen.mjs` fails on any public `_` name that is left, and skips `#private` | They are not customer API, in the docs or in autocomplete. Comment and config change only, no renames |
-| 10 | The code box is a **JS** box per method, prefilled with the call, not a separate JSON body editor | Monaco completes the methods *and* the request fields from the same `.d.ts` |
-| 11 | The example in the box is written into the static page at build time, from the request typedef, with an empty value per field | Google sees it, and it is readable without JavaScript. Monaco takes it over when **Try it** is opened |
-| 12 | The SDK is set up in the page the way we tell customers to: `new I6Sdk({ servUrls, app, userExchangeCallbackUrl })`. A bar at the top of every page always shows that config and the sign-in state | Users see exactly what the calls use, and the example is the code they will write |
-| 13 | Sign in is the SDK's own flow (`sdk.auth().requireUser()`), from the top bar | Nothing new to build; the page gets real user and dataset tokens |
-| 14 | No confirm before calls that change data | The user signs in with their own account and presses **Run** on purpose |
-| 15 | Missing docs fail the build | Docs can't get worse over time |
-| 16 | Monaco is loaded from jsDelivr at a pinned version. Doc text is rendered at build time by a small Markdown renderer in `docs` (Step 3), not a library | No npm or bundler for the pages, like the rest of `src/site/`. The docs use only a few Markdown features, so about 80 lines cover them with no new dependency, and every word is in the static HTML |
-| 17 | Generated pages are not committed: `docs` writes to `target/docs/`, and the release copies them to `i6pages` | They are built from code we already commit, and `i6pages` keeps the published copy |
-| 18 | **Try it** has an `inspect(x)` function that prints everything about what it is given: a call shows the HTTP requests the SDK made and what came back, a method shows its docs | Swagger shows the raw request and response; `inspect` gives the same, and more, from the code box. It exists only in the docs page, so the SDK's customer API does not change |
+| 9 | The code box is a **JS** box per method, prefilled with the call, not a separate JSON body editor | Monaco completes the methods *and* the request fields from the same `.d.ts` |
+| 10 | The example in the box is written into the static page at build time, from the request typedef, with an empty value per field | Google sees it, and it is readable without JavaScript. Monaco takes it over when **Try it** is opened |
+| 11 | The SDK is set up in the page the way we tell customers to: `new I6Sdk({ servUrls, app, userExchangeCallbackUrl })`. A bar at the top of every page always shows that config and the sign-in state | Users see exactly what the calls use, and the example is the code they will write |
+| 12 | Sign in is the SDK's own flow (`sdk.auth().requireUser()`), from the top bar | Nothing new to build; the page gets real user and dataset tokens |
+| 13 | No confirm before calls that change data | The user signs in with their own account and presses **Run** on purpose |
+| 14 | Missing docs fail the build | Docs can't get worse over time |
+| 15 | Monaco is loaded from jsDelivr at a pinned version. Doc text is rendered at build time by a small Markdown renderer in `docs` (Step 3), not a library | No npm or bundler for the pages, like the rest of `src/site/`. The docs use only a few Markdown features, so about 80 lines cover them with no new dependency, and every word is in the static HTML |
+| 16 | Generated pages are not committed: `docs` writes to `target/docs/`, and the release copies them to `i6pages` | They are built from code we already commit, and `i6pages` keeps the published copy |
+| 17 | **Try it** has an `inspect(x)` function that prints everything about what it is given: a call shows the HTTP requests the SDK made and what came back, a method shows its docs | Swagger shows the raw request and response; `inspect` gives the same, and more, from the code box. It exists only in the docs page, so the SDK's customer API does not change |
 
 ---
 
@@ -69,7 +68,7 @@ The question was whether the handwritten modules belong in the page. They do: lo
 | --- | --- | --- | --- |
 | API reference (`sdk.apis()`, about 63 methods) | yes | yes | Plain JSON in, JSON out. The core of the Swagger part |
 | Workflows (`sdk.funcs()`) | yes | yes | Same as the APIs |
-| `I6Sdk`, config | yes | no | Shown in the top bar instead (decision 12) |
+| `I6Sdk`, config | yes | no | Shown in the top bar instead (decision 11) |
 | Auth (`sdk.auth()`) | yes | no | The top bar already does sign in and sign out. Running `requireUser` from a box would redirect away from the page |
 | Tokens (`sdk.tokens()`) | yes | no | The SDK manages tokens by itself; customers only read about them |
 | Inference (`sdk.infer().run`, …) | yes | yes | JSON options, JSON result |
@@ -119,7 +118,7 @@ The question was whether the handwritten modules belong in the page. They do: lo
 └────────────┴──────────────────────────────────────────────────────────────┘
 ```
 
-**Static parts (in the HTML file):** the nav, the method's HTTP method and path, the call path, the token type it needs (`labels.token_types`), name, summary and description text (rendered from Markdown at build time, decision 16), the request and response fields as flat tables with dotted names (nested records are followed once, so cycles stop), the example code, and the page `<title>` and `<meta name="description">` from the method's name and summary. Each field row also has an anchor, so a link can point to one field.
+**Static parts (in the HTML file):** the nav, the method's HTTP method and path, the call path, the token type it needs (`labels.token_types`), name, summary and description text (rendered from Markdown at build time, decision 15), the request and response fields as flat tables with dotted names (nested records are followed once, so cycles stop), the example code, and the page `<title>` and `<meta name="description">` from the method's name and summary. Each field row also has an anchor, so a link can point to one field.
 
 **Interactive parts (JavaScript on top):**
 
@@ -162,12 +161,10 @@ const resp = await inspect(sdk.apis().dszCreateCustomerPortal({
 
 ---
 
-## Step 1 — The bundled `.d.ts` and private members
+## Step 1 — The bundled `.d.ts`
 
 - `sdkweb/package.json`: add TypeScript 5 for the tools that need its API (decision 8): `"typescript5": "npm:typescript@5"` for `docgen.mjs`, and `"overrides": { "dts-bundle-generator": { "typescript": "^5" } }` so `dts-bundle-generator` gets TypeScript 5 while the project keeps TypeScript 7.
-- `sdkweb/build.sh bundle`: replace the `find … -exec cat` line with `dts-bundle-generator`, which writes one real `dist/bundle/i6sdk-web.d.ts` from the `tsc` output (`dist/types/index.d.ts`). Only what is reachable from the exports is in it, so `internal/` helpers drop out by themselves.
-- `tsconfig.json`: add `"stripInternal": true`.
-- Add `@internal` to the JSDoc of every private member that shows up in the `.d.ts` (`_services`, `_preloads`, …). The build lists them: `docgen.mjs` fails on any public member that starts with `_`.
+- `sdkweb/build.sh bundle`: replace the `find … -exec cat` line with `dts-bundle-generator`, which writes one real `dist/bundle/i6sdk-web.d.ts` from the `tsc` output (`dist/types/index.d.ts`). Only what is reachable from the exports is in it, so unexported helper modules drop out by themselves.
 
 ---
 
@@ -176,7 +173,7 @@ const resp = await inspect(sdk.apis().dszCreateCustomerPortal({
 A Node script, about 150 lines. It reads `dist/bundle/i6sdk-web.d.ts` with the TypeScript compiler API and prints `target/sdk.json`. `tsc` has already turned the JSDoc into regular declarations, so the script only walks them: classes, methods, params, return types and typedefs, with their docs.
 
 - **Dependency:** TypeScript 5, through the `typescript5` alias from Step 1 (`import ts from "typescript5"`). See decision 8.
-- **What it skips:** `Apis` and `SdkFuncs`, because `docs` gets those from forge, and `#private`. A public member whose name starts with `_` fails the script (it needs `@internal`, see Step 1), so it can't show in the docs or in autocomplete.
+- **What it skips:** `Apis` and `SdkFuncs`, because `docs` gets those from forge, and any member starting with `_` or `#private`.
 - **Call paths:** `I6Sdk` is `sdk`. A class reached through a method with no params gets its parent's call path plus `.method()`, for example `sdk.infer()` for `Infer`.
 - **Missing docs:** a method, param, typedef or field with no doc is printed as `name: missing doc`, and the script exits 1.
 - **Test:** a small fixture `.d.ts` and the expected JSON, run by `go test` from `cmdsdkweb` (it runs the script with `node`).
