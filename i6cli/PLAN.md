@@ -50,36 +50,30 @@ Commands follow modern CLI standards (`i6 <domain> <action> [flags]`):
 
 Manages the active credentials stored in the local profile's `tokens.db`.
 
-*Security Invariant*: `list` and `get` commands **never** display sensitive `secret` strings or private keys. Revealing secrets is strictly restricted to explicit `expose` and `export` commands.
+*Root Credential Invariant*: A profile has either a **Human User Session** (`tokens user`) OR a **Machine Robot Key** (`tokens dataset-refresh`), never both. This eliminates ambiguity in identity, signing, and permissions.
 
-#### General Operations
-- `i6 tokens refresh`: Manually forces a silent token refresh rotation for active user session credentials.
+*Security Invariant*: `list` and `get` commands **never** display sensitive `secret` strings, tokens, or private keys. Revealing secrets is strictly restricted to explicit `expose` and `export` commands.
 
-#### Dataset Tokens (`i6 tokens dataset [--dataset <dataset>]`)
-All commands under `i6 tokens dataset` inherit the persistent flag `--dataset <dataset>` (falling back to the default dataset configured in the active profile's `config.json` if omitted).
-Each profile maintains **one active credential per dataset** (`i6_ds:<dataset>` for access, `i6_rf:<dataset>` for refresh).
+#### 1. Human User Root Credential (`i6 tokens user`)
+Controls the authenticated human user session in `tokens.db`:
+- `i6 tokens user get`: Displays user profile metadata (user_id, tenant, expiration; omits tokens).
+- `i6 tokens user expose`: Prints raw active JWT access token to stdout (for curl / scripts).
+- `i6 tokens user delete`: Revokes session on server and removes credentials from `tokens.db` (logout).
 
-- **Active Bearer Access Tokens (`i6 tokens dataset bearer`)**:
-  - `i6 tokens dataset bearer create [--grants=0x0F] [--exp=3600]`: Mints a fresh short-lived unbound bearer token and saves it in `tokens.db`.
-  - `i6 tokens dataset bearer get [--refreshed]`: Displays cached bearer token metadata (dataset, solution, grants, expiry) without revealing the raw token. With `--refreshed`, automatically refreshes the token if missing or expired.
-  - `i6 tokens dataset bearer expose [--refreshed]`: Prints raw JWT bearer token string to stdout (ideal for scripting and `curl`). With `--refreshed`, automatically refreshes the token if missing or expired before printing.
-  - `i6 tokens dataset bearer check [--refreshed]`: Cryptographically validates the token against `/api/userz/token/check`. With `--refreshed`, refreshes before checking if expired.
-  - `i6 tokens dataset bearer delete`: Removes the cached bearer token from local `tokens.db`.
+#### 2. Machine Robot Root Credential (`i6 tokens dataset-refresh`)
+Controls the machine service account Ed25519 refresh key (mutually exclusive with `tokens user`):
+- `i6 tokens dataset-refresh get`: Displays robot key metadata for the dataset (safely omits the secret key).
+- `i6 tokens dataset-refresh expose [--out <path|->]`: Dumps the raw Ed25519 secret key to stdout or a file.
+- `i6 tokens dataset-refresh set <key|file|-> [--dataset <dataset>]`: Sets or replaces the robot key for this profile.
+- `i6 tokens dataset-refresh delete`: Removes the robot credential from `tokens.db`.
 
-- **Active Sender-Constrained PoP Tokens (`i6 tokens dataset bounded`)**:
-  - `i6 tokens dataset bounded create [--grants=0x0F] [--exp=3600]`: Generates a local keypair and mints a sender-constrained token bound to its public key.
-  - `i6 tokens dataset bounded get`: Displays cached bounded token metadata and client public key without revealing private signing keys.
-  - `i6 tokens dataset bounded expose`: Dumps the full bounded token credentials (including client private key).
-  - `i6 tokens dataset bounded check`: Validates token and Proof-of-Possession binding against the server.
-  - `i6 tokens dataset bounded delete`: Clears the cached bounded token and its private signing key.
-
-- **Active Robot Refresh Key (`i6 tokens dataset refresh`)**:
-  Manages the single active Ed25519 robot refresh key for the dataset in `tokens.db`:
-  - `i6 tokens dataset refresh get`: Inspects whether an active robot key is configured for the dataset (safely omits the secret key).
-  - `i6 tokens dataset refresh expose [--out <path|->]`: Dumps the active Ed25519 secret key to stdout or a file.
-  - `i6 tokens dataset refresh export [--all]`: Exports the active robot key for `--dataset` (or all datasets if `--all` is specified).
-  - `i6 tokens dataset refresh import <key|file|->`: Sets or replaces the active robot key for `--dataset` in `tokens.db`.
-  - `i6 tokens dataset refresh delete`: Removes the active robot key for `--dataset` from `tokens.db`.
+#### 3. Derived Access Tokens Cache (`i6 tokens dataset-bearer [--dataset <dataset>]`)
+Manages short-lived bearer access tokens cached in `tokens.db` (a profile can hold multiple tokens across different datasets):
+- `i6 tokens dataset-bearer list`: Lists all cached dataset bearer tokens across all datasets in `tokens.db`.
+- `i6 tokens dataset-bearer get [--refreshed]`: Displays metadata for the target dataset (expiry, grants, solution) without revealing the raw token. With `--refreshed`, automatically refreshes using the root credential if missing or expired.
+- `i6 tokens dataset-bearer expose [--refreshed]`: Prints raw Bearer JWT to stdout. With `--refreshed`, automatically refreshes if missing or expired before printing.
+- `i6 tokens dataset-bearer check [--refreshed]`: Cryptographically validates the token against `/api/userz/token/check`.
+- `i6 tokens dataset-bearer delete`: Evicts the cached bearer token for `--dataset` from local `tokens.db`.
 
 ### C. Datasets, Stores, Tables & Server Tokens (`i6 dataset`)
 
@@ -145,11 +139,14 @@ $I6_CLI_CONFIG_DIR/ (defaults to $HOME/.config/i6/)
         └── infer/
 ```
 
-### Core Invariant: One Profile = Exactly One User
-Each CLI configuration profile belongs strictly to **one human user identity**.
-- User session credentials (`i6_user_user_token`) stored in `$I6_CLI_CONFIG_DIR/[profile]/tokens.db` represent a single authenticated user.
-- To operate under a different user account, tenant, or client organization, switch profiles via `I6_CLI_CONFIG_PROFILE=<profile>` (e.g. `work`, `staging-admin`).
-- This completely prevents multi-tenant session collisions, accidental token cross-contamination, and concurrent database lock contention.
+### Core Invariant: Mutually Exclusive Profile Identity
+Each CLI configuration profile represents either a **Human User** or a **Machine Service Account**, never both:
+$$\text{Profile Root Credential} \in \{\text{User Session}, \text{Dataset Refresh Key}, \emptyset\}$$
+
+- User session credentials (`i6_user_user_token`) and machine robot keys (`i6_rf:<dataset>`) cannot coexist within the same profile.
+- If a profile has an active user session, running `i6 tokens dataset-refresh set` returns an error directing the user to use a separate profile (e.g. `I6_CLI_CONFIG_PROFILE=worker`).
+- If a profile has an active robot key, running `i6 auth login` returns an error directing the user to use a separate profile (e.g. `I6_CLI_CONFIG_PROFILE=developer`).
+- Derived short-lived dataset bearer tokens (`i6_ds:<dataset>`) can be cached for multiple datasets within any active profile.
 
 ### Configuration Hierarchy & Resolution Order
 1. **Zero-Disk Inline JSON**: If `I6_CLI_CONFIG_JSON` is populated, parse in-memory immediately using `tokenstore.NewMemory()` (bypasses filesystem reads, ideal for CI/CD runners).
@@ -253,13 +250,16 @@ In `.github/workflows/release.yml`:
 
 - [ ] **Phase 2: Authentication & Local Profile Tokens (`auth`, `tokens`, `config`)**
   - [ ] Implement `i6 config init [--box sandbox|staging|prod] [-f/--force]` and `i6 config show`.
-  - [ ] Implement `i6 auth login` (Device code flow with polling + manual token input).
-  - [ ] Implement `i6 auth logout`, `status`, and `expose`.
-  - [ ] Implement `i6 tokens refresh` for active user credentials.
-  - [ ] Implement `i6 tokens dataset [--dataset <dataset>]` persistent flag for local `tokens.db`:
-    - `bearer [create|get|expose|check|delete]` (unbound bearer tokens; get, expose, and check support --refreshed)
-    - `bounded [create|get|expose|check|delete]` (sender-constrained PoP tokens)
-    - `refresh [get|expose|export|import|delete]` (active Ed25519 robot key for dataset)
+  - [ ] Implement `i6 auth login` (Device code flow with polling + manual token input; enforces mutual exclusivity).
+  - [ ] Implement `i6 auth logout` and `i6 auth status`.
+  - [ ] Implement `i6 tokens user [get|expose|delete]` (human user session root credential).
+  - [ ] Implement `i6 tokens dataset-refresh [get|expose|set|delete]` (machine robot root credential; mutually exclusive with user).
+  - [ ] Implement `i6 tokens dataset-bearer [--dataset <dataset>]` (multiple derived cached tokens):
+    - `list` (lists all cached dataset tokens in tokens.db)
+    - `get [--refreshed]` (metadata only; refreshes if needed)
+    - `expose [--refreshed]` (raw Bearer JWT; refreshes if needed)
+    - `check [--refreshed]` (validates against server; refreshes if needed)
+    - `delete` (evicts cached bearer token)
 
 - [ ] **Phase 3: Ingestion & Dataset Management (`ingest`, `dataset`)**
   - [ ] Implement `i6 ingest upload` with multi-stream parallel worker execution and live terminal progress bars.
