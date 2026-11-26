@@ -62,12 +62,14 @@ Manages the active credentials stored in the local profile's `tokens.db`.
 Controls the authenticated human user session in `tokens.db`:
 - `i6 tokens user get`: Displays user profile metadata (user_id, tenant, expiration; omits tokens).
 - `i6 tokens user expose`: Prints raw active JWT access token to stdout (for curl / scripts).
+- `i6 tokens user export`: Prints the active user refresh token to stdout (for backup or environment transfer).
 - `i6 tokens user delete`: Revokes session on server and removes credentials from `tokens.db` (logout).
 
 #### 2. Machine Robot Root Credential (`i6 tokens dataset-refresh`)
 Controls the machine service account Ed25519 refresh key (mutually exclusive with `tokens user`):
 - `i6 tokens dataset-refresh get`: Displays robot key metadata for the dataset (safely omits the secret key).
 - `i6 tokens dataset-refresh expose [--out <path|->]`: Dumps the raw Ed25519 secret key to stdout or a file.
+- `i6 tokens dataset-refresh export [--out <path|->]`: Prints the active Ed25519 dataset refresh token to stdout or a file.
 - `i6 tokens dataset-refresh set <key|file|-> [--dataset <dataset>]`: Sets or replaces the robot key for this profile.
 - `i6 tokens dataset-refresh delete`: Removes the robot credential from `tokens.db`.
 
@@ -257,8 +259,8 @@ In `.github/workflows/release.yml`:
   - [ ] Implement `i6 auth login` (Device code flow with polling; enforces mutual exclusivity).
   - [ ] Implement `i6 auth token [<token-string> | -] [--offline]` (universal token ingestion with auto-detection).
   - [ ] Implement `i6 auth logout` and `i6 auth status`.
-  - [ ] Implement `i6 tokens user [get|expose|delete]` (human user session root credential).
-  - [ ] Implement `i6 tokens dataset-refresh [get|expose|set|delete]` (machine robot root credential; mutually exclusive with user).
+  - [ ] Implement `i6 tokens user [get|expose|export|delete]` (human user session root credential; export prints user refresh token).
+  - [ ] Implement `i6 tokens dataset-refresh [get|expose|export|set|delete]` (machine robot root credential; export prints robot refresh key).
   - [ ] Implement `i6 tokens dataset-bearer [--dataset <dataset>]` (multiple derived cached tokens):
     - `list` (lists all cached dataset tokens in tokens.db)
     - `get [--refreshed]` (metadata only; refreshes if needed)
