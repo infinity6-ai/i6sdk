@@ -3,6 +3,7 @@ package apicollectionz
 import (
 	"context"
 	"fmt"
+	"reflect"
 
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/dash/relevancefashiondashattachedrevenue"
@@ -29,6 +30,29 @@ type SdkFuncs struct {
 	relevancefashiondashlistshowcasecategories.ProductRelevanceFashionDashListShowcaseCategoriesV1Id
 
 	Invoker SdkFuncInvokerFunc
+}
+
+func (a *SdkFuncs) List() []sdkfuncz.Func {
+	var list []sdkfuncz.Func
+	typ := reflect.TypeOf(a)
+	for i := 0; i < typ.NumMethod(); i++ {
+		m := typ.Method(i)
+		if m.Name == "List" {
+			continue
+		}
+		if m.Type.NumIn() != 3 {
+			continue
+		}
+		fnType := m.Type.In(2)
+		if fnType.Kind() == reflect.Ptr {
+			fnType = fnType.Elem()
+		}
+		fnVal, ok := reflect.New(fnType).Interface().(sdkfuncz.Func)
+		if ok {
+			list = append(list, fnVal)
+		}
+	}
+	return list
 }
 
 var sdkFuncs map[string]sdkfuncz.Func

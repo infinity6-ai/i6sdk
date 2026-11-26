@@ -209,7 +209,6 @@ func generateSdkFuncs(dir string) (string, error) {
 
 	neededImports := make(map[string]string)
 	neededImports["context"] = "context"
-	neededImports["sdkfuncz"] = "github.com/infinity6-ai/i6sdk/sdkcorez/sdkfuncz"
 	for _, e := range entries {
 		if path, ok := importMap[e.pkgAlias]; ok {
 			neededImports[e.pkgAlias] = path
@@ -241,14 +240,6 @@ func generateSdkFuncs(dir string) (string, error) {
 		buf.WriteString("\treturn a.Invoker(ctx, fn)\n")
 		buf.WriteString("}\n\n")
 	}
-
-	buf.WriteString("func (a *SdkFuncs) List() []sdkfuncz.Func {\n")
-	buf.WriteString("\treturn []sdkfuncz.Func{\n")
-	for _, e := range entries {
-		buf.WriteString(fmt.Sprintf("\t\t&%s{},\n", e.apiType))
-	}
-	buf.WriteString("\t}\n")
-	buf.WriteString("}\n")
 
 	formatted, err := format.Source(buf.Bytes())
 	if err != nil {
