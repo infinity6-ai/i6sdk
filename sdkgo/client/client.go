@@ -50,6 +50,7 @@ type I6Client struct {
 	decsuiteClient *httpzclient.Client
 	tfinferClient  *httpzclient.Client
 	userzClient    *httpzclient.Client
+	ingestClient   *httpzclient.Client
 
 	apis   *apicollectionz.SdkApis
 	funcs  *apicollectionz.SdkFuncs
@@ -59,8 +60,7 @@ type I6Client struct {
 }
 
 // New constructs an I6Client configured with the provided Options.
-func New(opts config.Options) (*I6Client, error) {
-	ctx := context.Background()
+func New(ctx context.Context, opts config.Options) (*I6Client, error) {
 	c := &I6Client{
 		initialToken: opts.Token,
 	}
@@ -208,8 +208,11 @@ func New(opts config.Options) (*I6Client, error) {
 		Apis:       c.apis,
 		Downloader: downloader,
 	})
-	c.ingest = ingest.New(ingest.Options{
-		Apis: c.apis,
+	ingestOpts := opts.Http
+	c.ingestClient = httpzclient.New(ctx, ingestOpts)
+	c.ingest = ingest.New(ctx, ingest.Options{
+		Apis:   c.apis,
+		Client: c.ingestClient,
 	})
 
 	// 9. Initialize SdkFuncs with Dash & Infer delegators
@@ -324,4 +327,9 @@ func (c *I6Client) Infer() *infer.Client {
 // Ingest returns the Ingest client runner.
 func (c *I6Client) Ingest() *ingest.Client {
 	return c.ingest
+}
+
+// IngestClient returns the httpzclient for stream uploads.
+func (c *I6Client) IngestClient() *httpzclient.Client {
+	return c.ingestClient
 }

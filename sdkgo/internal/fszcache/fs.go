@@ -80,7 +80,7 @@ func (f *Fs) fileUrl(name string) *urlz.Url {
 }
 
 // ResolveUrl returns the *urlz.Url for a version's blob.bin (defaults to released version).
-func (f *Fs) ResolveUrl(name string, version ...string) *urlz.Url {
+func (f *Fs) ResolveUrl(ctx context.Context, name string, version ...string) *urlz.Url {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
 
@@ -89,7 +89,7 @@ func (f *Fs) ResolveUrl(name string, version ...string) *urlz.Url {
 	if len(version) > 0 && version[0] != "" {
 		ver = version[0]
 	} else {
-		verText, _ := f.readText(context.Background(), fileUrl.MustJoinPathString("version.txt"))
+		verText, _ := f.readText(ctx, fileUrl.MustJoinPathString("version.txt"))
 		ver = strings.TrimSpace(verText)
 	}
 	return fileUrl.MustJoinPathString("v"+ver, "blob.bin")
@@ -97,8 +97,8 @@ func (f *Fs) ResolveUrl(name string, version ...string) *urlz.Url {
 
 // Resolve returns the filesystem path string for a version's blob.bin if backed by file:// scheme,
 // or the string representation of the URL for non-file schemes.
-func (f *Fs) Resolve(name string, version ...string) string {
-	u := f.ResolveUrl(name, version...)
+func (f *Fs) Resolve(ctx context.Context, name string, version ...string) string {
+	u := f.ResolveUrl(ctx, name, version...)
 	if u.Scheme == "file" && u.Path != nil {
 		return filepath.Clean(u.Path.String())
 	}

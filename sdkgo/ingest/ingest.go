@@ -7,10 +7,13 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 	"sync"
 	"time"
 
 	"github.com/infinity6-ai/gox/commonz/validation/checked"
+	"github.com/infinity6-ai/gox/httpz/httpzclient"
+	"github.com/infinity6-ai/gox/httpz/httpzrequest"
 	"github.com/infinity6-ai/i6sdk/apicollectionz/apicollectionz"
 	"github.com/infinity6-ai/i6sdk/apiingestz/ingestzapigeturl"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
@@ -101,28 +104,31 @@ type UploadOptions struct {
 
 // Options configures the Ingest client.
 type Options struct {
-	Apis       *apicollectionz.SdkApis
-	HttpClient *http.Client
+	Apis   *apicollectionz.SdkApis
+	Client *httpzclient.Client
 }
 
 // Client coordinates presigned URL acquisition and multi-stream parallel uploads.
 type Client struct {
-	apis       *apicollectionz.SdkApis
-	httpClient *http.Client
+	apis   *apicollectionz.SdkApis
+	client *httpzclient.Client
 }
 
 // New creates a new Ingest Client.
-func New(opts Options) *Client {
-	httpClient := opts.HttpClient
-	if httpClient == nil {
-		httpClient = &http.Client{
-			Timeout: 120 * time.Second,
-		}
+func New(ctx context.Context, opts Options) *Client {
+	client := opts.Client
+	if client == nil {
+		client = httpzclient.New(ctx, httpzclient.Options{})
 	}
 	return &Client{
-		apis:       opts.Apis,
-		httpClient: httpClient,
+		apis:   opts.Apis,
+		client: client,
 	}
+}
+
+// Client returns the underlying httpzclient instance.
+func (c *Client) Client() *httpzclient.Client {
+	return c.client
 }
 
 // GetUrl requests signed upload PUT URLs from the ingestion service.
@@ -308,20 +314,13 @@ func (c *Client) Upload(ctx context.Context, opts UploadOptions) (*UploadResult,
 					ctx: uploadCtx,
 				}
 
-				req, err := http.NewRequestWithContext(uploadCtx, http.MethodPut, job.targetUrl, pr)
-				if err != nil {
-					errOnce.Do(func() {
-						firstErr = fmt.Errorf("failed to create upload request for stream %d: %w", job.index, err)
-						cancel()
-					})
-					return
-				}
-
+				req := httpzrequest.New(http.MethodPut, job.targetUrl)
+				req.SetBody(pr)
 				if job.stream.Size > 0 {
-					req.ContentLength = job.stream.Size
+					req.Headers.Set("Content-Length", strconv.FormatInt(job.stream.Size, 10))
 				}
 
-				resp, err := c.httpClient.Do(req)
+				resp, err := c.client.Do(uploadCtx, req)
 				if err != nil {
 					errOnce.Do(func() {
 						firstErr = fmt.Errorf("upload stream %d failed: %w", job.index, err)

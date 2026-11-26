@@ -212,7 +212,7 @@ func main() {
 	ctx := context.Background()
 
 	// Initialize client with configuration
-	c, err := client.New(config.Options{
+	c, err := client.New(ctx, config.Options{
 		Token: "my_access_token",
 		Urls:  config.SandboxUrlOptions, // Or config.DefaultUrlOptions / config.StagingUrlOptions
 	})

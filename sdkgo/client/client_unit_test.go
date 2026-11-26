@@ -60,7 +60,7 @@ func TestUnitClientConstruction(t *testing.T) {
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
 
-		c, err := client.New(s.opts)
+		c, err := client.New(t.Context(), s.opts)
 		if s.wantErr != "" {
 			require.Error(t, err)
 			require.Contains(t, err.Error(), s.wantErr)
@@ -195,7 +195,7 @@ func TestUnitClientConstruction(t *testing.T) {
 
 	t.Run("Custom token store is successfully registered", func(t *testing.T) {
 		myStore := &customTokenStore{val: "secret"}
-		c, err := client.New(config.Options{TokenStore: myStore})
+		c, err := client.New(t.Context(), config.Options{TokenStore: myStore})
 		require.NoError(t, err)
 		require.Equal(t, myStore, c.TokenStore())
 
@@ -205,7 +205,7 @@ func TestUnitClientConstruction(t *testing.T) {
 	})
 
 	t.Run("Path routing dispatches to corresponding service clients", func(t *testing.T) {
-		c, err := client.New(config.Options{})
+		c, err := client.New(t.Context(), config.Options{})
 		require.NoError(t, err)
 
 		userClient := c.ClientForPath("/api/userz/auth/me")
@@ -223,7 +223,7 @@ func TestUnitClientConstruction(t *testing.T) {
 
 	t.Run("Custom httpzclient Options are propagated", func(t *testing.T) {
 		customCalled := false
-		c, err := client.New(config.Options{
+		c, err := client.New(t.Context(), config.Options{
 			Http: httpzclient.Options{
 				GetClient: func(ctx context.Context) *http.Client {
 					customCalled = true
@@ -246,7 +246,7 @@ func TestUnitClientConstruction(t *testing.T) {
 		}))
 		defer ts.Close()
 
-		c, err := client.New(config.Options{
+		c, err := client.New(t.Context(), config.Options{
 			Token: "my-secret-token",
 			Urls: config.UrlOptions{
 				Userz: ts.URL,
@@ -272,7 +272,7 @@ func TestUnitClientConstruction(t *testing.T) {
 		}))
 		defer ts.Close()
 
-		c, err := client.New(config.Options{
+		c, err := client.New(t.Context(), config.Options{
 			Urls: config.UrlOptions{
 				Userz: ts.URL,
 			},
@@ -304,7 +304,7 @@ func TestUnitClientConstruction(t *testing.T) {
 		}))
 		defer ts.Close()
 
-		c, err := client.New(config.Options{
+		c, err := client.New(t.Context(), config.Options{
 			Urls: config.UrlOptions{
 				Decsuite: ts.URL,
 			},
@@ -366,7 +366,7 @@ func TestUnitClientConstruction(t *testing.T) {
 		}))
 		defer tsApi.Close()
 
-		c, err := client.New(config.Options{
+		c, err := client.New(t.Context(), config.Options{
 			Urls: config.UrlOptions{
 				Decsuite: tsApi.URL,
 			},
@@ -446,7 +446,7 @@ func TestUnitClientConstruction(t *testing.T) {
 		}))
 		defer tsTfinfer.Close()
 
-		c, err := client.New(config.Options{
+		c, err := client.New(t.Context(), config.Options{
 			Urls: config.UrlOptions{
 				Decsuite: tsDecsuite.URL,
 				Tfinfer:  tsTfinfer.URL,
@@ -503,7 +503,7 @@ func TestUnitClientConstruction(t *testing.T) {
 		}))
 		defer tsApi.Close()
 
-		c, err := client.New(config.Options{
+		c, err := client.New(t.Context(), config.Options{
 			Urls: config.UrlOptions{
 				Decsuite: tsApi.URL,
 			},
