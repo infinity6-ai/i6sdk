@@ -2,6 +2,7 @@
 
 The unified SDK mono-repo for the Infinity6 platform, providing official language SDKs (**Go**, **Web / TypeScript**, **Python**) and automated multi-language client generators.
 
+
 ## Architecture
 
 Modeled after `github.com/infinity6-ai/gox`, `i6sdk` is structured into focused, independent Go modules with strict dependency layering:
