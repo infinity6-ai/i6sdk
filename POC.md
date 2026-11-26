@@ -318,8 +318,25 @@ To achieve complete structural and architectural symmetry across the entire SDK,
 3. **`apicollectionz.SdkFuncs` Client Promotion**:
    - Concrete `SdkFuncs` struct in `apicollectionz/sdkfuncs.go` embeds all 8 `<MethodName>Id` stubs.
    - `mold` codegen (`apisgen` or `sdkfuncsgen`) emits `sdkfuncs.gen.go` shadowing the stubs with runtime delegating methods.
-4. **`sdkgo` Client Runtime (`client.Funcs()`)**:
-   - `client.Funcs()` exposes the generated typed workflow methods in Go, dispatching to `client.Infer()` or `client.Dash()` behind the scenes, matching Python (`client.funcs()`) and Web (`client.funcs()`).
+4. **`sdkgo` Client Runtime (`client.Funcs()` via `SdkFuncInvokerFunc`)**:
+   - `apicollectionz.SdkFuncs` exposes the generated typed workflow methods in Go.
+   - `I6Client` implements and wires `apicollectionz.SdkFuncInvokerFunc`, dynamically dispatching by `spec.Typ`:
+     ```go
+     c.funcs = &apicollectionz.SdkFuncs{
+         Invoker: func(ctx context.Context, fn sdkfuncz.Func) (int, error) {
+             spec := fn.SdkFuncSpec()
+             switch spec.Typ {
+             case sdkfuncz.TypClientQuery:
+                 return c.dash.Execute(ctx, fn)  // Analytical SQLite queries
+             case sdkfuncz.TypClientInfer:
+                 return c.infer.Execute(ctx, fn) // 3-step inference pipeline
+             default:
+                 return 400, fmt.Errorf("unknown sdkfunc typ: %s", spec.Typ)
+             }
+         },
+     }
+     ```
+   - Matches Python (`client.funcs()`) and Web (`client.funcs()`) with 100% behavioral parity.
 
 #### 6. SQLite Analytical Execution & `fsz`-Backed Caching Engine (`sdkgo`)
 Client analytical workflows (`dash` and `infer`) execute pre-aggregated SQLite databases (`sqlite.bin`) locally on client hardware, avoiding central database bottlenecks and enabling sub-millisecond query execution.
@@ -497,7 +514,8 @@ Each `api*z` module in `i6sdk` pairs with a corresponding backend service reposi
   - Stored `namedqueries` query runner with JSON parameter binding (`?1`) and `ret` column parsing.
 - **Step 6: Inference Orchestrator (`sdkgo/infer`)**:
   - 3-step inference pipeline: local candidate query (`input`), server-side `TfzModelPredict`, and local ranking/hydration (`output`).
-- **Step 7: Workflow Facade (`client.Funcs()`)**:
-  - Wire `client.Funcs()` delegating to `Dash` and `Infer` workflows with full 1:1 parity against Python and Web.
+- **Step 7: Workflow Facade (`client.Funcs()` & `SdkFuncInvokerFunc`)**:
+  - Implement `apicollectionz.SdkFuncInvokerFunc` inside `I6Client`, routing `TypClientQuery` to `Dash` and `TypClientInfer` to `Infer`.
+  - Wire `client.Funcs()` with full 1:1 workflow method parity against Python and Web.
 - **Step 8: Automated Verification**:
   - Comprehensive unit testing (`TestUnit*`) following mono-repo standards and validating parity against `FEATURES_TABLE.md`.
