@@ -95,6 +95,7 @@ function cmd_release() {
     false
   fi
   cmd_i6sdk_set_version "$_version"
+  cmd_codegen
   # local _go_base_path="$(_go_base_path)"
   # local _go_dep_mod=""
   # GOWORK=off go list -mod=readonly -m "$_go_base_path/..." | \
