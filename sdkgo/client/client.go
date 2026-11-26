@@ -15,6 +15,7 @@ import (
 	"github.com/infinity6-ai/i6sdk/sdkcorez/sdkfuncz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/speclabels/speclabeltokentype"
 	"github.com/infinity6-ai/i6sdk/sdkgo/config"
+	"github.com/infinity6-ai/i6sdk/sdkgo/dash"
 	"github.com/infinity6-ai/i6sdk/sdkgo/internal/fszcache"
 	"github.com/infinity6-ai/i6sdk/sdkgo/tokens"
 	"github.com/infinity6-ai/i6sdk/sdkgo/tokenstore"
@@ -50,6 +51,7 @@ type I6Client struct {
 
 	apis  *apicollectionz.SdkApis
 	funcs *apicollectionz.SdkFuncs
+	dash  *dash.Client
 }
 
 // New constructs an I6Client configured with the provided Options.
@@ -188,10 +190,27 @@ func New(opts config.Options) (*I6Client, error) {
 		InitialToken: c.initialToken,
 	})
 
-	// 8. Initialize SdkFuncs with fallback invoker (wired in Step 4.7)
+	// 8. Dash analytical query runner
+	fsStore, err := fszcache.NewFs(c.cacheUrl)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize fszcache store: %w", err)
+	}
+	downloader := fszcache.NewDownloader(fsStore)
+	c.dash = dash.New(dash.Options{
+		Apis:       c.apis,
+		Downloader: downloader,
+	})
+
+	// 9. Initialize SdkFuncs with Dash delegator for client analytical queries
 	c.funcs = &apicollectionz.SdkFuncs{
 		Invoker: func(ctx context.Context, fn sdkfuncz.Func) (int, error) {
-			return 501, fmt.Errorf("sdkfunc invoker not yet wired: step 4.7")
+			spec := fn.SdkFuncSpec()
+			switch spec.Typ {
+			case sdkfuncz.TypClientQuery:
+				return c.dash.Execute(ctx, fn)
+			default:
+				return 501, fmt.Errorf("sdkfunc typ %q not yet implemented", spec.Typ)
+			}
 		},
 	}
 
@@ -277,4 +296,9 @@ func (c *I6Client) InitialToken() string {
 // Tokens returns the Token Manager instance.
 func (c *I6Client) Tokens() *tokens.Manager {
 	return c.tokens
+}
+
+// Dash returns the Dash analytical query runner.
+func (c *I6Client) Dash() *dash.Client {
+	return c.dash
 }

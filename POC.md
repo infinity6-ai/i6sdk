@@ -561,12 +561,13 @@ Each `api*z` module in `i6sdk` pairs with a corresponding backend service reposi
     - Handles HTTP 200 (streams to `blob.bin.tmp`, atomic rename, updates `version.txt`, and prunes older versions).
     - Stale cache fallback on upstream network errors.
   - Added unit test suite `fszcache_unit_test.go` covering cache hits, TTL bypass, 304 revalidation, 200 updates, and error fallbacks.
-- **Step 5B: SQLite Dash Engine (`sdkgo/dash`, `sdkgo/internal/sqlitez`)**:
-  - Pure-Go CGO-free SQLite connection runner using `github.com/ncruces/go-sqlite3`.
-  - Stored `namedqueries` query runner: `SELECT query FROM namedqueries WHERE name = ?` with JSON parameter binding (`?1`) and typed unmarshaling of column `ret`.
-  - Analytical artifact resolution via `client.Apis().DszSignedUrl(...)` for `i6tb://results.relevance-fashion-store-dash/store_id={store_id}/sqlite.bin`.
-  - High-level `Dash.Query` analytical runner with partition key hashing and downloader integration.
-  - Add unit test suite `dash_unit_test.go` verifying query execution against generated SQLite binaries.
+- **Step 5B: SQLite Dash Engine (`sdkgo/dash`, `sdkgo/internal/sqlitez`) [DONE]**:
+  - Implemented pure-Go CGO-free SQLite connection runner `sqlitez.Conn` using `modernc.org/sqlite` with read-only URI mode and in-memory execution.
+  - Implemented stored `namedqueries` table query runner with positional JSON parameter binding (`?1`, `?2`, ...) and column `ret` parsing.
+  - Implemented analytical artifact signed URL resolution via `client.Apis().DszSignedUrl(...)` for `i6tb://results.relevance-fashion-store-dash/store_id={store_id}/sqlite.bin`.
+  - Implemented `dash.Client` with `PartitionsKey` deterministic hashing, `fszcache` downloader integration, and `Execute(ctx, fn)` workflow runner.
+  - Integrated `dash.Client` into `sdkgo/client`, exposing `client.Dash()` and wiring `client.Funcs()` to automatically dispatch all `TypClientQuery` analytical workflows to Dash.
+  - Added unit test suites `sqlitez_unit_test.go`, `dash_unit_test.go`, and end-to-end workflow verification in `client_unit_test.go`.
 - **Step 6: Inference Orchestrator (`sdkgo/infer`)**:
   - 3-step inference pipeline: local candidate query (`input`), server-side `TfzModelPredict`, and local ranking/hydration (`output`).
 - **Step 7: Workflow Facade (`client.Funcs()` & `SdkFuncInvokerFunc`)**:

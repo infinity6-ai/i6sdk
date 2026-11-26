@@ -2,8 +2,12 @@ package client_test
 
 import (
 	"context"
+	"database/sql"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/infinity6-ai/gox/commonz/urlz"
@@ -11,10 +15,12 @@ import (
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapistorelist"
 	"github.com/infinity6-ai/i6sdk/apiuserz/userapiauthlogout"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/dash/relevancefashiondashfunnel"
 	"github.com/infinity6-ai/i6sdk/sdkgo/client"
 	"github.com/infinity6-ai/i6sdk/sdkgo/config"
 	"github.com/infinity6-ai/i6sdk/sdkgo/tokens"
 	"github.com/stretchr/testify/require"
+	_ "modernc.org/sqlite"
 )
 
 type customTokenStore struct {
@@ -318,5 +324,74 @@ func TestUnitClientConstruction(t *testing.T) {
 		status, err := c.Apis().DszListStores(t.Context(), api)
 		require.NoError(t, err)
 		require.Equal(t, http.StatusOK, status)
+	})
+
+	t.Run("Funcs executes analytical query via Dash runner", func(t *testing.T) {
+		tmpDir, err := os.MkdirTemp("", "client-dash-test-*")
+		require.NoError(t, err)
+		defer os.RemoveAll(tmpDir)
+
+		dbPath := filepath.Join(tmpDir, "dash.sqlite")
+		db, err := sql.Open("sqlite", dbPath)
+		require.NoError(t, err)
+		_, err = db.Exec("CREATE TABLE namedqueries (name TEXT PRIMARY KEY, query TEXT NOT NULL)")
+		require.NoError(t, err)
+		_, err = db.Exec(`
+			INSERT INTO namedqueries (name, query) VALUES 
+			('product-relevance-fashion-dash-funnel', 
+			'SELECT json_object("results", json_object("rows", json_array(json_object("event_type", "view", "from_rec", "true", "qt_events", "999")))) AS ret')
+		`)
+		require.NoError(t, err)
+		db.Close()
+
+		dbBytes, err := os.ReadFile(dbPath)
+		require.NoError(t, err)
+
+		tsStorage := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("ETag", `"etag-db"`)
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(dbBytes)
+		}))
+		defer tsStorage.Close()
+
+		tsApi := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			require.Equal(t, "/api/ds/dataset/fashion-ds/signed-url", r.URL.Path)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte(fmt.Sprintf(`{"urls":[{"url":%q}]}`, tsStorage.URL)))
+		}))
+		defer tsApi.Close()
+
+		c, err := client.New(config.Options{
+			Urls: config.UrlOptions{
+				Decsuite: tsApi.URL,
+			},
+			Cache: config.CacheOptions{
+				Dir: filepath.Join(tmpDir, "cache"),
+			},
+		})
+		require.NoError(t, err)
+		require.NotNil(t, c.Dash())
+		require.NotNil(t, c.Funcs())
+
+		fn := &relevancefashiondashfunnel.Func{
+			Req: &relevancefashiondashfunnel.Req{
+				Input: &relevancefashiondashfunnel.ReqInput{
+					Dataset: lakedsz.MustParse("fashion-ds"),
+				},
+				Partitions: &relevancefashiondashfunnel.ReqPartitions{
+					StoreId: "1",
+				},
+			},
+		}
+
+		status, err := c.Funcs().ProductRelevanceFashionDashFunnelV1(t.Context(), fn)
+		require.NoError(t, err)
+		require.Equal(t, http.StatusOK, status)
+		require.NotNil(t, fn.Resp)
+		require.NotNil(t, fn.Resp.Output)
+		require.Len(t, fn.Resp.Output.Results.Rows, 1)
+		require.Equal(t, "view", fn.Resp.Output.Results.Rows[0].EventType)
+		require.Equal(t, "999", fn.Resp.Output.Results.Rows[0].QtEvents)
 	})
 }
