@@ -5,7 +5,6 @@ export GIT_SSH_COMMAND="${GIT_SSH_COMMAND:-ssh}"
 function cmd_build() {
   ./build.sh work_init
   ./build.sh tidy
-  
   rm -v go.work go.work.sum || true
   ./build.sh gomod_upgrade
   ./build.sh update
