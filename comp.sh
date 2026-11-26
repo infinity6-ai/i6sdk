@@ -94,7 +94,7 @@ function cmd_release() {
     echo "tag already exists: $_tag" 1>&2
     false
   fi
-  i6sdk_set_version "$_version"
+  cmd_i6sdk_set_version "$_version"
   # local _go_base_path="$(_go_base_path)"
   # local _go_dep_mod=""
   # GOWORK=off go list -mod=readonly -m "$_go_base_path/..." | \
