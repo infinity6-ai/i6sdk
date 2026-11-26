@@ -47,7 +47,7 @@ func New(opts config.Options) (*I6Client, error) {
 	// 1. Resolve URLs
 	decUrlStr := opts.Urls.Decsuite
 	if decUrlStr == "" {
-		decUrlStr = config.DefaultDecsuiteUrl
+		decUrlStr = config.DefaultUrlOptions.Decsuite
 	}
 	decUrl, err := urlz.Parse(decUrlStr)
 	if err != nil {
@@ -57,7 +57,7 @@ func New(opts config.Options) (*I6Client, error) {
 
 	tfUrlStr := opts.Urls.Tfinfer
 	if tfUrlStr == "" {
-		tfUrlStr = config.DefaultTfinferUrl
+		tfUrlStr = config.DefaultUrlOptions.Tfinfer
 	}
 	tfUrl, err := urlz.Parse(tfUrlStr)
 	if err != nil {
@@ -67,7 +67,7 @@ func New(opts config.Options) (*I6Client, error) {
 
 	userUrlStr := opts.Urls.Userz
 	if userUrlStr == "" {
-		userUrlStr = config.DefaultUserzUrl
+		userUrlStr = config.DefaultUrlOptions.Userz
 	}
 	userUrl, err := urlz.Parse(userUrlStr)
 	if err != nil {

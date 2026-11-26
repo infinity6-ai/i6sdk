@@ -87,35 +87,35 @@ func TestUnitClientConstruction(t *testing.T) {
 
 	t.Run("Default client construction with production URLs", func(t *testing.T) {
 		check(t, testScenario{
-			wantDecsuite:    config.ProdDecsuiteUrl,
-			wantTfinfer:     config.ProdTfinferUrl,
-			wantUserz:       config.ProdUserzUrl,
+			wantDecsuite:    config.DefaultUrlOptions.Decsuite,
+			wantTfinfer:     config.DefaultUrlOptions.Tfinfer,
+			wantUserz:       config.DefaultUrlOptions.Userz,
 			wantMemoryCache: false,
 			wantCacheScheme: "file",
 		})
 	})
 
-	t.Run("Client construction with SandboxUrls preset", func(t *testing.T) {
+	t.Run("Client construction with SandboxUrlOptions preset", func(t *testing.T) {
 		check(t, testScenario{
 			opts: config.Options{
-				Urls: config.SandboxUrls,
+				Urls: config.SandboxUrlOptions,
 			},
-			wantDecsuite:    config.SandboxDecsuiteUrl,
-			wantTfinfer:     config.SandboxTfinferUrl,
-			wantUserz:       config.SandboxUserzUrl,
+			wantDecsuite:    config.SandboxUrlOptions.Decsuite,
+			wantTfinfer:     config.SandboxUrlOptions.Tfinfer,
+			wantUserz:       config.SandboxUrlOptions.Userz,
 			wantMemoryCache: false,
 			wantCacheScheme: "file",
 		})
 	})
 
-	t.Run("Client construction with StagingUrls preset", func(t *testing.T) {
+	t.Run("Client construction with StagingUrlOptions preset", func(t *testing.T) {
 		check(t, testScenario{
 			opts: config.Options{
-				Urls: config.StagingUrls,
+				Urls: config.StagingUrlOptions,
 			},
-			wantDecsuite:    config.StagingDecsuiteUrl,
-			wantTfinfer:     config.StagingTfinferUrl,
-			wantUserz:       config.StagingUserzUrl,
+			wantDecsuite:    config.StagingUrlOptions.Decsuite,
+			wantTfinfer:     config.StagingUrlOptions.Tfinfer,
+			wantUserz:       config.StagingUrlOptions.Userz,
 			wantMemoryCache: false,
 			wantCacheScheme: "file",
 		})
@@ -145,9 +145,9 @@ func TestUnitClientConstruction(t *testing.T) {
 			opts: config.Options{
 				Cache: config.CacheOptions{Memory: true},
 			},
-			wantDecsuite:    config.DefaultDecsuiteUrl,
-			wantTfinfer:     config.DefaultTfinferUrl,
-			wantUserz:       config.DefaultUserzUrl,
+			wantDecsuite:    config.DefaultUrlOptions.Decsuite,
+			wantTfinfer:     config.DefaultUrlOptions.Tfinfer,
+			wantUserz:       config.DefaultUrlOptions.Userz,
 			wantMemoryCache: true,
 			wantCacheScheme: "",
 		})
@@ -158,9 +158,9 @@ func TestUnitClientConstruction(t *testing.T) {
 			opts: config.Options{
 				Cache: config.CacheOptions{Dir: "/tmp/custom-i6-cache"},
 			},
-			wantDecsuite:    config.DefaultDecsuiteUrl,
-			wantTfinfer:     config.DefaultTfinferUrl,
-			wantUserz:       config.DefaultUserzUrl,
+			wantDecsuite:    config.DefaultUrlOptions.Decsuite,
+			wantTfinfer:     config.DefaultUrlOptions.Tfinfer,
+			wantUserz:       config.DefaultUrlOptions.Userz,
 			wantMemoryCache: false,
 			wantCacheScheme: "file",
 		})
@@ -172,9 +172,9 @@ func TestUnitClientConstruction(t *testing.T) {
 			opts: config.Options{
 				Cache: config.CacheOptions{Url: customUrl},
 			},
-			wantDecsuite:    config.DefaultDecsuiteUrl,
-			wantTfinfer:     config.DefaultTfinferUrl,
-			wantUserz:       config.DefaultUserzUrl,
+			wantDecsuite:    config.DefaultUrlOptions.Decsuite,
+			wantTfinfer:     config.DefaultUrlOptions.Tfinfer,
+			wantUserz:       config.DefaultUrlOptions.Userz,
 			wantMemoryCache: false,
 			wantCacheScheme: "file",
 		})
