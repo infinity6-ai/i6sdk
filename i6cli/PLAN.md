@@ -93,26 +93,25 @@ Commands follow modern CLI standards (`i6 <domain> <action> [flags]`):
 
 ## 4. Configuration & State Layout
 
-Following the XDG Base Directory specification:
+All CLI configuration, credentials, and local caches are unified under a single base directory:
+
+- **Environment Variable**: `I6_CLI_BASE_DIR` (sole environment variable for CLI storage configuration).
+- **Default Path**: `$HOME/.config/i6/cli/`
 
 ```
-$XDG_CONFIG_HOME/i6/ (or ~/.config/i6/ or ~/.i6/)
-├── config.json          # Active profile, environment, default dataset, timeout settings
-└── tokens.json          # Atomic credential store via tokenstore.NewFsz (0600 permissions)
-
-$XDG_CACHE_HOME/i6/ (or ~/.cache/i6/ or ~/.i6/cache/)
-├── dash/                # Cached SQLite analytical databases and etag trackers
-└── infer/               # Cached SQLite candidate/hydration databases and models
+$I6_CLI_BASE_DIR/ (defaults to $HOME/.config/i6/cli/)
+├── config.json          # Active profile, environment preset, default dataset, timeouts
+├── tokens.json          # Atomic credential store via tokenstore.NewFsz (0600 permissions)
+└── cache/               # Shared with fszcache (SQLite blobs, query definitions, etags)
+    ├── dash/
+    └── infer/
 ```
 
-### Environment Variable Overrides
-Every CLI option can be overridden by environment variables:
-- `I6_TOKEN`: Explicit API access token.
-- `I6_DATASET`: Default dataset ID.
-- `I6_ENV`: Environment preset (`sandbox`, `staging`, `production`).
-- `I6_PROFILE`: Active configuration profile.
-- `I6_CONFIG_DIR`: Custom configuration directory path.
-- `I6_CACHE_DIR`: Custom cache directory path.
+### Configuration Hierarchy
+Resolution priority for CLI execution:
+1. **Explicit CLI Flags** (e.g. `--token`, `--dataset`, `--env`, `--profile`)
+2. **Active Profile Configuration** (`$I6_CLI_BASE_DIR/config.json`)
+3. **Environment Directory Override** (`I6_CLI_BASE_DIR`, defaulting to `$HOME/.config/i6/cli/`)
 
 ---
 
