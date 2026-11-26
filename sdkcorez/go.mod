@@ -8,7 +8,7 @@ require (
 	github.com/infinity6-ai/gox/cryptz v0.0.80
 	github.com/infinity6-ai/gox/fsz v0.0.80
 	github.com/infinity6-ai/gox/schemaz v0.0.80
-	github.com/infinity6-ai/i6sdk/versionz v0.0.10
+	github.com/infinity6-ai/i6sdk/versionz v0.0.11-0.20261126020737-a176a134044f
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.12.1
 	go.opentelemetry.io/otel v1.47.0

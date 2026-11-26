@@ -3,12 +3,14 @@ package client
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"os"
 	"path/filepath"
-	"time"
+	"strings"
 
 	"github.com/infinity6-ai/gox/commonz/urlz"
+	"github.com/infinity6-ai/gox/httpz/httpzclient"
+	"github.com/infinity6-ai/gox/httpz/httpzrequest"
+	"github.com/infinity6-ai/gox/routez/apiclientz"
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/i6sdk/apicollectionz/apicollectionz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/sdkfuncz"
@@ -29,54 +31,96 @@ const (
 // I6Client is the primary client for the Infinity6 SDK.
 type I6Client struct {
 	tokenStore   TokenStore
-	httpClient   *http.Client
-	decsuiteUrl  *urlz.Url
-	tfinferUrl   *urlz.Url
-	userzUrl     *urlz.Url
 	cacheUrl     *urlz.Url
 	memoryCache  bool
 	initialToken string
+
+	decsuiteUrl *urlz.Url
+	tfinferUrl  *urlz.Url
+	userzUrl    *urlz.Url
+
+	decsuiteClient *httpzclient.Client
+	tfinferClient  *httpzclient.Client
+	userzClient    *httpzclient.Client
 
 	apis  *apicollectionz.SdkApis
 	funcs *apicollectionz.SdkFuncs
 }
 
-// New constructs an I6Client with the provided options. Alias of NewClient.
-func New(opts ...Option) (*I6Client, error) {
-	return NewClient(opts...)
-}
-
-// NewClient constructs an I6Client with the provided options.
-func NewClient(opts ...Option) (*I6Client, error) {
+// New constructs an I6Client configured with the provided Options.
+func New(opts Options) (*I6Client, error) {
+	ctx := context.Background()
 	c := &I6Client{
-		httpClient: &http.Client{Timeout: 60 * time.Second},
-		tokenStore: newMemoryTokenStore(),
+		initialToken: opts.Token,
 	}
 
-	// Apply options
-	for _, opt := range opts {
-		if err := opt(c); err != nil {
-			return nil, fmt.Errorf("failed to apply client option: %w", err)
+	// 1. Resolve URLs
+	decUrlStr := opts.Urls.Decsuite
+	if decUrlStr == "" {
+		decUrlStr = DefaultDecsuiteUrl
+	}
+	decUrl, err := urlz.Parse(decUrlStr)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse decsuite url %q: %w", decUrlStr, err)
+	}
+	c.decsuiteUrl = decUrl
+
+	tfUrlStr := opts.Urls.Tfinfer
+	if tfUrlStr == "" {
+		tfUrlStr = DefaultTfinferUrl
+	}
+	tfUrl, err := urlz.Parse(tfUrlStr)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse tfinfer url %q: %w", tfUrlStr, err)
+	}
+	c.tfinferUrl = tfUrl
+
+	userUrlStr := opts.Urls.Userz
+	if userUrlStr == "" {
+		userUrlStr = DefaultUserzUrl
+	}
+	userUrl, err := urlz.Parse(userUrlStr)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse userz url %q: %w", userUrlStr, err)
+	}
+	c.userzUrl = userUrl
+
+	// 2. Auth filter for bearer token injection
+	authFilter := func(ctx context.Context, req *httpzrequest.Req, next httpzclient.Handler) (*httpzclient.Resp, error) {
+		if c.initialToken != "" && req.Headers.Get("Authorization") == "" {
+			req.Headers.Set("Authorization", "Bearer "+c.initialToken)
 		}
+		return next(ctx, req)
 	}
 
-	// 1. Resolve decsuite URL
-	if c.decsuiteUrl == nil {
-		c.decsuiteUrl = urlz.MustParse(DefaultDecsuiteUrl)
-	}
+	// 3. Initialize httpzclient instances with BaseUrl and auth filter
+	decOpts := opts.Http
+	decOpts.BaseUrl = decUrl
+	c.decsuiteClient = httpzclient.New(ctx, decOpts)
+	c.decsuiteClient.AddFilter(authFilter)
 
-	// 2. Resolve tfinfer URL
-	if c.tfinferUrl == nil {
-		c.tfinferUrl = urlz.MustParse(DefaultTfinferUrl)
-	}
+	tfOpts := opts.Http
+	tfOpts.BaseUrl = tfUrl
+	c.tfinferClient = httpzclient.New(ctx, tfOpts)
+	c.tfinferClient.AddFilter(authFilter)
 
-	// 3. Resolve userz URL
-	if c.userzUrl == nil {
-		c.userzUrl = urlz.MustParse(DefaultUserzUrl)
-	}
+	userOpts := opts.Http
+	userOpts.BaseUrl = userUrl
+	c.userzClient = httpzclient.New(ctx, userOpts)
+	c.userzClient.AddFilter(authFilter)
 
-	// 4. Default cache directory if not explicitly set and not in memory mode
-	if !c.memoryCache && c.cacheUrl == nil {
+	// 4. Resolve cache settings
+	if opts.Cache.Memory {
+		c.memoryCache = true
+	} else if opts.Cache.Url != nil {
+		c.cacheUrl = opts.Cache.Url
+	} else if opts.Cache.Dir != "" {
+		absDir, err := filepath.Abs(opts.Cache.Dir)
+		if err != nil {
+			return nil, fmt.Errorf("failed to resolve absolute cache dir %q: %w", opts.Cache.Dir, err)
+		}
+		c.cacheUrl = urlz.MustParse("file://" + filepath.Clean(absDir))
+	} else {
 		homeDir, err := os.UserHomeDir()
 		if err != nil {
 			homeDir = os.TempDir()
@@ -85,21 +129,40 @@ func NewClient(opts ...Option) (*I6Client, error) {
 		c.cacheUrl = urlz.MustParse("file://" + filepath.Clean(defaultCache))
 	}
 
-	// Initialize SdkApis with initial fallback invoker
+	// 5. Token store
+	if opts.TokenStore != nil {
+		c.tokenStore = opts.TokenStore
+	} else {
+		c.tokenStore = newMemoryTokenStore()
+	}
+
+	// 6. Initialize SdkApis with apiclientz invoker dispatching by service path
 	c.apis = &apicollectionz.SdkApis{
 		Invoker: func(ctx context.Context, api apiz.Api) (int, error) {
-			return http.StatusNotImplemented, fmt.Errorf("transport invoker not yet wired: step 4.3")
+			targetClient := c.ClientForPath(api.ApiSpec().Path)
+			return apiclientz.Do(ctx, targetClient, api)
 		},
 	}
 
-	// Initialize SdkFuncs with initial fallback invoker
+	// 7. Initialize SdkFuncs with fallback invoker (wired in Step 4.7)
 	c.funcs = &apicollectionz.SdkFuncs{
 		Invoker: func(ctx context.Context, fn sdkfuncz.Func) (int, error) {
-			return http.StatusNotImplemented, fmt.Errorf("sdkfunc invoker not yet wired: step 4.7")
+			return 501, fmt.Errorf("sdkfunc invoker not yet wired: step 4.7")
 		},
 	}
 
 	return c, nil
+}
+
+// ClientForPath routes an API path to the appropriate service httpzclient.Client.
+func (c *I6Client) ClientForPath(path string) *httpzclient.Client {
+	if strings.HasPrefix(path, "/api/userz/") {
+		return c.userzClient
+	}
+	if strings.HasPrefix(path, "/api/metadata/") || strings.HasPrefix(path, "/api/model/") {
+		return c.tfinferClient
+	}
+	return c.decsuiteClient
 }
 
 // Apis returns the typed SdkApis client containing all API endpoints.
@@ -127,29 +190,24 @@ func (c *I6Client) UserzUrl() *urlz.Url {
 	return c.userzUrl
 }
 
-// BaseUrl returns the base API URL (alias of DecsuiteUrl).
+// BaseUrl returns the default Decsuite base URL.
 func (c *I6Client) BaseUrl() *urlz.Url {
 	return c.decsuiteUrl
 }
 
-// ServiceUrl returns the target URL for a given service name ("decsuite", "tfinfer", "userz").
-func (c *I6Client) ServiceUrl(service string) *urlz.Url {
-	switch service {
-	case "tfinfer":
-		if c.tfinferUrl != nil {
-			return c.tfinferUrl
-		}
-	case "userz":
-		if c.userzUrl != nil {
-			return c.userzUrl
-		}
-	}
-	return c.decsuiteUrl
+// DecsuiteClient returns the httpzclient for the Decsuite service.
+func (c *I6Client) DecsuiteClient() *httpzclient.Client {
+	return c.decsuiteClient
 }
 
-// HttpClient returns the configured HTTP client.
-func (c *I6Client) HttpClient() *http.Client {
-	return c.httpClient
+// TfinferClient returns the httpzclient for the TensorFlow Inference service.
+func (c *I6Client) TfinferClient() *httpzclient.Client {
+	return c.tfinferClient
+}
+
+// UserzClient returns the httpzclient for the Userz service.
+func (c *I6Client) UserzClient() *httpzclient.Client {
+	return c.userzClient
 }
 
 // CacheUrl returns the configured fsz cache URL.

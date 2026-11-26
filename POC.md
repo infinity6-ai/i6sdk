@@ -499,14 +499,16 @@ Each `api*z` module in `i6sdk` pairs with a corresponding backend service reposi
 
 ### Phase 4: Build `sdkgo` Runtime [IN PROGRESS]
 - **Step 1: Client Lifecycle & Configuration (`sdkgo/client`) [DONE]**:
-  - Implemented `I6Client` container with explicit functional options (`WithToken`, `WithDecsuiteUrl`, `WithTfinferUrl`, `WithUserzUrl`, `WithBaseUrl`, `WithServiceUrls`, `WithStaging`, `WithSandbox`, `WithHttpClient`, `WithCacheDir`, `WithCacheUrl`, `WithMemoryCache`, `WithTokenStore`).
-  - Standardized on mandatory explicit configuration and constant sandbox defaults without implicit environment variable fallbacks.
-  - Added unit test suite `client_unit_test.go` verifying all options and defaults.
+  - Implemented `I6Client` container with typed `Options` struct (`Token`, `Urls`, `Cache`, `TokenStore`, `Http`).
+  - Powered by three `httpzclient.Client` instances (`decsuite`, `tfinfer`, `userz`) with automatic bearer token filter.
+  - Standardized on mandatory explicit configuration and constant sandbox/staging presets (`SandboxUrls`, `StagingUrls`) without implicit environment variable fallbacks.
+  - Added unit test suite `client_unit_test.go` verifying options, path routing, and HTTP client propagation.
 - **Step 2: Token Management & Multi-Tier Storage (`sdkgo/tokens`)**:
   - Implement `TokenStore` interface with `MemoryTokenStore` (default in-memory with `sync.RWMutex`), `FszTokenStore` (atomic persistence over `gox/fsz`), and custom pluggable stores.
   - Implement double-checked locking, automatic background renewal before expiration, and dataset token derivation.
-- **Step 3: Transport Invoker (`sdkgo/invoker`)**:
-  - Implement `Invoker` executing `client.Apis().<Method>(ctx, api)` over HTTP with structured error handling.
+- **Step 3: Transport Invoker (`sdkgo/invoker` via `apiclientz`) [DONE]**:
+  - Wired `client.Apis()` directly to `apiclientz.Do(ctx, targetClient, api)` dispatching by API spec path.
+  - Verified end-to-end API execution against `httptest.Server` with bearer authentication in `client_unit_test.go`.
 - **Step 4: Ingestion Engine (`sdkgo/ingest`)**:
   - Multi-stream chunked uploads with concurrency control, retry policies, and progress callback hooks.
 - **Step 5: `fsz`-Backed SQLite Cache & Engine (`sdkgo/dash`, `sdkgo/internal/fszcache`)**:

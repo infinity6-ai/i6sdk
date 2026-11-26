@@ -3,10 +3,12 @@ package client_test
 import (
 	"context"
 	"net/http"
+	"net/http/httptest"
 	"testing"
-	"time"
 
 	"github.com/infinity6-ai/gox/commonz/urlz"
+	"github.com/infinity6-ai/gox/httpz/httpzclient"
+	"github.com/infinity6-ai/i6sdk/apiuserz/userapiauthlogout"
 	"github.com/infinity6-ai/i6sdk/sdkgo/client"
 	"github.com/stretchr/testify/require"
 )
@@ -31,7 +33,7 @@ func (c *customTokenStore) Delete(_ context.Context, key string) error {
 
 func TestUnitClientConstruction(t *testing.T) {
 	type testScenario struct {
-		opts            []client.Option
+		opts            client.Options
 		wantDecsuite    string
 		wantTfinfer     string
 		wantUserz       string
@@ -44,7 +46,7 @@ func TestUnitClientConstruction(t *testing.T) {
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
 
-		c, err := client.NewClient(s.opts...)
+		c, err := client.New(s.opts)
 		if s.wantErr != "" {
 			require.Error(t, err)
 			require.Contains(t, err.Error(), s.wantErr)
@@ -55,22 +57,20 @@ func TestUnitClientConstruction(t *testing.T) {
 		require.NotNil(t, c)
 		require.NotNil(t, c.Apis())
 		require.NotNil(t, c.Funcs())
-		require.NotNil(t, c.HttpClient())
+		require.NotNil(t, c.DecsuiteClient())
+		require.NotNil(t, c.TfinferClient())
+		require.NotNil(t, c.UserzClient())
 		require.NotNil(t, c.TokenStore())
 
 		if s.wantDecsuite != "" {
 			require.Equal(t, s.wantDecsuite, c.DecsuiteUrl().String())
 			require.Equal(t, s.wantDecsuite, c.BaseUrl().String())
-			require.Equal(t, s.wantDecsuite, c.ServiceUrl("decsuite").String())
-			require.Equal(t, s.wantDecsuite, c.ServiceUrl("other").String())
 		}
 		if s.wantTfinfer != "" {
 			require.Equal(t, s.wantTfinfer, c.TfinferUrl().String())
-			require.Equal(t, s.wantTfinfer, c.ServiceUrl("tfinfer").String())
 		}
 		if s.wantUserz != "" {
 			require.Equal(t, s.wantUserz, c.UserzUrl().String())
-			require.Equal(t, s.wantUserz, c.ServiceUrl("userz").String())
 		}
 		if s.wantToken != "" {
 			require.Equal(t, s.wantToken, c.InitialToken())
@@ -94,13 +94,15 @@ func TestUnitClientConstruction(t *testing.T) {
 		})
 	})
 
-	t.Run("Client construction with explicit 3 URLs", func(t *testing.T) {
+	t.Run("Client construction with explicit UrlOptions", func(t *testing.T) {
 		check(t, testScenario{
-			opts: []client.Option{
-				client.WithToken("my-token"),
-				client.WithDecsuiteUrl("https://custom.decsuite.ai"),
-				client.WithTfinferUrl("https://custom.tfinfer.ai"),
-				client.WithUserzUrl("https://custom.userz.ai"),
+			opts: client.Options{
+				Token: "my-token",
+				Urls: client.UrlOptions{
+					Decsuite: "https://custom.decsuite.ai",
+					Tfinfer:  "https://custom.tfinfer.ai",
+					Userz:    "https://custom.userz.ai",
+				},
 			},
 			wantDecsuite:    "https://custom.decsuite.ai",
 			wantTfinfer:     "https://custom.tfinfer.ai",
@@ -111,27 +113,10 @@ func TestUnitClientConstruction(t *testing.T) {
 		})
 	})
 
-	t.Run("Client construction with WithServiceUrls map", func(t *testing.T) {
+	t.Run("Client construction with StagingUrls preset", func(t *testing.T) {
 		check(t, testScenario{
-			opts: []client.Option{
-				client.WithServiceUrls(map[string]string{
-					"decsuite": "https://map.decsuite.ai",
-					"tfinfer":  "https://map.tfinfer.ai",
-					"userz":    "https://map.userz.ai",
-				}),
-			},
-			wantDecsuite:    "https://map.decsuite.ai",
-			wantTfinfer:     "https://map.tfinfer.ai",
-			wantUserz:       "https://map.userz.ai",
-			wantMemoryCache: false,
-			wantCacheScheme: "file",
-		})
-	})
-
-	t.Run("Client construction with WithStaging preset", func(t *testing.T) {
-		check(t, testScenario{
-			opts: []client.Option{
-				client.WithStaging(),
+			opts: client.Options{
+				Urls: client.StagingUrls,
 			},
 			wantDecsuite:    client.StagingDecsuiteUrl,
 			wantTfinfer:     client.StagingTfinferUrl,
@@ -143,10 +128,12 @@ func TestUnitClientConstruction(t *testing.T) {
 
 	t.Run("In-memory cache option enables memoryCache flag", func(t *testing.T) {
 		check(t, testScenario{
-			opts: []client.Option{
-				client.WithMemoryCache(),
+			opts: client.Options{
+				Cache: client.CacheOptions{Memory: true},
 			},
 			wantDecsuite:    client.DefaultDecsuiteUrl,
+			wantTfinfer:     client.DefaultTfinferUrl,
+			wantUserz:       client.DefaultUserzUrl,
 			wantMemoryCache: true,
 			wantCacheScheme: "",
 		})
@@ -154,10 +141,12 @@ func TestUnitClientConstruction(t *testing.T) {
 
 	t.Run("Custom cache directory option sets file scheme url", func(t *testing.T) {
 		check(t, testScenario{
-			opts: []client.Option{
-				client.WithCacheDir("/tmp/custom-i6-cache"),
+			opts: client.Options{
+				Cache: client.CacheOptions{Dir: "/tmp/custom-i6-cache"},
 			},
 			wantDecsuite:    client.DefaultDecsuiteUrl,
+			wantTfinfer:     client.DefaultTfinferUrl,
+			wantUserz:       client.DefaultUserzUrl,
 			wantMemoryCache: false,
 			wantCacheScheme: "file",
 		})
@@ -166,47 +155,20 @@ func TestUnitClientConstruction(t *testing.T) {
 	t.Run("Custom cache url option configures exact url", func(t *testing.T) {
 		customUrl := urlz.MustParse("file:///var/custom/cache")
 		check(t, testScenario{
-			opts: []client.Option{
-				client.WithCacheUrl(customUrl),
+			opts: client.Options{
+				Cache: client.CacheOptions{Url: customUrl},
 			},
 			wantDecsuite:    client.DefaultDecsuiteUrl,
+			wantTfinfer:     client.DefaultTfinferUrl,
+			wantUserz:       client.DefaultUserzUrl,
 			wantMemoryCache: false,
 			wantCacheScheme: "file",
 		})
 	})
 
-	t.Run("Nil http client returns error", func(t *testing.T) {
-		check(t, testScenario{
-			opts: []client.Option{
-				client.WithHttpClient(nil),
-			},
-			wantErr: "http client cannot be nil",
-		})
-	})
-
-	t.Run("Nil token store returns error", func(t *testing.T) {
-		check(t, testScenario{
-			opts: []client.Option{
-				client.WithTokenStore(nil),
-			},
-			wantErr: "token store cannot be nil",
-		})
-	})
-
-	t.Run("Unknown service name in WithServiceUrls returns error", func(t *testing.T) {
-		check(t, testScenario{
-			opts: []client.Option{
-				client.WithServiceUrls(map[string]string{
-					"unknown_srv": "https://api.test",
-				}),
-			},
-			wantErr: "unknown service name",
-		})
-	})
-
 	t.Run("Custom token store is successfully registered", func(t *testing.T) {
 		myStore := &customTokenStore{val: "secret"}
-		c, err := client.New(client.WithTokenStore(myStore))
+		c, err := client.New(client.Options{TokenStore: myStore})
 		require.NoError(t, err)
 		require.Equal(t, myStore, c.TokenStore())
 
@@ -215,10 +177,61 @@ func TestUnitClientConstruction(t *testing.T) {
 		require.Equal(t, "secret", val)
 	})
 
-	t.Run("Custom http client is successfully registered", func(t *testing.T) {
-		customHttp := &http.Client{Timeout: 10 * time.Second}
-		c, err := client.New(client.WithHttpClient(customHttp))
+	t.Run("Path routing dispatches to corresponding service clients", func(t *testing.T) {
+		c, err := client.New(client.Options{})
 		require.NoError(t, err)
-		require.Equal(t, customHttp, c.HttpClient())
+
+		userClient := c.ClientForPath("/api/userz/auth/me")
+		require.Equal(t, c.UserzClient(), userClient)
+
+		tfClient1 := c.ClientForPath("/api/metadata/relevance-fashion/v1")
+		require.Equal(t, c.TfinferClient(), tfClient1)
+
+		tfClient2 := c.ClientForPath("/api/model/dataset/ds1/model/v1/predict")
+		require.Equal(t, c.TfinferClient(), tfClient2)
+
+		decClient := c.ClientForPath("/api/ds/dataset/ds1/store/list")
+		require.Equal(t, c.DecsuiteClient(), decClient)
+	})
+
+	t.Run("Custom httpzclient Options are propagated", func(t *testing.T) {
+		customCalled := false
+		c, err := client.New(client.Options{
+			Http: httpzclient.Options{
+				GetClient: func(ctx context.Context) *http.Client {
+					customCalled = true
+					return http.DefaultClient
+				},
+			},
+		})
+		require.NoError(t, err)
+		require.True(t, customCalled)
+		require.NotNil(t, c.DecsuiteClient())
+	})
+
+	t.Run("Apis invoker routes and executes API via apiclientz with bearer auth", func(t *testing.T) {
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			require.Equal(t, "/api/userz/auth/logout", r.URL.Path)
+			require.Equal(t, "Bearer my-secret-token", r.Header.Get("Authorization"))
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte(`{}`))
+		}))
+		defer ts.Close()
+
+		c, err := client.New(client.Options{
+			Token: "my-secret-token",
+			Urls: client.UrlOptions{
+				Userz: ts.URL,
+			},
+		})
+		require.NoError(t, err)
+
+		api := &userapiauthlogout.Api{
+			Req: &userapiauthlogout.Req{},
+		}
+		status, err := c.Apis().UserAuthLogout(t.Context(), api)
+		require.NoError(t, err)
+		require.Equal(t, http.StatusOK, status)
 	})
 }
