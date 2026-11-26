@@ -28,3 +28,13 @@ type Func interface {
 	SdkFuncSpec() Spec
 	SdkFuncDataRefs() *DataRefs
 }
+
+type UnimplementedFunc struct{}
+
+func (UnimplementedFunc) SdkFuncSpec() Spec {
+	panic("SdkFuncSpec not implemented: run 'go generate ./...'")
+}
+
+func (UnimplementedFunc) SdkFuncDataRefs() *DataRefs {
+	panic("SdkFuncDataRefs not implemented: run 'go generate ./...'")
+}

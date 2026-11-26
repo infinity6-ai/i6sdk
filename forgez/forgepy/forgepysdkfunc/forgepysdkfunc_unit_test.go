@@ -111,7 +111,7 @@ func TestUnitExtractTypedefs(t *testing.T) {
 
 func TestUnitAllSdkFuncs(t *testing.T) {
 	ctx := t.Context()
-	funcs := apicollectionz.SdkFuncs()
+	funcs := apicollectionz.Funcs()
 	require.NotEmpty(t, funcs)
 	for _, fn := range funcs {
 		parsed := forgepysdkfunc.NewSdk().ParseSdkFunc(ctx, fn)

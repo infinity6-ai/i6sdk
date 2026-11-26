@@ -1,128 +1,77 @@
+//go:generate go run github.com/infinity6-ai/i6sdk/mold schemagen .
 package relevancefashiondashfunnel
 
 import (
-	"github.com/infinity6-ai/gox/schemaz/schemaz"
+	"context"
+
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/sdkfuncz"
 )
 
 type Params struct {
-	MinYearMonth string
-	MaxYearMonth string
-}
-
-type Partitions struct {
-	StoreId string
+	// First year-month of period (e.g. 2026-07).
+	MinYearMonth string `json:"min_year_month"`
+	// Last year-month of period (e.g. 2026-11).
+	MaxYearMonth string `json:"max_year_month"`
 }
 
 type Row struct {
-	EventType string
-	FromRec   string
-	QtEvents  string
+	// Event type name.
+	EventType string `json:"event_type"`
+	// Whether event originated from recommendation.
+	FromRec string `json:"from_rec"`
+	// Event count.
+	QtEvents string `json:"qt_events"`
 }
 
 type Result struct {
-	Rows []*Row
+	// Result rows.
+	Rows []*Row `json:"rows"`
+}
+
+type ReqInput struct {
+	// Dataset identifier.
+	Dataset lakedsz.Dataset `json:"dataset"`
+	// Query params.
+	Params *Params `json:"params,omitempty"`
+}
+
+type ReqPartitions struct {
+	// Store identifier.
+	StoreId string `json:"store_id"`
 }
 
 type Req struct {
-	Dataset        lakedsz.Dataset
-	DashPartitions Partitions
-	Params         Params
+	Input      *ReqInput      `json:"input,omitempty"`
+	Partitions *ReqPartitions `json:"partitions,omitempty"`
+}
+
+type RespOutput struct {
+	// Query results.
+	Results Result `json:"results"`
 }
 
 type Resp struct {
-	Results Result
+	Output *RespOutput `json:"output,omitempty"`
 }
 
+// Get Funnel
+// Gets the event counts of the recommendation funnel for a store and period.
 type Func struct {
-	Req  Req
-	Resp Resp
+	sdkfuncz.UnimplementedFunc `json:"-"`
+	Req                        *Req  `json:"req,omitempty"`
+	Resp                       *Resp `json:"resp,omitempty"`
 }
 
-func (d *Func) SdkFuncSpec() sdkfuncz.Spec {
+func (d *Func) SdkFuncRoute() sdkfuncz.Spec {
 	return sdkfuncz.Spec{
-		Id:      "product-relevance-fashion-dash-funnel",
 		Version: "v1",
 		Typ:     sdkfuncz.TypClientQuery,
-		Desc: func() *schemaz.Desc {
-			return &schemaz.Desc{
-				Name:    "Get Funnel",
-				Summary: "Gets the event counts of the recommendation funnel for a store and period.",
-			}
-		},
 	}
 }
 
-func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
-	return &sdkfuncz.DataRefs{
-		Input: &schemaz.Schema{
-			Object: func(_ bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"dataset": {
-						Desc:  &schemaz.Desc{Summary: "Dataset identifier."},
-						Field: func() any { return &d.Req.Dataset },
-					},
-					"params": {
-						Desc: &schemaz.Desc{Summary: "Query params."},
-						Object: func(_ bool) map[string]*schemaz.Schema {
-							return map[string]*schemaz.Schema{
-								"min_year_month": {
-									Desc:  &schemaz.Desc{Summary: "First year-month of the period."},
-									Field: func() any { return &d.Req.Params.MinYearMonth },
-								},
-								"max_year_month": {
-									Desc:  &schemaz.Desc{Summary: "Last year-month of the period."},
-									Field: func() any { return &d.Req.Params.MaxYearMonth },
-								},
-							}
-						},
-					},
-				}
-			},
-		},
-		Partitions: &schemaz.Schema{
-			Object: func(read bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"store_id": {
-						Desc:  &schemaz.Desc{Summary: "Store identifier."},
-						Field: func() any { return &d.Req.DashPartitions.StoreId },
-					},
-				}
-			},
-		},
-		Output: &schemaz.Schema{
-			Object: func(_ bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"rows": {
-						Desc: &schemaz.Desc{Summary: "Result rows."},
-						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Row, *Row]{
-							Slice:      func() *[]*Row { return &d.Resp.Results.Rows },
-							NewElement: func(idx int) *Row { return &Row{} },
-							Get: func(idx int, element **Row) *schemaz.Schema {
-								return &schemaz.Schema{
-									Object: func(_ bool) map[string]*schemaz.Schema {
-										return map[string]*schemaz.Schema{
-											"event_type": {
-												Desc:  &schemaz.Desc{Summary: "Event type."},
-												Field: func() any { return &(*element).EventType },
-											},
-											"from_rec": {
-												Desc:  &schemaz.Desc{Summary: "Whether the event came from a recommendation."},
-												Field: func() any { return &(*element).FromRec },
-											},
-											"qt_events": {
-												Desc:  &schemaz.Desc{Summary: "Number of events."},
-												Field: func() any { return &(*element).QtEvents },
-											},
-										}
-									},
-								}
-							},
-						}),
-					},
-				}
-			},
-		},
-	}
+type ProductRelevanceFashionDashFunnelV1Id struct{}
+
+func (ProductRelevanceFashionDashFunnelV1Id) ProductRelevanceFashionDashFunnelV1(ctx context.Context, fn *Func) (int, error) {
+	panic("ProductRelevanceFashionDashFunnelV1 not implemented: run 'go generate ./...'")
 }

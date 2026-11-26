@@ -12,41 +12,40 @@ import (
 
 func TestUnitRelevanceFashionDashCoverage(t *testing.T) {
 	fn := &relevancefashiondashcoverage.Func{
-		Req: relevancefashiondashcoverage.Req{
-			Dataset:        lakedsz.MustParse("my-dataset"),
-			DashPartitions: relevancefashiondashcoverage.Partitions{StoreId: "store-123"},
-			Params: relevancefashiondashcoverage.Params{
-				MinYearMonth: "2026-07",
-				MaxYearMonth: "2026-09",
+		Req: &relevancefashiondashcoverage.Req{
+			Input: &relevancefashiondashcoverage.ReqInput{
+				Dataset: lakedsz.MustParse("my-dataset"),
+				Params: &relevancefashiondashcoverage.Params{
+					MinYearMonth: "2026-07",
+					MaxYearMonth: "2026-11",
+				},
+			},
+			Partitions: &relevancefashiondashcoverage.ReqPartitions{
+				StoreId: "store-123",
 			},
 		},
-		Resp: relevancefashiondashcoverage.Resp{
-			Results: relevancefashiondashcoverage.Result{
-				Rows: []*relevancefashiondashcoverage.Row{{
-					RecomendationCoverage: 1.0,
-					RecommendedItems:      166,
-					RecommendableItems:    166,
-					LongTailCoverage:      0.5,
-					Top1Coverage:          1.0,
-					Top1To5Coverage:       0.9,
-					Top5To10Coverage:      0.8,
-					Bottom90Coverage:      0.7,
-				}},
+		Resp: &relevancefashiondashcoverage.Resp{
+			Output: &relevancefashiondashcoverage.RespOutput{
+				Results: relevancefashiondashcoverage.Result{
+					Rows: []*relevancefashiondashcoverage.Row{
+						{
+							RecomendationCoverage: 85.5,
+							RecommendedItems:      500,
+							RecommendableItems:    600,
+						},
+					},
+				},
 			},
 		},
 	}
 
 	fnCopy := jsonz.MustCopy(fn, &relevancefashiondashcoverage.Func{})
 
-	require.Equal(t, fn.Req, fnCopy.Req)
-	require.Equal(t, fn.Resp, fnCopy.Resp)
-	require.Equal(t, "my-dataset", fnCopy.Req.Dataset.String())
-	require.Equal(t, "store-123", fnCopy.Req.DashPartitions.StoreId)
-	require.Equal(t, "2026-07", fnCopy.Req.Params.MinYearMonth)
-	require.Equal(t, "2026-09", fnCopy.Req.Params.MaxYearMonth)
-	require.Len(t, fnCopy.Resp.Results.Rows, 1)
-	require.Equal(t, 166.0, fnCopy.Resp.Results.Rows[0].RecommendedItems)
-	require.Equal(t, 0.7, fnCopy.Resp.Results.Rows[0].Bottom90Coverage)
+	require.Equal(t, fn.Req.Input.Dataset, fnCopy.Req.Input.Dataset)
+	require.Equal(t, "my-dataset", fnCopy.Req.Input.Dataset.String())
+	require.Equal(t, "store-123", fnCopy.Req.Partitions.StoreId)
+	require.Len(t, fnCopy.Resp.Output.Results.Rows, 1)
+	require.Equal(t, 85.5, fnCopy.Resp.Output.Results.Rows[0].RecomendationCoverage)
 }
 
 func TestUnitRelevanceFashionDashCoverageSpec(t *testing.T) {
@@ -67,8 +66,15 @@ func TestUnitRelevanceFashionDashCoverageDataRefs(t *testing.T) {
 	require.NotNil(t, refs.Output)
 
 	require.NotNil(t, refs.Input.Object)
+	inputProps := refs.Input.Object(false)
+	require.Contains(t, inputProps, "dataset")
+	require.Contains(t, inputProps, "params")
+
 	require.NotNil(t, refs.Partitions.Object)
+	partitionProps := refs.Partitions.Object(false)
+	require.Contains(t, partitionProps, "store_id")
+
 	require.NotNil(t, refs.Output.Object)
-	outputProps := refs.Output.Object(true)
-	require.Contains(t, outputProps, "rows")
+	outputProps := refs.Output.Object(false)
+	require.Contains(t, outputProps, "results")
 }

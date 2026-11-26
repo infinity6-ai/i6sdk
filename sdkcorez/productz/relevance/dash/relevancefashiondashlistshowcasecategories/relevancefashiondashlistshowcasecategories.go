@@ -1,97 +1,64 @@
+//go:generate go run github.com/infinity6-ai/i6sdk/mold schemagen .
 package relevancefashiondashlistshowcasecategories
 
 import (
-	"github.com/infinity6-ai/gox/schemaz/schemaz"
+	"context"
+
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/sdkfuncz"
 )
 
-type Partitions struct {
-	StoreId string
-}
-
 type Row struct {
-	ShowcaseCategory *string
+	// Showcase category name.
+	ShowcaseCategory *string `json:"showcase_category"`
 }
 
 type Result struct {
-	Rows []*Row
+	// Result rows.
+	Rows []*Row `json:"rows"`
+}
+
+type ReqInput struct {
+	// Dataset identifier.
+	Dataset lakedsz.Dataset `json:"dataset"`
+}
+
+type ReqPartitions struct {
+	// Store identifier.
+	StoreId string `json:"store_id"`
 }
 
 type Req struct {
-	Dataset        lakedsz.Dataset
-	DashPartitions Partitions
+	Input      *ReqInput      `json:"input,omitempty"`
+	Partitions *ReqPartitions `json:"partitions,omitempty"`
+}
+
+type RespOutput struct {
+	// Query results.
+	Results Result `json:"results"`
 }
 
 type Resp struct {
-	Results Result
+	Output *RespOutput `json:"output,omitempty"`
 }
 
+// List Showcase Categories
+// Lists the showcase categories of a store.
 type Func struct {
-	Req  Req
-	Resp Resp
+	sdkfuncz.UnimplementedFunc `json:"-"`
+	Req                        *Req  `json:"req,omitempty"`
+	Resp                       *Resp `json:"resp,omitempty"`
 }
 
-func (d *Func) SdkFuncSpec() sdkfuncz.Spec {
+func (d *Func) SdkFuncRoute() sdkfuncz.Spec {
 	return sdkfuncz.Spec{
-		Id:      "product-relevance-fashion-dash-list-showcase-categories",
 		Version: "v1",
 		Typ:     sdkfuncz.TypClientQuery,
-		Desc: func() *schemaz.Desc {
-			return &schemaz.Desc{
-				Name:    "List Showcase Categories",
-				Summary: "Lists the showcase categories of a store.",
-			}
-		},
 	}
 }
 
-func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
-	return &sdkfuncz.DataRefs{
-		Input: &schemaz.Schema{
-			Object: func(_ bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"dataset": {
-						Desc:  &schemaz.Desc{Summary: "Dataset identifier."},
-						Field: func() any { return &d.Req.Dataset },
-					},
-				}
-			},
-		},
-		Partitions: &schemaz.Schema{
-			Object: func(read bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"store_id": {
-						Desc:  &schemaz.Desc{Summary: "Store identifier."},
-						Field: func() any { return &d.Req.DashPartitions.StoreId },
-					},
-				}
-			},
-		},
-		Output: &schemaz.Schema{
-			Object: func(_ bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"rows": {
-						Desc: &schemaz.Desc{Summary: "Result rows."},
-						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Row, *Row]{
-							Slice:      func() *[]*Row { return &d.Resp.Results.Rows },
-							NewElement: func(idx int) *Row { return &Row{} },
-							Get: func(idx int, element **Row) *schemaz.Schema {
-								return &schemaz.Schema{
-									Object: func(_ bool) map[string]*schemaz.Schema {
-										return map[string]*schemaz.Schema{
-											"showcase_category": {
-												Desc:  &schemaz.Desc{Summary: "Showcase category."},
-												Field: func() any { return &(*element).ShowcaseCategory },
-											},
-										}
-									},
-								}
-							},
-						}),
-					},
-				}
-			},
-		},
-	}
+type ProductRelevanceFashionDashListShowcaseCategoriesV1Id struct{}
+
+func (ProductRelevanceFashionDashListShowcaseCategoriesV1Id) ProductRelevanceFashionDashListShowcaseCategoriesV1(ctx context.Context, fn *Func) (int, error) {
+	panic("ProductRelevanceFashionDashListShowcaseCategoriesV1 not implemented: run 'go generate ./...'")
 }

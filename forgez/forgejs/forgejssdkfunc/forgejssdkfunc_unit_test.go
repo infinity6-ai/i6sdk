@@ -292,7 +292,7 @@ export { SdkFuncs };
 
 func TestUnitAllSdkFuncs(t *testing.T) {
 	ctx := t.Context()
-	funcs := apicollectionz.SdkFuncs()
+	funcs := apicollectionz.Funcs()
 	require.NotEmpty(t, funcs)
 	p := forgejssdkfunc.NewSdk()
 	for _, fn := range funcs {

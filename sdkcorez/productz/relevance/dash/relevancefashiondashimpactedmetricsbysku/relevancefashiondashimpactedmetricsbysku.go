@@ -1,168 +1,93 @@
+//go:generate go run github.com/infinity6-ai/i6sdk/mold schemagen .
 package relevancefashiondashimpactedmetricsbysku
 
 import (
-	"github.com/infinity6-ai/gox/schemaz/schemaz"
+	"context"
+
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/sdkfuncz"
 )
 
 type Params struct {
-	MinYearMonth string
-	MaxYearMonth string
-}
-
-type Partitions struct {
-	StoreId string
+	// First year-month of period (e.g. 2026-07).
+	MinYearMonth string `json:"min_year_month"`
+	// Last year-month of period (e.g. 2026-11).
+	MaxYearMonth string `json:"max_year_month"`
 }
 
 type Row struct {
-	SkuId            string
-	ShowcaseCategory *string
-	Description      string
-	Recomendations   float64
-	Clicks           float64
-	CartAdds         float64
-	Purchases        float64
-	Revenue          float64
-	Participation    float64
-	ConversionRate   float64
-	EngagementRate   float64
+	// SKU identifier.
+	SkuId string `json:"sku_id"`
+	// Showcase category name.
+	ShowcaseCategory *string `json:"showcase_category"`
+	// SKU description.
+	Description string `json:"description"`
+	// Number of recommendations.
+	Recomendations float64 `json:"recomendations"`
+	// Number of clicks.
+	Clicks float64 `json:"clicks"`
+	// Number of cart adds.
+	CartAdds float64 `json:"cart_adds"`
+	// Number of purchases.
+	Purchases float64 `json:"purchases"`
+	// Total revenue generated.
+	Revenue float64 `json:"revenue"`
+	// Participation rate.
+	Participation float64 `json:"participation"`
+	// Conversion rate.
+	ConversionRate float64 `json:"conversion_rate"`
+	// Engagement rate.
+	EngagementRate float64 `json:"engagement_rate"`
 }
 
 type Result struct {
-	Rows []*Row
+	// Result rows.
+	Rows []*Row `json:"rows"`
+}
+
+type ReqInput struct {
+	// Dataset identifier.
+	Dataset lakedsz.Dataset `json:"dataset"`
+	// Query params.
+	Params *Params `json:"params,omitempty"`
+}
+
+type ReqPartitions struct {
+	// Store identifier.
+	StoreId string `json:"store_id"`
 }
 
 type Req struct {
-	Dataset        lakedsz.Dataset
-	DashPartitions Partitions
-	Params         Params
+	Input      *ReqInput      `json:"input,omitempty"`
+	Partitions *ReqPartitions `json:"partitions,omitempty"`
+}
+
+type RespOutput struct {
+	// Query results.
+	Results Result `json:"results"`
 }
 
 type Resp struct {
-	Results Result
+	Output *RespOutput `json:"output,omitempty"`
 }
 
+// Get Metrics by SKU
+// Gets the metrics impacted by recommendations by SKU for a store and period.
 type Func struct {
-	Req  Req
-	Resp Resp
+	sdkfuncz.UnimplementedFunc `json:"-"`
+	Req                        *Req  `json:"req,omitempty"`
+	Resp                       *Resp `json:"resp,omitempty"`
 }
 
-func (d *Func) SdkFuncSpec() sdkfuncz.Spec {
+func (d *Func) SdkFuncRoute() sdkfuncz.Spec {
 	return sdkfuncz.Spec{
-		Id:      "product-relevance-fashion-dash-impacted-metrics-by-sku",
 		Version: "v1",
 		Typ:     sdkfuncz.TypClientQuery,
-		Desc: func() *schemaz.Desc {
-			return &schemaz.Desc{
-				Name:    "Get Metrics by SKU",
-				Summary: "Gets the metrics impacted by recommendations by SKU for a store and period.",
-			}
-		},
 	}
 }
 
-func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
-	return &sdkfuncz.DataRefs{
-		Input: &schemaz.Schema{
-			Object: func(_ bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"dataset": {
-						Desc:  &schemaz.Desc{Summary: "Dataset identifier."},
-						Field: func() any { return &d.Req.Dataset },
-					},
-					"params": {
-						Desc: &schemaz.Desc{Summary: "Query params."},
-						Object: func(_ bool) map[string]*schemaz.Schema {
-							return map[string]*schemaz.Schema{
-								"min_year_month": {
-									Desc:  &schemaz.Desc{Summary: "First year-month of the period."},
-									Field: func() any { return &d.Req.Params.MinYearMonth },
-								},
-								"max_year_month": {
-									Desc:  &schemaz.Desc{Summary: "Last year-month of the period."},
-									Field: func() any { return &d.Req.Params.MaxYearMonth },
-								},
-							}
-						},
-					},
-				}
-			},
-		},
-		Partitions: &schemaz.Schema{
-			Object: func(read bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"store_id": {
-						Desc:  &schemaz.Desc{Summary: "Store identifier."},
-						Field: func() any { return &d.Req.DashPartitions.StoreId },
-					},
-				}
-			},
-		},
-		Output: &schemaz.Schema{
-			Object: func(_ bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"rows": {
-						Desc: &schemaz.Desc{Summary: "Result rows."},
-						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Row, *Row]{
-							Slice:      func() *[]*Row { return &d.Resp.Results.Rows },
-							NewElement: func(idx int) *Row { return &Row{} },
-							Get: func(idx int, element **Row) *schemaz.Schema {
-								return &schemaz.Schema{
-									Object: func(_ bool) map[string]*schemaz.Schema {
-										return map[string]*schemaz.Schema{
-											"sku_id": {
-												Desc:  &schemaz.Desc{Summary: "SKU identifier."},
-												Field: func() any { return &(*element).SkuId },
-											},
-											"showcase_category": {
-												Desc:  &schemaz.Desc{Summary: "Showcase category."},
-												Field: func() any { return &(*element).ShowcaseCategory },
-											},
-											"description": {
-												Desc:  &schemaz.Desc{Summary: "SKU description."},
-												Field: func() any { return &(*element).Description },
-											},
-											"recomendations": {
-												Desc:  &schemaz.Desc{Summary: "Number of recommendations."},
-												Field: func() any { return &(*element).Recomendations },
-											},
-											"clicks": {
-												Desc:  &schemaz.Desc{Summary: "Number of clicks."},
-												Field: func() any { return &(*element).Clicks },
-											},
-											"cart_adds": {
-												Desc:  &schemaz.Desc{Summary: "Number of cart adds."},
-												Field: func() any { return &(*element).CartAdds },
-											},
-											"purchases": {
-												Desc:  &schemaz.Desc{Summary: "Number of purchases."},
-												Field: func() any { return &(*element).Purchases },
-											},
-											"revenue": {
-												Desc:  &schemaz.Desc{Summary: "Revenue."},
-												Field: func() any { return &(*element).Revenue },
-											},
-											"participation": {
-												Desc:  &schemaz.Desc{Summary: "Participation share."},
-												Field: func() any { return &(*element).Participation },
-											},
-											"conversion_rate": {
-												Desc:  &schemaz.Desc{Summary: "Conversion rate."},
-												Field: func() any { return &(*element).ConversionRate },
-											},
-											"engagement_rate": {
-												Desc:  &schemaz.Desc{Summary: "Engagement rate."},
-												Field: func() any { return &(*element).EngagementRate },
-											},
-										}
-									},
-								}
-							},
-						}),
-					},
-				}
-			},
-		},
-	}
+type ProductRelevanceFashionDashImpactedMetricsBySkuV1Id struct{}
+
+func (ProductRelevanceFashionDashImpactedMetricsBySkuV1Id) ProductRelevanceFashionDashImpactedMetricsBySkuV1(ctx context.Context, fn *Func) (int, error) {
+	panic("ProductRelevanceFashionDashImpactedMetricsBySkuV1 not implemented: run 'go generate ./...'")
 }

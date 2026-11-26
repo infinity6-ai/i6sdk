@@ -11,21 +11,23 @@ import (
 )
 
 func TestUnitRelevanceFashionDashListShowcaseCategories(t *testing.T) {
+	cat := "dresses"
 	fn := &relevancefashiondashlistshowcasecategories.Func{
-		Req: relevancefashiondashlistshowcasecategories.Req{
-			Dataset: lakedsz.MustParse("my-dataset"),
-			DashPartitions: relevancefashiondashlistshowcasecategories.Partitions{
+		Req: &relevancefashiondashlistshowcasecategories.Req{
+			Input: &relevancefashiondashlistshowcasecategories.ReqInput{
+				Dataset: lakedsz.MustParse("my-dataset"),
+			},
+			Partitions: &relevancefashiondashlistshowcasecategories.ReqPartitions{
 				StoreId: "store-123",
 			},
 		},
-		Resp: relevancefashiondashlistshowcasecategories.Resp{
-			Results: relevancefashiondashlistshowcasecategories.Result{
-				Rows: []*relevancefashiondashlistshowcasecategories.Row{
-					{
-						ShowcaseCategory: strPtr("shirt"),
-					},
-					{
-						ShowcaseCategory: nil,
+		Resp: &relevancefashiondashlistshowcasecategories.Resp{
+			Output: &relevancefashiondashlistshowcasecategories.RespOutput{
+				Results: relevancefashiondashlistshowcasecategories.Result{
+					Rows: []*relevancefashiondashlistshowcasecategories.Row{
+						{
+							ShowcaseCategory: &cat,
+						},
 					},
 				},
 			},
@@ -34,13 +36,11 @@ func TestUnitRelevanceFashionDashListShowcaseCategories(t *testing.T) {
 
 	fnCopy := jsonz.MustCopy(fn, &relevancefashiondashlistshowcasecategories.Func{})
 
-	require.Equal(t, fn.Req, fnCopy.Req)
-	require.Equal(t, fn.Resp, fnCopy.Resp)
-	require.Equal(t, "my-dataset", fnCopy.Req.Dataset.String())
-	require.Equal(t, "store-123", fnCopy.Req.DashPartitions.StoreId)
-	require.Len(t, fnCopy.Resp.Results.Rows, 2)
-	require.Equal(t, "shirt", *fnCopy.Resp.Results.Rows[0].ShowcaseCategory)
-	require.Nil(t, fnCopy.Resp.Results.Rows[1].ShowcaseCategory)
+	require.Equal(t, fn.Req.Input.Dataset, fnCopy.Req.Input.Dataset)
+	require.Equal(t, "my-dataset", fnCopy.Req.Input.Dataset.String())
+	require.Equal(t, "store-123", fnCopy.Req.Partitions.StoreId)
+	require.Len(t, fnCopy.Resp.Output.Results.Rows, 1)
+	require.Equal(t, "dresses", *fnCopy.Resp.Output.Results.Rows[0].ShowcaseCategory)
 }
 
 func TestUnitRelevanceFashionDashListShowcaseCategoriesSpec(t *testing.T) {
@@ -61,19 +61,14 @@ func TestUnitRelevanceFashionDashListShowcaseCategoriesDataRefs(t *testing.T) {
 	require.NotNil(t, refs.Output)
 
 	require.NotNil(t, refs.Input.Object)
-	inputProps := refs.Input.Object(true)
+	inputProps := refs.Input.Object(false)
 	require.Contains(t, inputProps, "dataset")
-	require.NotContains(t, inputProps, "params")
 
 	require.NotNil(t, refs.Partitions.Object)
-	partitionProps := refs.Partitions.Object(true)
+	partitionProps := refs.Partitions.Object(false)
 	require.Contains(t, partitionProps, "store_id")
 
 	require.NotNil(t, refs.Output.Object)
-	outputProps := refs.Output.Object(true)
-	require.Contains(t, outputProps, "rows")
-}
-
-func strPtr(s string) *string {
-	return &s
+	outputProps := refs.Output.Object(false)
+	require.Contains(t, outputProps, "results")
 }

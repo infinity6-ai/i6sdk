@@ -350,7 +350,7 @@ To achieve complete structural and architectural symmetry across the entire SDK,
 - Build `mold apisgen` to automate `apis.gen.go` generation.
 - Enforce zero underscores across all API IDs.
 
-### Phase 3: Rollout Across API Modules & Backend Service Projects [IN PROGRESS]
+### Phase 3: Rollout Across API Modules & Backend Service Projects [DONE]
 
 Each `api*z` module in `i6sdk` pairs with a corresponding backend service repository in the workspace that implements its handlers:
 
@@ -361,7 +361,7 @@ Each `api*z` module in `i6sdk` pairs with a corresponding backend service reposi
 | **3** | `apipipez/` | `i6pipez/` | 8 concrete endpoints (`pipezget`, `pipezlist`, split `pipezstart[T]`, `scheduleractivate[T]` & `schedulerdeactivate[T]`) | **DONE** (100% green in both repos) |
 | **4** | `apiuserz/` | `i6userz/` + `i6decsuite/` | 18 endpoints (`userapiauth*`, `userapidatasettoken*`, `userapitokencheck`) | **DONE** (100% green across all 3 repos) |
 | **5** | `apidatasetz/` | `i6datasetz/` | 24 concrete endpoints (split `dszapiloadresult[T]`, remaining 22 dataset endpoints) | **DONE** (100% green in both repos) |
-| **6** | `sdkcorez/productz/` (`sdkfuncs`) | N/A (Client Workflows) | 8 workflow functions (1 infer, 7 dash), `apicollectionz.SdkFuncs` stub embedding & codegen | **NEXT** (Phase 3 Step 6) |
+| **6** | `sdkcorez/productz/` (`sdkfuncs`) | N/A (Client Workflows) | 8 workflow functions (1 infer, 7 dash), `apicollectionz.SdkFuncs` stub embedding & codegen | **DONE** (100% green) |
 
 #### Synchronized Refactoring Workflow (Per Domain Module)
 1. **Refactor API Contract (`i6sdk/api*z`)**:

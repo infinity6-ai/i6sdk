@@ -51,7 +51,7 @@ func preparePyCmd() *cobra.Command {
 			apis := apicollectionz.Apis()
 			parsedApis := apiParser.ParseApis(ctx, apis)
 
-			funcs := apicollectionz.SdkFuncs()
+			funcs := apicollectionz.Funcs()
 			parsedSdkFuncs := sdkFuncParser.ParseSdkFuncs(ctx, funcs)
 
 			if err := forgepybundle.WriteDir(ctx, outVal, forgepybundle.Options{

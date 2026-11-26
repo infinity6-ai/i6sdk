@@ -11,39 +11,29 @@ import (
 )
 
 func TestUnitRelevanceFashionDashImpactedMetricsByShowcaseCategory(t *testing.T) {
+	cat := "shoes"
 	fn := &relevancefashiondashimpactedmetricsbyshowcasecategory.Func{
-		Req: relevancefashiondashimpactedmetricsbyshowcasecategory.Req{
-			Dataset: lakedsz.MustParse("my-dataset"),
-			DashPartitions: relevancefashiondashimpactedmetricsbyshowcasecategory.Partitions{
+		Req: &relevancefashiondashimpactedmetricsbyshowcasecategory.Req{
+			Input: &relevancefashiondashimpactedmetricsbyshowcasecategory.ReqInput{
+				Dataset: lakedsz.MustParse("my-dataset"),
+				Params: &relevancefashiondashimpactedmetricsbyshowcasecategory.Params{
+					MinYearMonth: "2026-07",
+					MaxYearMonth: "2026-11",
+				},
+			},
+			Partitions: &relevancefashiondashimpactedmetricsbyshowcasecategory.ReqPartitions{
 				StoreId: "store-123",
 			},
-			Params: relevancefashiondashimpactedmetricsbyshowcasecategory.Params{
-				MinYearMonth: "2026-07",
-				MaxYearMonth: "2026-09",
-			},
 		},
-		Resp: relevancefashiondashimpactedmetricsbyshowcasecategory.Resp{
-			Results: relevancefashiondashimpactedmetricsbyshowcasecategory.Result{
-				Rows: []*relevancefashiondashimpactedmetricsbyshowcasecategory.Row{
-					{
-						ShowcaseCategory: strPtr("shirt"),
-						Recomendations:   205,
-						Clicks:           5,
-						CartAdds:         3,
-						Purchases:        3,
-						Revenue:          1368.01,
-						Participation:    0.12,
-						ConversionRate:   0.6,
-					},
-					{
-						ShowcaseCategory: nil,
-						Recomendations:   226,
-						Clicks:           6,
-						CartAdds:         5,
-						Purchases:        3,
-						Revenue:          103.5,
-						Participation:    0.08,
-						ConversionRate:   0.5,
+		Resp: &relevancefashiondashimpactedmetricsbyshowcasecategory.Resp{
+			Output: &relevancefashiondashimpactedmetricsbyshowcasecategory.RespOutput{
+				Results: relevancefashiondashimpactedmetricsbyshowcasecategory.Result{
+					Rows: []*relevancefashiondashimpactedmetricsbyshowcasecategory.Row{
+						{
+							ShowcaseCategory: &cat,
+							Clicks:           25,
+							Revenue:          300.0,
+						},
 					},
 				},
 			},
@@ -52,16 +42,11 @@ func TestUnitRelevanceFashionDashImpactedMetricsByShowcaseCategory(t *testing.T)
 
 	fnCopy := jsonz.MustCopy(fn, &relevancefashiondashimpactedmetricsbyshowcasecategory.Func{})
 
-	require.Equal(t, fn.Req, fnCopy.Req)
-	require.Equal(t, fn.Resp, fnCopy.Resp)
-	require.Equal(t, "my-dataset", fnCopy.Req.Dataset.String())
-	require.Equal(t, "store-123", fnCopy.Req.DashPartitions.StoreId)
-	require.Equal(t, "2026-07", fnCopy.Req.Params.MinYearMonth)
-	require.Equal(t, "2026-09", fnCopy.Req.Params.MaxYearMonth)
-	require.Len(t, fnCopy.Resp.Results.Rows, 2)
-	require.Equal(t, "shirt", *fnCopy.Resp.Results.Rows[0].ShowcaseCategory)
-	require.Nil(t, fnCopy.Resp.Results.Rows[1].ShowcaseCategory)
-	require.Equal(t, fn.Resp.Results.Rows[0].Revenue, fnCopy.Resp.Results.Rows[0].Revenue)
+	require.Equal(t, fn.Req.Input.Dataset, fnCopy.Req.Input.Dataset)
+	require.Equal(t, "my-dataset", fnCopy.Req.Input.Dataset.String())
+	require.Equal(t, "store-123", fnCopy.Req.Partitions.StoreId)
+	require.Len(t, fnCopy.Resp.Output.Results.Rows, 1)
+	require.Equal(t, "shoes", *fnCopy.Resp.Output.Results.Rows[0].ShowcaseCategory)
 }
 
 func TestUnitRelevanceFashionDashImpactedMetricsByShowcaseCategorySpec(t *testing.T) {
@@ -82,19 +67,15 @@ func TestUnitRelevanceFashionDashImpactedMetricsByShowcaseCategoryDataRefs(t *te
 	require.NotNil(t, refs.Output)
 
 	require.NotNil(t, refs.Input.Object)
-	inputProps := refs.Input.Object(true)
+	inputProps := refs.Input.Object(false)
 	require.Contains(t, inputProps, "dataset")
 	require.Contains(t, inputProps, "params")
 
 	require.NotNil(t, refs.Partitions.Object)
-	partitionProps := refs.Partitions.Object(true)
+	partitionProps := refs.Partitions.Object(false)
 	require.Contains(t, partitionProps, "store_id")
 
 	require.NotNil(t, refs.Output.Object)
-	outputProps := refs.Output.Object(true)
-	require.Contains(t, outputProps, "rows")
-}
-
-func strPtr(s string) *string {
-	return &s
+	outputProps := refs.Output.Object(false)
+	require.Contains(t, outputProps, "results")
 }

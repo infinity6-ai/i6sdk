@@ -35,7 +35,7 @@ func prepareGenerateCmd() *cobra.Command {
 			apis := apicollectionz.Apis()
 			parsedApis := apiParser.ParseApis(ctx, apis)
 
-			funcs := apicollectionz.SdkFuncs()
+			funcs := apicollectionz.Funcs()
 			parsedSdkFuncs := sdkFuncParser.ParseSdkFuncs(ctx, funcs)
 
 			code := []byte(forgejsbundle.Write(ctx, forgejsbundle.Options{

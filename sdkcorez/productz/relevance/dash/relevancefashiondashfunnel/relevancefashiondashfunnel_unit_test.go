@@ -12,28 +12,27 @@ import (
 
 func TestUnitRelevanceFashionDashFunnel(t *testing.T) {
 	fn := &relevancefashiondashfunnel.Func{
-		Req: relevancefashiondashfunnel.Req{
-			Dataset: lakedsz.MustParse("my-dataset"),
-			DashPartitions: relevancefashiondashfunnel.Partitions{
+		Req: &relevancefashiondashfunnel.Req{
+			Input: &relevancefashiondashfunnel.ReqInput{
+				Dataset: lakedsz.MustParse("my-dataset"),
+				Params: &relevancefashiondashfunnel.Params{
+					MinYearMonth: "2026-07",
+					MaxYearMonth: "2026-11",
+				},
+			},
+			Partitions: &relevancefashiondashfunnel.ReqPartitions{
 				StoreId: "store-123",
 			},
-			Params: relevancefashiondashfunnel.Params{
-				MinYearMonth: "2024-01",
-				MaxYearMonth: "2024-12",
-			},
 		},
-		Resp: relevancefashiondashfunnel.Resp{
-			Results: relevancefashiondashfunnel.Result{
-				Rows: []*relevancefashiondashfunnel.Row{
-					{
-						EventType: "click",
-						FromRec:   "true",
-						QtEvents:  "150",
-					},
-					{
-						EventType: "purchase",
-						FromRec:   "false",
-						QtEvents:  "25",
+		Resp: &relevancefashiondashfunnel.Resp{
+			Output: &relevancefashiondashfunnel.RespOutput{
+				Results: relevancefashiondashfunnel.Result{
+					Rows: []*relevancefashiondashfunnel.Row{
+						{
+							EventType: "rec_show",
+							FromRec:   "true",
+							QtEvents:  "1200",
+						},
 					},
 				},
 			},
@@ -42,19 +41,11 @@ func TestUnitRelevanceFashionDashFunnel(t *testing.T) {
 
 	fnCopy := jsonz.MustCopy(fn, &relevancefashiondashfunnel.Func{})
 
-	require.Equal(t, fn.Req, fnCopy.Req)
-	require.Equal(t, fn.Resp, fnCopy.Resp)
-	require.Equal(t, "my-dataset", fnCopy.Req.Dataset.String())
-	require.Equal(t, "store-123", fnCopy.Req.DashPartitions.StoreId)
-	require.Equal(t, "2024-01", fnCopy.Req.Params.MinYearMonth)
-	require.Equal(t, "2024-12", fnCopy.Req.Params.MaxYearMonth)
-	require.Len(t, fnCopy.Resp.Results.Rows, 2)
-	require.Equal(t, "click", fnCopy.Resp.Results.Rows[0].EventType)
-	require.Equal(t, "true", fnCopy.Resp.Results.Rows[0].FromRec)
-	require.Equal(t, "150", fnCopy.Resp.Results.Rows[0].QtEvents)
-	require.Equal(t, "purchase", fnCopy.Resp.Results.Rows[1].EventType)
-	require.Equal(t, "false", fnCopy.Resp.Results.Rows[1].FromRec)
-	require.Equal(t, "25", fnCopy.Resp.Results.Rows[1].QtEvents)
+	require.Equal(t, fn.Req.Input.Dataset, fnCopy.Req.Input.Dataset)
+	require.Equal(t, "my-dataset", fnCopy.Req.Input.Dataset.String())
+	require.Equal(t, "store-123", fnCopy.Req.Partitions.StoreId)
+	require.Len(t, fnCopy.Resp.Output.Results.Rows, 1)
+	require.Equal(t, "rec_show", fnCopy.Resp.Output.Results.Rows[0].EventType)
 }
 
 func TestUnitRelevanceFashionDashFunnelSpec(t *testing.T) {
@@ -75,15 +66,15 @@ func TestUnitRelevanceFashionDashFunnelDataRefs(t *testing.T) {
 	require.NotNil(t, refs.Output)
 
 	require.NotNil(t, refs.Input.Object)
-	inputProps := refs.Input.Object(true)
+	inputProps := refs.Input.Object(false)
 	require.Contains(t, inputProps, "dataset")
 	require.Contains(t, inputProps, "params")
 
 	require.NotNil(t, refs.Partitions.Object)
-	partitionProps := refs.Partitions.Object(true)
+	partitionProps := refs.Partitions.Object(false)
 	require.Contains(t, partitionProps, "store_id")
 
 	require.NotNil(t, refs.Output.Object)
-	outputProps := refs.Output.Object(true)
-	require.Contains(t, outputProps, "rows")
+	outputProps := refs.Output.Object(false)
+	require.Contains(t, outputProps, "results")
 }

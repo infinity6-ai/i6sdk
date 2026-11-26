@@ -1,153 +1,87 @@
+//go:generate go run github.com/infinity6-ai/i6sdk/mold schemagen .
 package relevancefashiondashcoverage
 
 import (
-	"github.com/infinity6-ai/gox/schemaz/schemaz"
+	"context"
+
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/sdkfuncz"
 )
 
 type Params struct {
-	MinYearMonth string
-	MaxYearMonth string
-}
-
-type Partitions struct {
-	StoreId string
+	// First year-month of period (e.g. 2026-07).
+	MinYearMonth string `json:"min_year_month"`
+	// Last year-month of period (e.g. 2026-11).
+	MaxYearMonth string `json:"max_year_month"`
 }
 
 type Row struct {
-	RecomendationCoverage float64
-	RecommendedItems      float64
-	RecommendableItems    float64
-	LongTailCoverage      float64
-	Top1Coverage          float64
-	Top1To5Coverage       float64
-	Top5To10Coverage      float64
-	Bottom90Coverage      float64
+	// Catalog recommendation coverage percentage.
+	RecomendationCoverage float64 `json:"recomendation_coverage"`
+	// Recommended items count.
+	RecommendedItems float64 `json:"recommended_items"`
+	// Recommendable items count.
+	RecommendableItems float64 `json:"recommendable_items"`
+	// Long-tail coverage percentage.
+	LongTailCoverage float64 `json:"long_tail_coverage"`
+	// Top 1 coverage percentage.
+	Top1Coverage float64 `json:"top_1_coverage"`
+	// Top 1 to 5 coverage percentage.
+	Top1To5Coverage float64 `json:"top_1_to_5_coverage"`
+	// Top 5 to 10 coverage percentage.
+	Top5To10Coverage float64 `json:"top_5_to_10_coverage"`
+	// Bottom 90 coverage percentage.
+	Bottom90Coverage float64 `json:"bottom_90_coverage"`
 }
 
 type Result struct {
-	Rows []*Row
+	// Result rows.
+	Rows []*Row `json:"rows"`
+}
+
+type ReqInput struct {
+	// Dataset identifier.
+	Dataset lakedsz.Dataset `json:"dataset"`
+	// Query params.
+	Params *Params `json:"params,omitempty"`
+}
+
+type ReqPartitions struct {
+	// Store identifier.
+	StoreId string `json:"store_id"`
 }
 
 type Req struct {
-	Dataset        lakedsz.Dataset
-	DashPartitions Partitions
-	Params         Params
+	Input      *ReqInput      `json:"input,omitempty"`
+	Partitions *ReqPartitions `json:"partitions,omitempty"`
+}
+
+type RespOutput struct {
+	// Query results.
+	Results Result `json:"results"`
 }
 
 type Resp struct {
-	Results Result
+	Output *RespOutput `json:"output,omitempty"`
 }
 
+// Get Coverage
+// Gets the recommendation coverage of the catalog for a store and period.
 type Func struct {
-	Req  Req
-	Resp Resp
+	sdkfuncz.UnimplementedFunc `json:"-"`
+	Req                        *Req  `json:"req,omitempty"`
+	Resp                       *Resp `json:"resp,omitempty"`
 }
 
-func (d *Func) SdkFuncSpec() sdkfuncz.Spec {
+func (d *Func) SdkFuncRoute() sdkfuncz.Spec {
 	return sdkfuncz.Spec{
-		Id:      "product-relevance-fashion-dash-coverage",
 		Version: "v1",
 		Typ:     sdkfuncz.TypClientQuery,
-		Desc: func() *schemaz.Desc {
-			return &schemaz.Desc{
-				Name:    "Get Coverage",
-				Summary: "Gets the recommendation coverage of the catalog for a store and period.",
-			}
-		},
 	}
 }
 
-func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
-	return &sdkfuncz.DataRefs{
-		Input: &schemaz.Schema{
-			Object: func(_ bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"dataset": {
-						Desc:  &schemaz.Desc{Summary: "Dataset identifier."},
-						Field: func() any { return &d.Req.Dataset },
-					},
-					"params": {
-						Desc: &schemaz.Desc{Summary: "Query params."},
-						Object: func(_ bool) map[string]*schemaz.Schema {
-							return map[string]*schemaz.Schema{
-								"min_year_month": {
-									Desc:  &schemaz.Desc{Summary: "First year-month of the period."},
-									Field: func() any { return &d.Req.Params.MinYearMonth },
-								},
-								"max_year_month": {
-									Desc:  &schemaz.Desc{Summary: "Last year-month of the period."},
-									Field: func() any { return &d.Req.Params.MaxYearMonth },
-								},
-							}
-						},
-					},
-				}
-			},
-		},
-		Partitions: &schemaz.Schema{
-			Object: func(read bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"store_id": {
-						Desc:  &schemaz.Desc{Summary: "Store identifier."},
-						Field: func() any { return &d.Req.DashPartitions.StoreId },
-					},
-				}
-			},
-		},
-		Output: &schemaz.Schema{
-			Object: func(_ bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"rows": {
-						Desc: &schemaz.Desc{Summary: "Result rows."},
-						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Row, *Row]{
-							Slice:      func() *[]*Row { return &d.Resp.Results.Rows },
-							NewElement: func(idx int) *Row { return &Row{} },
-							Get: func(idx int, element **Row) *schemaz.Schema {
-								return &schemaz.Schema{
-									Object: func(_ bool) map[string]*schemaz.Schema {
-										return map[string]*schemaz.Schema{
-											"recomendation_coverage": {
-												Desc:  &schemaz.Desc{Summary: "Share of recommendable items that were recommended."},
-												Field: func() any { return &(*element).RecomendationCoverage },
-											},
-											"recommended_items": {
-												Desc:  &schemaz.Desc{Summary: "Number of distinct items recommended."},
-												Field: func() any { return &(*element).RecommendedItems },
-											},
-											"recommendable_items": {
-												Desc:  &schemaz.Desc{Summary: "Number of items eligible to be recommended."},
-												Field: func() any { return &(*element).RecommendableItems },
-											},
-											"long_tail_coverage": {
-												Desc:  &schemaz.Desc{Summary: "Coverage of the long tail items."},
-												Field: func() any { return &(*element).LongTailCoverage },
-											},
-											"top_1_coverage": {
-												Desc:  &schemaz.Desc{Summary: "Coverage of the top 1% items."},
-												Field: func() any { return &(*element).Top1Coverage },
-											},
-											"top_1_to_5_coverage": {
-												Desc:  &schemaz.Desc{Summary: "Coverage of the items between top 1% and top 5%."},
-												Field: func() any { return &(*element).Top1To5Coverage },
-											},
-											"top_5_to_10_coverage": {
-												Desc:  &schemaz.Desc{Summary: "Coverage of the items between top 5% and top 10%."},
-												Field: func() any { return &(*element).Top5To10Coverage },
-											},
-											"bottom_90_coverage": {
-												Desc:  &schemaz.Desc{Summary: "Coverage of the bottom 90% items."},
-												Field: func() any { return &(*element).Bottom90Coverage },
-											},
-										}
-									},
-								}
-							},
-						}),
-					},
-				}
-			},
-		},
-	}
+type ProductRelevanceFashionDashCoverageV1Id struct{}
+
+func (ProductRelevanceFashionDashCoverageV1Id) ProductRelevanceFashionDashCoverageV1(ctx context.Context, fn *Func) (int, error) {
+	panic("ProductRelevanceFashionDashCoverageV1 not implemented: run 'go generate ./...'")
 }

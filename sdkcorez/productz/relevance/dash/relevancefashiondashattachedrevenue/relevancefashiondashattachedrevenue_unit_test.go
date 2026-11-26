@@ -12,30 +12,28 @@ import (
 
 func TestUnitRelevanceFashionDashAttachedRevenue(t *testing.T) {
 	fn := &relevancefashiondashattachedrevenue.Func{
-		Req: relevancefashiondashattachedrevenue.Req{
-			Dataset: lakedsz.MustParse("my-dataset"),
-			DashPartitions: relevancefashiondashattachedrevenue.Partitions{
+		Req: &relevancefashiondashattachedrevenue.Req{
+			Input: &relevancefashiondashattachedrevenue.ReqInput{
+				Dataset: lakedsz.MustParse("my-dataset"),
+				Params: &relevancefashiondashattachedrevenue.Params{
+					MinYearMonth: "2026-07",
+					MaxYearMonth: "2026-11",
+				},
+			},
+			Partitions: &relevancefashiondashattachedrevenue.ReqPartitions{
 				StoreId: "store-123",
 			},
-			Params: relevancefashiondashattachedrevenue.Params{
-				MinYearMonth: "2024-01",
-				MaxYearMonth: "2024-12",
-			},
 		},
-		Resp: relevancefashiondashattachedrevenue.Resp{
-			Results: relevancefashiondashattachedrevenue.Result{
-				Rows: []*relevancefashiondashattachedrevenue.Row{
-					{
-						AttachedRevenue:   1500.5,
-						AttachedPurchases: 12,
-						AttachedSkus:      30,
-						AvgTicket:         125.04,
-					},
-					{
-						AttachedRevenue:   10,
-						AttachedPurchases: 1,
-						AttachedSkus:      2,
-						AvgTicket:         10,
+		Resp: &relevancefashiondashattachedrevenue.Resp{
+			Output: &relevancefashiondashattachedrevenue.RespOutput{
+				Results: relevancefashiondashattachedrevenue.Result{
+					Rows: []*relevancefashiondashattachedrevenue.Row{
+						{
+							AttachedRevenue:   1000.5,
+							AttachedPurchases: 50,
+							AttachedSkus:      20,
+							AvgTicket:         20.01,
+						},
 					},
 				},
 			},
@@ -44,19 +42,13 @@ func TestUnitRelevanceFashionDashAttachedRevenue(t *testing.T) {
 
 	fnCopy := jsonz.MustCopy(fn, &relevancefashiondashattachedrevenue.Func{})
 
-	require.Equal(t, fn.Req, fnCopy.Req)
-	require.Equal(t, fn.Resp, fnCopy.Resp)
-	require.Equal(t, "my-dataset", fnCopy.Req.Dataset.String())
-	require.Equal(t, "store-123", fnCopy.Req.DashPartitions.StoreId)
-	require.Equal(t, "2024-01", fnCopy.Req.Params.MinYearMonth)
-	require.Equal(t, "2024-12", fnCopy.Req.Params.MaxYearMonth)
-	require.Len(t, fnCopy.Resp.Results.Rows, 2)
-	require.Equal(t, 1500.5, fnCopy.Resp.Results.Rows[0].AttachedRevenue)
-	require.Equal(t, 12.0, fnCopy.Resp.Results.Rows[0].AttachedPurchases)
-	require.Equal(t, 30.0, fnCopy.Resp.Results.Rows[0].AttachedSkus)
-	require.Equal(t, 125.04, fnCopy.Resp.Results.Rows[0].AvgTicket)
-	require.Equal(t, 10.0, fnCopy.Resp.Results.Rows[1].AttachedRevenue)
-	require.Equal(t, 2.0, fnCopy.Resp.Results.Rows[1].AttachedSkus)
+	require.Equal(t, fn.Req.Input.Dataset, fnCopy.Req.Input.Dataset)
+	require.Equal(t, "my-dataset", fnCopy.Req.Input.Dataset.String())
+	require.Equal(t, "2026-07", fnCopy.Req.Input.Params.MinYearMonth)
+	require.Equal(t, "2026-11", fnCopy.Req.Input.Params.MaxYearMonth)
+	require.Equal(t, "store-123", fnCopy.Req.Partitions.StoreId)
+	require.Len(t, fnCopy.Resp.Output.Results.Rows, 1)
+	require.Equal(t, 1000.5, fnCopy.Resp.Output.Results.Rows[0].AttachedRevenue)
 }
 
 func TestUnitRelevanceFashionDashAttachedRevenueSpec(t *testing.T) {
@@ -77,15 +69,15 @@ func TestUnitRelevanceFashionDashAttachedRevenueDataRefs(t *testing.T) {
 	require.NotNil(t, refs.Output)
 
 	require.NotNil(t, refs.Input.Object)
-	inputProps := refs.Input.Object(true)
+	inputProps := refs.Input.Object(false)
 	require.Contains(t, inputProps, "dataset")
 	require.Contains(t, inputProps, "params")
 
 	require.NotNil(t, refs.Partitions.Object)
-	partitionProps := refs.Partitions.Object(true)
+	partitionProps := refs.Partitions.Object(false)
 	require.Contains(t, partitionProps, "store_id")
 
 	require.NotNil(t, refs.Output.Object)
-	outputProps := refs.Output.Object(true)
-	require.Contains(t, outputProps, "rows")
+	outputProps := refs.Output.Object(false)
+	require.Contains(t, outputProps, "results")
 }

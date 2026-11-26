@@ -122,7 +122,7 @@ func TestUnitFashionFbtSdkFunc(t *testing.T) {
 
 func TestUnitAllSdkFuncs(t *testing.T) {
 	ctx := t.Context()
-	funcs := apicollectionz.SdkFuncs()
+	funcs := apicollectionz.Funcs()
 	require.NotEmpty(t, funcs)
 	parser := moldsdkfunc.New(newSchemaParser())
 	for _, fn := range funcs {

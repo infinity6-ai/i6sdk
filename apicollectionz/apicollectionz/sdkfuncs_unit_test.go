@@ -9,7 +9,7 @@ import (
 )
 
 func TestUnitSdkFuncs(t *testing.T) {
-	funcs := apicollectionz.SdkFuncs()
+	funcs := apicollectionz.Funcs()
 	require.NotEmpty(t, funcs)
 
 	f := apicollectionz.SdkFunc("product-relevance-fashion-fbt")
@@ -19,7 +19,7 @@ func TestUnitSdkFuncs(t *testing.T) {
 	require.Equal(t, sdkfuncz.TypClientInfer, f.SdkFuncSpec().Typ)
 
 	// Test aliases
-	sdkFuncs := apicollectionz.SdkFuncs()
+	sdkFuncs := apicollectionz.Funcs()
 	require.Equal(t, len(funcs), len(sdkFuncs))
 
 	sdkFunc := apicollectionz.SdkFunc("product-relevance-fashion-fbt")

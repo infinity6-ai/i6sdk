@@ -1,133 +1,79 @@
+//go:generate go run github.com/infinity6-ai/i6sdk/mold schemagen .
 package relevancefashiondashattachedrevenue
 
 import (
-	"github.com/infinity6-ai/gox/schemaz/schemaz"
+	"context"
+
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/sdkfuncz"
 )
 
 type Params struct {
-	MinYearMonth string
-	MaxYearMonth string
-}
-
-type Partitions struct {
-	StoreId string
+	// First year-month of period (e.g. 2026-07).
+	MinYearMonth string `json:"min_year_month"`
+	// Last year-month of period (e.g. 2026-11).
+	MaxYearMonth string `json:"max_year_month"`
 }
 
 type Row struct {
-	AttachedRevenue   float64
-	AttachedPurchases float64
-	AttachedSkus      float64
-	AvgTicket         float64
+	// Revenue attached to recommendations.
+	AttachedRevenue float64 `json:"attached_revenue"`
+	// Number of purchases attached to recommendations.
+	AttachedPurchases float64 `json:"attached_purchases"`
+	// Number of distinct SKUs attached to recommendations.
+	AttachedSkus float64 `json:"attached_skus"`
+	// Average ticket value for attached purchases.
+	AvgTicket float64 `json:"avg_ticket"`
 }
 
 type Result struct {
-	Rows []*Row
+	// Result rows.
+	Rows []*Row `json:"rows"`
+}
+
+type ReqInput struct {
+	// Dataset identifier.
+	Dataset lakedsz.Dataset `json:"dataset"`
+	// Query params.
+	Params *Params `json:"params,omitempty"`
+}
+
+type ReqPartitions struct {
+	// Store identifier.
+	StoreId string `json:"store_id"`
 }
 
 type Req struct {
-	Dataset        lakedsz.Dataset
-	DashPartitions Partitions
-	Params         Params
+	Input      *ReqInput      `json:"input,omitempty"`
+	Partitions *ReqPartitions `json:"partitions,omitempty"`
+}
+
+type RespOutput struct {
+	// Query results.
+	Results Result `json:"results"`
 }
 
 type Resp struct {
-	Results Result
+	Output *RespOutput `json:"output,omitempty"`
 }
 
+// Get Attached Revenue
+// Gets the revenue attached to recommendations for a store and period.
 type Func struct {
-	Req  Req
-	Resp Resp
+	sdkfuncz.UnimplementedFunc `json:"-"`
+	Req                        *Req  `json:"req,omitempty"`
+	Resp                       *Resp `json:"resp,omitempty"`
 }
 
-func (d *Func) SdkFuncSpec() sdkfuncz.Spec {
+func (d *Func) SdkFuncRoute() sdkfuncz.Spec {
 	return sdkfuncz.Spec{
-		Id:      "product-relevance-fashion-dash-attached-revenue",
 		Version: "v1",
 		Typ:     sdkfuncz.TypClientQuery,
-		Desc: func() *schemaz.Desc {
-			return &schemaz.Desc{
-				Name:    "Get Attached Revenue",
-				Summary: "Gets the revenue attached to recommendations for a store and period.",
-			}
-		},
 	}
 }
 
-func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
-	return &sdkfuncz.DataRefs{
-		Input: &schemaz.Schema{
-			Object: func(_ bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"dataset": {
-						Desc:  &schemaz.Desc{Summary: "Dataset identifier."},
-						Field: func() any { return &d.Req.Dataset },
-					},
-					"params": {
-						Desc: &schemaz.Desc{Summary: "Query params."},
-						Object: func(_ bool) map[string]*schemaz.Schema {
-							return map[string]*schemaz.Schema{
-								"min_year_month": {
-									Desc:  &schemaz.Desc{Summary: "First year-month of the period."},
-									Field: func() any { return &d.Req.Params.MinYearMonth },
-								},
-								"max_year_month": {
-									Desc:  &schemaz.Desc{Summary: "Last year-month of the period."},
-									Field: func() any { return &d.Req.Params.MaxYearMonth },
-								},
-							}
-						},
-					},
-				}
-			},
-		},
-		Partitions: &schemaz.Schema{
-			Object: func(read bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"store_id": {
-						Desc:  &schemaz.Desc{Summary: "Store identifier."},
-						Field: func() any { return &d.Req.DashPartitions.StoreId },
-					},
-				}
-			},
-		},
-		Output: &schemaz.Schema{
-			Object: func(_ bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"rows": {
-						Desc: &schemaz.Desc{Summary: "Result rows."},
-						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Row, *Row]{
-							Slice:      func() *[]*Row { return &d.Resp.Results.Rows },
-							NewElement: func(idx int) *Row { return &Row{} },
-							Get: func(idx int, element **Row) *schemaz.Schema {
-								return &schemaz.Schema{
-									Object: func(_ bool) map[string]*schemaz.Schema {
-										return map[string]*schemaz.Schema{
-											"attached_revenue": {
-												Desc:  &schemaz.Desc{Summary: "Revenue attached to recommendations."},
-												Field: func() any { return &(*element).AttachedRevenue },
-											},
-											"attached_purchases": {
-												Desc:  &schemaz.Desc{Summary: "Purchases attached to recommendations."},
-												Field: func() any { return &(*element).AttachedPurchases },
-											},
-											"attached_skus": {
-												Desc:  &schemaz.Desc{Summary: "SKUs attached to recommendations."},
-												Field: func() any { return &(*element).AttachedSkus },
-											},
-											"avg_ticket": {
-												Desc:  &schemaz.Desc{Summary: "Average ticket value."},
-												Field: func() any { return &(*element).AvgTicket },
-											},
-										}
-									},
-								}
-							},
-						}),
-					},
-				}
-			},
-		},
-	}
+type ProductRelevanceFashionDashAttachedRevenueV1Id struct{}
+
+func (ProductRelevanceFashionDashAttachedRevenueV1Id) ProductRelevanceFashionDashAttachedRevenueV1(ctx context.Context, fn *Func) (int, error) {
+	panic("ProductRelevanceFashionDashAttachedRevenueV1 not implemented: run 'go generate ./...'")
 }

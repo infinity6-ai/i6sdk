@@ -1,9 +1,8 @@
 package apicollectionz
 
 import (
+	"context"
 	"fmt"
-	"maps"
-	"slices"
 
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/dash/relevancefashiondashattachedrevenue"
@@ -16,6 +15,21 @@ import (
 	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/inferz/inferzrelevancefashionfbt"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/sdkfuncz"
 )
+
+type SdkFuncInvokerFunc func(ctx context.Context, fn sdkfuncz.Func) (int, error)
+
+type SdkFuncs struct {
+	inferzrelevancefashionfbt.ProductRelevanceFashionFbtV1Id
+	relevancefashiondashattachedrevenue.ProductRelevanceFashionDashAttachedRevenueV1Id
+	relevancefashiondashcoverage.ProductRelevanceFashionDashCoverageV1Id
+	relevancefashiondashdisplaymetricsstatus.ProductRelevanceFashionDashDisplayMetricsStatusV1Id
+	relevancefashiondashfunnel.ProductRelevanceFashionDashFunnelV1Id
+	relevancefashiondashimpactedmetricsbyshowcasecategory.ProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryV1Id
+	relevancefashiondashimpactedmetricsbysku.ProductRelevanceFashionDashImpactedMetricsBySkuV1Id
+	relevancefashiondashlistshowcasecategories.ProductRelevanceFashionDashListShowcaseCategoriesV1Id
+
+	Invoker SdkFuncInvokerFunc
+}
 
 var sdkFuncs map[string]sdkfuncz.Func
 
@@ -31,18 +45,13 @@ func init() {
 		sdkFuncs[id] = i
 	}
 
-	add(&inferzrelevancefashionfbt.Func{})
-	add(&relevancefashiondashfunnel.Func{})
-	add(&relevancefashiondashattachedrevenue.Func{})
-	add(&relevancefashiondashlistshowcasecategories.Func{})
-	add(&relevancefashiondashimpactedmetricsbyshowcasecategory.Func{})
-	add(&relevancefashiondashimpactedmetricsbysku.Func{})
-	add(&relevancefashiondashcoverage.Func{})
-	add(&relevancefashiondashdisplaymetricsstatus.Func{})
+	for _, fn := range (&SdkFuncs{}).List() {
+		add(fn)
+	}
 }
 
-func SdkFuncs() []sdkfuncz.Func {
-	return slices.Collect(maps.Values(sdkFuncs))
+func Funcs() []sdkfuncz.Func {
+	return (&SdkFuncs{}).List()
 }
 
 func SdkFunc(id string) sdkfuncz.Func {

@@ -59,14 +59,24 @@ func ParseAndGenerate(dir string) ([]byte, string, error) {
 
 	typeInfo := collectTypeInfo(astPkg, docPkg)
 
-	apiStruct, ok := typeInfo.structs["Api"]
-	if !ok {
-		return nil, "", fmt.Errorf("no 'type Api struct' found in package %s", pkgName)
-	}
+	apiStruct, okApi := typeInfo.structs["Api"]
+	funcStruct, okFunc := typeInfo.structs["Func"]
 
-	code, err := generateApiDataRefs(pkgName, apiStruct, typeInfo)
-	if err != nil {
-		return nil, "", fmt.Errorf("error generating ApiDataRefs: %w", err)
+	var code []byte
+	if okApi {
+		c, err := generateApiDataRefs(pkgName, apiStruct, typeInfo)
+		if err != nil {
+			return nil, "", fmt.Errorf("error generating ApiDataRefs: %w", err)
+		}
+		code = c
+	} else if okFunc {
+		c, err := generateFuncDataRefs(pkgName, funcStruct, typeInfo)
+		if err != nil {
+			return nil, "", fmt.Errorf("error generating SdkFuncDataRefs: %w", err)
+		}
+		code = c
+	} else {
+		return nil, "", fmt.Errorf("no 'type Api struct' or 'type Func struct' found in package %s", pkgName)
 	}
 
 	formatted, err := format.Source(code)
@@ -78,16 +88,18 @@ func ParseAndGenerate(dir string) ([]byte, string, error) {
 }
 
 type typeInfo struct {
-	structs     map[string]*ast.StructType
-	typeDocs    map[string]string
-	rawTypeDocs map[string]string
-	fieldDocs   map[string]map[string]string // structName -> fieldName -> doc
-	fieldTypes  map[string]map[string]string // structName -> fieldName -> typeString
-	imports       map[string]string            // alias -> importPath
-	hasApiRoute   bool
-	hasApiSpec    bool
-	apiMethodName string
-	pkgDoc        string
+	structs         map[string]*ast.StructType
+	typeDocs        map[string]string
+	rawTypeDocs     map[string]string
+	fieldDocs       map[string]map[string]string // structName -> fieldName -> doc
+	fieldTypes      map[string]map[string]string // structName -> fieldName -> typeString
+	imports         map[string]string            // alias -> importPath
+	hasApiRoute     bool
+	hasApiSpec      bool
+	hasSdkFuncRoute bool
+	hasSdkFuncSpec  bool
+	apiMethodName   string
+	pkgDoc          string
 }
 
 func collectTypeInfo(pkg *ast.Package, docPkg *doc.Package) *typeInfo {
@@ -124,7 +136,15 @@ func collectTypeInfo(pkg *ast.Package, docPkg *doc.Package) *typeInfo {
 						info.hasApiSpec = true
 					}
 				}
-				if strings.HasSuffix(recvType, "Id") && recvType != "Api" {
+				if recvType == "Func" {
+					if fd.Name.Name == "SdkFuncRoute" {
+						info.hasSdkFuncRoute = true
+					}
+					if fd.Name.Name == "SdkFuncSpec" {
+						info.hasSdkFuncSpec = true
+					}
+				}
+				if strings.HasSuffix(recvType, "Id") && recvType != "Api" && recvType != "Func" {
 					info.apiMethodName = fd.Name.Name
 				}
 			}
@@ -364,6 +384,136 @@ func generateApiDataRefs(pkgName string, apiStruct *ast.StructType, info *typeIn
 	return b.Bytes(), nil
 }
 
+func generateFuncDataRefs(pkgName string, funcStruct *ast.StructType, info *typeInfo) ([]byte, error) {
+	var bodyBuf bytes.Buffer
+	neededImports := make(map[string]string)
+
+	docStr := info.rawTypeDocs["Func"]
+	lines := strings.Split(strings.TrimSpace(docStr), "\n")
+	var title, summary string
+	if len(lines) > 0 {
+		title = strings.TrimSpace(lines[0])
+		if len(lines) > 1 {
+			summary = strings.TrimSpace(strings.Join(lines[1:], " "))
+		}
+	}
+
+	reqField := findFieldInStruct(funcStruct, "Req")
+	respField := findFieldInStruct(funcStruct, "Resp")
+
+	var inputStruct, partStruct *ast.StructType
+	var inputTypeName, partTypeName string
+	var reqIsPtr bool
+	var inputIsPtr, partIsPtr bool
+
+	if reqField != nil {
+		reqTypeName, isPtr := resolveTypeName(reqField.Type)
+		reqIsPtr = isPtr
+		if reqSt, ok := info.structs[reqTypeName]; ok {
+			if f := findFieldInStruct(reqSt, "Input"); f != nil {
+				inputTypeName, inputIsPtr = resolveTypeName(f.Type)
+				inputStruct = info.structs[inputTypeName]
+			}
+			if f := findFieldInStruct(reqSt, "Partitions"); f != nil {
+				partTypeName, partIsPtr = resolveTypeName(f.Type)
+				partStruct = info.structs[partTypeName]
+			}
+		}
+	}
+
+	var outputStruct *ast.StructType
+	var outputTypeName string
+	var respIsPtr, outputIsPtr bool
+
+	if respField != nil {
+		respTypeName, isPtr := resolveTypeName(respField.Type)
+		respIsPtr = isPtr
+		if respSt, ok := info.structs[respTypeName]; ok {
+			if f := findFieldInStruct(respSt, "Output"); f != nil {
+				outputTypeName, outputIsPtr = resolveTypeName(f.Type)
+				outputStruct = info.structs[outputTypeName]
+			}
+		}
+	}
+
+	if info.hasSdkFuncRoute {
+		neededImports["sdkfuncz"] = "github.com/infinity6-ai/i6sdk/sdkcorez/sdkfuncz"
+		bodyBuf.WriteString("func (d *Func) SdkFuncSpec() sdkfuncz.Spec {\n")
+		bodyBuf.WriteString("\tspec := d.SdkFuncRoute()\n")
+		if info.apiMethodName != "" {
+			baseName := strings.TrimSuffix(info.apiMethodName, "V1")
+			inferredId := camelz.P(baseName).QL()
+			bodyBuf.WriteString("\tif spec.Id == \"\" {\n")
+			bodyBuf.WriteString(fmt.Sprintf("\t\tspec.Id = %q\n", inferredId))
+			bodyBuf.WriteString("\t}\n")
+		}
+		bodyBuf.WriteString("\tif spec.Version == \"\" {\n")
+		bodyBuf.WriteString("\t\tspec.Version = \"v1\"\n")
+		bodyBuf.WriteString("\t}\n")
+		bodyBuf.WriteString("\torigDesc := spec.Desc\n")
+		bodyBuf.WriteString("\tspec.Desc = func() *schemaz.Desc {\n")
+		bodyBuf.WriteString("\t\tvar desc *schemaz.Desc\n")
+		bodyBuf.WriteString("\t\tif origDesc != nil {\n")
+		bodyBuf.WriteString("\t\t\tdesc = origDesc()\n")
+		bodyBuf.WriteString("\t\t}\n")
+		bodyBuf.WriteString("\t\tif desc == nil {\n")
+		bodyBuf.WriteString("\t\t\tdesc = &schemaz.Desc{}\n")
+		bodyBuf.WriteString("\t\t}\n")
+		bodyBuf.WriteString("\t\tif desc.Name == \"\" {\n")
+		bodyBuf.WriteString(fmt.Sprintf("\t\t\tdesc.Name = %q\n", title))
+		bodyBuf.WriteString("\t\t}\n")
+		bodyBuf.WriteString("\t\tif desc.Summary == \"\" {\n")
+		bodyBuf.WriteString(fmt.Sprintf("\t\t\tdesc.Summary = %q\n", summary))
+		bodyBuf.WriteString("\t\t}\n")
+		bodyBuf.WriteString("\t\treturn desc\n")
+		bodyBuf.WriteString("\t}\n")
+		bodyBuf.WriteString("\treturn spec\n")
+		bodyBuf.WriteString("}\n\n")
+	}
+
+	bodyBuf.WriteString("func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {\n")
+	neededImports["sdkfuncz"] = "github.com/infinity6-ai/i6sdk/sdkcorez/sdkfuncz"
+
+	bodyBuf.WriteString("\treturn &sdkfuncz.DataRefs{\n")
+
+	// 1. Input
+	if inputStruct != nil {
+		writePayloadSlot(&bodyBuf, "Input", "d.Req.Input", "Input", inputTypeName, inputStruct, reqIsPtr, inputIsPtr, info, neededImports)
+	} else {
+		bodyBuf.WriteString("\t\tInput: nil,\n")
+	}
+
+	// 2. Partitions
+	if partStruct != nil {
+		writePayloadSlot(&bodyBuf, "Partitions", "d.Req.Partitions", "Partitions", partTypeName, partStruct, reqIsPtr, partIsPtr, info, neededImports)
+	} else {
+		bodyBuf.WriteString("\t\tPartitions: nil,\n")
+	}
+
+	// 3. Output
+	if outputStruct != nil {
+		writePayloadSlot(&bodyBuf, "Output", "d.Resp.Output", "Output", outputTypeName, outputStruct, respIsPtr, outputIsPtr, info, neededImports)
+	} else {
+		bodyBuf.WriteString("\t\tOutput: nil,\n")
+	}
+
+	bodyBuf.WriteString("\t}\n")
+	bodyBuf.WriteString("}\n")
+
+	var b bytes.Buffer
+	b.WriteString("// Code generated by schemagen. DO NOT EDIT.\n\n")
+	b.WriteString(fmt.Sprintf("package %s\n\n", pkgName))
+	b.WriteString("import (\n")
+	b.WriteString("\t\"github.com/infinity6-ai/gox/schemaz/schemaz\"\n")
+	for _, impPath := range neededImports {
+		b.WriteString(fmt.Sprintf("\t%q\n", impPath))
+	}
+	b.WriteString(")\n\n")
+	b.Write(bodyBuf.Bytes())
+
+	return b.Bytes(), nil
+}
+
 func writeUrlValueSlot(b *bytes.Buffer, slotName, slotField, typeName string, st *ast.StructType, parentIsPtr, slotIsPtr bool, info *typeInfo, neededImports map[string]string) {
 	b.WriteString(fmt.Sprintf("\t\t%s: &schemaz.Schema{\n", slotName))
 	b.WriteString("\t\t\tObject: func(read bool) map[string]*schemaz.Schema {\n")
@@ -538,11 +688,19 @@ func writeFieldSchema(b *bytes.Buffer, indent, jsonTag, docStr string, expr ast.
 				rawType := strings.TrimPrefix(elemType, "*")
 				b.WriteString(fmt.Sprintf("%s\t\tNewElement: func(idx int) %s { return &%s{} },\n", indent, elemType, rawType))
 				b.WriteString(fmt.Sprintf("%s\t\tGet: func(idx int, element *%s) *schemaz.Schema {\n", indent, elemType))
-				b.WriteString(fmt.Sprintf("%s\t\t\treturn (*element).Schema()\n", indent))
+				if strings.HasPrefix(elemTypeStr, "dsz") || strings.HasSuffix(elemTypeStr, "Pipeline") {
+					b.WriteString(fmt.Sprintf("%s\t\t\treturn (*element).Schema()\n", indent))
+				} else {
+					b.WriteString(fmt.Sprintf("%s\t\t\treturn (*element).SchemaQuery()\n", indent))
+				}
 			} else {
 				b.WriteString(fmt.Sprintf("%s\t\tNewElement: func(idx int) %s { return %s{} },\n", indent, elemType, elemTypeStr))
 				b.WriteString(fmt.Sprintf("%s\t\tGet: func(idx int, element *%s) *schemaz.Schema {\n", indent, elemType))
-				b.WriteString(fmt.Sprintf("%s\t\t\treturn element.Schema()\n", indent))
+				if strings.HasPrefix(elemTypeStr, "dsz") || strings.HasSuffix(elemTypeStr, "Pipeline") {
+					b.WriteString(fmt.Sprintf("%s\t\t\treturn element.Schema()\n", indent))
+				} else {
+					b.WriteString(fmt.Sprintf("%s\t\t\treturn element.SchemaQuery()\n", indent))
+				}
 			}
 			b.WriteString(fmt.Sprintf("%s\t\t},\n", indent))
 			b.WriteString(fmt.Sprintf("%s\t}),\n", indent))

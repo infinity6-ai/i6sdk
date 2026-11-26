@@ -1,147 +1,72 @@
+//go:generate go run github.com/infinity6-ai/i6sdk/mold schemagen .
 package inferzrelevancefashionfbt
 
 import (
-	"github.com/infinity6-ai/gox/schemaz/schemaz"
+	"context"
+
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/sdkfuncz"
 )
 
 type Sku struct {
-	SkuId string
-}
-
-type Partitions struct {
-	StoreId string
+	// SKU identifier.
+	SkuId string `json:"sku_id"`
 }
 
 type Result struct {
-	Skus   []*Sku
-	Rating float64
+	// Result rating.
+	Rating float64 `json:"rating"`
+	// Matching SKUs.
+	Skus []*Sku `json:"skus"`
+}
+
+type ReqInput struct {
+	// Dataset identifier.
+	Dataset lakedsz.Dataset `json:"dataset"`
+	// Session identifier.
+	SessionId string `json:"session_id,omitempty"`
+	// SKUs to find matches for.
+	Skus []*Sku `json:"skus"`
+	// User identifier.
+	UserId string `json:"user_id,omitempty"`
+}
+
+type ReqPartitions struct {
+	// Store identifier.
+	StoreId string `json:"store_id"`
 }
 
 type Req struct {
-	Dataset         lakedsz.Dataset
-	SessionId       string
-	UserId          string
-	Skus            []*Sku
-	ModelPartitions Partitions
+	Input      *ReqInput      `json:"input,omitempty"`
+	Partitions *ReqPartitions `json:"partitions,omitempty"`
+}
+
+type RespOutput struct {
+	// Inference results.
+	Results []*Result `json:"results"`
 }
 
 type Resp struct {
-	Results []*Result
+	Output *RespOutput `json:"output,omitempty"`
 }
 
+// Get Bought Together
+// Infers the SKUs frequently bought together with the given SKUs for a store.
 type Func struct {
-	Req  Req
-	Resp Resp
+	sdkfuncz.UnimplementedFunc `json:"-"`
+	Req                        *Req  `json:"req,omitempty"`
+	Resp                       *Resp `json:"resp,omitempty"`
 }
 
-func (d *Func) SdkFuncSpec() sdkfuncz.Spec {
+func (d *Func) SdkFuncRoute() sdkfuncz.Spec {
 	return sdkfuncz.Spec{
-		Id:      "product-relevance-fashion-fbt",
 		Version: "v1",
 		Typ:     sdkfuncz.TypClientInfer,
-		Desc: func() *schemaz.Desc {
-			return &schemaz.Desc{
-				Name:    "Get Bought Together",
-				Summary: "Infers the SKUs frequently bought together with the given SKUs for a store.",
-			}
-		},
 	}
 }
 
-func (d *Func) SdkFuncDataRefs() *sdkfuncz.DataRefs {
-	return &sdkfuncz.DataRefs{
-		Input: &schemaz.Schema{
-			Object: func(_ bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"dataset": {
-						Desc:  &schemaz.Desc{Summary: "Dataset identifier."},
-						Field: func() any { return &d.Req.Dataset },
-					},
-					"session_id": {
-						Desc:  &schemaz.Desc{Summary: "Session identifier."},
-						Field: func() any { return &d.Req.SessionId },
-					},
-					"user_id": {
-						Desc:  &schemaz.Desc{Summary: "User identifier."},
-						Field: func() any { return &d.Req.UserId },
-					},
-					"skus": {
-						Desc: &schemaz.Desc{Summary: "SKUs to find matches for."},
-						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Sku, *Sku]{
-							Slice:      func() *[]*Sku { return &d.Req.Skus },
-							NewElement: func(idx int) *Sku { return &Sku{} },
-							Get: func(idx int, element **Sku) *schemaz.Schema {
-								return &schemaz.Schema{
-									Object: func(_ bool) map[string]*schemaz.Schema {
-										return map[string]*schemaz.Schema{
-											"sku_id": {
-												Desc:  &schemaz.Desc{Summary: "SKU identifier."},
-												Field: func() any { return &(*element).SkuId },
-											},
-										}
-									},
-								}
-							},
-						}),
-					},
-				}
-			},
-		},
-		Partitions: &schemaz.Schema{
-			Object: func(read bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"store_id": {
-						Desc:  &schemaz.Desc{Summary: "Store identifier."},
-						Field: func() any { return &d.Req.ModelPartitions.StoreId },
-					},
-				}
-			},
-		},
-		Output: &schemaz.Schema{
-			Object: func(_ bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"results": {
-						Desc: &schemaz.Desc{Summary: "Inference results."},
-						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Result, *Result]{
-							Slice:      func() *[]*Result { return &d.Resp.Results },
-							NewElement: func(idx int) *Result { return &Result{} },
-							Get: func(idx int, element **Result) *schemaz.Schema {
-								return &schemaz.Schema{
-									Object: func(_ bool) map[string]*schemaz.Schema {
-										return map[string]*schemaz.Schema{
-											"skus": {
-												Desc: &schemaz.Desc{Summary: "Matching SKUs."},
-												Array: schemaz.NewArray(schemaz.ArrayOptions[[]*Sku, *Sku]{
-													Slice:      func() *[]*Sku { return &(*element).Skus },
-													NewElement: func(idx int) *Sku { return &Sku{} },
-													Get: func(idx int, ele **Sku) *schemaz.Schema {
-														return &schemaz.Schema{
-															Object: func(_ bool) map[string]*schemaz.Schema {
-																return map[string]*schemaz.Schema{
-																	"sku_id": {
-																		Desc:  &schemaz.Desc{Summary: "SKU identifier."},
-																		Field: func() any { return &(*ele).SkuId },
-																	},
-																}
-															},
-														}
-													},
-												}),
-											},
-											"rating": {
-												Desc:  &schemaz.Desc{Summary: "Result rating."},
-												Field: func() any { return &(*element).Rating },
-											},
-										}
-									},
-								}
-							},
-						}),
-					},
-				}
-			},
-		},
-	}
+type ProductRelevanceFashionFbtV1Id struct{}
+
+func (ProductRelevanceFashionFbtV1Id) ProductRelevanceFashionFbtV1(ctx context.Context, fn *Func) (int, error) {
+	panic("ProductRelevanceFashionFbtV1 not implemented: run 'go generate ./...'")
 }

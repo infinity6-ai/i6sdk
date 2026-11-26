@@ -12,29 +12,33 @@ import (
 
 func TestUnitInferzRelevanceFashionFbt(t *testing.T) {
 	fn := &inferzrelevancefashionfbt.Func{
-		Req: inferzrelevancefashionfbt.Req{
-			Dataset: lakedsz.MustParse("my-dataset"),
-			Skus: []*inferzrelevancefashionfbt.Sku{
-				{
-					SkuId: "sku-1",
-				},
-				{
-					SkuId: "sku-2",
+		Req: &inferzrelevancefashionfbt.Req{
+			Input: &inferzrelevancefashionfbt.ReqInput{
+				Dataset: lakedsz.MustParse("my-dataset"),
+				Skus: []*inferzrelevancefashionfbt.Sku{
+					{
+						SkuId: "sku-1",
+					},
+					{
+						SkuId: "sku-2",
+					},
 				},
 			},
-			ModelPartitions: inferzrelevancefashionfbt.Partitions{
+			Partitions: &inferzrelevancefashionfbt.ReqPartitions{
 				StoreId: "store-123",
 			},
 		},
-		Resp: inferzrelevancefashionfbt.Resp{
-			Results: []*inferzrelevancefashionfbt.Result{
-				{
-					Skus:   []*inferzrelevancefashionfbt.Sku{{SkuId: "sku-3"}},
-					Rating: 0.95,
-				},
-				{
-					Skus:   []*inferzrelevancefashionfbt.Sku{{SkuId: "sku-4"}},
-					Rating: 0.85,
+		Resp: &inferzrelevancefashionfbt.Resp{
+			Output: &inferzrelevancefashionfbt.RespOutput{
+				Results: []*inferzrelevancefashionfbt.Result{
+					{
+						Skus:   []*inferzrelevancefashionfbt.Sku{{SkuId: "sku-3"}},
+						Rating: 0.95,
+					},
+					{
+						Skus:   []*inferzrelevancefashionfbt.Sku{{SkuId: "sku-4"}},
+						Rating: 0.85,
+					},
 				},
 			},
 		},
@@ -42,18 +46,17 @@ func TestUnitInferzRelevanceFashionFbt(t *testing.T) {
 
 	fnCopy := jsonz.MustCopy(fn, &inferzrelevancefashionfbt.Func{})
 
-	require.Equal(t, fn.Req, fnCopy.Req)
-	require.Equal(t, fn.Resp, fnCopy.Resp)
-	require.Equal(t, "my-dataset", fnCopy.Req.Dataset.String())
-	require.Len(t, fnCopy.Req.Skus, 2)
-	require.Equal(t, "sku-1", fnCopy.Req.Skus[0].SkuId)
-	require.Equal(t, "sku-2", fnCopy.Req.Skus[1].SkuId)
-	require.Equal(t, "store-123", fnCopy.Req.ModelPartitions.StoreId)
-	require.Len(t, fnCopy.Resp.Results, 2)
-	require.Equal(t, "sku-3", fnCopy.Resp.Results[0].Skus[0].SkuId)
-	require.Equal(t, 0.95, fnCopy.Resp.Results[0].Rating)
-	require.Equal(t, "sku-4", fnCopy.Resp.Results[1].Skus[0].SkuId)
-	require.Equal(t, 0.85, fnCopy.Resp.Results[1].Rating)
+	require.Equal(t, fn.Req.Input.Dataset, fnCopy.Req.Input.Dataset)
+	require.Equal(t, "my-dataset", fnCopy.Req.Input.Dataset.String())
+	require.Len(t, fnCopy.Req.Input.Skus, 2)
+	require.Equal(t, "sku-1", fnCopy.Req.Input.Skus[0].SkuId)
+	require.Equal(t, "sku-2", fnCopy.Req.Input.Skus[1].SkuId)
+	require.Equal(t, "store-123", fnCopy.Req.Partitions.StoreId)
+	require.Len(t, fnCopy.Resp.Output.Results, 2)
+	require.Equal(t, "sku-3", fnCopy.Resp.Output.Results[0].Skus[0].SkuId)
+	require.Equal(t, 0.95, fnCopy.Resp.Output.Results[0].Rating)
+	require.Equal(t, "sku-4", fnCopy.Resp.Output.Results[1].Skus[0].SkuId)
+	require.Equal(t, 0.85, fnCopy.Resp.Output.Results[1].Rating)
 }
 
 func TestUnitInferzRelevanceFashionFbtSpec(t *testing.T) {
@@ -74,15 +77,15 @@ func TestUnitInferzRelevanceFashionFbtDataRefs(t *testing.T) {
 	require.NotNil(t, refs.Output)
 
 	require.NotNil(t, refs.Input.Object)
-	inputProps := refs.Input.Object(true)
+	inputProps := refs.Input.Object(false)
 	require.Contains(t, inputProps, "dataset")
 	require.Contains(t, inputProps, "skus")
 
 	require.NotNil(t, refs.Partitions.Object)
-	partitionProps := refs.Partitions.Object(true)
+	partitionProps := refs.Partitions.Object(false)
 	require.Contains(t, partitionProps, "store_id")
 
 	require.NotNil(t, refs.Output.Object)
-	outputProps := refs.Output.Object(true)
+	outputProps := refs.Output.Object(false)
 	require.Contains(t, outputProps, "results")
 }
