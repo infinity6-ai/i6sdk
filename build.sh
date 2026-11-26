@@ -52,6 +52,10 @@ function cmd_go() {
   cmd_comps_run go "$@"
 }
 
+function cmd_i6gox_set_version() {
+  cmd_comps_run i6gox_set_version "$@"
+}
+
 function cmd_uphead() {
   cmd_comps_run uphead "$@"
 }
