@@ -496,7 +496,7 @@ Each `api*z` module in `i6sdk` pairs with a corresponding backend service reposi
    - Define concrete `<MethodName>Id struct{}` with stub method.
    - Embed `apiz.UnimplementedApi` with `json:"-"`.
    - Add rich Go doc comments on structs and fields for automatic schema documentation.
-   - Add `//go:generate go run github.com/infinity6-ai/i6sdk/mold schemagen .`.
+   - Add `//go:generate go run github.com/infinity6-ai/i6sdk/mold@latest schemagen .`.
    - Run `go generate ./...` to produce `<endpoint>.donotedit.go`.
 2. **Register in `apicollectionz`**:
    - Embed `<MethodName>Id` in `SdkApis`.
