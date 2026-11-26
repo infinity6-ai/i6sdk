@@ -124,7 +124,7 @@ func GenerateDir(dir string) (string, error) {
 		return "", fmt.Errorf("failed to format generated apis: %w\nCode:\n%s", err, buf.String())
 	}
 
-	outFile := filepath.Join(dir, "apis.gen.go")
+	outFile := filepath.Join(dir, "apis.donotedit.go")
 	if err := os.WriteFile(outFile, formatted, 0644); err != nil {
 		return "", fmt.Errorf("failed to write %s: %w", outFile, err)
 	}
@@ -246,7 +246,7 @@ func generateSdkFuncs(dir string) (string, error) {
 		return "", fmt.Errorf("failed to format generated sdkfuncs: %w\nCode:\n%s", err, buf.String())
 	}
 
-	outFile := filepath.Join(dir, "sdkfuncs.gen.go")
+	outFile := filepath.Join(dir, "sdkfuncs.donotedit.go")
 	if err := os.WriteFile(outFile, formatted, 0644); err != nil {
 		return "", fmt.Errorf("failed to write %s: %w", outFile, err)
 	}

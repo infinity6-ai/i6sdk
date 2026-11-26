@@ -41,12 +41,12 @@ graph TD
     TF[apitfz] --> Core
 
     %% Schema Generation (mold)
-    Mold[mold schemagen] -. "generates .gen.go" .-> User
-    Mold -. "generates .gen.go" .-> Dataset
-    Mold -. "generates .gen.go" .-> Ingest
-    Mold -. "generates .gen.go" .-> Pipe
-    Mold -. "generates .gen.go" .-> TF
-    Mold -. "generates .gen.go" .-> Core
+    Mold[mold schemagen] -. "generates .donotedit.go" .-> User
+    Mold -. "generates .donotedit.go" .-> Dataset
+    Mold -. "generates .donotedit.go" .-> Ingest
+    Mold -. "generates .donotedit.go" .-> Pipe
+    Mold -. "generates .donotedit.go" .-> TF
+    Mold -. "generates .donotedit.go" .-> Core
 
     %% Catalog Collection
     Collection[apicollectionz] --> User
@@ -78,7 +78,7 @@ Every API definition across `apiuserz/`, `apidatasetz/`, `apiingestz/`, `apipipe
 - **Explicit HTTP Transport Slots**: Requests define explicit sub-structs for slots they consume (`Req{Params, Query, Headers, Payload}`) and responses define `Resp{Headers, Payload}`. Unused transport slots are simply omitted.
 - **Go Doc Comments**: Standard doc comments (`// ...`) written above structs and fields are automatically parsed and mapped into schema summaries (`schemaz.Desc{Summary: "..."}`), eliminating documentation duplication.
 - **Zero Custom Tag DSL**: Standard `json:"..."` tags handle naming and serialization natively without risk of path parameters polluting JSON request bodies.
-- **Clean Checkout Compilation (`<MethodName>Id` Stubs)**: Every API package defines a compile-time stub struct `type <MethodName>Id struct{}` with an actionable panic. `SdkApis` in `apicollectionz` embeds these stubs so that fresh checkouts compile cleanly without requiring `.gen.go` files on disk.
+- **Clean Checkout Compilation (`<MethodName>Id` Stubs)**: Every API package defines a compile-time stub struct `type <MethodName>Id struct{}` with an actionable panic. `SdkApis` in `apicollectionz` embeds these stubs so that fresh checkouts compile cleanly without requiring `.donotedit.go` files on disk.
 - **Client Workflow Symmetry (`sdkfuncz`)**: Client workflow functions in `sdkcorez/productz/` mirror the envelope architecture with `{Input, Partitions, Output}` sub-structs and stub promotion into `apicollectionz.SdkFuncs`.
 
 ---
@@ -155,8 +155,8 @@ Examples:
 
 Running `./build.sh codegen` executes the complete generation pipeline across all tiers:
 
-1. **Schema Generation (`mold schemagen`)**: Inspects Go AST and doc comments across all `api*z` and `sdkcorez/productz` packages to emit `<endpoint>.gen.go` (`ApiDataRefs()` and `SdkFuncDataRefs()`).
-2. **Catalog & Stubs Generation (`mold apisgen`)**: Emits `apis.gen.go` and `sdkfuncs.gen.go` in `apicollectionz`, shadowing compile-time stubs with runtime delegating methods.
+1. **Schema Generation (`mold schemagen`)**: Inspects Go AST and doc comments across all `api*z` and `sdkcorez/productz` packages to emit `<endpoint>.donotedit.go` (`ApiDataRefs()` and `SdkFuncDataRefs()`).
+2. **Catalog & Stubs Generation (`mold apisgen`)**: Emits `apis.donotedit.go` and `sdkfuncs.donotedit.go` in `apicollectionz`, shadowing compile-time stubs with runtime delegating methods.
 3. **Multi-Language SDK Bundles (`forgez`)**:
    - **Web JS/TS SDK**: Generates `sdkweb/src/main/sdkapis/sdkapis.js` (via `forgejs`).
    - **Python SDK**: Generates `sdkpy/src/i6sdk/sdkapis/` (via `forgepy`).

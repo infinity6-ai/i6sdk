@@ -72,7 +72,7 @@ func (d *Api) ApiDataRefs() *apiz.DataRefs {
               - 1:1 Envelope mapping
                             ▼
 ┌────────────────────────────────────────────────────────┐
-│  Generated File (e.g. dszapidatasetlist.gen.go)        │
+│  Generated File (e.g. dszapidatasetlist.donotedit.go)  │
 │  - func (d *Api) ApiDataRefs() *apiz.DataRefs          │
 └───────────────────────────┬────────────────────────────┘
                             │
@@ -162,7 +162,7 @@ func (d *Api) ApiRoute() apiz.ApiSpec {
 }
 ```
 
-Both `ApiSpec()` and `ApiDataRefs()` are generated into `<package>.gen.go`:
+Both `ApiSpec()` and `ApiDataRefs()` are generated into `<package>.donotedit.go`:
 - `ApiSpec()` calls `ApiRoute() apiz.ApiSpec` and **enriches only non-already informed values**:
   - `Name` and `Summary` are populated from the doc comments above `type Api struct` only if they were not explicitly defined in `ApiRoute()`.
   - All existing `Labels`, custom IDs, and route configurations in `ApiRoute()` are preserved intact.
@@ -213,7 +213,7 @@ The generator runs via `go generate ./...` or `./build.sh codegen`:
    - **`checked.Value[T]` / `JSType()`**: Types implementing `JSType() string` or embedding `checked.Value[T]` are recognized automatically; `schemagen` targets their underlying primitive schema (`TypString`, `TypInt`, etc.) and binds their `MustParse` / `Get()` accessors.
    - **Primitive Aliases**: Types like `type Grant uint8` are mapped directly to their primitive base types with full enum comment extraction.
 4. **Output**:
-   Emits `<package>.gen.go` implementing `func (d *Api) ApiDataRefs() *apiz.DataRefs`.
+   Emits `<package>.donotedit.go` implementing `func (d *Api) ApiDataRefs() *apiz.DataRefs`.
 
 ---
 
@@ -297,8 +297,8 @@ This pattern applies universally across all 5 polymorphic API families:
 
 #### 4. Clean Checkouts & SdkApis Method Promotion (`<MethodName>Id`)
 1. **Compile-time safety on fresh clones**: Every API package defines a concrete stub struct `type <MethodName>Id struct{}` with an actionable panic.
-2. **Method promotion**: `SdkApis` in `apicollectionz/apis.go` embeds these stub structs, statically promoting every API method to the client without requiring `.gen.go` files on disk.
-3. **Automated Codegen (`mold apisgen`)**: Emits `apis.gen.go` with real delegating methods that cleanly shadow the embedded stubs.
+2. **Method promotion**: `SdkApis` in `apicollectionz/apis.go` embeds these stub structs, statically promoting every API method to the client without requiring `.donotedit.go` files on disk.
+3. **Automated Codegen (`mold apisgen`)**: Emits `apis.donotedit.go` with real delegating methods that cleanly shadow the embedded stubs.
 4. **Single Source of Truth**: The Go method name on `<MethodName>Id` defines the API ID via `camelz.P(name).QL()`.
 5. **Zero-Underscore Rule**: API IDs must **never contain underscores (`_`)**. Kebab-case with hyphens (`-`) is strictly enforced across all IDs.
 
@@ -312,12 +312,12 @@ To achieve complete structural and architectural symmetry across the entire SDK,
    - `Func` embeds `sdkfuncz.UnimplementedFunc json:"-"` and provides `SdkFuncRoute() sdkfuncz.Spec` (specifying `Version` and `Typ`).
    - Every function package defines a concrete stub struct `type <MethodName>Id struct{}` with actionable panic (e.g. `ProductRelevanceFashionFbtV1Id`).
 2. **`schemagen` Support for `Func`**:
-   - Detects `type Func struct` and generates `<func>.gen.go` implementing `SdkFuncSpec()` and `SdkFuncDataRefs() *sdkfuncz.DataRefs`.
+   - Detects `type Func struct` and generates `<func>.donotedit.go` implementing `SdkFuncSpec()` and `SdkFuncDataRefs() *sdkfuncz.DataRefs`.
    - Derives the kebab-case ID from the stub method name via `camelz.P(name).QL()`.
    - Multi-language generators (`moldsdkfunc`, `forgejs`, `forgepy`) continue to consume `SdkFuncSpec()` and `SdkFuncDataRefs()` with zero disruption.
 3. **`apicollectionz.SdkFuncs` Client Promotion**:
    - Concrete `SdkFuncs` struct in `apicollectionz/sdkfuncs.go` embeds all 8 `<MethodName>Id` stubs.
-   - `mold` codegen (`apisgen` or `sdkfuncsgen`) emits `sdkfuncs.gen.go` shadowing the stubs with runtime delegating methods.
+   - `mold` codegen (`apisgen` or `sdkfuncsgen`) emits `sdkfuncs.donotedit.go` shadowing the stubs with runtime delegating methods.
 4. **`sdkgo` Client Runtime (`client.Funcs()` via `SdkFuncInvokerFunc`)**:
    - `apicollectionz.SdkFuncs` exposes the generated typed workflow methods in Go.
    - `I6Client` implements and wires `apicollectionz.SdkFuncInvokerFunc`, dynamically dispatching by `spec.Typ`:
@@ -451,7 +451,7 @@ To strictly prevent cyclic dependencies, `sdkgo` is organized as a directed acyc
 ## 5. Benefits & Downstream Compatibility
 
 1. **Zero Generator Disruption**:
-   `forgejs` and `forgepy` read `apicollectionz.Apis()`, which inspects `ApiDataRefs()`. Since the generated `.gen.go` files implement `ApiDataRefs()`, TypeScript and Python SDK generation remains completely uninterrupted.
+   `forgejs` and `forgepy` read `apicollectionz.Apis()`, which inspects `ApiDataRefs()`. Since the generated `.donotedit.go` files implement `ApiDataRefs()`, TypeScript and Python SDK generation remains completely uninterrupted.
 2. **Superior Go DX**:
    Go developers writing or using APIs get first-class IDE completion and godoc hovers directly from source comments.
 3. **Maintainable Go SDK**:
@@ -472,7 +472,7 @@ To strictly prevent cyclic dependencies, `sdkgo` is organized as a directed acyc
 
 ### Phase 2.5: SdkApis & Stub Architecture [DONE]
 - Refactor `apicollectionz` to a concrete `SdkApis` struct with embedded stub promotion.
-- Build `mold apisgen` to automate `apis.gen.go` generation.
+- Build `mold apisgen` to automate `apis.donotedit.go` generation.
 - Enforce zero underscores across all API IDs.
 
 ### Phase 3: Rollout Across API Modules & Backend Service Projects [DONE]
@@ -497,10 +497,10 @@ Each `api*z` module in `i6sdk` pairs with a corresponding backend service reposi
    - Embed `apiz.UnimplementedApi` with `json:"-"`.
    - Add rich Go doc comments on structs and fields for automatic schema documentation.
    - Add `//go:generate go run github.com/infinity6-ai/i6sdk/mold schemagen .`.
-   - Run `go generate ./...` to produce `<endpoint>.gen.go`.
+   - Run `go generate ./...` to produce `<endpoint>.donotedit.go`.
 2. **Register in `apicollectionz`**:
    - Embed `<MethodName>Id` in `SdkApis`.
-   - Run `go generate ./...` in `apicollectionz` to execute `apisgen` and emit `apis.gen.go`.
+   - Run `go generate ./...` in `apicollectionz` to execute `apisgen` and emit `apis.donotedit.go`.
 3. **Update Backend Service Handler (`i6*`)**:
    - For generic families, implement Path 2B bridge interface runner.
    - Update handler to read inputs from `d.api.Req.Params`, `d.api.Req.Payload`, etc.
@@ -514,7 +514,7 @@ Each `api*z` module in `i6sdk` pairs with a corresponding backend service reposi
 #### Refactoring Workflow for `sdkfuncs` (Step 6)
 1. **Extend `mold/schemagen`**:
    - Support `type Func struct` with `{Input, Partitions, Output}` envelope slots.
-   - Generate `<func>.gen.go` with `SdkFuncSpec()` and `SdkFuncDataRefs() *sdkfuncz.DataRefs`.
+   - Generate `<func>.donotedit.go` with `SdkFuncSpec()` and `SdkFuncDataRefs() *sdkfuncz.DataRefs`.
 2. **Refactor the 8 `sdkfuncs` (`sdkcorez/productz/relevance/`)**:
    - Split request and response into explicit sub-structs: `Req{Input, Partitions}` and `Resp{Output}`.
    - Define `SdkFuncRoute() sdkfuncz.Spec` and `<MethodName>Id struct{}` stubs.
@@ -522,7 +522,7 @@ Each `api*z` module in `i6sdk` pairs with a corresponding backend service reposi
    - Generate schema files with `go generate ./...`.
 3. **Register `SdkFuncs` in `apicollectionz`**:
    - Define `SdkFuncs` struct embedding all 8 `<MethodName>Id` stubs.
-   - Generate `sdkfuncs.gen.go` shadowing the stubs with runtime delegating methods.
+   - Generate `sdkfuncs.donotedit.go` shadowing the stubs with runtime delegating methods.
 4. **Validate**:
    - Run `./comp.sh apicollectionz test`, `./comp.sh mold test`, and `./comp.sh forgez test`.
    - Confirm `./build.sh codegen && ./build.sh test` generates identical Python and Web SDKs.

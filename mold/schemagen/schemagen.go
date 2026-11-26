@@ -18,14 +18,14 @@ import (
 )
 
 // GenerateDir parses Go source files in the specified directory, identifies the Api struct,
-// and writes out <package>.gen.go implementing func (d *Api) ApiDataRefs() *apiz.DataRefs.
+// and writes out <package>.donotedit.go implementing func (d *Api) ApiDataRefs() *apiz.DataRefs.
 func GenerateDir(dir string) (string, error) {
 	code, pkgName, err := ParseAndGenerate(dir)
 	if err != nil {
 		return "", fmt.Errorf("failed to generate schema for %s: %w", dir, err)
 	}
 
-	outFile := filepath.Join(dir, pkgName+".gen.go")
+	outFile := filepath.Join(dir, pkgName+".donotedit.go")
 	if err := os.WriteFile(outFile, code, 0644); err != nil {
 		return "", fmt.Errorf("failed to write %s: %w", outFile, err)
 	}
@@ -37,7 +37,7 @@ func ParseAndGenerate(dir string) ([]byte, string, error) {
 	fset := token.NewFileSet()
 	pkgs, err := parser.ParseDir(fset, dir, func(fi fs.FileInfo) bool {
 		name := fi.Name()
-		return !strings.HasSuffix(name, "_test.go") && !strings.HasSuffix(name, ".gen.go")
+		return !strings.HasSuffix(name, "_test.go") && !strings.HasSuffix(name, ".gen.go") && !strings.HasSuffix(name, ".donotedit.go")
 	}, parser.ParseComments)
 	if err != nil {
 		return nil, "", fmt.Errorf("error parsing directory %s: %w", dir, err)

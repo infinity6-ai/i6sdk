@@ -156,4 +156,36 @@ func (d *Api) ApiRoute() apiz.ApiSpec {
 			},
 		})
 	})
+
+	t.Run("GenerateDir writes out .donotedit.go file and ignores it on subsequent runs", func(t *testing.T) {
+		tmpDir, err := os.MkdirTemp("", "schemagen-donotedit-*")
+		require.NoError(t, err)
+		defer os.RemoveAll(tmpDir)
+
+		srcFile := filepath.Join(tmpDir, "api.go")
+		source := `package testpkg
+
+type Req struct{}
+type Resp struct{}
+type Api struct {
+	Req  *Req  ` + "`json:\"req\"`" + `
+	Resp *Resp ` + "`json:\"resp\"`" + `
+}
+`
+		err = os.WriteFile(srcFile, []byte(source), 0644)
+		require.NoError(t, err)
+
+		outFile, err := schemagen.GenerateDir(tmpDir)
+		require.NoError(t, err)
+		require.Equal(t, filepath.Join(tmpDir, "testpkg.donotedit.go"), outFile)
+
+		// Verify file exists
+		_, err = os.Stat(outFile)
+		require.NoError(t, err)
+
+		// Re-run should cleanly parse and regenerate without failing due to testpkg.donotedit.go
+		outFile2, err := schemagen.GenerateDir(tmpDir)
+		require.NoError(t, err)
+		require.Equal(t, outFile, outFile2)
+	})
 }
