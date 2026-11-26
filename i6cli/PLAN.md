@@ -84,35 +84,40 @@ Commands follow modern CLI standards (`i6 <domain> <action> [flags]`):
   - Invokes typed `SdkFuncs` (e.g. `relevance-fashion-fbt`, `dash-funnel`) directly via `c.Funcs()`.
 
 ### H. Configuration (`i6 config`)
-- `i6 config set-profile <name>`
-- `i6 config set-env <sandbox|staging|production>`
-- `i6 config set-dataset <dataset-id>`
-- `i6 config show`: Displays active configuration and resolved endpoints.
+- `i6 config init [--box sandbox|staging|prod] [-f/--force]`: Initializes the active profile directory and writes `config.json` configured for the selected box (defaults to `prod`). Protected with `-f/--force` against accidental overwrites.
+- `i6 config show`: Displays active profile, directory paths, box environment, and resolved endpoint URLs.
 
 ---
 
 ## 4. Configuration & State Layout
 
-All CLI configuration, credentials, and local caches are unified under a single base directory:
+All CLI configuration, credentials, and local caches are organized per profile:
 
-- **Environment Variable**: `I6_CLI_BASE_DIR` (sole environment variable for CLI storage configuration).
-- **Default Path**: `$HOME/.config/i6/cli/`
+- **Config Base Directory**: `I6_CLI_CONFIG_DIR` (defaults to `$HOME/.config/i6/`).
+- **Active Profile**: `I6_CLI_CONFIG_PROFILE` (defaults to `"main"`).
+- **Inline JSON Override**: `I6_CLI_CONFIG_JSON` (optional inline JSON string for zero-disk CI/CD execution).
+- *Note*: Neither `I6_CLI_CONFIG_DIR` nor `I6_CLI_CONFIG_PROFILE` are CLI flags; they are managed strictly via environment variables or defaults. The only global flag accepted is `--config <path>`.
 
 ```
-$I6_CLI_BASE_DIR/ (defaults to $HOME/.config/i6/cli/)
-├── config.json          # Active profile, environment preset, default dataset, timeouts
-├── tokens.json          # Atomic credential store via tokenstore.NewFsz (0600 permissions)
-└── cache/               # Shared with fszcache (SQLite blobs, query definitions, etags)
-    ├── dash/
-    └── infer/
+$I6_CLI_CONFIG_DIR/ (defaults to $HOME/.config/i6/)
+└── [profile]/ (defaults to "main", selected via I6_CLI_CONFIG_PROFILE)
+    ├── config.json          # Profile configuration: box (sandbox/staging/prod), default dataset
+    ├── tokens.json          # Atomic credential store via tokenstore.NewFsz (0600 permissions)
+    └── cache/               # Profile-scoped SQLite blobs, queries, models, ETags (fszcache)
+        ├── dash/
+        └── infer/
 ```
 
-### Configuration Hierarchy
-Resolution priority for CLI execution:
-1. **Global Persistent Flag `--config <path>`**: Targets custom config directory or file (`i6 --config "my/custom/path"`).
-2. **Environment Variable Override (`I6_CLI_BASE_DIR`)**: Overrides base directory if `--config` is not passed.
-3. **Default System Path**: `$HOME/.config/i6/cli/`
-4. **Active Profile in `config.json`**: Resolved environment preset (`sandbox`, `staging`, `production`), default dataset, and settings.
+### Configuration Hierarchy & Resolution Order
+1. **Zero-Disk Inline JSON**: If `I6_CLI_CONFIG_JSON` is populated, parse in-memory immediately (bypasses filesystem reads, ideal for CI/CD runners).
+2. **Global Persistent Flag `--config <path>`**:
+   - If `<path>` points to a `.json` file $\rightarrow$ direct configuration file override.
+   - If `<path>` points to a directory $\rightarrow$ overrides active profile directory.
+3. **Environment & Profile Defaults**:
+   - Target Directory: `$I6_CLI_CONFIG_DIR/$I6_CLI_CONFIG_PROFILE/`
+   - Config file: `$I6_CLI_CONFIG_DIR/$I6_CLI_CONFIG_PROFILE/config.json`
+   - Token store: `$I6_CLI_CONFIG_DIR/$I6_CLI_CONFIG_PROFILE/tokens.json`
+   - Cache store: `$I6_CLI_CONFIG_DIR/$I6_CLI_CONFIG_PROFILE/cache/`
 
 Specific subcommands take positional arguments or command-scoped flags (e.g. `i6 dataset list --output=json`), preventing flag pollution on the root command.
 
@@ -208,10 +213,10 @@ In `.github/workflows/release.yml`:
   - [ ] Implement `internal/outfmt` (table/JSON formatting for subcommands).
 
 - [ ] **Phase 2: Authentication & Token Engine (`auth`, `tokens`, `config`)**
+  - [ ] Implement `i6 config init [--box sandbox|staging|prod] [-f/--force]` and `i6 config show`.
   - [ ] Implement `i6 auth login` (Device code flow with polling + manual token input).
   - [ ] Implement `i6 auth logout`, `status`, and `token`.
   - [ ] Implement `i6 tokens create`, `list`, `delete`, and `refresh`.
-  - [ ] Implement `i6 config set-profile`, `set-env`, `set-dataset`, `show`.
 
 - [ ] **Phase 3: Ingestion & Dataset Management (`ingest`, `dataset`)**
   - [ ] Implement `i6 ingest upload` with multi-stream parallel worker execution and live terminal progress bars.
