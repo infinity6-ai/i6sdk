@@ -1,144 +1,76 @@
+//go:generate go run github.com/infinity6-ai/i6sdk/mold schemagen .
 package pipezlist
 
 import (
+	"context"
+
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/solutiondomain"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/pipez"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/speclabels/speclabeltokentype"
 )
 
-type PipezListReq struct {
-	Dataset        lakedsz.Dataset
-	SolutionDomain solutiondomain.SolutionDomain
-	Name           string
-	Status         string
-	Cursor         string
-	Limit          int
+type ReqParams struct {
+	// Dataset identifier.
+	Dataset lakedsz.Dataset `json:"dataset"`
 }
 
-type PipezListResp struct {
-	Pipelines []*pipez.Pipeline
-	Cursor    string
+type ReqQuery struct {
+	// Filter by solution domain.
+	SolutionDomain solutiondomain.SolutionDomain `json:"solution_domain,omitempty"`
+	// Filter by pipeline name.
+	Name string `json:"name,omitempty"`
+	// Filter by pipeline status.
+	Status string `json:"status,omitempty"`
+	// Cursor to fetch the next page.
+	Cursor string `json:"cursor,omitempty"`
+	// Maximum number of results.
+	Limit int `json:"limit,omitempty"`
 }
 
-func (*PipezListResp) JSType() string {
-	return typeastz.TypObject
+type Req struct {
+	Params *ReqParams `json:"params,omitempty"`
+	Query  *ReqQuery  `json:"query,omitempty"`
 }
 
+// Response containing the listed pipelines.
+type RespPayload struct {
+	// List of pipelines.
+	Pipelines []*pipez.Pipeline `json:"pipelines"`
+	// Cursor for the next page.
+	Cursor string `json:"cursor,omitempty"`
+}
+
+type Resp struct {
+	Payload *RespPayload `json:"payload,omitempty"`
+}
+
+// List Pipelines
+// Lists the pipelines of a dataset, optionally filtered, with cursor pagination.
 type Api struct {
-	Req  *PipezListReq
-	Resp *PipezListResp
+	apiz.UnimplementedApi `json:"-"`
+	Req                   *Req  `json:"req,omitempty"`
+	Resp                  *Resp `json:"resp,omitempty"`
 }
 
-func (d *Api) ApiSpec() apiz.ApiSpec {
+func (d *Api) ApiRoute() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id: "pipez-list",
+		Method: "GET",
+		Path:   "/api/pipe/dataset/{dataset}/list",
 		Desc: func() *schemaz.Desc {
 			return &schemaz.Desc{
-				Name:    "List Pipelines",
-				Summary: "Lists the pipelines of a dataset, optionally filtered, with cursor pagination.",
 				Labels: map[string]string{
 					speclabeltokentype.Key: speclabeltokentype.Dataset,
 				},
 			}
 		},
-		Method: "GET",
-		Path:   "/api/pipe/dataset/{dataset}/list",
 	}
 }
 
-func (d *Api) ApiDataRefs() *apiz.DataRefs {
-	return &apiz.DataRefs{
-		PathParams: &schemaz.Schema{
-			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && d.Req == nil {
-					return nil
-				}
-				if d.Req == nil {
-					d.Req = &PipezListReq{}
-				}
-				return map[string]*schemaz.Schema{
-					"dataset": {
-						Desc:     &schemaz.Desc{Summary: "Dataset identifier."},
-						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
-					},
-				}
-			},
-		},
-		QueryParams: &schemaz.Schema{
-			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && d.Req == nil {
-					return nil
-				}
-				if d.Req == nil {
-					d.Req = &PipezListReq{}
-				}
-				return map[string]*schemaz.Schema{
-					"solution_domain": {
-						Desc:     &schemaz.Desc{Summary: "Filter by solution domain."},
-						UrlValue: solutiondomain.ParseStr(&d.Req.SolutionDomain),
-					},
-					"name": {
-						Desc:     &schemaz.Desc{Summary: "Filter by pipeline name."},
-						UrlValue: schemaz.ParseStr(&d.Req.Name),
-					},
-					"status": {
-						Desc:     &schemaz.Desc{Summary: "Filter by pipeline status."},
-						UrlValue: schemaz.ParseStr(&d.Req.Status),
-					},
-					"cursor": {
-						Desc:     &schemaz.Desc{Summary: "Cursor to fetch the next page."},
-						UrlValue: schemaz.ParseStr(&d.Req.Cursor),
-					},
-					"limit": {
-						Desc:     &schemaz.Desc{Summary: "Maximum number of results."},
-						UrlValue: schemaz.ParseStrNumber(&d.Req.Limit),
-					},
-				}
-			},
-		},
-		ReqHeaders:  nil,
-		ReqBody:     nil,
-		RespHeaders: nil,
-		RespBody: &schemaz.Schema{
-			Desc: &schemaz.Desc{Summary: "Response containing the listed pipelines."},
-			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && d.Resp == nil {
-					return nil
-				}
-				if d.Resp == nil {
-					d.Resp = &PipezListResp{}
-				}
-				return map[string]*schemaz.Schema{
-					"cursor": {
-						Desc:  &schemaz.Desc{Summary: "Cursor for the next page."},
-						Field: func() any { return &d.Resp.Cursor },
-					},
-					"pipelines": {
-						Desc: &schemaz.Desc{Summary: "List of pipelines."},
-						Array: schemaz.NewArray(schemaz.ArrayOptions[[]*pipez.Pipeline, *pipez.Pipeline]{
-							Slice:      func() *[]*pipez.Pipeline { return &d.Resp.Pipelines },
-							NewElement: func(idx int) *pipez.Pipeline { return &pipez.Pipeline{} },
-							Get: func(idx int, element **pipez.Pipeline) *schemaz.Schema {
-								return &schemaz.Schema{
-									Object: func(read bool) map[string]*schemaz.Schema {
-										if read && *element == nil {
-											return nil
-										}
-										if *element == nil {
-											*element = &pipez.Pipeline{}
-										}
-										return (*element).Schema().Object(read)
-									},
-								}
-							},
-						}),
-					},
-				}
-			},
-		},
-	}
+type PipezListId struct{}
+
+func (PipezListId) PipezList(ctx context.Context, api *Api) (int, error) {
+	panic("PipezList not implemented: run 'go generate ./...'")
 }

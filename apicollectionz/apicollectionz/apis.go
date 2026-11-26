@@ -42,8 +42,10 @@ import (
 	"github.com/infinity6-ai/i6sdk/apipipez/pipezlist"
 	"github.com/infinity6-ai/i6sdk/apipipez/pipezstartbatchingest"
 	"github.com/infinity6-ai/i6sdk/apipipez/pipezstartmain"
-	"github.com/infinity6-ai/i6sdk/apipipez/scheduleractivate"
-	"github.com/infinity6-ai/i6sdk/apipipez/schedulerdeactivate"
+	"github.com/infinity6-ai/i6sdk/apipipez/scheduleractivatebatchingest"
+	"github.com/infinity6-ai/i6sdk/apipipez/scheduleractivatemain"
+	"github.com/infinity6-ai/i6sdk/apipipez/schedulerdeactivatebatchingest"
+	"github.com/infinity6-ai/i6sdk/apipipez/schedulerdeactivatemain"
 	"github.com/infinity6-ai/i6sdk/apitfz/tfzapimodelmetadata"
 	"github.com/infinity6-ai/i6sdk/apitfz/tfzapimodelpredict"
 	"github.com/infinity6-ai/i6sdk/apiuserz/userapiauthdevicecode"
@@ -64,7 +66,6 @@ import (
 	"github.com/infinity6-ai/i6sdk/apiuserz/userapidatasettokenrefreshdelete"
 	"github.com/infinity6-ai/i6sdk/apiuserz/userapidatasettokenrefreshlist"
 	"github.com/infinity6-ai/i6sdk/apiuserz/userapitokencheck"
-	"github.com/infinity6-ai/i6sdk/sdkcorez/productz/relevance/pipez/relevancefashionpipez"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/resultz/platformresultz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/resultz/relevancefashionresultz"
 )
@@ -79,8 +80,14 @@ type SdkApis struct {
 	ingestzapigeturl.IngestzGetUrlId
 	ingestzapistreamcatalog.IngestzStreamRelevanceFashionCatalogId
 	ingestzapistreamevent.IngestzStreamRelevanceFashionEventId
+	pipezget.PipezGetId
+	pipezlist.PipezListId
 	pipezstartbatchingest.PipezStartRelevanceFashionRelevanceFashionBatchIngestId
 	pipezstartmain.PipezStartRelevanceFashionRelevanceFashionMainId
+	scheduleractivatebatchingest.PipezSchedulerActivateRelevanceFashionRelevanceFashionBatchIngestId
+	scheduleractivatemain.PipezSchedulerActivateRelevanceFashionRelevanceFashionMainId
+	schedulerdeactivatebatchingest.PipezSchedulerDeactivateRelevanceFashionRelevanceFashionBatchIngestId
+	schedulerdeactivatemain.PipezSchedulerDeactivateRelevanceFashionRelevanceFashionMainId
 	tfzapimodelmetadata.TfzModelMetadataId
 	tfzapimodelpredict.TfzModelPredictId
 
@@ -203,29 +210,29 @@ func (a *SdkApis) DszUpdateSubscriptionPlan(ctx context.Context, api *dszapisubs
 // 	return a.Invoker(ctx, api)
 // }
 
-func (a *SdkApis) PipezGet(ctx context.Context, api *pipezget.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
+// func (a *SdkApis) PipezGet(ctx context.Context, api *pipezget.Api) (int, error) {
+// 	return a.Invoker(ctx, api)
+// }
 
-func (a *SdkApis) PipezList(ctx context.Context, api *pipezlist.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
+// func (a *SdkApis) PipezList(ctx context.Context, api *pipezlist.Api) (int, error) {
+// 	return a.Invoker(ctx, api)
+// }
 
-func (a *SdkApis) PipezSchedulerActivateRelevanceFashionRelevanceFashionBatchIngest(ctx context.Context, api *scheduleractivate.Api[*relevancefashionpipez.BatchIngest]) (int, error) {
-	return a.Invoker(ctx, api)
-}
+// func (a *SdkApis) PipezSchedulerActivateRelevanceFashionRelevanceFashionBatchIngest(ctx context.Context, api *scheduleractivatebatchingest.Api) (int, error) {
+// 	return a.Invoker(ctx, api)
+// }
 
-func (a *SdkApis) PipezSchedulerActivateRelevanceFashionRelevanceFashionMain(ctx context.Context, api *scheduleractivate.Api[*relevancefashionpipez.Main]) (int, error) {
-	return a.Invoker(ctx, api)
-}
+// func (a *SdkApis) PipezSchedulerActivateRelevanceFashionRelevanceFashionMain(ctx context.Context, api *scheduleractivatemain.Api) (int, error) {
+// 	return a.Invoker(ctx, api)
+// }
 
-func (a *SdkApis) PipezSchedulerDeactivateRelevanceFashionRelevanceFashionBatchIngest(ctx context.Context, api *schedulerdeactivate.Api[*relevancefashionpipez.BatchIngest]) (int, error) {
-	return a.Invoker(ctx, api)
-}
+// func (a *SdkApis) PipezSchedulerDeactivateRelevanceFashionRelevanceFashionBatchIngest(ctx context.Context, api *schedulerdeactivatebatchingest.Api) (int, error) {
+// 	return a.Invoker(ctx, api)
+// }
 
-func (a *SdkApis) PipezSchedulerDeactivateRelevanceFashionRelevanceFashionMain(ctx context.Context, api *schedulerdeactivate.Api[*relevancefashionpipez.Main]) (int, error) {
-	return a.Invoker(ctx, api)
-}
+// func (a *SdkApis) PipezSchedulerDeactivateRelevanceFashionRelevanceFashionMain(ctx context.Context, api *schedulerdeactivatemain.Api) (int, error) {
+// 	return a.Invoker(ctx, api)
+// }
 
 // func (a *SdkApis) PipezStartRelevanceFashionRelevanceFashionBatchIngest(ctx context.Context, api *pipezstartbatchingest.Api) (int, error) {
 // 	return a.Invoker(ctx, api)

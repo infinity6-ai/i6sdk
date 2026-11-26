@@ -323,7 +323,11 @@ func generateApiDataRefs(pkgName string, apiStruct *ast.StructType, info *typeIn
 	if reqPayloadStruct != nil {
 		writePayloadSlot(&bodyBuf, "ReqBody", "d.Req."+reqPayloadFieldName, reqPayloadFieldName, reqPayloadTypeName, reqPayloadStruct, reqIsPtr, reqPayloadIsPtr, info, neededImports)
 	} else if reqPayloadTypeName != "" {
-		bodyBuf.WriteString("\t\tReqBody: d.Req." + reqPayloadFieldName + ".SchemaBody(),\n")
+		if strings.Contains(reqPayloadTypeName, "pipez") || strings.Contains(reqPayloadTypeName, "BatchIngest") || strings.Contains(reqPayloadTypeName, "Main") {
+			bodyBuf.WriteString("\t\tReqBody: d.Req." + reqPayloadFieldName + ".Schema(),\n")
+		} else {
+			bodyBuf.WriteString("\t\tReqBody: d.Req." + reqPayloadFieldName + ".SchemaBody(),\n")
+		}
 	} else {
 		bodyBuf.WriteString("\t\tReqBody: nil,\n")
 	}
@@ -513,7 +517,11 @@ func writeFieldSchema(b *bytes.Buffer, indent, jsonTag, docStr string, expr ast.
 				rawType := strings.TrimPrefix(elemType, "*")
 				b.WriteString(fmt.Sprintf("%s\t\tNewElement: func(idx int) %s { return &%s{} },\n", indent, elemType, rawType))
 				b.WriteString(fmt.Sprintf("%s\t\tGet: func(idx int, element *%s) *schemaz.Schema {\n", indent, elemType))
-				b.WriteString(fmt.Sprintf("%s\t\t\treturn (*element).SchemaQuery()\n", indent))
+				if strings.HasSuffix(elemTypeStr, "Pipeline") {
+					b.WriteString(fmt.Sprintf("%s\t\t\treturn (*element).Schema()\n", indent))
+				} else {
+					b.WriteString(fmt.Sprintf("%s\t\t\treturn (*element).SchemaQuery()\n", indent))
+				}
 			} else {
 				b.WriteString(fmt.Sprintf("%s\t\tNewElement: func(idx int) %s { return %s{} },\n", indent, elemType, elemTypeStr))
 				b.WriteString(fmt.Sprintf("%s\t\tGet: func(idx int, element *%s) *schemaz.Schema {\n", indent, elemType))
@@ -524,6 +532,22 @@ func writeFieldSchema(b *bytes.Buffer, indent, jsonTag, docStr string, expr ast.
 			b.WriteString(fmt.Sprintf("%s},\n", indent))
 			return
 		}
+	}
+
+	fieldTypeStr, isPtr := resolveTypeName(expr)
+	if isPtr && strings.Contains(fieldTypeStr, ".") {
+		pkgAlias := strings.Split(fieldTypeStr, ".")[0]
+		if impPath, ok := info.imports[pkgAlias]; ok {
+			neededImports[pkgAlias] = impPath
+		}
+		rawType := strings.TrimPrefix(fieldTypeStr, "*")
+		b.WriteString(fmt.Sprintf("%s\tObject: func(read bool) map[string]*schemaz.Schema {\n", indent))
+		b.WriteString(fmt.Sprintf("%s\t\tif read && %s == nil {\n%s\t\t\treturn nil\n%s\t\t}\n", indent, accessor, indent, indent))
+		b.WriteString(fmt.Sprintf("%s\t\tif %s == nil {\n%s\t\t\t%s = new(%s)\n%s\t\t}\n", indent, accessor, indent, accessor, rawType, indent))
+		b.WriteString(fmt.Sprintf("%s\t\treturn %s.Schema().Object(read)\n", indent, accessor))
+		b.WriteString(fmt.Sprintf("%s\t},\n", indent))
+		b.WriteString(fmt.Sprintf("%s},\n", indent))
+		return
 	}
 
 	// Normal Field binding
@@ -558,12 +582,12 @@ func resolveUrlParser(expr ast.Expr, ptrAccessor string, neededImports map[strin
 			if impPath, ok := availableImports[pkgAlias]; ok {
 				neededImports[pkgAlias] = impPath
 			}
-			return fmt.Sprintf("schemaz.ParseStrGet(%s, solutiondomain.MustParse)", ptrAccessor)
+			return fmt.Sprintf("solutiondomain.ParseStr(%s)", ptrAccessor)
 		}
 	}
 	switch typeName {
 	case "int", "int8", "int16", "int32", "int64":
-		return fmt.Sprintf("schemaz.ParseInt(%s)", ptrAccessor)
+		return fmt.Sprintf("schemaz.ParseStrNumber(%s)", ptrAccessor)
 	case "uint", "uint8", "uint16", "uint32", "uint64":
 		return fmt.Sprintf("schemaz.ParseUint(%s)", ptrAccessor)
 	case "bool":

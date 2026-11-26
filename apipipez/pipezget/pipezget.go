@@ -1,99 +1,61 @@
+//go:generate go run github.com/infinity6-ai/i6sdk/mold schemagen .
 package pipezget
 
 import (
+	"context"
+
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
-	"github.com/infinity6-ai/gox/schemaz/typeastz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/pipez"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/speclabels/speclabeltokentype"
 )
 
-type PipezGetReq struct {
+type ReqParams struct {
+	// Dataset identifier.
 	Dataset lakedsz.Dataset `json:"dataset"`
-	Id      string          `json:"id"`
+	// Pipeline id.
+	Id string `json:"id"`
 }
 
-type PipezGetResp struct {
+type Req struct {
+	Params *ReqParams `json:"params,omitempty"`
+}
+
+// Response containing the pipeline.
+type RespPayload struct {
+	// Pipeline and its states.
 	Pipeline *pipez.Pipeline `json:"pipeline"`
 }
 
-func (*PipezGetResp) JSType() string {
-	return typeastz.TypObject
+type Resp struct {
+	Payload *RespPayload `json:"payload,omitempty"`
 }
 
+// Get Pipeline
+// Gets a pipeline of a dataset by its id.
 type Api struct {
-	Req  *PipezGetReq  `json:"req"`
-	Resp *PipezGetResp `json:"resp"`
+	apiz.UnimplementedApi `json:"-"`
+	Req                   *Req  `json:"req,omitempty"`
+	Resp                  *Resp `json:"resp,omitempty"`
 }
 
-func (d *Api) ApiSpec() apiz.ApiSpec {
+func (d *Api) ApiRoute() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id: "pipez-get",
+		Method: "GET",
+		Path:   "/api/pipe/dataset/{dataset}/id/{id}",
 		Desc: func() *schemaz.Desc {
 			return &schemaz.Desc{
-				Name:    "Get Pipeline",
-				Summary: "Gets a pipeline of a dataset by its id.",
 				Labels: map[string]string{
 					speclabeltokentype.Key: speclabeltokentype.Dataset,
 				},
 			}
 		},
-		Method: "GET",
-		Path:   "/api/pipe/dataset/{dataset}/id/{id}",
 	}
 }
 
-func (d *Api) ApiDataRefs() *apiz.DataRefs {
-	return &apiz.DataRefs{
-		PathParams: &schemaz.Schema{
-			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && d.Req == nil {
-					return nil
-				}
-				if d.Req == nil {
-					d.Req = &PipezGetReq{}
-				}
-				return map[string]*schemaz.Schema{
-					"dataset": {
-						Desc:     &schemaz.Desc{Summary: "Dataset identifier."},
-						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
-					},
-					"id": {
-						Desc:     &schemaz.Desc{Summary: "Pipeline id."},
-						UrlValue: schemaz.ParseStr(&d.Req.Id),
-					},
-				}
-			},
-		},
-		QueryParams: nil,
-		ReqHeaders:  nil,
-		ReqBody:     nil,
-		RespHeaders: nil,
-		RespBody: &schemaz.Schema{
-			Desc: &schemaz.Desc{Summary: "Response containing the pipeline."},
-			Object: func(read bool) map[string]*schemaz.Schema {
-				if read && d.Resp == nil {
-					return nil
-				}
-				if d.Resp == nil {
-					d.Resp = &PipezGetResp{}
-				}
-				return map[string]*schemaz.Schema{
-					"pipeline": {
-						Desc: &schemaz.Desc{Summary: "Pipeline and its states."},
-						Object: func(read bool) map[string]*schemaz.Schema {
-							if read && d.Resp.Pipeline == nil {
-								return nil
-							}
-							if d.Resp.Pipeline == nil {
-								d.Resp.Pipeline = &pipez.Pipeline{}
-							}
-							return d.Resp.Pipeline.Schema().Object(read)
-						},
-					},
-				}
-			},
-		},
-	}
+type PipezGetId struct{}
+
+func (PipezGetId) PipezGet(ctx context.Context, api *Api) (int, error) {
+	panic("PipezGet not implemented: run 'go generate ./...'")
 }
