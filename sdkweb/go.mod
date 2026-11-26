@@ -78,27 +78,3 @@ require (
 	google.golang.org/grpc v1.85.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
 )
-
-replace github.com/infinity6-ai/i6sdk/apicollectionz => ../apicollectionz
-
-replace github.com/infinity6-ai/i6sdk/apidatasetz => ../apidatasetz
-
-replace github.com/infinity6-ai/i6sdk/apiingestz => ../apiingestz
-
-replace github.com/infinity6-ai/i6sdk/apipipez => ../apipipez
-
-replace github.com/infinity6-ai/i6sdk/apitfz => ../apitfz
-
-replace github.com/infinity6-ai/i6sdk/apiuserz => ../apiuserz
-
-replace github.com/infinity6-ai/i6sdk/forgez => ../forgez
-
-replace github.com/infinity6-ai/i6sdk/mold => ../mold
-
-replace github.com/infinity6-ai/i6sdk/sdkcorez => ../sdkcorez
-
-replace github.com/infinity6-ai/i6sdk/sdkgo => ../sdkgo
-
-replace github.com/infinity6-ai/i6sdk/sdkpy => ../sdkpy
-
-replace github.com/infinity6-ai/i6sdk/versionz => ../versionz
