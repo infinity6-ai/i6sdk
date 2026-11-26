@@ -49,7 +49,6 @@ Commands follow modern CLI standards (`i6 <domain> <action> [flags]`):
   - **Standalone Dataset Bearer Token**: Saved as a non-refreshable dataset access token in `i6_ds:<dataset>`.
 - `i6 auth logout`: Revokes session token family on server via `UserAuthLogout` and wipes local credentials.
 - `i6 auth status` / `i6 auth me`: Displays active authentication identity (User Session vs. Robot Service Account vs. Standalone Bearer vs. Unauthenticated), tenant, dataset, and token expiration.
-- `i6 auth expose`: Prints active access token string to stdout (ideal for piping to `curl` or downstream scripts).
 
 ### B. Local Profile Token Management (`i6 tokens`)
 
