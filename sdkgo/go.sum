@@ -68,6 +68,8 @@ github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/infinity6-ai/gox/commonz v0.0.82 h1:i39vO8KWCFndBYHL01Zf3c9g2u3hnjNrM39getwUcgI=
 github.com/infinity6-ai/gox/commonz v0.0.82/go.mod h1:HGfW3l25mcPdT5M2qlgygwyUFRkkp8U7mEvnypHRPYg=
+github.com/infinity6-ai/gox/cryptz v0.0.82 h1:vDswacmTZ5wPiIg9PHFiv2kgNOeLS/uyk0h1Siit9mo=
+github.com/infinity6-ai/gox/cryptz v0.0.82/go.mod h1:VVzBQnLj1rSoxTRiNZf9BCu7luKNtDjJJ2vgOFf6Vqw=
 github.com/infinity6-ai/gox/fsz v0.0.82 h1:Gipubt7IFSXLEPxFnzFU1LMmjLkmMZ4GcjNoY6BbquM=
 github.com/infinity6-ai/gox/fsz v0.0.82/go.mod h1:3Rju+ZwafGE8+U2/F4OLP6+voZGEyMDapnp/vAwIwoQ=
 github.com/infinity6-ai/gox/httpz v0.0.82 h1:PTM1MYRQwesQacZuSyFTsElsBUyMhaCJ0QEXwZaLXDc=
