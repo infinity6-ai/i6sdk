@@ -499,8 +499,8 @@ Each `api*z` module in `i6sdk` pairs with a corresponding backend service reposi
 
 ### Phase 4: Build `sdkgo` Runtime [IN PROGRESS]
 - **Step 1: Client Lifecycle & Configuration (`sdkgo/client`) [DONE]**:
-  - Implemented `I6Client` container with functional options (`WithToken`, `WithBaseUrl`, `WithHttpClient`, `WithCacheDir`, `WithCacheUrl`, `WithMemoryCache`, `WithTokenStore`).
-  - Implemented environment variable fallbacks (`I6_TOKEN`, `I6_BASE_URL`).
+  - Implemented `I6Client` container with explicit functional options (`WithToken`, `WithDecsuiteUrl`, `WithTfinferUrl`, `WithUserzUrl`, `WithBaseUrl`, `WithServiceUrls`, `WithStaging`, `WithSandbox`, `WithHttpClient`, `WithCacheDir`, `WithCacheUrl`, `WithMemoryCache`, `WithTokenStore`).
+  - Standardized on mandatory explicit configuration and constant sandbox defaults without implicit environment variable fallbacks.
   - Added unit test suite `client_unit_test.go` verifying all options and defaults.
 - **Step 2: Token Management & Multi-Tier Storage (`sdkgo/tokens`)**:
   - Implement `TokenStore` interface with `MemoryTokenStore` (default in-memory with `sync.RWMutex`), `FszTokenStore` (atomic persistence over `gox/fsz`), and custom pluggable stores.

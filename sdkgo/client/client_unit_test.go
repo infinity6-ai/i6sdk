@@ -32,8 +32,9 @@ func (c *customTokenStore) Delete(_ context.Context, key string) error {
 func TestUnitClientConstruction(t *testing.T) {
 	type testScenario struct {
 		opts            []client.Option
-		envVars         map[string]string
-		wantBaseUrl     string
+		wantDecsuite    string
+		wantTfinfer     string
+		wantUserz       string
 		wantToken       string
 		wantMemoryCache bool
 		wantCacheScheme string
@@ -42,10 +43,6 @@ func TestUnitClientConstruction(t *testing.T) {
 
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
-
-		for k, v := range s.envVars {
-			t.Setenv(k, v)
-		}
 
 		c, err := client.NewClient(s.opts...)
 		if s.wantErr != "" {
@@ -61,8 +58,19 @@ func TestUnitClientConstruction(t *testing.T) {
 		require.NotNil(t, c.HttpClient())
 		require.NotNil(t, c.TokenStore())
 
-		if s.wantBaseUrl != "" {
-			require.Equal(t, s.wantBaseUrl, c.BaseUrl().String())
+		if s.wantDecsuite != "" {
+			require.Equal(t, s.wantDecsuite, c.DecsuiteUrl().String())
+			require.Equal(t, s.wantDecsuite, c.BaseUrl().String())
+			require.Equal(t, s.wantDecsuite, c.ServiceUrl("decsuite").String())
+			require.Equal(t, s.wantDecsuite, c.ServiceUrl("other").String())
+		}
+		if s.wantTfinfer != "" {
+			require.Equal(t, s.wantTfinfer, c.TfinferUrl().String())
+			require.Equal(t, s.wantTfinfer, c.ServiceUrl("tfinfer").String())
+		}
+		if s.wantUserz != "" {
+			require.Equal(t, s.wantUserz, c.UserzUrl().String())
+			require.Equal(t, s.wantUserz, c.ServiceUrl("userz").String())
 		}
 		if s.wantToken != "" {
 			require.Equal(t, s.wantToken, c.InitialToken())
@@ -76,52 +84,58 @@ func TestUnitClientConstruction(t *testing.T) {
 		}
 	}
 
-	t.Run("Default client construction without options", func(t *testing.T) {
+	t.Run("Default client construction with sandbox URLs", func(t *testing.T) {
 		check(t, testScenario{
-			wantBaseUrl:     client.DefaultBaseUrl,
+			wantDecsuite:    client.DefaultDecsuiteUrl,
+			wantTfinfer:     client.DefaultTfinferUrl,
+			wantUserz:       client.DefaultUserzUrl,
 			wantMemoryCache: false,
 			wantCacheScheme: "file",
 		})
 	})
 
-	t.Run("Client construction with explicit token and base url options", func(t *testing.T) {
+	t.Run("Client construction with explicit 3 URLs", func(t *testing.T) {
 		check(t, testScenario{
 			opts: []client.Option{
-				client.WithToken("explicit-token-123"),
-				client.WithBaseUrl("https://custom.endpoint.com"),
+				client.WithToken("my-token"),
+				client.WithDecsuiteUrl("https://custom.decsuite.ai"),
+				client.WithTfinferUrl("https://custom.tfinfer.ai"),
+				client.WithUserzUrl("https://custom.userz.ai"),
 			},
-			wantBaseUrl:     "https://custom.endpoint.com",
-			wantToken:       "explicit-token-123",
+			wantDecsuite:    "https://custom.decsuite.ai",
+			wantTfinfer:     "https://custom.tfinfer.ai",
+			wantUserz:       "https://custom.userz.ai",
+			wantToken:       "my-token",
 			wantMemoryCache: false,
 			wantCacheScheme: "file",
 		})
 	})
 
-	t.Run("Client construction with environment variable fallbacks", func(t *testing.T) {
+	t.Run("Client construction with WithServiceUrls map", func(t *testing.T) {
 		check(t, testScenario{
-			envVars: map[string]string{
-				client.EnvToken:   "env-token-456",
-				client.EnvBaseUrl: "https://env.endpoint.com",
-			},
-			wantBaseUrl:     "https://env.endpoint.com",
-			wantToken:       "env-token-456",
-			wantMemoryCache: false,
-			wantCacheScheme: "file",
-		})
-	})
-
-	t.Run("Options take precedence over environment variables", func(t *testing.T) {
-		check(t, testScenario{
-			envVars: map[string]string{
-				client.EnvToken:   "env-token-ignore",
-				client.EnvBaseUrl: "https://env-ignore.com",
-			},
 			opts: []client.Option{
-				client.WithToken("priority-token"),
-				client.WithBaseUrl("https://priority-endpoint.com"),
+				client.WithServiceUrls(map[string]string{
+					"decsuite": "https://map.decsuite.ai",
+					"tfinfer":  "https://map.tfinfer.ai",
+					"userz":    "https://map.userz.ai",
+				}),
 			},
-			wantBaseUrl:     "https://priority-endpoint.com",
-			wantToken:       "priority-token",
+			wantDecsuite:    "https://map.decsuite.ai",
+			wantTfinfer:     "https://map.tfinfer.ai",
+			wantUserz:       "https://map.userz.ai",
+			wantMemoryCache: false,
+			wantCacheScheme: "file",
+		})
+	})
+
+	t.Run("Client construction with WithStaging preset", func(t *testing.T) {
+		check(t, testScenario{
+			opts: []client.Option{
+				client.WithStaging(),
+			},
+			wantDecsuite:    client.StagingDecsuiteUrl,
+			wantTfinfer:     client.StagingTfinferUrl,
+			wantUserz:       client.StagingUserzUrl,
 			wantMemoryCache: false,
 			wantCacheScheme: "file",
 		})
@@ -132,7 +146,7 @@ func TestUnitClientConstruction(t *testing.T) {
 			opts: []client.Option{
 				client.WithMemoryCache(),
 			},
-			wantBaseUrl:     client.DefaultBaseUrl,
+			wantDecsuite:    client.DefaultDecsuiteUrl,
 			wantMemoryCache: true,
 			wantCacheScheme: "",
 		})
@@ -143,7 +157,7 @@ func TestUnitClientConstruction(t *testing.T) {
 			opts: []client.Option{
 				client.WithCacheDir("/tmp/custom-i6-cache"),
 			},
-			wantBaseUrl:     client.DefaultBaseUrl,
+			wantDecsuite:    client.DefaultDecsuiteUrl,
 			wantMemoryCache: false,
 			wantCacheScheme: "file",
 		})
@@ -155,7 +169,7 @@ func TestUnitClientConstruction(t *testing.T) {
 			opts: []client.Option{
 				client.WithCacheUrl(customUrl),
 			},
-			wantBaseUrl:     client.DefaultBaseUrl,
+			wantDecsuite:    client.DefaultDecsuiteUrl,
 			wantMemoryCache: false,
 			wantCacheScheme: "file",
 		})
@@ -176,6 +190,17 @@ func TestUnitClientConstruction(t *testing.T) {
 				client.WithTokenStore(nil),
 			},
 			wantErr: "token store cannot be nil",
+		})
+	})
+
+	t.Run("Unknown service name in WithServiceUrls returns error", func(t *testing.T) {
+		check(t, testScenario{
+			opts: []client.Option{
+				client.WithServiceUrls(map[string]string{
+					"unknown_srv": "https://api.test",
+				}),
+			},
+			wantErr: "unknown service name",
 		})
 	})
 

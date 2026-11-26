@@ -19,16 +19,88 @@ func WithToken(token string) Option {
 	}
 }
 
-// WithBaseUrl sets the base API URL.
-func WithBaseUrl(rawUrl string) Option {
+// WithDecsuiteUrl sets the DecSuite service URL.
+func WithDecsuiteUrl(rawUrl string) Option {
 	return func(c *I6Client) error {
 		u, err := urlz.Parse(rawUrl)
 		if err != nil {
-			return fmt.Errorf("failed to parse base url: %w", err)
+			return fmt.Errorf("failed to parse decsuite url: %w", err)
 		}
-		c.baseUrl = u
+		c.decsuiteUrl = u
 		return nil
 	}
+}
+
+// WithTfinferUrl sets the TensorFlow Inference service URL.
+func WithTfinferUrl(rawUrl string) Option {
+	return func(c *I6Client) error {
+		u, err := urlz.Parse(rawUrl)
+		if err != nil {
+			return fmt.Errorf("failed to parse tfinfer url: %w", err)
+		}
+		c.tfinferUrl = u
+		return nil
+	}
+}
+
+// WithUserzUrl sets the Userz authentication service URL.
+func WithUserzUrl(rawUrl string) Option {
+	return func(c *I6Client) error {
+		u, err := urlz.Parse(rawUrl)
+		if err != nil {
+			return fmt.Errorf("failed to parse userz url: %w", err)
+		}
+		c.userzUrl = u
+		return nil
+	}
+}
+
+// WithBaseUrl sets the base DecSuite service URL. Alias of WithDecsuiteUrl.
+func WithBaseUrl(rawUrl string) Option {
+	return WithDecsuiteUrl(rawUrl)
+}
+
+// WithServiceUrls configures service URLs by service name ("decsuite", "tfinfer", "userz").
+func WithServiceUrls(urls map[string]string) Option {
+	return func(c *I6Client) error {
+		for name, rawUrl := range urls {
+			switch name {
+			case "decsuite":
+				if err := WithDecsuiteUrl(rawUrl)(c); err != nil {
+					return err
+				}
+			case "tfinfer":
+				if err := WithTfinferUrl(rawUrl)(c); err != nil {
+					return err
+				}
+			case "userz":
+				if err := WithUserzUrl(rawUrl)(c); err != nil {
+					return err
+				}
+			default:
+				return fmt.Errorf("unknown service name %q in service urls", name)
+			}
+		}
+		return nil
+	}
+}
+
+// WithStaging configures all service URLs to point to Infinity6 Staging.
+func WithStaging() Option {
+	return WithServiceUrls(map[string]string{
+		"decsuite": StagingDecsuiteUrl,
+		"tfinfer":  StagingTfinferUrl,
+		"userz":    StagingUserzUrl,
+	})
+}
+
+// WithSandbox configures all service URLs to point to Infinity6 Sandbox.
+func WithSandbox() Option {
+	return WithServiceUrls(map[string]string{
+		"decsuite": DefaultDecsuiteUrl,
+		"tfinfer":  DefaultTfinferUrl,
+		"userz":    DefaultUserzUrl,
+	})
 }
 
 // WithHttpClient overrides the underlying HTTP client.

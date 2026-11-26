@@ -15,16 +15,24 @@ import (
 )
 
 const (
-	DefaultBaseUrl = "https://api.infinity6.ai"
-	EnvToken       = "I6_TOKEN"
-	EnvBaseUrl     = "I6_BASE_URL"
+	// Default Sandbox URLs
+	DefaultDecsuiteUrl = "https://decsuite.sandbox.rs.infinity6.ai"
+	DefaultTfinferUrl  = "https://tfinfer.sandbox.lb.infinity6.ai"
+	DefaultUserzUrl    = "https://userz.sandbox.rs.infinity6.ai"
+
+	// Staging URLs
+	StagingDecsuiteUrl = "https://decsuite.staging.rs.infinity6.ai"
+	StagingTfinferUrl  = "https://tfinfer.staging.lb.infinity6.ai"
+	StagingUserzUrl    = "https://userz.staging.rs.infinity6.ai"
 )
 
 // I6Client is the primary client for the Infinity6 SDK.
 type I6Client struct {
 	tokenStore   TokenStore
 	httpClient   *http.Client
-	baseUrl      *urlz.Url
+	decsuiteUrl  *urlz.Url
+	tfinferUrl   *urlz.Url
+	userzUrl     *urlz.Url
 	cacheUrl     *urlz.Url
 	memoryCache  bool
 	initialToken string
@@ -52,24 +60,22 @@ func NewClient(opts ...Option) (*I6Client, error) {
 		}
 	}
 
-	// Fallback to environment variables if not set via options
-	if c.baseUrl == nil {
-		rawBase := os.Getenv(EnvBaseUrl)
-		if rawBase == "" {
-			rawBase = DefaultBaseUrl
-		}
-		u, err := urlz.Parse(rawBase)
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse base url %q: %w", rawBase, err)
-		}
-		c.baseUrl = u
+	// 1. Resolve decsuite URL
+	if c.decsuiteUrl == nil {
+		c.decsuiteUrl = urlz.MustParse(DefaultDecsuiteUrl)
 	}
 
-	if c.initialToken == "" {
-		c.initialToken = os.Getenv(EnvToken)
+	// 2. Resolve tfinfer URL
+	if c.tfinferUrl == nil {
+		c.tfinferUrl = urlz.MustParse(DefaultTfinferUrl)
 	}
 
-	// Default cache directory if not explicitly set and not in memory mode
+	// 3. Resolve userz URL
+	if c.userzUrl == nil {
+		c.userzUrl = urlz.MustParse(DefaultUserzUrl)
+	}
+
+	// 4. Default cache directory if not explicitly set and not in memory mode
 	if !c.memoryCache && c.cacheUrl == nil {
 		homeDir, err := os.UserHomeDir()
 		if err != nil {
@@ -106,9 +112,39 @@ func (c *I6Client) Funcs() *apicollectionz.SdkFuncs {
 	return c.funcs
 }
 
-// BaseUrl returns the configured base URL.
+// DecsuiteUrl returns the configured DecSuite base URL.
+func (c *I6Client) DecsuiteUrl() *urlz.Url {
+	return c.decsuiteUrl
+}
+
+// TfinferUrl returns the configured TensorFlow Inference base URL.
+func (c *I6Client) TfinferUrl() *urlz.Url {
+	return c.tfinferUrl
+}
+
+// UserzUrl returns the configured Userz authentication base URL.
+func (c *I6Client) UserzUrl() *urlz.Url {
+	return c.userzUrl
+}
+
+// BaseUrl returns the base API URL (alias of DecsuiteUrl).
 func (c *I6Client) BaseUrl() *urlz.Url {
-	return c.baseUrl
+	return c.decsuiteUrl
+}
+
+// ServiceUrl returns the target URL for a given service name ("decsuite", "tfinfer", "userz").
+func (c *I6Client) ServiceUrl(service string) *urlz.Url {
+	switch service {
+	case "tfinfer":
+		if c.tfinferUrl != nil {
+			return c.tfinferUrl
+		}
+	case "userz":
+		if c.userzUrl != nil {
+			return c.userzUrl
+		}
+	}
+	return c.decsuiteUrl
 }
 
 // HttpClient returns the configured HTTP client.
