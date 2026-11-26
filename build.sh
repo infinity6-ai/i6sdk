@@ -144,6 +144,25 @@ function cmd_release() {
   git push origin "$_version"
 }
 
+# function cmd_release_resume() {
+#   if find . -name '*.go' | xargs grep go.code.infinity6.ai; then false i6sdk cannot use private deps; fi
+#   if find . -name 'go.mod' | xargs grep go.code.infinity6.ai; then false i6sdk cannot use private deps; fi
+#   [ -z "$(git status -s "$@")" ]
+#   if git rev-parse --verify '@{u}' >/dev/null 2>&1; then
+#     [ "x0" == "x$(git rev-list --count '@{u}..HEAD')" ]
+#   fi
+#   local _version="$(./comp.sh versionz run version)"
+#   [ ! -z "$_version" ]
+#   if cmd_release_exists "$_version" >/dev/null; then
+#     echo "release already exists: $_version" 1>&2
+#     false
+#   fi
+#   GOWORK= ./build.sh codegen
+#   GOWORK=off cmd_comps_run release "$_version"
+#   git tag "$_version"
+#   git push origin "$_version"
+# }
+
 function cmd_version-inc() {
   ./comp.sh versionz run inc
   ./comp.sh versionz run version
