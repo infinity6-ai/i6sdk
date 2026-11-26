@@ -138,7 +138,7 @@ function cmd_release() {
     echo "release already exists: $_version" 1>&2
     false
   fi
-  ./build.sh codegen
+  GOWORK= ./build.sh codegen
   GOWORK=off cmd_comps_run release "$_version"
   git tag "$_version"
   git push origin "$_version"
