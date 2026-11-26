@@ -152,7 +152,7 @@ function cmd_release_resume() {
   fi
   local _version="$(./comp.sh versionz run version)"
   [ ! -z "$_version" ]
-  if cmd_release_exists "$_version" >/dev/null; then
+  if cmd_release_exists "^$_version$" >/dev/null; then
     echo "release already exists: $_version" 1>&2
     false
   fi
