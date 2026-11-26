@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/infinity6-ai/gox/commonz/dataz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/tabledataz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/tabledataz/targetingfinancedataz"
 	"github.com/stretchr/testify/require"
@@ -52,9 +51,9 @@ func TestUnitClientStatusSerialization(t *testing.T) {
 		var got targetingfinancedataz.ClientStatus
 		require.NoError(t, json.Unmarshal([]byte(`{"id":"st_1","user_vl_epg":null,"user_tp_ren":"pj"}`), &got))
 		require.Equal(t, "st_1", got.ID)
-		require.False(t, got.UserVlEpg.Valid)
-		require.False(t, got.UserNrCad.Valid)
-		require.False(t, got.UserPcCut.Valid)
+		require.Nil(t, got.UserVlEpg)
+		require.Nil(t, got.UserNrCad)
+		require.Nil(t, got.UserPcCut)
 		require.Equal(t, "pj", got.UserTpRen)
 	})
 
@@ -116,7 +115,7 @@ func TestUnitClientStatusValidation(t *testing.T) {
 		check(t, scenario{mutate: func(s *targetingfinancedataz.ClientStatus) { s.UserFlAtr = tabledataz.NewBqNullInt64(5) }, errMsg: "failed to validate user_fl_atr"})
 	})
 	t.Run("optional flag null is valid", func(t *testing.T) {
-		check(t, scenario{mutate: func(s *targetingfinancedataz.ClientStatus) { s.UserFlAtr = dataz.NullInt64{} }})
+		check(t, scenario{mutate: func(s *targetingfinancedataz.ClientStatus) { s.UserFlAtr = nil }})
 	})
 	t.Run("user_cd_suf too long", func(t *testing.T) {
 		check(t, scenario{mutate: func(s *targetingfinancedataz.ClientStatus) { s.UserCdSuf = "ABCD" }, errMsg: "failed to validate user_cd_suf"})
@@ -156,7 +155,7 @@ func TestUnitSchemaQueryNullParsers(t *testing.T) {
 	require.Equal(t, tabledataz.NewBqNullInt64(3), s.UserNrCad)
 
 	obj["user_nr_cad"].UrlValue().Parse("")
-	require.False(t, s.UserNrCad.Valid)
+	require.Nil(t, s.UserNrCad)
 	v, _ = obj["user_nr_cad"].UrlValue().Format()
 	require.Equal(t, "", v)
 }

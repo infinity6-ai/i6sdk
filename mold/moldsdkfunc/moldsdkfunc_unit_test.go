@@ -4,7 +4,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/infinity6-ai/gox/commonz/dataz"
 	"github.com/infinity6-ai/gox/commonz/errorz"
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/infinity6-ai/gox/fsz/fsz"
@@ -108,10 +107,7 @@ func expectedFashionFbtSdkFunc() *moldsdkfunc.SdkFunc {
 
 func newSchemaParser() *schemamold.Parser {
 	return schemamold.New().
-		AddKnownType(fsz.FileStat{}, typeastz.TypFileStat).
-		AddKnownType(dataz.NullString{}, typeastz.TypString).
-		AddKnownType(dataz.NullInt64{}, typeastz.TypNumber).
-		AddKnownType(dataz.NullFloat64{}, typeastz.TypNumber)
+		AddKnownType(fsz.FileStat{}, typeastz.TypFileStat)
 }
 
 func TestUnitFashionFbtSdkFunc(t *testing.T) {
