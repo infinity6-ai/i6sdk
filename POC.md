@@ -375,30 +375,30 @@ Client analytical workflows (`dash` and `infer`) execute pre-aggregated SQLite d
    ```
    A pure-Go, WebAssembly-driven SQLite engine supporting JSON1 extensions out of the box with zero C dependencies. SQLite files are opened in read-only mode (`file:<path>?mode=ro`).
 
-4. **Pluggable Cache Configuration (`sdkgo` Options)**:
-   Users configure caching via functional options on `sdkgo.NewClient`:
-   - `WithCacheDir(dir string)`: Sets local filesystem cache directory (converted to `file://` URL).
-   - `WithCacheUrl(url *urlz.Url)`: Uses any custom `fsz` provider scheme (e.g. `file://`, custom memory/cloud schemes).
-   - `WithMemoryCache()`: Ephemeral in-memory execution (`file:memdb?mode=memory&cache=shared`) for serverless or read-only container runtimes.
+4. **Cache Configuration in `config.Options`**:
+   Users configure caching directly on `config.CacheOptions`:
+   - `Cache.Dir`: Sets local filesystem cache directory (converted to `file://` URL).
+   - `Cache.Url`: Uses any custom `fsz` provider scheme (e.g. `file://`, custom memory/cloud schemes).
+   - `Cache.Memory`: Ephemeral in-memory execution (`file:memdb?mode=memory&cache=shared`) for serverless or read-only container runtimes.
 
-#### 7. Multi-Strategy Token Storage Architecture (`sdkgo/tokens`)
+#### 7. Multi-Strategy Token Storage Architecture (`sdkgo/tokenstore`)
 The Token Manager handles retrieval, caching, silent background renewal, and persistence of authentication tokens across three pluggable storage tiers:
 
-1. **`TokenStore` Interface**:
+1. **`tokenstore.Store` Interface**:
    ```go
-   type TokenStore interface {
+   type Store interface {
        Get(ctx context.Context, key string) (string, error)
        Set(ctx context.Context, key string, value string) error
        Delete(ctx context.Context, key string) error
    }
    ```
 
-2. **Three Concrete Storage Strategies**:
-   - **`MemoryTokenStore` (Default)**:
-     - Pure in-memory caching protected by `sync.RWMutex` with double-checked locking.
+2. **Concrete Storage Strategies**:
+   - **`tokenstore.NewMemory()` (Default)**:
+     - Pure in-memory caching protected by `sync.RWMutex`.
      - Zero filesystem touch.
-     - **Best for**: Serverless (Cloud Run, AWS Lambda), backend microservices receiving `I6_TOKEN`, and isolated unit tests.
-   - **`FszTokenStore` (Persistent Filesystem)**:
+     - **Best for**: Serverless (Cloud Run, AWS Lambda), backend microservices, and isolated unit tests.
+   - **`tokenstore.NewFsz(url)` (Persistent Filesystem)**:
      - Uses `gox/fsz` URL addressing (`file:///home/user/.config/i6/tokens.json` by default).
      - Atomic updates via `fsz.Upload` to `.tmp` followed by `fsz.Move`.
      - Supports any registered `fsz` provider scheme (`file://`, shared cloud vaults, etc.).
@@ -411,10 +411,40 @@ The Token Manager handles retrieval, caching, silent background renewal, and per
    - **Dataset Access Tokens (`i6_dataset_access_tokens`)**: Cached short-lived access tokens derived for specific datasets (`ds*`).
    - **Dataset Refresh Tokens (`i6_dataset_refresh_tokens`)**: Machine robot Ed25519 keypairs for automated ingestion and batch pipelines without human interaction.
 
-4. **Functional Configuration Options**:
-   - `WithTokenStore(store TokenStore)`: Custom pluggable store.
-   - `WithFileTokenStore()`: Standard local file storage under `~/.config/i6/tokens.json`.
-   - `WithFszTokenStore(url *urlz.Url)`: Custom `fsz` URL for token persistence.
+#### 8. `sdkgo` Module Schema & Dependency DAG
+To strictly prevent cyclic dependencies, `sdkgo` is organized as a directed acyclic graph (DAG) where dependencies only point inward/downward toward pure leaf packages:
+
+```
+                  ┌──────────────┐
+                  │ sdkgo/client │  (Top-Level Container & Engine Wiring)
+                  └──────┬───────┘
+          ┌──────────────┴──────────────┐
+          ▼                             ▼
+   ┌─────────────┐               ┌──────────────┐
+   │sdkgo/tokens │ ────────────> │ sdkgo/config │
+   └──────┬──────┘               └──────┬───────┘
+          │                             │
+          └──────────────┬──────────────┘
+                         ▼
+                ┌──────────────────┐
+                │ sdkgo/tokenstore │  (Pure Leaf Package)
+                └──────────────────┘
+```
+
+1. **Leaf Packages (No internal dependencies)**:
+   - **`sdkgo/tokenstore`**: Defines `Store` interface and `NewMemory()` / `NewFsz()` implementations. Zero internal dependencies.
+   - **`sdkgo/config`**: Defines `Options`, `UrlOptions`, `CacheOptions`, and URL presets (`DefaultUrlOptions`, `SandboxUrlOptions`, `StagingUrlOptions`). Only depends on `tokenstore` and `gox/httpz`.
+2. **Domain Service Packages**:
+   - **`sdkgo/tokens`**: Token lifecycle manager, background renewal with double-checked locking, and dataset token attenuation/derivation. Imports `tokenstore` and `config`.
+   - **`sdkgo/dash`**: Analytical SQLite runner (`namedqueries`) and `fsz`-backed bundle cache. Imports `config` and `apicollectionz`.
+   - **`sdkgo/infer`**: 3-step inference orchestrator. Imports `dash`, `config`, and `apicollectionz`.
+   - **`sdkgo/ingest`**: Concurrent chunked stream ingestion engine. Imports `tokens` and `config`.
+3. **Aggregator Container (`sdkgo/client`)**:
+   - Single non-variadic constructor: `client.New(opts config.Options) (*I6Client, error)`.
+   - Integrates three `httpzclient.Client` instances (`decsuite`, `tfinfer`, `userz`) with automatic bearer token filter.
+   - Routes requests by URL path prefix using `ClientForPath(...)`.
+   - Wires `client.Apis()` directly to `apiclientz.Do(ctx, targetClient, api)`.
+   - Wires `client.Funcs()` to `SdkFuncInvokerFunc` delegating to `Dash` and `Infer`.
 
 ---
 
