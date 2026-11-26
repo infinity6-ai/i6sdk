@@ -55,7 +55,7 @@ function cmd_i6gox_set_version() {
 
 function cmd_i6sdk_set_version() {
   local _version="${1?'_version'}"
-  sed -i "s/\(github.com\/infinity6-ai\/i6sdk\/\w\+\)\s\+v[0-9][a-zA-Z0-9\.\-_]\+/\1 $_version/g" go.mod
+  sed -i "s/\(github.com\/infinity6-ai\/i6sdk\/\w\+\)\s\+v[0-9][a-zA-Z0-9\._-]\+/\1 $_version/g" go.mod
 }
 
 function cmd_test_manual() {
