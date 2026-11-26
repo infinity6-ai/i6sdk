@@ -4,18 +4,18 @@
 
 function cmd_comps_list() {
   echo "versionz"
-  # echo "sdkcorez"
-  # echo "apiuserz"
-  # echo "apidatasetz"
-  # echo "apiingestz"
-  # echo "apipipez"
-  # echo "apitfz"
+  echo "sdkcorez"
+  echo "apiuserz"
+  echo "apidatasetz"
+  echo "apiingestz"
+  echo "apipipez"
+  echo "apitfz"
   echo "apicollectionz"
-  # echo "mold"
-  # echo "forgez"
-  # echo "sdkgo"
-  # echo "sdkweb"
-  # echo "sdkpy"
+  echo "mold"
+  echo "forgez"
+  echo "sdkgo"
+  echo "sdkweb"
+  echo "sdkpy"
 }
 
 function cmd_comps_exec() {
