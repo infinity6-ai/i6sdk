@@ -18,7 +18,7 @@
 ```
  ┌────────────────────────────────────────────────────────────────────────┐
  │                         i6 Command Line Tool                           │
- │   Global Persistent Flag: --config <path>                              │
+ │   Environment: I6_CLI_CONFIG_DIR, I6_CLI_CONFIG_PROFILE, JSON override │
  └───────────────────────────────────┬────────────────────────────────────┘
                                      │
  ┌───────────────────────────────────▼────────────────────────────────────┐
@@ -96,7 +96,7 @@ All CLI configuration, credentials, and local caches are organized per profile:
 - **Config Base Directory**: `I6_CLI_CONFIG_DIR` (defaults to `$HOME/.config/i6/`).
 - **Active Profile**: `I6_CLI_CONFIG_PROFILE` (defaults to `"main"`).
 - **Inline JSON Override**: `I6_CLI_CONFIG_JSON` (optional inline JSON string for zero-disk CI/CD execution).
-- *Note*: Neither `I6_CLI_CONFIG_DIR` nor `I6_CLI_CONFIG_PROFILE` are CLI flags; they are managed strictly via environment variables or defaults. The only global flag accepted is `--config <path>`.
+- *Clean Root Command*: There are no global CLI flags on the root `i6` command. All configuration routing is strictly environment-driven or relies on sensible defaults.
 
 ```
 $I6_CLI_CONFIG_DIR/ (defaults to $HOME/.config/i6/)
@@ -110,10 +110,7 @@ $I6_CLI_CONFIG_DIR/ (defaults to $HOME/.config/i6/)
 
 ### Configuration Hierarchy & Resolution Order
 1. **Zero-Disk Inline JSON**: If `I6_CLI_CONFIG_JSON` is populated, parse in-memory immediately (bypasses filesystem reads, ideal for CI/CD runners).
-2. **Global Persistent Flag `--config <path>`**:
-   - If `<path>` points to a `.json` file $\rightarrow$ direct configuration file override.
-   - If `<path>` points to a directory $\rightarrow$ overrides active profile directory.
-3. **Environment & Profile Defaults**:
+2. **Environment & Profile Defaults**:
    - Target Directory: `$I6_CLI_CONFIG_DIR/$I6_CLI_CONFIG_PROFILE/`
    - Config file: `$I6_CLI_CONFIG_DIR/$I6_CLI_CONFIG_PROFILE/config.json`
    - Token store: `$I6_CLI_CONFIG_DIR/$I6_CLI_CONFIG_PROFILE/tokens.json`
@@ -133,7 +130,7 @@ i6cli/
 ├── PLAN.md                       # This plan
 ├── README.md                     # CLI installation and usage guide
 ├── cmdcli/
-│   ├── cmdcli.go                 # Root command, global flags, version
+│   ├── cmdcli.go                 # Root command and version subcommand
 │   ├── cmdcli_unit_test.go
 │   ├── auth.go                   # i6 auth subcommands
 │   ├── tokens.go                 # i6 tokens subcommands
@@ -208,8 +205,7 @@ In `.github/workflows/release.yml`:
   - [x] Scaffold `i6cli/` directory, `go.mod`, `main.go`, and `cmdcli/cmdcli.go`.
   - [x] Integrate with `build.sh` (`cmd_comps_list`), `comp.sh`, and root `go.work`.
   - [x] Verify test execution via `./comp.sh i6cli test` and `./build.sh test`.
-  - [ ] Wire root command persistent flag (`--config <path>`).
-  - [ ] Implement `internal/cliconfig` (base dir, profile, and config.json resolution).
+  - [ ] Implement `internal/cliconfig` (profile, base directory, and config.json resolution).
   - [ ] Implement `internal/outfmt` (table/JSON formatting for subcommands).
 
 - [ ] **Phase 2: Authentication & Token Engine (`auth`, `tokens`, `config`)**
