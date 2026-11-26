@@ -42,7 +42,7 @@ Commands follow modern CLI standards (`i6 <domain> <action> [flags]`):
 
 ### A. Authentication & Session (`i6 auth`)
 - `i6 auth login`: Interactive browser login screen (OAuth 2.0 Device Code flow). Displays authorization code and URL, polls server, and saves full user session in `tokens.db`.
-- `i6 auth token [<token-string> | -] [--dataset <dataset>]`: Universal token ingestion command. Automatically detects the token type via local formatting and `/api/userz/token/check`:
+- `i6 auth token [<token-string> | -] [--dataset <dataset>] [--offline]`: Universal token ingestion command. Automatically detects the token type via local formatting and `/api/userz/token/check` (with `--offline`, skips network calls and ingests locally):
   - **Ed25519 Dataset Robot Key**: Ingests as machine robot root credential (`i6_rf:<dataset>`).
   - **User Refresh Token**: Refreshes via `/api/userz/auth/refresh` to establish a full user session (`i6_user_user_token`).
   - **Standalone User Access Token**: Saved as a non-refreshable user session in `i6_user_user_token`.
@@ -256,7 +256,7 @@ In `.github/workflows/release.yml`:
 - [ ] **Phase 2: Authentication & Local Profile Tokens (`auth`, `tokens`, `config`)**
   - [ ] Implement `i6 config init [--box sandbox|staging|prod] [-f/--force]` and `i6 config show`.
   - [ ] Implement `i6 auth login` (Device code flow with polling; enforces mutual exclusivity).
-  - [ ] Implement `i6 auth token [<token-string> | -] [--dataset <dataset>]` (universal token ingestion with auto-detection).
+  - [ ] Implement `i6 auth token [<token-string> | -] [--dataset <dataset>] [--offline]` (universal token ingestion with auto-detection).
   - [ ] Implement `i6 auth logout` and `i6 auth status`.
   - [ ] Implement `i6 tokens user [get|expose|delete]` (human user session root credential).
   - [ ] Implement `i6 tokens dataset-refresh [get|expose|set|delete]` (machine robot root credential; mutually exclusive with user).
