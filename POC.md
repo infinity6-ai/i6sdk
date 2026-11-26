@@ -302,6 +302,25 @@ This pattern applies universally across all 5 polymorphic API families:
 4. **Single Source of Truth**: The Go method name on `<MethodName>Id` defines the API ID via `camelz.P(name).QL()`.
 5. **Zero-Underscore Rule**: API IDs must **never contain underscores (`_`)**. Kebab-case with hyphens (`-`) is strictly enforced across all IDs.
 
+#### 5. Modernizing `sdkfuncz` with Struct-Driven Generation & Stubs (Symmetry with `sdkapis`)
+To achieve complete structural and architectural symmetry across the entire SDK, client-side workflow functions (`sdkfuncs`) mirror the exact envelope, doc comment, and stub promotion architecture established for `sdkapis`:
+1. **Symmetrical Envelope Structure (`sdkcorez/productz/...`)**:
+   Instead of HTTP routes (`Params, Query, Headers, Payload`), client workflow functions define `{Input, Partitions, Output}`:
+   - `Req.Input` $\rightarrow$ `DataRefs.Input`
+   - `Req.Partitions` $\rightarrow$ `DataRefs.Partitions`
+   - `Resp.Output` $\rightarrow$ `DataRefs.Output`
+   - `Func` embeds `sdkfuncz.UnimplementedFunc json:"-"` and provides `SdkFuncRoute() sdkfuncz.Spec` (specifying `Version` and `Typ`).
+   - Every function package defines a concrete stub struct `type <MethodName>Id struct{}` with actionable panic (e.g. `ProductRelevanceFashionFbtV1Id`).
+2. **`schemagen` Support for `Func`**:
+   - Detects `type Func struct` and generates `<func>.gen.go` implementing `SdkFuncSpec()` and `SdkFuncDataRefs() *sdkfuncz.DataRefs`.
+   - Derives the kebab-case ID from the stub method name via `camelz.P(name).QL()`.
+   - Multi-language generators (`moldsdkfunc`, `forgejs`, `forgepy`) continue to consume `SdkFuncSpec()` and `SdkFuncDataRefs()` with zero disruption.
+3. **`apicollectionz.SdkFuncs` Client Promotion**:
+   - Concrete `SdkFuncs` struct in `apicollectionz/sdkfuncs.go` embeds all 8 `<MethodName>Id` stubs.
+   - `mold` codegen (`apisgen` or `sdkfuncsgen`) emits `sdkfuncs.gen.go` shadowing the stubs with runtime delegating methods.
+4. **`sdkgo` Client Runtime (`client.Funcs()`)**:
+   - `client.Funcs()` exposes the generated typed workflow methods in Go, dispatching to `client.Infer()` or `client.Dash()` behind the scenes, matching Python (`client.funcs()`) and Web (`client.funcs()`).
+
 ---
 
 ## 5. Benefits & Downstream Compatibility
@@ -331,7 +350,7 @@ This pattern applies universally across all 5 polymorphic API families:
 - Build `mold apisgen` to automate `apis.gen.go` generation.
 - Enforce zero underscores across all API IDs.
 
-### Phase 3: Rollout Across API Modules & Backend Service Projects [DONE]
+### Phase 3: Rollout Across API Modules & Backend Service Projects [IN PROGRESS]
 
 Each `api*z` module in `i6sdk` pairs with a corresponding backend service repository in the workspace that implements its handlers:
 
@@ -342,6 +361,7 @@ Each `api*z` module in `i6sdk` pairs with a corresponding backend service reposi
 | **3** | `apipipez/` | `i6pipez/` | 8 concrete endpoints (`pipezget`, `pipezlist`, split `pipezstart[T]`, `scheduleractivate[T]` & `schedulerdeactivate[T]`) | **DONE** (100% green in both repos) |
 | **4** | `apiuserz/` | `i6userz/` + `i6decsuite/` | 18 endpoints (`userapiauth*`, `userapidatasettoken*`, `userapitokencheck`) | **DONE** (100% green across all 3 repos) |
 | **5** | `apidatasetz/` | `i6datasetz/` | 24 concrete endpoints (split `dszapiloadresult[T]`, remaining 22 dataset endpoints) | **DONE** (100% green in both repos) |
+| **6** | `sdkcorez/productz/` (`sdkfuncs`) | N/A (Client Workflows) | 8 workflow functions (1 infer, 7 dash), `apicollectionz.SdkFuncs` stub embedding & codegen | **NEXT** (Phase 3 Step 6) |
 
 #### Synchronized Refactoring Workflow (Per Domain Module)
 1. **Refactor API Contract (`i6sdk/api*z`)**:
@@ -366,7 +386,24 @@ Each `api*z` module in `i6sdk` pairs with a corresponding backend service reposi
    - Run `go test -v ./...` in the backend service project.
    - Run `./build.sh codegen && ./build.sh test` to confirm multi-language parity.
 
+#### Refactoring Workflow for `sdkfuncs` (Step 6)
+1. **Extend `mold/schemagen`**:
+   - Support `type Func struct` with `{Input, Partitions, Output}` envelope slots.
+   - Generate `<func>.gen.go` with `SdkFuncSpec()` and `SdkFuncDataRefs() *sdkfuncz.DataRefs`.
+2. **Refactor the 8 `sdkfuncs` (`sdkcorez/productz/relevance/`)**:
+   - Split request and response into explicit sub-structs: `Req{Input, Partitions}` and `Resp{Output}`.
+   - Define `SdkFuncRoute() sdkfuncz.Spec` and `<MethodName>Id struct{}` stubs.
+   - Embed `sdkfuncz.UnimplementedFunc json:"-"`.
+   - Generate schema files with `go generate ./...`.
+3. **Register `SdkFuncs` in `apicollectionz`**:
+   - Define `SdkFuncs` struct embedding all 8 `<MethodName>Id` stubs.
+   - Generate `sdkfuncs.gen.go` shadowing the stubs with runtime delegating methods.
+4. **Validate**:
+   - Run `./comp.sh apicollectionz test`, `./comp.sh mold test`, and `./comp.sh forgez test`.
+   - Confirm `./build.sh codegen && ./build.sh test` generates identical Python and Web SDKs.
+
 ### Phase 4: Build `sdkgo` Runtime
 - Implement `I6Client`, `Invoker`, and `Tokens` (thread-safe double-checked renewal).
 - Implement `Ingest`, `Infer`, and `Dash`.
+- Wire `client.Apis()` and `client.Funcs()` to runtime invokers.
 - Add test coverage (`TestUnit*`) following mono-repo testing standards.
