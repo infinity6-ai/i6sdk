@@ -44,7 +44,7 @@ Commands follow modern CLI standards (`i6 <domain> <action> [flags]`):
 - `i6 auth login`: Interactive login supporting OAuth 2.0 Device Code flow (prints code + URL, polls server automatically) or prompt for API token.
 - `i6 auth logout`: Revokes session token family on server via `UserAuthLogout` and wipes local credentials.
 - `i6 auth status` / `i6 auth me`: Displays authenticated user profile, email, account age, and active token expiration.
-- `i6 auth token`: Prints raw active JWT access token to stdout (ideal for piping to `curl` or downstream scripts).
+- `i6 auth expose`: Prints raw active JWT access token to stdout (ideal for piping to `curl` or downstream scripts).
 
 ### B. Token Management (`i6 tokens`)
 
@@ -52,10 +52,25 @@ Commands follow modern CLI standards (`i6 <domain> <action> [flags]`):
 - `i6 tokens refresh`: Manually forces a silent token refresh rotation for active credentials.
 
 #### Dataset Tokens (`i6 tokens dataset [--dataset <dataset>]`)
-All commands under `i6 tokens dataset` inherit the persistent flag `--dataset <dataset>` (falling back to the default dataset configured in the active profile's `config.json` if omitted):
+All commands under `i6 tokens dataset` inherit the persistent flag `--dataset <dataset>` (falling back to the default dataset configured in the active profile's `config.json` if omitted).
 
-- **Short-Lived Access Tokens (`i6 tokens dataset access`)**:
-  - `i6 tokens dataset access create [--grants=0x0F]`: Mints or derives a short-lived scoped dataset access token.
+*Security Invariant*: `list` and `get` commands **never** display sensitive `secret` strings or private keys. Revealing secrets is strictly restricted to explicit `expose` and `export` commands.
+
+- **Standard Bearer Access Tokens (`i6 tokens dataset bearer`)**:
+  Unbound bearer tokens usable directly in `Authorization: Bearer <token>` without request signing:
+  - `i6 tokens dataset bearer create [--grants=0x0F] [--exp=3600]`: Mints a fresh short-lived unbound bearer token.
+  - `i6 tokens dataset bearer get`: Displays cached bearer token metadata (dataset, solution, grants, expiry) without revealing the raw token.
+  - `i6 tokens dataset bearer expose`: Prints raw JWT bearer token string to stdout (ideal for scripting and `curl`).
+  - `i6 tokens dataset bearer check`: Cryptographically validates the token against `/api/userz/token/check`.
+  - `i6 tokens dataset bearer delete`: Removes the cached bearer token from local `tokens.db`.
+
+- **Sender-Constrained PoP Access Tokens (`i6 tokens dataset bounded`)**:
+  Cryptographically bound tokens tied to a local Ed25519 client keypair requiring Proof-of-Possession (`reqsign`):
+  - `i6 tokens dataset bounded create [--grants=0x0F] [--exp=3600]`: Generates a local keypair and mints a sender-constrained token bound to its public key.
+  - `i6 tokens dataset bounded get`: Displays cached bounded token metadata and client public key without revealing private signing keys.
+  - `i6 tokens dataset bounded expose`: Dumps the full bounded token credentials (including client private key).
+  - `i6 tokens dataset bounded check`: Validates token and Proof-of-Possession binding against the server.
+  - `i6 tokens dataset bounded delete`: Clears the cached bounded token and its private signing key.
 
 - **Machine / Robot Refresh Tokens (`i6 tokens dataset refresh`)**:
   Dedicated management for long-lived machine/robot Ed25519 dataset refresh tokens:
@@ -225,10 +240,11 @@ In `.github/workflows/release.yml`:
 - [ ] **Phase 2: Authentication & Token Engine (`auth`, `tokens`, `config`)**
   - [ ] Implement `i6 config init [--box sandbox|staging|prod] [-f/--force]` and `i6 config show`.
   - [ ] Implement `i6 auth login` (Device code flow with polling + manual token input).
-  - [ ] Implement `i6 auth logout`, `status`, and `token`.
+  - [ ] Implement `i6 auth logout`, `status`, and `expose`.
   - [ ] Implement `i6 tokens refresh` for active user credentials.
   - [ ] Implement `i6 tokens dataset [--dataset <dataset>]` persistent flag with subcommands:
-    - `access create [--grants=0x0F]` (short-lived access tokens)
+    - `bearer [create|get|expose|check|delete]` (unbound bearer access tokens)
+    - `bounded [create|get|expose|check|delete]` (sender-constrained PoP tokens)
     - `refresh [create|list|delete|expose|export|import]` (machine/robot Ed25519 tokens):
       - `create` (mints on server, stores in local tokens.db)
       - `list` (safely omits secrets, optionally filtered by --dataset)
