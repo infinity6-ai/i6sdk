@@ -47,10 +47,19 @@ Commands follow modern CLI standards (`i6 <domain> <action> [flags]`):
 - `i6 auth token`: Prints raw active JWT access token to stdout (ideal for piping to `curl` or downstream scripts).
 
 ### B. Token Management (`i6 tokens`)
-- `i6 tokens create <dataset> [--grants=0x0F]`: Mints or derives a scoped dataset access token.
-- `i6 tokens list <dataset>`: Lists active tokens for the dataset (ingestion and recsys).
-- `i6 tokens delete <dataset> <token-id>`: Revokes a dataset token.
-- `i6 tokens refresh`: Manually forces a silent token refresh rotation.
+
+#### General Token Operations
+- `i6 tokens refresh`: Manually forces a silent token refresh rotation for active credentials.
+- `i6 tokens dataset-access create <dataset> [--grants=0x0F]`: Mints or derives a scoped dataset access token.
+
+#### Machine / Robot Dataset Refresh Tokens (`i6 tokens dataset-refresh`)
+Dedicated management for long-lived machine/robot Ed25519 dataset refresh tokens:
+- `i6 tokens dataset-refresh create <dataset>`: Creates a new dataset refresh token on the server and stores it in local `tokens.db`.
+- `i6 tokens dataset-refresh list`: Lists stored dataset refresh tokens. Does **not** display the sensitive `secret` column to keep terminal output safe.
+- `i6 tokens dataset-refresh delete <jti>`: Revokes a dataset refresh token on the server and deletes it from local `tokens.db`.
+- `i6 tokens dataset-refresh expose <jti> --out <path|->`: Dumps the full JSON of the key identified by `[jti]` (including the sensitive `secret`). Requires `--out` (can be `-` for stdout or a file path). Takes exactly one `jti` argument.
+- `i6 tokens dataset-refresh export [<jti...>] [--all]`: Exports dataset refresh token definitions. Accepts one or more positional `jti` arguments, or the `--all` flag to export all stored refresh tokens (providing zero arguments without `--all` is an error).
+- `i6 tokens dataset-refresh import [<file...>] [--all]`: Imports dataset refresh tokens into the local `tokens.db`. Accepts one or more file paths, stdin (`-`), or extracts all keys from an export payload (providing zero arguments is an error).
 
 ### C. Datasets, Stores & Tables (`i6 dataset`)
 - `i6 dataset list`: Lists accessible datasets.
@@ -212,7 +221,12 @@ In `.github/workflows/release.yml`:
   - [ ] Implement `i6 config init [--box sandbox|staging|prod] [-f/--force]` and `i6 config show`.
   - [ ] Implement `i6 auth login` (Device code flow with polling + manual token input).
   - [ ] Implement `i6 auth logout`, `status`, and `token`.
-  - [ ] Implement `i6 tokens create`, `list`, `delete`, and `refresh`.
+  - [ ] Implement `i6 tokens refresh` and `i6 tokens dataset-access create`.
+  - [ ] Implement `i6 tokens dataset-refresh [create|list|delete|expose|export|import]`:
+    - `list` (safely omits secrets)
+    - `expose <jti> --out <path|->` (outputs full JSON with secret)
+    - `export [<jti...>] [--all]` (requires at least one jti or --all)
+    - `import [<file...>] [--all]` (supports files, stdin `-`, and payloads)
 
 - [ ] **Phase 3: Ingestion & Dataset Management (`ingest`, `dataset`)**
   - [ ] Implement `i6 ingest upload` with multi-stream parallel worker execution and live terminal progress bars.
