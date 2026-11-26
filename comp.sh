@@ -83,7 +83,7 @@ function cmd_uphead() {
 }
 
 function cmd_release_exists() {
-  local _version="${1:-$(./comp.sh versionz run version)}"
+  local _version="${1:-$(../comp.sh versionz run version)}"
   [ ! -z "$_version" ]
   git fetch --tags origin 2>/dev/null || git fetch --tags 2>/dev/null || true
   git rev-parse -q --verify "refs/tags/$_comp/$_version" >/dev/null 2>&1 || \
