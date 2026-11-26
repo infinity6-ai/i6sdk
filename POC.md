@@ -364,6 +364,41 @@ Client analytical workflows (`dash` and `infer`) execute pre-aggregated SQLite d
    - `WithCacheUrl(url *urlz.Url)`: Uses any custom `fsz` provider scheme (e.g. `file://`, custom memory/cloud schemes).
    - `WithMemoryCache()`: Ephemeral in-memory execution (`file:memdb?mode=memory&cache=shared`) for serverless or read-only container runtimes.
 
+#### 7. Multi-Strategy Token Storage Architecture (`sdkgo/tokens`)
+The Token Manager handles retrieval, caching, silent background renewal, and persistence of authentication tokens across three pluggable storage tiers:
+
+1. **`TokenStore` Interface**:
+   ```go
+   type TokenStore interface {
+       Get(ctx context.Context, key string) (string, error)
+       Set(ctx context.Context, key string, value string) error
+       Delete(ctx context.Context, key string) error
+   }
+   ```
+
+2. **Three Concrete Storage Strategies**:
+   - **`MemoryTokenStore` (Default)**:
+     - Pure in-memory caching protected by `sync.RWMutex` with double-checked locking.
+     - Zero filesystem touch.
+     - **Best for**: Serverless (Cloud Run, AWS Lambda), backend microservices receiving `I6_TOKEN`, and isolated unit tests.
+   - **`FszTokenStore` (Persistent Filesystem)**:
+     - Uses `gox/fsz` URL addressing (`file:///home/user/.config/i6/tokens.json` by default).
+     - Atomic updates via `fsz.Upload` to `.tmp` followed by `fsz.Move`.
+     - Supports any registered `fsz` provider scheme (`file://`, shared cloud vaults, etc.).
+     - **Best for**: CLI tools, local developer environments, and persistent worker nodes where logins survive process restarts.
+   - **Custom Enterprise Store**:
+     - Pluggable 3-method interface allowing direct integration with cloud secret managers (AWS Secrets Manager, GCP Secret Manager, HashiCorp Vault, Kubernetes Secrets, or Redis).
+
+3. **Managed Token Categories**:
+   - **User Token (`i6_user_token`)**: Access token, refresh token, user ID, and expiration timestamps.
+   - **Dataset Access Tokens (`i6_dataset_access_tokens`)**: Cached short-lived access tokens derived for specific datasets (`ds*`).
+   - **Dataset Refresh Tokens (`i6_dataset_refresh_tokens`)**: Machine robot Ed25519 keypairs for automated ingestion and batch pipelines without human interaction.
+
+4. **Functional Configuration Options**:
+   - `WithTokenStore(store TokenStore)`: Custom pluggable store.
+   - `WithFileTokenStore()`: Standard local file storage under `~/.config/i6/tokens.json`.
+   - `WithFszTokenStore(url *urlz.Url)`: Custom `fsz` URL for token persistence.
+
 ---
 
 ## 5. Benefits & Downstream Compatibility
@@ -449,8 +484,9 @@ Each `api*z` module in `i6sdk` pairs with a corresponding backend service reposi
 - **Step 1: Client Lifecycle & Configuration (`sdkgo/client`)**:
   - Implement `I6Client` container with functional options (`WithToken`, `WithBaseUrl`, `WithCacheDir`, `WithCacheUrl`, `WithMemoryCache`).
   - Implement environment variable loading (`I6_TOKEN`, `I6_BASE_URL`).
-- **Step 2: Token Management (`sdkgo/tokens`)**:
-  - Thread-safe caching with double-checked locking (`sync.RWMutex`), silent renewal before expiration, and dataset token derivation.
+- **Step 2: Token Management & Multi-Tier Storage (`sdkgo/tokens`)**:
+  - Implement `TokenStore` interface with `MemoryTokenStore` (default in-memory with `sync.RWMutex`), `FszTokenStore` (atomic persistence over `gox/fsz`), and custom pluggable stores.
+  - Implement double-checked locking, automatic background renewal before expiration, and dataset token derivation.
 - **Step 3: Transport Invoker (`sdkgo/invoker`)**:
   - Implement `Invoker` executing `client.Apis().<Method>(ctx, api)` over HTTP with structured error handling.
 - **Step 4: Ingestion Engine (`sdkgo/ingest`)**:
