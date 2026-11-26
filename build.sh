@@ -10,7 +10,7 @@ function cmd_comps_list() {
   # echo "apiingestz"
   # echo "apipipez"
   # echo "apitfz"
-  # echo "apicollectionz"
+  echo "apicollectionz"
   # echo "mold"
   # echo "forgez"
   # echo "sdkgo"
