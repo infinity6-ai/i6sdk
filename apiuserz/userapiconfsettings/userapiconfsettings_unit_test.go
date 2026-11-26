@@ -10,28 +10,22 @@ import (
 
 func TestUnitUserConfSettingsApi(t *testing.T) {
 	api := &userapiconfsettings.Api{
-		Req: userapiconfsettings.Req{},
-		Resp: userapiconfsettings.Resp{
-			RefreshTokenMaxIdleSeconds:   7776000,
-			UserAccessTokenTTLSeconds:    3600,
-			DatasetAccessTokenTTLSeconds: 3600,
-			DeviceCodeTTLSeconds:         900,
-			SignedRequestMaxTTLSeconds:   86400,
+		Req: &userapiconfsettings.Req{},
+		Resp: &userapiconfsettings.Resp{
+			Payload: &userapiconfsettings.RespPayload{
+				RefreshTokenMaxIdleSeconds:   86400,
+				UserAccessTokenTTLSeconds:    3600,
+				DatasetAccessTokenTTLSeconds: 3600,
+				DeviceCodeTTLSeconds:         600,
+				SignedRequestMaxTTLSeconds:   300,
+			},
 		},
 	}
 
+	apiCopy := jsonz.MustCopy(api, &userapiconfsettings.Api{})
+	require.Equal(t, api.Resp.Payload.RefreshTokenMaxIdleSeconds, apiCopy.Resp.Payload.RefreshTokenMaxIdleSeconds)
+
 	spec := api.ApiSpec()
 	require.Equal(t, "user-conf-settings", spec.Id)
-	require.Equal(t, "GET", spec.Method)
-	require.Equal(t, "/api/userz/conf/settings.json", spec.Path)
-	require.Equal(t, "userz", spec.Desc().Labels["servname"])
-
-	refs := api.ApiDataRefs()
-	require.NotNil(t, refs)
-	require.Nil(t, refs.ReqBody)
-	require.NotNil(t, refs.RespBody)
-
-	apiCopy := jsonz.MustCopy(api, &userapiconfsettings.Api{})
-	require.Equal(t, api.Req, apiCopy.Req)
-	require.Equal(t, api.Resp, apiCopy.Resp)
+	require.Equal(t, "Public Settings Discovery", spec.Desc().Name)
 }

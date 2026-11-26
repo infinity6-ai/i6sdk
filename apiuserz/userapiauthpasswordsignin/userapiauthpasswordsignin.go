@@ -1,80 +1,58 @@
+//go:generate go run github.com/infinity6-ai/i6sdk/mold schemagen .
 package userapiauthpasswordsignin
 
 import (
+	"context"
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 )
 
-type Req struct {
-	Email         string `json:"email"`
-	Password      string `json:"password"`
+type ReqPayload struct {
+	// Account email address.
+	Email string `json:"email"`
+	// Account plaintext password.
+	Password string `json:"password"`
+	// PKCE code_challenge for authorization flow.
 	CodeChallenge string `json:"code_challenge"`
-	App           string `json:"app,omitempty"`
+	// Optional client application identifier.
+	App string `json:"app,omitempty"`
 }
 
-type Resp struct {
+type Req struct {
+	Payload *ReqPayload `json:"payload,omitempty"`
+}
+
+type RespPayload struct {
+	// Authorization code to be exchanged for tokens.
 	Code string `json:"code"`
 }
 
-type Api struct {
-	Req  Req  `json:"req"`
-	Resp Resp `json:"resp"`
+type Resp struct {
+	Payload *RespPayload `json:"payload,omitempty"`
 }
 
-func (d *Api) ApiSpec() apiz.ApiSpec {
+// Email/Password Sign-In
+// Authenticates a user via email and password credentials.
+type Api struct {
+	apiz.UnimplementedApi `json:"-"`
+	Req                   *Req  `json:"req,omitempty"`
+	Resp                  *Resp `json:"resp,omitempty"`
+}
+
+func (d *Api) ApiRoute() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id: "user-auth-password-signin",
-		Desc: func() *schemaz.Desc {
-			return &schemaz.Desc{
-				Name:    "Email and Password Sign-In",
-				Summary: "Authenticates an email and password against Identity Platform, enforcing confirmed emails and minting a PKCE code.",
-				Labels:  map[string]string{"servname": "userz"},
-			}
-		},
 		Method: "POST",
 		Path:   "/api/userz/auth/signin/password",
+		Desc: func() *schemaz.Desc {
+			return &schemaz.Desc{
+				Labels: map[string]string{"servname": "userz"},
+			}
+		},
 	}
 }
 
-func (d *Api) ApiDataRefs() *apiz.DataRefs {
-	return &apiz.DataRefs{
-		PathParams:  nil,
-		QueryParams: nil,
-		ReqHeaders:  nil,
-		ReqBody: &schemaz.Schema{
-			Desc: &schemaz.Desc{Summary: "Email and password sign-in request."},
-			Object: func(read bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"email": {
-						Desc:  &schemaz.Desc{Summary: "User email address."},
-						Field: func() any { return &d.Req.Email },
-					},
-					"password": {
-						Desc:  &schemaz.Desc{Summary: "User account password."},
-						Field: func() any { return &d.Req.Password },
-					},
-					"code_challenge": {
-						Desc:  &schemaz.Desc{Summary: "RFC 7636 S256 PKCE code challenge."},
-						Field: func() any { return &d.Req.CodeChallenge },
-					},
-					"app": {
-						Desc:  &schemaz.Desc{Summary: "Client application identifier."},
-						Field: func() any { return &d.Req.App },
-					},
-				}
-			},
-		},
-		RespHeaders: nil,
-		RespBody: &schemaz.Schema{
-			Desc: &schemaz.Desc{Summary: "Single-use PKCE authorization code response."},
-			Object: func(read bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"code": {
-						Desc:  &schemaz.Desc{Summary: "Single-use PKCE authorization code."},
-						Field: func() any { return &d.Resp.Code },
-					},
-				}
-			},
-		},
-	}
+type UserAuthPasswordSigninId struct{}
+
+func (UserAuthPasswordSigninId) UserAuthPasswordSignin(ctx context.Context, api *Api) (int, error) {
+	panic("UserAuthPasswordSignin not implemented: run 'go generate ./...'")
 }

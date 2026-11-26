@@ -90,6 +90,24 @@ type SdkApis struct {
 	schedulerdeactivatemain.PipezSchedulerDeactivateRelevanceFashionRelevanceFashionMainId
 	tfzapimodelmetadata.TfzModelMetadataId
 	tfzapimodelpredict.TfzModelPredictId
+	userapiauthdevicecode.UserAuthDeviceCodeId
+	userapiauthdevicetoken.UserAuthDeviceTokenId
+	userapiauthexchange.UserAuthExchangeId
+	userapiauthgoogle.UserAuthGoogleId
+	userapiauthlogout.UserAuthLogoutId
+	userapiauthme.UserAuthMeId
+	userapiauthpasswordreset.UserAuthPasswordResetId
+	userapiauthpasswordsignin.UserAuthPasswordSigninId
+	userapiauthpasswordsignup.UserAuthPasswordSignupId
+	userapiauthrefresh.UserAuthRefreshId
+	userapiconfsettings.UserConfSettingsId
+	userapidatasettokenaccessattenuate.UserDatasetTokenAccessAttenuateId
+	userapidatasettokenaccesscreate.UserDatasetTokenAccessCreateId
+	userapidatasettokenrefresh.UserDatasetTokenRefreshId
+	userapidatasettokenrefreshcreate.UserDatasetTokenRefreshCreateId
+	userapidatasettokenrefreshdelete.UserDatasetTokenRefreshDeleteId
+	userapidatasettokenrefreshlist.UserDatasetTokenRefreshListId
+	userapitokencheck.UserTokenCheckId
 
 	Invoker InvokerFunc
 }
@@ -253,78 +271,6 @@ func (a *SdkApis) RoutezSampleFraction(ctx context.Context, api *routezsamplefra
 // func (a *SdkApis) TfzModelPredict(ctx context.Context, api *tfzapimodelpredict.Api) (int, error) {
 // 	return a.Invoker(ctx, api)
 // }
-
-func (a *SdkApis) UserAuthDeviceCode(ctx context.Context, api *userapiauthdevicecode.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) UserAuthDeviceToken(ctx context.Context, api *userapiauthdevicetoken.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) UserAuthExchange(ctx context.Context, api *userapiauthexchange.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) UserAuthGoogle(ctx context.Context, api *userapiauthgoogle.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) UserAuthLogout(ctx context.Context, api *userapiauthlogout.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) UserAuthMe(ctx context.Context, api *userapiauthme.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) UserAuthPasswordReset(ctx context.Context, api *userapiauthpasswordreset.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) UserAuthPasswordSignin(ctx context.Context, api *userapiauthpasswordsignin.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) UserAuthPasswordSignup(ctx context.Context, api *userapiauthpasswordsignup.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) UserAuthRefresh(ctx context.Context, api *userapiauthrefresh.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) UserConfSettings(ctx context.Context, api *userapiconfsettings.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) UserDatasetTokenAccessAttenuate(ctx context.Context, api *userapidatasettokenaccessattenuate.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) UserDatasetTokenAccessCreate(ctx context.Context, api *userapidatasettokenaccesscreate.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) UserDatasetTokenRefresh(ctx context.Context, api *userapidatasettokenrefresh.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) UserDatasetTokenRefreshCreate(ctx context.Context, api *userapidatasettokenrefreshcreate.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) UserDatasetTokenRefreshDelete(ctx context.Context, api *userapidatasettokenrefreshdelete.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) UserDatasetTokenRefreshList(ctx context.Context, api *userapidatasettokenrefreshlist.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) UserTokenCheck(ctx context.Context, api *userapitokencheck.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
 
 func (a *SdkApis) List() []apiz.Api {
 	var list []apiz.Api

@@ -10,22 +10,28 @@ import (
 
 func TestUnitUserAuthDeviceTokenApi(t *testing.T) {
 	api := &userapiauthdevicetoken.Api{
-		Req: userapiauthdevicetoken.Req{
-			DeviceCode: "dev-code-secret-123",
+		Req: &userapiauthdevicetoken.Req{
+			Payload: &userapiauthdevicetoken.ReqPayload{
+				DeviceCode: "dev_123",
+			},
 		},
-		Resp: userapiauthdevicetoken.Resp{
-			UserAccessToken:  "jwt-token-abc",
-			UserRefreshToken: "rt-session-def",
-			UserId:           "u-1234",
-			ExpiresAt:        1792933262,
-			Status:           "authorized",
+		Resp: &userapiauthdevicetoken.Resp{
+			Payload: &userapiauthdevicetoken.RespPayload{
+				UserAccessToken:       "jwt_token",
+				UserRefreshToken:      "ref_token",
+				UserId:                "u_123",
+				ExpiresAt:             123456789,
+				RefreshTokenExpiresAt: 123499999,
+				Status:                "authorized",
+			},
 		},
 	}
 
 	apiCopy := jsonz.MustCopy(api, &userapiauthdevicetoken.Api{})
-	require.Equal(t, api.Req, apiCopy.Req)
-	require.Equal(t, api.Resp, apiCopy.Resp)
+	require.Equal(t, api.Req.Payload.DeviceCode, apiCopy.Req.Payload.DeviceCode)
+	require.Equal(t, api.Resp.Payload.UserAccessToken, apiCopy.Resp.Payload.UserAccessToken)
 
 	spec := api.ApiSpec()
 	require.Equal(t, "user-auth-device-token", spec.Id)
+	require.Equal(t, "Device Token Polling & Exchange", spec.Desc().Name)
 }

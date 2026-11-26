@@ -1,6 +1,8 @@
+//go:generate go run github.com/infinity6-ai/i6sdk/mold schemagen .
 package userapidatasettokenrefresh
 
 import (
+	"context"
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
@@ -8,121 +10,72 @@ import (
 	"github.com/infinity6-ai/i6sdk/sdkcorez/grants"
 )
 
-type Req struct {
-	Signature   string            `json:"x-i6-signature"` // 121-byte RefreshAssertion
-	Dataset     lakedsz.Dataset   `json:"dataset"`
+type ReqHeaders struct {
+	// Standalone 121-byte RefreshAssertion Ed25519 signature.
+	SignatureHeader string `json:"x_i6_signature,omitempty"`
+}
+
+type ReqPayload struct {
+	// Target dataset ID.
+	Dataset lakedsz.Dataset `json:"dataset"`
+	// Optional sub-solution restriction.
 	Subsolution solution.Solution `json:"subsolution,omitempty"`
-	Subgrants   grants.Grant      `json:"subgrants,omitempty"`
-	Newlabels   map[string]string `json:"newlabels,omitempty"`
-	ExpSeconds  int64             `json:"exp_seconds,omitempty"`
-	Unbound     bool              `json:"unbound,omitempty"`
+	// Optional reduced grant bitmask.
+	Subgrants grants.Grant `json:"subgrants,omitempty"`
+	// Additional restrictive label constraints.
+	Newlabels map[string]string `json:"newlabels,omitempty"`
+	// Requested lifetime in seconds.
+	ExpSeconds int64 `json:"exp_seconds,omitempty"`
+	// If true, mints an unbound bearer token usable with Authorization: Bearer.
+	Unbound bool `json:"unbound,omitempty"`
+}
+
+type Req struct {
+	Headers *ReqHeaders `json:"headers,omitempty"`
+	Payload *ReqPayload `json:"payload,omitempty"`
+}
+
+type RespPayload struct {
+	// Binary-packed Base64URL dataset access token.
+	AccessToken string `json:"access_token"`
+	// Target dataset ID.
+	Dataset lakedsz.Dataset `json:"dataset"`
+	// Effective solution domain.
+	Solution solution.Solution `json:"solution"`
+	// Effective uint8 grant bitmask.
+	Grants grants.Grant `json:"grants"`
+	// Effective metadata labels.
+	Labels map[string]string `json:"labels,omitempty"`
+	// Expiration epoch milliseconds.
+	ExpiresAt int64 `json:"expires_at"`
 }
 
 type Resp struct {
-	AccessToken string            `json:"access_token"`
-	Dataset     lakedsz.Dataset   `json:"dataset"`
-	Solution    solution.Solution `json:"solution"`
-	Grants      grants.Grant      `json:"grants"`
-	Labels      map[string]string `json:"labels,omitempty"`
-	ExpiresAt   int64             `json:"expires_at"`
+	Payload *RespPayload `json:"payload,omitempty"`
 }
 
+// Refresh Dataset Access Token
+// Refreshes and attenuates a dataset access token using an Ed25519 signature assertion.
 type Api struct {
-	Req  Req  `json:"req"`
-	Resp Resp `json:"resp"`
+	apiz.UnimplementedApi `json:"-"`
+	Req                   *Req  `json:"req,omitempty"`
+	Resp                  *Resp `json:"resp,omitempty"`
 }
 
-func (d *Api) ApiSpec() apiz.ApiSpec {
+func (d *Api) ApiRoute() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id: "user-dataset-token-refresh",
-		Desc: func() *schemaz.Desc {
-			return &schemaz.Desc{
-				Name:    "Refresh Dataset Access Token",
-				Summary: "Refreshes and attenuates a dataset access token using an Ed25519 signature assertion.",
-				Labels:  map[string]string{"servname": "userz"},
-			}
-		},
 		Method: "POST",
 		Path:   "/api/userz/refresh-dataset",
+		Desc: func() *schemaz.Desc {
+			return &schemaz.Desc{
+				Labels: map[string]string{"servname": "userz"},
+			}
+		},
 	}
 }
 
-func (d *Api) ApiDataRefs() *apiz.DataRefs {
-	return &apiz.DataRefs{
-		PathParams:  nil,
-		QueryParams: nil,
-		ReqHeaders: &schemaz.Schema{
-			Object: func(read bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"x_i6_signature": {
-						Desc:     &schemaz.Desc{Summary: "Standalone 121-byte RefreshAssertion Ed25519 signature."},
-						UrlValue: schemaz.ParseStr(&d.Req.Signature),
-					},
-				}
-			},
-		},
-		ReqBody: &schemaz.Schema{
-			Desc: &schemaz.Desc{Summary: "Token refresh and downward attenuation request."},
-			Object: func(read bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"dataset": {
-						Desc:  &schemaz.Desc{Summary: "Target dataset ID."},
-						Field: func() any { return &d.Req.Dataset },
-					},
-					"subsolution": {
-						Desc:  &schemaz.Desc{Summary: "Optional sub-solution restriction."},
-						Field: func() any { return &d.Req.Subsolution },
-					},
-					"subgrants": {
-						Desc:  &schemaz.Desc{Summary: "Optional reduced grant bitmask."},
-						Field: func() any { return &d.Req.Subgrants },
-					},
-					"newlabels": {
-						Desc:  &schemaz.Desc{Summary: "Additional restrictive label constraints."},
-						Field: func() any { return &d.Req.Newlabels },
-					},
-					"exp_seconds": {
-						Desc:  &schemaz.Desc{Summary: "Requested lifetime in seconds."},
-						Field: func() any { return &d.Req.ExpSeconds },
-					},
-					"unbound": {
-						Desc:  &schemaz.Desc{Summary: "If true, mints an unbound bearer token usable with Authorization: Bearer."},
-						Field: func() any { return &d.Req.Unbound },
-					},
-				}
-			},
-		},
-		RespHeaders: nil,
-		RespBody: &schemaz.Schema{
-			Desc: &schemaz.Desc{Summary: "Refreshed access token response."},
-			Object: func(read bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"access_token": {
-						Desc:  &schemaz.Desc{Summary: "Binary-packed Base64URL dataset access token."},
-						Field: func() any { return &d.Resp.AccessToken },
-					},
-					"dataset": {
-						Desc:  &schemaz.Desc{Summary: "Target dataset ID."},
-						Field: func() any { return &d.Resp.Dataset },
-					},
-					"solution": {
-						Desc:  &schemaz.Desc{Summary: "Effective solution domain."},
-						Field: func() any { return &d.Resp.Solution },
-					},
-					"grants": {
-						Desc:  &schemaz.Desc{Summary: "Effective uint8 grant bitmask."},
-						Field: func() any { return &d.Resp.Grants },
-					},
-					"labels": {
-						Desc:  &schemaz.Desc{Summary: "Effective metadata labels."},
-						Field: func() any { return &d.Resp.Labels },
-					},
-					"expires_at": {
-						Desc:  &schemaz.Desc{Summary: "Expiration epoch milliseconds."},
-						Field: func() any { return &d.Resp.ExpiresAt },
-					},
-				}
-			},
-		},
-	}
+type UserDatasetTokenRefreshId struct{}
+
+func (UserDatasetTokenRefreshId) UserDatasetTokenRefresh(ctx context.Context, api *Api) (int, error) {
+	panic("UserDatasetTokenRefresh not implemented: run 'go generate ./...'")
 }

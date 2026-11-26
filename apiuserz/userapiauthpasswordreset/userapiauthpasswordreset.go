@@ -1,70 +1,54 @@
+//go:generate go run github.com/infinity6-ai/i6sdk/mold schemagen .
 package userapiauthpasswordreset
 
 import (
+	"context"
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 )
 
+type ReqPayload struct {
+	// Account email address requesting password reset.
+	Email string `json:"email"`
+}
+
 type Req struct {
+	Payload *ReqPayload `json:"payload,omitempty"`
+}
+
+type RespPayload struct {
+	// Status of password reset request: password_reset_email_sent.
+	Status string `json:"status"`
+	// Target account email address.
 	Email string `json:"email"`
 }
 
 type Resp struct {
-	Status string `json:"status"` // "password_reset_email_sent"
-	Email  string `json:"email"`
+	Payload *RespPayload `json:"payload,omitempty"`
 }
 
+// Password Reset Initiation
+// Initiates an out-of-band password reset email delivery.
 type Api struct {
-	Req  Req  `json:"req"`
-	Resp Resp `json:"resp"`
+	apiz.UnimplementedApi `json:"-"`
+	Req                   *Req  `json:"req,omitempty"`
+	Resp                  *Resp `json:"resp,omitempty"`
 }
 
-func (d *Api) ApiSpec() apiz.ApiSpec {
+func (d *Api) ApiRoute() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id: "user-auth-password-reset",
-		Desc: func() *schemaz.Desc {
-			return &schemaz.Desc{
-				Name:    "Password Reset Email Dispatch",
-				Summary: "Dispatches an out-of-band password reset email via Identity Platform.",
-				Labels:  map[string]string{"servname": "userz"},
-			}
-		},
 		Method: "POST",
 		Path:   "/api/userz/auth/password/reset",
+		Desc: func() *schemaz.Desc {
+			return &schemaz.Desc{
+				Labels: map[string]string{"servname": "userz"},
+			}
+		},
 	}
 }
 
-func (d *Api) ApiDataRefs() *apiz.DataRefs {
-	return &apiz.DataRefs{
-		PathParams:  nil,
-		QueryParams: nil,
-		ReqHeaders:  nil,
-		ReqBody: &schemaz.Schema{
-			Desc: &schemaz.Desc{Summary: "Password reset request."},
-			Object: func(read bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"email": {
-						Desc:  &schemaz.Desc{Summary: "Account email address to send password reset."},
-						Field: func() any { return &d.Req.Email },
-					},
-				}
-			},
-		},
-		RespHeaders: nil,
-		RespBody: &schemaz.Schema{
-			Desc: &schemaz.Desc{Summary: "Password reset dispatch response."},
-			Object: func(read bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"status": {
-						Desc:  &schemaz.Desc{Summary: "Password reset dispatch status."},
-						Field: func() any { return &d.Resp.Status },
-					},
-					"email": {
-						Desc:  &schemaz.Desc{Summary: "Email address where reset was sent."},
-						Field: func() any { return &d.Resp.Email },
-					},
-				}
-			},
-		},
-	}
+type UserAuthPasswordResetId struct{}
+
+func (UserAuthPasswordResetId) UserAuthPasswordReset(ctx context.Context, api *Api) (int, error) {
+	panic("UserAuthPasswordReset not implemented: run 'go generate ./...'")
 }

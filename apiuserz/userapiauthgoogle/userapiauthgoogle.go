@@ -1,75 +1,56 @@
+//go:generate go run github.com/infinity6-ai/i6sdk/mold schemagen .
 package userapiauthgoogle
 
 import (
+	"context"
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 )
 
-type Req struct {
-	IdToken       string `json:"id_token"`
+type ReqPayload struct {
+	// Google OpenID Connect ID token credential string.
+	IdToken string `json:"id_token"`
+	// PKCE code_challenge for authorization flow.
 	CodeChallenge string `json:"code_challenge"`
-	App           string `json:"app,omitempty"`
+	// Optional client application identifier.
+	App string `json:"app,omitempty"`
 }
 
-type Resp struct {
+type Req struct {
+	Payload *ReqPayload `json:"payload,omitempty"`
+}
+
+type RespPayload struct {
+	// Authorization code to be exchanged for tokens.
 	Code string `json:"code"`
 }
 
-type Api struct {
-	Req  Req  `json:"req"`
-	Resp Resp `json:"resp"`
+type Resp struct {
+	Payload *RespPayload `json:"payload,omitempty"`
 }
 
-func (d *Api) ApiSpec() apiz.ApiSpec {
+// Google One-Tap / ID Token Sign-In
+// Authenticates a user via verified Google ID token / GIS One-Tap credentials.
+type Api struct {
+	apiz.UnimplementedApi `json:"-"`
+	Req                   *Req  `json:"req,omitempty"`
+	Resp                  *Resp `json:"resp,omitempty"`
+}
+
+func (d *Api) ApiRoute() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id: "user-auth-google",
-		Desc: func() *schemaz.Desc {
-			return &schemaz.Desc{
-				Name:    "Google Sign-In Credential Exchange",
-				Summary: "Verifies a Google OAuth ID token via Identity Platform and mints a single-use PKCE code.",
-				Labels:  map[string]string{"servname": "userz"},
-			}
-		},
 		Method: "POST",
 		Path:   "/api/userz/auth/google",
+		Desc: func() *schemaz.Desc {
+			return &schemaz.Desc{
+				Labels: map[string]string{"servname": "userz"},
+			}
+		},
 	}
 }
 
-func (d *Api) ApiDataRefs() *apiz.DataRefs {
-	return &apiz.DataRefs{
-		PathParams:  nil,
-		QueryParams: nil,
-		ReqHeaders:  nil,
-		ReqBody: &schemaz.Schema{
-			Desc: &schemaz.Desc{Summary: "Google credential sign-in request."},
-			Object: func(read bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"id_token": {
-						Desc:  &schemaz.Desc{Summary: "Google OAuth ID token or credential string."},
-						Field: func() any { return &d.Req.IdToken },
-					},
-					"code_challenge": {
-						Desc:  &schemaz.Desc{Summary: "RFC 7636 S256 PKCE code challenge."},
-						Field: func() any { return &d.Req.CodeChallenge },
-					},
-					"app": {
-						Desc:  &schemaz.Desc{Summary: "Client application identifier."},
-						Field: func() any { return &d.Req.App },
-					},
-				}
-			},
-		},
-		RespHeaders: nil,
-		RespBody: &schemaz.Schema{
-			Desc: &schemaz.Desc{Summary: "Single-use PKCE authorization code response."},
-			Object: func(read bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"code": {
-						Desc:  &schemaz.Desc{Summary: "Single-use PKCE authorization code."},
-						Field: func() any { return &d.Resp.Code },
-					},
-				}
-			},
-		},
-	}
+type UserAuthGoogleId struct{}
+
+func (UserAuthGoogleId) UserAuthGoogle(ctx context.Context, api *Api) (int, error) {
+	panic("UserAuthGoogle not implemented: run 'go generate ./...'")
 }

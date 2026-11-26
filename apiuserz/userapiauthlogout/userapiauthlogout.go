@@ -1,65 +1,52 @@
+//go:generate go run github.com/infinity6-ai/i6sdk/mold schemagen .
 package userapiauthlogout
 
 import (
+	"context"
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 )
 
-type Req struct {
+type ReqPayload struct {
+	// Human user refresh token to revoke.
 	RefreshToken string `json:"refresh_token"`
 }
 
-type Resp struct {
+type Req struct {
+	Payload *ReqPayload `json:"payload,omitempty"`
+}
+
+type RespPayload struct {
+	// Confirmation flag that refresh token was successfully revoked.
 	Success bool `json:"success"`
 }
 
-type Api struct {
-	Req  Req  `json:"req"`
-	Resp Resp `json:"resp"`
+type Resp struct {
+	Payload *RespPayload `json:"payload,omitempty"`
 }
 
-func (d *Api) ApiSpec() apiz.ApiSpec {
+// User Logout
+// Revokes an active human user refresh token and terminates session.
+type Api struct {
+	apiz.UnimplementedApi `json:"-"`
+	Req                   *Req  `json:"req,omitempty"`
+	Resp                  *Resp `json:"resp,omitempty"`
+}
+
+func (d *Api) ApiRoute() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id: "user-auth-logout",
-		Desc: func() *schemaz.Desc {
-			return &schemaz.Desc{
-				Name:    "Human User Session Logout",
-				Summary: "Revokes an active human user session by marking the refresh token and its token family as revoked in userzsession.",
-				Labels:  map[string]string{"servname": "userz"},
-			}
-		},
 		Method: "POST",
 		Path:   "/api/userz/auth/logout",
+		Desc: func() *schemaz.Desc {
+			return &schemaz.Desc{
+				Labels: map[string]string{"servname": "userz"},
+			}
+		},
 	}
 }
 
-func (d *Api) ApiDataRefs() *apiz.DataRefs {
-	return &apiz.DataRefs{
-		PathParams:  nil,
-		QueryParams: nil,
-		ReqHeaders:  nil,
-		ReqBody: &schemaz.Schema{
-			Desc: &schemaz.Desc{Summary: "Logout payload."},
-			Object: func(read bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"refresh_token": {
-						Desc:  &schemaz.Desc{Summary: "Opaque user refresh token in format <jti>.<secret>."},
-						Field: func() any { return &d.Req.RefreshToken },
-					},
-				}
-			},
-		},
-		RespHeaders: nil,
-		RespBody: &schemaz.Schema{
-			Desc: &schemaz.Desc{Summary: "Logout response confirming revocation."},
-			Object: func(read bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"success": {
-						Desc:  &schemaz.Desc{Summary: "Indicates successful session revocation."},
-						Field: func() any { return &d.Resp.Success },
-					},
-				}
-			},
-		},
-	}
+type UserAuthLogoutId struct{}
+
+func (UserAuthLogoutId) UserAuthLogout(ctx context.Context, api *Api) (int, error) {
+	panic("UserAuthLogout not implemented: run 'go generate ./...'")
 }

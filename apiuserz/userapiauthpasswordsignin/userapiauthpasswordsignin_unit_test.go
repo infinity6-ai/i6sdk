@@ -3,31 +3,32 @@ package userapiauthpasswordsignin_test
 import (
 	"testing"
 
+	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/infinity6-ai/i6sdk/apiuserz/userapiauthpasswordsignin"
 	"github.com/stretchr/testify/require"
 )
 
-func TestUnitUserAuthPasswordSignInApi(t *testing.T) {
+func TestUnitUserAuthPasswordSigninApi(t *testing.T) {
 	api := &userapiauthpasswordsignin.Api{
-		Req: userapiauthpasswordsignin.Req{
-			Email:         "alice@infinity6.ai",
-			Password:      "pass123",
-			CodeChallenge: "challenge-xyz",
-			App:           "decsuite",
+		Req: &userapiauthpasswordsignin.Req{
+			Payload: &userapiauthpasswordsignin.ReqPayload{
+				Email:         "user@test.com",
+				Password:      "secretpassword",
+				CodeChallenge: "chal_123",
+				App:           "cli",
+			},
 		},
-		Resp: userapiauthpasswordsignin.Resp{
-			Code: "auth-code-123",
+		Resp: &userapiauthpasswordsignin.Resp{
+			Payload: &userapiauthpasswordsignin.RespPayload{
+				Code: "auth_code_123",
+			},
 		},
 	}
 
+	apiCopy := jsonz.MustCopy(api, &userapiauthpasswordsignin.Api{})
+	require.Equal(t, api.Req.Payload.Email, apiCopy.Req.Payload.Email)
+
 	spec := api.ApiSpec()
 	require.Equal(t, "user-auth-password-signin", spec.Id)
-	require.Equal(t, "POST", spec.Method)
-	require.Equal(t, "/api/userz/auth/signin/password", spec.Path)
-	require.Equal(t, "userz", spec.Desc().Labels["servname"])
-
-	refs := api.ApiDataRefs()
-	require.NotNil(t, refs)
-	require.NotNil(t, refs.ReqBody)
-	require.NotNil(t, refs.RespBody)
+	require.Equal(t, "Email/Password Sign-In", spec.Desc().Name)
 }

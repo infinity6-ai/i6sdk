@@ -339,9 +339,9 @@ Each `api*z` module in `i6sdk` pairs with a corresponding backend service reposi
 |:---:|:---|:---|:---|:---|
 | **1** | `apitfz/` | `i6tfz/` | 2 endpoints (`tfzapimodelmetadata`, `tfzapimodelpredict`) | **DONE** (100% green in both repos) |
 | **2** | `apiingestz/` | `i6ingestz/` | 6 concrete endpoints (split `event[T]` & `stream[T]`, `batchsummary`, `geturl`) | **DONE** (100% green in both repos) |
-| **3** | `apipipez/` | `i6pipez/` | 6 concrete endpoints (`pipezget`, `pipezlist`, split `scheduleractivate[T]` & `schedulerdeactivate[T]`) | **IN PROGRESS** (Next step) |
-| **4** | `apiuserz/` | `i6userz/` + `i6decsuite/` | 18 endpoints (`userapiauth*`, `userapidatasettoken*`, `userapitokencheck`) | Pending Step 4 |
-| **5** | `apidatasetz/` | `i6datasetz/` | 24 concrete endpoints (split `dszapiloadresult[T]`, remaining 22 dataset endpoints) | Pending Step 5 |
+| **3** | `apipipez/` | `i6pipez/` | 8 concrete endpoints (`pipezget`, `pipezlist`, split `pipezstart[T]`, `scheduleractivate[T]` & `schedulerdeactivate[T]`) | **DONE** (100% green in both repos) |
+| **4** | `apiuserz/` | `i6userz/` + `i6decsuite/` | 18 endpoints (`userapiauth*`, `userapidatasettoken*`, `userapitokencheck`) | **DONE** (100% green across all 3 repos) |
+| **5** | `apidatasetz/` | `i6datasetz/` | 24 concrete endpoints (split `dszapiloadresult[T]`, remaining 22 dataset endpoints) | **NEXT** (Phase 3 Step 5) |
 
 #### Synchronized Refactoring Workflow (Per Domain Module)
 1. **Refactor API Contract (`i6sdk/api*z`)**:

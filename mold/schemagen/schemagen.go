@@ -535,6 +535,30 @@ func writeFieldSchema(b *bytes.Buffer, indent, jsonTag, docStr string, expr ast.
 	}
 
 	fieldTypeStr, isPtr := resolveTypeName(expr)
+	if fieldStruct, ok := info.structs[fieldTypeStr]; ok {
+		b.WriteString(fmt.Sprintf("%s\tObject: func(read bool) map[string]*schemaz.Schema {\n", indent))
+		if isPtr {
+			b.WriteString(fmt.Sprintf("%s\t\tif read && %s == nil {\n%s\t\t\treturn nil\n%s\t\t}\n", indent, accessor, indent, indent))
+			b.WriteString(fmt.Sprintf("%s\t\tif %s == nil {\n%s\t\t\t%s = &%s{}\n%s\t\t}\n", indent, accessor, indent, accessor, fieldTypeStr, indent))
+		}
+		b.WriteString(fmt.Sprintf("%s\t\treturn map[string]*schemaz.Schema{\n", indent))
+		for _, ef := range fieldStruct.Fields.List {
+			eTag := extractJsonName(ef.Tag)
+			if eTag == "-" || eTag == "" {
+				continue
+			}
+			for _, eIdent := range ef.Names {
+				eDoc := info.fieldDocs[fieldTypeStr][eIdent.Name]
+				eAccessor := fmt.Sprintf("%s.%s", accessor, eIdent.Name)
+				writeFieldSchema(b, indent+"\t\t\t", eTag, eDoc, ef.Type, eAccessor, info, neededImports)
+			}
+		}
+		b.WriteString(fmt.Sprintf("%s\t\t}\n", indent))
+		b.WriteString(fmt.Sprintf("%s\t},\n", indent))
+		b.WriteString(fmt.Sprintf("%s},\n", indent))
+		return
+	}
+
 	if isPtr && strings.Contains(fieldTypeStr, ".") {
 		pkgAlias := strings.Split(fieldTypeStr, ".")[0]
 		if impPath, ok := info.imports[pkgAlias]; ok {

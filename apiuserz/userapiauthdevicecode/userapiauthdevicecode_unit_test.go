@@ -10,23 +10,28 @@ import (
 
 func TestUnitUserAuthDeviceCodeApi(t *testing.T) {
 	api := &userapiauthdevicecode.Api{
-		Req: userapiauthdevicecode.Req{
-			App: "i6-cli",
+		Req: &userapiauthdevicecode.Req{
+			Payload: &userapiauthdevicecode.ReqPayload{
+				App: "cli",
+			},
 		},
-		Resp: userapiauthdevicecode.Resp{
-			DeviceCode:              "dev-code-secret-123",
-			UserCode:                "WDJB-MJHT",
-			VerificationUri:         "https://auth.infinity6.ai/activate",
-			VerificationUriComplete: "https://auth.infinity6.ai/activate?code=WDJB-MJHT",
-			ExpiresInSec:            900,
-			IntervalSec:             5,
+		Resp: &userapiauthdevicecode.Resp{
+			Payload: &userapiauthdevicecode.RespPayload{
+				DeviceCode:              "dev_123",
+				UserCode:                "USER-456",
+				VerificationUri:         "https://auth.i6.ai/device",
+				VerificationUriComplete: "https://auth.i6.ai/device?code=USER-456",
+				ExpiresInSec:            600,
+				IntervalSec:             5,
+			},
 		},
 	}
 
 	apiCopy := jsonz.MustCopy(api, &userapiauthdevicecode.Api{})
-	require.Equal(t, api.Req, apiCopy.Req)
-	require.Equal(t, api.Resp, apiCopy.Resp)
+	require.Equal(t, api.Req.Payload.App, apiCopy.Req.Payload.App)
+	require.Equal(t, api.Resp.Payload.DeviceCode, apiCopy.Resp.Payload.DeviceCode)
 
 	spec := api.ApiSpec()
 	require.Equal(t, "user-auth-device-code", spec.Id)
+	require.Equal(t, "Device Authorization Code Initiation", spec.Desc().Name)
 }

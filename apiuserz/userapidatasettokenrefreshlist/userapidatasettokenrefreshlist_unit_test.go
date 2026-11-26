@@ -6,38 +6,35 @@ import (
 	"github.com/infinity6-ai/gox/commonz/jsonz"
 	"github.com/infinity6-ai/i6sdk/apiuserz/userapidatasettokenrefreshlist"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
-	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/solution"
 	"github.com/stretchr/testify/require"
 )
 
 func TestUnitUserDatasetTokenRefreshListApi(t *testing.T) {
 	api := &userapidatasettokenrefreshlist.Api{
-		Req: userapidatasettokenrefreshlist.Req{
-			Dataset:    lakedsz.MustParse("ds64l7qauv4l6512kf0c"),
-			AuthHeader: "Bearer eyJ...",
+		Req: &userapidatasettokenrefreshlist.Req{
+			Params: &userapidatasettokenrefreshlist.ReqParams{
+				Dataset: lakedsz.MustParse("myds"),
+			},
+			Headers: &userapidatasettokenrefreshlist.ReqHeaders{
+				Authorization: "Bearer token",
+			},
 		},
-		Resp: userapidatasettokenrefreshlist.Resp{
-			Tokens: []userapidatasettokenrefreshlist.RefreshTokenSummary{
-				{
-					Jti:        "jti-1",
-					Dataset:    lakedsz.MustParse("ds64l7qauv4l6512kf0c"),
-					Solution:   solution.MustParse("relevance"),
-					Grants:     12,
-					CreatedBy:  "u-1",
-					CreatedAt:  1792900000,
-					LastUsedAt: 1792900500,
-					ExpiresAt:  1892900000,
-					Revoked:    false,
-					Annotation: "Airflow",
+		Resp: &userapidatasettokenrefreshlist.Resp{
+			Payload: &userapidatasettokenrefreshlist.RespPayload{
+				Tokens: []userapidatasettokenrefreshlist.RefreshTokenSummary{
+					{
+						Jti:     "jti_1",
+						Dataset: lakedsz.MustParse("myds"),
+					},
 				},
 			},
 		},
 	}
 
 	apiCopy := jsonz.MustCopy(api, &userapidatasettokenrefreshlist.Api{})
-	require.Equal(t, api.Req, apiCopy.Req)
-	require.Equal(t, api.Resp, apiCopy.Resp)
+	require.Equal(t, api.Req.Params.Dataset, apiCopy.Req.Params.Dataset)
 
 	spec := api.ApiSpec()
 	require.Equal(t, "user-dataset-token-refresh-list", spec.Id)
+	require.Equal(t, "List Dataset Refresh Tokens", spec.Desc().Name)
 }

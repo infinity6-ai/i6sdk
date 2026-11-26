@@ -1,65 +1,51 @@
+//go:generate go run github.com/infinity6-ai/i6sdk/mold schemagen .
 package userapidatasettokenrefreshdelete
 
 import (
+	"context"
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/gox/schemaz/schemaz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
 )
 
+type ReqParams struct {
+	// Target dataset ID.
+	Dataset lakedsz.Dataset `json:"dataset"`
+	// Token JTI (public key identifier) to revoke.
+	Jti string `json:"jti"`
+}
+
+type ReqHeaders struct {
+	// User Bearer JWT access token.
+	Authorization string `json:"authorization"`
+}
+
 type Req struct {
-	Dataset    lakedsz.Dataset `json:"dataset"`
-	Jti        string          `json:"jti"`
-	AuthHeader string          `json:"authorization"`
+	Params  *ReqParams  `json:"params,omitempty"`
+	Headers *ReqHeaders `json:"headers,omitempty"`
 }
 
+// Revoke Dataset Refresh Token
+// Instantly revokes a machine dataset refresh token by JTI.
 type Api struct {
-	Req Req `json:"req"`
+	apiz.UnimplementedApi `json:"-"`
+	Req                   *Req `json:"req,omitempty"`
 }
 
-func (d *Api) ApiSpec() apiz.ApiSpec {
+func (d *Api) ApiRoute() apiz.ApiSpec {
 	return apiz.ApiSpec{
-		Id: "user-dataset-token-refresh-delete",
-		Desc: func() *schemaz.Desc {
-			return &schemaz.Desc{
-				Name:    "Revoke Dataset Refresh Token",
-				Summary: "Instantly revokes a machine dataset refresh token by JTI.",
-				Labels:  map[string]string{"servname": "userz"},
-			}
-		},
 		Method: "DELETE",
 		Path:   "/api/userz/dataset-refresh-token/{dataset}/jti/{jti}",
+		Desc: func() *schemaz.Desc {
+			return &schemaz.Desc{
+				Labels: map[string]string{"servname": "userz"},
+			}
+		},
 	}
 }
 
-func (d *Api) ApiDataRefs() *apiz.DataRefs {
-	return &apiz.DataRefs{
-		PathParams: &schemaz.Schema{
-			Object: func(read bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"dataset": {
-						Desc:     &schemaz.Desc{Summary: "Target dataset ID."},
-						UrlValue: schemaz.ParseStrGet(&d.Req.Dataset, lakedsz.MustParse),
-					},
-					"jti": {
-						Desc:     &schemaz.Desc{Summary: "Token JTI (public key identifier) to revoke."},
-						UrlValue: schemaz.ParseStr(&d.Req.Jti),
-					},
-				}
-			},
-		},
-		QueryParams: nil,
-		ReqHeaders: &schemaz.Schema{
-			Object: func(read bool) map[string]*schemaz.Schema {
-				return map[string]*schemaz.Schema{
-					"authorization": {
-						Desc:     &schemaz.Desc{Summary: "User Bearer JWT access token."},
-						UrlValue: schemaz.ParseStr(&d.Req.AuthHeader),
-					},
-				}
-			},
-		},
-		ReqBody:     nil,
-		RespHeaders: nil,
-		RespBody:    nil,
-	}
+type UserDatasetTokenRefreshDeleteId struct{}
+
+func (UserDatasetTokenRefreshDeleteId) UserDatasetTokenRefreshDelete(ctx context.Context, api *Api) (int, error) {
+	panic("UserDatasetTokenRefreshDelete not implemented: run 'go generate ./...'")
 }

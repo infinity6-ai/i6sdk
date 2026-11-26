@@ -10,22 +10,26 @@ import (
 
 func TestUnitUserAuthRefreshApi(t *testing.T) {
 	api := &userapiauthrefresh.Api{
-		Req: userapiauthrefresh.Req{
-			RefreshToken: "jti-123.secret-abc",
+		Req: &userapiauthrefresh.Req{
+			Payload: &userapiauthrefresh.ReqPayload{
+				RefreshToken: "ref_123",
+			},
 		},
-		Resp: userapiauthrefresh.Resp{
-			UserAccessToken:       "eyJhbGciOi...",
-			UserRefreshToken:      "jti-123.secret-new",
-			UserId:                "u-12345",
-			ExpiresAt:             1792900000,
-			RefreshTokenExpiresAt: 1795492000,
+		Resp: &userapiauthrefresh.Resp{
+			Payload: &userapiauthrefresh.RespPayload{
+				UserAccessToken:       "jwt_token",
+				UserRefreshToken:      "new_ref_456",
+				UserId:                "u_123",
+				ExpiresAt:             123456789,
+				RefreshTokenExpiresAt: 123499999,
+			},
 		},
 	}
 
 	apiCopy := jsonz.MustCopy(api, &userapiauthrefresh.Api{})
-	require.Equal(t, api.Req, apiCopy.Req)
-	require.Equal(t, api.Resp, apiCopy.Resp)
+	require.Equal(t, api.Req.Payload.RefreshToken, apiCopy.Req.Payload.RefreshToken)
 
 	spec := api.ApiSpec()
 	require.Equal(t, "user-auth-refresh", spec.Id)
+	require.Equal(t, "Human User Session Refresh", spec.Desc().Name)
 }

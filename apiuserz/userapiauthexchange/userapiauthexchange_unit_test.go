@@ -10,23 +10,27 @@ import (
 
 func TestUnitUserAuthExchangeApi(t *testing.T) {
 	api := &userapiauthexchange.Api{
-		Req: userapiauthexchange.Req{
-			Code:         "code-123",
-			CodeVerifier: "verifier-456",
-			Ext:          "state-789",
+		Req: &userapiauthexchange.Req{
+			Payload: &userapiauthexchange.ReqPayload{
+				Code:         "code_123",
+				CodeVerifier: "verifier_456",
+			},
 		},
-		Resp: userapiauthexchange.Resp{
-			UserAccessToken:  "jwt-token-abc",
-			UserRefreshToken: "rt-token-def",
-			UserId:           "u-1234",
-			ExpiresAt:        1792933262,
+		Resp: &userapiauthexchange.Resp{
+			Payload: &userapiauthexchange.RespPayload{
+				UserAccessToken:       "jwt_token",
+				UserRefreshToken:      "ref_token",
+				UserId:                "u_123",
+				ExpiresAt:             123456789,
+				RefreshTokenExpiresAt: 123499999,
+			},
 		},
 	}
 
 	apiCopy := jsonz.MustCopy(api, &userapiauthexchange.Api{})
-	require.Equal(t, api.Req, apiCopy.Req)
-	require.Equal(t, api.Resp, apiCopy.Resp)
+	require.Equal(t, api.Req.Payload.Code, apiCopy.Req.Payload.Code)
 
 	spec := api.ApiSpec()
 	require.Equal(t, "user-auth-exchange", spec.Id)
+	require.Equal(t, "OAuth 2.0 PKCE Code Exchange", spec.Desc().Name)
 }

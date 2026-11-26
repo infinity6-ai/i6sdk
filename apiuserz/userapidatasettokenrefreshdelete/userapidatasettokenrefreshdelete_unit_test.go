@@ -11,16 +11,22 @@ import (
 
 func TestUnitUserDatasetTokenRefreshDeleteApi(t *testing.T) {
 	api := &userapidatasettokenrefreshdelete.Api{
-		Req: userapidatasettokenrefreshdelete.Req{
-			Dataset:    lakedsz.MustParse("ds64l7qauv4l6512kf0c"),
-			Jti:        "jti-1234",
-			AuthHeader: "Bearer eyJ...",
+		Req: &userapidatasettokenrefreshdelete.Req{
+			Params: &userapidatasettokenrefreshdelete.ReqParams{
+				Dataset: lakedsz.MustParse("myds"),
+				Jti:     "jti_123",
+			},
+			Headers: &userapidatasettokenrefreshdelete.ReqHeaders{
+				Authorization: "Bearer token",
+			},
 		},
 	}
 
 	apiCopy := jsonz.MustCopy(api, &userapidatasettokenrefreshdelete.Api{})
-	require.Equal(t, api.Req, apiCopy.Req)
+	require.Equal(t, api.Req.Params.Dataset, apiCopy.Req.Params.Dataset)
+	require.Equal(t, api.Req.Params.Jti, apiCopy.Req.Params.Jti)
 
 	spec := api.ApiSpec()
 	require.Equal(t, "user-dataset-token-refresh-delete", spec.Id)
+	require.Equal(t, "Revoke Dataset Refresh Token", spec.Desc().Name)
 }
