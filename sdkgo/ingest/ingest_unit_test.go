@@ -14,6 +14,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/infinity6-ai/gox/httpz/httpzclient"
 	"github.com/infinity6-ai/gox/routez/apiz"
 	"github.com/infinity6-ai/i6sdk/apicollectionz/apicollectionz"
 	"github.com/infinity6-ai/i6sdk/apiingestz/ingestzapigeturl"
@@ -104,7 +105,7 @@ func TestUnitIngestGetUrl(t *testing.T) {
 			},
 		}
 
-		client := ingest.New(ingest.Options{Apis: apis})
+		client := ingest.New(ctx, ingest.Options{Apis: apis})
 		res, err := client.GetUrl(ctx, "my-dataset", "events", map[string]string{"month": "2026-11"}, 2)
 		require.NoError(t, err)
 		require.True(t, called)
@@ -114,7 +115,7 @@ func TestUnitIngestGetUrl(t *testing.T) {
 	})
 
 	t.Run("Validation errors on missing fields", func(t *testing.T) {
-		client := ingest.New(ingest.Options{})
+		client := ingest.New(ctx, ingest.Options{})
 		_, err := client.GetUrl(ctx, "", "events", nil, 1)
 		require.Error(t, err)
 		require.Contains(t, err.Error(), "dataset is required")
@@ -166,9 +167,14 @@ func TestUnitIngestUpload(t *testing.T) {
 			},
 		}
 
-		client := ingest.New(ingest.Options{
-			Apis:       apis,
-			HttpClient: ts.Client(),
+		hzClient := httpzclient.New(ctx, httpzclient.Options{
+			GetClient: func(_ context.Context) *http.Client {
+				return ts.Client()
+			},
+		})
+		client := ingest.New(ctx, ingest.Options{
+			Apis:   apis,
+			Client: hzClient,
 		})
 
 		stream1 := ingest.FromString("stream 1 content")
@@ -237,9 +243,14 @@ func TestUnitIngestUpload(t *testing.T) {
 			},
 		}
 
-		client := ingest.New(ingest.Options{
-			Apis:       apis,
-			HttpClient: ts.Client(),
+		hzClient := httpzclient.New(ctx, httpzclient.Options{
+			GetClient: func(_ context.Context) *http.Client {
+				return ts.Client()
+			},
+		})
+		client := ingest.New(ctx, ingest.Options{
+			Apis:   apis,
+			Client: hzClient,
 		})
 
 		cancelCtx, cancel := context.WithCancel(ctx)
@@ -280,9 +291,14 @@ func TestUnitIngestUpload(t *testing.T) {
 			},
 		}
 
-		client := ingest.New(ingest.Options{
-			Apis:       apis,
-			HttpClient: ts.Client(),
+		hzClient := httpzclient.New(ctx, httpzclient.Options{
+			GetClient: func(_ context.Context) *http.Client {
+				return ts.Client()
+			},
+		})
+		client := ingest.New(ctx, ingest.Options{
+			Apis:   apis,
+			Client: hzClient,
 		})
 
 		_, err := client.Upload(ctx, ingest.UploadOptions{

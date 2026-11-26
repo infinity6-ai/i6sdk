@@ -53,7 +53,7 @@ func (d *Downloader) Update(
 	if minPreloadTime > 0 && current != nil && current.CheckedAt != "" {
 		if t, err := parseIsoTimestamp(current.CheckedAt); err == nil {
 			if time.Since(t).Seconds() < minPreloadTime {
-				return d.fs.Resolve(name, current.Version), nil
+				return d.fs.Resolve(ctx, name, current.Version), nil
 			}
 		}
 	}
@@ -78,7 +78,7 @@ func (d *Downloader) fetchAndUpdate(
 	req, err := http.NewRequestWithContext(reqCtx, http.MethodGet, rawUrl, nil)
 	if err != nil {
 		if current != nil {
-			return d.fs.Resolve(name, current.Version), nil
+			return d.fs.Resolve(ctx, name, current.Version), nil
 		}
 		return "", fmt.Errorf("failed to create http request for %s: %w", rawUrl, err)
 	}
@@ -92,7 +92,7 @@ func (d *Downloader) fetchAndUpdate(
 	if err != nil {
 		// Network failure: fallback to stale cached version if available
 		if current != nil {
-			return d.fs.Resolve(name, current.Version), nil
+			return d.fs.Resolve(ctx, name, current.Version), nil
 		}
 		return "", fmt.Errorf("download failed for %s (%s): %w", name, rawUrl, err)
 	}
@@ -100,12 +100,12 @@ func (d *Downloader) fetchAndUpdate(
 
 	if resp.StatusCode == http.StatusNotModified && current != nil {
 		d.fs.Touch(ctx, name)
-		return d.fs.Resolve(name, current.Version), nil
+		return d.fs.Resolve(ctx, name, current.Version), nil
 	}
 
 	if resp.StatusCode != http.StatusOK {
 		if current != nil {
-			return d.fs.Resolve(name, current.Version), nil
+			return d.fs.Resolve(ctx, name, current.Version), nil
 		}
 		return "", fmt.Errorf("download failed for %s (%s): HTTP %d", name, rawUrl, resp.StatusCode)
 	}
@@ -116,7 +116,7 @@ func (d *Downloader) fetchAndUpdate(
 		return "", fmt.Errorf("failed to create version for %s: %w", name, err)
 	}
 
-	targetUrl := d.fs.ResolveUrl(name, newRef.Version)
+	targetUrl := d.fs.ResolveUrl(ctx, name, newRef.Version)
 	tmpUrl, err := urlz.Parse(targetUrl.String() + ".tmp")
 	if err != nil {
 		_ = d.fs.Discard(ctx, name, newRef.Version)
@@ -138,7 +138,7 @@ func (d *Downloader) fetchAndUpdate(
 		return "", fmt.Errorf("failed to release version %s for %s: %w", newRef.Version, name, err)
 	}
 
-	return d.fs.Resolve(name, released.Version), nil
+	return d.fs.Resolve(ctx, name, released.Version), nil
 }
 
 func parseIsoTimestamp(s string) (time.Time, error) {

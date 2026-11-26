@@ -51,7 +51,7 @@ func TestUnitFsLifecycle(t *testing.T) {
 		ref, err := fs.Create(ctx, "dash/funnel", `"etag-v1"`)
 		require.NoError(t, err)
 
-		blobPath := fs.Resolve("dash/funnel", ref.Version)
+		blobPath := fs.Resolve(ctx, "dash/funnel", ref.Version)
 		require.Contains(t, blobPath, filepath.Join("v"+ref.Version, "blob.bin"))
 
 		// Write blob
@@ -75,7 +75,7 @@ func TestUnitFsLifecycle(t *testing.T) {
 		require.NotEmpty(t, current.CheckedAt)
 
 		// Resolve without version points to released blob
-		resolvedPath := fs.Resolve("dash/funnel")
+		resolvedPath := fs.Resolve(ctx, "dash/funnel")
 		require.Equal(t, blobPath, resolvedPath)
 	})
 
@@ -83,7 +83,7 @@ func TestUnitFsLifecycle(t *testing.T) {
 		asset := "dash/retention"
 		ref1, err := fs.Create(ctx, asset, `"v1"`)
 		require.NoError(t, err)
-		blob1 := fs.Resolve(asset, ref1.Version)
+		blob1 := fs.Resolve(ctx, asset, ref1.Version)
 		err = os.WriteFile(blob1, []byte("v1"), 0644)
 		require.NoError(t, err)
 		_, err = fs.Release(ctx, asset, ref1.Version)
@@ -93,7 +93,7 @@ func TestUnitFsLifecycle(t *testing.T) {
 
 		ref2, err := fs.Create(ctx, asset, `"v2"`)
 		require.NoError(t, err)
-		blob2 := fs.Resolve(asset, ref2.Version)
+		blob2 := fs.Resolve(ctx, asset, ref2.Version)
 		err = os.WriteFile(blob2, []byte("v2"), 0644)
 		require.NoError(t, err)
 		_, err = fs.Release(ctx, asset, ref2.Version)
@@ -122,7 +122,7 @@ func TestUnitFsLifecycle(t *testing.T) {
 	t.Run("Delete removes asset directory", func(t *testing.T) {
 		ref, err := fs.Create(ctx, "to_delete", "etag")
 		require.NoError(t, err)
-		blob := fs.Resolve("to_delete", ref.Version)
+		blob := fs.Resolve(ctx, "to_delete", ref.Version)
 		_ = os.WriteFile(blob, []byte("data"), 0644)
 		_, _ = fs.Release(ctx, "to_delete", ref.Version)
 		require.True(t, fs.Exists(ctx, "to_delete"))
