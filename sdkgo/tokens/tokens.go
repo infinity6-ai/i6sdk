@@ -135,7 +135,7 @@ func (m *Manager) GetUserToken(ctx context.Context) (*UserToken, error) {
 	return &token, nil
 }
 
-// SetUserToken stores the given user token.
+// SetUserToken stores the given user token and evicts any robot keys and derived dataset access tokens.
 func (m *Manager) SetUserToken(ctx context.Context, token *UserToken) error {
 	if token == nil {
 		return m.RemoveUserToken(ctx)
@@ -144,6 +144,11 @@ func (m *Manager) SetUserToken(ctx context.Context, token *UserToken) error {
 	if err != nil {
 		return fmt.Errorf("failed to marshal user token: %w", err)
 	}
+	// Mutual exclusivity: clear any machine robot refresh keys
+	_ = m.store.DeletePrefix(ctx, DatasetRefreshPrefix)
+	// Clear any previous derived dataset tokens
+	_ = m.store.DeletePrefix(ctx, DatasetTokenPrefix)
+
 	if err := m.store.Set(ctx, UserTokenKey, string(raw)); err != nil {
 		return fmt.Errorf("failed to store user token: %w", err)
 	}
@@ -198,7 +203,8 @@ func (m *Manager) GetDatasetRefreshToken(ctx context.Context, dataset string) (s
 	return val, nil
 }
 
-// SetDatasetRefreshToken stores a machine robot Ed25519 refresh key for the given dataset.
+// SetDatasetRefreshToken stores a machine robot Ed25519 refresh key for the given dataset,
+// enforcing mutual exclusivity by evicting any user session, previous robot keys, and derived tokens.
 func (m *Manager) SetDatasetRefreshToken(ctx context.Context, dataset string, key string) error {
 	if dataset == "" {
 		return fmt.Errorf("dataset identifier cannot be empty")
@@ -206,6 +212,13 @@ func (m *Manager) SetDatasetRefreshToken(ctx context.Context, dataset string, ke
 	if key == "" {
 		return m.RemoveDatasetRefreshToken(ctx, dataset)
 	}
+	// Mutual exclusivity: clear any user session
+	_ = m.store.Delete(ctx, UserTokenKey)
+	// Exactly one robot key: clear any previous robot keys
+	_ = m.store.DeletePrefix(ctx, DatasetRefreshPrefix)
+	// Clear any previous derived dataset tokens
+	_ = m.store.DeletePrefix(ctx, DatasetTokenPrefix)
+
 	if err := m.store.Set(ctx, datasetRefreshKey(dataset), key); err != nil {
 		return fmt.Errorf("failed to store dataset refresh token for %q: %w", dataset, err)
 	}
@@ -559,16 +572,20 @@ func (m *Manager) GetValidDatasetAccessToken(ctx context.Context, dataset string
 		return dt.AccessToken, nil
 	}
 
-	// Strategy A: Machine robot Ed25519 refresh token
+	// Mode A: Machine robot Ed25519 refresh token
 	rfToken, err := m.GetDatasetRefreshToken(ctx, dataset)
 	if err == nil && strings.TrimSpace(rfToken) != "" {
 		refreshed, err := m.RefreshDatasetAccessToken(ctx, dataset)
-		if err == nil && refreshed != nil && refreshed.AccessToken != "" {
+		if err != nil {
+			return "", fmt.Errorf("failed to refresh dataset token using robot key for %q: %w", dataset, err)
+		}
+		if refreshed != nil && refreshed.AccessToken != "" {
 			return refreshed.AccessToken, nil
 		}
+		return "", fmt.Errorf("empty access token returned after refreshing dataset %q", dataset)
 	}
 
-	// Strategy B: Derive via user access token
+	// Mode B: Derive via user access token
 	userToken, err := m.GetValidAccessToken(ctx, skewSeconds...)
 	if err != nil {
 		return "", fmt.Errorf("failed to obtain user token for dataset derivation: %w", err)

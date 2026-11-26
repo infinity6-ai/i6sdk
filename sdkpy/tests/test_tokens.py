@@ -324,20 +324,23 @@ class TestTokens(unittest.TestCase):
         self.assertEqual(m["ds1"]["access_token"], "tok1")
         self.assertEqual(m["ds2"]["access_token"], "tok2")
 
-        # Set user token and refresh tokens
-        tokens.set_user_token({"user_access_token": "u1", "expires_at": 9999999999999})
+        # Mutual exclusivity: Setting user token clears robot keys and derived dataset tokens
         tokens.set_dataset_refresh_token("ds1", "rf1")
+        self.assertEqual(tokens.get_dataset_refresh_token("ds1"), "rf1")
+        tokens.set_user_token({"user_access_token": "u1", "expires_at": 9999999999999})
+        self.assertIsNone(tokens.get_dataset_refresh_token("ds1"))
+        self.assertIsNotNone(tokens.get_user_token())
 
-        # Remove single dataset token
-        tokens.remove_dataset_token("ds1")
+        # Mutual exclusivity: Setting robot key clears user token and derived dataset tokens
+        tokens.set_dataset_token("ds1", dt1)
+        tokens.set_dataset_refresh_token("ds1", "rf1")
+        self.assertIsNone(tokens.get_user_token())
         self.assertIsNone(tokens.get_dataset_token("ds1"))
-        self.assertIsNotNone(tokens.get_dataset_token("ds2"))
         self.assertEqual(tokens.get_dataset_refresh_token("ds1"), "rf1")
 
         # Clear tokens
         tokens.clear_tokens()
         self.assertIsNone(tokens.get_user_token())
-        self.assertIsNone(tokens.get_dataset_token("ds2"))
         self.assertIsNone(tokens.get_dataset_refresh_token("ds1"))
         self.assertEqual(tokens.get_dataset_tokens_map(), {})
         self.assertEqual(tokens.get_dataset_refresh_tokens_map(), {})

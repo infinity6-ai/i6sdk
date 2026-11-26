@@ -80,7 +80,9 @@ class Tokens:
             return None
 
     def set_user_token(self, token: UserToken) -> None:
-        """Stores the user token."""
+        """Stores the user token, evicting any robot keys and derived dataset tokens."""
+        self._storage.delete_prefix(DATASET_REFRESH_PREFIX)
+        self._storage.delete_prefix(DATASET_TOKEN_PREFIX)
         self._storage.set_item(USER_TOKEN_KEY, json.dumps(token))
 
     def remove_user_token(self) -> None:
@@ -108,12 +110,16 @@ class Tokens:
         return self._storage.get_item(_dataset_refresh_key(dataset))
 
     def set_dataset_refresh_token(self, dataset: str, token: Union[str, Dict[str, Any]]) -> None:
-        """Stores a dataset refresh token for machine robot authentication."""
+        """Stores a dataset refresh token for machine robot authentication,
+        enforcing mutual exclusivity by evicting any user session, previous robot keys, and derived tokens."""
         if not dataset:
             raise ValueError("dataset is required")
         raw_key = token
         if isinstance(token, dict):
             raw_key = token.get("priv_key") or token.get("private_key") or json.dumps(token)
+        self.remove_user_token()
+        self._storage.delete_prefix(DATASET_REFRESH_PREFIX)
+        self._storage.delete_prefix(DATASET_TOKEN_PREFIX)
         self._storage.set_item(_dataset_refresh_key(dataset), str(raw_key))
 
     def remove_dataset_refresh_token(self, dataset: str) -> None:
@@ -318,14 +324,12 @@ class Tokens:
 
             # 1. If dataset refresh token is available for machine robots, refresh via Ed25519 assertion
             if self.get_dataset_refresh_token(dataset):
-                try:
-                    dt = self.refresh_dataset_access_token(dataset)
-                    if dt and (tok := dt.get("access_token")):
-                        return tok
-                except Exception:
-                    pass
+                dt = self.refresh_dataset_access_token(dataset)
+                if dt and (tok := dt.get("access_token")):
+                    return tok
+                return None
 
-            # 2. Otherwise fall back to user token
+            # 2. Otherwise derive via user token
             user_token = self.get_valid_access_token(skew_seconds)
             if not user_token:
                 return None

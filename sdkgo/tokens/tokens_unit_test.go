@@ -135,6 +135,59 @@ func TestUnitDatasetRefreshTokenCRUD(t *testing.T) {
 		require.NoError(t, err)
 		require.Empty(t, key)
 	})
+
+	t.Run("Mutual exclusivity: Setting user token clears robot key and derived tokens", func(t *testing.T) {
+		err := mgr.SetDatasetRefreshToken(ctx, "ds1", "robot-key")
+		require.NoError(t, err)
+		err = mgr.SetDatasetToken(ctx, "ds1", &tokens.DatasetToken{Dataset: "ds1", AccessToken: "tok1"})
+		require.NoError(t, err)
+
+		// Set user token
+		err = mgr.SetUserToken(ctx, &tokens.UserToken{UserAccessToken: "user-jwt"})
+		require.NoError(t, err)
+
+		// Robot key must be evicted
+		rfKey, err := mgr.GetDatasetRefreshToken(ctx, "ds1")
+		require.NoError(t, err)
+		require.Empty(t, rfKey)
+
+		// Derived token must be evicted
+		dt, err := mgr.GetDatasetToken(ctx, "ds1")
+		require.NoError(t, err)
+		require.Nil(t, dt)
+
+		// User token must exist
+		ut, err := mgr.GetUserToken(ctx)
+		require.NoError(t, err)
+		require.NotNil(t, ut)
+		require.Equal(t, "user-jwt", ut.UserAccessToken)
+	})
+
+	t.Run("Mutual exclusivity: Setting robot key clears user token and derived tokens", func(t *testing.T) {
+		err := mgr.SetUserToken(ctx, &tokens.UserToken{UserAccessToken: "user-jwt"})
+		require.NoError(t, err)
+		err = mgr.SetDatasetToken(ctx, "ds1", &tokens.DatasetToken{Dataset: "ds1", AccessToken: "tok1"})
+		require.NoError(t, err)
+
+		// Set robot key
+		err = mgr.SetDatasetRefreshToken(ctx, "ds2", "robot-key-2")
+		require.NoError(t, err)
+
+		// User token must be evicted
+		ut, err := mgr.GetUserToken(ctx)
+		require.NoError(t, err)
+		require.Nil(t, ut)
+
+		// Derived token must be evicted
+		dt, err := mgr.GetDatasetToken(ctx, "ds1")
+		require.NoError(t, err)
+		require.Nil(t, dt)
+
+		// Robot key must exist
+		rfKey, err := mgr.GetDatasetRefreshToken(ctx, "ds2")
+		require.NoError(t, err)
+		require.Equal(t, "robot-key-2", rfKey)
+	})
 }
 
 func TestUnitTokenExpiration(t *testing.T) {
