@@ -7,10 +7,10 @@ github.com/infinity6-ai/gox/routez v0.0.82 h1:+o+WwzWSn2dBHTmBmTK0XeopHA8Yo0Oa4c
 github.com/infinity6-ai/gox/routez v0.0.82/go.mod h1:0m+J4SwsB2liVYp0iOsK+SV6tMEr/dxTmOqyW7wyHDM=
 github.com/infinity6-ai/gox/schemaz v0.0.82 h1:e+Np4XfKRxdn2s7ZvAUBa2h1Gp2iqGblhQy6eK6yZRk=
 github.com/infinity6-ai/gox/schemaz v0.0.82/go.mod h1:a0kfK+ibI3IoJ7GE2mAL6Gq7s0RXzU4WZvnHloRAg6s=
-github.com/infinity6-ai/i6sdk/sdkcorez v0.0.19 h1:yqI633Ms7BWVkN9u3vLp7TGfFaiFSmP5xYR5L/cxaZs=
-github.com/infinity6-ai/i6sdk/sdkcorez v0.0.19/go.mod h1:Z5l1ZeFB2NRYfmL4Wy5cxToSwin3Kj2CbzV4P97iD4Q=
-github.com/infinity6-ai/i6sdk/versionz v0.0.19 h1:ioAftExfBw32HbZ3aI21/GrrKcFUXcMU4QlaFSR/gSc=
-github.com/infinity6-ai/i6sdk/versionz v0.0.19/go.mod h1:q8lqe8YsY3zForQBJArOKzMl2aAa6ScQYNLwsikc3pM=
+github.com/infinity6-ai/i6sdk/sdkcorez v0.0.20 h1:NKRJmyaXtdYd2TOdticIdVV/gJmUoufCibm0Di9v194=
+github.com/infinity6-ai/i6sdk/sdkcorez v0.0.20/go.mod h1:2/oHqm/Ot6Qb9AzyNC14VtXNXVkzFE0jWR9nN8NC9DQ=
+github.com/infinity6-ai/i6sdk/versionz v0.0.20 h1:0jrmP1dvkof8MrmPy/exNJCXxJWZwfhYiGgIOedr77A=
+github.com/infinity6-ai/i6sdk/versionz v0.0.20/go.mod h1:q8lqe8YsY3zForQBJArOKzMl2aAa6ScQYNLwsikc3pM=
 github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
 github.com/spf13/cobra v1.10.2 h1:DMTTonx5m65Ic0GOoRY2c16WCbHxOOw6xxezuLaBpcU=
 github.com/spf13/cobra v1.10.2/go.mod h1:7C1pvHqHw5A4vrJfjNwvOdzYu0Gml16OCs2GRiTUUS4=
