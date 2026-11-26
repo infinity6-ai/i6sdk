@@ -30,7 +30,7 @@
  │                     sdkgo Engine (I6Client)                            │
  ├────────────────┬─────────────────┬──────────────────┬──────────────────┤
  │ c.Apis()       │ c.Tokens()      │ c.Ingest()       │ c.Infer()        │
- │ c.Funcs()      │ c.Dash()        │ tokenstore.Fsz   │ fszcache.Fs      │
+ │ c.Funcs()      │ c.Dash()        │ tokenstore.Sqlite│ fszcache.Fs      │
  └────────────────┴─────────────────┴──────────────────┴──────────────────┘
 ```
 
@@ -102,18 +102,18 @@ All CLI configuration, credentials, and local caches are organized per profile:
 $I6_CLI_CONFIG_DIR/ (defaults to $HOME/.config/i6/)
 └── [profile]/ (defaults to "main", selected via I6_CLI_CONFIG_PROFILE)
     ├── config.json          # Profile configuration: box (sandbox/staging/prod), default dataset
-    ├── tokens.json          # Atomic credential store via tokenstore.NewFsz (0600 permissions)
+    ├── tokens.db            # Persistent SQLite token store via tokenstore.NewSqlite (WAL, 0600)
     └── cache/               # Profile-scoped SQLite blobs, queries, models, ETags (fszcache)
         ├── dash/
         └── infer/
 ```
 
 ### Configuration Hierarchy & Resolution Order
-1. **Zero-Disk Inline JSON**: If `I6_CLI_CONFIG_JSON` is populated, parse in-memory immediately (bypasses filesystem reads, ideal for CI/CD runners).
+1. **Zero-Disk Inline JSON**: If `I6_CLI_CONFIG_JSON` is populated, parse in-memory immediately using `tokenstore.NewMemory()` (bypasses filesystem reads, ideal for CI/CD runners).
 2. **Environment & Profile Defaults**:
    - Target Directory: `$I6_CLI_CONFIG_DIR/$I6_CLI_CONFIG_PROFILE/`
    - Config file: `$I6_CLI_CONFIG_DIR/$I6_CLI_CONFIG_PROFILE/config.json`
-   - Token store: `$I6_CLI_CONFIG_DIR/$I6_CLI_CONFIG_PROFILE/tokens.json`
+   - Token store: `$I6_CLI_CONFIG_DIR/$I6_CLI_CONFIG_PROFILE/tokens.db` (via `tokenstore.NewSqlite`)
    - Cache store: `$I6_CLI_CONFIG_DIR/$I6_CLI_CONFIG_PROFILE/cache/`
 
 Specific subcommands take positional arguments or command-scoped flags (e.g. `i6 dataset list --output=json`), preventing flag pollution on the root command.
