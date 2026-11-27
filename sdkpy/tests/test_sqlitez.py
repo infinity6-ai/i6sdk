@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from i6sdk.internal.sqlitez import Sqlitez
+from i6sdkpy.internal.sqlitez import Sqlitez
 
 
 class TestSqlitez(unittest.TestCase):

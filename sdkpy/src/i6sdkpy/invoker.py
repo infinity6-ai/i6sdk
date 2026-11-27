@@ -152,7 +152,7 @@ class Invoker:
 
         # 3. Headers
         headers: Dict[str, str] = {
-            "User-Agent": "i6sdk-python/0.0.1",
+            "User-Agent": "i6sdkpy/0.0.1",
             "Accept": "application/json",
         }
 

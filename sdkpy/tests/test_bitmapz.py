@@ -2,7 +2,7 @@
 
 import unittest
 
-from i6sdk.internal.bitmapz import contains_all, contains_any, join, set_bits, split
+from i6sdkpy.internal.bitmapz import contains_all, contains_any, join, set_bits, split
 
 
 class TestBitmapz(unittest.TestCase):
@@ -29,7 +29,7 @@ class TestBitmapz(unittest.TestCase):
         self.assertEqual(set_bits(5, True, 2), 7)
 
     def test_serialize_deserialize_vectors(self) -> None:
-        from i6sdk.internal.bitmapz import deserialize, serialize
+        from i6sdkpy.internal.bitmapz import deserialize, serialize
 
         cases = [
             (0, bytes([0x00])),
@@ -49,7 +49,7 @@ class TestBitmapz(unittest.TestCase):
             self.assertEqual(decoded, val, f"failed to deserialize {val}")
 
     def test_grants_enum_and_exports(self) -> None:
-        from i6sdk import Grants, bitmapz
+        from i6sdkpy import Grants, bitmapz
 
         self.assertEqual(Grants.SYSTEM, 1)
         self.assertEqual(Grants.ADMIN, 2)
@@ -65,7 +65,7 @@ class TestBitmapz(unittest.TestCase):
         self.assertEqual(bitmapz.join(Grants.READ, Grants.WRITE), 12)
 
     def test_deserialize_validation_errors(self) -> None:
-        from i6sdk.internal.bitmapz import deserialize, serialize
+        from i6sdkpy.internal.bitmapz import deserialize, serialize
 
         with self.assertRaisesRegex(ValueError, "data is empty"):
             deserialize(b"")
@@ -86,7 +86,7 @@ class TestBitmapz(unittest.TestCase):
             deserialize(bytes([0x10, 0x01, 0x02]))
 
     def test_serialize_validation_errors(self) -> None:
-        from i6sdk.internal.bitmapz import serialize
+        from i6sdkpy.internal.bitmapz import serialize
 
         with self.assertRaisesRegex(ValueError, "must be non-negative"):
             serialize(-1)
@@ -95,7 +95,7 @@ class TestBitmapz(unittest.TestCase):
             serialize(1 << 65)
 
     def test_set_alias_removed(self) -> None:
-        from i6sdk import bitmapz
+        from i6sdkpy import bitmapz
 
         # Ensure built-in set is not shadowed and set_bits is used directly
         self.assertFalse(hasattr(bitmapz, "set"))

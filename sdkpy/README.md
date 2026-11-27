@@ -1,4 +1,4 @@
-# i6sdk - Official Infinity6 Python SDK
+# i6sdkpy - Official Infinity6 Python SDK
 
 Lightweight, high-performance Python SDK for the Infinity6 platform.
 
@@ -49,16 +49,16 @@ pip install -e sdkpy
 ## Quick Start
 
 ```python
-import i6sdk
+import i6sdkpy
 
 # Initialize client using environment variables (I6_SDK_DECSUITE_URL)
-client = i6sdk.create_client()
+client = i6sdkpy.create_client()
 
 # Or pass configuration explicitly
-config = i6sdk.I6SdkConfig(
+config = i6sdkpy.I6SdkConfig(
     serv_urls={"decsuite": "https://decsuite.sandbox.rs.infinity6.ai"},
 )
-client = i6sdk.I6Client(config)
+client = i6sdkpy.I6Client(config)
 
 # Call API endpoints
 resp = client.apis().dsz_list_datasets()

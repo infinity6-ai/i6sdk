@@ -4,7 +4,7 @@ import json
 import unittest
 from typing import Any, Dict, Tuple
 
-from i6sdk import I6Client, I6SdkConfig
+from i6sdkpy import I6Client, I6SdkConfig
 
 
 class TestApis(unittest.TestCase):

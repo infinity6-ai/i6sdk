@@ -4,8 +4,8 @@ import json
 import unittest
 from typing import Any, Dict
 
-import i6sdk
-from i6sdk.auth import generate_code_challenge, generate_code_verifier
+import i6sdkpy
+from i6sdkpy.auth import generate_code_challenge, generate_code_verifier
 
 
 class TestAuth(unittest.TestCase):
@@ -21,7 +21,7 @@ class TestAuth(unittest.TestCase):
         self.assertNotIn("/", challenge)
 
     def test_me_when_not_logged_in(self) -> None:
-        client = i6sdk.create_client()
+        client = i6sdkpy.create_client()
         self.assertIsNone(client.auth().me())
 
     def test_me_when_logged_in(self) -> None:
@@ -30,7 +30,7 @@ class TestAuth(unittest.TestCase):
         ) -> tuple[int, Dict[str, str], str]:
             return 200, {"content-type": "application/json"}, json.dumps({"user_id": "u-123", "email": "test@infinity6.ai"})
 
-        client = i6sdk.I6Client(i6sdk.I6SdkConfig(fetcher=mock_fetcher))
+        client = i6sdkpy.I6Client(i6sdkpy.I6SdkConfig(fetcher=mock_fetcher))
         client.tokens().set_user_token({"user_access_token": "valid-token"})
         user = client.auth().me()
         self.assertIsNotNone(user)
@@ -58,7 +58,7 @@ class TestAuth(unittest.TestCase):
                 })
             return 404, {}, ""
 
-        client = i6sdk.I6Client(i6sdk.I6SdkConfig(fetcher=mock_fetcher))
+        client = i6sdkpy.I6Client(i6sdkpy.I6SdkConfig(fetcher=mock_fetcher))
         client.tokens().set_user_token({
             "user_access_token": "expired-token",
             "user_refresh_token": "valid-rf",
@@ -98,7 +98,7 @@ class TestAuth(unittest.TestCase):
                 })
             return 404, {}, ""
 
-        client = i6sdk.I6Client(i6sdk.I6SdkConfig(fetcher=mock_fetcher))
+        client = i6sdkpy.I6Client(i6sdkpy.I6SdkConfig(fetcher=mock_fetcher))
         flow = client.auth().device_code_start()
         self.assertEqual(flow.get("device_code"), "dev-123")
         self.assertEqual(flow.get("user_code"), "CODE-XYZ")

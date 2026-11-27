@@ -63,7 +63,7 @@ func preparePyCmd() *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&out, "out", "sdkpy/src/i6sdk/sdkapis", "output directory for generated python sdkapis")
+	cmd.Flags().StringVar(&out, "out", "sdkpy/src/i6sdkpy/sdkapis", "output directory for generated python sdkapis")
 	return cmd
 }
 

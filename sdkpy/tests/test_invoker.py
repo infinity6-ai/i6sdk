@@ -4,9 +4,9 @@ import json
 import unittest
 from typing import Any, Dict, Tuple
 
-from i6sdk import I6Client, I6SdkConfig
-from i6sdk.exceptions import I6ApiError, I6ConnectionError
-from i6sdk.invoker import Invoker, Resp, code_from_status
+from i6sdkpy import I6Client, I6SdkConfig
+from i6sdkpy.exceptions import I6ApiError, I6ConnectionError
+from i6sdkpy.invoker import Invoker, Resp, code_from_status
 
 
 class TestInvoker(unittest.TestCase):

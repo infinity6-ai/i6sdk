@@ -2,7 +2,7 @@
 
 import unittest
 
-from i6sdk.exceptions import (
+from i6sdkpy.exceptions import (
     I6ApiError,
     I6AuthError,
     I6ConnectionError,

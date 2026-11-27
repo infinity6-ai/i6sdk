@@ -34,7 +34,7 @@ dev = [
 where = ["src"]
 
 [tool.setuptools.package-data]
-i6sdk = ["py.typed"]
+i6sdkpy = ["py.typed"]
 
 [tool.pyright]
 include = ["src", "tests", "examples"]

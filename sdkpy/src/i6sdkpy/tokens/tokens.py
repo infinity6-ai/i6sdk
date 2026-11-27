@@ -341,7 +341,7 @@ class Tokens:
                     {
                         "Content-Type": "application/json",
                         "Authorization": f"Bearer {user_token}",
-                        "User-Agent": "i6sdk-python/0.0.1",
+                        "User-Agent": "i6sdkpy/0.0.1",
                     },
                     b"{}",
                     config.timeout,
@@ -364,7 +364,7 @@ class Tokens:
                 headers={
                     "Content-Type": "application/json",
                     "Authorization": f"Bearer {user_token}",
-                    "User-Agent": "i6sdk-python/0.0.1",
+                    "User-Agent": "i6sdkpy/0.0.1",
                 },
                 method="POST",
             )

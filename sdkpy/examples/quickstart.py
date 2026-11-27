@@ -1,18 +1,18 @@
-"""Quickstart example demonstrating i6sdk usage with zero external dependencies."""
+"""Quickstart example demonstrating i6sdkpy usage with zero external dependencies."""
 
 import pathlib
 import sys
 
-# Ensure local i6sdk package is importable when running example directly
+# Ensure local i6sdkpy package is importable when running example directly
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "src"))
 
-import i6sdk
+import i6sdkpy
 
 
 def main() -> None:
     # 1. Initialize SDK client (reads I6_SDK_DECSUITE_URL from environment by default)
     # Persisting credentials to ./gen/sdkpy.tokens.db and caching SQLite bundles to ./gen/cache
-    client = i6sdk.create_client(
+    client = i6sdkpy.create_client(
         serv_urls={"decsuite": "https://decsuite.sandbox.rs.infinity6.ai"},
         storage="./gen/sdkpy.tokens.db",
         cache_dir="./gen/cache",
@@ -72,7 +72,7 @@ def main() -> None:
     #     "params": {}
     # })
 
-    result = client.funcs().productRelevanceFashionDashDisplayMetricsStatusV1({
+    result = client.funcs().product_relevance_fashion_dash_display_metrics_status_v1({
         "partitions": {"store_id": "1"},
         "input": {
             "dataset": "dectest",
@@ -82,10 +82,10 @@ def main() -> None:
             }
         },
     })
-    print("productRelevanceFashionDashDisplayMetricsStatusV1", result)
+    print("product_relevance_fashion_dash_display_metrics_status_v1", result)
 
     # 3. Use bitmask utilities and Grants enum
-    from i6sdk import Grants, bitmapz
+    from i6sdkpy import Grants, bitmapz
 
     # Combine permissions: Read + Write
     my_grants = bitmapz.join(Grants.READ, Grants.WRITE)

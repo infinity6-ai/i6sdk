@@ -32,7 +32,7 @@ def main() -> None:
     print(f"Initializing Infinity6 SDK for dataset: {dataset} (JTI: {token_data.get('jti')})")
 
     # 2. Initialize the SDK client pointing to the STAGING environment
-    from i6sdk import STAGING_SERV_URLS, create_client
+    from i6sdkpy import STAGING_SERV_URLS, create_client
 
     print("Configuring SDK with STAGING service endpoints:")
     for svc, endpoint in sorted(STAGING_SERV_URLS.items()):
@@ -74,7 +74,7 @@ def main() -> None:
     print(f"Read {record_count} catalog records ({len(ndjson_data)} bytes) from {data_path.name}.")
     print(f"Target: Table='{table_name}', Partitions={partitions}")
 
-    from i6sdk.ingest import UploadProgress
+    from i6sdkpy.ingest import UploadProgress
 
     # 7. Progress callback
     def on_progress(p: UploadProgress) -> None:

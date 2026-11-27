@@ -52,7 +52,7 @@ class Downloader:
         timeout: float = 60.0,
     ) -> pathlib.Path:
         headers: Dict[str, str] = {
-            "User-Agent": "i6sdk-python/0.0.1",
+            "User-Agent": "i6sdkpy/0.0.1",
         }
         if current and current.etag:
             headers["If-None-Match"] = current.etag

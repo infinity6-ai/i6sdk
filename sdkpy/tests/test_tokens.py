@@ -5,8 +5,8 @@ import time
 import unittest
 from pathlib import Path
 
-from i6sdk import I6Client, I6SdkConfig, create_client
-from i6sdk.tokens import MemoryTokenStorage, SqliteTokenStorage, UserToken
+from i6sdkpy import I6Client, I6SdkConfig, create_client
+from i6sdkpy.tokens import MemoryTokenStorage, SqliteTokenStorage, UserToken
 
 
 class TestTokens(unittest.TestCase):

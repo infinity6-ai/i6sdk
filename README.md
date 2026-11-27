@@ -160,7 +160,7 @@ Running `./build.sh codegen` executes the complete generation pipeline across al
 2. **Catalog & Stubs Generation (`mold apisgen`)**: Emits `apis.donotedit.go` and `sdkfuncs.donotedit.go` in `apicollectionz`, shadowing compile-time stubs with runtime delegating methods.
 3. **Multi-Language SDK Bundles (`forgez`)**:
    - **Web JS/TS SDK**: Generates `sdkweb/src/main/sdkapis/sdkapis.js` (via `forgejs`).
-   - **Python SDK**: Generates `sdkpy/src/i6sdk/sdkapis/` (via `forgepy`).
+   - **Python SDK**: Generates `sdkpy/src/i6sdkpy/sdkapis/` (via `forgepy`).
    - **Static Assets**: Generates `sdkweb/internal/stzfiles/stzfiles.blob.go`.
 
 You can also trigger generation directly within specific components:

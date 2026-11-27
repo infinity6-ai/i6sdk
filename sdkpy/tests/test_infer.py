@@ -4,8 +4,8 @@ import json
 import unittest
 from typing import Any, Dict, List, Tuple
 
-from i6sdk import I6Client, I6SdkConfig
-from i6sdk.exceptions import I6ValidationError
+from i6sdkpy import I6Client, I6SdkConfig
+from i6sdkpy.exceptions import I6ValidationError
 
 
 class TestInfer(unittest.TestCase):

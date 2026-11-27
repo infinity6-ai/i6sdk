@@ -21,7 +21,7 @@ import time
 import uuid
 from typing import List
 
-# Ensure local i6sdk package is importable when running example directly
+# Ensure local i6sdkpy package is importable when running example directly
 _EXAMPLES_DIR = pathlib.Path(__file__).resolve().parent
 _REPO_ROOT = _EXAMPLES_DIR.parent.parent
 _SRC_DIR = _EXAMPLES_DIR.parent / "src"
@@ -190,8 +190,8 @@ def main() -> None:
     print(f"Initializing Infinity6 SDK for dataset: {dataset} (JTI: {token_data.get('jti')})")
 
     # 3. Initialize the SDK client pointing to the STAGING environment
-    from i6sdk import STAGING_SERV_URLS, create_client
-    from i6sdk.ingest import UploadProgress
+    from i6sdkpy import STAGING_SERV_URLS, create_client
+    from i6sdkpy.ingest import UploadProgress
 
     print("Configuring SDK with STAGING service endpoints:")
     for svc, endpoint in sorted(STAGING_SERV_URLS.items()):
