@@ -29,16 +29,6 @@ function cmd_release_prepare() {
 
 function cmd_release() {
     cmd_bundle
-
-    # legacy (ignore for now)
-    if [ -d ../../i6pages ]; then
-        mkdir -p ../../i6pages/releases/sdkweb
-        rsync -av --delete dist/ ../../i6pages/releases/sdkweb/latest/
-        rsync -av --delete src/site/tokens/ ../../i6pages/tokens/ --exclude 'target'
-    fi
-
-    # github pages
-    # dist/ -> [i6sdk gihub pages]/release/sdkweb/[vX.Y.Z/edge]/
 }
 
 function cmd_test_visual() {
