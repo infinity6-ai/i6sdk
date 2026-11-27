@@ -1,6 +1,6 @@
 ((QUnit) => {
 
-    QUnit.module("i6sdk-web fs", function (hooks) {
+    QUnit.module("i6sdkweb fs", function (hooks) {
 
         const name = `test-${Date.now()}`
 

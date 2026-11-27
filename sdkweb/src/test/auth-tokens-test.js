@@ -1,6 +1,6 @@
 ((QUnit) => {
 
-    QUnit.module("i6sdk-web auth & tokens", function (hooks) {
+    QUnit.module("i6sdkweb auth & tokens", function (hooks) {
 
         let I6Sdk
         let realFetch

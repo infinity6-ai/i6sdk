@@ -1,6 +1,6 @@
 ((QUnit) => {
 
-    QUnit.module("i6sdk-web generated APIs", function (hooks) {
+    QUnit.module("i6sdkweb generated APIs", function (hooks) {
 
         let I6Sdk
         let realFetch

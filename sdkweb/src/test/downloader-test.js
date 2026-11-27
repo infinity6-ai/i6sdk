@@ -1,6 +1,6 @@
 ((QUnit) => {
 
-    QUnit.module("i6sdk-web downloader", function (hooks) {
+    QUnit.module("i6sdkweb downloader", function (hooks) {
 
         const name = `test-dl-${Date.now()}`
         const url = 'https://example.test/file.bin'

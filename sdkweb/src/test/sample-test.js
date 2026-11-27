@@ -1,6 +1,6 @@
 ((QUnit) => {
 
-    QUnit.module("i6sdk-web", function () {
+    QUnit.module("i6sdkweb", function () {
 
         QUnit.test("hello", async function (assert) {
             const { I6Sdk } = await import('../main/index.js')

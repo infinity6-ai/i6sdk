@@ -1,6 +1,6 @@
 ((QUnit) => {
 
-    QUnit.module("i6sdk-web invokeResult", function (hooks) {
+    QUnit.module("i6sdkweb invokeResult", function (hooks) {
 
         let Invoker, Resp
         let realFetch

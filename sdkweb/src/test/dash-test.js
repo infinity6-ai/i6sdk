@@ -1,6 +1,6 @@
 ((QUnit) => {
 
-    QUnit.module("i6sdk-web dash", function (hooks) {
+    QUnit.module("i6sdkweb dash", function (hooks) {
 
         const sqlJsWasmUrl = 'https://cdn.jsdelivr.net/npm/sql.js@1.14.2/dist/'
         const dashName = 'product-relevance-fashion-dash-funnel'

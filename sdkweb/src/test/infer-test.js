@@ -1,6 +1,6 @@
 ((QUnit) => {
 
-    QUnit.module("i6sdk-web infer", function (hooks) {
+    QUnit.module("i6sdkweb infer", function (hooks) {
 
         // Test assets (gitignored): the test with the real model is skipped when they are not served
         const assets = {

@@ -1,6 +1,6 @@
 ((QUnit) => {
 
-    QUnit.module("i6sdk-web sqlitez", function (hooks) {
+    QUnit.module("i6sdkweb sqlitez", function (hooks) {
 
         const dirName = `test-sqlitez-${Date.now()}`
         const sqlJsWasmUrl = 'https://cdn.jsdelivr.net/npm/sql.js@1.14.2/dist/'
