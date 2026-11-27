@@ -1,0 +1,125 @@
+/**
+ * @fileoverview Sqlite client for the SDK, running sqlite (sql.js, wasm) in the browser.
+ *
+ * Usage: get the file with the downloader, open it by its OPFS path and always close the
+ * connection when done:
+ *
+ *   const ref = await downloader.update({ name, url })
+ *   const conn = await sqlitez.open({ path: await fs.resolve(ref) })
+ *   try {
+ *     const rows = await conn.query({ query: 'SELECT * FROM t WHERE id = ?', params: [1] })
+ *   } finally {
+ *     await conn.close()
+ *   }
+ *
+ * The database lives in memory: `update` changes the memory copy, the file is never written back.
+ * Every method takes a single `opts` object with the real parameters inside it.
+ */
+export type SqliteValue = number | string | null | Uint8Array;
+export type SqliteRow = Object<string, SqliteValue>;
+/**
+ * An open in-memory sqlite connection. Obtained from `sqlitez.open`.
+ */
+declare class SqliteConn {
+    #private;
+    /**
+     * @private
+     * @type {Object|null}
+     */
+    db;
+    /**
+     * @param {Object} db - The sql.js Database instance.
+     */
+    constructor(db: Object);
+    /**
+     * Closes the connection and frees its memory. Calling it more than once does nothing.
+     * After `close`, every other method throws.
+     * @returns {Promise<void>}
+     */
+    close(): Promise<void>;
+    /**
+     * Runs a query and returns its rows.
+     * @param {Object} opts
+     * @param {string} opts.query - required, the SQL; use `?` for values.
+     * @param {SqliteValue[]} [opts.params] - values bound, in order, to the `?` of the query (never concatenate them).
+     * @returns {Promise<SqliteRow[]>} The rows (empty array when none), each one an object by column name.
+     * @throws {TypeError} If opts.query is missing.
+     */
+    query(opts: {
+        query: string;
+        params?: SqliteValue[];
+    }): Promise<SqliteRow[]>;
+    /**
+     * Runs a statement that returns no data (INSERT, UPDATE, CREATE, ...). Only the memory copy changes.
+     * @param {Object} opts
+     * @param {string} opts.query - required, the SQL; use `?` for values.
+     * @param {SqliteValue[]} [opts.params] - values bound, in order, to the `?` of the query.
+     * @returns {Promise<void>}
+     * @throws {TypeError} If opts.query is missing.
+     */
+    update(opts: {
+        query: string;
+        params?: SqliteValue[];
+    }): Promise<void>;
+    /**
+     * Runs a query stored in the `namedqueries` table of the sqlite (columns `name` and `query`).
+     * @param {Object} opts
+     * @param {string} opts.name - required, the `name` of the stored query.
+     * @param {boolean} opts.ignoreIfNotExist - do not fail if named query does not exist.
+     * @param {SqliteValue[]} [opts.params] - values bound, in order, to the `?` of the stored query.
+     * @returns {Promise<SqliteRow[]>} The rows of the stored query, like `query`.
+     * @throws {TypeError} If opts.name is missing.
+     */
+    namedQuery(opts: {
+        name: string;
+        ignoreIfNotExist: boolean;
+        params?: SqliteValue[];
+    }): Promise<SqliteRow[]>;
+    /**
+     * Like `namedQuery`, but with JSON in and JSON out: each value of `opts.params`
+     * is bound as a JSON string to the positional `?1`, `?2`, ... of the stored query, in order (read them in SQL with
+     * `json_extract(?1, '$.field')`, `json_each(?2)`, ...). The stored query must return a row with a column `ret`
+     * holding a JSON string. That JSON is parsed and returned.
+     * The stored query must have a placeholder for every value, otherwise sqlite rejects the bind ("column index out of range").
+     * @param {Object} opts
+     * @param {string} opts.name - required, the `name` of the stored query (see `namedQuery`).
+     * @param {Array<*>} [opts.params] - JSON-serializable values, bound in order as `?1`, `?2`, ... Default: none.
+     * @returns {Promise<*>} The parsed `ret` of the first row, or null if there is no row or `ret` is null.
+     * @throws {TypeError} If opts.name is missing or opts.params is not an array.
+     */
+    namedJsonQuery(opts: {
+        name: string;
+        params?: Array<any>;
+    }): Promise<any>;
+    /**
+     * Like `namedJsonQuery` (same JSON params bound as `?1`, `?2`, ...), but the `ret` column is returned as is,
+     * without JSON.parse. Use it when the stored query returns plain text (e.g. for models); use `namedJsonQuery` when it returns JSON (e.g. for dash).
+     * @param {Object} opts
+     * @param {string} opts.name - required, the `name` of the stored query (see `namedQuery`).
+     * @param {Array<*>} [opts.params] - JSON-serializable values, bound in order as `?1`, `?2`, ... Default: none.
+     * @returns {Promise<string|null>} The `ret` of the first row as a string, or null if there is no row or `ret` is null.
+     * @throws {TypeError} If opts.name is missing or opts.params is not an array.
+     */
+    namedStringQuery(opts: {
+        name: string;
+        params?: Array<any>;
+    }): Promise<string | null>;
+}
+/**
+ * Sqlitez client. Use the `sqlitez` singleton.
+ */
+declare class Sqlitez {
+    /**
+     * Opens a sqlite file of the browser file system into memory.
+     * @param {Object} opts
+     * @param {string} opts.path - required, OPFS path of the file (what `fs.resolve` returns for a downloaded file).
+     * @returns {Promise<SqliteConn>} The connection. The caller must `close()` it.
+     * @throws {TypeError} If opts.path is missing.
+     */
+    open(opts: {
+        path: string;
+    }): Promise<SqliteConn>;
+}
+/** Shared Sqlitez instance. */
+declare const sqlitez: Sqlitez;
+export { sqlitez };

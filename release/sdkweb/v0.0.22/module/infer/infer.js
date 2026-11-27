@@ -1,0 +1,246 @@
+import { downloadFile, isPartitions, partitionsKey } from "../internal/assets/assets.js";
+import { fs } from "../internal/fs/fs.js";
+import { sqlitez } from "../internal/sqlitez/sqlitez.js";
+import { debugLogger } from "../internal/debug/debug.js";
+const FILES = { sqlite: "sqlite.bin" };
+const DEFAULT_LIMIT = 20;
+const UPDATE_INTERVAL = 5 * 60;
+const debug = debugLogger("infer");
+class Infer {
+  /**
+   * Constructs an Infer client instance.
+   * @param {Services} services - The services manager instance.
+   */
+  constructor(services) {
+    this._services = services;
+    this._preloads = /* @__PURE__ */ new Map();
+  }
+  /**
+   * Preloads or revalidates the model assets in the background.
+   * Safe to call repeatedly as warmup; deduplicates in-flight calls and skips (noop) if checked within 5 minutes.
+   * @param {InferUpdateOptions} opts - Preload options.
+   * @returns {Promise<FileRef>} The cached sqlite file reference.
+   */
+  async update(opts) {
+    validateUpdate(opts);
+    const cacheName = `infer-${opts.modelName}-${partitionsKey(opts.partitions)}-sqlite`;
+    if (this._preloads.has(cacheName)) {
+      debug("reusing in-flight preload", { cacheName });
+      return this._preloads.get(cacheName);
+    }
+    const cached = await fs.get({ name: cacheName });
+    if (cached) {
+      const lastChecked = new Date(cached.checkedAt || cached.version).getTime();
+      const age = (Date.now() - lastChecked) / 1e3;
+      if (age < UPDATE_INTERVAL) {
+        debug(`skipping update for ${cacheName} (checked ${Math.round(age)}s ago < ${UPDATE_INTERVAL}s)`);
+        return cached;
+      }
+    }
+    const promise = (async () => {
+      const urls = await this._assetUrls(opts);
+      debug("model files located for preload", { sqlite: withoutQuery(urls.sqlite) });
+      return downloadFile(cacheName, urls.sqlite, UPDATE_INTERVAL);
+    })().finally(() => {
+      this._preloads.delete(cacheName);
+    });
+    promise.catch(() => {
+    });
+    this._preloads.set(cacheName, promise);
+    return promise;
+  }
+  /**
+   * Runs the model in the browser and returns its recommendation result.
+   * @param {InferOptions} opts - Inference options.
+   * @returns {Promise<*>} The results of the model.
+   */
+  async run(opts) {
+    validate(opts);
+    const startedAt = performance.now();
+    const elapsed = () => `[${((performance.now() - startedAt) / 1e3).toFixed(2)}s]`;
+    const { modelName, params, sessionId, userId } = opts;
+    const ids = { sessionId, userId };
+    const queryName = (kind) => `model-${modelName}-${kind}`;
+    const cacheName = `infer-${modelName}-${partitionsKey(opts.partitions)}-sqlite`;
+    const cached = await fs.get({ name: cacheName });
+    let sqliteRef;
+    if (cached) {
+      debug(elapsed(), "1/4 using cached model file, revalidating in background", { version: cached.version });
+      this.update(opts);
+      sqliteRef = cached;
+    } else {
+      debug(elapsed(), "1/4 no cached model file, waiting for download");
+      sqliteRef = await this.update(opts);
+    }
+    const conn = await sqlitez.open({ path: await fs.resolve(sqliteRef) });
+    try {
+      const inputs = await conn.namedStringQuery({ name: queryName("input"), params: [params] });
+      if (!inputs) throw new Error(`infer: ${queryName("input")} returned no model inputs`);
+      debug(elapsed(), "2/4 input query", queryName("input"), "| bound as ?1:", params, "| returned (model inputs):", preview(inputs));
+      debug(elapsed(), "3/4 calling the model on the server", { model_name: modelName, version: opts.partitions.version, model_partitions: opts.partitions });
+      const modelStartedAt = performance.now();
+      const outputs = await this.callModel(inputs, opts);
+      const data = outputs.parse();
+      debug(elapsed(), "3/4 model answered", { sec: +((performance.now() - modelStartedAt) / 1e3).toFixed(2), ok: outputs?.ok, status: outputs?.status, error: outputs?.error, outputs: preview(data?.outputs) });
+      let modelOutputsAndLimit = [JSON.parse(data.outputs), opts.limit ?? DEFAULT_LIMIT];
+      debug(elapsed(), "4/4 output query", queryName("output"), "| bound as ?1 (model outputs) and ?2 (limit):", preview(modelOutputsAndLimit));
+      const result = await conn.namedJsonQuery({ name: queryName("output"), params: modelOutputsAndLimit });
+      debug(elapsed(), "output query returned (after namedJsonQuery)", result);
+      const recId = crypto.randomUUID();
+      const results = { ...result, rec_id: recId };
+      const serviceOptions = opts.serviceOptions;
+      const eventOpts = { dataset: opts.dataset, modelName, modelVersion: opts.partitions.version, storeId: opts.partitions.store_id, serviceOptions };
+      this.#sendRecEvent(eventOpts, ids, recId, "recraw", results).then(
+        () => debug(elapsed(), "recraw event sent", { rec_id: recId, results: results.results?.length }),
+        (err) => debug(elapsed(), "recraw event failed", err)
+      );
+      const totalSec = +((performance.now() - startedAt) / 1e3).toFixed(2);
+      debug(elapsed(), "run completed", { rec_id: recId, totalSec });
+      return results;
+    } finally {
+      await conn.close();
+    }
+  }
+  async callModel(inputs, opts) {
+    const { dataset, modelName, partitions } = opts;
+    return await this._services.apis().tfzModelPredict({
+      params: {
+        dataset,
+        model_name: modelName,
+        version: partitions.version
+      },
+      payload: {
+        model_partitions: partitions,
+        inputs
+      }
+    }, opts.serviceOptions);
+  }
+  /**
+   * Asks `selectResults` which of the recommended skus are shown and sends their sku ids as the `recshow` event.
+   * @param {SelectResultsOptions} opts - Select options.
+   * @returns {Promise<*>} What `selectResults` returned, as is (the default sets the `rating` of each sku; see `defaultSelectResults`).
+   */
+  async selectResults(opts) {
+    const selectResults = opts?.selectResults ?? defaultSelectResults;
+    if (typeof selectResults !== "function") {
+      throw new TypeError("infer: opts.selectResults must be a function");
+    }
+    const { req, results, recId, sessionId, userId } = opts;
+    if (!recId) throw new TypeError("infer: opts.recId is required");
+    if (!sessionId || !userId) {
+      throw new TypeError("infer: opts needs sessionId and userId");
+    }
+    const ids = { sessionId, userId };
+    const selected = await selectResults(req, results);
+    if (!Array.isArray(selected?.results)) {
+      throw new TypeError("infer: selectResults must return { results: [...] }");
+    }
+    const shown = {
+      skus: selected.results.map((item, i) => {
+        const skuId = item?.sku_id;
+        if (!skuId) throw new TypeError(`infer: selectResults returned an item with no sku_id at results[${i}]`);
+        return { sku_id: skuId };
+      })
+    };
+    debug("selectResults picked", { rec_id: recId, sku_ids: shown.skus.map((s) => s.sku_id) });
+    this.#sendRecEvent(opts, ids, recId, "recshow", shown).then(
+      () => debug("recshow event sent", { rec_id: recId }),
+      (err) => debug("recshow event failed", err)
+    );
+    return selected;
+  }
+  /**
+   * Sends one recommendation event.
+   * @private
+   * @param {{dataset: string, modelName: string, modelVersion: string, storeId: string, serviceOptions?: ServiceOptions}} opts - Event options.
+   * @param {{sessionId: string, userId: string}} ids - Session and user of the sdk.
+   * @param {string} recId - Id of the recommendation, the same in the recraw and recshow events.
+   * @param {"recraw"|"recshow"} kind - Which event.
+   * @param {*} payload - What the event carries, any JSON.
+   * @returns {Promise<void>}
+   */
+  async #sendRecEvent(opts, ids, recId, kind, payload) {
+    await this._services.apis().ingestzEventRelevanceFashionEvent({
+      params: { dataset: opts.dataset },
+      payload: {
+        id: crypto.randomUUID(),
+        store_id: opts.storeId,
+        session_id: ids.sessionId,
+        user_id: ids.userId,
+        created_at: (/* @__PURE__ */ new Date()).toISOString().split(".")[0] + "Z",
+        [kind]: {
+          rec_id: recId,
+          model_id: opts.modelName,
+          model_version: opts.modelVersion,
+          payload: JSON.stringify(payload)
+        }
+      }
+    }, opts.serviceOptions);
+  }
+  /**
+   * Finds where the model file is: the signed URLs of the model API, unless opts has them (tests).
+   * @private
+   * @param {InferOptions} opts - Inference options.
+   * @returns {Promise<{sqlite: string}>} Download URLs of the files.
+   */
+  async _assetUrls(opts) {
+    if (opts.sqliteUrl) return { sqlite: opts.sqliteUrl };
+    const { modelName, partitions, dataset } = opts;
+    const resp = await this._services.apis().dszModelGet({
+      params: { dataset, model_name: modelName },
+      payload: { model_version: opts.partitions.version, model_partitions: partitions }
+    }, opts.serviceOptions);
+    const data = resp.parse();
+    const byName = Object.fromEntries((data?.urls ?? []).map((file) => [file.name, file.url]));
+    const missing = Object.values(FILES).find((name) => !byName[name]);
+    if (missing) {
+      throw new Error(`infer: the model api gave no "${missing}" file: ${resp.error?.message ?? JSON.stringify(Object.keys(byName))}`);
+    }
+    return { sqlite: byName[FILES.sqlite] };
+  }
+}
+function withoutQuery(url) {
+  return typeof url === "string" ? url.split("?")[0] : url;
+}
+function preview(value, max = 600) {
+  const text = typeof value === "string" ? value : JSON.stringify(value);
+  if (typeof text !== "string" || text.length <= max) return text;
+  return `${text.slice(0, max)}... (${text.length} chars in total)`;
+}
+function validateUpdate(opts) {
+  for (const key of ["modelName", "dataset"]) {
+    if (!opts || !opts[key]) throw new TypeError(`infer: opts.${key} is required`);
+  }
+  if (!isPartitions(opts.partitions)) {
+    throw new TypeError("infer: opts.partitions must be an object of string values");
+  }
+}
+function validate(opts) {
+  for (const key of ["modelName", "dataset", "sessionId", "userId"]) {
+    if (!opts || !opts[key]) throw new TypeError(`infer: opts.${key} is required`);
+  }
+  if (!isPartitions(opts.partitions)) {
+    throw new TypeError("infer: opts.partitions must be an object of string values");
+  }
+  if (opts.params === void 0) throw new TypeError("infer: opts.params is required");
+  if (opts.limit !== void 0 && !(Number.isInteger(opts.limit) && opts.limit > 0)) {
+    throw new TypeError("infer: opts.limit must be a positive integer");
+  }
+}
+async function defaultSelectResults(req, results) {
+  const taken = new Set(req.input.skus.map((sku) => sku.sku_id));
+  const shown = [];
+  for (const result of results.results) {
+    for (const { sku_id } of result.skus) {
+      if (!taken.has(sku_id)) {
+        taken.add(sku_id);
+        shown.push({ sku_id, rating: result.rating });
+        break;
+      }
+    }
+  }
+  return {
+    results: shown
+  };
+}
+export { Infer };

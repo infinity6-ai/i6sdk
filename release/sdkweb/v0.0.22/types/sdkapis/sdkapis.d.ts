@@ -1,0 +1,6751 @@
+/**
+ * @typedef {import("../services/services.js").Services} Services
+ */
+export type Services = import("../services/services.js").Services;
+export type ServiceOptions = import("../invoker/invoker.js").ServiceOptions;
+export type i6JsonEmbedded<T> = T;
+export type Grant = 1 | 2 | 4 | 8 | number;
+export type apiDszCreateCustomerPortalParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+};
+export type apiDszCreateCustomerPortalReq = {
+    params: apiDszCreateCustomerPortalParams;
+    payload: apiDszCreateCustomerPortalReqPayload;
+};
+export type apiDszCreateCustomerPortalReqPayload = {
+    /**
+     * - [Go: string] Preferred locale for customer portal.
+     */
+    locale: string;
+    /**
+     * - [Go: string] Return URL after customer portal session.
+     */
+    return_url: string;
+};
+export type apiDszCreateCustomerPortalResp = {
+    payload: apiDszCreateCustomerPortalRespPayload;
+};
+export type apiDszCreateCustomerPortalRespPayload = {
+    /**
+     * - [Go: string] Stripe customer portal URL.
+     */
+    url: string;
+};
+export type apiDszCreateIngestionTokenParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+};
+export type apiDszCreateIngestionTokenReq = {
+    params: apiDszCreateIngestionTokenParams;
+    payload: apiDszCreateIngestionTokenReqPayload;
+};
+export type apiDszCreateIngestionTokenReqPayload = {
+    /**
+     * - [Go: string] Optional description note.
+     */
+    annotation: string;
+};
+export type apiDszCreateIngestionTokenResp = object;
+export type apiDszCreateRecsysTokenParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+};
+export type apiDszCreateRecsysTokenReq = {
+    params: apiDszCreateRecsysTokenParams;
+    payload: apiDszCreateRecsysTokenReqPayload;
+};
+export type apiDszCreateRecsysTokenReqPayload = {
+    /**
+     * - [Go: string] Description note.
+     */
+    annotation: string;
+    /**
+     * - [Go: string] Channel identifier.
+     */
+    channel: string;
+};
+export type apiDszCreateRecsysTokenResp = object;
+export type apiDszCreateStoreParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+};
+export type apiDszCreateStoreReq = {
+    params: apiDszCreateStoreParams;
+    payload: apiDszCreateStoreReqPayload;
+};
+export type apiDszCreateStoreReqPayload = {
+    /**
+     * - Store details.
+     */
+    store: apiDszCreateStoreReqPayloadStore;
+};
+export type apiDszCreateStoreReqPayloadStore = {
+    /**
+     * - [Go: storeid.StoreId] Unique identifier of the store.
+     */
+    id: string;
+    /**
+     * - [Go: string] Human-readable name of the store.
+     */
+    name: string;
+    /**
+     * - Solution domains associated with this store.
+     */
+    solution_domains: Array<apiDszCreateStoreReqPayloadStoreSolutionDomainsElement>;
+};
+export type apiDszCreateStoreReqPayloadStoreSolutionDomainsElement = string;
+export type apiDszCreateStoreResp = object;
+export type apiDszDatasetSolutionsParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+};
+export type apiDszDatasetSolutionsReq = {
+    params: apiDszDatasetSolutionsParams;
+};
+export type apiDszDatasetSolutionsResp = {
+    payload: apiDszDatasetSolutionsRespPayload;
+};
+export type apiDszDatasetSolutionsRespPayload = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+    /**
+     * - Active solutions enabled on the dataset.
+     */
+    solutions: Array<apiDszDatasetSolutionsRespPayloadSolutionsElement>;
+};
+export type apiDszDatasetSolutionsRespPayloadSolutionsElement = string;
+export type apiDszDeleteTokenParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+};
+export type apiDszDeleteTokenQuery = {
+    /**
+     * - [Go: string] Token identifier to revoke.
+     */
+    token: string;
+};
+export type apiDszDeleteTokenReq = {
+    params: apiDszDeleteTokenParams;
+    query: apiDszDeleteTokenQuery;
+};
+export type apiDszDeleteTokenResp = object;
+export type apiDszDomainGetParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+};
+export type apiDszDomainGetQuery = {
+    /**
+     * - [Go: storeid.StoreId] Store ID to query.
+     */
+    store_id: string;
+};
+export type apiDszDomainGetReq = {
+    params: apiDszDomainGetParams;
+    query: apiDszDomainGetQuery;
+};
+export type apiDszDomainGetResp = {
+    payload: apiDszDomainGetRespPayload;
+};
+export type apiDszDomainGetRespPayload = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+    /**
+     * - Solution domain mappings.
+     */
+    solutions: Array<apiDszDomainGetRespPayloadSolutionsElement>;
+    /**
+     * - [Go: storeid.StoreId] Store ID queried.
+     */
+    store_id: string;
+};
+export type apiDszDomainGetRespPayloadSolutionsElement = {
+    /**
+     * - [Go: domain.Domain]
+     */
+    domain: string;
+    /**
+     * - [Go: solution.Solution]
+     */
+    solution: string;
+};
+export type apiDszGetSubscriptionParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+    /**
+     * - [Go: solution.Solution] Solution product.
+     */
+    solution: string;
+};
+export type apiDszGetSubscriptionReq = {
+    params: apiDszGetSubscriptionParams;
+};
+export type apiDszGetSubscriptionResp = {
+    payload: apiDszGetSubscriptionRespPayload;
+};
+export type apiDszGetSubscriptionRespPayload = {
+    /**
+     * - [Go: time.Time] Cancellation timestamp in UTC.
+     */
+    cancel_at: dszTime;
+    /**
+     * - [Go: bool] Whether subscription will be canceled at period end.
+     */
+    cancel_at_period_end: boolean;
+    /**
+     * - [Go: time.Time] Subscription creation timestamp in UTC.
+     */
+    created_at: dszTime;
+    /**
+     * - [Go: time.Time] Current billing period end timestamp in UTC.
+     */
+    current_period_end_at: dszTime;
+    /**
+     * - [Go: time.Time] Current billing period start timestamp in UTC.
+     */
+    current_period_start_at: dszTime;
+    /**
+     * - [Go: time.Time] Next invoice timestamp in UTC.
+     */
+    next_invoice_at: dszTime;
+    /**
+     * - [Go: string] Lookup key of base price in Stripe.
+     */
+    plan_key: string;
+    /**
+     * - [Go: string] Subscription status in Stripe.
+     */
+    status: string;
+    /**
+     * - [Go: time.Time] Trial end timestamp in UTC.
+     */
+    trial_end_at: dszTime;
+    /**
+     * - [Go: time.Time] Trial start timestamp in UTC.
+     */
+    trial_start_at: dszTime;
+};
+export type apiDszListDatasetsParams = {
+    /**
+     * - [Go: string] User identifier (id).
+     */
+    userId: string;
+};
+export type apiDszListDatasetsReq = {
+    params: apiDszListDatasetsParams;
+};
+export type apiDszListDatasetsResp = {
+    payload: apiDszListDatasetsRespPayload;
+};
+export type apiDszListDatasetsRespPayload = {
+    /**
+     * - List of datasets available to the user.
+     */
+    datasets: Array<apiDszListDatasetsRespPayloadDatasetsElement>;
+};
+export type apiDszListDatasetsRespPayloadDatasetsElement = {
+    /**
+     * - [Go: grants.Grant] Compact grant bitmask held by the user on this dataset.
+     */
+    grants: Grant;
+    /**
+     * - [Go: string] Unique identifier of the dataset.
+     */
+    id: string;
+    /**
+     * - [Go: string] Human-readable name of the dataset.
+     */
+    name: string;
+};
+export type apiDszListIngestionTokensParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+};
+export type apiDszListIngestionTokensReq = {
+    params: apiDszListIngestionTokensParams;
+};
+export type apiDszListIngestionTokensResp = {
+    payload: apiDszListIngestionTokensRespPayload;
+};
+export type apiDszListIngestionTokensRespPayload = {
+    /**
+     * - List of ingestion tokens.
+     */
+    tokens: Array<apiDszListIngestionTokensRespPayloadTokensElement>;
+};
+export type apiDszListIngestionTokensRespPayloadTokensElement = {
+    /**
+     * - [Go: string] Note identifying the purpose of the token.
+     */
+    annotation: string;
+    /**
+     * - [Go: string] Token audience.
+     */
+    audience: string;
+    /**
+     * - [Go: string] Sales channel the token is restricted to.
+     */
+    channel: string;
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+    /**
+     * - [Go: int64] Token expiration date.
+     */
+    expiration_date: number;
+    /**
+     * - Permissions granted by the token.
+     */
+    grants: Array<apiDszListIngestionTokensRespPayloadTokensElementGrantsElement>;
+    /**
+     * - [Go: string] Token id.
+     */
+    id: string;
+    /**
+     * - [Go: string] Token unique id (JWT id).
+     */
+    jti: string;
+    /**
+     * - [Go: string] Token value.
+     */
+    token: string;
+};
+export type apiDszListIngestionTokensRespPayloadTokensElementGrantsElement = string;
+export type apiDszListPaymentsParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+};
+export type apiDszListPaymentsReq = {
+    params: apiDszListPaymentsParams;
+};
+export type apiDszListPaymentsResp = {
+    payload: apiDszListPaymentsRespPayload;
+};
+export type apiDszListPaymentsRespPayload = {
+    /**
+     * - Payment invoice records.
+     */
+    payments: Array<apiDszListPaymentsRespPayloadPaymentsElement>;
+};
+export type apiDszListPaymentsRespPayloadPaymentsElement = {
+    /**
+     * - [Go: int64]
+     */
+    amount_due: number;
+    /**
+     * - [Go: int64]
+     */
+    amount_paid: number;
+    /**
+     * - [Go: time.Time]
+     */
+    created: dszTime;
+    /**
+     * - [Go: string]
+     */
+    currency: string;
+    /**
+     * - [Go: string]
+     */
+    id: string;
+    /**
+     * - [Go: string]
+     */
+    invoice_pdf_url: string;
+    lines: Array<apiDszListPaymentsRespPayloadPaymentsElementLinesElement>;
+    /**
+     * - [Go: string]
+     */
+    number: string;
+    /**
+     * - [Go: time.Time]
+     */
+    period_end: dszTime;
+    /**
+     * - [Go: time.Time]
+     */
+    period_start: dszTime;
+    /**
+     * - [Go: string]
+     */
+    receipt_pdf_url: string;
+    /**
+     * - [Go: string]
+     */
+    status: string;
+};
+export type apiDszListPaymentsRespPayloadPaymentsElementLinesElement = {
+    /**
+     * - [Go: int64]
+     */
+    amount: number;
+    /**
+     * - [Go: string]
+     */
+    description: string;
+    /**
+     * - [Go: string]
+     */
+    id: string;
+    /**
+     * - [Go: solution.Solution]
+     */
+    solution: string;
+};
+export type apiDszListPlansParams = {
+    /**
+     * - [Go: solution.Solution] Solution product identifier.
+     */
+    solution: string;
+};
+export type apiDszListPlansReq = {
+    params: apiDszListPlansParams;
+};
+export type apiDszListPlansResp = {
+    payload: apiDszListPlansRespPayload;
+};
+export type apiDszListPlansRespPayload = {
+    /**
+     * - Available subscription plans.
+     */
+    plans: Array<apiDszListPlansRespPayloadPlansElement>;
+};
+export type apiDszListPlansRespPayloadPlansElement = {
+    /**
+     * - [Go: int64]
+     */
+    amount: number;
+    /**
+     * - [Go: string]
+     */
+    currency: string;
+    /**
+     * - [Go: string]
+     */
+    description: string;
+    /**
+     * - [Go: string]
+     */
+    frequency: string;
+    /**
+     * - [Go: int64]
+     */
+    included_requests: number;
+    /**
+     * - [Go: bool]
+     */
+    included_requests_unlimited: boolean;
+    /**
+     * - [Go: string]
+     */
+    key: string;
+    /**
+     * - [Go: int64]
+     */
+    lic_amount: number;
+    /**
+     * - [Go: string]
+     */
+    name: string;
+    /**
+     * - [Go: int64]
+     */
+    req_amount: number;
+    /**
+     * - [Go: string]
+     */
+    req_amount_decimal: string;
+    /**
+     * - [Go: string]
+     */
+    tier: string;
+};
+export type apiDszListRecsysTokensParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+};
+export type apiDszListRecsysTokensReq = {
+    params: apiDszListRecsysTokensParams;
+};
+export type apiDszListRecsysTokensResp = {
+    payload: apiDszListRecsysTokensRespPayload;
+};
+export type apiDszListRecsysTokensRespPayload = {
+    /**
+     * - List of recsys tokens.
+     */
+    tokens: Array<apiDszListRecsysTokensRespPayloadTokensElement>;
+};
+export type apiDszListRecsysTokensRespPayloadTokensElement = {
+    /**
+     * - [Go: string] Note identifying the purpose of the token.
+     */
+    annotation: string;
+    /**
+     * - [Go: string] Token audience.
+     */
+    audience: string;
+    /**
+     * - [Go: string] Sales channel the token is restricted to.
+     */
+    channel: string;
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+    /**
+     * - [Go: int64] Token expiration date.
+     */
+    expiration_date: number;
+    /**
+     * - Permissions granted by the token.
+     */
+    grants: Array<apiDszListRecsysTokensRespPayloadTokensElementGrantsElement>;
+    /**
+     * - [Go: string] Token id.
+     */
+    id: string;
+    /**
+     * - [Go: string] Token unique id (JWT id).
+     */
+    jti: string;
+    /**
+     * - [Go: string] Token value.
+     */
+    token: string;
+};
+export type apiDszListRecsysTokensRespPayloadTokensElementGrantsElement = string;
+export type apiDszListStoresParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+};
+export type apiDszListStoresReq = {
+    params: apiDszListStoresParams;
+};
+export type apiDszListStoresResp = {
+    payload: apiDszListStoresRespPayload;
+};
+export type apiDszListStoresRespPayload = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+    /**
+     * - Stores configured for the dataset.
+     */
+    stores: Array<apiDszListStoresRespPayloadStoresElement>;
+};
+export type apiDszListStoresRespPayloadStoresElement = {
+    /**
+     * - [Go: storeid.StoreId] Unique identifier of the store.
+     */
+    id: string;
+    /**
+     * - [Go: string] Human-readable name of the store.
+     */
+    name: string;
+    /**
+     * - Solution domains associated with this store.
+     */
+    solution_domains: Array<apiDszListStoresRespPayloadStoresElementSolutionDomainsElement>;
+};
+export type apiDszListStoresRespPayloadStoresElementSolutionDomainsElement = string;
+export type apiDszModelGetParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+    /**
+     * - [Go: string] Model name.
+     */
+    model_name: string;
+};
+export type apiDszModelGetReq = {
+    params: apiDszModelGetParams;
+    payload: apiDszModelGetReqPayload;
+};
+export type apiDszModelGetReqPayload = {
+    /**
+     * - Partition key-value pairs.
+     */
+    model_partitions: Record<apiDszModelGetReqPayloadModelPartitionsKey, apiDszModelGetReqPayloadModelPartitionsValue>;
+    /**
+     * - [Go: string] Model version.
+     */
+    model_version: string;
+};
+export type apiDszModelGetReqPayloadModelPartitionsKey = string;
+export type apiDszModelGetReqPayloadModelPartitionsValue = string;
+export type apiDszModelGetResp = {
+    payload: apiDszModelGetRespPayload;
+};
+export type apiDszModelGetRespPayload = {
+    /**
+     * - List of model files with signed access URLs.
+     */
+    urls: Array<apiDszModelGetRespPayloadUrlsElement>;
+};
+export type apiDszModelGetRespPayloadUrlsElement = {
+    /**
+     * - [Go: string] File name.
+     */
+    name: string;
+    /**
+     * - [Go: string] Signed URL.
+     */
+    url: string;
+};
+export type apiDszResultLastBatchSummaryParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Name of the dataset.
+     */
+    dataset: string;
+};
+export type apiDszResultLastBatchSummaryQuery = {
+    /**
+     * - [Go: storeid.StoreId] Store ID to query.
+     */
+    store_id: string;
+    /**
+     * - [Go: laketbnamez.TableName] Table of the batch in question.
+     */
+    table: string;
+};
+export type apiDszResultLastBatchSummaryReq = {
+    params: apiDszResultLastBatchSummaryParams;
+    query: apiDszResultLastBatchSummaryQuery;
+};
+export type apiDszResultLastBatchSummaryResp = {
+    payload: apiDszResultLastBatchSummaryRespPayload;
+};
+export type apiDszResultLastBatchSummaryRespPayload = {
+    /**
+     * - Summary of the batch data loaded into the store datalake.
+     */
+    data: apiDszResultLastBatchSummaryRespPayloadData;
+};
+export type apiDszResultLastBatchSummaryRespPayloadData = {
+    /**
+     * - Summaries of distinct and null counts per column.
+     */
+    column_summaries: Array<apiDszResultLastBatchSummaryRespPayloadDataColumnSummariesElement>;
+    /**
+     * - [Go: string] Batch ingestion date.
+     */
+    ingested_at: string;
+    /**
+     * - [Go: int] Number of rows in the batch.
+     */
+    row_count: number;
+    /**
+     * - [Go: string] Store identifier.
+     */
+    store_id: string;
+};
+export type apiDszResultLastBatchSummaryRespPayloadDataColumnSummariesElement = {
+    /**
+     * - [Go: string] Name of the column.
+     */
+    column_name: string;
+    /**
+     * - [Go: int] Number of distinct values in the column.
+     */
+    distinct_count: number;
+    /**
+     * - [Go: int] Number of null values in the column.
+     */
+    null_count: number;
+};
+export type apiDszResultRelevanceFashionCatalogParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Name of the dataset.
+     */
+    dataset: string;
+};
+export type apiDszResultRelevanceFashionCatalogQuery = {
+    /**
+     * - [Go: storeid.StoreId] Store ID to query.
+     */
+    store_id: string;
+};
+export type apiDszResultRelevanceFashionCatalogReq = {
+    params: apiDszResultRelevanceFashionCatalogParams;
+    query: apiDszResultRelevanceFashionCatalogQuery;
+};
+export type apiDszResultRelevanceFashionCatalogResp = {
+    payload: apiDszResultRelevanceFashionCatalogRespPayload;
+};
+export type apiDszResultRelevanceFashionCatalogRespPayload = {
+    /**
+     * - Store simple catalog loaded from the datalake file.
+     */
+    data: Array<apiDszResultRelevanceFashionCatalogRespPayloadDataElement>;
+};
+export type apiDszResultRelevanceFashionCatalogRespPayloadDataElement = {
+    /**
+     * - [Go: string] SKU description.
+     */
+    sku_ds: string;
+    /**
+     * - [Go: string] SKU identifier.
+     */
+    sku_id: string;
+    /**
+     * - [Go: storeid.StoreId] Store identifier.
+     */
+    store_id: string;
+};
+export type apiDszSignedUrlParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+};
+export type apiDszSignedUrlReq = {
+    params: apiDszSignedUrlParams;
+    payload: apiDszSignedUrlReqPayload;
+};
+export type apiDszSignedUrlReqPayload = {
+    /**
+     * - Paths to sign.
+     */
+    paths: Array<apiDszSignedUrlReqPayloadPathsElement>;
+};
+export type apiDszSignedUrlReqPayloadPathsElement = {
+    /**
+     * - [Go: fszsignmethod.SignMethod]
+     */
+    method: string;
+    /**
+     * - [Go: laketbpathz.Path]
+     */
+    path: string;
+};
+export type apiDszSignedUrlResp = {
+    payload: apiDszSignedUrlRespPayload;
+};
+export type apiDszSignedUrlRespPayload = {
+    /**
+     * - Signed URLs.
+     */
+    urls: Array<apiDszSignedUrlRespPayloadUrlsElement>;
+};
+export type apiDszSignedUrlRespPayloadUrlsElement = {
+    /**
+     * - [Go: string]
+     */
+    url: string;
+};
+export type apiDszStoreDisplayCreateParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+};
+export type apiDszStoreDisplayCreateReq = {
+    params: apiDszStoreDisplayCreateParams;
+    payload: apiDszStoreDisplayCreateReqPayload;
+};
+export type apiDszStoreDisplayCreateReqPayload = {
+    /**
+     * - Store display details.
+     */
+    display: apiDszStoreDisplayCreateReqPayloadDisplay;
+    /**
+     * - [Go: storeid.StoreId] Store ID.
+     */
+    store_id: string;
+};
+export type apiDszStoreDisplayCreateReqPayloadDisplay = {
+    /**
+     * - [Go: storedisplayid.StoreDisplayId] Unique identifier of the store display.
+     */
+    id: string;
+    /**
+     * - [Go: string] Human-readable name of the store display.
+     */
+    name: string;
+};
+export type apiDszStoreDisplayCreateResp = {
+    payload: apiDszStoreDisplayCreateRespPayload;
+};
+export type apiDszStoreDisplayCreateRespPayload = {
+    /**
+     * - Created store display details.
+     */
+    display: apiDszStoreDisplayCreateRespPayloadDisplay;
+};
+export type apiDszStoreDisplayCreateRespPayloadDisplay = {
+    /**
+     * - [Go: storedisplayid.StoreDisplayId] Unique identifier of the store display.
+     */
+    id: string;
+    /**
+     * - [Go: string] Human-readable name of the store display.
+     */
+    name: string;
+};
+export type apiDszStoreDisplayListParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+};
+export type apiDszStoreDisplayListQuery = {
+    /**
+     * - [Go: storeid.StoreId] Store ID to filter displays.
+     */
+    store_id: string;
+};
+export type apiDszStoreDisplayListReq = {
+    params: apiDszStoreDisplayListParams;
+    query: apiDszStoreDisplayListQuery;
+};
+export type apiDszStoreDisplayListResp = {
+    payload: apiDszStoreDisplayListRespPayload;
+};
+export type apiDszStoreDisplayListRespPayload = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+    /**
+     * - Displays configured for the store.
+     */
+    displays: Array<apiDszStoreDisplayListRespPayloadDisplaysElement>;
+    /**
+     * - [Go: storeid.StoreId] Store ID queried.
+     */
+    store_id: string;
+};
+export type apiDszStoreDisplayListRespPayloadDisplaysElement = {
+    /**
+     * - [Go: storedisplayid.StoreDisplayId] Unique identifier of the store display.
+     */
+    id: string;
+    /**
+     * - [Go: string] Human-readable name of the store display.
+     */
+    name: string;
+};
+export type apiDszStripeCheckoutReq = {
+    payload: apiDszStripeCheckoutReqPayload;
+};
+export type apiDszStripeCheckoutReqPayload = {
+    /**
+     * - [Go: string] Base64 state token with checkout metadata.
+     */
+    campaign_state: string;
+    /**
+     * - [Go: string] URL to redirect after canceled checkout.
+     */
+    cancel_url: string;
+    /**
+     * - [Go: string] Dataset name.
+     */
+    dataset_name: string;
+    /**
+     * - [Go: string] Document/tax ID of buyer.
+     */
+    document: string;
+    /**
+     * - [Go: string] Email of buyer in Stripe.
+     */
+    payment_email: string;
+    /**
+     * - [Go: string] Phone of buyer.
+     */
+    payment_phone: string;
+    /**
+     * - [Go: string] Plan key to buy.
+     */
+    plan: string;
+    /**
+     * - [Go: string] URL to redirect after successful checkout.
+     */
+    success_url: string;
+    /**
+     * - [Go: string] Optional callback URL for redeeming checkout artifact ticket.
+     */
+    user_exchange_callback_url: string;
+};
+export type apiDszStripeCheckoutResp = {
+    payload: apiDszStripeCheckoutRespPayload;
+};
+export type apiDszStripeCheckoutRespPayload = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier created after payment.
+     */
+    dataset: string;
+    /**
+     * - [Go: string] Checkout session ID.
+     */
+    id: string;
+    /**
+     * - [Go: string] Checkout session URL.
+     */
+    url: string;
+};
+export type apiDszTableGetParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+    /**
+     * - [Go: string] Table file path without scheme.
+     */
+    path: string;
+};
+export type apiDszTableGetReq = {
+    params: apiDszTableGetParams;
+};
+export type apiDszTableGetResp = {
+    headers: apiDszTableGetRespHeaders;
+};
+export type apiDszTableGetRespHeaders = {
+    /**
+     * - [Go: string] Redirect location URL.
+     */
+    location: string;
+};
+export type apiDszTableListParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+};
+export type apiDszTableListQuery = {
+    /**
+     * - [Go: string] Pagination cursor.
+     */
+    from_cursor: string;
+    /**
+     * - [Go: int] Limit results count.
+     */
+    limit: number;
+    /**
+     * - [Go: laketbpathz.Path] Path to list.
+     */
+    path: string;
+    /**
+     * - [Go: bool] Whether to list recursively.
+     */
+    recursive: boolean;
+    /**
+     * - [Go: fszsignmethod.SignMethod] Sign method for presigned URLs.
+     */
+    sign_method: string;
+    /**
+     * - [Go: bool] Whether to include file stats.
+     */
+    stat: boolean;
+};
+export type apiDszTableListReq = {
+    params: apiDszTableListParams;
+    query: apiDszTableListQuery;
+};
+export type apiDszTableListResp = {
+    payload: apiDszTableListRespPayload;
+};
+export type apiDszTableListRespPayload = {
+    /**
+     * - Files and tables found.
+     */
+    files: Array<apiDszTableListRespPayloadFilesElement>;
+    /**
+     * - [Go: string] Next page pagination cursor.
+     */
+    next_cursor: string;
+};
+export type apiDszTableListRespPayloadFilesElement = {
+    /**
+     * - [Go: laketbpathz.Path] Path of file or table.
+     */
+    path: string;
+    /**
+     * - [Go: string] Presigned access URL.
+     */
+    signed_url: string;
+    /**
+     * - [Go: fsz.FileStat] File metadata and stats.
+     */
+    stat: dszFileStat;
+};
+export type apiDszUpdatePaymentAutoRenewParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+    /**
+     * - [Go: solution.Solution] Solution domain.
+     */
+    solution: string;
+};
+export type apiDszUpdatePaymentAutoRenewReq = {
+    params: apiDszUpdatePaymentAutoRenewParams;
+    payload: apiDszUpdatePaymentAutoRenewReqPayload;
+};
+export type apiDszUpdatePaymentAutoRenewReqPayload = {
+    /**
+     * - [Go: bool] Auto-renew preference flag.
+     */
+    auto_renew: boolean;
+};
+export type apiDszUpdatePaymentAutoRenewResp = object;
+export type apiDszUpdateSubscriptionPlanParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+    /**
+     * - [Go: solution.Solution] Solution product.
+     */
+    solution: string;
+};
+export type apiDszUpdateSubscriptionPlanReq = {
+    params: apiDszUpdateSubscriptionPlanParams;
+    payload: apiDszUpdateSubscriptionPlanReqPayload;
+};
+export type apiDszUpdateSubscriptionPlanReqPayload = {
+    /**
+     * - [Go: string] Lookup key of new Stripe price.
+     */
+    plan: string;
+};
+export type apiDszUpdateSubscriptionPlanResp = object;
+export type apiIngestzEventRelevanceFashionCatalogParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Name of the dataset that receives the catalog data.
+     */
+    dataset: string;
+};
+export type apiIngestzEventRelevanceFashionCatalogReq = {
+    params: apiIngestzEventRelevanceFashionCatalogParams;
+    payload: apiIngestzEventRelevanceFashionCatalogReqPayload;
+};
+export type apiIngestzEventRelevanceFashionCatalogReqPayload = {
+    /**
+     * - [Go: string] Catalog entry id.
+     */
+    id: string;
+    /**
+     * - [Go: bool] Whether the SKU is inactive.
+     */
+    inactive: boolean;
+    /**
+     * - [Go: string] Product identifier.
+     */
+    product_id: string;
+    /**
+     * - [Go: string] SKU description.
+     */
+    sku_ds: string;
+    /**
+     * - [Go: string] SKU identifier.
+     */
+    sku_id: string;
+    /**
+     * - [Go: string] Store identifier.
+     */
+    store_id: string;
+};
+export type apiIngestzEventRelevanceFashionCatalogResp = object;
+export type apiIngestzEventRelevanceFashionEventParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Name of the dataset that receives the event data.
+     */
+    dataset: string;
+};
+export type apiIngestzEventRelevanceFashionEventReq = {
+    params: apiIngestzEventRelevanceFashionEventParams;
+    payload: apiIngestzEventRelevanceFashionEventReqPayload;
+};
+export type apiIngestzEventRelevanceFashionEventReqPayload = {
+    /**
+     * - AddToCart event payload. SkuId is required; price must be non-negative.
+     */
+    add_to_cart: apiIngestzEventRelevanceFashionEventReqPayloadAddToCart;
+    /**
+     * - Click event payload. SkuId is required; price must be non-negative.
+     */
+    click: apiIngestzEventRelevanceFashionEventReqPayloadClick;
+    /**
+     * - [Go: time.Time] Timestamp of event creation (required).
+     */
+    created_at: dszTime;
+    /**
+     * - [Go: string] Optional display identifier.
+     */
+    display_id: string;
+    /**
+     * - [Go: string] Unique identifier for the event (required).
+     */
+    id: string;
+    /**
+     * - Purchase event payload. OrderId is required and skus must not be empty.
+     */
+    purchase: apiIngestzEventRelevanceFashionEventReqPayloadPurchase;
+    /**
+     * - Recraw event payload representing raw recommendations. RecId, ModelId, and Payload are required.
+     */
+    recraw: apiIngestzEventRelevanceFashionEventReqPayloadRecraw;
+    /**
+     * - Recshow event payload representing displayed recommendations. RecId and Payload are required.
+     */
+    recshow: apiIngestzEventRelevanceFashionEventReqPayloadRecshow;
+    /**
+     * - RemoveFromCart event payload. SkuId is required; price must be non-negative.
+     */
+    remove_from_cart: apiIngestzEventRelevanceFashionEventReqPayloadRemoveFromCart;
+    /**
+     * - Search event payload. Text is required.
+     */
+    search: apiIngestzEventRelevanceFashionEventReqPayloadSearch;
+    /**
+     * - [Go: string] Identifier of the user session (required).
+     */
+    session_id: string;
+    /**
+     * - [Go: string] Identifier of the store (required).
+     */
+    store_id: string;
+    /**
+     * - [Go: string] Optional user identifier.
+     */
+    user_id: string;
+};
+export type apiIngestzEventRelevanceFashionEventReqPayloadAddToCart = {
+    /**
+     * - [Go: float64] Price of the added SKU (non-negative).
+     */
+    price: number;
+    /**
+     * - [Go: string] SKU identifier (required).
+     */
+    sku_id: string;
+};
+export type apiIngestzEventRelevanceFashionEventReqPayloadClick = {
+    /**
+     * - [Go: float64] Price of the clicked SKU (non-negative).
+     */
+    price: number;
+    /**
+     * - [Go: string] SKU identifier (required).
+     */
+    sku_id: string;
+};
+export type apiIngestzEventRelevanceFashionEventReqPayloadPurchase = {
+    /**
+     * - [Go: string] Order identifier (required).
+     */
+    order_id: string;
+    /**
+     * - List of purchased SKUs (must not be empty).
+     */
+    skus: Array<apiIngestzEventRelevanceFashionEventReqPayloadPurchaseSkusElement>;
+};
+export type apiIngestzEventRelevanceFashionEventReqPayloadPurchaseSkusElement = {
+    /**
+     * - [Go: int64] Quantity of the purchased item (must be greater than 0).
+     */
+    qtty: number;
+    /**
+     * - [Go: string] SKU identifier (required).
+     */
+    sku_id: string;
+    /**
+     * - [Go: float64] Unit price of the item (non-negative).
+     */
+    unit_price: number;
+};
+export type apiIngestzEventRelevanceFashionEventReqPayloadRecraw = {
+    /**
+     * - [Go: string] Model identifier (required).
+     */
+    model_id: string;
+    /**
+     * - [Go: string] Model version string.
+     */
+    model_version: string;
+    /**
+     * - [Go: string] Raw recommendation payload (required).
+     */
+    payload: string;
+    /**
+     * - [Go: string] Recommendation identifier (required).
+     */
+    rec_id: string;
+};
+export type apiIngestzEventRelevanceFashionEventReqPayloadRecshow = {
+    /**
+     * - [Go: string] Model identifier.
+     */
+    model_id: string;
+    /**
+     * - [Go: string] Model version string.
+     */
+    model_version: string;
+    /**
+     * - [Go: string] Displayed recommendation payload (required).
+     */
+    payload: string;
+    /**
+     * - [Go: string] Recommendation identifier (required).
+     */
+    rec_id: string;
+};
+export type apiIngestzEventRelevanceFashionEventReqPayloadRemoveFromCart = {
+    /**
+     * - [Go: float64] Price of the removed SKU (non-negative).
+     */
+    price: number;
+    /**
+     * - [Go: string] SKU identifier (required).
+     */
+    sku_id: string;
+};
+export type apiIngestzEventRelevanceFashionEventReqPayloadSearch = {
+    /**
+     * - [Go: string] Search query text (required).
+     */
+    text: string;
+};
+export type apiIngestzEventRelevanceFashionEventResp = object;
+export type apiIngestzGetUrlParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Name of the dataset that receives the uploaded files.
+     */
+    dataset: string;
+};
+export type apiIngestzGetUrlReq = {
+    params: apiIngestzGetUrlParams;
+    payload: apiIngestzGetUrlReqPayload;
+};
+export type apiIngestzGetUrlReqPayload = {
+    /**
+     * - [Go: int] Number of presigned upload URLs to generate.
+     */
+    amount: number;
+    /**
+     * - Partition key/value pairs that select the table partition the files are ingested into.
+     */
+    partitions: Record<apiIngestzGetUrlReqPayloadPartitionsKey, apiIngestzGetUrlReqPayloadPartitionsValue>;
+    /**
+     * - [Go: laketbnamez.TableName] Name of the table, inside the dataset, that receives the uploaded files.
+     */
+    table: string;
+};
+export type apiIngestzGetUrlReqPayloadPartitionsKey = string;
+export type apiIngestzGetUrlReqPayloadPartitionsValue = string;
+export type apiIngestzGetUrlResp = {
+    payload: apiIngestzGetUrlRespPayload;
+};
+export type apiIngestzGetUrlRespPayload = {
+    /**
+     * - [Go: string] Ingestion token that identifies this ingestion and ties the uploaded files together.
+     */
+    ingest_id: string;
+    /**
+     * - Presigned PUT URLs, one per requested file; upload each file to its URL.
+     */
+    uploads: Array<apiIngestzGetUrlRespPayloadUploadsElement>;
+};
+export type apiIngestzGetUrlRespPayloadUploadsElement = string;
+export type apiIngestzLastBatchSummaryParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Name of the dataset that receives the uploaded files.
+     */
+    dataset: string;
+};
+export type apiIngestzLastBatchSummaryQuery = {
+    /**
+     * - [Go: storeid.StoreId] Store ID associated with the ingestion.
+     */
+    store_id: string;
+    /**
+     * - [Go: laketbnamez.TableName] Name of the table inside the dataset.
+     */
+    table: string;
+};
+export type apiIngestzLastBatchSummaryReq = {
+    params: apiIngestzLastBatchSummaryParams;
+    query: apiIngestzLastBatchSummaryQuery;
+};
+export type apiIngestzLastBatchSummaryResp = {
+    payload: apiIngestzLastBatchSummaryRespPayload;
+};
+export type apiIngestzLastBatchSummaryRespPayload = {
+    /**
+     * - Summaries of distinct and null counts per column.
+     */
+    column_summaries: Array<apiIngestzLastBatchSummaryRespPayloadColumnSummariesElement>;
+    /**
+     * - [Go: string] Timestamp when the batch was successfully ingested.
+     */
+    ingested_at: string;
+    /**
+     * - [Go: int] Total number of successfully ingested rows.
+     */
+    row_count: number;
+    /**
+     * - [Go: storeid.StoreId] Store ID associated with the ingestion.
+     */
+    store_id: string;
+};
+export type apiIngestzLastBatchSummaryRespPayloadColumnSummariesElement = {
+    /**
+     * - [Go: string] Name of the column.
+     */
+    column_name: string;
+    /**
+     * - [Go: int] Number of distinct values in the column.
+     */
+    distinct_count: number;
+    /**
+     * - [Go: int] Number of null values in the column.
+     */
+    null_count: number;
+};
+export type apiIngestzStreamRelevanceFashionCatalogParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Name of the dataset that receives the stream data.
+     */
+    dataset: string;
+};
+export type apiIngestzStreamRelevanceFashionCatalogReq = {
+    params: apiIngestzStreamRelevanceFashionCatalogParams;
+    payload: apiIngestzStreamRelevanceFashionCatalogReqPayload;
+};
+export type apiIngestzStreamRelevanceFashionCatalogReqPayload = {
+    /**
+     * - Catalog items to ingest.
+     */
+    data: Array<apiIngestzStreamRelevanceFashionCatalogReqPayloadDataElement>;
+};
+export type apiIngestzStreamRelevanceFashionCatalogReqPayloadDataElement = {
+    /**
+     * - [Go: string] Catalog entry id.
+     */
+    id: string;
+    /**
+     * - [Go: bool] Whether the SKU is inactive.
+     */
+    inactive: boolean;
+    /**
+     * - [Go: string] Product identifier.
+     */
+    product_id: string;
+    /**
+     * - [Go: string] SKU description.
+     */
+    sku_ds: string;
+    /**
+     * - [Go: string] SKU identifier.
+     */
+    sku_id: string;
+    /**
+     * - [Go: string] Store identifier.
+     */
+    store_id: string;
+};
+export type apiIngestzStreamRelevanceFashionCatalogResp = {
+    payload: apiIngestzStreamRelevanceFashionCatalogRespPayload;
+};
+export type apiIngestzStreamRelevanceFashionCatalogRespPayload = {
+    /**
+     * - [Go: int] Number of ingested catalog items.
+     */
+    count: number;
+};
+export type apiIngestzStreamRelevanceFashionEventParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Name of the dataset that receives the stream data.
+     */
+    dataset: string;
+};
+export type apiIngestzStreamRelevanceFashionEventReq = {
+    params: apiIngestzStreamRelevanceFashionEventParams;
+    payload: apiIngestzStreamRelevanceFashionEventReqPayload;
+};
+export type apiIngestzStreamRelevanceFashionEventReqPayload = {
+    /**
+     * - Telemetry events to ingest.
+     */
+    data: Array<apiIngestzStreamRelevanceFashionEventReqPayloadDataElement>;
+};
+export type apiIngestzStreamRelevanceFashionEventReqPayloadDataElement = {
+    /**
+     * - AddToCart event payload. Mutually exclusive with other payloads.
+     */
+    add_to_cart: apiIngestzStreamRelevanceFashionEventReqPayloadDataElementAddToCart;
+    /**
+     * - Click event payload. Mutually exclusive with other payloads.
+     */
+    click: apiIngestzStreamRelevanceFashionEventReqPayloadDataElementClick;
+    /**
+     * - [Go: time.Time] Timestamp of event creation (required).
+     */
+    created_at: dszTime;
+    /**
+     * - [Go: string] Optional display identifier.
+     */
+    display_id: string;
+    /**
+     * - [Go: string] Unique identifier for the event (required).
+     */
+    id: string;
+    /**
+     * - Purchase event payload. Mutually exclusive with other payloads.
+     */
+    purchase: apiIngestzStreamRelevanceFashionEventReqPayloadDataElementPurchase;
+    /**
+     * - Recraw event payload. Mutually exclusive with other payloads.
+     */
+    recraw: apiIngestzStreamRelevanceFashionEventReqPayloadDataElementRecraw;
+    /**
+     * - Recshow event payload. Mutually exclusive with other payloads.
+     */
+    recshow: apiIngestzStreamRelevanceFashionEventReqPayloadDataElementRecshow;
+    /**
+     * - RemoveFromCart event payload. Mutually exclusive with other payloads.
+     */
+    remove_from_cart: apiIngestzStreamRelevanceFashionEventReqPayloadDataElementRemoveFromCart;
+    /**
+     * - Search event payload. Mutually exclusive with other payloads.
+     */
+    search: apiIngestzStreamRelevanceFashionEventReqPayloadDataElementSearch;
+    /**
+     * - [Go: string] Identifier of the user session (required).
+     */
+    session_id: string;
+    /**
+     * - [Go: string] Identifier of the store (required).
+     */
+    store_id: string;
+    /**
+     * - [Go: string] Optional user identifier.
+     */
+    user_id: string;
+};
+export type apiIngestzStreamRelevanceFashionEventReqPayloadDataElementAddToCart = {
+    /**
+     * - [Go: float64] Price of the added SKU (non-negative).
+     */
+    price: number;
+    /**
+     * - [Go: string] SKU identifier (required).
+     */
+    sku_id: string;
+};
+export type apiIngestzStreamRelevanceFashionEventReqPayloadDataElementClick = {
+    /**
+     * - [Go: float64] Price of the clicked SKU (non-negative).
+     */
+    price: number;
+    /**
+     * - [Go: string] SKU identifier (required).
+     */
+    sku_id: string;
+};
+export type apiIngestzStreamRelevanceFashionEventReqPayloadDataElementPurchase = {
+    /**
+     * - [Go: string] Order identifier (required).
+     */
+    order_id: string;
+    /**
+     * - List of purchased SKUs (must not be empty).
+     */
+    skus: Array<apiIngestzStreamRelevanceFashionEventReqPayloadDataElementPurchaseSkusElement>;
+};
+export type apiIngestzStreamRelevanceFashionEventReqPayloadDataElementPurchaseSkusElement = {
+    /**
+     * - [Go: int64] Quantity of the purchased item (must be greater than 0).
+     */
+    qtty: number;
+    /**
+     * - [Go: string] SKU identifier (required).
+     */
+    sku_id: string;
+    /**
+     * - [Go: float64] Unit price of the item (non-negative).
+     */
+    unit_price: number;
+};
+export type apiIngestzStreamRelevanceFashionEventReqPayloadDataElementRecraw = {
+    /**
+     * - [Go: string] Model identifier (required).
+     */
+    model_id: string;
+    /**
+     * - [Go: string] Model version string.
+     */
+    model_version: string;
+    /**
+     * - [Go: string] Raw recommendation payload (required).
+     */
+    payload: string;
+    /**
+     * - [Go: string] Recommendation identifier (required).
+     */
+    rec_id: string;
+};
+export type apiIngestzStreamRelevanceFashionEventReqPayloadDataElementRecshow = {
+    /**
+     * - [Go: string] Model identifier.
+     */
+    model_id: string;
+    /**
+     * - [Go: string] Model version string.
+     */
+    model_version: string;
+    /**
+     * - [Go: string] Displayed recommendation payload (required).
+     */
+    payload: string;
+    /**
+     * - [Go: string] Recommendation identifier (required).
+     */
+    rec_id: string;
+};
+export type apiIngestzStreamRelevanceFashionEventReqPayloadDataElementRemoveFromCart = {
+    /**
+     * - [Go: float64] Price of the removed SKU (non-negative).
+     */
+    price: number;
+    /**
+     * - [Go: string] SKU identifier (required).
+     */
+    sku_id: string;
+};
+export type apiIngestzStreamRelevanceFashionEventReqPayloadDataElementSearch = {
+    /**
+     * - [Go: string] Search query text (required).
+     */
+    text: string;
+};
+export type apiIngestzStreamRelevanceFashionEventResp = {
+    payload: apiIngestzStreamRelevanceFashionEventRespPayload;
+};
+export type apiIngestzStreamRelevanceFashionEventRespPayload = {
+    /**
+     * - [Go: int] Number of ingested telemetry events.
+     */
+    count: number;
+};
+export type apiPipezGetParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+    /**
+     * - [Go: string] Pipeline id.
+     */
+    id: string;
+};
+export type apiPipezGetReq = {
+    params: apiPipezGetParams;
+};
+export type apiPipezGetResp = {
+    payload: apiPipezGetRespPayload;
+};
+export type apiPipezGetRespPayload = {
+    pipeline: apiPipezGetRespPayloadPipeline;
+};
+export type apiPipezGetRespPayloadPipeline = {
+    /**
+     * - [Go: string] Key identifying runs that cannot overlap.
+     */
+    concurrent_id: string;
+    /**
+     * - [Go: string] Dataset identifier.
+     */
+    dataset: string;
+    /**
+     * - [Go: string] Pipeline id.
+     */
+    id: string;
+    /**
+     * - [Go: string] Pipeline name.
+     */
+    name: string;
+    /**
+     * - [Go: solutiondomain.SolutionDomain] Solution domain of the pipeline.
+     */
+    solution_domain: string;
+    /**
+     * - Pipeline states, one per status change.
+     */
+    states: Array<apiPipezGetRespPayloadPipelineStatesElement>;
+};
+export type apiPipezGetRespPayloadPipelineStatesElement = {
+    /**
+     * - [Go: string] State creation time.
+     */
+    created_at: string;
+    /**
+     * - Params of the run at this state.
+     */
+    params: Record<apiPipezGetRespPayloadPipelineStatesElementParamsKey, apiPipezGetRespPayloadPipelineStatesElementParamsValue>;
+    /**
+     * - [Go: string] State status.
+     */
+    status: string;
+};
+export type apiPipezGetRespPayloadPipelineStatesElementParamsKey = string;
+export type apiPipezGetRespPayloadPipelineStatesElementParamsValue = any;
+export type apiPipezListParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+};
+export type apiPipezListQuery = {
+    /**
+     * - [Go: string] Cursor to fetch the next page.
+     */
+    cursor: string;
+    /**
+     * - [Go: int] Maximum number of results.
+     */
+    limit: number;
+    /**
+     * - [Go: string] Filter by pipeline name.
+     */
+    name: string;
+    /**
+     * - [Go: solutiondomain.SolutionDomain] Filter by solution domain.
+     */
+    solution_domain: string;
+    /**
+     * - [Go: string] Filter by pipeline status.
+     */
+    status: string;
+};
+export type apiPipezListReq = {
+    params: apiPipezListParams;
+    query: apiPipezListQuery;
+};
+export type apiPipezListResp = {
+    payload: apiPipezListRespPayload;
+};
+export type apiPipezListRespPayload = {
+    /**
+     * - [Go: string] Cursor for the next page.
+     */
+    cursor: string;
+    /**
+     * - List of pipelines.
+     */
+    pipelines: Array<apiPipezListRespPayloadPipelinesElement>;
+};
+export type apiPipezListRespPayloadPipelinesElement = {
+    /**
+     * - [Go: string] Key identifying runs that cannot overlap.
+     */
+    concurrent_id: string;
+    /**
+     * - [Go: string] Dataset identifier.
+     */
+    dataset: string;
+    /**
+     * - [Go: string] Pipeline id.
+     */
+    id: string;
+    /**
+     * - [Go: string] Pipeline name.
+     */
+    name: string;
+    /**
+     * - [Go: solutiondomain.SolutionDomain] Solution domain of the pipeline.
+     */
+    solution_domain: string;
+    /**
+     * - Pipeline states, one per status change.
+     */
+    states: Array<apiPipezListRespPayloadPipelinesElementStatesElement>;
+};
+export type apiPipezListRespPayloadPipelinesElementStatesElement = {
+    /**
+     * - [Go: string] State creation time.
+     */
+    created_at: string;
+    /**
+     * - Params of the run at this state.
+     */
+    params: Record<apiPipezListRespPayloadPipelinesElementStatesElementParamsKey, apiPipezListRespPayloadPipelinesElementStatesElementParamsValue>;
+    /**
+     * - [Go: string] State status.
+     */
+    status: string;
+};
+export type apiPipezListRespPayloadPipelinesElementStatesElementParamsKey = string;
+export type apiPipezListRespPayloadPipelinesElementStatesElementParamsValue = any;
+export type apiPipezSchedulerActivateRelevanceFashionRelevanceFashionBatchIngestParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+};
+export type apiPipezSchedulerActivateRelevanceFashionRelevanceFashionBatchIngestReq = {
+    params: apiPipezSchedulerActivateRelevanceFashionRelevanceFashionBatchIngestParams;
+    payload: apiPipezSchedulerActivateRelevanceFashionRelevanceFashionBatchIngestReqPayload;
+};
+export type apiPipezSchedulerActivateRelevanceFashionRelevanceFashionBatchIngestReqPayload = {
+    /**
+     * - [Go: string] Batch ingestion id.
+     */
+    ingest_id: string;
+    /**
+     * - [Go: laketbnamez.TableName] Table that received the batch.
+     */
+    table: string;
+};
+export type apiPipezSchedulerActivateRelevanceFashionRelevanceFashionBatchIngestResp = object;
+export type apiPipezSchedulerActivateRelevanceFashionRelevanceFashionMainParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+};
+export type apiPipezSchedulerActivateRelevanceFashionRelevanceFashionMainReq = {
+    params: apiPipezSchedulerActivateRelevanceFashionRelevanceFashionMainParams;
+};
+export type apiPipezSchedulerActivateRelevanceFashionRelevanceFashionMainResp = object;
+export type apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionBatchIngestParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+};
+export type apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionBatchIngestReq = {
+    params: apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionBatchIngestParams;
+    payload: apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionBatchIngestReqPayload;
+};
+export type apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionBatchIngestReqPayload = {
+    /**
+     * - [Go: string] Batch ingestion id.
+     */
+    ingest_id: string;
+    /**
+     * - [Go: laketbnamez.TableName] Table that received the batch.
+     */
+    table: string;
+};
+export type apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionBatchIngestResp = object;
+export type apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionMainParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+};
+export type apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionMainReq = {
+    params: apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionMainParams;
+};
+export type apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionMainResp = object;
+export type apiPipezStartRelevanceFashionRelevanceFashionBatchIngestParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+};
+export type apiPipezStartRelevanceFashionRelevanceFashionBatchIngestReq = {
+    params: apiPipezStartRelevanceFashionRelevanceFashionBatchIngestParams;
+    payload: apiPipezStartRelevanceFashionRelevanceFashionBatchIngestReqPayload;
+};
+export type apiPipezStartRelevanceFashionRelevanceFashionBatchIngestReqPayload = {
+    /**
+     * - [Go: string] Batch ingestion id.
+     */
+    ingest_id: string;
+    /**
+     * - [Go: laketbnamez.TableName] Table that received the batch.
+     */
+    table: string;
+};
+export type apiPipezStartRelevanceFashionRelevanceFashionBatchIngestResp = {
+    payload: apiPipezStartRelevanceFashionRelevanceFashionBatchIngestRespPayload;
+};
+export type apiPipezStartRelevanceFashionRelevanceFashionBatchIngestRespPayload = {
+    /**
+     * - [Go: string] Pipeline run identifier.
+     */
+    id: string;
+};
+export type apiPipezStartRelevanceFashionRelevanceFashionMainParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+};
+export type apiPipezStartRelevanceFashionRelevanceFashionMainReq = {
+    params: apiPipezStartRelevanceFashionRelevanceFashionMainParams;
+};
+export type apiPipezStartRelevanceFashionRelevanceFashionMainResp = {
+    payload: apiPipezStartRelevanceFashionRelevanceFashionMainRespPayload;
+};
+export type apiPipezStartRelevanceFashionRelevanceFashionMainRespPayload = {
+    /**
+     * - [Go: string] Pipeline run identifier.
+     */
+    id: string;
+};
+export type apiSampleFractionParams = {
+    /**
+     * - [Go: float64] Fraction Denominator
+     */
+    denominator: number;
+    /**
+     * - [Go: float64] Fraction Numerator
+     */
+    numerator: number;
+};
+export type apiSampleFractionQuery = {
+    /**
+     * - [Go: int] Fraction max precision
+     */
+    precision: number;
+    smsg: apiSampleFractionQuerySmsg;
+};
+export type apiSampleFractionQuerySmsg = {
+    /**
+     * - [Go: string] message string
+     */
+    message: string;
+};
+export type apiSampleFractionReq = {
+    params: apiSampleFractionParams;
+    query: apiSampleFractionQuery;
+    headers: apiSampleFractionReqHeaders;
+    payload: apiSampleFractionReqPayload;
+};
+export type apiSampleFractionReqHeaders = {
+    /**
+     * - [Go: string] Sample of Trace Id
+     */
+    x_i6_trace_id: string;
+};
+export type apiSampleFractionReqPayload = {
+    messages: Array<apiSampleFractionReqPayloadMessagesElement>;
+    /**
+     * - [Go: string] Sample reason of this fraction
+     */
+    reason: string;
+};
+export type apiSampleFractionReqPayloadMessagesElement = {
+    /**
+     * - [Go: string] message string
+     */
+    message: string;
+};
+export type apiSampleFractionResp = {
+    headers: apiSampleFractionRespHeaders;
+    payload: apiSampleFractionRespPayload;
+};
+export type apiSampleFractionRespHeaders = {
+    x_i6_smsg: apiSampleFractionRespHeadersXI6Smsg;
+    /**
+     * - [Go: string] Sample of any trace message
+     */
+    x_i6_trace_message: string;
+};
+export type apiSampleFractionRespHeadersXI6Smsg = {
+    /**
+     * - [Go: string] message string
+     */
+    message: string;
+};
+export type apiSampleFractionRespPayload = {
+    /**
+     * - [Go: string] Human Fraction Representation
+     */
+    display: string;
+    /**
+     * - Output Messages
+     */
+    messages: Array<apiSampleFractionRespPayloadMessagesElement>;
+    /**
+     * - [Go: string] Fraction Result
+     */
+    result: string;
+};
+export type apiSampleFractionRespPayloadMessagesElement = string;
+export type apiTfzModelMetadataParams = {
+    /**
+     * - [Go: string] Model name.
+     */
+    model_name: string;
+    /**
+     * - [Go: string] Model version.
+     */
+    version: string;
+};
+export type apiTfzModelMetadataReq = {
+    params: apiTfzModelMetadataParams;
+};
+export type apiTfzModelMetadataResp = {
+    payload: apiTfzModelMetadataRespPayload;
+};
+export type apiTfzModelMetadataRespPayload = {
+    /**
+     * - Model input tensors.
+     */
+    inputs: Array<apiTfzModelMetadataRespPayloadInputsElement>;
+    /**
+     * - Model output tensors.
+     */
+    outputs: Array<apiTfzModelMetadataRespPayloadOutputsElement>;
+};
+export type apiTfzModelMetadataRespPayloadInputsElement = {
+    /**
+     * - [Go: string] Tensor data type.
+     */
+    dtype: string;
+    /**
+     * - [Go: int] Tensor index.
+     */
+    index: number;
+    /**
+     * - [Go: string] Tensor name.
+     */
+    name: string;
+    /**
+     * - Tensor dimensions.
+     */
+    shape: Array<apiTfzModelMetadataRespPayloadInputsElementShapeElement>;
+};
+export type apiTfzModelMetadataRespPayloadInputsElementShapeElement = number;
+export type apiTfzModelMetadataRespPayloadOutputsElement = {
+    /**
+     * - [Go: string] Tensor data type.
+     */
+    dtype: string;
+    /**
+     * - [Go: int] Tensor index.
+     */
+    index: number;
+    /**
+     * - [Go: string] Tensor name.
+     */
+    name: string;
+    /**
+     * - Tensor dimensions.
+     */
+    shape: Array<apiTfzModelMetadataRespPayloadOutputsElementShapeElement>;
+};
+export type apiTfzModelMetadataRespPayloadOutputsElementShapeElement = number;
+export type apiTfzModelPredictParams = {
+    /**
+     * - [Go: string] Dataset identifier.
+     */
+    dataset: string;
+    /**
+     * - [Go: string] Model name.
+     */
+    model_name: string;
+    /**
+     * - [Go: string] Model version.
+     */
+    version: string;
+};
+export type apiTfzModelPredictReq = {
+    params: apiTfzModelPredictParams;
+    payload: apiTfzModelPredictReqPayload;
+};
+export type apiTfzModelPredictReqPayload = {
+    /**
+     * - [Go: string] Model inputs.
+     */
+    inputs: string;
+    /**
+     * - Model partition key/value pairs.
+     */
+    model_partitions: Record<apiTfzModelPredictReqPayloadModelPartitionsKey, apiTfzModelPredictReqPayloadModelPartitionsValue>;
+};
+export type apiTfzModelPredictReqPayloadModelPartitionsKey = string;
+export type apiTfzModelPredictReqPayloadModelPartitionsValue = string;
+export type apiTfzModelPredictResp = {
+    payload: apiTfzModelPredictRespPayload;
+};
+export type apiTfzModelPredictRespPayload = {
+    /**
+     * - [Go: string] Model outputs.
+     */
+    outputs: string;
+};
+export type apiUserAuthDeviceCodeReq = {
+    payload: apiUserAuthDeviceCodeReqPayload;
+};
+export type apiUserAuthDeviceCodeReqPayload = {
+    /**
+     * - [Go: string] CLI client identifier requesting device authorization.
+     */
+    app: string;
+};
+export type apiUserAuthDeviceCodeResp = {
+    payload: apiUserAuthDeviceCodeRespPayload;
+};
+export type apiUserAuthDeviceCodeRespPayload = {
+    /**
+     * - [Go: string] High-entropy internal device verification code for polling.
+     */
+    device_code: string;
+    /**
+     * - [Go: int64] Lifetime of device and user codes in seconds.
+     */
+    expires_in_sec: number;
+    /**
+     * - [Go: int] Minimum polling interval in seconds.
+     */
+    interval_sec: number;
+    /**
+     * - [Go: string] Human-friendly verification code displayed to the user.
+     */
+    user_code: string;
+    /**
+     * - [Go: string] Base browser verification URL.
+     */
+    verification_uri: string;
+    /**
+     * - [Go: string] Pre-filled browser verification URL including the user_code.
+     */
+    verification_uri_complete: string;
+};
+export type apiUserAuthDeviceTokenReq = {
+    payload: apiUserAuthDeviceTokenReqPayload;
+};
+export type apiUserAuthDeviceTokenReqPayload = {
+    /**
+     * - [Go: string] Secret device code returned by /auth/device/code.
+     */
+    device_code: string;
+};
+export type apiUserAuthDeviceTokenResp = {
+    payload: apiUserAuthDeviceTokenRespPayload;
+};
+export type apiUserAuthDeviceTokenRespPayload = {
+    /**
+     * - [Go: int64] Access token expiration epoch millis.
+     */
+    expires_at: number;
+    /**
+     * - [Go: int64] User refresh token expiration epoch millis (30 days).
+     */
+    refresh_token_expires_at: number;
+    /**
+     * - [Go: string] Status of the device code: pending | authorized | denied | expired.
+     */
+    status: string;
+    /**
+     * - [Go: string] Signed user access token JWT (when authorized).
+     */
+    user_access_token: string;
+    /**
+     * - [Go: string] Authenticated user UUID.
+     */
+    user_id: string;
+    /**
+     * - [Go: string] Opaque user refresh token session (when authorized).
+     */
+    user_refresh_token: string;
+};
+export type apiUserAuthExchangeReq = {
+    payload: apiUserAuthExchangeReqPayload;
+};
+export type apiUserAuthExchangeReqPayload = {
+    /**
+     * - [Go: string] Authorization code issued by OAuth identity provider callback.
+     */
+    code: string;
+    /**
+     * - [Go: string] PKCE code_verifier corresponding to the original code_challenge.
+     */
+    code_verifier: string;
+    /**
+     * - [Go: string] Optional extension parameter.
+     */
+    ext: string;
+};
+export type apiUserAuthExchangeResp = {
+    payload: apiUserAuthExchangeRespPayload;
+};
+export type apiUserAuthExchangeRespPayload = {
+    /**
+     * - [Go: int64] Access token expiration epoch millis.
+     */
+    expires_at: number;
+    /**
+     * - [Go: int64] User refresh token expiration epoch millis.
+     */
+    refresh_token_expires_at: number;
+    /**
+     * - [Go: string] Signed user access token JWT.
+     */
+    user_access_token: string;
+    /**
+     * - [Go: string] Authenticated user UUID.
+     */
+    user_id: string;
+    /**
+     * - [Go: string] Opaque user refresh token with new secret.
+     */
+    user_refresh_token: string;
+};
+export type apiUserAuthGoogleReq = {
+    payload: apiUserAuthGoogleReqPayload;
+};
+export type apiUserAuthGoogleReqPayload = {
+    /**
+     * - [Go: string] Optional client application identifier.
+     */
+    app: string;
+    /**
+     * - [Go: string] PKCE code_challenge for authorization flow.
+     */
+    code_challenge: string;
+    /**
+     * - [Go: string] Google OpenID Connect ID token credential string.
+     */
+    id_token: string;
+};
+export type apiUserAuthGoogleResp = {
+    payload: apiUserAuthGoogleRespPayload;
+};
+export type apiUserAuthGoogleRespPayload = {
+    /**
+     * - [Go: string] Authorization code to be exchanged for tokens.
+     */
+    code: string;
+};
+export type apiUserAuthLogoutReq = {
+    payload: apiUserAuthLogoutReqPayload;
+};
+export type apiUserAuthLogoutReqPayload = {
+    /**
+     * - [Go: string] Human user refresh token to revoke.
+     */
+    refresh_token: string;
+};
+export type apiUserAuthLogoutResp = {
+    payload: apiUserAuthLogoutRespPayload;
+};
+export type apiUserAuthLogoutRespPayload = {
+    /**
+     * - [Go: bool] Confirmation flag that refresh token was successfully revoked.
+     */
+    success: boolean;
+};
+export type apiUserAuthMeReq = {
+    headers: apiUserAuthMeReqHeaders;
+};
+export type apiUserAuthMeReqHeaders = {
+    /**
+     * - [Go: string] User Bearer JWT access token.
+     */
+    authorization: string;
+};
+export type apiUserAuthMeResp = {
+    payload: apiUserAuthMeRespPayload;
+};
+export type apiUserAuthMeRespPayload = {
+    /**
+     * - [Go: int64] Account creation timestamp in epoch milliseconds.
+     */
+    created_at: number;
+    /**
+     * - [Go: string] Redacted email address for display.
+     */
+    email_redacted: string;
+    /**
+     * - List of linked identity providers.
+     */
+    providers: Array<apiUserAuthMeRespPayloadProvidersElement>;
+    /**
+     * - [Go: string] User unique identifier.
+     */
+    user_id: string;
+};
+export type apiUserAuthMeRespPayloadProvidersElement = string;
+export type apiUserAuthPasswordResetReq = {
+    payload: apiUserAuthPasswordResetReqPayload;
+};
+export type apiUserAuthPasswordResetReqPayload = {
+    /**
+     * - [Go: string] Account email address requesting password reset.
+     */
+    email: string;
+};
+export type apiUserAuthPasswordResetResp = {
+    payload: apiUserAuthPasswordResetRespPayload;
+};
+export type apiUserAuthPasswordResetRespPayload = {
+    /**
+     * - [Go: string] Target account email address.
+     */
+    email: string;
+    /**
+     * - [Go: string] Status of password reset request: password_reset_email_sent.
+     */
+    status: string;
+};
+export type apiUserAuthPasswordSigninReq = {
+    payload: apiUserAuthPasswordSigninReqPayload;
+};
+export type apiUserAuthPasswordSigninReqPayload = {
+    /**
+     * - [Go: string] Optional client application identifier.
+     */
+    app: string;
+    /**
+     * - [Go: string] PKCE code_challenge for authorization flow.
+     */
+    code_challenge: string;
+    /**
+     * - [Go: string] Account email address.
+     */
+    email: string;
+    /**
+     * - [Go: string] Account plaintext password.
+     */
+    password: string;
+};
+export type apiUserAuthPasswordSigninResp = {
+    payload: apiUserAuthPasswordSigninRespPayload;
+};
+export type apiUserAuthPasswordSigninRespPayload = {
+    /**
+     * - [Go: string] Authorization code to be exchanged for tokens.
+     */
+    code: string;
+};
+export type apiUserAuthPasswordSignupReq = {
+    payload: apiUserAuthPasswordSignupReqPayload;
+};
+export type apiUserAuthPasswordSignupReqPayload = {
+    /**
+     * - [Go: string] Optional client application identifier.
+     */
+    app: string;
+    /**
+     * - [Go: string] Optional PKCE code_challenge.
+     */
+    code_challenge: string;
+    /**
+     * - [Go: string] Desired account email address.
+     */
+    email: string;
+    /**
+     * - [Go: string] Desired account plaintext password.
+     */
+    password: string;
+};
+export type apiUserAuthPasswordSignupResp = {
+    payload: apiUserAuthPasswordSignupRespPayload;
+};
+export type apiUserAuthPasswordSignupRespPayload = {
+    /**
+     * - [Go: string] Target account email address.
+     */
+    email: string;
+    /**
+     * - [Go: string] Status of user registration: verification_email_sent.
+     */
+    status: string;
+};
+export type apiUserAuthRefreshReq = {
+    payload: apiUserAuthRefreshReqPayload;
+};
+export type apiUserAuthRefreshReqPayload = {
+    /**
+     * - [Go: string] Opaque user refresh token in format <jti>.<secret>.
+     */
+    refresh_token: string;
+};
+export type apiUserAuthRefreshResp = {
+    payload: apiUserAuthRefreshRespPayload;
+};
+export type apiUserAuthRefreshRespPayload = {
+    /**
+     * - [Go: int64] Access token expiration epoch millis (1 hour).
+     */
+    expires_at: number;
+    /**
+     * - [Go: int64] User refresh token expiration epoch millis (30 days).
+     */
+    refresh_token_expires_at: number;
+    /**
+     * - [Go: string] Fresh signed user access token JWT.
+     */
+    user_access_token: string;
+    /**
+     * - [Go: string] Authenticated user UUID.
+     */
+    user_id: string;
+    /**
+     * - [Go: string] Rotated opaque user refresh token with new secret.
+     */
+    user_refresh_token: string;
+};
+export type apiUserConfSettingsResp = {
+    payload: apiUserConfSettingsRespPayload;
+};
+export type apiUserConfSettingsRespPayload = {
+    /**
+     * - [Go: int64] Time-to-live for dataset access tokens in seconds.
+     */
+    dataset_access_token_ttl_seconds: number;
+    /**
+     * - [Go: int64] Time-to-live for RFC 8628 device codes in seconds.
+     */
+    device_code_ttl_seconds: number;
+    /**
+     * - [Go: int64] Maximum idle duration for refresh tokens in seconds before expiration.
+     */
+    refresh_token_max_idle_seconds: number;
+    /**
+     * - [Go: int64] Maximum allowed future expiration for Ed25519 request signatures in seconds.
+     */
+    signed_request_max_ttl_seconds: number;
+    /**
+     * - [Go: int64] Time-to-live for human user access tokens in seconds.
+     */
+    user_access_token_ttl_seconds: number;
+};
+export type apiUserDatasetTokenAccessAttenuateReq = {
+    headers: apiUserDatasetTokenAccessAttenuateReqHeaders;
+    payload: apiUserDatasetTokenAccessAttenuateReqPayload;
+};
+export type apiUserDatasetTokenAccessAttenuateReqHeaders = {
+    /**
+     * - [Go: string] Parent Bearer dataset access token.
+     */
+    authorization: string;
+};
+export type apiUserDatasetTokenAccessAttenuateReqPayload = {
+    /**
+     * - [Go: int64] Requested lifetime in seconds (capped at parent exp).
+     */
+    exp_seconds: number;
+    /**
+     * - Additional restrictive label constraints.
+     */
+    newlabels: Record<apiUserDatasetTokenAccessAttenuateReqPayloadNewlabelsKey, apiUserDatasetTokenAccessAttenuateReqPayloadNewlabelsValue>;
+    /**
+     * - [Go: grants.Grant] Reduced uint8 grant bitmask.
+     */
+    subgrants: Grant;
+    /**
+     * - [Go: solution.Solution] Narrowed solution domain.
+     */
+    subsolution: string;
+};
+export type apiUserDatasetTokenAccessAttenuateReqPayloadNewlabelsKey = string;
+export type apiUserDatasetTokenAccessAttenuateReqPayloadNewlabelsValue = string;
+export type apiUserDatasetTokenAccessAttenuateResp = {
+    payload: apiUserDatasetTokenAccessAttenuateRespPayload;
+};
+export type apiUserDatasetTokenAccessAttenuateRespPayload = {
+    /**
+     * - [Go: string] Attenuated Base64URL dataset access token.
+     */
+    access_token: string;
+    /**
+     * - [Go: lakedsz.Dataset] Target dataset ID.
+     */
+    dataset: string;
+    /**
+     * - [Go: int64] Expiration epoch milliseconds.
+     */
+    expires_at: number;
+    /**
+     * - [Go: grants.Grant] Effective uint8 grant bitmask.
+     */
+    grants: Grant;
+    /**
+     * - Effective metadata labels.
+     */
+    labels: Record<apiUserDatasetTokenAccessAttenuateRespPayloadLabelsKey, apiUserDatasetTokenAccessAttenuateRespPayloadLabelsValue>;
+    /**
+     * - [Go: solution.Solution] Effective solution domain.
+     */
+    solution: string;
+};
+export type apiUserDatasetTokenAccessAttenuateRespPayloadLabelsKey = string;
+export type apiUserDatasetTokenAccessAttenuateRespPayloadLabelsValue = string;
+export type apiUserDatasetTokenAccessCreateParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Target dataset ID.
+     */
+    dataset: string;
+};
+export type apiUserDatasetTokenAccessCreateReq = {
+    params: apiUserDatasetTokenAccessCreateParams;
+    headers: apiUserDatasetTokenAccessCreateReqHeaders;
+    payload: apiUserDatasetTokenAccessCreateReqPayload;
+};
+export type apiUserDatasetTokenAccessCreateReqHeaders = {
+    /**
+     * - [Go: string] User Bearer JWT access token.
+     */
+    authorization: string;
+};
+export type apiUserDatasetTokenAccessCreateReqPayload = {
+    /**
+     * - [Go: string] Base64URL client public key for PoP binding (empty for unbound bearer).
+     */
+    client_pub_key: string;
+    /**
+     * - [Go: int64] Requested lifetime in seconds.
+     */
+    exp_seconds: number;
+    /**
+     * - [Go: grants.Grant] Compact uint8 grant bitmask.
+     */
+    grants: Grant;
+    /**
+     * - Contextual metadata labels.
+     */
+    labels: Record<apiUserDatasetTokenAccessCreateReqPayloadLabelsKey, apiUserDatasetTokenAccessCreateReqPayloadLabelsValue>;
+    /**
+     * - [Go: solution.Solution] Target solution domain restriction (empty for all).
+     */
+    solution: string;
+};
+export type apiUserDatasetTokenAccessCreateReqPayloadLabelsKey = string;
+export type apiUserDatasetTokenAccessCreateReqPayloadLabelsValue = string;
+export type apiUserDatasetTokenAccessCreateResp = {
+    payload: apiUserDatasetTokenAccessCreateRespPayload;
+};
+export type apiUserDatasetTokenAccessCreateRespPayload = {
+    /**
+     * - [Go: string] Binary-packed Base64URL dataset access token.
+     */
+    access_token: string;
+    /**
+     * - [Go: lakedsz.Dataset] Target dataset ID.
+     */
+    dataset: string;
+    /**
+     * - [Go: int64] Expiration epoch milliseconds.
+     */
+    expires_at: number;
+    /**
+     * - [Go: grants.Grant] Effective uint8 grant bitmask.
+     */
+    grants: Grant;
+    /**
+     * - Contextual metadata labels.
+     */
+    labels: Record<apiUserDatasetTokenAccessCreateRespPayloadLabelsKey, apiUserDatasetTokenAccessCreateRespPayloadLabelsValue>;
+    /**
+     * - [Go: solution.Solution] Solution domain restriction.
+     */
+    solution: string;
+};
+export type apiUserDatasetTokenAccessCreateRespPayloadLabelsKey = string;
+export type apiUserDatasetTokenAccessCreateRespPayloadLabelsValue = string;
+export type apiUserDatasetTokenRefreshCreateParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Target dataset ID.
+     */
+    dataset: string;
+};
+export type apiUserDatasetTokenRefreshCreateReq = {
+    params: apiUserDatasetTokenRefreshCreateParams;
+    headers: apiUserDatasetTokenRefreshCreateReqHeaders;
+    payload: apiUserDatasetTokenRefreshCreateReqPayload;
+};
+export type apiUserDatasetTokenRefreshCreateReqHeaders = {
+    /**
+     * - [Go: string] User Bearer JWT access token.
+     */
+    authorization: string;
+};
+export type apiUserDatasetTokenRefreshCreateReqPayload = {
+    /**
+     * - [Go: string] Optional description for token management.
+     */
+    annotation: string;
+    /**
+     * - [Go: int64] Requested expiration duration in seconds.
+     */
+    exp_seconds: number;
+    /**
+     * - [Go: grants.Grant] Grants bitmask.
+     */
+    grants: Grant;
+    /**
+     * - Metadata labels.
+     */
+    labels: Record<apiUserDatasetTokenRefreshCreateReqPayloadLabelsKey, apiUserDatasetTokenRefreshCreateReqPayloadLabelsValue>;
+    /**
+     * - [Go: solution.Solution] Solution domain restriction.
+     */
+    solution: string;
+};
+export type apiUserDatasetTokenRefreshCreateReqPayloadLabelsKey = string;
+export type apiUserDatasetTokenRefreshCreateReqPayloadLabelsValue = string;
+export type apiUserDatasetTokenRefreshCreateResp = {
+    payload: apiUserDatasetTokenRefreshCreateRespPayload;
+};
+export type apiUserDatasetTokenRefreshCreateRespPayload = {
+    /**
+     * - [Go: string] Description note.
+     */
+    annotation: string;
+    /**
+     * - [Go: lakedsz.Dataset] Target dataset ID.
+     */
+    dataset: string;
+    /**
+     * - [Go: int64] Expiration epoch milliseconds.
+     */
+    expires_at: number;
+    /**
+     * - [Go: grants.Grant] Granted permissions.
+     */
+    grants: Grant;
+    /**
+     * - [Go: string] Token JTI public identifier.
+     */
+    jti: string;
+    /**
+     * - Metadata labels.
+     */
+    labels: Record<apiUserDatasetTokenRefreshCreateRespPayloadLabelsKey, apiUserDatasetTokenRefreshCreateRespPayloadLabelsValue>;
+    /**
+     * - [Go: string] Base64URL-encoded Ed25519 private key (returned once only).
+     */
+    priv_key: string;
+    /**
+     * - [Go: solution.Solution] Solution domain restriction.
+     */
+    solution: string;
+};
+export type apiUserDatasetTokenRefreshCreateRespPayloadLabelsKey = string;
+export type apiUserDatasetTokenRefreshCreateRespPayloadLabelsValue = string;
+export type apiUserDatasetTokenRefreshDeleteParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Target dataset ID.
+     */
+    dataset: string;
+    /**
+     * - [Go: string] Token JTI (public key identifier) to revoke.
+     */
+    jti: string;
+};
+export type apiUserDatasetTokenRefreshDeleteReq = {
+    params: apiUserDatasetTokenRefreshDeleteParams;
+    headers: apiUserDatasetTokenRefreshDeleteReqHeaders;
+};
+export type apiUserDatasetTokenRefreshDeleteReqHeaders = {
+    /**
+     * - [Go: string] User Bearer JWT access token.
+     */
+    authorization: string;
+};
+export type apiUserDatasetTokenRefreshDeleteResp = object;
+export type apiUserDatasetTokenRefreshListParams = {
+    /**
+     * - [Go: lakedsz.Dataset] Target dataset ID.
+     */
+    dataset: string;
+};
+export type apiUserDatasetTokenRefreshListReq = {
+    params: apiUserDatasetTokenRefreshListParams;
+    headers: apiUserDatasetTokenRefreshListReqHeaders;
+};
+export type apiUserDatasetTokenRefreshListReqHeaders = {
+    /**
+     * - [Go: string] User Bearer JWT access token.
+     */
+    authorization: string;
+};
+export type apiUserDatasetTokenRefreshListResp = {
+    payload: apiUserDatasetTokenRefreshListRespPayload;
+};
+export type apiUserDatasetTokenRefreshListRespPayload = {
+    /**
+     * - List of refresh token records.
+     */
+    tokens: Array<apiUserDatasetTokenRefreshListRespPayloadTokensElement>;
+};
+export type apiUserDatasetTokenRefreshListRespPayloadTokensElement = {
+    /**
+     * - [Go: string] Description note.
+     */
+    annotation: string;
+    /**
+     * - [Go: int64] Creation timestamp in millis.
+     */
+    created_at: number;
+    /**
+     * - [Go: string] User ID who created the token.
+     */
+    created_by: string;
+    /**
+     * - [Go: lakedsz.Dataset] Target dataset ID.
+     */
+    dataset: string;
+    /**
+     * - [Go: int64] Expiration timestamp in millis.
+     */
+    expires_at: number;
+    /**
+     * - [Go: grants.Grant] Grants bitmask.
+     */
+    grants: Grant;
+    /**
+     * - [Go: string] Token JTI.
+     */
+    jti: string;
+    /**
+     * - Metadata labels.
+     */
+    labels: Record<apiUserDatasetTokenRefreshListRespPayloadTokensElementLabelsKey, apiUserDatasetTokenRefreshListRespPayloadTokensElementLabelsValue>;
+    /**
+     * - [Go: int64] Epoch milliseconds when token was last refreshed (0 = never used).
+     */
+    last_used_at: number;
+    /**
+     * - [Go: bool] Revocation status flag.
+     */
+    revoked: boolean;
+    /**
+     * - [Go: solution.Solution] Solution domain restriction.
+     */
+    solution: string;
+};
+export type apiUserDatasetTokenRefreshListRespPayloadTokensElementLabelsKey = string;
+export type apiUserDatasetTokenRefreshListRespPayloadTokensElementLabelsValue = string;
+export type apiUserDatasetTokenRefreshReq = {
+    headers: apiUserDatasetTokenRefreshReqHeaders;
+    payload: apiUserDatasetTokenRefreshReqPayload;
+};
+export type apiUserDatasetTokenRefreshReqHeaders = {
+    /**
+     * - [Go: string] Standalone 121-byte RefreshAssertion Ed25519 signature.
+     */
+    x_i6_signature: string;
+};
+export type apiUserDatasetTokenRefreshReqPayload = {
+    /**
+     * - [Go: lakedsz.Dataset] Target dataset ID.
+     */
+    dataset: string;
+    /**
+     * - [Go: int64] Requested lifetime in seconds.
+     */
+    exp_seconds: number;
+    /**
+     * - Additional restrictive label constraints.
+     */
+    newlabels: Record<apiUserDatasetTokenRefreshReqPayloadNewlabelsKey, apiUserDatasetTokenRefreshReqPayloadNewlabelsValue>;
+    /**
+     * - [Go: grants.Grant] Optional reduced grant bitmask.
+     */
+    subgrants: Grant;
+    /**
+     * - [Go: solution.Solution] Optional sub-solution restriction.
+     */
+    subsolution: string;
+    /**
+     * - [Go: bool] If true, mints an unbound bearer token usable with Authorization: Bearer.
+     */
+    unbound: boolean;
+};
+export type apiUserDatasetTokenRefreshReqPayloadNewlabelsKey = string;
+export type apiUserDatasetTokenRefreshReqPayloadNewlabelsValue = string;
+export type apiUserDatasetTokenRefreshResp = {
+    payload: apiUserDatasetTokenRefreshRespPayload;
+};
+export type apiUserDatasetTokenRefreshRespPayload = {
+    /**
+     * - [Go: string] Binary-packed Base64URL dataset access token.
+     */
+    access_token: string;
+    /**
+     * - [Go: lakedsz.Dataset] Target dataset ID.
+     */
+    dataset: string;
+    /**
+     * - [Go: int64] Expiration epoch milliseconds.
+     */
+    expires_at: number;
+    /**
+     * - [Go: grants.Grant] Effective uint8 grant bitmask.
+     */
+    grants: Grant;
+    /**
+     * - Effective metadata labels.
+     */
+    labels: Record<apiUserDatasetTokenRefreshRespPayloadLabelsKey, apiUserDatasetTokenRefreshRespPayloadLabelsValue>;
+    /**
+     * - [Go: solution.Solution] Effective solution domain.
+     */
+    solution: string;
+};
+export type apiUserDatasetTokenRefreshRespPayloadLabelsKey = string;
+export type apiUserDatasetTokenRefreshRespPayloadLabelsValue = string;
+export type apiUserTokenCheckReq = {
+    headers: apiUserTokenCheckReqHeaders;
+    payload: apiUserTokenCheckReqPayload;
+};
+export type apiUserTokenCheckReqHeaders = {
+    /**
+     * - [Go: string] User Bearer JWT access token or dataset token.
+     */
+    authorization: string;
+    /**
+     * - [Go: string] Standalone 121-byte RefreshAssertion Ed25519 signature.
+     */
+    x_i6_signature: string;
+};
+export type apiUserTokenCheckReqPayload = {
+    /**
+     * - [Go: string] Target request body.
+     */
+    body: string;
+    /**
+     * - [Go: string] Target HTTP method.
+     */
+    method: string;
+    /**
+     * - [Go: string] Target URL path.
+     */
+    path: string;
+    /**
+     * - [Go: string] Target URL query string.
+     */
+    query: string;
+    /**
+     * - [Go: string] Request signature (envelope + token) in payload mode.
+     */
+    signature: string;
+    /**
+     * - [Go: string] Bearer token in payload mode (User JWT or Dataset Access Token).
+     */
+    token: string;
+};
+export type apiUserTokenCheckResp = {
+    payload: apiUserTokenCheckRespPayload;
+};
+export type apiUserTokenCheckRespPayload = {
+    /**
+     * - Detailed diagnostic breakdown and server-computed values.
+     */
+    diagnostics: apiUserTokenCheckRespPayloadDiagnostics;
+    /**
+     * - [Go: string] Standard error code if invalid.
+     */
+    error_code: string;
+    /**
+     * - [Go: string] High-level summary of verification status.
+     */
+    summary: string;
+    /**
+     * - [Go: string] Detected credential type: request_signature, user_jwt, or dataset_access_token.
+     */
+    token_kind: string;
+    /**
+     * - [Go: bool] Indicates whether credential was mathematically verified.
+     */
+    valid: boolean;
+};
+export type apiUserTokenCheckRespPayloadDiagnostics = {
+    /**
+     * - [Go: string] Audience client app extracted from User JWT.
+     */
+    audience: string;
+    /**
+     * - Component fields of canonical string.
+     */
+    breakdown: apiUserTokenCheckRespPayloadDiagnosticsBreakdown;
+    /**
+     * - [Go: string] Client Ed25519 public key in lowercase hex.
+     */
+    client_pub_key_hex: string;
+    /**
+     * - Cryptographic signature verification results.
+     */
+    crypto_check: apiUserTokenCheckRespPayloadDiagnosticsCryptoCheck;
+    /**
+     * - [Go: string] Dataset ID from dataset access token.
+     */
+    dataset: string;
+    /**
+     * - Embedded dataset access token details.
+     */
+    embedded_token: apiUserTokenCheckRespPayloadDiagnosticsEmbeddedToken;
+    /**
+     * - Envelope metadata.
+     */
+    envelope: apiUserTokenCheckRespPayloadDiagnosticsEnvelope;
+    /**
+     * - [Go: int64] Expiration timestamp.
+     */
+    expires_at: number;
+    /**
+     * - [Go: uint8] Permission bitmask.
+     */
+    grants: number;
+    /**
+     * - [Go: string] Actionable troubleshooting guidance.
+     */
+    hint: string;
+    /**
+     * - [Go: bool] Reports whether credential has expired.
+     */
+    is_expired: boolean;
+    /**
+     * - [Go: string] Dataset token mode: unbound_bearer or sender_constrained.
+     */
+    mode: string;
+    /**
+     * - [Go: string] Server-computed canonical string for signatures.
+     */
+    server_canonical_string: string;
+    /**
+     * - [Go: uint8] Solutions bitmask.
+     */
+    solutions: number;
+    /**
+     * - [Go: int64] Seconds remaining until expiration.
+     */
+    time_remaining_seconds: number;
+    /**
+     * - [Go: string] User ID extracted from User JWT.
+     */
+    user_id: string;
+};
+export type apiUserTokenCheckRespPayloadDiagnosticsBreakdown = {
+    /**
+     * - [Go: string] SHA-256 digest of request body.
+     */
+    body_sha256: string;
+    /**
+     * - [Go: string] Canonical sorted query string.
+     */
+    canonical_query: string;
+    /**
+     * - [Go: uint64] Expiration timestamp in epoch seconds.
+     */
+    exp: number;
+    /**
+     * - [Go: string] HTTP method.
+     */
+    method: string;
+    /**
+     * - [Go: string] Nonce in lowercase hex.
+     */
+    nonce: string;
+    /**
+     * - [Go: string] Normalized URL path.
+     */
+    path: string;
+    /**
+     * - [Go: string] SHA-256 digest of access token.
+     */
+    token_sha256: string;
+    /**
+     * - [Go: bool] Reports whether unsigned body flag was enabled.
+     */
+    unsigned_body: boolean;
+};
+export type apiUserTokenCheckRespPayloadDiagnosticsCryptoCheck = {
+    /**
+     * - [Go: bool] Reports whether Ed25519 verification succeeded.
+     */
+    match: boolean;
+    /**
+     * - [Go: string] Client public key used to verify signature.
+     */
+    verified_against_pubkey: string;
+};
+export type apiUserTokenCheckRespPayloadDiagnosticsEmbeddedToken = {
+    /**
+     * - [Go: string] Client Ed25519 public key in lowercase hex.
+     */
+    client_pub_key_hex: string;
+    /**
+     * - [Go: string] Target dataset ID.
+     */
+    dataset: string;
+    /**
+     * - [Go: int64] Expiration in epoch milliseconds.
+     */
+    expires_at: number;
+    /**
+     * - [Go: uint8] Permission bitmask.
+     */
+    grants: number;
+    /**
+     * - [Go: uint8] Solutions bitmask.
+     */
+    solutions: number;
+};
+export type apiUserTokenCheckRespPayloadDiagnosticsEnvelope = {
+    /**
+     * - [Go: uint64] Expiration epoch seconds.
+     */
+    exp: number;
+    /**
+     * - [Go: bool] Reports whether envelope has expired.
+     */
+    is_expired: boolean;
+    /**
+     * - [Go: bool] Reports whether time-windowed replay mode is active.
+     */
+    is_time_windowed: boolean;
+    /**
+     * - [Go: string] Nonce in lowercase hex.
+     */
+    nonce_hex: string;
+    /**
+     * - [Go: int64] Seconds remaining until expiration.
+     */
+    time_remaining_seconds: number;
+    /**
+     * - [Go: uint8] Wire token type identifier.
+     */
+    token_type: number;
+};
+export type dszFileStat = {
+    /**
+     * - missing summary
+     */
+    url: string;
+    /**
+     * - missing summary
+     */
+    content_type: string;
+    /**
+     * - missing summary
+     */
+    md5: string;
+    /**
+     * - missing summary
+     */
+    size: string;
+    /**
+     * - missing summary
+     */
+    etag: string;
+    /**
+     * - missing summary
+     */
+    created_at: dszTime;
+    /**
+     * - missing summary
+     */
+    updated_at: dszTime;
+};
+export type dszTime = string;
+export type sdkFuncProductRelevanceFashionDashAttachedRevenueInput = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+    /**
+     * - Query params.
+     */
+    params: sdkFuncProductRelevanceFashionDashAttachedRevenueInputParams;
+};
+export type sdkFuncProductRelevanceFashionDashAttachedRevenueInputParams = {
+    /**
+     * - [Go: string] Last year-month of period (e.g. 2026-11).
+     */
+    max_year_month: string;
+    /**
+     * - [Go: string] First year-month of period (e.g. 2026-07).
+     */
+    min_year_month: string;
+};
+export type sdkFuncProductRelevanceFashionDashAttachedRevenueOutput = {
+    /**
+     * - Query results.
+     */
+    results: sdkFuncProductRelevanceFashionDashAttachedRevenueOutputResults;
+};
+export type sdkFuncProductRelevanceFashionDashAttachedRevenueOutputResults = {
+    /**
+     * - Result rows.
+     */
+    rows: Array<sdkFuncProductRelevanceFashionDashAttachedRevenueOutputResultsRowsElement>;
+};
+export type sdkFuncProductRelevanceFashionDashAttachedRevenueOutputResultsRowsElement = {
+    /**
+     * - [Go: float64] Number of purchases attached to recommendations.
+     */
+    attached_purchases: number;
+    /**
+     * - [Go: float64] Revenue attached to recommendations.
+     */
+    attached_revenue: number;
+    /**
+     * - [Go: float64] Number of distinct SKUs attached to recommendations.
+     */
+    attached_skus: number;
+    /**
+     * - [Go: float64] Average ticket value for attached purchases.
+     */
+    avg_ticket: number;
+};
+export type sdkFuncProductRelevanceFashionDashAttachedRevenuePartitions = {
+    /**
+     * - [Go: string] Store identifier.
+     */
+    store_id: string;
+};
+export type sdkFuncProductRelevanceFashionDashAttachedRevenueReq = {
+    input: sdkFuncProductRelevanceFashionDashAttachedRevenueInput;
+    partitions: sdkFuncProductRelevanceFashionDashAttachedRevenuePartitions;
+};
+export type sdkFuncProductRelevanceFashionDashAttachedRevenueResp = {
+    output: sdkFuncProductRelevanceFashionDashAttachedRevenueOutput;
+};
+export type sdkFuncProductRelevanceFashionDashCoverageInput = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+    /**
+     * - Query params.
+     */
+    params: sdkFuncProductRelevanceFashionDashCoverageInputParams;
+};
+export type sdkFuncProductRelevanceFashionDashCoverageInputParams = {
+    /**
+     * - [Go: string] Last year-month of period (e.g. 2026-11).
+     */
+    max_year_month: string;
+    /**
+     * - [Go: string] First year-month of period (e.g. 2026-07).
+     */
+    min_year_month: string;
+};
+export type sdkFuncProductRelevanceFashionDashCoverageOutput = {
+    /**
+     * - Query results.
+     */
+    results: sdkFuncProductRelevanceFashionDashCoverageOutputResults;
+};
+export type sdkFuncProductRelevanceFashionDashCoverageOutputResults = {
+    /**
+     * - Result rows.
+     */
+    rows: Array<sdkFuncProductRelevanceFashionDashCoverageOutputResultsRowsElement>;
+};
+export type sdkFuncProductRelevanceFashionDashCoverageOutputResultsRowsElement = {
+    /**
+     * - [Go: float64] Bottom 90 coverage percentage.
+     */
+    bottom_90_coverage: number;
+    /**
+     * - [Go: float64] Long-tail coverage percentage.
+     */
+    long_tail_coverage: number;
+    /**
+     * - [Go: float64] Catalog recommendation coverage percentage.
+     */
+    recomendation_coverage: number;
+    /**
+     * - [Go: float64] Recommendable items count.
+     */
+    recommendable_items: number;
+    /**
+     * - [Go: float64] Recommended items count.
+     */
+    recommended_items: number;
+    /**
+     * - [Go: float64] Top 1 coverage percentage.
+     */
+    top_1_coverage: number;
+    /**
+     * - [Go: float64] Top 1 to 5 coverage percentage.
+     */
+    top_1_to_5_coverage: number;
+    /**
+     * - [Go: float64] Top 5 to 10 coverage percentage.
+     */
+    top_5_to_10_coverage: number;
+};
+export type sdkFuncProductRelevanceFashionDashCoveragePartitions = {
+    /**
+     * - [Go: string] Store identifier.
+     */
+    store_id: string;
+};
+export type sdkFuncProductRelevanceFashionDashCoverageReq = {
+    input: sdkFuncProductRelevanceFashionDashCoverageInput;
+    partitions: sdkFuncProductRelevanceFashionDashCoveragePartitions;
+};
+export type sdkFuncProductRelevanceFashionDashCoverageResp = {
+    output: sdkFuncProductRelevanceFashionDashCoverageOutput;
+};
+export type sdkFuncProductRelevanceFashionDashDisplayMetricsStatusInput = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+    /**
+     * - Query params.
+     */
+    params: sdkFuncProductRelevanceFashionDashDisplayMetricsStatusInputParams;
+};
+export type sdkFuncProductRelevanceFashionDashDisplayMetricsStatusInputParams = {
+    /**
+     * - [Go: string] Last year-month of period (e.g. 2026-11).
+     */
+    max_year_month: string;
+    /**
+     * - [Go: string] First year-month of period (e.g. 2026-07).
+     */
+    min_year_month: string;
+};
+export type sdkFuncProductRelevanceFashionDashDisplayMetricsStatusOutput = {
+    /**
+     * - Query results.
+     */
+    results: sdkFuncProductRelevanceFashionDashDisplayMetricsStatusOutputResults;
+};
+export type sdkFuncProductRelevanceFashionDashDisplayMetricsStatusOutputResults = {
+    /**
+     * - Result rows.
+     */
+    rows: Array<sdkFuncProductRelevanceFashionDashDisplayMetricsStatusOutputResultsRowsElement>;
+};
+export type sdkFuncProductRelevanceFashionDashDisplayMetricsStatusOutputResultsRowsElement = {
+    /**
+     * - [Go: float64] Number of cart adds.
+     */
+    cart_adds: number;
+    /**
+     * - [Go: float64] Number of clicks.
+     */
+    clicks: number;
+    /**
+     * - [Go: float64] Conversion rate.
+     */
+    conversion_rate: number;
+    /**
+     * - [Go: float64] Click-through rate.
+     */
+    ctr: number;
+    /**
+     * - [Go: string] ISO-8601 timestamp of last display activity.
+     */
+    last_display_activity: string;
+    /**
+     * - [Go: float64] Number of purchases.
+     */
+    purchases: number;
+    /**
+     * - [Go: float64] Number of raw recommendations.
+     */
+    rec_raws: number;
+    /**
+     * - [Go: float64] Number of recommendations shown.
+     */
+    rec_shows: number;
+    /**
+     * - [Go: float64] Total revenue generated.
+     */
+    revenue: number;
+    /**
+     * - [Go: string] Source display identifier.
+     */
+    src_display_id: string;
+    /**
+     * - [Go: float64] Unique sessions count.
+     */
+    unique_sessions: number;
+    /**
+     * - [Go: float64] Performance uplift value.
+     */
+    uplift: number;
+    /**
+     * - [Go: string] Status indicator color for uplift.
+     */
+    uplift_color: string;
+};
+export type sdkFuncProductRelevanceFashionDashDisplayMetricsStatusPartitions = {
+    /**
+     * - [Go: string] Store identifier.
+     */
+    store_id: string;
+};
+export type sdkFuncProductRelevanceFashionDashDisplayMetricsStatusReq = {
+    input: sdkFuncProductRelevanceFashionDashDisplayMetricsStatusInput;
+    partitions: sdkFuncProductRelevanceFashionDashDisplayMetricsStatusPartitions;
+};
+export type sdkFuncProductRelevanceFashionDashDisplayMetricsStatusResp = {
+    output: sdkFuncProductRelevanceFashionDashDisplayMetricsStatusOutput;
+};
+export type sdkFuncProductRelevanceFashionDashFunnelInput = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+    /**
+     * - Query params.
+     */
+    params: sdkFuncProductRelevanceFashionDashFunnelInputParams;
+};
+export type sdkFuncProductRelevanceFashionDashFunnelInputParams = {
+    /**
+     * - [Go: string] Last year-month of period (e.g. 2026-11).
+     */
+    max_year_month: string;
+    /**
+     * - [Go: string] First year-month of period (e.g. 2026-07).
+     */
+    min_year_month: string;
+};
+export type sdkFuncProductRelevanceFashionDashFunnelOutput = {
+    /**
+     * - Query results.
+     */
+    results: sdkFuncProductRelevanceFashionDashFunnelOutputResults;
+};
+export type sdkFuncProductRelevanceFashionDashFunnelOutputResults = {
+    /**
+     * - Result rows.
+     */
+    rows: Array<sdkFuncProductRelevanceFashionDashFunnelOutputResultsRowsElement>;
+};
+export type sdkFuncProductRelevanceFashionDashFunnelOutputResultsRowsElement = {
+    /**
+     * - [Go: string] Event type name.
+     */
+    event_type: string;
+    /**
+     * - [Go: string] Whether event originated from recommendation.
+     */
+    from_rec: string;
+    /**
+     * - [Go: string] Event count.
+     */
+    qt_events: string;
+};
+export type sdkFuncProductRelevanceFashionDashFunnelPartitions = {
+    /**
+     * - [Go: string] Store identifier.
+     */
+    store_id: string;
+};
+export type sdkFuncProductRelevanceFashionDashFunnelReq = {
+    input: sdkFuncProductRelevanceFashionDashFunnelInput;
+    partitions: sdkFuncProductRelevanceFashionDashFunnelPartitions;
+};
+export type sdkFuncProductRelevanceFashionDashFunnelResp = {
+    output: sdkFuncProductRelevanceFashionDashFunnelOutput;
+};
+export type sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryInput = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+    /**
+     * - Query params.
+     */
+    params: sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryInputParams;
+};
+export type sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryInputParams = {
+    /**
+     * - [Go: string] Last year-month of period (e.g. 2026-11).
+     */
+    max_year_month: string;
+    /**
+     * - [Go: string] First year-month of period (e.g. 2026-07).
+     */
+    min_year_month: string;
+};
+export type sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryOutput = {
+    /**
+     * - Query results.
+     */
+    results: sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryOutputResults;
+};
+export type sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryOutputResults = {
+    /**
+     * - Result rows.
+     */
+    rows: Array<sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryOutputResultsRowsElement>;
+};
+export type sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryOutputResultsRowsElement = {
+    /**
+     * - [Go: float64] Number of cart adds.
+     */
+    cart_adds: number;
+    /**
+     * - [Go: float64] Number of clicks.
+     */
+    clicks: number;
+    /**
+     * - [Go: float64] Conversion rate.
+     */
+    conversion_rate: number;
+    /**
+     * - [Go: float64] Participation rate.
+     */
+    participation: number;
+    /**
+     * - [Go: float64] Number of purchases.
+     */
+    purchases: number;
+    /**
+     * - [Go: float64] Number of recommendations.
+     */
+    recomendations: number;
+    /**
+     * - [Go: float64] Total revenue generated.
+     */
+    revenue: number;
+    /**
+     * - [Go: string] Showcase category name.
+     */
+    showcase_category: string;
+};
+export type sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryPartitions = {
+    /**
+     * - [Go: string] Store identifier.
+     */
+    store_id: string;
+};
+export type sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryReq = {
+    input: sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryInput;
+    partitions: sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryPartitions;
+};
+export type sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryResp = {
+    output: sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryOutput;
+};
+export type sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuInput = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+    /**
+     * - Query params.
+     */
+    params: sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuInputParams;
+};
+export type sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuInputParams = {
+    /**
+     * - [Go: string] Last year-month of period (e.g. 2026-11).
+     */
+    max_year_month: string;
+    /**
+     * - [Go: string] First year-month of period (e.g. 2026-07).
+     */
+    min_year_month: string;
+};
+export type sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuOutput = {
+    /**
+     * - Query results.
+     */
+    results: sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuOutputResults;
+};
+export type sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuOutputResults = {
+    /**
+     * - Result rows.
+     */
+    rows: Array<sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuOutputResultsRowsElement>;
+};
+export type sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuOutputResultsRowsElement = {
+    /**
+     * - [Go: float64] Number of cart adds.
+     */
+    cart_adds: number;
+    /**
+     * - [Go: float64] Number of clicks.
+     */
+    clicks: number;
+    /**
+     * - [Go: float64] Conversion rate.
+     */
+    conversion_rate: number;
+    /**
+     * - [Go: string] SKU description.
+     */
+    description: string;
+    /**
+     * - [Go: float64] Engagement rate.
+     */
+    engagement_rate: number;
+    /**
+     * - [Go: float64] Participation rate.
+     */
+    participation: number;
+    /**
+     * - [Go: float64] Number of purchases.
+     */
+    purchases: number;
+    /**
+     * - [Go: float64] Number of recommendations.
+     */
+    recomendations: number;
+    /**
+     * - [Go: float64] Total revenue generated.
+     */
+    revenue: number;
+    /**
+     * - [Go: string] Showcase category name.
+     */
+    showcase_category: string;
+    /**
+     * - [Go: string] SKU identifier.
+     */
+    sku_id: string;
+};
+export type sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuPartitions = {
+    /**
+     * - [Go: string] Store identifier.
+     */
+    store_id: string;
+};
+export type sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuReq = {
+    input: sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuInput;
+    partitions: sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuPartitions;
+};
+export type sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuResp = {
+    output: sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuOutput;
+};
+export type sdkFuncProductRelevanceFashionDashListShowcaseCategoriesInput = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+};
+export type sdkFuncProductRelevanceFashionDashListShowcaseCategoriesOutput = {
+    /**
+     * - Query results.
+     */
+    results: sdkFuncProductRelevanceFashionDashListShowcaseCategoriesOutputResults;
+};
+export type sdkFuncProductRelevanceFashionDashListShowcaseCategoriesOutputResults = {
+    /**
+     * - Result rows.
+     */
+    rows: Array<sdkFuncProductRelevanceFashionDashListShowcaseCategoriesOutputResultsRowsElement>;
+};
+export type sdkFuncProductRelevanceFashionDashListShowcaseCategoriesOutputResultsRowsElement = {
+    /**
+     * - [Go: string] Showcase category name.
+     */
+    showcase_category: string;
+};
+export type sdkFuncProductRelevanceFashionDashListShowcaseCategoriesPartitions = {
+    /**
+     * - [Go: string] Store identifier.
+     */
+    store_id: string;
+};
+export type sdkFuncProductRelevanceFashionDashListShowcaseCategoriesReq = {
+    input: sdkFuncProductRelevanceFashionDashListShowcaseCategoriesInput;
+    partitions: sdkFuncProductRelevanceFashionDashListShowcaseCategoriesPartitions;
+};
+export type sdkFuncProductRelevanceFashionDashListShowcaseCategoriesResp = {
+    output: sdkFuncProductRelevanceFashionDashListShowcaseCategoriesOutput;
+};
+export type sdkFuncProductRelevanceFashionFbtInput = {
+    /**
+     * - [Go: lakedsz.Dataset] Dataset identifier.
+     */
+    dataset: string;
+    /**
+     * - [Go: string] Session identifier.
+     */
+    session_id: string;
+    /**
+     * - SKUs to find matches for.
+     */
+    skus: Array<sdkFuncProductRelevanceFashionFbtInputSkusElement>;
+    /**
+     * - [Go: string] User identifier.
+     */
+    user_id: string;
+};
+export type sdkFuncProductRelevanceFashionFbtInputSkusElement = {
+    /**
+     * - [Go: string] SKU identifier.
+     */
+    sku_id: string;
+};
+export type sdkFuncProductRelevanceFashionFbtOutput = {
+    /**
+     * - Inference results.
+     */
+    results: Array<sdkFuncProductRelevanceFashionFbtOutputResultsElement>;
+};
+export type sdkFuncProductRelevanceFashionFbtOutputResultsElement = {
+    /**
+     * - [Go: float64] Result rating.
+     */
+    rating: number;
+    /**
+     * - Matching SKUs.
+     */
+    skus: Array<sdkFuncProductRelevanceFashionFbtOutputResultsElementSkusElement>;
+};
+export type sdkFuncProductRelevanceFashionFbtOutputResultsElementSkusElement = {
+    /**
+     * - [Go: string] SKU identifier.
+     */
+    sku_id: string;
+};
+export type sdkFuncProductRelevanceFashionFbtOutputResultsElementSkusElementEnriched = {
+    /**
+     * - Id of the sku. Required; the only field sent to i6 (in the recshow event)
+     */
+    sku_id: string;
+    /**
+     * - Model rating, higher is more relevant. The default selectResults sets the rating of the result the sku was picked from
+     */
+    rating: number;
+    /**
+     * - Optional: any data your selectResults attaches to the sku (e.g. name, price, image). Returned to you as is, never sent to i6. The default selectResults does not set it
+     */
+    enriched: any;
+};
+export type sdkFuncProductRelevanceFashionFbtPartitions = {
+    /**
+     * - [Go: string] Store identifier.
+     */
+    store_id: string;
+};
+export type sdkFuncProductRelevanceFashionFbtReq = {
+    input: sdkFuncProductRelevanceFashionFbtInput;
+    partitions: sdkFuncProductRelevanceFashionFbtPartitions;
+};
+export type sdkFuncProductRelevanceFashionFbtResp = {
+    output: sdkFuncProductRelevanceFashionFbtOutput;
+};
+export type sdkFuncProductRelevanceFashionFbtSelected = {
+    /**
+     * - Skus to show, in the order selectResults returned them
+     */
+    results: Array<sdkFuncProductRelevanceFashionFbtOutputResultsElementSkusElementEnriched>;
+};
+/**
+ * @typedef {import("../invoker/invoker.js").ServiceOptions} ServiceOptions
+ */
+/**
+ * @template T
+ * @typedef {T} i6JsonEmbedded
+ */
+/**
+ * [Go: grants.Grant] Compact permission bitmask: 1=System, 2=Admin, 4=Write, 8=Read, 15=All. Combine using bitwise OR (|) or bitmapz.join(...).
+ * @typedef {1 | 2 | 4 | 8 | number} Grant
+ */
+/**
+ * apiDszCreateCustomerPortal params
+ * @typedef {object} apiDszCreateCustomerPortalParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ */
+/**
+ * apiDszCreateCustomerPortal Request
+ * @typedef {object} apiDszCreateCustomerPortalReq
+ * @property {apiDszCreateCustomerPortalParams} params
+ * @property {apiDszCreateCustomerPortalReqPayload} payload
+ */
+/**
+ * apiDszCreateCustomerPortal reqPayload
+ * @typedef {object} apiDszCreateCustomerPortalReqPayload
+ * @property {string} locale - [Go: string] Preferred locale for customer portal.
+ * @property {string} return_url - [Go: string] Return URL after customer portal session.
+ */
+/**
+ * apiDszCreateCustomerPortal Response
+ * @typedef {object} apiDszCreateCustomerPortalResp
+ * @property {apiDszCreateCustomerPortalRespPayload} payload
+ */
+/**
+ * apiDszCreateCustomerPortal respPayload
+ * @typedef {object} apiDszCreateCustomerPortalRespPayload
+ * @property {string} url - [Go: string] Stripe customer portal URL.
+ */
+/**
+ * apiDszCreateIngestionToken params
+ * @typedef {object} apiDszCreateIngestionTokenParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ */
+/**
+ * apiDszCreateIngestionToken Request
+ * @typedef {object} apiDszCreateIngestionTokenReq
+ * @property {apiDszCreateIngestionTokenParams} params
+ * @property {apiDszCreateIngestionTokenReqPayload} payload
+ */
+/**
+ * apiDszCreateIngestionToken reqPayload
+ * @typedef {object} apiDszCreateIngestionTokenReqPayload
+ * @property {string} annotation - [Go: string] Optional description note.
+ */
+/**
+ * apiDszCreateIngestionToken Response
+ * @typedef {object} apiDszCreateIngestionTokenResp
+ */
+/**
+ * apiDszCreateRecsysToken params
+ * @typedef {object} apiDszCreateRecsysTokenParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ */
+/**
+ * apiDszCreateRecsysToken Request
+ * @typedef {object} apiDszCreateRecsysTokenReq
+ * @property {apiDszCreateRecsysTokenParams} params
+ * @property {apiDszCreateRecsysTokenReqPayload} payload
+ */
+/**
+ * apiDszCreateRecsysToken reqPayload
+ * @typedef {object} apiDszCreateRecsysTokenReqPayload
+ * @property {string} annotation - [Go: string] Description note.
+ * @property {string} channel - [Go: string] Channel identifier.
+ */
+/**
+ * apiDszCreateRecsysToken Response
+ * @typedef {object} apiDszCreateRecsysTokenResp
+ */
+/**
+ * apiDszCreateStore params
+ * @typedef {object} apiDszCreateStoreParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ */
+/**
+ * apiDszCreateStore Request
+ * @typedef {object} apiDszCreateStoreReq
+ * @property {apiDszCreateStoreParams} params
+ * @property {apiDszCreateStoreReqPayload} payload
+ */
+/**
+ * apiDszCreateStore reqPayload
+ * @typedef {object} apiDszCreateStoreReqPayload
+ * @property {apiDszCreateStoreReqPayloadStore} store - Store details.
+ */
+/**
+ * Store details.
+ * @typedef {object} apiDszCreateStoreReqPayloadStore
+ * @property {string} id - [Go: storeid.StoreId] Unique identifier of the store.
+ * @property {string} name - [Go: string] Human-readable name of the store.
+ * @property {Array<apiDszCreateStoreReqPayloadStoreSolutionDomainsElement>} solution_domains - Solution domains associated with this store.
+ */
+/**
+ * [Go: solutiondomain.SolutionDomain] Solution domain association.
+ * @typedef {string} apiDszCreateStoreReqPayloadStoreSolutionDomainsElement
+ */
+/**
+ * apiDszCreateStore Response
+ * @typedef {object} apiDszCreateStoreResp
+ */
+/**
+ * apiDszDatasetSolutions params
+ * @typedef {object} apiDszDatasetSolutionsParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ */
+/**
+ * apiDszDatasetSolutions Request
+ * @typedef {object} apiDszDatasetSolutionsReq
+ * @property {apiDszDatasetSolutionsParams} params
+ */
+/**
+ * apiDszDatasetSolutions Response
+ * @typedef {object} apiDszDatasetSolutionsResp
+ * @property {apiDszDatasetSolutionsRespPayload} payload
+ */
+/**
+ * apiDszDatasetSolutions respPayload
+ * @typedef {object} apiDszDatasetSolutionsRespPayload
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ * @property {Array<apiDszDatasetSolutionsRespPayloadSolutionsElement>} solutions - Active solutions enabled on the dataset.
+ */
+/**
+ * [Go: solution.Solution]
+ * @typedef {string} apiDszDatasetSolutionsRespPayloadSolutionsElement
+ */
+/**
+ * apiDszDeleteToken params
+ * @typedef {object} apiDszDeleteTokenParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ */
+/**
+ * apiDszDeleteToken query
+ * @typedef {object} apiDszDeleteTokenQuery
+ * @property {string} token - [Go: string] Token identifier to revoke.
+ */
+/**
+ * apiDszDeleteToken Request
+ * @typedef {object} apiDszDeleteTokenReq
+ * @property {apiDszDeleteTokenParams} params
+ * @property {apiDszDeleteTokenQuery} query
+ */
+/**
+ * apiDszDeleteToken Response
+ * @typedef {object} apiDszDeleteTokenResp
+ */
+/**
+ * apiDszDomainGet params
+ * @typedef {object} apiDszDomainGetParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ */
+/**
+ * apiDszDomainGet query
+ * @typedef {object} apiDszDomainGetQuery
+ * @property {string} store_id - [Go: storeid.StoreId] Store ID to query.
+ */
+/**
+ * apiDszDomainGet Request
+ * @typedef {object} apiDszDomainGetReq
+ * @property {apiDszDomainGetParams} params
+ * @property {apiDszDomainGetQuery} query
+ */
+/**
+ * apiDszDomainGet Response
+ * @typedef {object} apiDszDomainGetResp
+ * @property {apiDszDomainGetRespPayload} payload
+ */
+/**
+ * apiDszDomainGet respPayload
+ * @typedef {object} apiDszDomainGetRespPayload
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ * @property {Array<apiDszDomainGetRespPayloadSolutionsElement>} solutions - Solution domain mappings.
+ * @property {string} store_id - [Go: storeid.StoreId] Store ID queried.
+ */
+/**
+ * @typedef {object} apiDszDomainGetRespPayloadSolutionsElement
+ * @property {string} domain - [Go: domain.Domain]
+ * @property {string} solution - [Go: solution.Solution]
+ */
+/**
+ * apiDszGetSubscription params
+ * @typedef {object} apiDszGetSubscriptionParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ * @property {string} solution - [Go: solution.Solution] Solution product.
+ */
+/**
+ * apiDszGetSubscription Request
+ * @typedef {object} apiDszGetSubscriptionReq
+ * @property {apiDszGetSubscriptionParams} params
+ */
+/**
+ * apiDszGetSubscription Response
+ * @typedef {object} apiDszGetSubscriptionResp
+ * @property {apiDszGetSubscriptionRespPayload} payload
+ */
+/**
+ * apiDszGetSubscription respPayload
+ * @typedef {object} apiDszGetSubscriptionRespPayload
+ * @property {dszTime} cancel_at - [Go: time.Time] Cancellation timestamp in UTC.
+ * @property {boolean} cancel_at_period_end - [Go: bool] Whether subscription will be canceled at period end.
+ * @property {dszTime} created_at - [Go: time.Time] Subscription creation timestamp in UTC.
+ * @property {dszTime} current_period_end_at - [Go: time.Time] Current billing period end timestamp in UTC.
+ * @property {dszTime} current_period_start_at - [Go: time.Time] Current billing period start timestamp in UTC.
+ * @property {dszTime} next_invoice_at - [Go: time.Time] Next invoice timestamp in UTC.
+ * @property {string} plan_key - [Go: string] Lookup key of base price in Stripe.
+ * @property {string} status - [Go: string] Subscription status in Stripe.
+ * @property {dszTime} trial_end_at - [Go: time.Time] Trial end timestamp in UTC.
+ * @property {dszTime} trial_start_at - [Go: time.Time] Trial start timestamp in UTC.
+ */
+/**
+ * apiDszListDatasets params
+ * @typedef {object} apiDszListDatasetsParams
+ * @property {string} userId - [Go: string] User identifier (id).
+ */
+/**
+ * apiDszListDatasets Request
+ * @typedef {object} apiDszListDatasetsReq
+ * @property {apiDszListDatasetsParams} params
+ */
+/**
+ * apiDszListDatasets Response
+ * @typedef {object} apiDszListDatasetsResp
+ * @property {apiDszListDatasetsRespPayload} payload
+ */
+/**
+ * apiDszListDatasets respPayload
+ * @typedef {object} apiDszListDatasetsRespPayload
+ * @property {Array<apiDszListDatasetsRespPayloadDatasetsElement>} datasets - List of datasets available to the user.
+ */
+/**
+ * Dataset represents an Infinity6 dataset container and permissions.
+ * @typedef {object} apiDszListDatasetsRespPayloadDatasetsElement
+ * @property {Grant} grants - [Go: grants.Grant] Compact grant bitmask held by the user on this dataset.
+ * @property {string} id - [Go: string] Unique identifier of the dataset.
+ * @property {string} name - [Go: string] Human-readable name of the dataset.
+ */
+/**
+ * apiDszListIngestionTokens params
+ * @typedef {object} apiDszListIngestionTokensParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ */
+/**
+ * apiDszListIngestionTokens Request
+ * @typedef {object} apiDszListIngestionTokensReq
+ * @property {apiDszListIngestionTokensParams} params
+ */
+/**
+ * apiDszListIngestionTokens Response
+ * @typedef {object} apiDszListIngestionTokensResp
+ * @property {apiDszListIngestionTokensRespPayload} payload
+ */
+/**
+ * apiDszListIngestionTokens respPayload
+ * @typedef {object} apiDszListIngestionTokensRespPayload
+ * @property {Array<apiDszListIngestionTokensRespPayloadTokensElement>} tokens - List of ingestion tokens.
+ */
+/**
+ * @typedef {object} apiDszListIngestionTokensRespPayloadTokensElement
+ * @property {string} annotation - [Go: string] Note identifying the purpose of the token.
+ * @property {string} audience - [Go: string] Token audience.
+ * @property {string} channel - [Go: string] Sales channel the token is restricted to.
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ * @property {number} expiration_date - [Go: int64] Token expiration date.
+ * @property {Array<apiDszListIngestionTokensRespPayloadTokensElementGrantsElement>} grants - Permissions granted by the token.
+ * @property {string} id - [Go: string] Token id.
+ * @property {string} jti - [Go: string] Token unique id (JWT id).
+ * @property {string} token - [Go: string] Token value.
+ */
+/**
+ * [Go: string]
+ * @typedef {string} apiDszListIngestionTokensRespPayloadTokensElementGrantsElement
+ */
+/**
+ * apiDszListPayments params
+ * @typedef {object} apiDszListPaymentsParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ */
+/**
+ * apiDszListPayments Request
+ * @typedef {object} apiDszListPaymentsReq
+ * @property {apiDszListPaymentsParams} params
+ */
+/**
+ * apiDszListPayments Response
+ * @typedef {object} apiDszListPaymentsResp
+ * @property {apiDszListPaymentsRespPayload} payload
+ */
+/**
+ * apiDszListPayments respPayload
+ * @typedef {object} apiDszListPaymentsRespPayload
+ * @property {Array<apiDszListPaymentsRespPayloadPaymentsElement>} payments - Payment invoice records.
+ */
+/**
+ * @typedef {object} apiDszListPaymentsRespPayloadPaymentsElement
+ * @property {number} amount_due - [Go: int64]
+ * @property {number} amount_paid - [Go: int64]
+ * @property {dszTime} created - [Go: time.Time]
+ * @property {string} currency - [Go: string]
+ * @property {string} id - [Go: string]
+ * @property {string} invoice_pdf_url - [Go: string]
+ * @property {Array<apiDszListPaymentsRespPayloadPaymentsElementLinesElement>} lines
+ * @property {string} number - [Go: string]
+ * @property {dszTime} period_end - [Go: time.Time]
+ * @property {dszTime} period_start - [Go: time.Time]
+ * @property {string} receipt_pdf_url - [Go: string]
+ * @property {string} status - [Go: string]
+ */
+/**
+ * @typedef {object} apiDszListPaymentsRespPayloadPaymentsElementLinesElement
+ * @property {number} amount - [Go: int64]
+ * @property {string} description - [Go: string]
+ * @property {string} id - [Go: string]
+ * @property {string} solution - [Go: solution.Solution]
+ */
+/**
+ * apiDszListPlans params
+ * @typedef {object} apiDszListPlansParams
+ * @property {string} solution - [Go: solution.Solution] Solution product identifier.
+ */
+/**
+ * apiDszListPlans Request
+ * @typedef {object} apiDszListPlansReq
+ * @property {apiDszListPlansParams} params
+ */
+/**
+ * apiDszListPlans Response
+ * @typedef {object} apiDszListPlansResp
+ * @property {apiDszListPlansRespPayload} payload
+ */
+/**
+ * apiDszListPlans respPayload
+ * @typedef {object} apiDszListPlansRespPayload
+ * @property {Array<apiDszListPlansRespPayloadPlansElement>} plans - Available subscription plans.
+ */
+/**
+ * @typedef {object} apiDszListPlansRespPayloadPlansElement
+ * @property {number} amount - [Go: int64]
+ * @property {string} currency - [Go: string]
+ * @property {string} description - [Go: string]
+ * @property {string} frequency - [Go: string]
+ * @property {number} included_requests - [Go: int64]
+ * @property {boolean} included_requests_unlimited - [Go: bool]
+ * @property {string} key - [Go: string]
+ * @property {number} lic_amount - [Go: int64]
+ * @property {string} name - [Go: string]
+ * @property {number} req_amount - [Go: int64]
+ * @property {string} req_amount_decimal - [Go: string]
+ * @property {string} tier - [Go: string]
+ */
+/**
+ * apiDszListRecsysTokens params
+ * @typedef {object} apiDszListRecsysTokensParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ */
+/**
+ * apiDszListRecsysTokens Request
+ * @typedef {object} apiDszListRecsysTokensReq
+ * @property {apiDszListRecsysTokensParams} params
+ */
+/**
+ * apiDszListRecsysTokens Response
+ * @typedef {object} apiDszListRecsysTokensResp
+ * @property {apiDszListRecsysTokensRespPayload} payload
+ */
+/**
+ * apiDszListRecsysTokens respPayload
+ * @typedef {object} apiDszListRecsysTokensRespPayload
+ * @property {Array<apiDszListRecsysTokensRespPayloadTokensElement>} tokens - List of recsys tokens.
+ */
+/**
+ * @typedef {object} apiDszListRecsysTokensRespPayloadTokensElement
+ * @property {string} annotation - [Go: string] Note identifying the purpose of the token.
+ * @property {string} audience - [Go: string] Token audience.
+ * @property {string} channel - [Go: string] Sales channel the token is restricted to.
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ * @property {number} expiration_date - [Go: int64] Token expiration date.
+ * @property {Array<apiDszListRecsysTokensRespPayloadTokensElementGrantsElement>} grants - Permissions granted by the token.
+ * @property {string} id - [Go: string] Token id.
+ * @property {string} jti - [Go: string] Token unique id (JWT id).
+ * @property {string} token - [Go: string] Token value.
+ */
+/**
+ * [Go: string]
+ * @typedef {string} apiDszListRecsysTokensRespPayloadTokensElementGrantsElement
+ */
+/**
+ * apiDszListStores params
+ * @typedef {object} apiDszListStoresParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ */
+/**
+ * apiDszListStores Request
+ * @typedef {object} apiDszListStoresReq
+ * @property {apiDszListStoresParams} params
+ */
+/**
+ * apiDszListStores Response
+ * @typedef {object} apiDszListStoresResp
+ * @property {apiDszListStoresRespPayload} payload
+ */
+/**
+ * apiDszListStores respPayload
+ * @typedef {object} apiDszListStoresRespPayload
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ * @property {Array<apiDszListStoresRespPayloadStoresElement>} stores - Stores configured for the dataset.
+ */
+/**
+ * Store configuration object details.
+ * @typedef {object} apiDszListStoresRespPayloadStoresElement
+ * @property {string} id - [Go: storeid.StoreId] Unique identifier of the store.
+ * @property {string} name - [Go: string] Human-readable name of the store.
+ * @property {Array<apiDszListStoresRespPayloadStoresElementSolutionDomainsElement>} solution_domains - Solution domains associated with this store.
+ */
+/**
+ * [Go: solutiondomain.SolutionDomain] Solution domain association.
+ * @typedef {string} apiDszListStoresRespPayloadStoresElementSolutionDomainsElement
+ */
+/**
+ * apiDszModelGet params
+ * @typedef {object} apiDszModelGetParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ * @property {string} model_name - [Go: string] Model name.
+ */
+/**
+ * apiDszModelGet Request
+ * @typedef {object} apiDszModelGetReq
+ * @property {apiDszModelGetParams} params
+ * @property {apiDszModelGetReqPayload} payload
+ */
+/**
+ * apiDszModelGet reqPayload
+ * @typedef {object} apiDszModelGetReqPayload
+ * @property {Record<apiDszModelGetReqPayloadModelPartitionsKey, apiDszModelGetReqPayloadModelPartitionsValue>} model_partitions - Partition key-value pairs.
+ * @property {string} model_version - [Go: string] Model version.
+ */
+/**
+ * [Go: string]
+ * @typedef {string} apiDszModelGetReqPayloadModelPartitionsKey
+ */
+/**
+ * [Go: string]
+ * @typedef {string} apiDszModelGetReqPayloadModelPartitionsValue
+ */
+/**
+ * apiDszModelGet Response
+ * @typedef {object} apiDszModelGetResp
+ * @property {apiDszModelGetRespPayload} payload
+ */
+/**
+ * apiDszModelGet respPayload
+ * @typedef {object} apiDszModelGetRespPayload
+ * @property {Array<apiDszModelGetRespPayloadUrlsElement>} urls - List of model files with signed access URLs.
+ */
+/**
+ * @typedef {object} apiDszModelGetRespPayloadUrlsElement
+ * @property {string} name - [Go: string] File name.
+ * @property {string} url - [Go: string] Signed URL.
+ */
+/**
+ * apiDszResultLastBatchSummary params
+ * @typedef {object} apiDszResultLastBatchSummaryParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Name of the dataset.
+ */
+/**
+ * apiDszResultLastBatchSummary query
+ * @typedef {object} apiDszResultLastBatchSummaryQuery
+ * @property {string} store_id - [Go: storeid.StoreId] Store ID to query.
+ * @property {string} table - [Go: laketbnamez.TableName] Table of the batch in question.
+ */
+/**
+ * apiDszResultLastBatchSummary Request
+ * @typedef {object} apiDszResultLastBatchSummaryReq
+ * @property {apiDszResultLastBatchSummaryParams} params
+ * @property {apiDszResultLastBatchSummaryQuery} query
+ */
+/**
+ * apiDszResultLastBatchSummary Response
+ * @typedef {object} apiDszResultLastBatchSummaryResp
+ * @property {apiDszResultLastBatchSummaryRespPayload} payload
+ */
+/**
+ * apiDszResultLastBatchSummary respPayload
+ * @typedef {object} apiDszResultLastBatchSummaryRespPayload
+ * @property {apiDszResultLastBatchSummaryRespPayloadData} data - Summary of the batch data loaded into the store datalake.
+ */
+/**
+ * Summary of the batch data loaded into the store datalake.
+ * @typedef {object} apiDszResultLastBatchSummaryRespPayloadData
+ * @property {Array<apiDszResultLastBatchSummaryRespPayloadDataColumnSummariesElement>} column_summaries - Summaries of distinct and null counts per column.
+ * @property {string} ingested_at - [Go: string] Batch ingestion date.
+ * @property {number} row_count - [Go: int] Number of rows in the batch.
+ * @property {string} store_id - [Go: string] Store identifier.
+ */
+/**
+ * @typedef {object} apiDszResultLastBatchSummaryRespPayloadDataColumnSummariesElement
+ * @property {string} column_name - [Go: string] Name of the column.
+ * @property {number} distinct_count - [Go: int] Number of distinct values in the column.
+ * @property {number} null_count - [Go: int] Number of null values in the column.
+ */
+/**
+ * apiDszResultRelevanceFashionCatalog params
+ * @typedef {object} apiDszResultRelevanceFashionCatalogParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Name of the dataset.
+ */
+/**
+ * apiDszResultRelevanceFashionCatalog query
+ * @typedef {object} apiDszResultRelevanceFashionCatalogQuery
+ * @property {string} store_id - [Go: storeid.StoreId] Store ID to query.
+ */
+/**
+ * apiDszResultRelevanceFashionCatalog Request
+ * @typedef {object} apiDszResultRelevanceFashionCatalogReq
+ * @property {apiDszResultRelevanceFashionCatalogParams} params
+ * @property {apiDszResultRelevanceFashionCatalogQuery} query
+ */
+/**
+ * apiDszResultRelevanceFashionCatalog Response
+ * @typedef {object} apiDszResultRelevanceFashionCatalogResp
+ * @property {apiDszResultRelevanceFashionCatalogRespPayload} payload
+ */
+/**
+ * apiDszResultRelevanceFashionCatalog respPayload
+ * @typedef {object} apiDszResultRelevanceFashionCatalogRespPayload
+ * @property {Array<apiDszResultRelevanceFashionCatalogRespPayloadDataElement>} data - Store simple catalog loaded from the datalake file.
+ */
+/**
+ * @typedef {object} apiDszResultRelevanceFashionCatalogRespPayloadDataElement
+ * @property {string} sku_ds - [Go: string] SKU description.
+ * @property {string} sku_id - [Go: string] SKU identifier.
+ * @property {string} store_id - [Go: storeid.StoreId] Store identifier.
+ */
+/**
+ * apiDszSignedUrl params
+ * @typedef {object} apiDszSignedUrlParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ */
+/**
+ * apiDszSignedUrl Request
+ * @typedef {object} apiDszSignedUrlReq
+ * @property {apiDszSignedUrlParams} params
+ * @property {apiDszSignedUrlReqPayload} payload
+ */
+/**
+ * apiDszSignedUrl reqPayload
+ * @typedef {object} apiDszSignedUrlReqPayload
+ * @property {Array<apiDszSignedUrlReqPayloadPathsElement>} paths - Paths to sign.
+ */
+/**
+ * @typedef {object} apiDszSignedUrlReqPayloadPathsElement
+ * @property {string} method - [Go: fszsignmethod.SignMethod]
+ * @property {string} path - [Go: laketbpathz.Path]
+ */
+/**
+ * apiDszSignedUrl Response
+ * @typedef {object} apiDszSignedUrlResp
+ * @property {apiDszSignedUrlRespPayload} payload
+ */
+/**
+ * apiDszSignedUrl respPayload
+ * @typedef {object} apiDszSignedUrlRespPayload
+ * @property {Array<apiDszSignedUrlRespPayloadUrlsElement>} urls - Signed URLs.
+ */
+/**
+ * @typedef {object} apiDszSignedUrlRespPayloadUrlsElement
+ * @property {string} url - [Go: string]
+ */
+/**
+ * apiDszStoreDisplayCreate params
+ * @typedef {object} apiDszStoreDisplayCreateParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ */
+/**
+ * apiDszStoreDisplayCreate Request
+ * @typedef {object} apiDszStoreDisplayCreateReq
+ * @property {apiDszStoreDisplayCreateParams} params
+ * @property {apiDszStoreDisplayCreateReqPayload} payload
+ */
+/**
+ * apiDszStoreDisplayCreate reqPayload
+ * @typedef {object} apiDszStoreDisplayCreateReqPayload
+ * @property {apiDszStoreDisplayCreateReqPayloadDisplay} display - Store display details.
+ * @property {string} store_id - [Go: storeid.StoreId] Store ID.
+ */
+/**
+ * Store display details.
+ * @typedef {object} apiDszStoreDisplayCreateReqPayloadDisplay
+ * @property {string} id - [Go: storedisplayid.StoreDisplayId] Unique identifier of the store display.
+ * @property {string} name - [Go: string] Human-readable name of the store display.
+ */
+/**
+ * apiDszStoreDisplayCreate Response
+ * @typedef {object} apiDszStoreDisplayCreateResp
+ * @property {apiDszStoreDisplayCreateRespPayload} payload
+ */
+/**
+ * apiDszStoreDisplayCreate respPayload
+ * @typedef {object} apiDszStoreDisplayCreateRespPayload
+ * @property {apiDszStoreDisplayCreateRespPayloadDisplay} display - Created store display details.
+ */
+/**
+ * Created store display details.
+ * @typedef {object} apiDszStoreDisplayCreateRespPayloadDisplay
+ * @property {string} id - [Go: storedisplayid.StoreDisplayId] Unique identifier of the store display.
+ * @property {string} name - [Go: string] Human-readable name of the store display.
+ */
+/**
+ * apiDszStoreDisplayList params
+ * @typedef {object} apiDszStoreDisplayListParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ */
+/**
+ * apiDszStoreDisplayList query
+ * @typedef {object} apiDszStoreDisplayListQuery
+ * @property {string} store_id - [Go: storeid.StoreId] Store ID to filter displays.
+ */
+/**
+ * apiDszStoreDisplayList Request
+ * @typedef {object} apiDszStoreDisplayListReq
+ * @property {apiDszStoreDisplayListParams} params
+ * @property {apiDszStoreDisplayListQuery} query
+ */
+/**
+ * apiDszStoreDisplayList Response
+ * @typedef {object} apiDszStoreDisplayListResp
+ * @property {apiDszStoreDisplayListRespPayload} payload
+ */
+/**
+ * apiDszStoreDisplayList respPayload
+ * @typedef {object} apiDszStoreDisplayListRespPayload
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ * @property {Array<apiDszStoreDisplayListRespPayloadDisplaysElement>} displays - Displays configured for the store.
+ * @property {string} store_id - [Go: storeid.StoreId] Store ID queried.
+ */
+/**
+ * Store display configuration details.
+ * @typedef {object} apiDszStoreDisplayListRespPayloadDisplaysElement
+ * @property {string} id - [Go: storedisplayid.StoreDisplayId] Unique identifier of the store display.
+ * @property {string} name - [Go: string] Human-readable name of the store display.
+ */
+/**
+ * apiDszStripeCheckout Request
+ * @typedef {object} apiDszStripeCheckoutReq
+ * @property {apiDszStripeCheckoutReqPayload} payload
+ */
+/**
+ * apiDszStripeCheckout reqPayload
+ * @typedef {object} apiDszStripeCheckoutReqPayload
+ * @property {string} campaign_state - [Go: string] Base64 state token with checkout metadata.
+ * @property {string} cancel_url - [Go: string] URL to redirect after canceled checkout.
+ * @property {string} dataset_name - [Go: string] Dataset name.
+ * @property {string} document - [Go: string] Document/tax ID of buyer.
+ * @property {string} payment_email - [Go: string] Email of buyer in Stripe.
+ * @property {string} payment_phone - [Go: string] Phone of buyer.
+ * @property {string} plan - [Go: string] Plan key to buy.
+ * @property {string} success_url - [Go: string] URL to redirect after successful checkout.
+ * @property {string} user_exchange_callback_url - [Go: string] Optional callback URL for redeeming checkout artifact ticket.
+ */
+/**
+ * apiDszStripeCheckout Response
+ * @typedef {object} apiDszStripeCheckoutResp
+ * @property {apiDszStripeCheckoutRespPayload} payload
+ */
+/**
+ * apiDszStripeCheckout respPayload
+ * @typedef {object} apiDszStripeCheckoutRespPayload
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier created after payment.
+ * @property {string} id - [Go: string] Checkout session ID.
+ * @property {string} url - [Go: string] Checkout session URL.
+ */
+/**
+ * apiDszTableGet params
+ * @typedef {object} apiDszTableGetParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ * @property {string} path - [Go: string] Table file path without scheme.
+ */
+/**
+ * apiDszTableGet Request
+ * @typedef {object} apiDszTableGetReq
+ * @property {apiDszTableGetParams} params
+ */
+/**
+ * apiDszTableGet Response
+ * @typedef {object} apiDszTableGetResp
+ * @property {apiDszTableGetRespHeaders} headers
+ */
+/**
+ * apiDszTableGet respHeaders
+ * @typedef {object} apiDszTableGetRespHeaders
+ * @property {string} location - [Go: string] Redirect location URL.
+ */
+/**
+ * apiDszTableList params
+ * @typedef {object} apiDszTableListParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ */
+/**
+ * apiDszTableList query
+ * @typedef {object} apiDszTableListQuery
+ * @property {string} from_cursor - [Go: string] Pagination cursor.
+ * @property {number} limit - [Go: int] Limit results count.
+ * @property {string} path - [Go: laketbpathz.Path] Path to list.
+ * @property {boolean} recursive - [Go: bool] Whether to list recursively.
+ * @property {string} sign_method - [Go: fszsignmethod.SignMethod] Sign method for presigned URLs.
+ * @property {boolean} stat - [Go: bool] Whether to include file stats.
+ */
+/**
+ * apiDszTableList Request
+ * @typedef {object} apiDszTableListReq
+ * @property {apiDszTableListParams} params
+ * @property {apiDszTableListQuery} query
+ */
+/**
+ * apiDszTableList Response
+ * @typedef {object} apiDszTableListResp
+ * @property {apiDszTableListRespPayload} payload
+ */
+/**
+ * apiDszTableList respPayload
+ * @typedef {object} apiDszTableListRespPayload
+ * @property {Array<apiDszTableListRespPayloadFilesElement>} files - Files and tables found.
+ * @property {string} next_cursor - [Go: string] Next page pagination cursor.
+ */
+/**
+ * @typedef {object} apiDszTableListRespPayloadFilesElement
+ * @property {string} path - [Go: laketbpathz.Path] Path of file or table.
+ * @property {string} signed_url - [Go: string] Presigned access URL.
+ * @property {dszFileStat} stat - [Go: fsz.FileStat] File metadata and stats.
+ */
+/**
+ * apiDszUpdatePaymentAutoRenew params
+ * @typedef {object} apiDszUpdatePaymentAutoRenewParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ * @property {string} solution - [Go: solution.Solution] Solution domain.
+ */
+/**
+ * apiDszUpdatePaymentAutoRenew Request
+ * @typedef {object} apiDszUpdatePaymentAutoRenewReq
+ * @property {apiDszUpdatePaymentAutoRenewParams} params
+ * @property {apiDszUpdatePaymentAutoRenewReqPayload} payload
+ */
+/**
+ * apiDszUpdatePaymentAutoRenew reqPayload
+ * @typedef {object} apiDszUpdatePaymentAutoRenewReqPayload
+ * @property {boolean} auto_renew - [Go: bool] Auto-renew preference flag.
+ */
+/**
+ * apiDszUpdatePaymentAutoRenew Response
+ * @typedef {object} apiDszUpdatePaymentAutoRenewResp
+ */
+/**
+ * apiDszUpdateSubscriptionPlan params
+ * @typedef {object} apiDszUpdateSubscriptionPlanParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ * @property {string} solution - [Go: solution.Solution] Solution product.
+ */
+/**
+ * apiDszUpdateSubscriptionPlan Request
+ * @typedef {object} apiDszUpdateSubscriptionPlanReq
+ * @property {apiDszUpdateSubscriptionPlanParams} params
+ * @property {apiDszUpdateSubscriptionPlanReqPayload} payload
+ */
+/**
+ * apiDszUpdateSubscriptionPlan reqPayload
+ * @typedef {object} apiDszUpdateSubscriptionPlanReqPayload
+ * @property {string} plan - [Go: string] Lookup key of new Stripe price.
+ */
+/**
+ * apiDszUpdateSubscriptionPlan Response
+ * @typedef {object} apiDszUpdateSubscriptionPlanResp
+ */
+/**
+ * apiIngestzEventRelevanceFashionCatalog params
+ * @typedef {object} apiIngestzEventRelevanceFashionCatalogParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Name of the dataset that receives the catalog data.
+ */
+/**
+ * apiIngestzEventRelevanceFashionCatalog Request
+ * @typedef {object} apiIngestzEventRelevanceFashionCatalogReq
+ * @property {apiIngestzEventRelevanceFashionCatalogParams} params
+ * @property {apiIngestzEventRelevanceFashionCatalogReqPayload} payload
+ */
+/**
+ * apiIngestzEventRelevanceFashionCatalog reqPayload
+ * @typedef {object} apiIngestzEventRelevanceFashionCatalogReqPayload
+ * @property {string} id - [Go: string] Catalog entry id.
+ * @property {boolean} inactive - [Go: bool] Whether the SKU is inactive.
+ * @property {string} product_id - [Go: string] Product identifier.
+ * @property {string} sku_ds - [Go: string] SKU description.
+ * @property {string} sku_id - [Go: string] SKU identifier.
+ * @property {string} store_id - [Go: string] Store identifier.
+ */
+/**
+ * apiIngestzEventRelevanceFashionCatalog Response
+ * @typedef {object} apiIngestzEventRelevanceFashionCatalogResp
+ */
+/**
+ * apiIngestzEventRelevanceFashionEvent params
+ * @typedef {object} apiIngestzEventRelevanceFashionEventParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Name of the dataset that receives the event data.
+ */
+/**
+ * apiIngestzEventRelevanceFashionEvent Request
+ * @typedef {object} apiIngestzEventRelevanceFashionEventReq
+ * @property {apiIngestzEventRelevanceFashionEventParams} params
+ * @property {apiIngestzEventRelevanceFashionEventReqPayload} payload
+ */
+/**
+ * apiIngestzEventRelevanceFashionEvent reqPayload
+ * @typedef {object} apiIngestzEventRelevanceFashionEventReqPayload
+ * @property {apiIngestzEventRelevanceFashionEventReqPayloadAddToCart} add_to_cart - AddToCart event payload. SkuId is required; price must be non-negative.
+ * @property {apiIngestzEventRelevanceFashionEventReqPayloadClick} click - Click event payload. SkuId is required; price must be non-negative.
+ * @property {dszTime} created_at - [Go: time.Time] Timestamp of event creation (required).
+ * @property {string} display_id - [Go: string] Optional display identifier.
+ * @property {string} id - [Go: string] Unique identifier for the event (required).
+ * @property {apiIngestzEventRelevanceFashionEventReqPayloadPurchase} purchase - Purchase event payload. OrderId is required and skus must not be empty.
+ * @property {apiIngestzEventRelevanceFashionEventReqPayloadRecraw} recraw - Recraw event payload representing raw recommendations. RecId, ModelId, and Payload are required.
+ * @property {apiIngestzEventRelevanceFashionEventReqPayloadRecshow} recshow - Recshow event payload representing displayed recommendations. RecId and Payload are required.
+ * @property {apiIngestzEventRelevanceFashionEventReqPayloadRemoveFromCart} remove_from_cart - RemoveFromCart event payload. SkuId is required; price must be non-negative.
+ * @property {apiIngestzEventRelevanceFashionEventReqPayloadSearch} search - Search event payload. Text is required.
+ * @property {string} session_id - [Go: string] Identifier of the user session (required).
+ * @property {string} store_id - [Go: string] Identifier of the store (required).
+ * @property {string} user_id - [Go: string] Optional user identifier.
+ */
+/**
+ * AddToCart event payload. SkuId is required; price must be non-negative.
+ * @typedef {object} apiIngestzEventRelevanceFashionEventReqPayloadAddToCart
+ * @property {number} price - [Go: float64] Price of the added SKU (non-negative).
+ * @property {string} sku_id - [Go: string] SKU identifier (required).
+ */
+/**
+ * Click event payload. SkuId is required; price must be non-negative.
+ * @typedef {object} apiIngestzEventRelevanceFashionEventReqPayloadClick
+ * @property {number} price - [Go: float64] Price of the clicked SKU (non-negative).
+ * @property {string} sku_id - [Go: string] SKU identifier (required).
+ */
+/**
+ * Purchase event payload. OrderId is required and skus must not be empty.
+ * @typedef {object} apiIngestzEventRelevanceFashionEventReqPayloadPurchase
+ * @property {string} order_id - [Go: string] Order identifier (required).
+ * @property {Array<apiIngestzEventRelevanceFashionEventReqPayloadPurchaseSkusElement>} skus - List of purchased SKUs (must not be empty).
+ */
+/**
+ * PurchaseSku represents an individual item in a purchase. SkuId is required, unit_price must be non-negative, and qtty must be greater than 0.
+ * @typedef {object} apiIngestzEventRelevanceFashionEventReqPayloadPurchaseSkusElement
+ * @property {number} qtty - [Go: int64] Quantity of the purchased item (must be greater than 0).
+ * @property {string} sku_id - [Go: string] SKU identifier (required).
+ * @property {number} unit_price - [Go: float64] Unit price of the item (non-negative).
+ */
+/**
+ * Recraw event payload representing raw recommendations. RecId, ModelId, and Payload are required.
+ * @typedef {object} apiIngestzEventRelevanceFashionEventReqPayloadRecraw
+ * @property {string} model_id - [Go: string] Model identifier (required).
+ * @property {string} model_version - [Go: string] Model version string.
+ * @property {string} payload - [Go: string] Raw recommendation payload (required).
+ * @property {string} rec_id - [Go: string] Recommendation identifier (required).
+ */
+/**
+ * Recshow event payload representing displayed recommendations. RecId and Payload are required.
+ * @typedef {object} apiIngestzEventRelevanceFashionEventReqPayloadRecshow
+ * @property {string} model_id - [Go: string] Model identifier.
+ * @property {string} model_version - [Go: string] Model version string.
+ * @property {string} payload - [Go: string] Displayed recommendation payload (required).
+ * @property {string} rec_id - [Go: string] Recommendation identifier (required).
+ */
+/**
+ * RemoveFromCart event payload. SkuId is required; price must be non-negative.
+ * @typedef {object} apiIngestzEventRelevanceFashionEventReqPayloadRemoveFromCart
+ * @property {number} price - [Go: float64] Price of the removed SKU (non-negative).
+ * @property {string} sku_id - [Go: string] SKU identifier (required).
+ */
+/**
+ * Search event payload. Text is required.
+ * @typedef {object} apiIngestzEventRelevanceFashionEventReqPayloadSearch
+ * @property {string} text - [Go: string] Search query text (required).
+ */
+/**
+ * apiIngestzEventRelevanceFashionEvent Response
+ * @typedef {object} apiIngestzEventRelevanceFashionEventResp
+ */
+/**
+ * apiIngestzGetUrl params
+ * @typedef {object} apiIngestzGetUrlParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Name of the dataset that receives the uploaded files.
+ */
+/**
+ * apiIngestzGetUrl Request
+ * @typedef {object} apiIngestzGetUrlReq
+ * @property {apiIngestzGetUrlParams} params
+ * @property {apiIngestzGetUrlReqPayload} payload
+ */
+/**
+ * apiIngestzGetUrl reqPayload
+ * @typedef {object} apiIngestzGetUrlReqPayload
+ * @property {number} amount - [Go: int] Number of presigned upload URLs to generate.
+ * @property {Record<apiIngestzGetUrlReqPayloadPartitionsKey, apiIngestzGetUrlReqPayloadPartitionsValue>} partitions - Partition key/value pairs that select the table partition the files are ingested into.
+ * @property {string} table - [Go: laketbnamez.TableName] Name of the table, inside the dataset, that receives the uploaded files.
+ */
+/**
+ * [Go: string]
+ * @typedef {string} apiIngestzGetUrlReqPayloadPartitionsKey
+ */
+/**
+ * [Go: string]
+ * @typedef {string} apiIngestzGetUrlReqPayloadPartitionsValue
+ */
+/**
+ * apiIngestzGetUrl Response
+ * @typedef {object} apiIngestzGetUrlResp
+ * @property {apiIngestzGetUrlRespPayload} payload
+ */
+/**
+ * apiIngestzGetUrl respPayload
+ * @typedef {object} apiIngestzGetUrlRespPayload
+ * @property {string} ingest_id - [Go: string] Ingestion token that identifies this ingestion and ties the uploaded files together.
+ * @property {Array<apiIngestzGetUrlRespPayloadUploadsElement>} uploads - Presigned PUT URLs, one per requested file; upload each file to its URL.
+ */
+/**
+ * [Go: string]
+ * @typedef {string} apiIngestzGetUrlRespPayloadUploadsElement
+ */
+/**
+ * apiIngestzLastBatchSummary params
+ * @typedef {object} apiIngestzLastBatchSummaryParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Name of the dataset that receives the uploaded files.
+ */
+/**
+ * apiIngestzLastBatchSummary query
+ * @typedef {object} apiIngestzLastBatchSummaryQuery
+ * @property {string} store_id - [Go: storeid.StoreId] Store ID associated with the ingestion.
+ * @property {string} table - [Go: laketbnamez.TableName] Name of the table inside the dataset.
+ */
+/**
+ * apiIngestzLastBatchSummary Request
+ * @typedef {object} apiIngestzLastBatchSummaryReq
+ * @property {apiIngestzLastBatchSummaryParams} params
+ * @property {apiIngestzLastBatchSummaryQuery} query
+ */
+/**
+ * apiIngestzLastBatchSummary Response
+ * @typedef {object} apiIngestzLastBatchSummaryResp
+ * @property {apiIngestzLastBatchSummaryRespPayload} payload
+ */
+/**
+ * apiIngestzLastBatchSummary respPayload
+ * @typedef {object} apiIngestzLastBatchSummaryRespPayload
+ * @property {Array<apiIngestzLastBatchSummaryRespPayloadColumnSummariesElement>} column_summaries - Summaries of distinct and null counts per column.
+ * @property {string} ingested_at - [Go: string] Timestamp when the batch was successfully ingested.
+ * @property {number} row_count - [Go: int] Total number of successfully ingested rows.
+ * @property {string} store_id - [Go: storeid.StoreId] Store ID associated with the ingestion.
+ */
+/**
+ * Summary of distinct and null counts for a single column.
+ * @typedef {object} apiIngestzLastBatchSummaryRespPayloadColumnSummariesElement
+ * @property {string} column_name - [Go: string] Name of the column.
+ * @property {number} distinct_count - [Go: int] Number of distinct values in the column.
+ * @property {number} null_count - [Go: int] Number of null values in the column.
+ */
+/**
+ * apiIngestzStreamRelevanceFashionCatalog params
+ * @typedef {object} apiIngestzStreamRelevanceFashionCatalogParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Name of the dataset that receives the stream data.
+ */
+/**
+ * apiIngestzStreamRelevanceFashionCatalog Request
+ * @typedef {object} apiIngestzStreamRelevanceFashionCatalogReq
+ * @property {apiIngestzStreamRelevanceFashionCatalogParams} params
+ * @property {apiIngestzStreamRelevanceFashionCatalogReqPayload} payload
+ */
+/**
+ * apiIngestzStreamRelevanceFashionCatalog reqPayload
+ * @typedef {object} apiIngestzStreamRelevanceFashionCatalogReqPayload
+ * @property {Array<apiIngestzStreamRelevanceFashionCatalogReqPayloadDataElement>} data - Catalog items to ingest.
+ */
+/**
+ * @typedef {object} apiIngestzStreamRelevanceFashionCatalogReqPayloadDataElement
+ * @property {string} id - [Go: string] Catalog entry id.
+ * @property {boolean} inactive - [Go: bool] Whether the SKU is inactive.
+ * @property {string} product_id - [Go: string] Product identifier.
+ * @property {string} sku_ds - [Go: string] SKU description.
+ * @property {string} sku_id - [Go: string] SKU identifier.
+ * @property {string} store_id - [Go: string] Store identifier.
+ */
+/**
+ * apiIngestzStreamRelevanceFashionCatalog Response
+ * @typedef {object} apiIngestzStreamRelevanceFashionCatalogResp
+ * @property {apiIngestzStreamRelevanceFashionCatalogRespPayload} payload
+ */
+/**
+ * apiIngestzStreamRelevanceFashionCatalog respPayload
+ * @typedef {object} apiIngestzStreamRelevanceFashionCatalogRespPayload
+ * @property {number} count - [Go: int] Number of ingested catalog items.
+ */
+/**
+ * apiIngestzStreamRelevanceFashionEvent params
+ * @typedef {object} apiIngestzStreamRelevanceFashionEventParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Name of the dataset that receives the stream data.
+ */
+/**
+ * apiIngestzStreamRelevanceFashionEvent Request
+ * @typedef {object} apiIngestzStreamRelevanceFashionEventReq
+ * @property {apiIngestzStreamRelevanceFashionEventParams} params
+ * @property {apiIngestzStreamRelevanceFashionEventReqPayload} payload
+ */
+/**
+ * apiIngestzStreamRelevanceFashionEvent reqPayload
+ * @typedef {object} apiIngestzStreamRelevanceFashionEventReqPayload
+ * @property {Array<apiIngestzStreamRelevanceFashionEventReqPayloadDataElement>} data - Telemetry events to ingest.
+ */
+/**
+ * Event represents an interaction in the Relevance Fashion domain. ID, StoreId, SessionId, and CreatedAt are required. Exactly one payload (Click, AddToCart, RemoveFromCart, Search, Purchase, Recraw, Recshow) must be set. Read-only fields like dataset and ingested_at are set by the system.
+ * @typedef {object} apiIngestzStreamRelevanceFashionEventReqPayloadDataElement
+ * @property {apiIngestzStreamRelevanceFashionEventReqPayloadDataElementAddToCart} add_to_cart - AddToCart event payload. Mutually exclusive with other payloads.
+ * @property {apiIngestzStreamRelevanceFashionEventReqPayloadDataElementClick} click - Click event payload. Mutually exclusive with other payloads.
+ * @property {dszTime} created_at - [Go: time.Time] Timestamp of event creation (required).
+ * @property {string} display_id - [Go: string] Optional display identifier.
+ * @property {string} id - [Go: string] Unique identifier for the event (required).
+ * @property {apiIngestzStreamRelevanceFashionEventReqPayloadDataElementPurchase} purchase - Purchase event payload. Mutually exclusive with other payloads.
+ * @property {apiIngestzStreamRelevanceFashionEventReqPayloadDataElementRecraw} recraw - Recraw event payload. Mutually exclusive with other payloads.
+ * @property {apiIngestzStreamRelevanceFashionEventReqPayloadDataElementRecshow} recshow - Recshow event payload. Mutually exclusive with other payloads.
+ * @property {apiIngestzStreamRelevanceFashionEventReqPayloadDataElementRemoveFromCart} remove_from_cart - RemoveFromCart event payload. Mutually exclusive with other payloads.
+ * @property {apiIngestzStreamRelevanceFashionEventReqPayloadDataElementSearch} search - Search event payload. Mutually exclusive with other payloads.
+ * @property {string} session_id - [Go: string] Identifier of the user session (required).
+ * @property {string} store_id - [Go: string] Identifier of the store (required).
+ * @property {string} user_id - [Go: string] Optional user identifier.
+ */
+/**
+ * AddToCart event payload. Mutually exclusive with other payloads.
+ * @typedef {object} apiIngestzStreamRelevanceFashionEventReqPayloadDataElementAddToCart
+ * @property {number} price - [Go: float64] Price of the added SKU (non-negative).
+ * @property {string} sku_id - [Go: string] SKU identifier (required).
+ */
+/**
+ * Click event payload. Mutually exclusive with other payloads.
+ * @typedef {object} apiIngestzStreamRelevanceFashionEventReqPayloadDataElementClick
+ * @property {number} price - [Go: float64] Price of the clicked SKU (non-negative).
+ * @property {string} sku_id - [Go: string] SKU identifier (required).
+ */
+/**
+ * Purchase event payload. Mutually exclusive with other payloads.
+ * @typedef {object} apiIngestzStreamRelevanceFashionEventReqPayloadDataElementPurchase
+ * @property {string} order_id - [Go: string] Order identifier (required).
+ * @property {Array<apiIngestzStreamRelevanceFashionEventReqPayloadDataElementPurchaseSkusElement>} skus - List of purchased SKUs (must not be empty).
+ */
+/**
+ * PurchaseSku represents an individual item in a purchase. SkuId is required, unit_price must be non-negative, and qtty must be greater than 0.
+ * @typedef {object} apiIngestzStreamRelevanceFashionEventReqPayloadDataElementPurchaseSkusElement
+ * @property {number} qtty - [Go: int64] Quantity of the purchased item (must be greater than 0).
+ * @property {string} sku_id - [Go: string] SKU identifier (required).
+ * @property {number} unit_price - [Go: float64] Unit price of the item (non-negative).
+ */
+/**
+ * Recraw event payload. Mutually exclusive with other payloads.
+ * @typedef {object} apiIngestzStreamRelevanceFashionEventReqPayloadDataElementRecraw
+ * @property {string} model_id - [Go: string] Model identifier (required).
+ * @property {string} model_version - [Go: string] Model version string.
+ * @property {string} payload - [Go: string] Raw recommendation payload (required).
+ * @property {string} rec_id - [Go: string] Recommendation identifier (required).
+ */
+/**
+ * Recshow event payload. Mutually exclusive with other payloads.
+ * @typedef {object} apiIngestzStreamRelevanceFashionEventReqPayloadDataElementRecshow
+ * @property {string} model_id - [Go: string] Model identifier.
+ * @property {string} model_version - [Go: string] Model version string.
+ * @property {string} payload - [Go: string] Displayed recommendation payload (required).
+ * @property {string} rec_id - [Go: string] Recommendation identifier (required).
+ */
+/**
+ * RemoveFromCart event payload. Mutually exclusive with other payloads.
+ * @typedef {object} apiIngestzStreamRelevanceFashionEventReqPayloadDataElementRemoveFromCart
+ * @property {number} price - [Go: float64] Price of the removed SKU (non-negative).
+ * @property {string} sku_id - [Go: string] SKU identifier (required).
+ */
+/**
+ * Search event payload. Mutually exclusive with other payloads.
+ * @typedef {object} apiIngestzStreamRelevanceFashionEventReqPayloadDataElementSearch
+ * @property {string} text - [Go: string] Search query text (required).
+ */
+/**
+ * apiIngestzStreamRelevanceFashionEvent Response
+ * @typedef {object} apiIngestzStreamRelevanceFashionEventResp
+ * @property {apiIngestzStreamRelevanceFashionEventRespPayload} payload
+ */
+/**
+ * apiIngestzStreamRelevanceFashionEvent respPayload
+ * @typedef {object} apiIngestzStreamRelevanceFashionEventRespPayload
+ * @property {number} count - [Go: int] Number of ingested telemetry events.
+ */
+/**
+ * apiPipezGet params
+ * @typedef {object} apiPipezGetParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ * @property {string} id - [Go: string] Pipeline id.
+ */
+/**
+ * apiPipezGet Request
+ * @typedef {object} apiPipezGetReq
+ * @property {apiPipezGetParams} params
+ */
+/**
+ * apiPipezGet Response
+ * @typedef {object} apiPipezGetResp
+ * @property {apiPipezGetRespPayload} payload
+ */
+/**
+ * apiPipezGet respPayload
+ * @typedef {object} apiPipezGetRespPayload
+ * @property {apiPipezGetRespPayloadPipeline} pipeline
+ */
+/**
+ * @typedef {object} apiPipezGetRespPayloadPipeline
+ * @property {string} concurrent_id - [Go: string] Key identifying runs that cannot overlap.
+ * @property {string} dataset - [Go: string] Dataset identifier.
+ * @property {string} id - [Go: string] Pipeline id.
+ * @property {string} name - [Go: string] Pipeline name.
+ * @property {string} solution_domain - [Go: solutiondomain.SolutionDomain] Solution domain of the pipeline.
+ * @property {Array<apiPipezGetRespPayloadPipelineStatesElement>} states - Pipeline states, one per status change.
+ */
+/**
+ * @typedef {object} apiPipezGetRespPayloadPipelineStatesElement
+ * @property {string} created_at - [Go: string] State creation time.
+ * @property {Record<apiPipezGetRespPayloadPipelineStatesElementParamsKey, apiPipezGetRespPayloadPipelineStatesElementParamsValue>} params - Params of the run at this state.
+ * @property {string} status - [Go: string] State status.
+ */
+/**
+ * [Go: string]
+ * @typedef {string} apiPipezGetRespPayloadPipelineStatesElementParamsKey
+ */
+/**
+ * [Go: any]
+ * @typedef {any} apiPipezGetRespPayloadPipelineStatesElementParamsValue
+ */
+/**
+ * apiPipezList params
+ * @typedef {object} apiPipezListParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ */
+/**
+ * apiPipezList query
+ * @typedef {object} apiPipezListQuery
+ * @property {string} cursor - [Go: string] Cursor to fetch the next page.
+ * @property {number} limit - [Go: int] Maximum number of results.
+ * @property {string} name - [Go: string] Filter by pipeline name.
+ * @property {string} solution_domain - [Go: solutiondomain.SolutionDomain] Filter by solution domain.
+ * @property {string} status - [Go: string] Filter by pipeline status.
+ */
+/**
+ * apiPipezList Request
+ * @typedef {object} apiPipezListReq
+ * @property {apiPipezListParams} params
+ * @property {apiPipezListQuery} query
+ */
+/**
+ * apiPipezList Response
+ * @typedef {object} apiPipezListResp
+ * @property {apiPipezListRespPayload} payload
+ */
+/**
+ * apiPipezList respPayload
+ * @typedef {object} apiPipezListRespPayload
+ * @property {string} cursor - [Go: string] Cursor for the next page.
+ * @property {Array<apiPipezListRespPayloadPipelinesElement>} pipelines - List of pipelines.
+ */
+/**
+ * @typedef {object} apiPipezListRespPayloadPipelinesElement
+ * @property {string} concurrent_id - [Go: string] Key identifying runs that cannot overlap.
+ * @property {string} dataset - [Go: string] Dataset identifier.
+ * @property {string} id - [Go: string] Pipeline id.
+ * @property {string} name - [Go: string] Pipeline name.
+ * @property {string} solution_domain - [Go: solutiondomain.SolutionDomain] Solution domain of the pipeline.
+ * @property {Array<apiPipezListRespPayloadPipelinesElementStatesElement>} states - Pipeline states, one per status change.
+ */
+/**
+ * @typedef {object} apiPipezListRespPayloadPipelinesElementStatesElement
+ * @property {string} created_at - [Go: string] State creation time.
+ * @property {Record<apiPipezListRespPayloadPipelinesElementStatesElementParamsKey, apiPipezListRespPayloadPipelinesElementStatesElementParamsValue>} params - Params of the run at this state.
+ * @property {string} status - [Go: string] State status.
+ */
+/**
+ * [Go: string]
+ * @typedef {string} apiPipezListRespPayloadPipelinesElementStatesElementParamsKey
+ */
+/**
+ * [Go: any]
+ * @typedef {any} apiPipezListRespPayloadPipelinesElementStatesElementParamsValue
+ */
+/**
+ * apiPipezSchedulerActivateRelevanceFashionRelevanceFashionBatchIngest params
+ * @typedef {object} apiPipezSchedulerActivateRelevanceFashionRelevanceFashionBatchIngestParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ */
+/**
+ * apiPipezSchedulerActivateRelevanceFashionRelevanceFashionBatchIngest Request
+ * @typedef {object} apiPipezSchedulerActivateRelevanceFashionRelevanceFashionBatchIngestReq
+ * @property {apiPipezSchedulerActivateRelevanceFashionRelevanceFashionBatchIngestParams} params
+ * @property {apiPipezSchedulerActivateRelevanceFashionRelevanceFashionBatchIngestReqPayload} payload
+ */
+/**
+ * apiPipezSchedulerActivateRelevanceFashionRelevanceFashionBatchIngest reqPayload
+ * @typedef {object} apiPipezSchedulerActivateRelevanceFashionRelevanceFashionBatchIngestReqPayload
+ * @property {string} ingest_id - [Go: string] Batch ingestion id.
+ * @property {string} table - [Go: laketbnamez.TableName] Table that received the batch.
+ */
+/**
+ * apiPipezSchedulerActivateRelevanceFashionRelevanceFashionBatchIngest Response
+ * @typedef {object} apiPipezSchedulerActivateRelevanceFashionRelevanceFashionBatchIngestResp
+ */
+/**
+ * apiPipezSchedulerActivateRelevanceFashionRelevanceFashionMain params
+ * @typedef {object} apiPipezSchedulerActivateRelevanceFashionRelevanceFashionMainParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ */
+/**
+ * apiPipezSchedulerActivateRelevanceFashionRelevanceFashionMain Request
+ * @typedef {object} apiPipezSchedulerActivateRelevanceFashionRelevanceFashionMainReq
+ * @property {apiPipezSchedulerActivateRelevanceFashionRelevanceFashionMainParams} params
+ */
+/**
+ * apiPipezSchedulerActivateRelevanceFashionRelevanceFashionMain Response
+ * @typedef {object} apiPipezSchedulerActivateRelevanceFashionRelevanceFashionMainResp
+ */
+/**
+ * apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionBatchIngest params
+ * @typedef {object} apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionBatchIngestParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ */
+/**
+ * apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionBatchIngest Request
+ * @typedef {object} apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionBatchIngestReq
+ * @property {apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionBatchIngestParams} params
+ * @property {apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionBatchIngestReqPayload} payload
+ */
+/**
+ * apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionBatchIngest reqPayload
+ * @typedef {object} apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionBatchIngestReqPayload
+ * @property {string} ingest_id - [Go: string] Batch ingestion id.
+ * @property {string} table - [Go: laketbnamez.TableName] Table that received the batch.
+ */
+/**
+ * apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionBatchIngest Response
+ * @typedef {object} apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionBatchIngestResp
+ */
+/**
+ * apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionMain params
+ * @typedef {object} apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionMainParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ */
+/**
+ * apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionMain Request
+ * @typedef {object} apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionMainReq
+ * @property {apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionMainParams} params
+ */
+/**
+ * apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionMain Response
+ * @typedef {object} apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionMainResp
+ */
+/**
+ * apiPipezStartRelevanceFashionRelevanceFashionBatchIngest params
+ * @typedef {object} apiPipezStartRelevanceFashionRelevanceFashionBatchIngestParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ */
+/**
+ * apiPipezStartRelevanceFashionRelevanceFashionBatchIngest Request
+ * @typedef {object} apiPipezStartRelevanceFashionRelevanceFashionBatchIngestReq
+ * @property {apiPipezStartRelevanceFashionRelevanceFashionBatchIngestParams} params
+ * @property {apiPipezStartRelevanceFashionRelevanceFashionBatchIngestReqPayload} payload
+ */
+/**
+ * apiPipezStartRelevanceFashionRelevanceFashionBatchIngest reqPayload
+ * @typedef {object} apiPipezStartRelevanceFashionRelevanceFashionBatchIngestReqPayload
+ * @property {string} ingest_id - [Go: string] Batch ingestion id.
+ * @property {string} table - [Go: laketbnamez.TableName] Table that received the batch.
+ */
+/**
+ * apiPipezStartRelevanceFashionRelevanceFashionBatchIngest Response
+ * @typedef {object} apiPipezStartRelevanceFashionRelevanceFashionBatchIngestResp
+ * @property {apiPipezStartRelevanceFashionRelevanceFashionBatchIngestRespPayload} payload
+ */
+/**
+ * apiPipezStartRelevanceFashionRelevanceFashionBatchIngest respPayload
+ * @typedef {object} apiPipezStartRelevanceFashionRelevanceFashionBatchIngestRespPayload
+ * @property {string} id - [Go: string] Pipeline run identifier.
+ */
+/**
+ * apiPipezStartRelevanceFashionRelevanceFashionMain params
+ * @typedef {object} apiPipezStartRelevanceFashionRelevanceFashionMainParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ */
+/**
+ * apiPipezStartRelevanceFashionRelevanceFashionMain Request
+ * @typedef {object} apiPipezStartRelevanceFashionRelevanceFashionMainReq
+ * @property {apiPipezStartRelevanceFashionRelevanceFashionMainParams} params
+ */
+/**
+ * apiPipezStartRelevanceFashionRelevanceFashionMain Response
+ * @typedef {object} apiPipezStartRelevanceFashionRelevanceFashionMainResp
+ * @property {apiPipezStartRelevanceFashionRelevanceFashionMainRespPayload} payload
+ */
+/**
+ * apiPipezStartRelevanceFashionRelevanceFashionMain respPayload
+ * @typedef {object} apiPipezStartRelevanceFashionRelevanceFashionMainRespPayload
+ * @property {string} id - [Go: string] Pipeline run identifier.
+ */
+/**
+ * apiSampleFraction params
+ * @typedef {object} apiSampleFractionParams
+ * @property {number} denominator - [Go: float64] Fraction Denominator
+ * @property {number} numerator - [Go: float64] Fraction Numerator
+ */
+/**
+ * apiSampleFraction query
+ * @typedef {object} apiSampleFractionQuery
+ * @property {number} precision - [Go: int] Fraction max precision
+ * @property {apiSampleFractionQuerySmsg} smsg
+ */
+/**
+ * @typedef {object} apiSampleFractionQuerySmsg
+ * @property {string} message - [Go: string] message string
+ */
+/**
+ * apiSampleFraction Request
+ * @typedef {object} apiSampleFractionReq
+ * @property {apiSampleFractionParams} params
+ * @property {apiSampleFractionQuery} query
+ * @property {apiSampleFractionReqHeaders} headers
+ * @property {apiSampleFractionReqPayload} payload
+ */
+/**
+ * apiSampleFraction reqHeaders
+ * @typedef {object} apiSampleFractionReqHeaders
+ * @property {string} x_i6_trace_id - [Go: string] Sample of Trace Id
+ */
+/**
+ * apiSampleFraction reqPayload
+ * @typedef {object} apiSampleFractionReqPayload
+ * @property {Array<apiSampleFractionReqPayloadMessagesElement>} messages
+ * @property {string} reason - [Go: string] Sample reason of this fraction
+ */
+/**
+ * message
+ * @typedef {object} apiSampleFractionReqPayloadMessagesElement
+ * @property {string} message - [Go: string] message string
+ */
+/**
+ * apiSampleFraction Response
+ * @typedef {object} apiSampleFractionResp
+ * @property {apiSampleFractionRespHeaders} headers
+ * @property {apiSampleFractionRespPayload} payload
+ */
+/**
+ * apiSampleFraction respHeaders
+ * @typedef {object} apiSampleFractionRespHeaders
+ * @property {apiSampleFractionRespHeadersXI6Smsg} x_i6_smsg
+ * @property {string} x_i6_trace_message - [Go: string] Sample of any trace message
+ */
+/**
+ * @typedef {object} apiSampleFractionRespHeadersXI6Smsg
+ * @property {string} message - [Go: string] message string
+ */
+/**
+ * apiSampleFraction respPayload
+ * @typedef {object} apiSampleFractionRespPayload
+ * @property {string} display - [Go: string] Human Fraction Representation
+ * @property {Array<apiSampleFractionRespPayloadMessagesElement>} messages - Output Messages
+ * @property {string} result - [Go: string] Fraction Result
+ */
+/**
+ * [Go: string]
+ * @typedef {string} apiSampleFractionRespPayloadMessagesElement
+ */
+/**
+ * apiTfzModelMetadata params
+ * @typedef {object} apiTfzModelMetadataParams
+ * @property {string} model_name - [Go: string] Model name.
+ * @property {string} version - [Go: string] Model version.
+ */
+/**
+ * apiTfzModelMetadata Request
+ * @typedef {object} apiTfzModelMetadataReq
+ * @property {apiTfzModelMetadataParams} params
+ */
+/**
+ * apiTfzModelMetadata Response
+ * @typedef {object} apiTfzModelMetadataResp
+ * @property {apiTfzModelMetadataRespPayload} payload
+ */
+/**
+ * apiTfzModelMetadata respPayload
+ * @typedef {object} apiTfzModelMetadataRespPayload
+ * @property {Array<apiTfzModelMetadataRespPayloadInputsElement>} inputs - Model input tensors.
+ * @property {Array<apiTfzModelMetadataRespPayloadOutputsElement>} outputs - Model output tensors.
+ */
+/**
+ * TensorDetail describes an input or output tensor of a model.
+ * @typedef {object} apiTfzModelMetadataRespPayloadInputsElement
+ * @property {string} dtype - [Go: string] Tensor data type.
+ * @property {number} index - [Go: int] Tensor index.
+ * @property {string} name - [Go: string] Tensor name.
+ * @property {Array<apiTfzModelMetadataRespPayloadInputsElementShapeElement>} shape - Tensor dimensions.
+ */
+/**
+ * [Go: int]
+ * @typedef {number} apiTfzModelMetadataRespPayloadInputsElementShapeElement
+ */
+/**
+ * TensorDetail describes an input or output tensor of a model.
+ * @typedef {object} apiTfzModelMetadataRespPayloadOutputsElement
+ * @property {string} dtype - [Go: string] Tensor data type.
+ * @property {number} index - [Go: int] Tensor index.
+ * @property {string} name - [Go: string] Tensor name.
+ * @property {Array<apiTfzModelMetadataRespPayloadOutputsElementShapeElement>} shape - Tensor dimensions.
+ */
+/**
+ * [Go: int]
+ * @typedef {number} apiTfzModelMetadataRespPayloadOutputsElementShapeElement
+ */
+/**
+ * apiTfzModelPredict params
+ * @typedef {object} apiTfzModelPredictParams
+ * @property {string} dataset - [Go: string] Dataset identifier.
+ * @property {string} model_name - [Go: string] Model name.
+ * @property {string} version - [Go: string] Model version.
+ */
+/**
+ * apiTfzModelPredict Request
+ * @typedef {object} apiTfzModelPredictReq
+ * @property {apiTfzModelPredictParams} params
+ * @property {apiTfzModelPredictReqPayload} payload
+ */
+/**
+ * apiTfzModelPredict reqPayload
+ * @typedef {object} apiTfzModelPredictReqPayload
+ * @property {string} inputs - [Go: string] Model inputs.
+ * @property {Record<apiTfzModelPredictReqPayloadModelPartitionsKey, apiTfzModelPredictReqPayloadModelPartitionsValue>} model_partitions - Model partition key/value pairs.
+ */
+/**
+ * [Go: string]
+ * @typedef {string} apiTfzModelPredictReqPayloadModelPartitionsKey
+ */
+/**
+ * [Go: string]
+ * @typedef {string} apiTfzModelPredictReqPayloadModelPartitionsValue
+ */
+/**
+ * apiTfzModelPredict Response
+ * @typedef {object} apiTfzModelPredictResp
+ * @property {apiTfzModelPredictRespPayload} payload
+ */
+/**
+ * apiTfzModelPredict respPayload
+ * @typedef {object} apiTfzModelPredictRespPayload
+ * @property {string} outputs - [Go: string] Model outputs.
+ */
+/**
+ * apiUserAuthDeviceCode Request
+ * @typedef {object} apiUserAuthDeviceCodeReq
+ * @property {apiUserAuthDeviceCodeReqPayload} payload
+ */
+/**
+ * apiUserAuthDeviceCode reqPayload
+ * @typedef {object} apiUserAuthDeviceCodeReqPayload
+ * @property {string} app - [Go: string] CLI client identifier requesting device authorization.
+ */
+/**
+ * apiUserAuthDeviceCode Response
+ * @typedef {object} apiUserAuthDeviceCodeResp
+ * @property {apiUserAuthDeviceCodeRespPayload} payload
+ */
+/**
+ * apiUserAuthDeviceCode respPayload
+ * @typedef {object} apiUserAuthDeviceCodeRespPayload
+ * @property {string} device_code - [Go: string] High-entropy internal device verification code for polling.
+ * @property {number} expires_in_sec - [Go: int64] Lifetime of device and user codes in seconds.
+ * @property {number} interval_sec - [Go: int] Minimum polling interval in seconds.
+ * @property {string} user_code - [Go: string] Human-friendly verification code displayed to the user.
+ * @property {string} verification_uri - [Go: string] Base browser verification URL.
+ * @property {string} verification_uri_complete - [Go: string] Pre-filled browser verification URL including the user_code.
+ */
+/**
+ * apiUserAuthDeviceToken Request
+ * @typedef {object} apiUserAuthDeviceTokenReq
+ * @property {apiUserAuthDeviceTokenReqPayload} payload
+ */
+/**
+ * apiUserAuthDeviceToken reqPayload
+ * @typedef {object} apiUserAuthDeviceTokenReqPayload
+ * @property {string} device_code - [Go: string] Secret device code returned by /auth/device/code.
+ */
+/**
+ * apiUserAuthDeviceToken Response
+ * @typedef {object} apiUserAuthDeviceTokenResp
+ * @property {apiUserAuthDeviceTokenRespPayload} payload
+ */
+/**
+ * apiUserAuthDeviceToken respPayload
+ * @typedef {object} apiUserAuthDeviceTokenRespPayload
+ * @property {number} expires_at - [Go: int64] Access token expiration epoch millis.
+ * @property {number} refresh_token_expires_at - [Go: int64] User refresh token expiration epoch millis (30 days).
+ * @property {string} status - [Go: string] Status of the device code: pending | authorized | denied | expired.
+ * @property {string} user_access_token - [Go: string] Signed user access token JWT (when authorized).
+ * @property {string} user_id - [Go: string] Authenticated user UUID.
+ * @property {string} user_refresh_token - [Go: string] Opaque user refresh token session (when authorized).
+ */
+/**
+ * apiUserAuthExchange Request
+ * @typedef {object} apiUserAuthExchangeReq
+ * @property {apiUserAuthExchangeReqPayload} payload
+ */
+/**
+ * apiUserAuthExchange reqPayload
+ * @typedef {object} apiUserAuthExchangeReqPayload
+ * @property {string} code - [Go: string] Authorization code issued by OAuth identity provider callback.
+ * @property {string} code_verifier - [Go: string] PKCE code_verifier corresponding to the original code_challenge.
+ * @property {string} ext - [Go: string] Optional extension parameter.
+ */
+/**
+ * apiUserAuthExchange Response
+ * @typedef {object} apiUserAuthExchangeResp
+ * @property {apiUserAuthExchangeRespPayload} payload
+ */
+/**
+ * apiUserAuthExchange respPayload
+ * @typedef {object} apiUserAuthExchangeRespPayload
+ * @property {number} expires_at - [Go: int64] Access token expiration epoch millis.
+ * @property {number} refresh_token_expires_at - [Go: int64] User refresh token expiration epoch millis.
+ * @property {string} user_access_token - [Go: string] Signed user access token JWT.
+ * @property {string} user_id - [Go: string] Authenticated user UUID.
+ * @property {string} user_refresh_token - [Go: string] Opaque user refresh token with new secret.
+ */
+/**
+ * apiUserAuthGoogle Request
+ * @typedef {object} apiUserAuthGoogleReq
+ * @property {apiUserAuthGoogleReqPayload} payload
+ */
+/**
+ * apiUserAuthGoogle reqPayload
+ * @typedef {object} apiUserAuthGoogleReqPayload
+ * @property {string} app - [Go: string] Optional client application identifier.
+ * @property {string} code_challenge - [Go: string] PKCE code_challenge for authorization flow.
+ * @property {string} id_token - [Go: string] Google OpenID Connect ID token credential string.
+ */
+/**
+ * apiUserAuthGoogle Response
+ * @typedef {object} apiUserAuthGoogleResp
+ * @property {apiUserAuthGoogleRespPayload} payload
+ */
+/**
+ * apiUserAuthGoogle respPayload
+ * @typedef {object} apiUserAuthGoogleRespPayload
+ * @property {string} code - [Go: string] Authorization code to be exchanged for tokens.
+ */
+/**
+ * apiUserAuthLogout Request
+ * @typedef {object} apiUserAuthLogoutReq
+ * @property {apiUserAuthLogoutReqPayload} payload
+ */
+/**
+ * apiUserAuthLogout reqPayload
+ * @typedef {object} apiUserAuthLogoutReqPayload
+ * @property {string} refresh_token - [Go: string] Human user refresh token to revoke.
+ */
+/**
+ * apiUserAuthLogout Response
+ * @typedef {object} apiUserAuthLogoutResp
+ * @property {apiUserAuthLogoutRespPayload} payload
+ */
+/**
+ * apiUserAuthLogout respPayload
+ * @typedef {object} apiUserAuthLogoutRespPayload
+ * @property {boolean} success - [Go: bool] Confirmation flag that refresh token was successfully revoked.
+ */
+/**
+ * apiUserAuthMe Request
+ * @typedef {object} apiUserAuthMeReq
+ * @property {apiUserAuthMeReqHeaders} headers
+ */
+/**
+ * apiUserAuthMe reqHeaders
+ * @typedef {object} apiUserAuthMeReqHeaders
+ * @property {string} authorization - [Go: string] User Bearer JWT access token.
+ */
+/**
+ * apiUserAuthMe Response
+ * @typedef {object} apiUserAuthMeResp
+ * @property {apiUserAuthMeRespPayload} payload
+ */
+/**
+ * apiUserAuthMe respPayload
+ * @typedef {object} apiUserAuthMeRespPayload
+ * @property {number} created_at - [Go: int64] Account creation timestamp in epoch milliseconds.
+ * @property {string} email_redacted - [Go: string] Redacted email address for display.
+ * @property {Array<apiUserAuthMeRespPayloadProvidersElement>} providers - List of linked identity providers.
+ * @property {string} user_id - [Go: string] User unique identifier.
+ */
+/**
+ * [Go: string]
+ * @typedef {string} apiUserAuthMeRespPayloadProvidersElement
+ */
+/**
+ * apiUserAuthPasswordReset Request
+ * @typedef {object} apiUserAuthPasswordResetReq
+ * @property {apiUserAuthPasswordResetReqPayload} payload
+ */
+/**
+ * apiUserAuthPasswordReset reqPayload
+ * @typedef {object} apiUserAuthPasswordResetReqPayload
+ * @property {string} email - [Go: string] Account email address requesting password reset.
+ */
+/**
+ * apiUserAuthPasswordReset Response
+ * @typedef {object} apiUserAuthPasswordResetResp
+ * @property {apiUserAuthPasswordResetRespPayload} payload
+ */
+/**
+ * apiUserAuthPasswordReset respPayload
+ * @typedef {object} apiUserAuthPasswordResetRespPayload
+ * @property {string} email - [Go: string] Target account email address.
+ * @property {string} status - [Go: string] Status of password reset request: password_reset_email_sent.
+ */
+/**
+ * apiUserAuthPasswordSignin Request
+ * @typedef {object} apiUserAuthPasswordSigninReq
+ * @property {apiUserAuthPasswordSigninReqPayload} payload
+ */
+/**
+ * apiUserAuthPasswordSignin reqPayload
+ * @typedef {object} apiUserAuthPasswordSigninReqPayload
+ * @property {string} app - [Go: string] Optional client application identifier.
+ * @property {string} code_challenge - [Go: string] PKCE code_challenge for authorization flow.
+ * @property {string} email - [Go: string] Account email address.
+ * @property {string} password - [Go: string] Account plaintext password.
+ */
+/**
+ * apiUserAuthPasswordSignin Response
+ * @typedef {object} apiUserAuthPasswordSigninResp
+ * @property {apiUserAuthPasswordSigninRespPayload} payload
+ */
+/**
+ * apiUserAuthPasswordSignin respPayload
+ * @typedef {object} apiUserAuthPasswordSigninRespPayload
+ * @property {string} code - [Go: string] Authorization code to be exchanged for tokens.
+ */
+/**
+ * apiUserAuthPasswordSignup Request
+ * @typedef {object} apiUserAuthPasswordSignupReq
+ * @property {apiUserAuthPasswordSignupReqPayload} payload
+ */
+/**
+ * apiUserAuthPasswordSignup reqPayload
+ * @typedef {object} apiUserAuthPasswordSignupReqPayload
+ * @property {string} app - [Go: string] Optional client application identifier.
+ * @property {string} code_challenge - [Go: string] Optional PKCE code_challenge.
+ * @property {string} email - [Go: string] Desired account email address.
+ * @property {string} password - [Go: string] Desired account plaintext password.
+ */
+/**
+ * apiUserAuthPasswordSignup Response
+ * @typedef {object} apiUserAuthPasswordSignupResp
+ * @property {apiUserAuthPasswordSignupRespPayload} payload
+ */
+/**
+ * apiUserAuthPasswordSignup respPayload
+ * @typedef {object} apiUserAuthPasswordSignupRespPayload
+ * @property {string} email - [Go: string] Target account email address.
+ * @property {string} status - [Go: string] Status of user registration: verification_email_sent.
+ */
+/**
+ * apiUserAuthRefresh Request
+ * @typedef {object} apiUserAuthRefreshReq
+ * @property {apiUserAuthRefreshReqPayload} payload
+ */
+/**
+ * apiUserAuthRefresh reqPayload
+ * @typedef {object} apiUserAuthRefreshReqPayload
+ * @property {string} refresh_token - [Go: string] Opaque user refresh token in format <jti>.<secret>.
+ */
+/**
+ * apiUserAuthRefresh Response
+ * @typedef {object} apiUserAuthRefreshResp
+ * @property {apiUserAuthRefreshRespPayload} payload
+ */
+/**
+ * apiUserAuthRefresh respPayload
+ * @typedef {object} apiUserAuthRefreshRespPayload
+ * @property {number} expires_at - [Go: int64] Access token expiration epoch millis (1 hour).
+ * @property {number} refresh_token_expires_at - [Go: int64] User refresh token expiration epoch millis (30 days).
+ * @property {string} user_access_token - [Go: string] Fresh signed user access token JWT.
+ * @property {string} user_id - [Go: string] Authenticated user UUID.
+ * @property {string} user_refresh_token - [Go: string] Rotated opaque user refresh token with new secret.
+ */
+/**
+ * apiUserConfSettings Response
+ * @typedef {object} apiUserConfSettingsResp
+ * @property {apiUserConfSettingsRespPayload} payload
+ */
+/**
+ * apiUserConfSettings respPayload
+ * @typedef {object} apiUserConfSettingsRespPayload
+ * @property {number} dataset_access_token_ttl_seconds - [Go: int64] Time-to-live for dataset access tokens in seconds.
+ * @property {number} device_code_ttl_seconds - [Go: int64] Time-to-live for RFC 8628 device codes in seconds.
+ * @property {number} refresh_token_max_idle_seconds - [Go: int64] Maximum idle duration for refresh tokens in seconds before expiration.
+ * @property {number} signed_request_max_ttl_seconds - [Go: int64] Maximum allowed future expiration for Ed25519 request signatures in seconds.
+ * @property {number} user_access_token_ttl_seconds - [Go: int64] Time-to-live for human user access tokens in seconds.
+ */
+/**
+ * apiUserDatasetTokenAccessAttenuate Request
+ * @typedef {object} apiUserDatasetTokenAccessAttenuateReq
+ * @property {apiUserDatasetTokenAccessAttenuateReqHeaders} headers
+ * @property {apiUserDatasetTokenAccessAttenuateReqPayload} payload
+ */
+/**
+ * apiUserDatasetTokenAccessAttenuate reqHeaders
+ * @typedef {object} apiUserDatasetTokenAccessAttenuateReqHeaders
+ * @property {string} authorization - [Go: string] Parent Bearer dataset access token.
+ */
+/**
+ * apiUserDatasetTokenAccessAttenuate reqPayload
+ * @typedef {object} apiUserDatasetTokenAccessAttenuateReqPayload
+ * @property {number} exp_seconds - [Go: int64] Requested lifetime in seconds (capped at parent exp).
+ * @property {Record<apiUserDatasetTokenAccessAttenuateReqPayloadNewlabelsKey, apiUserDatasetTokenAccessAttenuateReqPayloadNewlabelsValue>} newlabels - Additional restrictive label constraints.
+ * @property {Grant} subgrants - [Go: grants.Grant] Reduced uint8 grant bitmask.
+ * @property {string} subsolution - [Go: solution.Solution] Narrowed solution domain.
+ */
+/**
+ * [Go: string]
+ * @typedef {string} apiUserDatasetTokenAccessAttenuateReqPayloadNewlabelsKey
+ */
+/**
+ * [Go: string]
+ * @typedef {string} apiUserDatasetTokenAccessAttenuateReqPayloadNewlabelsValue
+ */
+/**
+ * apiUserDatasetTokenAccessAttenuate Response
+ * @typedef {object} apiUserDatasetTokenAccessAttenuateResp
+ * @property {apiUserDatasetTokenAccessAttenuateRespPayload} payload
+ */
+/**
+ * apiUserDatasetTokenAccessAttenuate respPayload
+ * @typedef {object} apiUserDatasetTokenAccessAttenuateRespPayload
+ * @property {string} access_token - [Go: string] Attenuated Base64URL dataset access token.
+ * @property {string} dataset - [Go: lakedsz.Dataset] Target dataset ID.
+ * @property {number} expires_at - [Go: int64] Expiration epoch milliseconds.
+ * @property {Grant} grants - [Go: grants.Grant] Effective uint8 grant bitmask.
+ * @property {Record<apiUserDatasetTokenAccessAttenuateRespPayloadLabelsKey, apiUserDatasetTokenAccessAttenuateRespPayloadLabelsValue>} labels - Effective metadata labels.
+ * @property {string} solution - [Go: solution.Solution] Effective solution domain.
+ */
+/**
+ * [Go: string]
+ * @typedef {string} apiUserDatasetTokenAccessAttenuateRespPayloadLabelsKey
+ */
+/**
+ * [Go: string]
+ * @typedef {string} apiUserDatasetTokenAccessAttenuateRespPayloadLabelsValue
+ */
+/**
+ * apiUserDatasetTokenAccessCreate params
+ * @typedef {object} apiUserDatasetTokenAccessCreateParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Target dataset ID.
+ */
+/**
+ * apiUserDatasetTokenAccessCreate Request
+ * @typedef {object} apiUserDatasetTokenAccessCreateReq
+ * @property {apiUserDatasetTokenAccessCreateParams} params
+ * @property {apiUserDatasetTokenAccessCreateReqHeaders} headers
+ * @property {apiUserDatasetTokenAccessCreateReqPayload} payload
+ */
+/**
+ * apiUserDatasetTokenAccessCreate reqHeaders
+ * @typedef {object} apiUserDatasetTokenAccessCreateReqHeaders
+ * @property {string} authorization - [Go: string] User Bearer JWT access token.
+ */
+/**
+ * apiUserDatasetTokenAccessCreate reqPayload
+ * @typedef {object} apiUserDatasetTokenAccessCreateReqPayload
+ * @property {string} client_pub_key - [Go: string] Base64URL client public key for PoP binding (empty for unbound bearer).
+ * @property {number} exp_seconds - [Go: int64] Requested lifetime in seconds.
+ * @property {Grant} grants - [Go: grants.Grant] Compact uint8 grant bitmask.
+ * @property {Record<apiUserDatasetTokenAccessCreateReqPayloadLabelsKey, apiUserDatasetTokenAccessCreateReqPayloadLabelsValue>} labels - Contextual metadata labels.
+ * @property {string} solution - [Go: solution.Solution] Target solution domain restriction (empty for all).
+ */
+/**
+ * [Go: string]
+ * @typedef {string} apiUserDatasetTokenAccessCreateReqPayloadLabelsKey
+ */
+/**
+ * [Go: string]
+ * @typedef {string} apiUserDatasetTokenAccessCreateReqPayloadLabelsValue
+ */
+/**
+ * apiUserDatasetTokenAccessCreate Response
+ * @typedef {object} apiUserDatasetTokenAccessCreateResp
+ * @property {apiUserDatasetTokenAccessCreateRespPayload} payload
+ */
+/**
+ * apiUserDatasetTokenAccessCreate respPayload
+ * @typedef {object} apiUserDatasetTokenAccessCreateRespPayload
+ * @property {string} access_token - [Go: string] Binary-packed Base64URL dataset access token.
+ * @property {string} dataset - [Go: lakedsz.Dataset] Target dataset ID.
+ * @property {number} expires_at - [Go: int64] Expiration epoch milliseconds.
+ * @property {Grant} grants - [Go: grants.Grant] Effective uint8 grant bitmask.
+ * @property {Record<apiUserDatasetTokenAccessCreateRespPayloadLabelsKey, apiUserDatasetTokenAccessCreateRespPayloadLabelsValue>} labels - Contextual metadata labels.
+ * @property {string} solution - [Go: solution.Solution] Solution domain restriction.
+ */
+/**
+ * [Go: string]
+ * @typedef {string} apiUserDatasetTokenAccessCreateRespPayloadLabelsKey
+ */
+/**
+ * [Go: string]
+ * @typedef {string} apiUserDatasetTokenAccessCreateRespPayloadLabelsValue
+ */
+/**
+ * apiUserDatasetTokenRefreshCreate params
+ * @typedef {object} apiUserDatasetTokenRefreshCreateParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Target dataset ID.
+ */
+/**
+ * apiUserDatasetTokenRefreshCreate Request
+ * @typedef {object} apiUserDatasetTokenRefreshCreateReq
+ * @property {apiUserDatasetTokenRefreshCreateParams} params
+ * @property {apiUserDatasetTokenRefreshCreateReqHeaders} headers
+ * @property {apiUserDatasetTokenRefreshCreateReqPayload} payload
+ */
+/**
+ * apiUserDatasetTokenRefreshCreate reqHeaders
+ * @typedef {object} apiUserDatasetTokenRefreshCreateReqHeaders
+ * @property {string} authorization - [Go: string] User Bearer JWT access token.
+ */
+/**
+ * apiUserDatasetTokenRefreshCreate reqPayload
+ * @typedef {object} apiUserDatasetTokenRefreshCreateReqPayload
+ * @property {string} annotation - [Go: string] Optional description for token management.
+ * @property {number} exp_seconds - [Go: int64] Requested expiration duration in seconds.
+ * @property {Grant} grants - [Go: grants.Grant] Grants bitmask.
+ * @property {Record<apiUserDatasetTokenRefreshCreateReqPayloadLabelsKey, apiUserDatasetTokenRefreshCreateReqPayloadLabelsValue>} labels - Metadata labels.
+ * @property {string} solution - [Go: solution.Solution] Solution domain restriction.
+ */
+/**
+ * [Go: string]
+ * @typedef {string} apiUserDatasetTokenRefreshCreateReqPayloadLabelsKey
+ */
+/**
+ * [Go: string]
+ * @typedef {string} apiUserDatasetTokenRefreshCreateReqPayloadLabelsValue
+ */
+/**
+ * apiUserDatasetTokenRefreshCreate Response
+ * @typedef {object} apiUserDatasetTokenRefreshCreateResp
+ * @property {apiUserDatasetTokenRefreshCreateRespPayload} payload
+ */
+/**
+ * apiUserDatasetTokenRefreshCreate respPayload
+ * @typedef {object} apiUserDatasetTokenRefreshCreateRespPayload
+ * @property {string} annotation - [Go: string] Description note.
+ * @property {string} dataset - [Go: lakedsz.Dataset] Target dataset ID.
+ * @property {number} expires_at - [Go: int64] Expiration epoch milliseconds.
+ * @property {Grant} grants - [Go: grants.Grant] Granted permissions.
+ * @property {string} jti - [Go: string] Token JTI public identifier.
+ * @property {Record<apiUserDatasetTokenRefreshCreateRespPayloadLabelsKey, apiUserDatasetTokenRefreshCreateRespPayloadLabelsValue>} labels - Metadata labels.
+ * @property {string} priv_key - [Go: string] Base64URL-encoded Ed25519 private key (returned once only).
+ * @property {string} solution - [Go: solution.Solution] Solution domain restriction.
+ */
+/**
+ * [Go: string]
+ * @typedef {string} apiUserDatasetTokenRefreshCreateRespPayloadLabelsKey
+ */
+/**
+ * [Go: string]
+ * @typedef {string} apiUserDatasetTokenRefreshCreateRespPayloadLabelsValue
+ */
+/**
+ * apiUserDatasetTokenRefreshDelete params
+ * @typedef {object} apiUserDatasetTokenRefreshDeleteParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Target dataset ID.
+ * @property {string} jti - [Go: string] Token JTI (public key identifier) to revoke.
+ */
+/**
+ * apiUserDatasetTokenRefreshDelete Request
+ * @typedef {object} apiUserDatasetTokenRefreshDeleteReq
+ * @property {apiUserDatasetTokenRefreshDeleteParams} params
+ * @property {apiUserDatasetTokenRefreshDeleteReqHeaders} headers
+ */
+/**
+ * apiUserDatasetTokenRefreshDelete reqHeaders
+ * @typedef {object} apiUserDatasetTokenRefreshDeleteReqHeaders
+ * @property {string} authorization - [Go: string] User Bearer JWT access token.
+ */
+/**
+ * apiUserDatasetTokenRefreshDelete Response
+ * @typedef {object} apiUserDatasetTokenRefreshDeleteResp
+ */
+/**
+ * apiUserDatasetTokenRefreshList params
+ * @typedef {object} apiUserDatasetTokenRefreshListParams
+ * @property {string} dataset - [Go: lakedsz.Dataset] Target dataset ID.
+ */
+/**
+ * apiUserDatasetTokenRefreshList Request
+ * @typedef {object} apiUserDatasetTokenRefreshListReq
+ * @property {apiUserDatasetTokenRefreshListParams} params
+ * @property {apiUserDatasetTokenRefreshListReqHeaders} headers
+ */
+/**
+ * apiUserDatasetTokenRefreshList reqHeaders
+ * @typedef {object} apiUserDatasetTokenRefreshListReqHeaders
+ * @property {string} authorization - [Go: string] User Bearer JWT access token.
+ */
+/**
+ * apiUserDatasetTokenRefreshList Response
+ * @typedef {object} apiUserDatasetTokenRefreshListResp
+ * @property {apiUserDatasetTokenRefreshListRespPayload} payload
+ */
+/**
+ * apiUserDatasetTokenRefreshList respPayload
+ * @typedef {object} apiUserDatasetTokenRefreshListRespPayload
+ * @property {Array<apiUserDatasetTokenRefreshListRespPayloadTokensElement>} tokens - List of refresh token records.
+ */
+/**
+ * @typedef {object} apiUserDatasetTokenRefreshListRespPayloadTokensElement
+ * @property {string} annotation - [Go: string] Description note.
+ * @property {number} created_at - [Go: int64] Creation timestamp in millis.
+ * @property {string} created_by - [Go: string] User ID who created the token.
+ * @property {string} dataset - [Go: lakedsz.Dataset] Target dataset ID.
+ * @property {number} expires_at - [Go: int64] Expiration timestamp in millis.
+ * @property {Grant} grants - [Go: grants.Grant] Grants bitmask.
+ * @property {string} jti - [Go: string] Token JTI.
+ * @property {Record<apiUserDatasetTokenRefreshListRespPayloadTokensElementLabelsKey, apiUserDatasetTokenRefreshListRespPayloadTokensElementLabelsValue>} labels - Metadata labels.
+ * @property {number} last_used_at - [Go: int64] Epoch milliseconds when token was last refreshed (0 = never used).
+ * @property {boolean} revoked - [Go: bool] Revocation status flag.
+ * @property {string} solution - [Go: solution.Solution] Solution domain restriction.
+ */
+/**
+ * [Go: string]
+ * @typedef {string} apiUserDatasetTokenRefreshListRespPayloadTokensElementLabelsKey
+ */
+/**
+ * [Go: string]
+ * @typedef {string} apiUserDatasetTokenRefreshListRespPayloadTokensElementLabelsValue
+ */
+/**
+ * apiUserDatasetTokenRefresh Request
+ * @typedef {object} apiUserDatasetTokenRefreshReq
+ * @property {apiUserDatasetTokenRefreshReqHeaders} headers
+ * @property {apiUserDatasetTokenRefreshReqPayload} payload
+ */
+/**
+ * apiUserDatasetTokenRefresh reqHeaders
+ * @typedef {object} apiUserDatasetTokenRefreshReqHeaders
+ * @property {string} x_i6_signature - [Go: string] Standalone 121-byte RefreshAssertion Ed25519 signature.
+ */
+/**
+ * apiUserDatasetTokenRefresh reqPayload
+ * @typedef {object} apiUserDatasetTokenRefreshReqPayload
+ * @property {string} dataset - [Go: lakedsz.Dataset] Target dataset ID.
+ * @property {number} exp_seconds - [Go: int64] Requested lifetime in seconds.
+ * @property {Record<apiUserDatasetTokenRefreshReqPayloadNewlabelsKey, apiUserDatasetTokenRefreshReqPayloadNewlabelsValue>} newlabels - Additional restrictive label constraints.
+ * @property {Grant} subgrants - [Go: grants.Grant] Optional reduced grant bitmask.
+ * @property {string} subsolution - [Go: solution.Solution] Optional sub-solution restriction.
+ * @property {boolean} unbound - [Go: bool] If true, mints an unbound bearer token usable with Authorization: Bearer.
+ */
+/**
+ * [Go: string]
+ * @typedef {string} apiUserDatasetTokenRefreshReqPayloadNewlabelsKey
+ */
+/**
+ * [Go: string]
+ * @typedef {string} apiUserDatasetTokenRefreshReqPayloadNewlabelsValue
+ */
+/**
+ * apiUserDatasetTokenRefresh Response
+ * @typedef {object} apiUserDatasetTokenRefreshResp
+ * @property {apiUserDatasetTokenRefreshRespPayload} payload
+ */
+/**
+ * apiUserDatasetTokenRefresh respPayload
+ * @typedef {object} apiUserDatasetTokenRefreshRespPayload
+ * @property {string} access_token - [Go: string] Binary-packed Base64URL dataset access token.
+ * @property {string} dataset - [Go: lakedsz.Dataset] Target dataset ID.
+ * @property {number} expires_at - [Go: int64] Expiration epoch milliseconds.
+ * @property {Grant} grants - [Go: grants.Grant] Effective uint8 grant bitmask.
+ * @property {Record<apiUserDatasetTokenRefreshRespPayloadLabelsKey, apiUserDatasetTokenRefreshRespPayloadLabelsValue>} labels - Effective metadata labels.
+ * @property {string} solution - [Go: solution.Solution] Effective solution domain.
+ */
+/**
+ * [Go: string]
+ * @typedef {string} apiUserDatasetTokenRefreshRespPayloadLabelsKey
+ */
+/**
+ * [Go: string]
+ * @typedef {string} apiUserDatasetTokenRefreshRespPayloadLabelsValue
+ */
+/**
+ * apiUserTokenCheck Request
+ * @typedef {object} apiUserTokenCheckReq
+ * @property {apiUserTokenCheckReqHeaders} headers
+ * @property {apiUserTokenCheckReqPayload} payload
+ */
+/**
+ * apiUserTokenCheck reqHeaders
+ * @typedef {object} apiUserTokenCheckReqHeaders
+ * @property {string} authorization - [Go: string] User Bearer JWT access token or dataset token.
+ * @property {string} x_i6_signature - [Go: string] Standalone 121-byte RefreshAssertion Ed25519 signature.
+ */
+/**
+ * apiUserTokenCheck reqPayload
+ * @typedef {object} apiUserTokenCheckReqPayload
+ * @property {string} body - [Go: string] Target request body.
+ * @property {string} method - [Go: string] Target HTTP method.
+ * @property {string} path - [Go: string] Target URL path.
+ * @property {string} query - [Go: string] Target URL query string.
+ * @property {string} signature - [Go: string] Request signature (envelope + token) in payload mode.
+ * @property {string} token - [Go: string] Bearer token in payload mode (User JWT or Dataset Access Token).
+ */
+/**
+ * apiUserTokenCheck Response
+ * @typedef {object} apiUserTokenCheckResp
+ * @property {apiUserTokenCheckRespPayload} payload
+ */
+/**
+ * apiUserTokenCheck respPayload
+ * @typedef {object} apiUserTokenCheckRespPayload
+ * @property {apiUserTokenCheckRespPayloadDiagnostics} diagnostics - Detailed diagnostic breakdown and server-computed values.
+ * @property {string} error_code - [Go: string] Standard error code if invalid.
+ * @property {string} summary - [Go: string] High-level summary of verification status.
+ * @property {string} token_kind - [Go: string] Detected credential type: request_signature, user_jwt, or dataset_access_token.
+ * @property {boolean} valid - [Go: bool] Indicates whether credential was mathematically verified.
+ */
+/**
+ * Detailed diagnostic breakdown and server-computed values.
+ * @typedef {object} apiUserTokenCheckRespPayloadDiagnostics
+ * @property {string} audience - [Go: string] Audience client app extracted from User JWT.
+ * @property {apiUserTokenCheckRespPayloadDiagnosticsBreakdown} breakdown - Component fields of canonical string.
+ * @property {string} client_pub_key_hex - [Go: string] Client Ed25519 public key in lowercase hex.
+ * @property {apiUserTokenCheckRespPayloadDiagnosticsCryptoCheck} crypto_check - Cryptographic signature verification results.
+ * @property {string} dataset - [Go: string] Dataset ID from dataset access token.
+ * @property {apiUserTokenCheckRespPayloadDiagnosticsEmbeddedToken} embedded_token - Embedded dataset access token details.
+ * @property {apiUserTokenCheckRespPayloadDiagnosticsEnvelope} envelope - Envelope metadata.
+ * @property {number} expires_at - [Go: int64] Expiration timestamp.
+ * @property {number} grants - [Go: uint8] Permission bitmask.
+ * @property {string} hint - [Go: string] Actionable troubleshooting guidance.
+ * @property {boolean} is_expired - [Go: bool] Reports whether credential has expired.
+ * @property {string} mode - [Go: string] Dataset token mode: unbound_bearer or sender_constrained.
+ * @property {string} server_canonical_string - [Go: string] Server-computed canonical string for signatures.
+ * @property {number} solutions - [Go: uint8] Solutions bitmask.
+ * @property {number} time_remaining_seconds - [Go: int64] Seconds remaining until expiration.
+ * @property {string} user_id - [Go: string] User ID extracted from User JWT.
+ */
+/**
+ * Component fields of canonical string.
+ * @typedef {object} apiUserTokenCheckRespPayloadDiagnosticsBreakdown
+ * @property {string} body_sha256 - [Go: string] SHA-256 digest of request body.
+ * @property {string} canonical_query - [Go: string] Canonical sorted query string.
+ * @property {number} exp - [Go: uint64] Expiration timestamp in epoch seconds.
+ * @property {string} method - [Go: string] HTTP method.
+ * @property {string} nonce - [Go: string] Nonce in lowercase hex.
+ * @property {string} path - [Go: string] Normalized URL path.
+ * @property {string} token_sha256 - [Go: string] SHA-256 digest of access token.
+ * @property {boolean} unsigned_body - [Go: bool] Reports whether unsigned body flag was enabled.
+ */
+/**
+ * Cryptographic signature verification results.
+ * @typedef {object} apiUserTokenCheckRespPayloadDiagnosticsCryptoCheck
+ * @property {boolean} match - [Go: bool] Reports whether Ed25519 verification succeeded.
+ * @property {string} verified_against_pubkey - [Go: string] Client public key used to verify signature.
+ */
+/**
+ * Embedded dataset access token details.
+ * @typedef {object} apiUserTokenCheckRespPayloadDiagnosticsEmbeddedToken
+ * @property {string} client_pub_key_hex - [Go: string] Client Ed25519 public key in lowercase hex.
+ * @property {string} dataset - [Go: string] Target dataset ID.
+ * @property {number} expires_at - [Go: int64] Expiration in epoch milliseconds.
+ * @property {number} grants - [Go: uint8] Permission bitmask.
+ * @property {number} solutions - [Go: uint8] Solutions bitmask.
+ */
+/**
+ * Envelope metadata.
+ * @typedef {object} apiUserTokenCheckRespPayloadDiagnosticsEnvelope
+ * @property {number} exp - [Go: uint64] Expiration epoch seconds.
+ * @property {boolean} is_expired - [Go: bool] Reports whether envelope has expired.
+ * @property {boolean} is_time_windowed - [Go: bool] Reports whether time-windowed replay mode is active.
+ * @property {string} nonce_hex - [Go: string] Nonce in lowercase hex.
+ * @property {number} time_remaining_seconds - [Go: int64] Seconds remaining until expiration.
+ * @property {number} token_type - [Go: uint8] Wire token type identifier.
+ */
+/**
+ * @typedef {object} dszFileStat
+ * @property {string} url - missing summary
+ * @property {string} content_type - missing summary
+ * @property {string} md5 - missing summary
+ * @property {string} size - missing summary
+ * @property {string} etag - missing summary
+ * @property {dszTime} created_at - missing summary
+ * @property {dszTime} updated_at - missing summary
+ */
+/**
+ * Missing Summary
+ * @typedef {string} dszTime
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashAttachedRevenue input
+ * @typedef {object} sdkFuncProductRelevanceFashionDashAttachedRevenueInput
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ * @property {sdkFuncProductRelevanceFashionDashAttachedRevenueInputParams} params - Query params.
+ */
+/**
+ * Query params.
+ * @typedef {object} sdkFuncProductRelevanceFashionDashAttachedRevenueInputParams
+ * @property {string} max_year_month - [Go: string] Last year-month of period (e.g. 2026-11).
+ * @property {string} min_year_month - [Go: string] First year-month of period (e.g. 2026-07).
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashAttachedRevenue output
+ * @typedef {object} sdkFuncProductRelevanceFashionDashAttachedRevenueOutput
+ * @property {sdkFuncProductRelevanceFashionDashAttachedRevenueOutputResults} results - Query results.
+ */
+/**
+ * Query results.
+ * @typedef {object} sdkFuncProductRelevanceFashionDashAttachedRevenueOutputResults
+ * @property {Array<sdkFuncProductRelevanceFashionDashAttachedRevenueOutputResultsRowsElement>} rows - Result rows.
+ */
+/**
+ * @typedef {object} sdkFuncProductRelevanceFashionDashAttachedRevenueOutputResultsRowsElement
+ * @property {number} attached_purchases - [Go: float64] Number of purchases attached to recommendations.
+ * @property {number} attached_revenue - [Go: float64] Revenue attached to recommendations.
+ * @property {number} attached_skus - [Go: float64] Number of distinct SKUs attached to recommendations.
+ * @property {number} avg_ticket - [Go: float64] Average ticket value for attached purchases.
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashAttachedRevenue partitions
+ * @typedef {object} sdkFuncProductRelevanceFashionDashAttachedRevenuePartitions
+ * @property {string} store_id - [Go: string] Store identifier.
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashAttachedRevenue Request
+ * @typedef {object} sdkFuncProductRelevanceFashionDashAttachedRevenueReq
+ * @property {sdkFuncProductRelevanceFashionDashAttachedRevenueInput} input
+ * @property {sdkFuncProductRelevanceFashionDashAttachedRevenuePartitions} partitions
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashAttachedRevenue Response
+ * @typedef {object} sdkFuncProductRelevanceFashionDashAttachedRevenueResp
+ * @property {sdkFuncProductRelevanceFashionDashAttachedRevenueOutput} output
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashCoverage input
+ * @typedef {object} sdkFuncProductRelevanceFashionDashCoverageInput
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ * @property {sdkFuncProductRelevanceFashionDashCoverageInputParams} params - Query params.
+ */
+/**
+ * Query params.
+ * @typedef {object} sdkFuncProductRelevanceFashionDashCoverageInputParams
+ * @property {string} max_year_month - [Go: string] Last year-month of period (e.g. 2026-11).
+ * @property {string} min_year_month - [Go: string] First year-month of period (e.g. 2026-07).
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashCoverage output
+ * @typedef {object} sdkFuncProductRelevanceFashionDashCoverageOutput
+ * @property {sdkFuncProductRelevanceFashionDashCoverageOutputResults} results - Query results.
+ */
+/**
+ * Query results.
+ * @typedef {object} sdkFuncProductRelevanceFashionDashCoverageOutputResults
+ * @property {Array<sdkFuncProductRelevanceFashionDashCoverageOutputResultsRowsElement>} rows - Result rows.
+ */
+/**
+ * @typedef {object} sdkFuncProductRelevanceFashionDashCoverageOutputResultsRowsElement
+ * @property {number} bottom_90_coverage - [Go: float64] Bottom 90 coverage percentage.
+ * @property {number} long_tail_coverage - [Go: float64] Long-tail coverage percentage.
+ * @property {number} recomendation_coverage - [Go: float64] Catalog recommendation coverage percentage.
+ * @property {number} recommendable_items - [Go: float64] Recommendable items count.
+ * @property {number} recommended_items - [Go: float64] Recommended items count.
+ * @property {number} top_1_coverage - [Go: float64] Top 1 coverage percentage.
+ * @property {number} top_1_to_5_coverage - [Go: float64] Top 1 to 5 coverage percentage.
+ * @property {number} top_5_to_10_coverage - [Go: float64] Top 5 to 10 coverage percentage.
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashCoverage partitions
+ * @typedef {object} sdkFuncProductRelevanceFashionDashCoveragePartitions
+ * @property {string} store_id - [Go: string] Store identifier.
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashCoverage Request
+ * @typedef {object} sdkFuncProductRelevanceFashionDashCoverageReq
+ * @property {sdkFuncProductRelevanceFashionDashCoverageInput} input
+ * @property {sdkFuncProductRelevanceFashionDashCoveragePartitions} partitions
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashCoverage Response
+ * @typedef {object} sdkFuncProductRelevanceFashionDashCoverageResp
+ * @property {sdkFuncProductRelevanceFashionDashCoverageOutput} output
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashDisplayMetricsStatus input
+ * @typedef {object} sdkFuncProductRelevanceFashionDashDisplayMetricsStatusInput
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ * @property {sdkFuncProductRelevanceFashionDashDisplayMetricsStatusInputParams} params - Query params.
+ */
+/**
+ * Query params.
+ * @typedef {object} sdkFuncProductRelevanceFashionDashDisplayMetricsStatusInputParams
+ * @property {string} max_year_month - [Go: string] Last year-month of period (e.g. 2026-11).
+ * @property {string} min_year_month - [Go: string] First year-month of period (e.g. 2026-07).
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashDisplayMetricsStatus output
+ * @typedef {object} sdkFuncProductRelevanceFashionDashDisplayMetricsStatusOutput
+ * @property {sdkFuncProductRelevanceFashionDashDisplayMetricsStatusOutputResults} results - Query results.
+ */
+/**
+ * Query results.
+ * @typedef {object} sdkFuncProductRelevanceFashionDashDisplayMetricsStatusOutputResults
+ * @property {Array<sdkFuncProductRelevanceFashionDashDisplayMetricsStatusOutputResultsRowsElement>} rows - Result rows.
+ */
+/**
+ * @typedef {object} sdkFuncProductRelevanceFashionDashDisplayMetricsStatusOutputResultsRowsElement
+ * @property {number} cart_adds - [Go: float64] Number of cart adds.
+ * @property {number} clicks - [Go: float64] Number of clicks.
+ * @property {number} conversion_rate - [Go: float64] Conversion rate.
+ * @property {number} ctr - [Go: float64] Click-through rate.
+ * @property {string} last_display_activity - [Go: string] ISO-8601 timestamp of last display activity.
+ * @property {number} purchases - [Go: float64] Number of purchases.
+ * @property {number} rec_raws - [Go: float64] Number of raw recommendations.
+ * @property {number} rec_shows - [Go: float64] Number of recommendations shown.
+ * @property {number} revenue - [Go: float64] Total revenue generated.
+ * @property {string} src_display_id - [Go: string] Source display identifier.
+ * @property {number} unique_sessions - [Go: float64] Unique sessions count.
+ * @property {number} uplift - [Go: float64] Performance uplift value.
+ * @property {string} uplift_color - [Go: string] Status indicator color for uplift.
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashDisplayMetricsStatus partitions
+ * @typedef {object} sdkFuncProductRelevanceFashionDashDisplayMetricsStatusPartitions
+ * @property {string} store_id - [Go: string] Store identifier.
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashDisplayMetricsStatus Request
+ * @typedef {object} sdkFuncProductRelevanceFashionDashDisplayMetricsStatusReq
+ * @property {sdkFuncProductRelevanceFashionDashDisplayMetricsStatusInput} input
+ * @property {sdkFuncProductRelevanceFashionDashDisplayMetricsStatusPartitions} partitions
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashDisplayMetricsStatus Response
+ * @typedef {object} sdkFuncProductRelevanceFashionDashDisplayMetricsStatusResp
+ * @property {sdkFuncProductRelevanceFashionDashDisplayMetricsStatusOutput} output
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashFunnel input
+ * @typedef {object} sdkFuncProductRelevanceFashionDashFunnelInput
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ * @property {sdkFuncProductRelevanceFashionDashFunnelInputParams} params - Query params.
+ */
+/**
+ * Query params.
+ * @typedef {object} sdkFuncProductRelevanceFashionDashFunnelInputParams
+ * @property {string} max_year_month - [Go: string] Last year-month of period (e.g. 2026-11).
+ * @property {string} min_year_month - [Go: string] First year-month of period (e.g. 2026-07).
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashFunnel output
+ * @typedef {object} sdkFuncProductRelevanceFashionDashFunnelOutput
+ * @property {sdkFuncProductRelevanceFashionDashFunnelOutputResults} results - Query results.
+ */
+/**
+ * Query results.
+ * @typedef {object} sdkFuncProductRelevanceFashionDashFunnelOutputResults
+ * @property {Array<sdkFuncProductRelevanceFashionDashFunnelOutputResultsRowsElement>} rows - Result rows.
+ */
+/**
+ * @typedef {object} sdkFuncProductRelevanceFashionDashFunnelOutputResultsRowsElement
+ * @property {string} event_type - [Go: string] Event type name.
+ * @property {string} from_rec - [Go: string] Whether event originated from recommendation.
+ * @property {string} qt_events - [Go: string] Event count.
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashFunnel partitions
+ * @typedef {object} sdkFuncProductRelevanceFashionDashFunnelPartitions
+ * @property {string} store_id - [Go: string] Store identifier.
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashFunnel Request
+ * @typedef {object} sdkFuncProductRelevanceFashionDashFunnelReq
+ * @property {sdkFuncProductRelevanceFashionDashFunnelInput} input
+ * @property {sdkFuncProductRelevanceFashionDashFunnelPartitions} partitions
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashFunnel Response
+ * @typedef {object} sdkFuncProductRelevanceFashionDashFunnelResp
+ * @property {sdkFuncProductRelevanceFashionDashFunnelOutput} output
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategory input
+ * @typedef {object} sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryInput
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ * @property {sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryInputParams} params - Query params.
+ */
+/**
+ * Query params.
+ * @typedef {object} sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryInputParams
+ * @property {string} max_year_month - [Go: string] Last year-month of period (e.g. 2026-11).
+ * @property {string} min_year_month - [Go: string] First year-month of period (e.g. 2026-07).
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategory output
+ * @typedef {object} sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryOutput
+ * @property {sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryOutputResults} results - Query results.
+ */
+/**
+ * Query results.
+ * @typedef {object} sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryOutputResults
+ * @property {Array<sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryOutputResultsRowsElement>} rows - Result rows.
+ */
+/**
+ * @typedef {object} sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryOutputResultsRowsElement
+ * @property {number} cart_adds - [Go: float64] Number of cart adds.
+ * @property {number} clicks - [Go: float64] Number of clicks.
+ * @property {number} conversion_rate - [Go: float64] Conversion rate.
+ * @property {number} participation - [Go: float64] Participation rate.
+ * @property {number} purchases - [Go: float64] Number of purchases.
+ * @property {number} recomendations - [Go: float64] Number of recommendations.
+ * @property {number} revenue - [Go: float64] Total revenue generated.
+ * @property {string} showcase_category - [Go: string] Showcase category name.
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategory partitions
+ * @typedef {object} sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryPartitions
+ * @property {string} store_id - [Go: string] Store identifier.
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategory Request
+ * @typedef {object} sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryReq
+ * @property {sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryInput} input
+ * @property {sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryPartitions} partitions
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategory Response
+ * @typedef {object} sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryResp
+ * @property {sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryOutput} output
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashImpactedMetricsBySku input
+ * @typedef {object} sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuInput
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ * @property {sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuInputParams} params - Query params.
+ */
+/**
+ * Query params.
+ * @typedef {object} sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuInputParams
+ * @property {string} max_year_month - [Go: string] Last year-month of period (e.g. 2026-11).
+ * @property {string} min_year_month - [Go: string] First year-month of period (e.g. 2026-07).
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashImpactedMetricsBySku output
+ * @typedef {object} sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuOutput
+ * @property {sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuOutputResults} results - Query results.
+ */
+/**
+ * Query results.
+ * @typedef {object} sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuOutputResults
+ * @property {Array<sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuOutputResultsRowsElement>} rows - Result rows.
+ */
+/**
+ * @typedef {object} sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuOutputResultsRowsElement
+ * @property {number} cart_adds - [Go: float64] Number of cart adds.
+ * @property {number} clicks - [Go: float64] Number of clicks.
+ * @property {number} conversion_rate - [Go: float64] Conversion rate.
+ * @property {string} description - [Go: string] SKU description.
+ * @property {number} engagement_rate - [Go: float64] Engagement rate.
+ * @property {number} participation - [Go: float64] Participation rate.
+ * @property {number} purchases - [Go: float64] Number of purchases.
+ * @property {number} recomendations - [Go: float64] Number of recommendations.
+ * @property {number} revenue - [Go: float64] Total revenue generated.
+ * @property {string} showcase_category - [Go: string] Showcase category name.
+ * @property {string} sku_id - [Go: string] SKU identifier.
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashImpactedMetricsBySku partitions
+ * @typedef {object} sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuPartitions
+ * @property {string} store_id - [Go: string] Store identifier.
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashImpactedMetricsBySku Request
+ * @typedef {object} sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuReq
+ * @property {sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuInput} input
+ * @property {sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuPartitions} partitions
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashImpactedMetricsBySku Response
+ * @typedef {object} sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuResp
+ * @property {sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuOutput} output
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashListShowcaseCategories input
+ * @typedef {object} sdkFuncProductRelevanceFashionDashListShowcaseCategoriesInput
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashListShowcaseCategories output
+ * @typedef {object} sdkFuncProductRelevanceFashionDashListShowcaseCategoriesOutput
+ * @property {sdkFuncProductRelevanceFashionDashListShowcaseCategoriesOutputResults} results - Query results.
+ */
+/**
+ * Query results.
+ * @typedef {object} sdkFuncProductRelevanceFashionDashListShowcaseCategoriesOutputResults
+ * @property {Array<sdkFuncProductRelevanceFashionDashListShowcaseCategoriesOutputResultsRowsElement>} rows - Result rows.
+ */
+/**
+ * @typedef {object} sdkFuncProductRelevanceFashionDashListShowcaseCategoriesOutputResultsRowsElement
+ * @property {string} showcase_category - [Go: string] Showcase category name.
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashListShowcaseCategories partitions
+ * @typedef {object} sdkFuncProductRelevanceFashionDashListShowcaseCategoriesPartitions
+ * @property {string} store_id - [Go: string] Store identifier.
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashListShowcaseCategories Request
+ * @typedef {object} sdkFuncProductRelevanceFashionDashListShowcaseCategoriesReq
+ * @property {sdkFuncProductRelevanceFashionDashListShowcaseCategoriesInput} input
+ * @property {sdkFuncProductRelevanceFashionDashListShowcaseCategoriesPartitions} partitions
+ */
+/**
+ * sdkFuncProductRelevanceFashionDashListShowcaseCategories Response
+ * @typedef {object} sdkFuncProductRelevanceFashionDashListShowcaseCategoriesResp
+ * @property {sdkFuncProductRelevanceFashionDashListShowcaseCategoriesOutput} output
+ */
+/**
+ * sdkFuncProductRelevanceFashionFbt input
+ * @typedef {object} sdkFuncProductRelevanceFashionFbtInput
+ * @property {string} dataset - [Go: lakedsz.Dataset] Dataset identifier.
+ * @property {string} session_id - [Go: string] Session identifier.
+ * @property {Array<sdkFuncProductRelevanceFashionFbtInputSkusElement>} skus - SKUs to find matches for.
+ * @property {string} user_id - [Go: string] User identifier.
+ */
+/**
+ * @typedef {object} sdkFuncProductRelevanceFashionFbtInputSkusElement
+ * @property {string} sku_id - [Go: string] SKU identifier.
+ */
+/**
+ * sdkFuncProductRelevanceFashionFbt output
+ * @typedef {object} sdkFuncProductRelevanceFashionFbtOutput
+ * @property {Array<sdkFuncProductRelevanceFashionFbtOutputResultsElement>} results - Inference results.
+ */
+/**
+ * @typedef {object} sdkFuncProductRelevanceFashionFbtOutputResultsElement
+ * @property {number} rating - [Go: float64] Result rating.
+ * @property {Array<sdkFuncProductRelevanceFashionFbtOutputResultsElementSkusElement>} skus - Matching SKUs.
+ */
+/**
+ * @typedef {object} sdkFuncProductRelevanceFashionFbtOutputResultsElementSkusElement
+ * @property {string} sku_id - [Go: string] SKU identifier.
+ */
+/**
+ * One recommended sku to show, as picked by selectResults
+ * @typedef {object} sdkFuncProductRelevanceFashionFbtOutputResultsElementSkusElementEnriched
+ * @property {string} sku_id - Id of the sku. Required; the only field sent to i6 (in the recshow event)
+ * @property {number} rating - Model rating, higher is more relevant. The default selectResults sets the rating of the result the sku was picked from
+ * @property {*} enriched - Optional: any data your selectResults attaches to the sku (e.g. name, price, image). Returned to you as is, never sent to i6. The default selectResults does not set it
+ */
+/**
+ * sdkFuncProductRelevanceFashionFbt partitions
+ * @typedef {object} sdkFuncProductRelevanceFashionFbtPartitions
+ * @property {string} store_id - [Go: string] Store identifier.
+ */
+/**
+ * sdkFuncProductRelevanceFashionFbt Request
+ * @typedef {object} sdkFuncProductRelevanceFashionFbtReq
+ * @property {sdkFuncProductRelevanceFashionFbtInput} input
+ * @property {sdkFuncProductRelevanceFashionFbtPartitions} partitions
+ */
+/**
+ * sdkFuncProductRelevanceFashionFbt Response
+ * @typedef {object} sdkFuncProductRelevanceFashionFbtResp
+ * @property {sdkFuncProductRelevanceFashionFbtOutput} output
+ */
+/**
+ * sdkFuncProductRelevanceFashionFbt Selected: the skus to show, as returned by selectResults
+ * @typedef {object} sdkFuncProductRelevanceFashionFbtSelected
+ * @property {Array<sdkFuncProductRelevanceFashionFbtOutputResultsElementSkusElementEnriched>} results - Skus to show, in the order selectResults returned them
+ */
+declare class Apis {
+    /**
+     * @private
+     * @type {Services}
+     */
+    _services;
+    /**
+     * Constructs an Ingest client instance.
+     * @param {Services} services - The services manager instance.
+     */
+    constructor(services: Services);
+    /**
+     * Create Customer Portal
+     *
+     * Creates a customer portal session for managing subscription and billing.
+     *
+     * @param {apiDszCreateCustomerPortalReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiDszCreateCustomerPortalResp>>}
+     */
+    dszCreateCustomerPortal(req: apiDszCreateCustomerPortalReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiDszCreateCustomerPortalResp>>;
+    /**
+     * Create Ingestion Token
+     *
+     * Creates a legacy ingestion token for dataset ingestion.
+     *
+     * @param {apiDszCreateIngestionTokenReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiDszCreateIngestionTokenResp>>}
+     */
+    dszCreateIngestionToken(req: apiDszCreateIngestionTokenReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiDszCreateIngestionTokenResp>>;
+    /**
+     * Create Recsys Token
+     *
+     * Creates a legacy recsys token for real-time recommendation querying.
+     *
+     * @param {apiDszCreateRecsysTokenReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiDszCreateRecsysTokenResp>>}
+     */
+    dszCreateRecsysToken(req: apiDszCreateRecsysTokenReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiDszCreateRecsysTokenResp>>;
+    /**
+     * Create Store
+     *
+     * Registers a new store in a dataset.
+     *
+     * @param {apiDszCreateStoreReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiDszCreateStoreResp>>}
+     */
+    dszCreateStore(req: apiDszCreateStoreReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiDszCreateStoreResp>>;
+    /**
+     * List Active Dataset Solutions
+     *
+     * Lists all active solution domains enabled for a dataset.
+     *
+     * @param {apiDszDatasetSolutionsReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiDszDatasetSolutionsResp>>}
+     */
+    dszDatasetSolutions(req: apiDszDatasetSolutionsReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiDszDatasetSolutionsResp>>;
+    /**
+     * Delete Dataset Token
+     *
+     * Revokes a legacy dataset token.
+     *
+     * @param {apiDszDeleteTokenReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiDszDeleteTokenResp>>}
+     */
+    dszDeleteToken(req: apiDszDeleteTokenReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiDszDeleteTokenResp>>;
+    /**
+     * Get Store Solution Domain
+     *
+     * Retrieves the solution domain for a store within a dataset.
+     *
+     * @param {apiDszDomainGetReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiDszDomainGetResp>>}
+     */
+    dszDomainGet(req: apiDszDomainGetReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiDszDomainGetResp>>;
+    /**
+     * Get Subscription
+     *
+     * Gets the plan and status of the Stripe subscription for a dataset solution.
+     *
+     * @param {apiDszGetSubscriptionReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiDszGetSubscriptionResp>>}
+     */
+    dszGetSubscription(req: apiDszGetSubscriptionReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiDszGetSubscriptionResp>>;
+    /**
+     * List Datasets
+     *
+     * Lists all datasets available to the user.
+     *
+     * @param {apiDszListDatasetsReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiDszListDatasetsResp>>}
+     */
+    dszListDatasets(req: apiDszListDatasetsReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiDszListDatasetsResp>>;
+    /**
+     * List Ingestion Tokens
+     *
+     * Lists all ingestion tokens provisioned for a dataset.
+     *
+     * @param {apiDszListIngestionTokensReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiDszListIngestionTokensResp>>}
+     */
+    dszListIngestionTokens(req: apiDszListIngestionTokensReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiDszListIngestionTokensResp>>;
+    /**
+     * List Payments
+     *
+     * Lists all Stripe payment records for a dataset.
+     *
+     * @param {apiDszListPaymentsReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiDszListPaymentsResp>>}
+     */
+    dszListPayments(req: apiDszListPaymentsReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiDszListPaymentsResp>>;
+    /**
+     * List Subscription Plans
+     *
+     * Lists all available subscription pricing plans for a solution product.
+     *
+     * @param {apiDszListPlansReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiDszListPlansResp>>}
+     */
+    dszListPlans(req: apiDszListPlansReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiDszListPlansResp>>;
+    /**
+     * List Recsys Tokens
+     *
+     * Lists all recsys tokens provisioned for a dataset.
+     *
+     * @param {apiDszListRecsysTokensReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiDszListRecsysTokensResp>>}
+     */
+    dszListRecsysTokens(req: apiDszListRecsysTokensReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiDszListRecsysTokensResp>>;
+    /**
+     * List Stores
+     *
+     * Lists all stores configured for a dataset.
+     *
+     * @param {apiDszListStoresReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiDszListStoresResp>>}
+     */
+    dszListStores(req: apiDszListStoresReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiDszListStoresResp>>;
+    /**
+     * Get Model Signed URLs
+     *
+     * Generates presigned URLs for accessing model files in the specified dataset.
+     *
+     * @param {apiDszModelGetReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiDszModelGetResp>>}
+     */
+    dszModelGet(req: apiDszModelGetReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiDszModelGetResp>>;
+    /**
+     * Load Last Batch Summary Result
+     *
+     * Load a table file from the datalake as JSON and return it.
+     *
+     * @param {apiDszResultLastBatchSummaryReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiDszResultLastBatchSummaryResp>>}
+     */
+    dszResultLastBatchSummary(req: apiDszResultLastBatchSummaryReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiDszResultLastBatchSummaryResp>>;
+    /**
+     * Load Relevance Fashion Catalog Result
+     *
+     * Load a table file from the datalake as JSON and return it.
+     *
+     * @param {apiDszResultRelevanceFashionCatalogReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiDszResultRelevanceFashionCatalogResp>>}
+     */
+    dszResultRelevanceFashionCatalog(req: apiDszResultRelevanceFashionCatalogReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiDszResultRelevanceFashionCatalogResp>>;
+    /**
+     * Generate Signed URLs
+     *
+     * Generates pre-signed storage URLs for dataset lake table paths.
+     *
+     * @param {apiDszSignedUrlReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiDszSignedUrlResp>>}
+     */
+    dszSignedUrl(req: apiDszSignedUrlReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiDszSignedUrlResp>>;
+    /**
+     * Create Store Display
+     *
+     * Creates or updates a store display configuration.
+     *
+     * @param {apiDszStoreDisplayCreateReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiDszStoreDisplayCreateResp>>}
+     */
+    dszStoreDisplayCreate(req: apiDszStoreDisplayCreateReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiDszStoreDisplayCreateResp>>;
+    /**
+     * List Store Displays
+     *
+     * Lists displays configured for a store in a dataset.
+     *
+     * @param {apiDszStoreDisplayListReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiDszStoreDisplayListResp>>}
+     */
+    dszStoreDisplayList(req: apiDszStoreDisplayListReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiDszStoreDisplayListResp>>;
+    /**
+     * Create Stripe Checkout
+     *
+     * Creates a Stripe checkout session for a subscription and returns its ID and URL.
+     *
+     * @param {apiDszStripeCheckoutReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiDszStripeCheckoutResp>>}
+     */
+    dszStripeCheckout(req: apiDszStripeCheckoutReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiDszStripeCheckoutResp>>;
+    /**
+     * Get Dataset Table File
+     *
+     * Get table file by redirecting to its signed URL.
+     *
+     * @param {apiDszTableGetReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiDszTableGetResp>>}
+     */
+    dszTableGet(req: apiDszTableGetReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiDszTableGetResp>>;
+    /**
+     * List Dataset Tables
+     *
+     * Lists files and tables in the specified dataset.
+     *
+     * @param {apiDszTableListReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiDszTableListResp>>}
+     */
+    dszTableList(req: apiDszTableListReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiDszTableListResp>>;
+    /**
+     * Update Payment Auto-Renew
+     *
+     * Updates the auto-renewal status for a dataset subscription solution.
+     *
+     * @param {apiDszUpdatePaymentAutoRenewReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiDszUpdatePaymentAutoRenewResp>>}
+     */
+    dszUpdatePaymentAutoRenew(req: apiDszUpdatePaymentAutoRenewReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiDszUpdatePaymentAutoRenewResp>>;
+    /**
+     * Update Subscription Plan
+     *
+     * Updates the plan (price) of the Stripe subscription for a dataset product/solution.
+     *
+     * @param {apiDszUpdateSubscriptionPlanReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiDszUpdateSubscriptionPlanResp>>}
+     */
+    dszUpdateSubscriptionPlan(req: apiDszUpdateSubscriptionPlanReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiDszUpdateSubscriptionPlanResp>>;
+    /**
+     * Ingest Relevance Fashion Catalog Event
+     *
+     * Ingests catalog item data into the dataset catalog table.
+     *
+     * @param {apiIngestzEventRelevanceFashionCatalogReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiIngestzEventRelevanceFashionCatalogResp>>}
+     */
+    ingestzEventRelevanceFashionCatalog(req: apiIngestzEventRelevanceFashionCatalogReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiIngestzEventRelevanceFashionCatalogResp>>;
+    /**
+     * Ingest Relevance Fashion Event
+     *
+     * Ingests telemetry event data into the dataset event table.
+     *
+     * @param {apiIngestzEventRelevanceFashionEventReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiIngestzEventRelevanceFashionEventResp>>}
+     */
+    ingestzEventRelevanceFashionEvent(req: apiIngestzEventRelevanceFashionEventReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiIngestzEventRelevanceFashionEventResp>>;
+    /**
+     * Get Ingestion Upload URLs
+     *
+     * Generates presigned PUT URLs and an ingestion token for uploading files into a target dataset table and partitions.
+     *
+     * @param {apiIngestzGetUrlReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiIngestzGetUrlResp>>}
+     */
+    ingestzGetUrl(req: apiIngestzGetUrlReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiIngestzGetUrlResp>>;
+    /**
+     * Get Last Successful Ingestion Data Summary
+     *
+     * Returns the date of ingestion, rows count and distinct and null columns count.
+     *
+     * @param {apiIngestzLastBatchSummaryReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiIngestzLastBatchSummaryResp>>}
+     */
+    ingestzLastBatchSummary(req: apiIngestzLastBatchSummaryReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiIngestzLastBatchSummaryResp>>;
+    /**
+     * Ingest Relevance Fashion Catalog Stream
+     *
+     * Ingests a batch of catalog items into the dataset catalog table.
+     *
+     * @param {apiIngestzStreamRelevanceFashionCatalogReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiIngestzStreamRelevanceFashionCatalogResp>>}
+     */
+    ingestzStreamRelevanceFashionCatalog(req: apiIngestzStreamRelevanceFashionCatalogReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiIngestzStreamRelevanceFashionCatalogResp>>;
+    /**
+     * Ingest Relevance Fashion Event Stream
+     *
+     * Ingests a batch of telemetry events into the dataset event table.
+     *
+     * @param {apiIngestzStreamRelevanceFashionEventReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiIngestzStreamRelevanceFashionEventResp>>}
+     */
+    ingestzStreamRelevanceFashionEvent(req: apiIngestzStreamRelevanceFashionEventReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiIngestzStreamRelevanceFashionEventResp>>;
+    /**
+     * Get Pipeline
+     *
+     * Gets a pipeline of a dataset by its id.
+     *
+     * @param {apiPipezGetReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiPipezGetResp>>}
+     */
+    pipezGet(req: apiPipezGetReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiPipezGetResp>>;
+    /**
+     * List Pipelines
+     *
+     * Lists the pipelines of a dataset, optionally filtered, with cursor pagination.
+     *
+     * @param {apiPipezListReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiPipezListResp>>}
+     */
+    pipezList(req: apiPipezListReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiPipezListResp>>;
+    /**
+     * Activate Relevance Fashion Batch Ingestion Pipeline Scheduler
+     *
+     * Activates a scheduler for the relevance fashion batch ingestion pipeline on a dataset.
+     *
+     * @param {apiPipezSchedulerActivateRelevanceFashionRelevanceFashionBatchIngestReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiPipezSchedulerActivateRelevanceFashionRelevanceFashionBatchIngestResp>>}
+     */
+    pipezSchedulerActivateRelevanceFashionRelevanceFashionBatchIngest(req: apiPipezSchedulerActivateRelevanceFashionRelevanceFashionBatchIngestReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiPipezSchedulerActivateRelevanceFashionRelevanceFashionBatchIngestResp>>;
+    /**
+     * Activate Relevance Fashion Main Pipeline Scheduler
+     *
+     * Activates a scheduler for the relevance fashion main pipeline on a dataset.
+     *
+     * @param {apiPipezSchedulerActivateRelevanceFashionRelevanceFashionMainReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiPipezSchedulerActivateRelevanceFashionRelevanceFashionMainResp>>}
+     */
+    pipezSchedulerActivateRelevanceFashionRelevanceFashionMain(req: apiPipezSchedulerActivateRelevanceFashionRelevanceFashionMainReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiPipezSchedulerActivateRelevanceFashionRelevanceFashionMainResp>>;
+    /**
+     * Deactivate Relevance Fashion Batch Ingestion Pipeline Scheduler
+     *
+     * Deactivates a scheduler for the relevance fashion batch ingestion pipeline on a dataset.
+     *
+     * @param {apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionBatchIngestReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionBatchIngestResp>>}
+     */
+    pipezSchedulerDeactivateRelevanceFashionRelevanceFashionBatchIngest(req: apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionBatchIngestReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionBatchIngestResp>>;
+    /**
+     * Deactivate Relevance Fashion Main Pipeline Scheduler
+     *
+     * Deactivates a scheduler for the relevance fashion main pipeline on a dataset.
+     *
+     * @param {apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionMainReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionMainResp>>}
+     */
+    pipezSchedulerDeactivateRelevanceFashionRelevanceFashionMain(req: apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionMainReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiPipezSchedulerDeactivateRelevanceFashionRelevanceFashionMainResp>>;
+    /**
+     * Start Batch Ingestion Pipeline
+     *
+     * Starts a batch ingestion pipeline on a dataset with the given params and returns its id.
+     *
+     * @param {apiPipezStartRelevanceFashionRelevanceFashionBatchIngestReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiPipezStartRelevanceFashionRelevanceFashionBatchIngestResp>>}
+     */
+    pipezStartRelevanceFashionRelevanceFashionBatchIngest(req: apiPipezStartRelevanceFashionRelevanceFashionBatchIngestReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiPipezStartRelevanceFashionRelevanceFashionBatchIngestResp>>;
+    /**
+     * Start Main Pipeline
+     *
+     * Starts the main relevance fashion pipeline on a dataset and returns its id.
+     *
+     * @param {apiPipezStartRelevanceFashionRelevanceFashionMainReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiPipezStartRelevanceFashionRelevanceFashionMainResp>>}
+     */
+    pipezStartRelevanceFashionRelevanceFashionMain(req: apiPipezStartRelevanceFashionRelevanceFashionMainReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiPipezStartRelevanceFashionRelevanceFashionMainResp>>;
+    /**
+     * Sample Fraction
+     *
+     * Sample API that performs a fraction operation
+     *
+     * @param {apiSampleFractionReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiSampleFractionResp>>}
+     */
+    sampleFraction(req: apiSampleFractionReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiSampleFractionResp>>;
+    /**
+     * Get Model Metadata
+     *
+     * Gets the input and output tensors of a model version.
+     *
+     * @param {apiTfzModelMetadataReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiTfzModelMetadataResp>>}
+     */
+    tfzModelMetadata(req: apiTfzModelMetadataReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiTfzModelMetadataResp>>;
+    /**
+     * Model Predict
+     *
+     * Runs a prediction of a dataset model version on the inference service (tfinfer), sending the model inputs and the model partitions and returning the model outputs.
+     *
+     * @param {apiTfzModelPredictReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiTfzModelPredictResp>>}
+     */
+    tfzModelPredict(req: apiTfzModelPredictReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiTfzModelPredictResp>>;
+    /**
+     * Device Authorization Code Initiation
+     *
+     * Initiates an RFC 8628 device authorization flow for CLI and remote headless SSH sessions.
+     *
+     * @param {apiUserAuthDeviceCodeReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiUserAuthDeviceCodeResp>>}
+     */
+    userAuthDeviceCode(req: apiUserAuthDeviceCodeReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiUserAuthDeviceCodeResp>>;
+    /**
+     * Device Token Polling & Exchange
+     *
+     * Polled by CLI clients to check status and exchange an authorized device code for active user tokens.
+     *
+     * @param {apiUserAuthDeviceTokenReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiUserAuthDeviceTokenResp>>}
+     */
+    userAuthDeviceToken(req: apiUserAuthDeviceTokenReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiUserAuthDeviceTokenResp>>;
+    /**
+     * OAuth 2.0 PKCE Code Exchange
+     *
+     * Exchanges an authorization code and PKCE code_verifier for authenticated user tokens.
+     *
+     * @param {apiUserAuthExchangeReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiUserAuthExchangeResp>>}
+     */
+    userAuthExchange(req: apiUserAuthExchangeReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiUserAuthExchangeResp>>;
+    /**
+     * Google One-Tap / ID Token Sign-In
+     *
+     * Authenticates a user via verified Google ID token / GIS One-Tap credentials.
+     *
+     * @param {apiUserAuthGoogleReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiUserAuthGoogleResp>>}
+     */
+    userAuthGoogle(req: apiUserAuthGoogleReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiUserAuthGoogleResp>>;
+    /**
+     * User Logout
+     *
+     * Revokes an active human user refresh token and terminates session.
+     *
+     * @param {apiUserAuthLogoutReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiUserAuthLogoutResp>>}
+     */
+    userAuthLogout(req: apiUserAuthLogoutReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiUserAuthLogoutResp>>;
+    /**
+     * Current User Profile
+     *
+     * Retrieves current authenticated user identity profile metadata.
+     *
+     * @param {apiUserAuthMeReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiUserAuthMeResp>>}
+     */
+    userAuthMe(req: apiUserAuthMeReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiUserAuthMeResp>>;
+    /**
+     * Password Reset Initiation
+     *
+     * Initiates an out-of-band password reset email delivery.
+     *
+     * @param {apiUserAuthPasswordResetReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiUserAuthPasswordResetResp>>}
+     */
+    userAuthPasswordReset(req: apiUserAuthPasswordResetReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiUserAuthPasswordResetResp>>;
+    /**
+     * Email/Password Sign-In
+     *
+     * Authenticates a user via email and password credentials.
+     *
+     * @param {apiUserAuthPasswordSigninReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiUserAuthPasswordSigninResp>>}
+     */
+    userAuthPasswordSignin(req: apiUserAuthPasswordSigninReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiUserAuthPasswordSigninResp>>;
+    /**
+     * Email/Password Registration
+     *
+     * Registers a new user account with email and password credentials.
+     *
+     * @param {apiUserAuthPasswordSignupReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiUserAuthPasswordSignupResp>>}
+     */
+    userAuthPasswordSignup(req: apiUserAuthPasswordSignupReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiUserAuthPasswordSignupResp>>;
+    /**
+     * Human User Session Refresh
+     *
+     * Exchanges a human user refresh token for fresh access and rotated refresh tokens.
+     *
+     * @param {apiUserAuthRefreshReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiUserAuthRefreshResp>>}
+     */
+    userAuthRefresh(req: apiUserAuthRefreshReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiUserAuthRefreshResp>>;
+    /**
+     * Public Settings Discovery
+     *
+     * Retrieves public operational policies and token expiration parameters.
+     *
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiUserConfSettingsResp>>}
+     */
+    userConfSettings(opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiUserConfSettingsResp>>;
+    /**
+     * Attenuate Dataset Access Token
+     *
+     * Derives an in-flight attenuated child access token with dropped privileges from an active access token.
+     *
+     * @param {apiUserDatasetTokenAccessAttenuateReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiUserDatasetTokenAccessAttenuateResp>>}
+     */
+    userDatasetTokenAccessAttenuate(req: apiUserDatasetTokenAccessAttenuateReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiUserDatasetTokenAccessAttenuateResp>>;
+    /**
+     * Create Dataset Access Token
+     *
+     * Mints a short-lived dataset access token for an authenticated user.
+     *
+     * @param {apiUserDatasetTokenAccessCreateReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiUserDatasetTokenAccessCreateResp>>}
+     */
+    userDatasetTokenAccessCreate(req: apiUserDatasetTokenAccessCreateReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiUserDatasetTokenAccessCreateResp>>;
+    /**
+     * Refresh Dataset Access Token
+     *
+     * Refreshes and attenuates a dataset access token using an Ed25519 signature assertion.
+     *
+     * @param {apiUserDatasetTokenRefreshReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiUserDatasetTokenRefreshResp>>}
+     */
+    userDatasetTokenRefresh(req: apiUserDatasetTokenRefreshReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiUserDatasetTokenRefreshResp>>;
+    /**
+     * Provision Dataset Refresh Token
+     *
+     * Provisions a long-lived machine dataset refresh token.
+     *
+     * @param {apiUserDatasetTokenRefreshCreateReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiUserDatasetTokenRefreshCreateResp>>}
+     */
+    userDatasetTokenRefreshCreate(req: apiUserDatasetTokenRefreshCreateReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiUserDatasetTokenRefreshCreateResp>>;
+    /**
+     * Revoke Dataset Refresh Token
+     *
+     * Instantly revokes a machine dataset refresh token by JTI.
+     *
+     * @param {apiUserDatasetTokenRefreshDeleteReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiUserDatasetTokenRefreshDeleteResp>>}
+     */
+    userDatasetTokenRefreshDelete(req: apiUserDatasetTokenRefreshDeleteReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiUserDatasetTokenRefreshDeleteResp>>;
+    /**
+     * List Dataset Refresh Tokens
+     *
+     * Lists all active machine refresh tokens provisioned for a dataset.
+     *
+     * @param {apiUserDatasetTokenRefreshListReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiUserDatasetTokenRefreshListResp>>}
+     */
+    userDatasetTokenRefreshList(req: apiUserDatasetTokenRefreshListReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiUserDatasetTokenRefreshListResp>>;
+    /**
+     * Universal Token & Signature Diagnostics
+     *
+     * Auto-detects, validates, and diagnoses any credential supported by authz.Filter without state side-effects.
+     *
+     * @param {apiUserTokenCheckReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<import("../invoker/invoker.js").Resp<apiUserTokenCheckResp>>}
+     */
+    userTokenCheck(req: apiUserTokenCheckReq, opts?: ServiceOptions): Promise<import("../invoker/invoker.js").Resp<apiUserTokenCheckResp>>;
+}
+export { Apis };
+declare class SdkFuncs {
+    /**
+     * @private
+     * @type {Services}
+     */
+    _services;
+    /**
+     * Constructs an SdkFuncs instance.
+     * @param {Services} services - The services manager instance.
+     */
+    constructor(services: Services);
+    /**
+     * Get Attached Revenue
+     *
+     * Gets the revenue attached to recommendations for a store and period.
+     *
+     * @param {sdkFuncProductRelevanceFashionDashAttachedRevenueReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<sdkFuncProductRelevanceFashionDashAttachedRevenueOutput>}
+     */
+    productRelevanceFashionDashAttachedRevenueV1(req: sdkFuncProductRelevanceFashionDashAttachedRevenueReq, opts?: ServiceOptions): Promise<sdkFuncProductRelevanceFashionDashAttachedRevenueOutput>;
+    /**
+     * Get Coverage
+     *
+     * Gets the recommendation coverage of the catalog for a store and period.
+     *
+     * @param {sdkFuncProductRelevanceFashionDashCoverageReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<sdkFuncProductRelevanceFashionDashCoverageOutput>}
+     */
+    productRelevanceFashionDashCoverageV1(req: sdkFuncProductRelevanceFashionDashCoverageReq, opts?: ServiceOptions): Promise<sdkFuncProductRelevanceFashionDashCoverageOutput>;
+    /**
+     * Get Display Metrics Status
+     *
+     * Gets recommendation metrics, revenue, session counts, and uplift status by display for a store and period.
+     *
+     * @param {sdkFuncProductRelevanceFashionDashDisplayMetricsStatusReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<sdkFuncProductRelevanceFashionDashDisplayMetricsStatusOutput>}
+     */
+    productRelevanceFashionDashDisplayMetricsStatusV1(req: sdkFuncProductRelevanceFashionDashDisplayMetricsStatusReq, opts?: ServiceOptions): Promise<sdkFuncProductRelevanceFashionDashDisplayMetricsStatusOutput>;
+    /**
+     * Get Funnel
+     *
+     * Gets the event counts of the recommendation funnel for a store and period.
+     *
+     * @param {sdkFuncProductRelevanceFashionDashFunnelReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<sdkFuncProductRelevanceFashionDashFunnelOutput>}
+     */
+    productRelevanceFashionDashFunnelV1(req: sdkFuncProductRelevanceFashionDashFunnelReq, opts?: ServiceOptions): Promise<sdkFuncProductRelevanceFashionDashFunnelOutput>;
+    /**
+     * Get Metrics by Category
+     *
+     * Gets the metrics impacted by recommendations by showcase category for a store and period.
+     *
+     * @param {sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryOutput>}
+     */
+    productRelevanceFashionDashImpactedMetricsByShowcaseCategoryV1(req: sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryReq, opts?: ServiceOptions): Promise<sdkFuncProductRelevanceFashionDashImpactedMetricsByShowcaseCategoryOutput>;
+    /**
+     * Get Metrics by SKU
+     *
+     * Gets the metrics impacted by recommendations by SKU for a store and period.
+     *
+     * @param {sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuOutput>}
+     */
+    productRelevanceFashionDashImpactedMetricsBySkuV1(req: sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuReq, opts?: ServiceOptions): Promise<sdkFuncProductRelevanceFashionDashImpactedMetricsBySkuOutput>;
+    /**
+     * List Showcase Categories
+     *
+     * Lists the showcase categories of a store.
+     *
+     * @param {sdkFuncProductRelevanceFashionDashListShowcaseCategoriesReq} req
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<sdkFuncProductRelevanceFashionDashListShowcaseCategoriesOutput>}
+     */
+    productRelevanceFashionDashListShowcaseCategoriesV1(req: sdkFuncProductRelevanceFashionDashListShowcaseCategoriesReq, opts?: ServiceOptions): Promise<sdkFuncProductRelevanceFashionDashListShowcaseCategoriesOutput>;
+    /**
+     * Get Bought Together
+     *
+     * Infers the SKUs frequently bought together with the given SKUs for a store.
+     *
+     * @param {sdkFuncProductRelevanceFashionFbtReq} req
+     * @param {(req: sdkFuncProductRelevanceFashionFbtReq, results: sdkFuncProductRelevanceFashionFbtOutput) => Promise<sdkFuncProductRelevanceFashionFbtSelected>} [selectResults] - picks which of the recommended skus are shown and may attach your own data to each in enriched; default: for each result, in order, the first sku not in req.input.skus (the cart) and not already picked, with the rating of that result; no duplicates, and results with no such sku are skipped
+     * @param {ServiceOptions} [opts]
+     * @returns {Promise<sdkFuncProductRelevanceFashionFbtSelected>}
+     */
+    productRelevanceFashionFbtV1(req: sdkFuncProductRelevanceFashionFbtReq, selectResults?: (req: sdkFuncProductRelevanceFashionFbtReq, results: sdkFuncProductRelevanceFashionFbtOutput) => Promise<sdkFuncProductRelevanceFashionFbtSelected>, opts?: ServiceOptions): Promise<sdkFuncProductRelevanceFashionFbtSelected>;
+}
+export { SdkFuncs };

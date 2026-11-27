@@ -1,0 +1,138 @@
+import { Services, Apis, SdkFuncs } from "./services/services.js";
+import { Resp } from "./invoker/invoker.js";
+import { bitmapz } from "./internal/bitmapz/bitmapz.js";
+const DEFAULT_CONFIG = {
+  app: "default",
+  servUrls: {
+    "decsuite": "https://decsuite.sandbox.rs.infinity6.ai",
+    "tfinfer": "https://tfinfer.sandbox.lb.infinity6.ai",
+    "userz": "https://userz.sandbox.rs.infinity6.ai"
+  }
+  // servUrls: {
+  //   "decsuite": "http://localhost:9021",
+  //   "tfinfer": "http://localhost:9022",
+  //   "userz": "http://localhost:9023"
+  // },
+};
+class I6Sdk {
+  /**
+   * Constructs an instance of the i6 SDK.
+   * @param {I6SdkConfig} [config] - Configuration options for the SDK.
+   */
+  constructor(config) {
+    this._service = new Services({
+      ...DEFAULT_CONFIG,
+      ...config
+    });
+  }
+  /**
+   * Returns a copy of the configuration the SDK is running with.
+   * @returns {I6SdkConfig} The current configuration.
+   */
+  config() {
+    return { ...this._service.config() };
+  }
+  /**
+   * Overwrites the given keys of the configuration; the other keys are kept.
+   * Can be called at any time, the next call of the SDK uses the new values.
+   * @param {Partial<I6SdkConfig>} config - The keys to overwrite.
+   * @returns {void}
+   */
+  setConfig(config) {
+    this._service.setConfig(config);
+  }
+  /**
+   * Returns an Ingest service instance.
+   * @returns {import("./ingest/ingest.js").Ingest} An instance of the Ingest client.
+   */
+  ingest() {
+    return this._service.ingest();
+  }
+  /**
+   * Returns an Infer service instance, which runs an i6 model in the browser and returns the result.
+   * @returns {import("./infer/infer.js").Infer} An instance of the Infer client.
+   */
+  infer() {
+    return this._service.infer();
+  }
+  /**
+   * Returns a Dash service instance, which queries an i6 dash in the browser and returns the result.
+   * @returns {import("./dash/dash.js").Dash} An instance of the Dash client.
+   */
+  dash() {
+    return this._service.dash();
+  }
+  /**
+   * Returns an Auth service instance.
+   * @returns {import("./auth/auth.js").Auth} An instance of the Auth client.
+   */
+  auth() {
+    return this._service.auth();
+  }
+  /**
+   * Returns a Tokens service instance.
+   * @returns {import("./tokens/tokens.js").Tokens} An instance of the Tokens client.
+   */
+  tokens() {
+    return this._service.tokens();
+  }
+  /**
+   * Returns the Apis service instance, one typed method per i6 server API.
+   * Each call resolves with `{status, ok, payload?, error?}` and does not throw on an HTTP error.
+   * @returns {Apis} An instance of the generated Apis client.
+   */
+  apis() {
+    return this._service.apis();
+  }
+  /**
+   * Returns the Funcs service instance.
+   * @returns {SdkFuncs} An instance of the SdkFuncs client.
+   */
+  funcs() {
+    return this._service.funcs();
+  }
+  /**
+   * Warms up/preloads model assets for a dataset in the background.
+   * Safe to call on page load or during SDK initialization.
+   * @param {WarmupDatasetOptions} opts - Warmup options.
+   * @returns {Promise<Array<import("./internal/fs/fs.js").FileRef>>} References to the preloaded model files.
+   */
+  async warmupDataset(opts) {
+    if (!opts || !opts.dataset) throw new TypeError("i6sdk: opts.dataset is required");
+    if (!Array.isArray(opts.models)) throw new TypeError("i6sdk: opts.models must be an array");
+    const serviceOptions = opts.serviceOptions;
+    const infer = this.infer();
+    return Promise.all(
+      opts.models.map(
+        (m) => infer.update({
+          dataset: opts.dataset,
+          modelName: m.modelName,
+          partitions: m.partitions,
+          sqliteUrl: m.sqliteUrl,
+          serviceOptions: m.serviceOptions ?? serviceOptions
+        })
+      )
+    );
+  }
+  /**
+   * Registers an event listener on the SDK's internal event dispatcher (an EventTarget).
+   * @param {string} evt - The event type or name to listen for.
+   * @param {EventListenerOrEventListenerObject|Function} fn - The callback function or event listener object invoked when the event occurs.
+   * @returns {void}
+   */
+  bind(evt, fn) {
+    this._service.bind(evt, fn);
+  }
+}
+const Grants = Object.freeze({
+  System: 1,
+  Admin: 2,
+  Write: 4,
+  Read: 8,
+  All: 15
+});
+window.I6Sdk = I6Sdk;
+I6Sdk.Resp = Resp;
+I6Sdk.bitmapz = bitmapz;
+I6Sdk.Grants = Grants;
+export { I6Sdk, Resp, bitmapz, Grants };
