@@ -89,7 +89,7 @@ Manages short-lived bearer access tokens cached in `tokens.db` (a profile can ho
 
 #### 4. Stateless Zero-Disk Operations (`i6 tokens raw`)
 Pure in-memory cryptographic and token exchange operations that never read or write to `tokens.db`:
-- `i6 tokens raw check [<token-string> | -]`: Validates and debugs any token via `/api/userz/token/check` without saving it.
+- `i6 tokens raw check <token-string | ->`: Validates and debugs an arbitrary token string or stdin pipe via `/api/userz/token/check` without saving or affecting `tokens.db`.
 - `i6 tokens raw dataset-bearer --refresh-token <key|-> --dataset <dataset>`: Statelessly signs an Ed25519 `RefreshAssertion`, exchanges it on the server, and prints the raw short-lived bearer access token to stdout without touching disk.
 - `i6 tokens raw bounded-create --token <token|-> --key <privkey|->`: Mints a sender-constrained Proof-of-Possession token from an access token and private key.
 - `i6 tokens raw sign-request --key <privkey|-> --method <METHOD> --path <PATH> [--body <str|->]`: Generates the 121-byte Ed25519 signature envelope (`X-I6-Signature` header) using the `reqsign` protocol.
@@ -281,7 +281,7 @@ In `.github/workflows/release.yml`:
   - [ ] Implement `i6 auth login` (Device code flow with polling; enforces mutual exclusivity).
   - [ ] Implement `i6 auth token [<token-string> | -] [--offline]` (universal token ingestion with auto-detection).
   - [ ] Implement `i6 auth logout` and `i6 auth status`.
-  - [ ] Implement `i6 tokens check [<token-string> | -]` (cryptographic token debugger calling /api/userz/token/check).
+  - [ ] Implement `i6 tokens check [--refreshed]` (audits all credentials stored in active profile's tokens.db via /api/userz/token/check).
   - [ ] Implement `i6 tokens user [get|expose|export|delete]` (human user session root credential; expose prints access token, export prints refresh token).
   - [ ] Implement `i6 tokens dataset-refresh [get|export|set|delete]` (machine robot root credential; export prints robot refresh key).
   - [ ] Implement `i6 tokens dataset-access [--dataset <dataset>]` (multiple derived cached tokens):
@@ -291,7 +291,7 @@ In `.github/workflows/release.yml`:
     - `check [--refreshed]` (validates against server; refreshes if needed)
     - `delete` (evicts cached bearer token)
   - [ ] Implement `i6 tokens raw` (stateless in-memory operations):
-    - `check [<token-string> | -]`
+    - `check <token-string | ->` (statelessly debugs arbitrary token)
     - `dataset-bearer --refresh-token <key|-> --dataset <dataset>`
     - `bounded-create --token <token|-> --key <privkey|->`
     - `sign-request --key <privkey|-> --method <METHOD> --path <PATH> [--body <str|->]`
