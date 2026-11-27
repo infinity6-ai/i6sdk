@@ -7,10 +7,10 @@ require (
 	github.com/infinity6-ai/gox/commonz v0.0.83
 	github.com/infinity6-ai/gox/httpz v0.0.83
 	github.com/infinity6-ai/gox/routez v0.0.83
-	github.com/infinity6-ai/i6sdk/apicollectionz v0.0.20
-	github.com/infinity6-ai/i6sdk/forgez v0.0.20
-	github.com/infinity6-ai/i6sdk/mold v0.0.20
-	github.com/infinity6-ai/i6sdk/versionz v0.0.20
+	github.com/infinity6-ai/i6sdk/apicollectionz v0.0.21
+	github.com/infinity6-ai/i6sdk/forgez v0.0.21
+	github.com/infinity6-ai/i6sdk/mold v0.0.21
+	github.com/infinity6-ai/i6sdk/versionz v0.0.21
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.12.1
 )
@@ -42,12 +42,12 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/infinity6-ai/gox/fsz v0.0.83 // indirect
 	github.com/infinity6-ai/gox/schemaz v0.0.83 // indirect
-	github.com/infinity6-ai/i6sdk/apidatasetz v0.0.20 // indirect
-	github.com/infinity6-ai/i6sdk/apiingestz v0.0.20 // indirect
-	github.com/infinity6-ai/i6sdk/apipipez v0.0.20 // indirect
-	github.com/infinity6-ai/i6sdk/apitfz v0.0.20 // indirect
-	github.com/infinity6-ai/i6sdk/apiuserz v0.0.20 // indirect
-	github.com/infinity6-ai/i6sdk/sdkcorez v0.0.20 // indirect
+	github.com/infinity6-ai/i6sdk/apidatasetz v0.0.21 // indirect
+	github.com/infinity6-ai/i6sdk/apiingestz v0.0.21 // indirect
+	github.com/infinity6-ai/i6sdk/apipipez v0.0.21 // indirect
+	github.com/infinity6-ai/i6sdk/apitfz v0.0.21 // indirect
+	github.com/infinity6-ai/i6sdk/apiuserz v0.0.21 // indirect
+	github.com/infinity6-ai/i6sdk/sdkcorez v0.0.21 // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/spf13/pflag v1.1.0 // indirect
 	github.com/spiffe/go-spiffe/v2 v2.8.1 // indirect
