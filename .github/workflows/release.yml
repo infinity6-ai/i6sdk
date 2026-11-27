@@ -170,3 +170,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./gh-pages-staging
           keep_files: true
+          force_orphan: true
