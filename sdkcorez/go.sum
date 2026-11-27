@@ -76,8 +76,8 @@ github.com/infinity6-ai/gox/fsz v0.0.83 h1:hXI7B7aWjbbC4RIT378pFtCefg96eNg+CumNi
 github.com/infinity6-ai/gox/fsz v0.0.83/go.mod h1:ZPoJlrn8vdDG4JpoumWuA80NQ9nnUdaolKphniXVIho=
 github.com/infinity6-ai/gox/schemaz v0.0.83 h1:PjPYUPrSO9ORXRT4K831GozbKD/WuXDDxRDaTjXdsTE=
 github.com/infinity6-ai/gox/schemaz v0.0.83/go.mod h1:r/YEzCJr/NEx4aZ4RumCzyFDUoU3N+uEB4/reLAb3Bo=
-github.com/infinity6-ai/i6sdk/versionz v0.0.22 h1:4NjNCG3ieBknyW4BYxT6m7C1t5rBp4DcosXvj62MMXQ=
-github.com/infinity6-ai/i6sdk/versionz v0.0.22/go.mod h1:q8lqe8YsY3zForQBJArOKzMl2aAa6ScQYNLwsikc3pM=
+github.com/infinity6-ai/i6sdk/versionz v0.0.23 h1:+fu+qy1g/3ca/GuwvVLgcpxW/TwwEzmbbbTdPeJ7G2g=
+github.com/infinity6-ai/i6sdk/versionz v0.0.23/go.mod h1:q8lqe8YsY3zForQBJArOKzMl2aAa6ScQYNLwsikc3pM=
 github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 h1:GFCKgmp0tecUJ0sJuv4pzYCqS9+RGSn52M3FUwPs+uo=
 github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10/go.mod h1:t/avpk3KcrXxUnYOhZhMXJlSEyie6gQbtLq5NM3loB8=
 github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
