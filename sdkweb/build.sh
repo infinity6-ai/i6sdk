@@ -36,6 +36,9 @@ function cmd_release() {
         rsync -av --delete dist/ ../../i6pages/releases/sdkweb/latest/
         rsync -av --delete src/site/tokens/ ../../i6pages/tokens/ --exclude 'target'
     fi
+
+    # github pages
+    # dist/ -> [i6sdk gihub pages]/release/sdkweb/[vX.Y.Z/edge]/
 }
 
 function cmd_test_visual() {
