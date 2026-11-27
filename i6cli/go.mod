@@ -3,7 +3,7 @@ module github.com/infinity6-ai/i6sdk/i6cli
 go 1.26.1
 
 require (
-	github.com/infinity6-ai/i6sdk/versionz v0.0.23
+	github.com/infinity6-ai/i6sdk/versionz v0.0.24
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.12.1
 )
