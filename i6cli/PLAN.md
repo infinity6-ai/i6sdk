@@ -23,7 +23,7 @@
                                      │
  ┌───────────────────────────────────▼────────────────────────────────────┐
  │                     Cobra Subcommand Taxonomy                          │
- │  auth │ tokens │ dataset │ ingest │ infer │ dash │ pipe │ run │ config  │
+ │  auth │ tokens │ dataset │ ingest │ infer │ dash │ pipe │ funcs │ config  │
  └───────────────────────────────────┬────────────────────────────────────┘
                                      │ calls
  ┌───────────────────────────────────▼────────────────────────────────────┐
@@ -137,9 +137,13 @@ Server-side token management where a dataset can have multiple registered tokens
   - Executes the full 3-step inference pipeline (candidate generation -> remote TF scoring -> hydration).
 - `i6 infer metadata <model-name>`: Fetches model schema and signature metadata.
 
-### G. Typed Product Workflows (`i6 run`)
-- `i6 run <workflow-name> --input <json-or-file>`:
-  - Invokes typed `SdkFuncs` (e.g. `relevance-fashion-fbt`, `dash-funnel`) directly via `c.Funcs()`.
+### G. SdkFunc Workflows (`i6 funcs`)
+Zero-codegen dynamic execution for all registered Infinity6 workflow functions (analytical queries and inference pipelines):
+- `i6 funcs list`: Lists all available SdkFuncs (ID, execution type: `client_query` vs `client_infer`, and product domain).
+- `i6 funcs describe <func-name>`: Displays input and output schemas, partition requirements, and functional description.
+- `i6 funcs run <func-name> [--input <json|file|->] [--dataset <dataset>]`: Dynamically dispatches the workflow function:
+  - If `client_query` $\rightarrow$ routes to `c.Dash().QueryRaw()` and formats the analytical result.
+  - If `client_infer` $\rightarrow$ routes to `c.Infer().Run()` (3-step candidate generation, remote scoring, and hydration).
 
 ### H. Configuration (`i6 config`)
 - `i6 config init [--box sandbox|staging|prod] [-f/--force]`: Initializes the active profile directory and writes `config.json` configured for the selected box (defaults to `prod`). Protected with `-f/--force` against accidental overwrites.
@@ -215,7 +219,7 @@ i6cli/
 │   ├── infer.go                  # i6 infer subcommands
 │   ├── dash.go                   # i6 dash subcommands
 │   ├── pipe.go                   # i6 pipe subcommands
-│   ├── run.go                    # i6 run workflow subcommand
+│   ├── funcs.go                  # i6 funcs subcommands (list, describe, run)
 │   └── config.go                 # i6 config subcommands
 └── internal/
     ├── cliconfig/                # Config file parsing and profile management
@@ -316,11 +320,11 @@ In `.github/workflows/release.yml`:
     - `create [--type ingestion|recsys|refresh] [--annotation <text>] [--save]` (mints token on the server)
     - `delete <token-id-or-jti>` (revokes token on the server by ID or JTI)
 
-- [ ] **Phase 4: Analytics, Inference & Typed Workflows (`dash`, `infer`, `pipe`, `run`)**
+- [ ] **Phase 4: Analytics, Inference & Workflow Functions (`dash`, `infer`, `pipe`, `funcs`)**
   - [ ] Implement `i6 dash query` with table output.
   - [ ] Implement `i6 infer run` and `metadata`.
   - [ ] Implement `i6 pipe list`, `get`, `start`.
-  - [ ] Implement `i6 run` for typed `SdkFuncs` dispatch.
+  - [ ] Implement `i6 funcs [list|describe|run]` for dynamic zero-codegen SdkFunc execution.
 
 - [ ] **Phase 5: Release Packaging & Automation**
   - [ ] Add static binary cross-compilation matrix to `.github/workflows/release.yml`.
