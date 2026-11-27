@@ -185,7 +185,3 @@ class SqliteTokenStorage(TokenStorage):
     def close(self) -> None:
         with self._lock:
             self._conn.close()
-
-
-# Backward compatibility alias
-FileTokenStorage = SqliteTokenStorage

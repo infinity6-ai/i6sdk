@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any, Dict, Optional, TypedDict, Union
 
 if TYPE_CHECKING:
     from ..invoker import ServiceOptions
-    from ..services import Services
+    from ..services import I6Client
 
 from ..exceptions import I6ApiError, I6ValidationError
 from ..infer.infer import partitions_key
@@ -32,7 +32,7 @@ class Dash:
 
     def __init__(
         self,
-        services: Services,
+        services: I6Client,
         fs: Optional[Fs] = None,
         downloader: Optional[Downloader] = None,
     ) -> None:

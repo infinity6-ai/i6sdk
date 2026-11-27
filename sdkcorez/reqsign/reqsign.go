@@ -423,12 +423,6 @@ type RequestSignatureOptions struct {
 	UnsignedBody bool               // If true, body SHA-256 is not enforced
 }
 
-// BuildRequestSignatureData is an alias for RequestSignatureData.
-type BuildRequestSignatureData = RequestSignatureData
-
-// BuildRequestSignatureOptions is an alias for RequestSignatureOptions.
-type BuildRequestSignatureOptions = RequestSignatureOptions
-
 // BuildRequestSignature signs an HTTP request with the provided credentials and returns the formatted X-I6-Signature header value.
 // It bundles the 89-byte signature envelope and the bound access token into a single composite wire token: <sig_envelope>.<access_token>.
 func BuildRequestSignature(data RequestSignatureData, opts RequestSignatureOptions) (string, error) {

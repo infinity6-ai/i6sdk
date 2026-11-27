@@ -9,7 +9,7 @@ import time
 from typing import TYPE_CHECKING, Any, Dict, Optional, TypedDict
 
 if TYPE_CHECKING:
-    from ..services import Services
+    from ..services import I6Client
 
 from ..exceptions import I6AuthError
 from ..sdkapis.types import apiUserAuthDeviceCodeRespPayload, apiUserAuthMeRespPayload
@@ -33,7 +33,7 @@ def generate_code_challenge(verifier: str) -> str:
 class Auth:
     """Authentication client handling login, sign-up, device flow, and token rotation."""
 
-    def __init__(self, services: Services) -> None:
+    def __init__(self, services: I6Client) -> None:
         self._services = services
 
     def userz_base_url(self) -> str:

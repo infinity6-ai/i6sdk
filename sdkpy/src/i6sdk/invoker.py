@@ -20,7 +20,7 @@ from typing import (
 )
 
 if TYPE_CHECKING:
-    from .services import Services
+    from .services import I6Client
 
 from .config import I6SdkConfig
 from .exceptions import I6ApiError, I6ConnectionError
@@ -127,7 +127,7 @@ def extract_dataset_from_url(url_str: str) -> Optional[str]:
 class Invoker:
     """HTTP dispatch engine executing requests using urllib.request."""
 
-    def __init__(self, services: Services) -> None:
+    def __init__(self, services: I6Client) -> None:
         self._services = services
 
     def invoke(self, opts: Union[InvokeOptions, Dict[str, Any]]) -> Tuple[int, Dict[str, str], str]:

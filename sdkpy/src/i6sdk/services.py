@@ -23,7 +23,7 @@ from .tokens.storage import SqliteTokenStorage
 from .tokens.tokens import Tokens
 
 
-class Services:
+class I6Client:
     """Service container orchestrating configuration and sub-clients."""
 
     bitmapz = bitmapz
@@ -119,4 +119,9 @@ class Services:
         if self._funcs is None:
             self._funcs = SdkFuncs(self)
         return self._funcs
+
+
+Services = I6Client
+
+__all__ = ["I6Client", "Services"]
 

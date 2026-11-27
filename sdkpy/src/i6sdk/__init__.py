@@ -23,11 +23,8 @@ from .exceptions import (
 from .grants import Grants
 from .internal import bitmapz
 from .invoker import Resp, ServiceOptions
-from .services import Services
-from .tokens.storage import FileTokenStorage, MemoryTokenStorage, SqliteTokenStorage, TokenStorage
-
-# Client alias
-I6Client = Services
+from .services import I6Client, Services
+from .tokens.storage import MemoryTokenStorage, SqliteTokenStorage, TokenStorage
 
 
 def create_client(
@@ -72,7 +69,6 @@ __all__ = [
     "TokenStorage",
     "MemoryTokenStorage",
     "SqliteTokenStorage",
-    "FileTokenStorage",
     "Grants",
     "bitmapz",
 ]

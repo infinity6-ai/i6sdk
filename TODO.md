@@ -44,13 +44,13 @@ Checklist of cleanup tasks to eliminate legacy aliases, redundant overloads, dua
 
 ## Category 3: Clean Up Class, Type, and Model Aliases
 
-- [ ] **Go (`sdkcorez`): Drop unused request signing type aliases**
+- [x] **Go (`sdkcorez`): Drop unused request signing type aliases**
   - `sdkcorez/reqsign/reqsign.go`: Remove unused `BuildRequestSignatureData` and `BuildRequestSignatureOptions`.
-- [ ] **Python (`sdkpy`): Drop legacy storage & input aliases**
+- [x] **Python (`sdkpy`): Drop legacy storage & input aliases**
   - `sdkpy/src/i6sdk/tokens/storage.py`: Remove `FileTokenStorage = SqliteTokenStorage`.
   - `sdkpy/src/i6sdk/tokens/__init__.py` and `sdkpy/src/i6sdk/__init__.py`: Remove `FileTokenStorage` from exports.
   - `sdkpy/src/i6sdk/ingest/ingest.py`: Remove `StreamInput = StreamItem`.
-- [ ] **Python (`sdkpy`): Standardize `I6Client` naming**
+- [x] **Python (`sdkpy`): Standardize `I6Client` naming**
   - `sdkpy/src/i6sdk/services.py`: Rename class `Services` directly to `I6Client` (aligning with Go's `I6Client` and Web's `I6Sdk`).
   - `sdkpy/src/i6sdk/__init__.py`: Export `I6Client` directly.
 

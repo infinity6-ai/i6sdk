@@ -23,7 +23,7 @@ from typing import (
 
 if TYPE_CHECKING:
     from ..invoker import ServiceOptions
-    from ..services import Services
+    from ..services import I6Client
 
 from ..exceptions import I6ApiError, I6ValidationError
 
@@ -60,8 +60,6 @@ StreamItem = Union[
     bytearray,
     Tuple[Union[BinaryIO, bytes, bytearray], int],
 ]
-
-StreamInput = StreamItem
 
 
 class _NormalizedStream:
@@ -171,7 +169,7 @@ def _normalize_stream(item: Any) -> _NormalizedStream:
 class Ingest:
     """Client for uploading files and data batches to the i6 ingestion service."""
 
-    def __init__(self, services: Services) -> None:
+    def __init__(self, services: I6Client) -> None:
         self._services = services
 
     def get_url(

@@ -20,7 +20,7 @@ from typing import (
 
 if TYPE_CHECKING:
     from ..invoker import ServiceOptions
-    from ..services import Services
+    from ..services import I6Client
 
 from ..exceptions import I6ApiError, I6ValidationError
 from ..internal.downloader import Downloader
@@ -33,18 +33,13 @@ class InferQueryOptions(TypedDict, total=False):
 
     dataset: str
     model_name: str
-    modelName: str
     partitions: Optional[Dict[str, str]]
     params: Optional[Dict[str, Any]]
     session_id: str
-    sessionId: str
     user_id: str
-    userId: str
     limit: Optional[int]
     sqlite_url: Optional[str]
-    sqliteUrl: Optional[str]
     service_options: Optional[Union[ServiceOptions, Dict[str, Any]]]
-    serviceOptions: Optional[Union[ServiceOptions, Dict[str, Any]]]
 
 
 def partitions_key(partitions: Dict[str, str]) -> str:
@@ -98,7 +93,7 @@ class Infer:
 
     def __init__(
         self,
-        services: Services,
+        services: I6Client,
         fs: Optional[Fs] = None,
         downloader: Optional[Downloader] = None,
     ) -> None:

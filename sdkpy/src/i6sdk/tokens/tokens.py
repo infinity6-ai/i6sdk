@@ -10,7 +10,7 @@ import urllib.request
 from typing import TYPE_CHECKING, Any, Dict, Optional, TypedDict
 
 if TYPE_CHECKING:
-    from ..services import Services
+    from ..services import I6Client
 
 from .storage import MemoryTokenStorage, TokenStorage
 
@@ -54,7 +54,7 @@ def _dataset_refresh_key(dataset: str) -> str:
 class Tokens:
     """Manages storage, retrieval, and lifecycle of user and dataset access tokens."""
 
-    def __init__(self, services: Services, storage: Optional[TokenStorage] = None) -> None:
+    def __init__(self, services: I6Client, storage: Optional[TokenStorage] = None) -> None:
         self._services = services
         self._storage: TokenStorage = storage or MemoryTokenStorage()
         self._refresh_lock = threading.Lock()
