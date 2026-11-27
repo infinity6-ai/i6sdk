@@ -68,18 +68,17 @@ Controls the authenticated human user session in `tokens.db`:
 #### 2. Machine Robot Root Credential (`i6 tokens dataset-refresh`)
 Controls the machine service account Ed25519 refresh key (mutually exclusive with `tokens user`):
 - `i6 tokens dataset-refresh get`: Displays robot key metadata for the dataset (safely omits the secret key).
-- `i6 tokens dataset-refresh expose [--out <path|->]`: Dumps the raw Ed25519 secret key to stdout or a file.
 - `i6 tokens dataset-refresh export [--out <path|->]`: Prints the active Ed25519 dataset refresh token to stdout or a file.
 - `i6 tokens dataset-refresh set <key|file|-> [--dataset <dataset>]`: Sets or replaces the robot key for this profile.
 - `i6 tokens dataset-refresh delete`: Removes the robot credential from `tokens.db`.
 
-#### 3. Derived Access Tokens Cache (`i6 tokens dataset-bearer [--dataset <dataset>]`)
+#### 3. Derived Access Tokens Cache (`i6 tokens dataset-access [--dataset <dataset>]`)
 Manages short-lived bearer access tokens cached in `tokens.db` (a profile can hold multiple tokens across different datasets):
-- `i6 tokens dataset-bearer list`: Lists all cached dataset bearer tokens across all datasets in `tokens.db`.
-- `i6 tokens dataset-bearer get [--refreshed]`: Displays metadata for the target dataset (expiry, grants, solution) without revealing the raw token. With `--refreshed`, automatically refreshes using the root credential if missing or expired.
-- `i6 tokens dataset-bearer expose [--refreshed]`: Prints raw Bearer JWT to stdout. With `--refreshed`, automatically refreshes if missing or expired before printing.
-- `i6 tokens dataset-bearer check [--refreshed]`: Cryptographically validates the token against `/api/userz/token/check`.
-- `i6 tokens dataset-bearer delete`: Evicts the cached bearer token for `--dataset` from local `tokens.db`.
+- `i6 tokens dataset-access list`: Lists all cached dataset access tokens across all datasets in `tokens.db`.
+- `i6 tokens dataset-access get [--refreshed]`: Displays metadata for the target dataset (expiry, grants, solution) without revealing the raw token. With `--refreshed`, automatically refreshes using the root credential if missing or expired.
+- `i6 tokens dataset-access expose [--refreshed]`: Prints raw Bearer JWT to stdout. With `--refreshed`, automatically refreshes if missing or expired before printing.
+- `i6 tokens dataset-access check [--refreshed]`: Cryptographically validates the token against `/api/userz/token/check`.
+- `i6 tokens dataset-access delete`: Evicts the cached bearer token for `--dataset` from local `tokens.db`.
 
 ### C. Datasets, Stores, Tables & Server Tokens (`i6 dataset`)
 
@@ -259,9 +258,9 @@ In `.github/workflows/release.yml`:
   - [ ] Implement `i6 auth login` (Device code flow with polling; enforces mutual exclusivity).
   - [ ] Implement `i6 auth token [<token-string> | -] [--offline]` (universal token ingestion with auto-detection).
   - [ ] Implement `i6 auth logout` and `i6 auth status`.
-  - [ ] Implement `i6 tokens user [get|expose|export|delete]` (human user session root credential; export prints user refresh token).
-  - [ ] Implement `i6 tokens dataset-refresh [get|expose|export|set|delete]` (machine robot root credential; export prints robot refresh key).
-  - [ ] Implement `i6 tokens dataset-bearer [--dataset <dataset>]` (multiple derived cached tokens):
+  - [ ] Implement `i6 tokens user [get|expose|export|delete]` (human user session root credential; expose prints access token, export prints refresh token).
+  - [ ] Implement `i6 tokens dataset-refresh [get|export|set|delete]` (machine robot root credential; export prints robot refresh key).
+  - [ ] Implement `i6 tokens dataset-access [--dataset <dataset>]` (multiple derived cached tokens):
     - `list` (lists all cached dataset tokens in tokens.db)
     - `get [--refreshed]` (metadata only; refreshes if needed)
     - `expose [--refreshed]` (raw Bearer JWT; refreshes if needed)
