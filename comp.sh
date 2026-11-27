@@ -63,6 +63,11 @@ function cmd_test_manual() {
   go test -run '^TestManual.*$' ./... "$@" 
 }
 
+
+function cmd_release_prepare() {
+  [ ! -f ./build.sh ] || ./build.sh release_prepare
+}
+
 function cmd_test() {
   cmd_test_unit
   cmd_test_web
