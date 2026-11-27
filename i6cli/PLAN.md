@@ -70,7 +70,7 @@ Controls the authenticated human user session in `tokens.db`:
 - `i6 tokens user get`: Displays user profile metadata (user_id, tenant, expiration; omits tokens).
 - `i6 tokens user expose`: Prints raw active JWT access token to stdout (for curl / scripts).
 - `i6 tokens user export`: Prints the active user refresh token to stdout (for backup or environment transfer).
-- `i6 tokens user drop-privileges --dataset <dataset> [--grants <grants>] [--exp <seconds>] [--solution <solution>]`: Mints an in-flight attenuated child access token for `--dataset` with reduced permissions and shortened TTL.
+- `i6 tokens user attenuation --dataset <dataset> [--grants <grants>] [--exp <seconds>] [--solution <solution>]`: Mints an in-flight attenuated child access token for `--dataset` with reduced permissions and shortened TTL.
 - `i6 tokens user delete`: Revokes session on server and removes credentials from `tokens.db` (logout).
 
 #### 2. Machine Robot Root Credential (`i6 tokens dataset-refresh`)
@@ -78,7 +78,7 @@ Controls the machine service account Ed25519 refresh key (mutually exclusive wit
 - `i6 tokens dataset-refresh get`: Displays robot key metadata for the dataset (safely omits the secret key).
 - `i6 tokens dataset-refresh export [--out <path|->]`: Prints the active Ed25519 dataset refresh token to stdout or a file.
 - `i6 tokens dataset-refresh set <key|file|-> [--dataset <dataset>]`: Sets or replaces the robot key for this profile.
-- `i6 tokens dataset-refresh drop-privileges [--grants <grants>] [--exp <seconds>] [--solution <solution>]`: Uses the stored robot key to mint an attenuated child access token for `--dataset` with reduced permissions.
+- `i6 tokens dataset-refresh attenuation [--grants <grants>] [--exp <seconds>] [--solution <solution>]`: Uses the stored robot key to mint an attenuated child access token for `--dataset` with reduced permissions.
 - `i6 tokens dataset-refresh delete`: Removes the robot credential from `tokens.db`.
 - **Sender-Constrained PoP Operations (`i6 tokens dataset-refresh bounded`)**:
   Uses the profile's stored Ed25519 robot key without requiring manual key flags:
@@ -90,7 +90,7 @@ Manages short-lived bearer access tokens cached in `tokens.db` (a profile can ho
 - `i6 tokens dataset-access list`: Lists all cached dataset access tokens across all datasets in `tokens.db`.
 - `i6 tokens dataset-access get [--refreshed]`: Displays metadata for the target dataset (expiry, grants, solution) without revealing the raw token. With `--refreshed`, automatically refreshes using the root credential if missing or expired.
 - `i6 tokens dataset-access expose [--refreshed]`: Prints raw Bearer JWT to stdout. With `--refreshed`, automatically refreshes if missing or expired before printing.
-- `i6 tokens dataset-access drop-privileges [--grants <grants>] [--exp <seconds>] [--solution <solution>]`: Calls `/api/userz/dataset-token/access/attenuate` to derive an in-flight child access token with further reduced permissions from the active cached token.
+- `i6 tokens dataset-access attenuation [--grants <grants>] [--exp <seconds>] [--solution <solution>]`: Calls `/api/userz/dataset-token/access/attenuate` to derive an in-flight child access token with further reduced permissions from the active cached token.
 - `i6 tokens dataset-access check [--refreshed]`: Cryptographically validates the token against `/api/userz/token/check`.
 - `i6 tokens dataset-access delete`: Evicts the cached bearer token for `--dataset` from local `tokens.db`.
 
@@ -98,7 +98,7 @@ Manages short-lived bearer access tokens cached in `tokens.db` (a profile can ho
 Pure in-memory cryptographic and token exchange operations that never read or write to `tokens.db`:
 - `i6 tokens raw check <token-string | ->`: Validates and debugs an arbitrary token string or stdin pipe via `/api/userz/token/check` without saving or affecting `tokens.db`.
 - `i6 tokens raw dataset-bearer --refresh-token <key|-> --dataset <dataset>`: Statelessly signs an Ed25519 `RefreshAssertion`, exchanges it on the server, and prints the raw short-lived bearer access token to stdout without touching disk.
-- `i6 tokens raw drop-privileges [<token|->] [--grants <mask|names>] [--solution <sol>] [--exp <seconds>]`: Calls `/api/userz/dataset-token/access/attenuate` to derive an in-flight child access token with attenuated permissions and shortened TTL, emitting the child token directly to stdout.
+- `i6 tokens raw attenuation [<token|->] [--grants <mask|names>] [--solution <sol>] [--exp <seconds>]`: Calls `/api/userz/dataset-token/access/attenuate` to derive an in-flight child access token with attenuated permissions and shortened TTL, emitting the child token directly to stdout.
 - `i6 tokens raw bounded-create --token <token|-> --key <privkey|->`: Mints a sender-constrained Proof-of-Possession token from an access token and private key.
 - `i6 tokens raw sign-request --key <privkey|-> --method <METHOD> --path <PATH> [--body <str|->]`: Generates the 121-byte Ed25519 signature envelope (`X-I6-Signature` header) using the `reqsign` protocol.
 
@@ -290,20 +290,20 @@ In `.github/workflows/release.yml`:
   - [ ] Implement `i6 auth token [<token-string> | -] [--offline]` (universal token ingestion with auto-detection).
   - [ ] Implement `i6 auth logout` and `i6 auth status`.
   - [ ] Implement `i6 tokens check [--refreshed]` (audits all credentials stored in active profile's tokens.db via /api/userz/token/check).
-  - [ ] Implement `i6 tokens user [get|expose|export|drop-privileges|delete]` (human user session root credential; drop-privileges mints attenuated dataset token).
-  - [ ] Implement `i6 tokens dataset-refresh [get|export|set|drop-privileges|delete]` (machine robot root credential; drop-privileges mints attenuated dataset token):
+  - [ ] Implement `i6 tokens user [get|expose|export|attenuation|delete]` (human user session root credential; attenuation mints attenuated dataset token).
+  - [ ] Implement `i6 tokens dataset-refresh [get|export|set|attenuation|delete]` (machine robot root credential; attenuation mints attenuated dataset token):
     - `bounded [create|sign-request]` (uses stored robot key to mint PoP token or sign HTTP requests)
   - [ ] Implement `i6 tokens dataset-access [--dataset <dataset>]` (multiple derived cached tokens):
     - `list` (lists all cached dataset tokens in tokens.db)
     - `get [--refreshed]` (metadata only; refreshes if needed)
     - `expose [--refreshed]` (raw Bearer JWT; refreshes if needed)
-    - `drop-privileges [--grants <g>] [--exp <s>] [--solution <sol>]` (derives further attenuated token)
+    - `attenuation [--grants <g>] [--exp <s>] [--solution <sol>]` (derives further attenuated token)
     - `check [--refreshed]` (validates against server; refreshes if needed)
     - `delete` (evicts cached bearer token)
   - [ ] Implement `i6 tokens raw` (stateless in-memory operations):
     - `check <token-string | ->` (statelessly debugs arbitrary token)
     - `dataset-bearer --refresh-token <key|-> --dataset <dataset>`
-    - `drop-privileges [<token|->] [--grants <mask|names>] [--solution <sol>] [--exp <seconds>]`
+    - `attenuation [<token|->] [--grants <mask|names>] [--solution <sol>] [--exp <seconds>]`
     - `bounded-create --token <token|-> --key <privkey|->`
     - `sign-request --key <privkey|-> --method <METHOD> --path <PATH> [--body <str|->]`
 
