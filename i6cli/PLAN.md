@@ -58,6 +58,9 @@ Manages the active credentials stored in the local profile's `tokens.db`.
 
 *Security Invariant*: `list` and `get` commands **never** display sensitive `secret` strings, tokens, or private keys. Revealing secrets is strictly restricted to explicit `expose` and `export` commands.
 
+#### Token Diagnostic Debugger (`i6 tokens check`)
+- `i6 tokens check [<token-string> | -]`: Deep cryptographic diagnostic debugger calling `/api/userz/token/check`. If a token string is provided (or piped via `-`), validates that token; if omitted, checks the active profile's current credential. Displays token mode, identity (user or dataset), grants, solutions, clock expiration, and cryptographic signature validity.
+
 #### 1. Human User Root Credential (`i6 tokens user`)
 Controls the authenticated human user session in `tokens.db`:
 - `i6 tokens user get`: Displays user profile metadata (user_id, tenant, expiration; omits tokens).
