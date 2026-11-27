@@ -313,7 +313,9 @@ func (c *Client) Run(ctx context.Context, opts QueryOptions) (map[string]any, er
 
 	var results map[string]any
 	if len(rawResult) > 0 {
-		_ = json.Unmarshal(rawResult, &results)
+		if err := json.Unmarshal(rawResult, &results); err != nil {
+			return nil, fmt.Errorf("infer: failed to unmarshal output query results: %w", err)
+		}
 	}
 	if results == nil {
 		results = make(map[string]any)
@@ -461,7 +463,9 @@ func (c *Client) Execute(ctx context.Context, fn sdkfuncz.Func) (int, error) {
 	}
 
 	var reqGeneric any
-	_ = json.Unmarshal(rawFn, &reqGeneric)
+	if err := json.Unmarshal(rawFn, &reqGeneric); err != nil {
+		return 500, fmt.Errorf("infer: failed to parse request payload: %w", err)
+	}
 	var reqPayload any = reqGeneric
 	if m, ok := reqGeneric.(map[string]any); ok {
 		if r, ok := m["req"]; ok {

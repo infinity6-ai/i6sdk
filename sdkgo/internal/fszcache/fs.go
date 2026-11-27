@@ -13,6 +13,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/infinity6-ai/gox/commonz/errorz"
 	"github.com/infinity6-ai/gox/commonz/urlz"
 	"github.com/infinity6-ai/gox/fsz/fsz"
 )
@@ -112,7 +113,10 @@ func (f *Fs) Get(ctx context.Context, name string, version ...string) (*FileRef,
 
 	fileUrl := f.fileUrl(name)
 
-	releasedVersion, _ := f.readText(ctx, fileUrl.MustJoinPathString("version.txt"))
+	releasedVersion, err := f.readText(ctx, fileUrl.MustJoinPathString("version.txt"))
+	if err != nil {
+		return nil, fmt.Errorf("fs: failed to read version.txt for %s: %w", name, err)
+	}
 	ver := ""
 	if len(version) > 0 && version[0] != "" {
 		ver = version[0]
@@ -130,11 +134,17 @@ func (f *Fs) Get(ctx context.Context, name string, version ...string) (*FileRef,
 		return nil, nil
 	}
 
-	etag, _ := f.readText(ctx, verDirUrl.MustJoinPathString("etag.txt"))
+	etag, err := f.readText(ctx, verDirUrl.MustJoinPathString("etag.txt"))
+	if err != nil {
+		return nil, fmt.Errorf("fs: failed to read etag.txt for %s version %s: %w", name, ver, err)
+	}
 
 	checkedAt := ""
 	if len(version) == 0 || version[0] == strings.TrimSpace(releasedVersion) {
-		checkedAt, _ = f.readText(ctx, fileUrl.MustJoinPathString("checkedat.txt"))
+		checkedAt, err = f.readText(ctx, fileUrl.MustJoinPathString("checkedat.txt"))
+		if err != nil {
+			return nil, fmt.Errorf("fs: failed to read checkedat.txt for %s: %w", name, err)
+		}
 	}
 
 	return &FileRef{
@@ -225,7 +235,10 @@ func (f *Fs) Release(ctx context.Context, name string, version string) (*FileRef
 	checkedAt := f.touchLocked(ctx, name)
 	f.cleanFileLocked(ctx, name)
 
-	etag, _ := f.readText(ctx, verDirUrl.MustJoinPathString("etag.txt"))
+	etag, err := f.readText(ctx, verDirUrl.MustJoinPathString("etag.txt"))
+	if err != nil {
+		return nil, fmt.Errorf("fs: failed to read etag for %s version %s: %w", name, version, err)
+	}
 
 	return &FileRef{
 		Name:      name,
@@ -250,7 +263,8 @@ func (f *Fs) touchLocked(ctx context.Context, name string, checkedAt ...string) 
 	}
 
 	checkedUrl := fileUrl.MustJoinPathString("checkedat.txt")
-	_ = fsz.Upload(ctx, checkedUrl, nil, strings.NewReader(ts))
+	err := fsz.Upload(ctx, checkedUrl, nil, strings.NewReader(ts))
+	errorz.Check(err)
 	return ts
 }
 

@@ -47,7 +47,10 @@ func (d *Downloader) Update(
 	d.mu.Lock()
 	defer d.mu.Unlock()
 
-	current, _ := d.fs.Get(ctx, name)
+	current, err := d.fs.Get(ctx, name)
+	if err != nil {
+		return "", fmt.Errorf("failed to get cached version for %s: %w", name, err)
+	}
 
 	// Check if cached version is within preload TTL
 	if minPreloadTime > 0 && current != nil && current.CheckedAt != "" {

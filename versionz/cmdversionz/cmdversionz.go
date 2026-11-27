@@ -63,9 +63,18 @@ func IncrementVersion() error {
 		return fmt.Errorf("version string not found in %s", filePath)
 	}
 
-	major, _ := strconv.Atoi(matches[1])
-	minor, _ := strconv.Atoi(matches[2])
-	patch, _ := strconv.Atoi(matches[3])
+	major, err := strconv.Atoi(matches[1])
+	if err != nil {
+		return fmt.Errorf("failed to parse major version %q: %w", matches[1], err)
+	}
+	minor, err := strconv.Atoi(matches[2])
+	if err != nil {
+		return fmt.Errorf("failed to parse minor version %q: %w", matches[2], err)
+	}
+	patch, err := strconv.Atoi(matches[3])
+	if err != nil {
+		return fmt.Errorf("failed to parse patch version %q: %w", matches[3], err)
+	}
 
 	newPatch := patch + 1
 

@@ -94,7 +94,10 @@ func NewSqlite(targetUrl *urlz.Url) (Store, error) {
 	}
 
 	if !isMemory && filePath != "" {
-		_ = os.Chmod(filePath, 0600)
+		if err := os.Chmod(filePath, 0600); err != nil {
+			_ = db.Close()
+			return nil, fmt.Errorf("failed to chmod sqlite token store file %q: %w", filePath, err)
+		}
 	}
 
 	return &sqliteStore{db: db}, nil
