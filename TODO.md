@@ -70,9 +70,9 @@ Checklist of cleanup tasks to eliminate legacy aliases, redundant overloads, dua
 
 ## Category 5: Purge Deprecated Legacy Storage Keys & Obsolete Fields
 
-- [ ] **Go (`sdkgo`): Drop deprecated monolithic token storage keys**
+- [x] **Go (`sdkgo`): Drop deprecated monolithic token storage keys**
   - `sdkgo/tokens/tokens.go`: Remove `DatasetTokensKey` and `DatasetRefreshTokensKey`.
-- [ ] **Python (`sdkpy`): Drop deprecated monolithic token storage keys**
+- [x] **Python (`sdkpy`): Drop deprecated monolithic token storage keys**
   - `sdkpy/src/i6sdk/tokens/tokens.py`: Remove `DATASET_TOKENS_KEY` and `DATASET_REFRESH_TOKENS_KEY`.
-- [ ] **Web (`sdkweb`): Remove legacy JWT user fields in documentation & types**
+- [x] **Web (`sdkweb`): Remove legacy JWT user fields in documentation & types**
   - `sdkweb/src/main/auth/auth.js`: Remove deprecated legacy fields `sub`, `display`, and `email` from `AuthPayload` typedef.

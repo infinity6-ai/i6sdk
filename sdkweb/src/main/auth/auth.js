@@ -28,9 +28,6 @@
  * @property {string} [email_redacted] - Redacted email address for display (e.g. "u***@infinity6.ai").
  * @property {string[]} [providers] - List of linked identity providers (e.g. ["google", "password"]).
  * @property {number} [created_at] - Account creation timestamp in epoch milliseconds.
- * @property {string} [sub] - User ID (legacy alias for user_id).
- * @property {string} [display] - User display name (legacy alias).
- * @property {string} [email] - User email address (legacy alias).
  */
 
 const CODE_VERIFIER_KEY = "i6_auth_code_verifier";

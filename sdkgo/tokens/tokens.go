@@ -35,10 +35,6 @@ const (
 	// DatasetRefreshPrefix is the key prefix for machine robot dataset refresh keys.
 	DatasetRefreshPrefix = "i6_rf:"
 
-	// Deprecated: Monolithic storage keys retained for backward compatibility constants.
-	DatasetTokensKey        = "i6_dataset_access_tokens"
-	DatasetRefreshTokensKey = "i6_dataset_refresh_tokens"
-
 	// DefaultSkewSeconds is the default clock skew window applied before token expiration.
 	DefaultSkewSeconds = 30.0
 )

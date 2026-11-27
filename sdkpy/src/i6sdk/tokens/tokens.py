@@ -38,10 +38,6 @@ USER_TOKEN_KEY = "i6_user_user_token"
 DATASET_TOKEN_PREFIX = "i6_ds:"
 DATASET_REFRESH_PREFIX = "i6_rf:"
 
-# Deprecated monolithic aliases retained for compatibility
-DATASET_TOKENS_KEY = "i6_dataset_access_tokens"
-DATASET_REFRESH_TOKENS_KEY = "i6_dataset_refresh_tokens"
-
 
 def _dataset_token_key(dataset: str) -> str:
     return f"{DATASET_TOKEN_PREFIX}{dataset}"
