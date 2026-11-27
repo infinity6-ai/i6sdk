@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Infinity6 SDK (i6sdk)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --fg: #1f2328;
+      --card-bg: #f6f8fa;
+      --card-border: #d0d7de;
+      --card-hover: #eaeef2;
+      --accent: #0969da;
+      --muted: #656d76;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0d1117;
+        --fg: #e6edf3;
+        --card-bg: #161b22;
+        --card-border: #30363d;
+        --card-hover: #21262d;
+        --accent: #2f81f7;
+        --muted: #8b949e;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      margin: 0;
+      padding: 40px 20px;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    header {
+      margin-bottom: 32px;
+    }
+    h1 {
+      font-size: 2rem;
+      margin: 0 0 8px 0;
+      letter-spacing: -0.02em;
+    }
+    .desc {
+      font-size: 1.1rem;
+      color: var(--muted);
+      margin: 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin: 32px 0;
+    }
+    .card {
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      text-decoration: none;
+      color: inherit;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+    }
+    .card:hover {
+      background: var(--card-hover);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+    .card h2 {
+      font-size: 1.2rem;
+      margin: 0 0 6px 0;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card p {
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin: 0;
+    }
+    footer {
+      margin-top: 48px;
+      padding-top: 20px;
+      border-top: 1px solid var(--card-border);
+      color: var(--muted);
+      font-size: 0.85rem;
+      text-align: center;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Infinity6 SDK</h1>
+      <p class="desc">Official multi-language SDKs and browser distribution CDN for the Infinity6 platform.</p>
+    </header>
+
+    <div class="grid">
+      <a class="card" href="release/">
+        <h2>📁 Browse Releases</h2>
+        <p>Explore built JavaScript bundles, ES modules, TypeScript definitions, and directory listings.</p>
+      </a>
+      <a class="card" href="https://github.com/infinity6-ai/i6sdk" target="_blank" rel="noopener">
+        <h2>🐙 GitHub Repository</h2>
+        <p>Source code, documentation, and client libraries for Go, Python, and TypeScript.</p>
+      </a>
+    </div>
+
+    <footer>
+      Powered by <a href="https://github.com/infinity6-ai/i6sdk">i6sdk</a> &bull; <a href="release/">/release/</a> &bull; <a href="https://github.com/infinity6-ai/i6sdk">GitHub</a>
+    </footer>
+  </div>
+</body>
+</html>

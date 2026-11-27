@@ -148,12 +148,21 @@ jobs:
             --generate-notes
 
       # -----------------------------------------------------------------
-      # Case 3: Deploy sdkweb to GitHub Pages
+      # Case 3: Deploy sdkweb with Directory Listings to GitHub Pages
       # -----------------------------------------------------------------
+      - name: Sync Existing GitHub Pages Content
+        run: |
+          mkdir -p gh-pages-staging
+          git fetch origin gh-pages:refs/remotes/origin/gh-pages 2>/dev/null || true
+          if git rev-parse --verify origin/gh-pages >/dev/null 2>&1; then
+            git archive origin/gh-pages | tar -x -C gh-pages-staging 2>/dev/null || true
+          fi
+
       - name: Prepare Edge Web SDK for GitHub Pages
         if: github.ref_name == 'edge'
         run: |
           mkdir -p gh-pages-staging/release/sdkweb/edge
+          rm -rf gh-pages-staging/release/sdkweb/edge/*
           cp -r sdkweb-dist/* gh-pages-staging/release/sdkweb/edge/
 
       - name: Prepare Tagged Web SDK for GitHub Pages
@@ -161,12 +170,19 @@ jobs:
         run: |
           mkdir -p "gh-pages-staging/release/sdkweb/${GITHUB_REF_NAME}"
           mkdir -p gh-pages-staging/release/sdkweb/latest
+          rm -rf "gh-pages-staging/release/sdkweb/${GITHUB_REF_NAME}/*"
+          rm -rf gh-pages-staging/release/sdkweb/latest/*
           cp -r sdkweb-dist/* "gh-pages-staging/release/sdkweb/${GITHUB_REF_NAME}/"
           cp -r sdkweb-dist/* gh-pages-staging/release/sdkweb/latest/
+
+      - name: Generate Static Directory Listings (index.html)
+        run: |
+          python3 .github/scripts/generate_indexes.py gh-pages-staging
 
       - name: Deploy Web SDK to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./gh-pages-staging
-          keep_files: true
+          cname: sdk.code.infinity6.ai
+          force_orphan: true

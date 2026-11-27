@@ -243,11 +243,6 @@ func main() {
 
 Lightweight, high-performance Python client SDK for Python $\ge 3.10$ with minimal runtime dependencies (`cryptography`).
 
-### Test
-```bash
-./comp.sh sdkpy test
-```
-
 ### Quickstart
 ```python
 import i6sdk
@@ -260,35 +255,21 @@ if resp.ok:
     print("Datasets:", resp.parse())
 ```
 
+See [sdkpy/README.md](sdkpy/README.md) for full installation methods (pre-built wheels, Git, requirements.txt), testing, and architecture.
+
 ---
 
 ## Web SDK (`sdkweb`)
 
-Browser-optimized JavaScript/TypeScript SDK served directly via [jsDelivr CDN](https://www.jsdelivr.com/) with zero install or build step.
+Browser-optimized JavaScript/TypeScript SDK served directly via CDN with zero install or build step.
 
 ### Quickstart
 ```html
-<script src="https://cdn.jsdelivr.net/gh/infinity6-ai/i6sdk@sdkweb-dist-v0.0.8/sdkweb/dist/bundle/i6sdk-web.min.js"></script>
+<script src="https://sdk.code.infinity6.ai/release/sdkweb/latest/bundle/i6sdk-web.min.js"></script>
 <script>
   const sdk = new I6Sdk();
   // sdk.apis(), sdk.funcs(), sdk.auth(), sdk.tokens(), sdk.ingest(), sdk.infer(), sdk.dash()
 </script>
 ```
 
-### Install & Development
-```bash
-cd sdkweb
-npm ci
-```
-
-### Run Dev Server
-```bash
-cd sdkweb
-./build.sh run_server
-```
-
-### Run Web Browser Tests
-```bash
-cd sdkweb
-go test -count=1 -run '^TestWeb.*$' ./...
-```
+See [sdkweb/README.md](sdkweb/README.md) for channels (`latest`, `edge`, `vX.Y.Z`), ES module usage, and distribution layout.

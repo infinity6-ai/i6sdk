@@ -11,60 +11,37 @@ Lightweight, high-performance Python SDK for the Infinity6 platform.
 
 ## Installation
 
-### From GitHub Releases (Pre-built Wheels)
+### Pre-built Wheels (GitHub Releases)
 
-Release builds automatically publish pre-built `.whl` and `.tar.gz` packages to [GitHub Releases](https://github.com/infinity6-ai/i6sdk/releases).
-
-#### Specific Version (`vX.Y.Z`)
-
-To install a specific release version (e.g. `v0.0.8`), specify the release tag and wheel filename (note: the wheel filename omits the `v` prefix):
-
-```bash
-pip install "https://github.com/infinity6-ai/i6sdk/releases/download/v0.0.8/i6sdk-0.0.8-py3-none-any.whl"
-```
-
-Or install the latest official release:
-
-```bash
-pip install --upgrade "https://github.com/infinity6-ai/i6sdk/releases/latest/download/i6sdk-latest-py3-none-any.whl"
-```
-
-#### Edge Development Build (`edge`)
-
-To install the latest pre-release development build continuously built from the `edge` branch:
-
-```bash
-pip install --upgrade "https://github.com/infinity6-ai/i6sdk/releases/download/edge/i6sdk-edge-py3-none-any.whl"
-```
-
-#### In `requirements.txt`
-
-You can pin release wheels directly using standard PEP 508 direct URL specifications:
-
-```text
-# Specific release version
-i6sdk @ https://github.com/infinity6-ai/i6sdk/releases/download/v0.0.8/i6sdk-0.0.8-py3-none-any.whl
-
-# Or edge development build
-i6sdk @ https://github.com/infinity6-ai/i6sdk/releases/download/edge/i6sdk-edge-py3-none-any.whl
-```
-
-### Direct from Git Repository
-
-You can also install directly from the source repository using `pip`:
+Pre-built wheels are published automatically on every release and edge build:
 
 ```bash
 # Specific version tag (e.g. v0.0.8)
-pip install "git+https://github.com/infinity6-ai/i6sdk.git@v0.0.8#subdirectory=sdkpy"
+pip install "https://github.com/infinity6-ai/i6sdk/releases/download/v0.0.8/i6sdk-0.0.8-py3-none-any.whl"
 
-# Edge branch
+# Latest official release
+pip install --upgrade "https://github.com/infinity6-ai/i6sdk/releases/latest/download/i6sdk-latest-py3-none-any.whl"
+
+# Edge development build (continuous from 'edge' branch)
+pip install --upgrade "https://github.com/infinity6-ai/i6sdk/releases/download/edge/i6sdk-edge-py3-none-any.whl"
+```
+
+To pin in `requirements.txt`:
+```text
+i6sdk @ https://github.com/infinity6-ai/i6sdk/releases/latest/download/i6sdk-latest-py3-none-any.whl
+```
+
+### From Git Repository
+
+```bash
+# Specific version tag or branch
+pip install "git+https://github.com/infinity6-ai/i6sdk.git@v0.0.8#subdirectory=sdkpy"
 pip install --upgrade "git+https://github.com/infinity6-ai/i6sdk.git@edge#subdirectory=sdkpy"
 ```
 
 ### Local Development
 
-For local development inside the cloned mono-repo:
-
+Inside the cloned mono-repo:
 ```bash
 pip install -e sdkpy
 ```
