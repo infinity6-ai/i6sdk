@@ -23,6 +23,13 @@ function cmd_bundle() {
     npx esbuild "src/main/**/*.js" --outdir=dist/module
 }
 
+function cmd_release_prepare() {
+    # jsdelivr
+    i6dev code is-clean
+    # rsync -av --delete dist/ release/
+    echo aaa
+}
+
 function cmd_release() {
     cmd_bundle
 
@@ -30,9 +37,6 @@ function cmd_release() {
     mkdir -p ../../i6pages/releases/sdkweb
     rsync -av --delete dist/ ../../i6pages/releases/sdkweb/latest/
     rsync -av --delete src/site/tokens/ ../../i6pages/tokens/ --exclude 'target'
-
-    # jsdelivr
-    # rsync -av --delete dist/ release/
 }
 
 function cmd_test_visual() {
