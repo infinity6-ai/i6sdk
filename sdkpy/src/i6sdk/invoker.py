@@ -161,7 +161,7 @@ class Invoker:
         req_opts = opts.get("opts")
         labels = {}
         if req_opts and isinstance(req_opts, dict):
-            if bearer := (req_opts.get("bearer_token") or req_opts.get("bearerToken")):
+            if bearer := req_opts.get("bearer_token"):
                 token = str(bearer)
             labels = req_opts.get("labels") or {}
 

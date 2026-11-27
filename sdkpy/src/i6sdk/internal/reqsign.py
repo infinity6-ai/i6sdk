@@ -45,7 +45,7 @@ def parse_ed25519_private_key(key_input: Union[str, Dict[str, Any], bytes]) -> A
         raise RuntimeError("cryptography package is required for Ed25519 signing")
 
     if isinstance(key_input, dict):
-        raw_key = key_input.get("priv_key") or key_input.get("private_key") or ""
+        raw_key = key_input.get("priv_key") or ""
     elif isinstance(key_input, bytes):
         raw_key = key_input
     elif isinstance(key_input, str):
@@ -53,7 +53,7 @@ def parse_ed25519_private_key(key_input: Union[str, Dict[str, Any], bytes]) -> A
         if key_input.startswith("{") and key_input.endswith("}"):
             try:
                 d = json.loads(key_input)
-                raw_key = d.get("priv_key") or d.get("private_key") or ""
+                raw_key = d.get("priv_key") or ""
             except Exception:
                 raw_key = key_input
         else:

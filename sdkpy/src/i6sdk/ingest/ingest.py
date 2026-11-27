@@ -218,9 +218,7 @@ class Ingest:
         partitions: Dict[str, str],
         streams: Sequence[StreamItem],
         on_progress: Optional[Callable[[UploadProgress], None]] = None,
-        onProgress: Optional[Callable[[UploadProgress], None]] = None,
         cancel_event: Optional[threading.Event] = None,
-        signal: Optional[Union[threading.Event, Any]] = None,
         timeout: Optional[float] = None,
         service_options: Optional[Union[ServiceOptions, Dict[str, Any]]] = None,
     ) -> UploadResult:
@@ -243,8 +241,8 @@ class Ingest:
         if not raw_items:
             raise I6ValidationError("streams cannot be empty")
 
-        progress_cb = on_progress or onProgress
-        abort_trigger = cancel_event if cancel_event is not None else signal
+        progress_cb = on_progress
+        abort_trigger = cancel_event
 
         if abort_trigger is not None and getattr(abort_trigger, "is_set", lambda: False)():
             raise I6ValidationError("Upload aborted by caller")

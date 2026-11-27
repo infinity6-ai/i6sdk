@@ -98,8 +98,8 @@
             assert.deepEqual(r.parse(), { id: 'config-custom' })
         })
 
-        QUnit.test("uses config.fetch alias when config.fetcher is not set", async function (assert) {
-            globalThis.fetch = async () => new Response('global', { status: 200 })
+        QUnit.test("ignores legacy config.fetch and falls back to global fetch", async function (assert) {
+            globalThis.fetch = async () => new Response('{"id":"global-fetch"}', { status: 200 })
             const configFetch = async (url, opts) => new Response('{"id":"config-alias"}', { status: 200 })
             const customInvoker = new Invoker({
                 config: () => ({ servUrls: { decsuite: 'https://api.test' }, fetch: configFetch }),
@@ -109,7 +109,7 @@
             const r = await customInvoker.invokeResult({ path: 'x' })
             assert.strictEqual(r.status, 200)
             assert.true(r.ok)
-            assert.deepEqual(r.parse(), { id: 'config-alias' })
+            assert.deepEqual(r.parse(), { id: 'global-fetch' })
         })
 
         QUnit.test("per-request ServiceOptions fetcher takes precedence over config.fetcher", async function (assert) {

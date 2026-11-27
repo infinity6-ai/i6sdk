@@ -152,13 +152,13 @@ class Infer:
 
     def _sqlite_url(self, opts: Union[InferQueryOptions, Dict[str, Any]]) -> str:
         """Retrieves the signed download URL for the model SQLite database."""
-        if direct_url := (opts.get("sqlite_url") or opts.get("sqliteUrl")):
+        if direct_url := opts.get("sqlite_url"):
             return str(direct_url)
 
         dataset = opts.get("dataset", "")
-        model_name = opts.get("model_name") or opts.get("modelName") or ""
+        model_name = opts.get("model_name", "")
         partitions = opts.get("partitions") or {}
-        service_options = opts.get("service_options") or opts.get("serviceOptions")
+        service_options = opts.get("service_options")
 
         resp = self._services.apis().dsz_model_get(
             req={
@@ -192,7 +192,7 @@ class Infer:
 
     def update(self, opts: Union[InferQueryOptions, Dict[str, Any]]) -> pathlib.Path:
         """Preloads or revalidates the model SQLite bundle in the local cache."""
-        model_name = opts.get("model_name") or opts.get("modelName")
+        model_name = opts.get("model_name")
         if not model_name:
             raise I6ValidationError("infer: model_name is required")
         pkey = partitions_key(opts.get("partitions") or {})
@@ -205,7 +205,7 @@ class Infer:
         if not opts:
             raise I6ValidationError("infer: opts is required")
 
-        model_name = opts.get("model_name") or opts.get("modelName")
+        model_name = opts.get("model_name")
         if not model_name:
             raise I6ValidationError("infer: model_name is required")
 
@@ -213,8 +213,8 @@ class Infer:
         if not dataset:
             raise I6ValidationError("infer: dataset is required")
 
-        session_id = opts.get("session_id") or opts.get("sessionId")
-        user_id = opts.get("user_id") or opts.get("userId")
+        session_id = opts.get("session_id")
+        user_id = opts.get("user_id")
         if not session_id or not user_id:
             raise I6ValidationError("infer: session_id and user_id are required")
 
@@ -229,7 +229,7 @@ class Infer:
         if limit is not None and (not isinstance(limit, int) or limit <= 0):
             raise I6ValidationError("infer: limit must be a positive integer")
 
-        service_options = opts.get("service_options") or opts.get("serviceOptions")
+        service_options = opts.get("service_options")
         params = opts.get("params")
 
         # 1. Download or get cached SQLite database
@@ -297,16 +297,16 @@ class Infer:
         if not opts:
             raise I6ValidationError("infer: opts is required")
 
-        callback = opts.get("select_results") or opts.get("selectResults") or default_select_results
+        callback = opts.get("select_results") or default_select_results
         if not callable(callback):
             raise TypeError("infer: select_results must be callable")
 
-        rec_id = opts.get("rec_id") or opts.get("recId")
+        rec_id = opts.get("rec_id")
         if not rec_id:
             raise I6ValidationError("infer: rec_id is required")
 
-        session_id = opts.get("session_id") or opts.get("sessionId")
-        user_id = opts.get("user_id") or opts.get("userId")
+        session_id = opts.get("session_id")
+        user_id = opts.get("user_id")
         if not session_id or not user_id:
             raise I6ValidationError("infer: session_id and user_id are required")
 
@@ -329,11 +329,11 @@ class Infer:
 
         req_input = (req.get("input") or {}) if isinstance(req, dict) else {}
         dataset = opts.get("dataset") or req_input.get("dataset") or ""
-        model_name = opts.get("model_name") or opts.get("modelName") or ""
+        model_name = opts.get("model_name") or ""
         partitions = opts.get("partitions") or {}
         store_id = str(partitions.get("store_id") or req_input.get("store_id") or "1")
-        model_version = str(partitions.get("version") or opts.get("model_version") or opts.get("modelVersion") or "")
-        service_options = opts.get("service_options") or opts.get("serviceOptions")
+        model_version = str(partitions.get("version") or opts.get("model_version") or "")
+        service_options = opts.get("service_options")
 
         self._send_rec_event(
             dataset=dataset,

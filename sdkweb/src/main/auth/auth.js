@@ -77,7 +77,7 @@ class Auth {
    */
   _getSessionStorage() {
     const config = this._services.config();
-    const s = config.sessionStorage || config.storageSession;
+    const s = config.sessionStorage;
     if (typeof s === "function") {
       return s();
     }

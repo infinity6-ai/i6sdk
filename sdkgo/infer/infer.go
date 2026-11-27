@@ -328,8 +328,6 @@ func (c *Client) Run(ctx context.Context, opts QueryOptions) (map[string]any, er
 	storeId := "1"
 	if s, ok := opts.Partitions["store_id"]; ok && s != "" {
 		storeId = s
-	} else if s, ok := opts.Partitions["storeId"]; ok && s != "" {
-		storeId = s
 	}
 
 	c.sendRecEvent(

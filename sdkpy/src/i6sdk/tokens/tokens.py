@@ -116,7 +116,7 @@ class Tokens:
             raise ValueError("dataset is required")
         raw_key = token
         if isinstance(token, dict):
-            raw_key = token.get("priv_key") or token.get("private_key") or json.dumps(token)
+            raw_key = token.get("priv_key") or json.dumps(token)
         self.remove_user_token()
         self._storage.delete_prefix(DATASET_REFRESH_PREFIX)
         self._storage.delete_prefix(DATASET_TOKEN_PREFIX)
@@ -518,7 +518,7 @@ class Tokens:
                         "expires_at": exp_at,
                     }
 
-                uid = claims.get("sub") or claims.get("user_id")
+                uid = claims.get("user_id")
                 if uid:
                     ut = {
                         "user_access_token": token_str,

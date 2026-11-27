@@ -130,7 +130,7 @@ class Tokens {
    */
   _getStorage() {
     const config = this._services.config();
-    const s = config.storage || config.localStorage;
+    const s = config.storage;
     if (typeof s === "function") {
       return s();
     }

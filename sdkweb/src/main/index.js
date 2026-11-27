@@ -24,10 +24,8 @@ import { bitmapz } from "./internal/bitmapz/bitmapz.js";
  * @property {string} [callbackUrl] - Default application redirect URL after logout.
  * @property {string} [app] - Client application identifier registered in i6userz (e.g. 'default').
  * @property {I6Storage | (() => I6Storage)} [storage] - Optional storage adapter for persistent token storage. Defaults to global `localStorage` when omitted.
- * @property {I6Storage | (() => I6Storage)} [localStorage] - Optional alias for persistent storage adapter (defaults to global `localStorage`).
  * @property {I6Storage | (() => I6Storage)} [sessionStorage] - Optional storage adapter for session-scoped data such as PKCE code verifier. Defaults to global `sessionStorage` when omitted.
  * @property {import("./invoker/invoker.js").Fetcher} [fetcher] - Custom fetch implementation for intercepting or proxying all SDK requests.
- * @property {import("./invoker/invoker.js").Fetcher} [fetch] - Optional alias for `fetcher`.
  */
 
 /**
@@ -53,7 +51,6 @@ const DEFAULT_CONFIG = {
  * @typedef {Object} WarmupModelOptions
  * @property {string} modelName - Model name (e.g. "relevance-fashion-fbt").
  * @property {Object<string, string>} [partitions] - Model partitions (e.g. `{ version: "v1", store_id: "s1" }`).
- * @property {Object<string, string>} [partition] - Alias for `partitions`.
  * @property {string} [sqliteUrl] - Tests only: URL of the sqlite.
  * @property {import("./invoker/invoker.js").ServiceOptions} [serviceOptions] - Service options for this model.
  */
@@ -179,7 +176,7 @@ class I6Sdk {
         infer.update({
           dataset: opts.dataset,
           modelName: m.modelName,
-          partitions: m.partitions ?? m.partition,
+          partitions: m.partitions,
           sqliteUrl: m.sqliteUrl,
           serviceOptions: m.serviceOptions ?? serviceOptions,
         })

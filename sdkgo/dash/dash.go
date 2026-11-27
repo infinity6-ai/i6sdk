@@ -81,8 +81,6 @@ func (c *Client) ResolveSqliteUrl(ctx context.Context, opts QueryOptions) (strin
 	storeId := "1"
 	if s, ok := opts.Partitions["store_id"]; ok && s != "" {
 		storeId = s
-	} else if s, ok := opts.Partitions["storeId"]; ok && s != "" {
-		storeId = s
 	}
 
 	pathStr := fmt.Sprintf("i6tb://results.relevance-fashion-store-dash/store_id=%s/sqlite.bin", storeId)

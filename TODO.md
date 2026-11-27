@@ -26,15 +26,15 @@ Checklist of cleanup tasks to eliminate legacy aliases, redundant overloads, dua
 
 ## Category 2: Standardize Parameter Casing & Drop Dual-Lookup Fallbacks
 
-- [ ] **Python (`sdkpy`): Enforce canonical `snake_case` options**
+- [x] **Python (`sdkpy`): Enforce canonical `snake_case` options**
   - `sdkpy/src/i6sdk/infer/infer.py`: Drop camelCase option lookups (`sessionId`, `userId`, `modelName`, `sqliteUrl`, `serviceOptions`, `selectResults`, `recId`, `modelVersion`). Keep strictly canonical `snake_case`.
   - `sdkpy/src/i6sdk/invoker.py`: Remove `bearerToken` fallback; retain only `bearer_token`.
   - `sdkpy/src/i6sdk/ingest/ingest.py`: Remove `onProgress` (keep `on_progress`) and `signal` (keep `cancel_event`) in `upload()`.
   - `sdkpy/src/i6sdk/tokens/tokens.py`: Remove `private_key` (keep `priv_key`) and `sub` (keep `user_id`).
-- [ ] **Go (`sdkgo`): Standardize partition key on `"store_id"`**
+- [x] **Go (`sdkgo`): Standardize partition key on `"store_id"`**
   - `sdkgo/dash/dash.go`: Remove fallback to `opts.Partitions["storeId"]`; standardize strictly on `"store_id"`.
   - `sdkgo/infer/infer.go`: Remove fallback to `partitions["storeId"]`; standardize strictly on `"store_id"`.
-- [ ] **Web (`sdkweb`): Enforce canonical configuration & option keys**
+- [x] **Web (`sdkweb`): Enforce canonical configuration & option keys**
   - `sdkweb/src/main/index.js`: Remove `partition` alias in `WarmupModelOptions`; retain `partitions`.
   - `sdkweb/src/main/invoker/invoker.js`: Remove `config.fetch` fallback; retain `config.fetcher`.
   - `sdkweb/src/main/tokens/tokens.js`: Remove `config.localStorage` fallback; retain `config.storage`.

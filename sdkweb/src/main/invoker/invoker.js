@@ -325,7 +325,7 @@ class Invoker {
         }
 
         const config = this._services.config()
-        const configFetcher = config.fetcher || config.fetch
+        const configFetcher = config.fetcher
         if (configFetcher) {
             return configFetcher(opts.url, opts)
         }

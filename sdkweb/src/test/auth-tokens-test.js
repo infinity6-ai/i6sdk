@@ -477,7 +477,7 @@
             const sdk = new I6Sdk({
                 userExchangeCallbackUrl: "https://my.app/auth/callback",
                 servUrls: { userz: "https://userz.test" },
-                localStorage: localAdapter,
+                storage: localAdapter,
                 sessionStorage: sessionAdapter,
             })
 
@@ -924,7 +924,7 @@
             const localMap = new Map()
             const sdk = new I6Sdk({
                 servUrls: { userz: "https://userz.test" },
-                localStorage: {
+                storage: {
                     getItem: (k) => localMap.get(k) || null,
                     setItem: (k, v) => localMap.set(k, v),
                     removeItem: (k) => localMap.delete(k),
@@ -971,7 +971,7 @@
 
             const sdk = new I6Sdk({
                 servUrls: { userz: "https://userz.test" },
-                localStorage: {
+                storage: {
                     getItem: (k) => localMap.get(k) || null,
                     setItem: (k, v) => localMap.set(k, v),
                     removeItem: (k) => localMap.delete(k),

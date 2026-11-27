@@ -380,7 +380,7 @@ class TestTokens(unittest.TestCase):
         self.assertIsNotNone(tokens.get_dataset_token("fashion-ds"))
 
         # User access JWT
-        u_payload = base64.urlsafe_b64encode(b'{"sub":"usr_777","exp":1895000000}').decode("utf-8").rstrip("=")
+        u_payload = base64.urlsafe_b64encode(b'{"user_id":"usr_777","exp":1895000000}').decode("utf-8").rstrip("=")
         jwt_u = f"{header}.{u_payload}.sig"
         res_u = tokens.ingest_token(jwt_u, offline=True)
         self.assertEqual(res_u["type"], "user_access")
