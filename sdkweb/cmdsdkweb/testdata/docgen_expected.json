@@ -1,0 +1,94 @@
+{
+  "modules": [
+    {
+      "id": "sdk",
+      "name": "I6Sdk",
+      "callPath": "sdk",
+      "summary": "Main SDK class providing access to i6 services.",
+      "description": "",
+      "methods": [
+        {
+          "name": "config",
+          "callPath": "sdk.config",
+          "summary": "Returns a copy of the configuration.",
+          "description": "",
+          "params": [],
+          "returnType": "SampleConfig",
+          "returnDoc": "The current configuration."
+        }
+      ]
+    },
+    {
+      "id": "infer",
+      "name": "Infer",
+      "callPath": "sdk.infer()",
+      "summary": "Service for running inference models.",
+      "description": "",
+      "methods": [
+        {
+          "name": "run",
+          "callPath": "sdk.infer().run",
+          "summary": "Runs the model in the browser and returns its recommendation result.",
+          "description": "",
+          "params": [
+            {
+              "name": "opts",
+              "type": "SampleOptions",
+              "optional": false,
+              "doc": "Inference options."
+            }
+          ],
+          "returnType": "Promise<SampleResult>",
+          "returnDoc": "The results of the model."
+        }
+      ]
+    }
+  ],
+  "typedefs": {
+    "SampleConfig": {
+      "name": "SampleConfig",
+      "summary": "Configuration options.",
+      "description": "",
+      "properties": [
+        {
+          "name": "app",
+          "type": "string",
+          "optional": false,
+          "doc": "Application identifier."
+        }
+      ]
+    },
+    "SampleOptions": {
+      "name": "SampleOptions",
+      "summary": "Options for running inference.",
+      "description": "",
+      "properties": [
+        {
+          "name": "modelName",
+          "type": "string",
+          "optional": false,
+          "doc": "Model identifier name."
+        },
+        {
+          "name": "limit",
+          "type": "number",
+          "optional": true,
+          "doc": "Optional query limit."
+        }
+      ]
+    },
+    "SampleResult": {
+      "name": "SampleResult",
+      "summary": "Result of inference run.",
+      "description": "",
+      "properties": [
+        {
+          "name": "recId",
+          "type": "string",
+          "optional": false,
+          "doc": "Recommendation identifier."
+        }
+      ]
+    }
+  }
+}
