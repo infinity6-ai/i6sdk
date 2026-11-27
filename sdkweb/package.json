@@ -13,11 +13,6 @@
     "typescript": "^7.0.2",
     "typescript5": "npm:typescript@5"
   },
-  "overrides": {
-    "dts-bundle-generator": {
-      "typescript": "^5"
-    }
-  },
   "main": "dist/bundle/i6sdk-web.js",
   "types": "dist/bundle/i6sdk-web.d.ts",
   "dependencies": {

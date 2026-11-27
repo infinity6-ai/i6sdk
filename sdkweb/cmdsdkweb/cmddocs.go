@@ -13,9 +13,9 @@ import (
 	"strings"
 	texttemplate "text/template"
 
-	"github.com/infinity6-ai/gox/commonz/stringz/camelz"
 	"github.com/infinity6-ai/gox/commonz/errorz"
 	"github.com/infinity6-ai/gox/commonz/filez"
+	"github.com/infinity6-ai/gox/commonz/stringz/camelz"
 	"github.com/infinity6-ai/gox/routez/apispecz"
 	"github.com/infinity6-ai/gox/schemaz/schemamold"
 	"github.com/infinity6-ai/gox/schemaz/typeastz"
@@ -266,83 +266,61 @@ func findTypedef(tdfs typeastz.Typedefs, name string) *typeastz.Typedef {
 	return nil
 }
 
-func CheckApiTypedefFields(api *apispecz.Api, report func(id, field, summary string)) {
-	checkTypedefProps := func(prefix, typeName string) {
-		if typeName == "" {
-			return
-		}
-		td := findTypedef(api.Typedefs, typeName)
-		if td == nil || td.Properties == nil {
-			return
-		}
-		for _, p := range td.Properties.All() {
-			fullName := prefix + "." + p.Name
-			elemType := p.Typ
-			if strings.HasPrefix(elemType, "Array<") && strings.HasSuffix(elemType, ">") {
-				elemType = strings.TrimPrefix(strings.TrimSuffix(elemType, ">"), "Array<")
-			}
-			// If p is a nested object type with its own properties, it is not a leaf field; check its children
-			if nested := findTypedef(api.Typedefs, elemType); nested != nil && nested.Properties != nil && len(nested.Properties.All()) > 0 {
-				for _, np := range nested.Properties.All() {
-					report(api.Spec.Id, fullName+"."+np.Name, np.Summary)
-				}
-				continue
-			}
-			report(api.Spec.Id, fullName, p.Summary)
-		}
-	}
+// fieldGroup is one top-level part of a request or response (params,
+// payload, ...) and the typedef that describes it.
+type fieldGroup struct {
+	prefix string
+	td     typeastz.Typedef
+}
 
-	if api.Req.Params.Head != nil {
-		checkTypedefProps("params", api.Req.Params.Head.Typ)
+func (fg fieldGroup) typeName() string {
+	if fg.td.Head == nil {
+		return ""
 	}
-	if api.Req.Query.Head != nil {
-		checkTypedefProps("query", api.Req.Query.Head.Typ)
-	}
-	if api.Req.Headers.Head != nil {
-		checkTypedefProps("headers", api.Req.Headers.Head.Typ)
-	}
-	if api.Req.Payload.Head != nil {
-		checkTypedefProps("payload", api.Req.Payload.Head.Typ)
-	}
-	if api.Resp.Payload.Head != nil {
-		checkTypedefProps("respPayload", api.Resp.Payload.Head.Typ)
-	}
+	return fg.td.Head.Typ
+}
+
+func CheckApiTypedefFields(api *apispecz.Api, report func(id, field, summary string)) {
+	checkTypedefFields(api.Spec.Id, api.Typedefs, []fieldGroup{
+		{"params", api.Req.Params},
+		{"query", api.Req.Query},
+		{"headers", api.Req.Headers},
+		{"payload", api.Req.Payload},
+		{"respPayload", api.Resp.Payload},
+	}, report)
 }
 
 func CheckSdkFuncTypedefFields(fn *moldsdkfunc.SdkFunc, report func(id, field, summary string)) {
-	checkTypedefProps := func(prefix, typeName string) {
-		if typeName == "" {
-			return
-		}
-		td := findTypedef(fn.Typedefs, typeName)
+	checkTypedefFields(fn.Spec.Id, fn.Typedefs, []fieldGroup{
+		{"input", fn.Req.Input},
+		{"partitions", fn.Req.Partitions},
+		{"output", fn.Resp.Output},
+	}, report)
+}
+
+// checkTypedefFields reports every leaf field of the groups. A field whose
+// type (or array element type) is a record with properties is not a leaf;
+// its properties are reported instead.
+func checkTypedefFields(id string, tdfs typeastz.Typedefs, groups []fieldGroup, report func(id, field, summary string)) {
+	for _, fg := range groups {
+		td := findTypedef(tdfs, fg.typeName())
 		if td == nil || td.Properties == nil {
-			return
+			continue
 		}
 		for _, p := range td.Properties.All() {
-			fullName := prefix + "." + p.Name
+			fullName := fg.prefix + "." + p.Name
 			elemType := p.Typ
 			if strings.HasPrefix(elemType, "Array<") && strings.HasSuffix(elemType, ">") {
 				elemType = strings.TrimPrefix(strings.TrimSuffix(elemType, ">"), "Array<")
 			}
-			// If p is a nested object type with its own properties, it is not a leaf field; check its children
-			if nested := findTypedef(fn.Typedefs, elemType); nested != nil && nested.Properties != nil && len(nested.Properties.All()) > 0 {
+			if nested := findTypedef(tdfs, elemType); nested != nil && nested.Properties != nil && len(nested.Properties.All()) > 0 {
 				for _, np := range nested.Properties.All() {
-					report(fn.Spec.Id, fullName+"."+np.Name, np.Summary)
+					report(id, fullName+"."+np.Name, np.Summary)
 				}
 				continue
 			}
-			report(fn.Spec.Id, fullName, p.Summary)
+			report(id, fullName, p.Summary)
 		}
-	}
-
-	if fn.Req.Input.Head != nil {
-		checkTypedefProps("input", fn.Req.Input.Head.Typ)
-	}
-	if fn.Req.Partitions.Head != nil {
-		checkTypedefProps("partitions", fn.Req.Partitions.Head.Typ)
-	}
-	if fn.Resp.Output.Head != nil {
-		checkTypedefProps("output", fn.Resp.Output.Head.Typ)
 	}
 }
 
@@ -524,6 +502,41 @@ func (g *siteGenerator) Generate(ctx context.Context) error {
 	// Copy site assets (docs.css, bar.js, inspect.js, tryit.js, search.js) if present
 	g.copyAssets()
 
+	return writeTypesJson(filepath.Join("dist", "types"), filepath.Join(g.opts.OutDir, "types.json"))
+}
+
+// writeTypesJson writes every .d.ts under typesDir as {relative path: content},
+// for the editor autocomplete. Nothing is written if typesDir is missing.
+func writeTypesJson(typesDir, outPath string) error {
+	if !dirExists(typesDir) {
+		return nil
+	}
+	files := map[string]string{}
+	err := filepath.WalkDir(typesDir, func(path string, d os.DirEntry, err error) error {
+		if err != nil || d.IsDir() || !strings.HasSuffix(path, ".d.ts") {
+			return err
+		}
+		content, err := os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		rel, err := filepath.Rel(typesDir, path)
+		if err != nil {
+			return err
+		}
+		files[filepath.ToSlash(rel)] = string(content)
+		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("failed to read %s: %w", typesDir, err)
+	}
+	b, err := json.Marshal(files)
+	if err != nil {
+		return fmt.Errorf("failed to marshal types.json: %w", err)
+	}
+	if err := os.WriteFile(outPath, b, os.ModePerm); err != nil {
+		return fmt.Errorf("failed to write types.json: %w", err)
+	}
 	return nil
 }
 
@@ -951,8 +964,7 @@ func (g *siteGenerator) copyAssets() {
 		}
 	}
 
-	// Copy dist/bundle/i6sdk-web.d.ts and min.js if present
-	copyFile(filepath.Join("dist", "bundle", "i6sdk-web.d.ts"), filepath.Join(g.opts.OutDir, "i6sdk-web.d.ts"))
+	// Copy the SDK min.js if present
 	copyFile(filepath.Join("dist", "bundle", "i6sdk-web.min.js"), filepath.Join(g.opts.OutDir, "i6sdk-web.min.js"))
 }
 
@@ -980,137 +992,65 @@ func copyFile(src, dst string) {
 	_, _ = io.Copy(df, sf)
 }
 
-func (g *siteGenerator) flattenApiReqFields(api *apispecz.Api) []FieldDoc {
+// typedefFields flattens the groups into dotted rows (params.dataset,
+// payload.store.id), following a nested record one level. anchorPrefix
+// keeps request and response anchors apart on the same page.
+func (g *siteGenerator) typedefFields(tdfs typeastz.Typedefs, groups []fieldGroup, anchorPrefix string) []FieldDoc {
 	var fields []FieldDoc
-	addTypedefFields := func(prefix, typeName string) {
-		if typeName == "" {
-			return
-		}
-		td := findTypedef(api.Typedefs, typeName)
+	add := func(fullName string, p typeastz.Tuple) {
+		fields = append(fields, FieldDoc{
+			Name:        fullName,
+			Type:        strings.TrimSuffix(p.Typ, "?"),
+			Optional:    strings.HasSuffix(p.Typ, "?") || strings.Contains(strings.ToLower(p.Summary), "optional"),
+			SummaryHtml: template.HTML(RenderMarkdown(p.Summary, g.linkResolver)),
+			Anchor:      anchorPrefix + strings.ReplaceAll(fullName, ".", "-"),
+		})
+	}
+	for _, fg := range groups {
+		td := findTypedef(tdfs, fg.typeName())
 		if td == nil || td.Properties == nil {
-			return
+			continue
 		}
 		for _, p := range td.Properties.All() {
-			fullName := prefix + "." + p.Name
-			optional := strings.HasSuffix(p.Typ, "?") || strings.Contains(strings.ToLower(p.Summary), "optional")
-			fields = append(fields, FieldDoc{
-				Name:        fullName,
-				Type:        strings.TrimSuffix(p.Typ, "?"),
-				Optional:    optional,
-				SummaryHtml: template.HTML(RenderMarkdown(p.Summary, g.linkResolver)),
-				Anchor:      "field-" + strings.ReplaceAll(fullName, ".", "-"),
-			})
-			// Follow nested record once
-			if nested := findTypedef(api.Typedefs, p.Typ); nested != nil && nested.Properties != nil {
+			fullName := fg.prefix + "." + p.Name
+			add(fullName, p)
+			if nested := findTypedef(tdfs, p.Typ); nested != nil && nested.Properties != nil {
 				for _, np := range nested.Properties.All() {
-					nestedFullName := fullName + "." + np.Name
-					nOptional := strings.HasSuffix(np.Typ, "?") || strings.Contains(strings.ToLower(np.Summary), "optional")
-					fields = append(fields, FieldDoc{
-						Name:        nestedFullName,
-						Type:        strings.TrimSuffix(np.Typ, "?"),
-						Optional:    nOptional,
-						SummaryHtml: template.HTML(RenderMarkdown(np.Summary, g.linkResolver)),
-						Anchor:      "field-" + strings.ReplaceAll(nestedFullName, ".", "-"),
-					})
+					add(fullName+"."+np.Name, np)
 				}
 			}
 		}
 	}
-
-	if api.Req.Params.Head != nil {
-		addTypedefFields("params", api.Req.Params.Head.Typ)
-	}
-	if api.Req.Query.Head != nil {
-		addTypedefFields("query", api.Req.Query.Head.Typ)
-	}
-	if api.Req.Headers.Head != nil {
-		addTypedefFields("headers", api.Req.Headers.Head.Typ)
-	}
-	if api.Req.Payload.Head != nil {
-		addTypedefFields("payload", api.Req.Payload.Head.Typ)
-	}
 	return fields
+}
+
+func (g *siteGenerator) flattenApiReqFields(api *apispecz.Api) []FieldDoc {
+	return g.typedefFields(api.Typedefs, []fieldGroup{
+		{"params", api.Req.Params},
+		{"query", api.Req.Query},
+		{"headers", api.Req.Headers},
+		{"payload", api.Req.Payload},
+	}, "field-")
 }
 
 func (g *siteGenerator) flattenApiRespFields(api *apispecz.Api) []FieldDoc {
-	var fields []FieldDoc
-	addTypedefFields := func(prefix, typeName string) {
-		if typeName == "" {
-			return
-		}
-		td := findTypedef(api.Typedefs, typeName)
-		if td == nil || td.Properties == nil {
-			return
-		}
-		for _, p := range td.Properties.All() {
-			fullName := prefix + "." + p.Name
-			fields = append(fields, FieldDoc{
-				Name:        fullName,
-				Type:        p.Typ,
-				SummaryHtml: template.HTML(RenderMarkdown(p.Summary, g.linkResolver)),
-				Anchor:      "resp-" + strings.ReplaceAll(fullName, ".", "-"),
-			})
-		}
-	}
-
-	if api.Resp.Payload.Head != nil {
-		addTypedefFields("payload", api.Resp.Payload.Head.Typ)
-	}
-	if api.Resp.Headers.Head != nil {
-		addTypedefFields("headers", api.Resp.Headers.Head.Typ)
-	}
-	return fields
+	return g.typedefFields(api.Typedefs, []fieldGroup{
+		{"payload", api.Resp.Payload},
+		{"headers", api.Resp.Headers},
+	}, "resp-")
 }
 
 func (g *siteGenerator) flattenSdkFuncReqFields(fn *moldsdkfunc.SdkFunc) []FieldDoc {
-	var fields []FieldDoc
-	addTypedefFields := func(prefix, typeName string) {
-		if typeName == "" {
-			return
-		}
-		td := findTypedef(fn.Typedefs, typeName)
-		if td == nil || td.Properties == nil {
-			return
-		}
-		for _, p := range td.Properties.All() {
-			fullName := prefix + "." + p.Name
-			optional := strings.HasSuffix(p.Typ, "?") || strings.Contains(strings.ToLower(p.Summary), "optional")
-			fields = append(fields, FieldDoc{
-				Name:        fullName,
-				Type:        strings.TrimSuffix(p.Typ, "?"),
-				Optional:    optional,
-				SummaryHtml: template.HTML(RenderMarkdown(p.Summary, g.linkResolver)),
-				Anchor:      "field-" + strings.ReplaceAll(fullName, ".", "-"),
-			})
-		}
-	}
-
-	if fn.Req.Input.Head != nil {
-		addTypedefFields("input", fn.Req.Input.Head.Typ)
-	}
-	if fn.Req.Partitions.Head != nil {
-		addTypedefFields("partitions", fn.Req.Partitions.Head.Typ)
-	}
-	return fields
+	return g.typedefFields(fn.Typedefs, []fieldGroup{
+		{"input", fn.Req.Input},
+		{"partitions", fn.Req.Partitions},
+	}, "field-")
 }
 
 func (g *siteGenerator) flattenSdkFuncRespFields(fn *moldsdkfunc.SdkFunc) []FieldDoc {
-	var fields []FieldDoc
-	if fn.Resp.Output.Head != nil {
-		td := findTypedef(fn.Typedefs, fn.Resp.Output.Head.Typ)
-		if td != nil && td.Properties != nil {
-			for _, p := range td.Properties.All() {
-				fullName := "output." + p.Name
-				fields = append(fields, FieldDoc{
-					Name:        fullName,
-					Type:        p.Typ,
-					SummaryHtml: template.HTML(RenderMarkdown(p.Summary, g.linkResolver)),
-					Anchor:      "resp-" + strings.ReplaceAll(fullName, ".", "-"),
-				})
-			}
-		}
-	}
-	return fields
+	return g.typedefFields(fn.Typedefs, []fieldGroup{
+		{"output", fn.Resp.Output},
+	}, "resp-")
 }
 
 func (g *siteGenerator) buildApiExampleCode(fnName string, api *apispecz.Api) string {

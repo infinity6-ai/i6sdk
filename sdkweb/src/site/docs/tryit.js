@@ -4,18 +4,9 @@
   const MONACO_CDN_BASE = "https://cdn.jsdelivr.net/npm/monaco-editor@0.52.2/min/vs";
   let monacoLoadingPromise = null;
 
-  // Docs root (where i6sdk-web.d.ts lives), from this script's own URL so it
+  // Docs root (where types.json lives), from this script's own URL so it
   // is right on every page depth.
   const DOCS_ROOT_URL = new URL(".", (document.currentScript && document.currentScript.src) || window.location.href).href;
-
-  // i6sdk-web.d.ts is an ES module (top-level exports), so its types are not
-  // global and `declare const sdk: I6Sdk` would silently be `any` (no
-  // autocomplete). Wrap it as an ambient module and import the types from it.
-  // Inside `declare module` the inner `declare` modifiers are not allowed.
-  function wrapAsAmbientModule(dts) {
-    const body = dts.replace(/^declare (?=(abstract class|class|function|const|let|var|enum|namespace|type|interface)\b)/gm, "");
-    return `declare module "i6sdk-web" {\n${body}\n}\n`;
-  }
 
   function loadMonaco() {
     if (monacoLoadingPromise) return monacoLoadingPromise;
@@ -44,15 +35,16 @@
         window.require.config({ paths: { vs: MONACO_CDN_BASE } });
         window.require(["vs/editor/editor.main"], async () => {
           try {
-            // Load and inject i6sdk-web.d.ts for autocomplete
-            const res = await fetch(new URL("i6sdk-web.d.ts", DOCS_ROOT_URL));
+            // types.json holds the SDK .d.ts files ({path: content}). Each is
+            // added as if installed in node_modules/i6sdk-web, so their
+            // relative imports and import("i6sdk-web") resolve.
+            const res = await fetch(new URL("types.json", DOCS_ROOT_URL));
             if (res.ok) {
-              monaco.languages.typescript.javascriptDefaults.addExtraLib(
-                wrapAsAmbientModule(await res.text()),
-                "file:///i6sdk-web.d.ts"
-              );
+              for (const [p, content] of Object.entries(await res.json())) {
+                monaco.languages.typescript.javascriptDefaults.addExtraLib(content, `file:///node_modules/i6sdk-web/${p}`);
+              }
             } else {
-              console.warn("i6sdk-web.d.ts not found, no autocomplete:", res.status);
+              console.warn("types.json not found, no autocomplete:", res.status);
             }
 
             // Globals in Try It scope (the runner passes sdk and inspect).
@@ -77,6 +69,7 @@
               target: monaco.languages.typescript.ScriptTarget.ESNext,
               allowNonTsExtensions: true,
               checkJs: true,
+              moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
             });
 
             resolve(window.monaco);

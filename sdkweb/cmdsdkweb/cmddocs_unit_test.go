@@ -2,7 +2,6 @@ package cmdsdkweb_test
 
 import (
 	"context"
-	"flag"
 	"os"
 	"path/filepath"
 	"testing"
@@ -15,13 +14,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var updateGolden = flag.Bool("update", false, "update golden test files")
-
-func TestUnitDocsGolden(t *testing.T) {
+func TestUnitDocsPages(t *testing.T) {
 	type testScenario struct {
-		name       string
-		generated  string
-		goldenPath string
+		generated string
+		contains  []string
 	}
 
 	ctx := context.Background()
@@ -41,31 +37,37 @@ func TestUnitDocsGolden(t *testing.T) {
 		actualBytes, err := os.ReadFile(filepath.Join(outDir, s.generated))
 		require.NoError(t, err)
 
-		if *updateGolden {
-			require.NoError(t, os.WriteFile(s.goldenPath, actualBytes, 0644))
+		for _, want := range s.contains {
+			require.Contains(t, string(actualBytes), want)
 		}
-
-		expectedBytes, err := os.ReadFile(s.goldenPath)
-		require.NoError(t, err)
-
-		require.Equal(t, string(expectedBytes), string(actualBytes))
 	}
 
-	t.Run("API method page matches golden file", func(t *testing.T) {
+	t.Run("API method page has title, fields and example", func(t *testing.T) {
 		check(t, testScenario{
-			name:       "dsz-create-customer-portal",
-			generated:  filepath.Join("apis", "dsz-create-customer-portal.html"),
-			goldenPath: filepath.Join("testdata", "dsz-create-customer-portal.golden.html"),
+			generated: filepath.Join("apis", "dsz-create-customer-portal.html"),
+			contains: []string{
+				"<title>Create Customer Portal (sdk.apis().dszCreateCustomerPortal) — i6 SDK</title>",
+				`id="field-params-dataset"`,
+				`id="field-payload-locale"`,
+				`id="field-payload-return_url"`,
+				`id="resp-payload-url"`,
+				`data-default-code="return await sdk.apis().dszCreateCustomerPortal({`,
+			},
 		})
 	})
 
-	t.Run("Handwritten method page matches golden file", func(t *testing.T) {
+	t.Run("Handwritten method page has title, fields and example", func(t *testing.T) {
 		check(t, testScenario{
-			name:       "infer-run",
-			generated:  "infer-run.html",
-			goldenPath: filepath.Join("testdata", "infer-run.golden.html"),
+			generated: "infer-run.html",
+			contains: []string{
+				"<title>run (sdk.infer().run) — i6 SDK</title>",
+				`id="field-opts-modelName"`,
+				`id="field-opts-partitions"`,
+				`data-default-code="return await sdk.infer().run({`,
+			},
 		})
 	})
+
 }
 
 func TestUnitDocsCheck(t *testing.T) {

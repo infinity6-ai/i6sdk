@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	reCodeBlock = regexp.MustCompile("(?s)```(?:[a-zA-Z0-9_-]+)?\\n?(.*?)```")
+	reCodeBlock  = regexp.MustCompile("(?s)```(?:[a-zA-Z0-9_-]+)?\\n?(.*?)```")
 	reInlineCode = regexp.MustCompile("`([^`]+)`")
 	reBold       = regexp.MustCompile(`\*\*([^*]+)\*\*`)
 	reJsDocLink  = regexp.MustCompile(`\{@link\s+([^}]+)\}`)
