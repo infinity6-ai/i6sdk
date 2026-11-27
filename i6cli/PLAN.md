@@ -95,6 +95,7 @@ Manages short-lived bearer access tokens cached in `tokens.db` (a profile can ho
 Pure in-memory cryptographic and token exchange operations that never read or write to `tokens.db`:
 - `i6 tokens raw check <token-string | ->`: Validates and debugs an arbitrary token string or stdin pipe via `/api/userz/token/check` without saving or affecting `tokens.db`.
 - `i6 tokens raw dataset-bearer --refresh-token <key|-> --dataset <dataset>`: Statelessly signs an Ed25519 `RefreshAssertion`, exchanges it on the server, and prints the raw short-lived bearer access token to stdout without touching disk.
+- `i6 tokens raw drop-privileges [<token|->] [--grants <mask|names>] [--solution <sol>] [--exp <seconds>]`: Calls `/api/userz/dataset-token/access/attenuate` to derive an in-flight child access token with attenuated permissions and shortened TTL, emitting the child token directly to stdout.
 - `i6 tokens raw bounded-create --token <token|-> --key <privkey|->`: Mints a sender-constrained Proof-of-Possession token from an access token and private key.
 - `i6 tokens raw sign-request --key <privkey|-> --method <METHOD> --path <PATH> [--body <str|->]`: Generates the 121-byte Ed25519 signature envelope (`X-I6-Signature` header) using the `reqsign` protocol.
 
@@ -298,6 +299,7 @@ In `.github/workflows/release.yml`:
   - [ ] Implement `i6 tokens raw` (stateless in-memory operations):
     - `check <token-string | ->` (statelessly debugs arbitrary token)
     - `dataset-bearer --refresh-token <key|-> --dataset <dataset>`
+    - `drop-privileges [<token|->] [--grants <mask|names>] [--solution <sol>] [--exp <seconds>]`
     - `bounded-create --token <token|-> --key <privkey|->`
     - `sign-request --key <privkey|-> --method <METHOD> --path <PATH> [--body <str|->]`
 
