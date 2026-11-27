@@ -6,15 +6,10 @@ const STORAGE_KEY = "i6_docs_sdk_config";
 // it is right on nested pages like /apis/x.html too.
 const DOCS_ROOT_URL = new URL(".", (document.currentScript && document.currentScript.src) || window.location.href).href;
 
-// The docs run against staging (same as the infer demo); app comes from the
-// SDK defaults.
+// The docs run with the SDK defaults (app, servUrls); only the sign-in
+// callback points at this site.
 function getDefaultSdkConfig() {
   return {
-    servUrls: {
-      decsuite: "https://decsuite.staging.rs.infinity6.ai",
-      userz: "https://userz.staging.rs.infinity6.ai",
-      tfinfer: "https://tfinfer.staging.lb.infinity6.ai",
-    },
     userExchangeCallbackUrl: new URL("callback.html", DOCS_ROOT_URL).href,
   };
 }
