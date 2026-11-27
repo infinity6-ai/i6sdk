@@ -17,8 +17,12 @@
       try {
         const config = getSavedSdkConfig();
         const sdk = new I6Sdk(config);
-        const backUrl = await sdk.auth().handleCallback();
-        window.location.href = backUrl || "index.html";
+        // handleCallback() redirects to the ?callback= page itself; only fall
+        // back to the index when there is nowhere to go back to.
+        await sdk.auth().handleCallback();
+        if (!new URLSearchParams(window.location.search).get("callback")) {
+          window.location.href = "index.html";
+        }
       } catch (err) {
         document.getElementById("callback-msg").textContent = "Sign in failed: " + (err.message || err);
       }

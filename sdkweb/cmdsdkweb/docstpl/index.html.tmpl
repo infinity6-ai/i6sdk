@@ -14,11 +14,9 @@
     <p>Initialize the client:</p>
     <pre><code>import { I6Sdk } from "@infinity6/i6sdk-web";
 
+// Service URLs default to the i6 sandbox; pass servUrls to point elsewhere.
 const sdk = new I6Sdk({
-  app: "default",
-  servUrls: {
-    decsuite: "https://decsuite.sandbox.infinity6.ai",
-  },
+  userExchangeCallbackUrl: "https://your.app/auth/callback",
 });</code></pre>
   </section>
 
