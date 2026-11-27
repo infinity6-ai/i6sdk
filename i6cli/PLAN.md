@@ -83,6 +83,13 @@ Manages short-lived bearer access tokens cached in `tokens.db` (a profile can ho
 - `i6 tokens dataset-access check [--refreshed]`: Cryptographically validates the token against `/api/userz/token/check`.
 - `i6 tokens dataset-access delete`: Evicts the cached bearer token for `--dataset` from local `tokens.db`.
 
+#### 4. Stateless Zero-Disk Operations (`i6 tokens raw`)
+Pure in-memory cryptographic and token exchange operations that never read or write to `tokens.db`:
+- `i6 tokens raw check [<token-string> | -]`: Validates and debugs any token via `/api/userz/token/check` without saving it.
+- `i6 tokens raw dataset-bearer --refresh-token <key|-> --dataset <dataset>`: Statelessly signs an Ed25519 `RefreshAssertion`, exchanges it on the server, and prints the raw short-lived bearer access token to stdout without touching disk.
+- `i6 tokens raw bounded-create --token <token|-> --key <privkey|->`: Mints a sender-constrained Proof-of-Possession token from an access token and private key.
+- `i6 tokens raw sign-request --key <privkey|-> --method <METHOD> --path <PATH> [--body <str|->]`: Generates the 121-byte Ed25519 signature envelope (`X-I6-Signature` header) using the `reqsign` protocol.
+
 ### C. Datasets, Stores, Tables & Server Tokens (`i6 dataset`)
 
 #### Dataset Administration
@@ -95,9 +102,9 @@ Manages short-lived bearer access tokens cached in `tokens.db` (a profile can ho
 
 #### Remote Server Token Registry (`i6 dataset tokens [--dataset <dataset>]`)
 Server-side token management where a dataset can have multiple registered tokens with distinct JTIs:
-- `i6 dataset tokens list`: Calls server API to list all registered refresh and access tokens for the dataset (showing JTI, labels, expiration; safely omits secrets).
-- `i6 dataset tokens create [--grants=0x0F] [--solution=...]`: Calls server API to mint a new token on the server (returns JTI and one-time secret key).
-- `i6 dataset tokens delete <jti>`: Calls server API to revoke a specific registered token by its JTI.
+- `i6 dataset tokens list [--type all|ingestion|recsys|refresh]`: Calls server API to list all registered tokens for the dataset (showing JTI, labels, expiration; safely omits secrets).
+- `i6 dataset tokens create [--type ingestion|recsys|refresh] [--annotation <text>] [--save]`: Calls server API to mint a new token on the server. Dumps one-time secret key; with `--save`, automatically stores it into active profile's `tokens.db`.
+- `i6 dataset tokens delete <token-id-or-jti>`: Calls server API to revoke a specific registered token by its ID or JTI.
 
 ### D. Data Ingestion (`i6 ingest`)
 - `i6 ingest upload <dataset> <table> <files...>`:
@@ -279,15 +286,20 @@ In `.github/workflows/release.yml`:
     - `expose [--refreshed]` (raw Bearer JWT; refreshes if needed)
     - `check [--refreshed]` (validates against server; refreshes if needed)
     - `delete` (evicts cached bearer token)
+  - [ ] Implement `i6 tokens raw` (stateless in-memory operations):
+    - `check [<token-string> | -]`
+    - `dataset-bearer --refresh-token <key|-> --dataset <dataset>`
+    - `bounded-create --token <token|-> --key <privkey|->`
+    - `sign-request --key <privkey|-> --method <METHOD> --path <PATH> [--body <str|->]`
 
 - [ ] **Phase 3: Ingestion & Dataset Management (`ingest`, `dataset`)**
   - [ ] Implement `i6 ingest upload` with multi-stream parallel worker execution and live terminal progress bars.
   - [ ] Implement `i6 ingest get-url` and `summary`.
   - [ ] Implement `i6 dataset list`, `get`, `table`, and `store`.
   - [ ] Implement `i6 dataset tokens [--dataset <dataset>]` for remote server token management:
-    - `list` (lists all registered tokens by JTI on the server)
-    - `create` (mints a new token on the server)
-    - `delete <jti>` (revokes token on the server by JTI)
+    - `list [--type all|ingestion|recsys|refresh]` (lists all registered tokens by JTI on the server)
+    - `create [--type ingestion|recsys|refresh] [--annotation <text>] [--save]` (mints token on the server)
+    - `delete <token-id-or-jti>` (revokes token on the server by ID or JTI)
 
 - [ ] **Phase 4: Analytics, Inference & Typed Workflows (`dash`, `infer`, `pipe`, `run`)**
   - [ ] Implement `i6 dash query` with table output.
