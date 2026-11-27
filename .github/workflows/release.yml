@@ -169,5 +169,6 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./gh-pages-staging
+          cname: sdk.code.infinity6.ai
           keep_files: true
           force_orphan: true
