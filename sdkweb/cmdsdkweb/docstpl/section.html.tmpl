@@ -1,0 +1,62 @@
+{{define "content"}}
+<article class="doc-page section-overview">
+  <div class="method-header">
+    <div class="call-path"><code>{{.CallPath}}</code></div>
+    <h1 class="method-title">{{.Title}}</h1>
+    <div class="method-summary">{{.SummaryHtml}}</div>
+  </div>
+
+  {{if .DescriptionHtml}}
+  <section class="section-description">
+    <div class="prose">{{.DescriptionHtml}}</div>
+  </section>
+  {{end}}
+
+  <section class="section-methods">
+    <h2>Methods</h2>
+    <div class="method-cards">
+      {{range .Methods}}
+      <div class="card">
+        <div class="card-header">
+          {{if .HttpMethod}}<span class="badge badge-sm badge-{{.HttpMethodLower}}">{{.HttpMethod}}</span>{{end}}
+          <a href="{{$.BaseRelativePath}}{{.Url}}" class="card-title"><code>{{.CallPath}}</code></a>
+        </div>
+        <p class="card-desc">{{.Summary}}</p>
+      </div>
+      {{end}}
+    </div>
+  </section>
+
+  {{if .Typedefs}}
+  <section class="section-types">
+    <h2>Types & Interfaces</h2>
+    {{range .Typedefs}}
+    <div class="type-block" id="type-{{.Name}}">
+      <h3><code>{{.Name}}</code></h3>
+      {{if .Summary}}<p class="type-summary">{{.Summary}}</p>{{end}}
+      {{if .Properties}}
+      <table class="field-table">
+        <thead>
+          <tr>
+            <th>Field</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{range .Properties}}
+          <tr>
+            <td><code>{{.Name}}</code>{{if .Optional}}<span class="optional-tag">optional</span>{{end}}</td>
+            <td><code>{{.Type}}</code></td>
+            <td>{{.Doc}}</td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+      {{end}}
+    </div>
+    {{end}}
+  </section>
+  {{end}}
+</article>
+{{end}}

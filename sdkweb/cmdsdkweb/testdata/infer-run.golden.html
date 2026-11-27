@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>run (sdk.infer().run) — i6 SDK</title>
+  <meta name="description" content="Runs the model in the browser and returns its recommendation result.">
+  <link rel="stylesheet" href="docs.css">
+</head>
+<body data-method="infer-run" data-tryit="true">
+  <header id="top-bar">
+    <div class="header-brand">
+      <a href="index.html" class="logo">i6 SDK Reference</a>
+      <div class="search-box">
+        <input type="search" id="search-input" placeholder="Search methods & types..." autocomplete="off">
+      </div>
+    </div>
+    <div class="header-panels">
+      <div id="sdk-config-panel" class="panel">
+        <div class="panel-header">
+          <span>SDK config</span>
+          <button id="btn-edit-config" class="btn-link" type="button">Edit</button>
+          <button id="btn-reset-config" class="btn-link" type="button" style="display:none;">Reset</button>
+        </div>
+        <pre class="code-preview"><code id="sdk-config-preview">const sdk = new I6Sdk({
+  app: "default",
+  userExchangeCallbackUrl: "https://cdn.infinity6.ai/docs/callback.html",
+})</code></pre>
+      </div>
+      <div id="account-panel" class="panel">
+        <div class="panel-header"><span>Account</span></div>
+        <div id="account-status" class="account-body">
+          <span id="account-label">Not signed in</span>
+          <button id="btn-auth" class="btn-sm" type="button">Sign in</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div id="container">
+    <nav id="sidebar">
+      <div class="nav-section">
+        <div class="nav-title">Modules</div>
+        <ul class="nav-list">
+          
+          <li class="nav-item ">
+            <a href="sdk.html">I6Sdk</a>
+            
+            <ul class="nav-sublist">
+              
+              <li class="nav-subitem ">
+                <a href="sdk-config.html">config</a>
+              </li>
+              
+              <li class="nav-subitem ">
+                <a href="sdk-set-config.html">setConfig</a>
+              </li>
+              
+              <li class="nav-subitem ">
+                <a href="sdk-warmup-dataset.html">warmupDataset</a>
+              </li>
+              
+              <li class="nav-subitem ">
+                <a href="sdk-bind.html">bind</a>
+              </li>
+              
+            </ul>
+            
+          </li>
+          
+          <li class="nav-item ">
+            <a href="ingest.html">Ingest</a>
+            
+            <ul class="nav-sublist">
+              
+              <li class="nav-subitem ">
+                <a href="ingest-upload.html">upload</a>
+              </li>
+              
+            </ul>
+            
+          </li>
+          
+          <li class="nav-item active">
+            <a href="infer.html">Infer</a>
+            
+            <ul class="nav-sublist">
+              
+              <li class="nav-subitem ">
+                <a href="infer-update.html">update</a>
+              </li>
+              
+              <li class="nav-subitem active">
+                <a href="infer-run.html">run</a>
+              </li>
+              
+              <li class="nav-subitem ">
+                <a href="infer-call-model.html">callModel</a>
+              </li>
+              
+              <li class="nav-subitem ">
+                <a href="infer-select-results.html">selectResults</a>
+              </li>
+              
+            </ul>
+            
+          </li>
+          
+          <li class="nav-item ">
+            <a href="dash.html">Dash</a>
+            
+            <ul class="nav-sublist">
+              
+              <li class="nav-subitem ">
+                <a href="dash-query.html">query</a>
+              </li>
+              
+            </ul>
+            
+          </li>
+          
+          <li class="nav-item ">
+            <a href="auth.html">Auth</a>
+            
+            <ul class="nav-sublist">
+              
+              <li class="nav-subitem ">
+                <a href="auth-login.html">login</a>
+              </li>
+              
+              <li class="nav-subitem ">
+                <a href="auth-handle-callback.html">handleCallback</a>
+              </li>
+              
+              <li class="nav-subitem ">
+                <a href="auth-get-user-token.html">getUserToken</a>
+              </li>
+              
+              <li class="nav-subitem ">
+                <a href="auth-get-access-token.html">getAccessToken</a>
+              </li>
+              
+              <li class="nav-subitem ">
+                <a href="auth-get-valid-access-token.html">getValidAccessToken</a>
+              </li>
+              
+              <li class="nav-subitem ">
+                <a href="auth-refresh.html">refresh</a>
+              </li>
+              
+              <li class="nav-subitem ">
+                <a href="auth-clear-tokens.html">clearTokens</a>
+              </li>
+              
+              <li class="nav-subitem ">
+                <a href="auth-user.html">user</a>
+              </li>
+              
+              <li class="nav-subitem ">
+                <a href="auth-require-user.html">requireUser</a>
+              </li>
+              
+              <li class="nav-subitem ">
+                <a href="auth-logout.html">logout</a>
+              </li>
+              
+            </ul>
+            
+          </li>
+          
+          <li class="nav-item ">
+            <a href="tokens.html">Tokens</a>
+            
+            <ul class="nav-sublist">
+              
+              <li class="nav-subitem ">
+                <a href="tokens-is-access-token-expired.html">isAccessTokenExpired</a>
+              </li>
+              
+              <li class="nav-subitem ">
+                <a href="tokens-is-refresh-token-expired.html">isRefreshTokenExpired</a>
+              </li>
+              
+              <li class="nav-subitem ">
+                <a href="tokens-get-user-token.html">getUserToken</a>
+              </li>
+              
+              <li class="nav-subitem ">
+                <a href="tokens-set-user-token.html">setUserToken</a>
+              </li>
+              
+              <li class="nav-subitem ">
+                <a href="tokens-get-access-token.html">getAccessToken</a>
+              </li>
+              
+              <li class="nav-subitem ">
+                <a href="tokens-clear-user-token.html">clearUserToken</a>
+              </li>
+              
+              <li class="nav-subitem ">
+                <a href="tokens-exchange.html">exchange</a>
+              </li>
+              
+              <li class="nav-subitem ">
+                <a href="tokens-redeem-checkout.html">redeemCheckout</a>
+              </li>
+              
+              <li class="nav-subitem ">
+                <a href="tokens-refresh.html">refresh</a>
+              </li>
+              
+              <li class="nav-subitem ">
+                <a href="tokens-logout.html">logout</a>
+              </li>
+              
+              <li class="nav-subitem ">
+                <a href="tokens-get-valid-access-token.html">getValidAccessToken</a>
+              </li>
+              
+              <li class="nav-subitem ">
+                <a href="tokens-get-all-dataset-tokens.html">getAllDatasetTokens</a>
+              </li>
+              
+              <li class="nav-subitem ">
+                <a href="tokens-get-dataset-token.html">getDatasetToken</a>
+              </li>
+              
+              <li class="nav-subitem ">
+                <a href="tokens-set-dataset-token.html">setDatasetToken</a>
+              </li>
+              
+              <li class="nav-subitem ">
+                <a href="tokens-clear-dataset-tokens.html">clearDatasetTokens</a>
+              </li>
+              
+              <li class="nav-subitem ">
+                <a href="tokens-is-dataset-token-expired.html">isDatasetTokenExpired</a>
+              </li>
+              
+              <li class="nav-subitem ">
+                <a href="tokens-get-valid-dataset-access-token.html">getValidDatasetAccessToken</a>
+              </li>
+              
+              <li class="nav-subitem ">
+                <a href="tokens-clear-tokens.html">clearTokens</a>
+              </li>
+              
+            </ul>
+            
+          </li>
+          
+          <li class="nav-item ">
+            <a href="types.html">Types &amp; Helpers</a>
+            
+          </li>
+          
+        </ul>
+      </div>
+      <div class="nav-section">
+        <div class="nav-title">API Reference</div>
+        <ul class="nav-list">
+          
+          <li class="nav-subitem ">
+            <a href="apis/dsz-create-customer-portal.html"><span class="badge badge-post">POST</span> dszCreateCustomerPortal</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/dsz-create-ingestion-token.html"><span class="badge badge-post">POST</span> dszCreateIngestionToken</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/dsz-create-recsys-token.html"><span class="badge badge-post">POST</span> dszCreateRecsysToken</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/dsz-create-store.html"><span class="badge badge-post">POST</span> dszCreateStore</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/dsz-dataset-solutions.html"><span class="badge badge-get">GET</span> dszDatasetSolutions</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/dsz-delete-token.html"><span class="badge badge-delete">DELETE</span> dszDeleteToken</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/dsz-domain-get.html"><span class="badge badge-get">GET</span> dszDomainGet</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/dsz-get-subscription.html"><span class="badge badge-get">GET</span> dszGetSubscription</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/dsz-list-datasets.html"><span class="badge badge-get">GET</span> dszListDatasets</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/dsz-list-ingestion-tokens.html"><span class="badge badge-get">GET</span> dszListIngestionTokens</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/dsz-list-payments.html"><span class="badge badge-get">GET</span> dszListPayments</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/dsz-list-plans.html"><span class="badge badge-get">GET</span> dszListPlans</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/dsz-list-recsys-tokens.html"><span class="badge badge-get">GET</span> dszListRecsysTokens</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/dsz-list-stores.html"><span class="badge badge-get">GET</span> dszListStores</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/dsz-model-get.html"><span class="badge badge-post">POST</span> dszModelGet</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/dsz-result-last-batch-summary.html"><span class="badge badge-get">GET</span> dszResultLastBatchSummary</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/dsz-result-relevance-fashion-catalog.html"><span class="badge badge-get">GET</span> dszResultRelevanceFashionCatalog</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/dsz-signed-url.html"><span class="badge badge-post">POST</span> dszSignedUrl</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/dsz-store-display-create.html"><span class="badge badge-post">POST</span> dszStoreDisplayCreate</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/dsz-store-display-list.html"><span class="badge badge-get">GET</span> dszStoreDisplayList</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/dsz-stripe-checkout.html"><span class="badge badge-post">POST</span> dszStripeCheckout</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/dsz-table-get.html"><span class="badge badge-get">GET</span> dszTableGet</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/dsz-table-list.html"><span class="badge badge-get">GET</span> dszTableList</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/dsz-update-payment-auto-renew.html"><span class="badge badge-post">POST</span> dszUpdatePaymentAutoRenew</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/dsz-update-subscription-plan.html"><span class="badge badge-post">POST</span> dszUpdateSubscriptionPlan</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/ingestz-event-relevance-fashion-catalog.html"><span class="badge badge-post">POST</span> ingestzEventRelevanceFashionCatalog</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/ingestz-event-relevance-fashion-event.html"><span class="badge badge-post">POST</span> ingestzEventRelevanceFashionEvent</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/ingestz-get-url.html"><span class="badge badge-post">POST</span> ingestzGetUrl</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/ingestz-last-batch-summary.html"><span class="badge badge-get">GET</span> ingestzLastBatchSummary</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/ingestz-stream-relevance-fashion-catalog.html"><span class="badge badge-post">POST</span> ingestzStreamRelevanceFashionCatalog</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/ingestz-stream-relevance-fashion-event.html"><span class="badge badge-post">POST</span> ingestzStreamRelevanceFashionEvent</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/pipez-get.html"><span class="badge badge-get">GET</span> pipezGet</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/pipez-list.html"><span class="badge badge-get">GET</span> pipezList</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/pipez-scheduler-activate-relevance-fashion-relevance-fashion-batch-ingest.html"><span class="badge badge-post">POST</span> pipezSchedulerActivateRelevanceFashionRelevanceFashionBatchIngest</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/pipez-scheduler-activate-relevance-fashion-relevance-fashion-main.html"><span class="badge badge-post">POST</span> pipezSchedulerActivateRelevanceFashionRelevanceFashionMain</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/pipez-scheduler-deactivate-relevance-fashion-relevance-fashion-batch-ingest.html"><span class="badge badge-post">POST</span> pipezSchedulerDeactivateRelevanceFashionRelevanceFashionBatchIngest</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/pipez-scheduler-deactivate-relevance-fashion-relevance-fashion-main.html"><span class="badge badge-post">POST</span> pipezSchedulerDeactivateRelevanceFashionRelevanceFashionMain</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/pipez-start-relevance-fashion-relevance-fashion-batch-ingest.html"><span class="badge badge-post">POST</span> pipezStartRelevanceFashionRelevanceFashionBatchIngest</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/pipez-start-relevance-fashion-relevance-fashion-main.html"><span class="badge badge-post">POST</span> pipezStartRelevanceFashionRelevanceFashionMain</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/sample-fraction.html"><span class="badge badge-post">POST</span> sampleFraction</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/tfz-model-metadata.html"><span class="badge badge-get">GET</span> tfzModelMetadata</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/tfz-model-predict.html"><span class="badge badge-post">POST</span> tfzModelPredict</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/user-auth-device-code.html"><span class="badge badge-post">POST</span> userAuthDeviceCode</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/user-auth-device-token.html"><span class="badge badge-post">POST</span> userAuthDeviceToken</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/user-auth-exchange.html"><span class="badge badge-post">POST</span> userAuthExchange</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/user-auth-google.html"><span class="badge badge-post">POST</span> userAuthGoogle</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/user-auth-logout.html"><span class="badge badge-post">POST</span> userAuthLogout</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/user-auth-me.html"><span class="badge badge-get">GET</span> userAuthMe</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/user-auth-password-reset.html"><span class="badge badge-post">POST</span> userAuthPasswordReset</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/user-auth-password-signin.html"><span class="badge badge-post">POST</span> userAuthPasswordSignin</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/user-auth-password-signup.html"><span class="badge badge-post">POST</span> userAuthPasswordSignup</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/user-auth-refresh.html"><span class="badge badge-post">POST</span> userAuthRefresh</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/user-conf-settings.html"><span class="badge badge-get">GET</span> userConfSettings</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/user-dataset-token-access-attenuate.html"><span class="badge badge-post">POST</span> userDatasetTokenAccessAttenuate</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/user-dataset-token-access-create.html"><span class="badge badge-post">POST</span> userDatasetTokenAccessCreate</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/user-dataset-token-refresh.html"><span class="badge badge-post">POST</span> userDatasetTokenRefresh</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/user-dataset-token-refresh-create.html"><span class="badge badge-post">POST</span> userDatasetTokenRefreshCreate</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/user-dataset-token-refresh-delete.html"><span class="badge badge-delete">DELETE</span> userDatasetTokenRefreshDelete</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/user-dataset-token-refresh-list.html"><span class="badge badge-get">GET</span> userDatasetTokenRefreshList</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="apis/user-token-check.html"><span class="badge badge-post">POST</span> userTokenCheck</a>
+          </li>
+          
+        </ul>
+      </div>
+      
+      <div class="nav-section">
+        <div class="nav-title">Functions</div>
+        <ul class="nav-list">
+          
+          <li class="nav-subitem ">
+            <a href="functions/product-relevance-fashion-dash-attached-revenue.html">productRelevanceFashionDashAttachedRevenueV1</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="functions/product-relevance-fashion-dash-coverage.html">productRelevanceFashionDashCoverageV1</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="functions/product-relevance-fashion-dash-display-metrics-status.html">productRelevanceFashionDashDisplayMetricsStatusV1</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="functions/product-relevance-fashion-dash-funnel.html">productRelevanceFashionDashFunnelV1</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="functions/product-relevance-fashion-dash-impacted-metrics-by-showcase-category.html">productRelevanceFashionDashImpactedMetricsByShowcaseCategoryV1</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="functions/product-relevance-fashion-dash-impacted-metrics-by-sku.html">productRelevanceFashionDashImpactedMetricsBySkuV1</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="functions/product-relevance-fashion-dash-list-showcase-categories.html">productRelevanceFashionDashListShowcaseCategoriesV1</a>
+          </li>
+          
+          <li class="nav-subitem ">
+            <a href="functions/product-relevance-fashion-fbt.html">productRelevanceFashionFbtV1</a>
+          </li>
+          
+        </ul>
+      </div>
+      
+    </nav>
+
+    <main id="content">
+      
+<article class="doc-page">
+  <div class="method-header">
+    
+    <div class="call-path"><code>sdk.infer().run</code></div>
+    <h1 class="method-title">run</h1>
+    <div class="method-summary"><p>Runs the model in the browser and returns its recommendation result.</p></div>
+  </div>
+
+  
+
+  
+  <section class="section-fields">
+    <h2>Request Parameters</h2>
+    <table class="field-table">
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr id="param-opts">
+          <td class="field-name"><code>opts</code></td>
+          <td class="field-type"><code>InferOptions</code></td>
+          <td class="field-desc"><p>Inference options.</p></td>
+        </tr>
+        
+        <tr id="field-opts-modelName">
+          <td class="field-name"><code>opts.modelName</code></td>
+          <td class="field-type"><code>string</code></td>
+          <td class="field-desc"><p>Model name (e.g. &#34;relevance-fashion-fbt&#34;); names the cached assets and the named queries.</p></td>
+        </tr>
+        
+        <tr id="field-opts-partitions">
+          <td class="field-name"><code>opts.partitions</code></td>
+          <td class="field-type"><code>{
+		[x: string]: string;
+	}</code></td>
+          <td class="field-desc"><p>Partitions of the model, name -&gt; value (e.g. <code>{ version: &#34;v1&#34;, store_id: &#34;s1&#34; }</code>). Any partitions.</p></td>
+        </tr>
+        
+        <tr id="field-opts-dataset">
+          <td class="field-name"><code>opts.dataset</code></td>
+          <td class="field-type"><code>string</code></td>
+          <td class="field-desc"><p>Dataset that holds the model files.</p></td>
+        </tr>
+        
+        <tr id="field-opts-params">
+          <td class="field-name"><code>opts.params</code></td>
+          <td class="field-type"><code>any</code></td>
+          <td class="field-desc"><p>Model input, any JSON (e.g. <code>{ skus: [...] }</code>). Bound as <code>?1</code> of the input query.</p></td>
+        </tr>
+        
+        <tr id="field-opts-sessionId">
+          <td class="field-name"><code>opts.sessionId</code></td>
+          <td class="field-type"><code>string</code></td>
+          <td class="field-desc"><p>Id of the user session; sent in the recommendation events.</p></td>
+        </tr>
+        
+        <tr id="field-opts-userId">
+          <td class="field-name"><code>opts.userId</code></td>
+          <td class="field-type"><code>string</code></td>
+          <td class="field-desc"><p>Id of the user; sent in the recommendation events.</p></td>
+        </tr>
+        
+        <tr id="field-opts-limit">
+          <td class="field-name"><code>opts.limit</code><span class="optional-tag">optional</span></td>
+          <td class="field-type"><code>number</code></td>
+          <td class="field-desc"><p>Max number of results asked from the output query (its <code>?2</code>). Default 20.</p></td>
+        </tr>
+        
+        <tr id="field-opts-sqliteUrl">
+          <td class="field-name"><code>opts.sqliteUrl</code><span class="optional-tag">optional</span></td>
+          <td class="field-type"><code>string</code></td>
+          <td class="field-desc"><p>Tests only: URL of the sqlite (must answer HEAD with an etag). Default: the model API.</p></td>
+        </tr>
+        
+        <tr id="field-opts-serviceOptions">
+          <td class="field-name"><code>opts.serviceOptions</code><span class="optional-tag">optional</span></td>
+          <td class="field-type"><code>ServiceOptions</code></td>
+          <td class="field-desc"><p>Given to the API calls (the model API and the <code>recraw</code> event).</p></td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </section>
+  
+
+  
+  <section class="section-fields">
+    <h2>Response Payload</h2>
+    <table class="field-table">
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr id="return-val">
+          <td class="field-name"><code>return</code></td>
+          <td class="field-type"><code>Promise&lt;any&gt;</code></td>
+          <td class="field-desc"><p>The results of the model.</p></td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </section>
+  
+
+  <section class="section-example">
+    <h2>Try It</h2>
+    <div class="code-box-wrapper">
+      <div id="editor-container" class="editor-box" data-default-code="return await sdk.infer().run({
+  modelName: &#34;&#34;,
+  partitions: &#34;&#34;,
+  dataset: &#34;&#34;,
+  params: {},
+  sessionId: &#34;&#34;,
+  userId: &#34;&#34;,
+  limit: 0,
+  sqliteUrl: &#34;&#34;,
+  serviceOptions: {},
+})">
+        <pre class="fallback-code"><code>return await sdk.infer().run({
+  modelName: &#34;&#34;,
+  partitions: &#34;&#34;,
+  dataset: &#34;&#34;,
+  params: {},
+  sessionId: &#34;&#34;,
+  userId: &#34;&#34;,
+  limit: 0,
+  sqliteUrl: &#34;&#34;,
+  serviceOptions: {},
+})</code></pre>
+      </div>
+      
+      <div class="code-box-actions">
+        <span class="inspect-hint">Wrap a call in <code>inspect(...)</code> to see the requests it makes.</span>
+        <div class="action-buttons">
+          <button id="btn-reset-code" class="btn btn-secondary" type="button">Reset</button>
+          <button id="btn-run-code" class="btn btn-primary" type="button">Run</button>
+        </div>
+      </div>
+      <div id="result-panel" class="result-box" style="display:none;">
+        <div class="result-header">
+          <span class="result-title">Result</span>
+          <span id="result-status" class="result-status"></span>
+          <label class="toggle-tokens-label"><input type="checkbox" id="chk-show-tokens"> Show tokens</label>
+        </div>
+        <pre id="result-output" class="result-content"></pre>
+      </div>
+      
+    </div>
+  </section>
+</article>
+
+    </main>
+  </div>
+
+  <script src="bar.js"></script>
+  <script src="search.js"></script>
+  
+  <script src="inspect.js"></script>
+  <script src="tryit.js"></script>
+  
+</body>
+</html>

@@ -1,0 +1,97 @@
+{{define "content"}}
+<article class="doc-page">
+  <div class="method-header">
+    {{if .HttpMethod}}
+    <div class="method-meta">
+      <span class="badge badge-lg badge-{{.HttpMethodLower}}">{{.HttpMethod}}</span>
+      <code class="endpoint-path">{{.HttpPath}}</code>
+      {{if .TokenType}}<span class="tag-token">token: {{.TokenType}}</span>{{end}}
+    </div>
+    {{end}}
+    <div class="call-path"><code>{{.CallPath}}</code></div>
+    <h1 class="method-title">{{.Name}}</h1>
+    <div class="method-summary">{{.SummaryHtml}}</div>
+  </div>
+
+  {{if .DescriptionHtml}}
+  <section class="section-description">
+    <h2>Description</h2>
+    <div class="prose">{{.DescriptionHtml}}</div>
+  </section>
+  {{end}}
+
+  {{if .RequestFields}}
+  <section class="section-fields">
+    <h2>Request Parameters</h2>
+    <table class="field-table">
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .RequestFields}}
+        <tr id="{{.Anchor}}">
+          <td class="field-name"><code>{{.Name}}</code>{{if .Optional}}<span class="optional-tag">optional</span>{{end}}</td>
+          <td class="field-type"><code>{{.Type}}</code></td>
+          <td class="field-desc">{{.SummaryHtml}}</td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+  </section>
+  {{end}}
+
+  {{if .ResponseFields}}
+  <section class="section-fields">
+    <h2>Response Payload</h2>
+    <table class="field-table">
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .ResponseFields}}
+        <tr id="{{.Anchor}}">
+          <td class="field-name"><code>{{.Name}}</code></td>
+          <td class="field-type"><code>{{.Type}}</code></td>
+          <td class="field-desc">{{.SummaryHtml}}</td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+  </section>
+  {{end}}
+
+  <section class="section-example">
+    <h2>{{if .HasTryIt}}Try It{{else}}Example{{end}}</h2>
+    <div class="code-box-wrapper">
+      <div id="editor-container" class="editor-box" data-default-code="{{.ExampleCode}}">
+        <pre class="fallback-code"><code>{{.ExampleCode}}</code></pre>
+      </div>
+      {{if .HasTryIt}}
+      <div class="code-box-actions">
+        <span class="inspect-hint">Wrap a call in <code>inspect(...)</code> to see the requests it makes.</span>
+        <div class="action-buttons">
+          <button id="btn-reset-code" class="btn btn-secondary" type="button">Reset</button>
+          <button id="btn-run-code" class="btn btn-primary" type="button">Run</button>
+        </div>
+      </div>
+      <div id="result-panel" class="result-box" style="display:none;">
+        <div class="result-header">
+          <span class="result-title">Result</span>
+          <span id="result-status" class="result-status"></span>
+          <label class="toggle-tokens-label"><input type="checkbox" id="chk-show-tokens"> Show tokens</label>
+        </div>
+        <pre id="result-output" class="result-content"></pre>
+      </div>
+      {{end}}
+    </div>
+  </section>
+</article>
+{{end}}

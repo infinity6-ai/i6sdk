@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>i6 Auth Callback</title>
+  <link rel="stylesheet" href="docs.css">
+</head>
+<body class="callback-body">
+  <div class="callback-card">
+    <h2>Completing sign in...</h2>
+    <p id="callback-msg">Please wait while authentication completes.</p>
+  </div>
+  <script src="i6sdk-web.min.js"></script>
+  <script src="bar.js"></script>
+  <script>
+    (async function() {
+      try {
+        const config = getSavedSdkConfig();
+        const sdk = new I6Sdk(config);
+        const backUrl = await sdk.auth().handleCallback();
+        window.location.href = backUrl || "index.html";
+      } catch (err) {
+        document.getElementById("callback-msg").textContent = "Sign in failed: " + (err.message || err);
+      }
+    })();
+  </script>
+</body>
+</html>

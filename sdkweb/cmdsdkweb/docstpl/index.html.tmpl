@@ -1,0 +1,53 @@
+{{define "content"}}
+<article class="doc-page home-page">
+  <div class="method-header">
+    <h1 class="method-title">i6 Web SDK Reference</h1>
+    <div class="method-summary">
+      <p>Interactive API reference and documentation for the i6 Web SDK. Browse every API method, test calls directly in your browser using the live Monaco code editor, and inspect live HTTP traffic.</p>
+    </div>
+  </div>
+
+  <section class="quickstart-section">
+    <h2>Quickstart</h2>
+    <p>Install or include the SDK in your web application:</p>
+    <pre><code>npm install @infinity6/i6sdk-web</code></pre>
+    <p>Initialize the client:</p>
+    <pre><code>import { I6Sdk } from "@infinity6/i6sdk-web";
+
+const sdk = new I6Sdk({
+  app: "default",
+  servUrls: {
+    decsuite: "https://decsuite.sandbox.infinity6.ai",
+  },
+});</code></pre>
+  </section>
+
+  <section class="modules-overview">
+    <h2>SDK Modules</h2>
+    <div class="method-cards">
+      {{range .NavModules}}
+      <div class="card">
+        <div class="card-header">
+          <a href="{{$.BaseRelativePath}}{{.Url}}" class="card-title">{{.Title}}</a>
+        </div>
+        <p class="card-desc">{{.Summary}}</p>
+      </div>
+      {{end}}
+      <div class="card">
+        <div class="card-header">
+          <a href="{{.BaseRelativePath}}apis.html" class="card-title">APIs (sdk.apis())</a>
+        </div>
+        <p class="card-desc">Low-level typed JSON endpoints for all platform services.</p>
+      </div>
+      {{if .NavFunctions}}
+      <div class="card">
+        <div class="card-header">
+          <a href="{{.BaseRelativePath}}functions.html" class="card-title">Functions (sdk.funcs())</a>
+        </div>
+        <p class="card-desc">Client-side domain routines and queries.</p>
+      </div>
+      {{end}}
+    </div>
+  </section>
+</article>
+{{end}}

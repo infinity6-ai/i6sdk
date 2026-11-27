@@ -67,7 +67,7 @@ The question was whether the handwritten modules belong in the page. They do: lo
 | Module | Page | Try it | Why |
 | --- | --- | --- | --- |
 | API reference (`sdk.apis()`, about 63 methods) | yes | yes | Plain JSON in, JSON out. The core of the Swagger part |
-| Workflows (`sdk.funcs()`) | yes | yes | Same as the APIs |
+| Functions (`sdk.funcs()`) | yes | yes | Same as the APIs |
 | `I6Sdk`, config | yes | no | Shown in the top bar instead (decision 11) |
 | Auth (`sdk.auth()`) | yes | no | The top bar already does sign in and sign out. Running `requireUser` from a box would redirect away from the page |
 | Tokens (`sdk.tokens()`) | yes | no | The SDK manages tokens by itself; customers only read about them |
@@ -101,7 +101,7 @@ The question was whether the handwritten modules belong in the page. They do: lo
 │  dsz       │ Request                                                      │
 │  pipez     │ | Field           | Type   | Description             |       │
 │  ...       │ | params.dataset  | string | Dataset of the customer |       │
-│ Workflows  │ | payload.locale  | string | Locale for the portal … |       │
+│ Functions  │ | payload.locale  | string | Locale for the portal … |       │
 │            │                                                              │
 │            │ Response                                                     │
 │            │ | payload.url     | string | URL of the Stripe …     |       │

@@ -1,0 +1,98 @@
+{{define "layout"}}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{.Title}} — i6 SDK</title>
+  {{if .Description}}<meta name="description" content="{{.Description}}">{{end}}
+  <link rel="stylesheet" href="{{.BaseRelativePath}}docs.css">
+</head>
+<body data-method="{{.MethodId}}" data-tryit="{{if .HasTryIt}}true{{else}}false{{end}}">
+  <header id="top-bar">
+    <div class="header-brand">
+      <a href="{{.BaseRelativePath}}index.html" class="logo">i6 SDK Reference</a>
+      <div class="search-box">
+        <input type="search" id="search-input" placeholder="Search methods & types..." autocomplete="off">
+      </div>
+    </div>
+    <div class="header-panels">
+      <div id="sdk-config-panel" class="panel">
+        <div class="panel-header">
+          <span>SDK config</span>
+          <button id="btn-edit-config" class="btn-link" type="button">Edit</button>
+          <button id="btn-reset-config" class="btn-link" type="button" style="display:none;">Reset</button>
+        </div>
+        <pre class="code-preview"><code id="sdk-config-preview">const sdk = new I6Sdk({
+  app: "default",
+  userExchangeCallbackUrl: "{{.BaseUrl}}/callback.html",
+})</code></pre>
+      </div>
+      <div id="account-panel" class="panel">
+        <div class="panel-header"><span>Account</span></div>
+        <div id="account-status" class="account-body">
+          <span id="account-label">Not signed in</span>
+          <button id="btn-auth" class="btn-sm" type="button">Sign in</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div id="container">
+    <nav id="sidebar">
+      <div class="nav-section">
+        <div class="nav-title">Modules</div>
+        <ul class="nav-list">
+          {{range .NavModules}}
+          <li class="nav-item {{if eq $.CurrentSection .Id}}active{{end}}">
+            <a href="{{$.BaseRelativePath}}{{.Url}}">{{.Title}}</a>
+            {{if .SubItems}}
+            <ul class="nav-sublist">
+              {{range .SubItems}}
+              <li class="nav-subitem {{if eq $.CurrentMethodId .Id}}active{{end}}">
+                <a href="{{$.BaseRelativePath}}{{.Url}}">{{.Title}}</a>
+              </li>
+              {{end}}
+            </ul>
+            {{end}}
+          </li>
+          {{end}}
+        </ul>
+      </div>
+      <div class="nav-section">
+        <div class="nav-title">API Reference</div>
+        <ul class="nav-list">
+          {{range .NavApis}}
+          <li class="nav-subitem {{if eq $.CurrentMethodId .Id}}active{{end}}">
+            <a href="{{$.BaseRelativePath}}{{.Url}}"><span class="badge badge-{{.MethodLower}}">{{.Method}}</span> {{.Title}}</a>
+          </li>
+          {{end}}
+        </ul>
+      </div>
+      {{if .NavFunctions}}
+      <div class="nav-section">
+        <div class="nav-title">Functions</div>
+        <ul class="nav-list">
+          {{range .NavFunctions}}
+          <li class="nav-subitem {{if eq $.CurrentMethodId .Id}}active{{end}}">
+            <a href="{{$.BaseRelativePath}}{{.Url}}">{{.Title}}</a>
+          </li>
+          {{end}}
+        </ul>
+      </div>
+      {{end}}
+    </nav>
+
+    <main id="content">
+      {{template "content" .}}
+    </main>
+  </div>
+
+  <script src="{{.BaseRelativePath}}bar.js"></script>
+  <script src="{{.BaseRelativePath}}search.js"></script>
+  {{if .HasTryIt}}
+  <script src="{{.BaseRelativePath}}inspect.js"></script>
+  <script src="{{.BaseRelativePath}}tryit.js"></script>
+  {{end}}
+</body>
+</html>
+{{end}}

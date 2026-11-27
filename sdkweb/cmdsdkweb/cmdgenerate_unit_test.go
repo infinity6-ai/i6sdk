@@ -26,4 +26,5 @@ func TestUnitCmdSdkWebPrepare(t *testing.T) {
 	require.True(t, names["version"])
 	require.True(t, names["server"])
 	require.True(t, names["generate"])
+	require.True(t, names["docs"])
 }
