@@ -3,6 +3,8 @@
 The JavaScript SDK for the Infinity6 platform, for the browser. It is served by
 [jsDelivr](https://www.jsdelivr.com/) straight from this GitHub repo: no npm, no install, no build step.
 
+Reference docs, with a **Try it** box for every method: <https://cdn.infinity6.ai/docs/>.
+
 ## Quick start
 
 ```html

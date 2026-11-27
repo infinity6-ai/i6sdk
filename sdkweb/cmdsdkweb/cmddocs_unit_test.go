@@ -51,7 +51,7 @@ func TestUnitDocsPages(t *testing.T) {
 				`id="field-payload-locale"`,
 				`id="field-payload-return_url"`,
 				`id="resp-payload-url"`,
-				`data-default-code="return await sdk.apis().dszCreateCustomerPortal({`,
+				`data-default-code="const result = await sdk.apis().dszCreateCustomerPortal({`,
 			},
 		})
 	})
@@ -63,7 +63,7 @@ func TestUnitDocsPages(t *testing.T) {
 				"<title>run (sdk.infer().run) — i6 SDK</title>",
 				`id="field-opts-modelName"`,
 				`id="field-opts-partitions"`,
-				`data-default-code="return await sdk.infer().run({`,
+				`data-default-code="const result = await sdk.infer().run({`,
 			},
 		})
 	})

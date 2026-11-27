@@ -19,7 +19,7 @@ sdkweb src ─► tsc ─► dist/types/**/*.d.ts             │
 
 - **Scope:** sdkweb only.
 - **Customer API does not change.** No public name, signature or behaviour changes. We add the docs build and edit JSDoc comments.
-- **Hosting:** GitHub Pages, through the existing `i6pages` repo (`cdn.infinity6.ai/docs/`), the same way `tokens/` is released today. There is one copy, for the latest release; older versions are not kept.
+- **Hosting:** GitHub Pages, through the existing `i6pages` repo (`cdn.infinity6.ai/docs/`), copied there by hand (not by the release). There is one copy, the last one published; older versions are not kept.
 - **Out of scope:** the Python and Go SDKs, guides and tutorials (they stay in the READMEs).
 
 ---
@@ -55,7 +55,7 @@ sdkweb src ─► tsc ─► dist/types/**/*.d.ts             │
 | 13 | No confirm before calls that change data | The user signs in with their own account and presses **Run** on purpose |
 | 14 | Missing docs fail the build | Docs can't get worse over time |
 | 15 | Monaco is loaded from jsDelivr at a pinned version. Doc text is rendered at build time by a small Markdown renderer in `docs` (Step 3), not a library | No npm or bundler for the pages, like the rest of `src/site/`. The docs use only a few Markdown features, so about 80 lines cover them with no new dependency, and every word is in the static HTML |
-| 16 | Generated pages are not committed: `docs` writes to `target/docs/`, and the release copies them to `i6pages` | They are built from code we already commit, and `i6pages` keeps the published copy |
+| 16 | Generated pages are not committed: `docs` writes to `target/docs/`, and they are copied to `i6pages` by hand | They are built from code we already commit, and `i6pages` keeps the published copy |
 | 17 | **Try it** has an `inspect(x)` function that prints everything about what it is given: a call shows the HTTP requests the SDK made and what came back, a method shows its docs | Swagger shows the raw request and response; `inspect` gives the same, and more, from the code box. It exists only in the docs page, so the SDK's customer API does not change |
 
 ---
@@ -107,10 +107,11 @@ The question was whether the handwritten modules belong in the page. They do: lo
 │            │ | payload.url     | string | URL of the Stripe …     |       │
 │            │                                                              │
 │            │ ┌ Try it ───────────────────────────────────────────────┐    │
-│            │ │ return await sdk.apis().dszCreateCustomerPortal({      │    │
+│            │ │ const result = await sdk.apis().dszCreateCustomerPortal({ │
 │            │ │   params: { dataset: "" },                            │    │
 │            │ │   payload: { locale: "", return_url: "" },            │    │
 │            │ │ })                                                    │    │
+│            │ │ return result                                         │    │
 │            │ └──────────────────────────────────────── [Run] [Reset]─┘    │
 │            │ ┌ Result ───────────────────────────────────────────────┐    │
 │            │ │ 200  { "payload": { "url": "https://..." } }          │    │
@@ -118,7 +119,7 @@ The question was whether the handwritten modules belong in the page. They do: lo
 └────────────┴──────────────────────────────────────────────────────────────┘
 ```
 
-**Static parts (in the HTML file):** the nav, the method's HTTP method and path, the call path, the token type it needs (`labels.token_types`), name, summary and description text (rendered from Markdown at build time, decision 15), the request and response fields as flat tables with dotted names (nested records are followed once, so cycles stop), the example code, and the page `<title>` and `<meta name="description">` from the method's name and summary. Each field row also has an anchor, so a link can point to one field.
+**Static parts (in the HTML file):** the nav, the method's HTTP method and path, the call path, the token type it needs (`labels.token_types`), name, summary and description text (rendered from Markdown at build time, decision 15), the request and response fields as flat tables with dotted names (nested records are followed once, so cycles stop), the example code (every required field with a placeholder of its type, so it type checks; optional fields are only in the table; the result is kept in a `const` before `return`, because the editor does not type check what follows a top-level `return`), and the page `<title>` and `<meta name="description">` from the method's name and summary. Each field row also has an anchor, so a link can point to one field.
 
 **Interactive parts (JavaScript on top):**
 
@@ -226,12 +227,13 @@ go run . docs --sdk target/sdk.json --out target/docs --base-url https://cdn.inf
 
 ---
 
-## Step 5 — Build wiring and release
+## Step 5 — Build wiring
 
-- `sdkweb/build.sh docs` (new): `bundle`, then `node docgen.mjs`, then `go run . docs`.
-- `sdkweb/build.sh release`: runs `docs`, then one more `rsync` line, like `tokens/` today: `target/docs/` goes to `../../i6pages/docs/`.
+- `sdkweb/build.sh docs` (new): `bundle`, then `node docgen.mjs`, then `go run . docs`. Both doc checks run, so missing docs fail the build.
+- `sdkweb/build.sh release` is not changed: the docs are not part of the release.
+- **Publishing is by hand:** run `build.sh docs`, then copy `sdkweb/target/docs/` to `i6pages/docs/` and commit there.
 - Local preview: the dev server gets a `/docs/*` route that serves `target/docs/` (`http://127.0.0.1:8043/docs/index.html`).
-- A browser test in `sdkweb_web_test.go` (`TestWeb…`, like the existing ones): opens a few pages, checks the static content is there, and checks that every generated example has no type errors in Monaco. This catches a broken example or a broken `.d.ts` before release.
+- A browser test in `sdkweb_web_test.go` (`TestWebDocs`): opens a few built pages, checks the static content is there and that Monaco types `sdk` as `I6Sdk`, then puts every page's example in the editor and checks it has no type errors. An API whose request has an `authorization` header gets the user's token in its example (`"Bearer " + (await sdk.auth().getValidAccessToken())`): the SDK adds that header only for APIs labeled with `token_types`. Needs `build.sh docs` first.
 - One line in `sdkweb/README.md` linking to the docs.
 
 ---

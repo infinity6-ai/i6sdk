@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"os"
+	"path/filepath"
 
 	"github.com/infinity6-ai/gox/commonz/configz"
 	"github.com/infinity6-ai/gox/commonz/pathz"
@@ -57,6 +58,12 @@ func Listen(opts Options) *Server {
 	srv.AddHandler("GET", "/src/*", httpzserverdisk.Handler(httpzserverdisk.Options{
 		Base:   basePath,
 		Prefix: "/src",
+	}))
+
+	// Docs site built by `build.sh docs`.
+	srv.AddHandler("GET", "/docs/*", httpzserverdisk.Handler(httpzserverdisk.Options{
+		Base:   pathz.MustParse(filepath.Join(root, "target", "docs")),
+		Prefix: "/docs",
 	}))
 
 	srv.AddHandler("POST", "/api/stripe/webhook", func(ctx context.Context, resp httpzserver.Resp, req *httpzrequest.Req, params map[string]string) {

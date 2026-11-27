@@ -30,6 +30,15 @@ function cmd_release() {
     rsync -av --delete src/site/tokens/ ../../i6pages/tokens/ --exclude 'target'
 }
 
+# Builds the docs site into target/docs (published by hand, not by release).
+# Pass --allow-missing to build even with missing docs.
+function cmd_docs() {
+    cmd_bundle
+    node docgen.mjs "$@"
+    rm -rf target/docs
+    go run . docs "$@"
+}
+
 function cmd_test_visual() {
     BRWJSZ_DISABLE_HEADLESS=true go test -run '^TestWeb.*$' ./... "$@"
 }

@@ -33,7 +33,8 @@ const SQLITE_FILE = "sqlite.bin"
 const debug = debugLogger("dash")
 
 /**
- * Dash client.
+ * Queries an i6 dash in the browser and returns the result. The dash's sqlite is
+ * downloaded and cached, and its named query is run on it.
  */
 class Dash {
   /**

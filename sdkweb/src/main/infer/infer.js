@@ -73,7 +73,8 @@ const UPDATE_INTERVAL = 5 * 60
 const debug = debugLogger("infer")
 
 /**
- * Infer client.
+ * Runs an i6 model in the browser and returns the result. The model's sqlite is
+ * downloaded and cached, its named queries build the model inputs and read the outputs.
  */
 class Infer {
   /**

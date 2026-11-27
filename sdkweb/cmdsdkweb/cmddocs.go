@@ -771,7 +771,7 @@ func (g *siteGenerator) renderFunctionMethods(tmpl *template.Template) error {
 		reqFields := g.flattenSdkFuncReqFields(fn)
 		respFields := g.flattenSdkFuncRespFields(fn)
 
-		exampleCode := fmt.Sprintf("return await %s({\n})", callPath)
+		exampleCode := g.buildSdkFuncExampleCode(callPath, fn)
 
 		slug := "functions/" + fn.Spec.Id + ".html"
 		pageData := MethodPageData{
@@ -1053,93 +1053,181 @@ func (g *siteGenerator) flattenSdkFuncRespFields(fn *moldsdkfunc.SdkFunc) []Fiel
 	}, "resp-")
 }
 
-func (g *siteGenerator) buildApiExampleCode(fnName string, api *apispecz.Api) string {
-	var paramsTd *typeastz.Typedef
-	if api.Req.Params.Head != nil {
-		paramsTd = findTypedef(api.Typedefs, api.Req.Params.Head.Typ)
-	}
-	var payloadTd *typeastz.Typedef
-	if api.Req.Payload.Head != nil {
-		payloadTd = findTypedef(api.Typedefs, api.Req.Payload.Head.Typ)
-	}
-	var queryTd *typeastz.Typedef
-	if api.Req.Query.Head != nil {
-		queryTd = findTypedef(api.Typedefs, api.Req.Query.Head.Typ)
-	}
-
-	hasParams := paramsTd != nil && paramsTd.Properties != nil && len(paramsTd.Properties.All()) > 0
-	hasPayload := payloadTd != nil && payloadTd.Properties != nil && len(payloadTd.Properties.All()) > 0
-	hasQuery := queryTd != nil && queryTd.Properties != nil && len(queryTd.Properties.All()) > 0
-
-	if !hasParams && !hasPayload && !hasQuery {
-		return fmt.Sprintf("return await sdk.apis().%s()", fnName)
-	}
-
-	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("return await sdk.apis().%s({\n", fnName))
-
-	if hasParams {
-		sb.WriteString("  params: {\n")
-		for _, p := range paramsTd.Properties.All() {
-			sb.WriteString(fmt.Sprintf("    %s: %s,\n", p.Name, emptyValueForType(p.Typ)))
-		}
-		sb.WriteString("  },\n")
-	}
-
-	if hasPayload {
-		sb.WriteString("  payload: {\n")
-		for _, p := range payloadTd.Properties.All() {
-			sb.WriteString(fmt.Sprintf("    %s: %s,\n", p.Name, emptyValueForType(p.Typ)))
-		}
-		sb.WriteString("  },\n")
-	}
-
-	if hasQuery {
-		sb.WriteString("  query: {\n")
-		for _, p := range queryTd.Properties.All() {
-			sb.WriteString(fmt.Sprintf("    %s: %s,\n", p.Name, emptyValueForType(p.Typ)))
-		}
-		sb.WriteString("  },\n")
-	}
-
-	sb.WriteString("})")
-	return sb.String()
+// exampleProp is one property of a type, for building example values.
+type exampleProp struct {
+	name  string
+	typ   string
+	value string // code to use instead of a placeholder
 }
 
-func (g *siteGenerator) buildHandwrittenExampleCode(m SdkMethod) string {
-	if len(m.Params) == 0 {
-		return fmt.Sprintf("return await %s()", m.CallPath)
-	}
+// exampleTypes finds a type by name: its properties if it is a record, or
+// the type it stands for if it is an alias.
+type exampleTypes func(name string) (props []exampleProp, alias string, ok bool)
 
-	firstParam := m.Params[0]
-	tdef, exists := g.sdkData.Typedefs[firstParam.Type]
-	if !exists || len(tdef.Properties) == 0 {
-		return fmt.Sprintf("return await %s({})", m.CallPath)
+func forgeExampleTypes(tdfs typeastz.Typedefs) exampleTypes {
+	return func(name string) ([]exampleProp, string, bool) {
+		td := findTypedef(tdfs, name)
+		if td == nil {
+			return nil, "", false
+		}
+		if td.Properties == nil {
+			return nil, td.Head.Typ, true
+		}
+		var props []exampleProp
+		for _, p := range td.Properties.All() {
+			props = append(props, exampleProp{name: p.Name, typ: p.Typ})
+		}
+		return props, "", true
 	}
-
-	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("return await %s({\n", m.CallPath))
-	for _, prop := range tdef.Properties {
-		sb.WriteString(fmt.Sprintf("  %s: %s,\n", prop.Name, emptyValueForType(prop.Type)))
-	}
-	sb.WriteString("})")
-	return sb.String()
 }
 
-func emptyValueForType(t string) string {
-	t = strings.ToLower(t)
+func (g *siteGenerator) sdkExampleTypes(name string) ([]exampleProp, string, bool) {
+	td, ok := g.sdkData.Typedefs[name]
+	if !ok || len(td.Properties) == 0 {
+		return nil, "", false
+	}
+	var props []exampleProp
+	for _, p := range td.Properties {
+		typ := p.Type
+		if p.Optional {
+			typ += "?"
+		}
+		props = append(props, exampleProp{name: p.Name, typ: typ})
+	}
+	return props, "", true
+}
+
+// exampleValue is a placeholder of type t that type checks: "" for strings,
+// 0 for numbers, and records filled in property by property.
+func exampleValue(t string, types exampleTypes, indent string, depth int) string {
+	t = strings.TrimSpace(strings.TrimSuffix(t, "?"))
+	if !strings.HasPrefix(t, "{") {
+		switch {
+		case strings.Contains(t, "=> Promise<"):
+			return "async () => {}"
+		case strings.Contains(t, "=>") || strings.Contains(t, "Function"):
+			return "() => {}"
+		}
+	}
+	if i := strings.Index(t, "|"); i >= 0 {
+		t = strings.TrimSpace(t[:i])
+	}
 	switch {
-	case strings.Contains(t, "string"):
+	case t == "string":
 		return `""`
-	case strings.Contains(t, "number") || strings.Contains(t, "int") || strings.Contains(t, "float"):
+	case t == "number":
 		return "0"
-	case strings.Contains(t, "bool"):
+	case t == "boolean":
 		return "false"
-	case strings.Contains(t, "array") || strings.HasPrefix(t, "[]"):
+	case t == "any" || t == "unknown":
+		return "{}"
+	case strings.HasPrefix(t, `"`) || (t != "" && strings.ContainsRune("0123456789-", rune(t[0]))):
+		return t // a literal
+	case strings.HasPrefix(t, "Array<") || strings.HasSuffix(t, "[]"):
 		return "[]"
-	default:
+	case strings.HasPrefix(t, "Record<") || strings.HasPrefix(t, "{"):
+		return "{}"
+	case t == "File":
+		return `new File([], "file.txt")`
+	}
+	props, alias, ok := types(t)
+	if !ok || depth > 3 {
 		return "{}"
 	}
+	if alias != "" {
+		return exampleValue(alias, types, indent, depth+1)
+	}
+	return exampleObject(props, types, indent, depth+1)
+}
+
+func exampleObject(props []exampleProp, types exampleTypes, indent string, depth int) string {
+	required := 0
+	for _, p := range props {
+		if !strings.HasSuffix(p.typ, "?") {
+			required++
+		}
+	}
+	if required == 0 {
+		return "{}"
+	}
+	var sb strings.Builder
+	sb.WriteString("{\n")
+	for _, p := range props {
+		if strings.HasSuffix(p.typ, "?") {
+			continue // optional: listed in the field table, left out of the example
+		}
+		value := p.value
+		if value == "" {
+			value = exampleValue(p.typ, types, indent+"  ", depth)
+		}
+		sb.WriteString(fmt.Sprintf("%s  %s: %s,\n", indent, p.name, value))
+	}
+	sb.WriteString(indent + "}")
+	return sb.String()
+}
+
+// exampleCall is the code of a Try it box. The result is kept in a const
+// before it is returned: the editor does not type check what follows a
+// top-level return.
+func exampleCall(callPath string, args []string) string {
+	return fmt.Sprintf("const result = await %s(%s)\nreturn result", callPath, strings.Join(args, ", "))
+}
+
+// exampleGroups is the request object of an API or SdkFunc: one property per
+// group (params, payload, ...) that has a type.
+func exampleGroups(groups []fieldGroup, types exampleTypes) string {
+	var props []exampleProp
+	for _, fg := range groups {
+		if fg.typeName() != "" {
+			props = append(props, exampleProp{name: fg.prefix, typ: fg.typeName()})
+		}
+	}
+	return exampleObject(props, types, "", 0)
+}
+
+func (g *siteGenerator) buildApiExampleCode(fnName string, api *apispecz.Api) string {
+	types := forgeExampleTypes(api.Typedefs)
+	// An API with an authorization header takes the user's token as is (the
+	// SDK adds it only for APIs labeled with token_types).
+	headersType := api.Req.Headers.Head
+	withAuth := func(name string) ([]exampleProp, string, bool) {
+		props, alias, ok := types(name)
+		if headersType != nil && name == headersType.Typ {
+			for i := range props {
+				if strings.EqualFold(props[i].name, "authorization") {
+					props[i].value = `"Bearer " + (await sdk.auth().getValidAccessToken())`
+				}
+			}
+		}
+		return props, alias, ok
+	}
+	groups := []fieldGroup{
+		{"params", api.Req.Params},
+		{"query", api.Req.Query},
+		{"headers", api.Req.Headers},
+		{"payload", api.Req.Payload},
+	}
+	return exampleCall("sdk.apis()."+fnName, []string{exampleGroups(groups, withAuth)})
+}
+
+func (g *siteGenerator) buildSdkFuncExampleCode(callPath string, fn *moldsdkfunc.SdkFunc) string {
+	groups := []fieldGroup{
+		{"input", fn.Req.Input},
+		{"partitions", fn.Req.Partitions},
+	}
+	return exampleCall(callPath, []string{exampleGroups(groups, forgeExampleTypes(fn.Typedefs))})
+}
+
+// buildHandwrittenExampleCode passes the required params, in order.
+func (g *siteGenerator) buildHandwrittenExampleCode(m SdkMethod) string {
+	var args []string
+	for _, p := range m.Params {
+		if p.Optional {
+			break
+		}
+		args = append(args, exampleValue(p.Type, g.sdkExampleTypes, "", 0))
+	}
+	return exampleCall(m.CallPath, args)
 }
 
 func apiFuncName(apiCamelId string) string {
