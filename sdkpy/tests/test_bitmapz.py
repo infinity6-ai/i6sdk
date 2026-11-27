@@ -51,20 +51,18 @@ class TestBitmapz(unittest.TestCase):
     def test_grants_enum_and_exports(self) -> None:
         from i6sdk import Grants, bitmapz
 
-        self.assertEqual(Grants.System, 1)
-        self.assertEqual(Grants.Admin, 2)
-        self.assertEqual(Grants.Write, 4)
-        self.assertEqual(Grants.Read, 8)
-        self.assertEqual(Grants.All, 15)
-
         self.assertEqual(Grants.SYSTEM, 1)
         self.assertEqual(Grants.ADMIN, 2)
         self.assertEqual(Grants.WRITE, 4)
         self.assertEqual(Grants.READ, 8)
         self.assertEqual(Grants.ALL, 15)
 
-        self.assertTrue(bitmapz.contains_all(Grants.All, Grants.Read, Grants.Write))
-        self.assertEqual(bitmapz.join(Grants.Read, Grants.Write), 12)
+        # Ensure TitleCase aliases are removed
+        for alias in ("System", "Admin", "Write", "Read", "All"):
+            self.assertFalse(hasattr(Grants, alias))
+
+        self.assertTrue(bitmapz.contains_all(Grants.ALL, Grants.READ, Grants.WRITE))
+        self.assertEqual(bitmapz.join(Grants.READ, Grants.WRITE), 12)
 
     def test_deserialize_validation_errors(self) -> None:
         from i6sdk.internal.bitmapz import deserialize, serialize

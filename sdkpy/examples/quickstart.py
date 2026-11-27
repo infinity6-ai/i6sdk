@@ -88,9 +88,9 @@ def main() -> None:
     from i6sdk import Grants, bitmapz
 
     # Combine permissions: Read + Write
-    my_grants = bitmapz.join(Grants.Read, Grants.Write)
+    my_grants = bitmapz.join(Grants.READ, Grants.WRITE)
     print(f"Combined bitmask: {my_grants}")
-    print(f"Has write permission: {bitmapz.contains_all(my_grants, Grants.Write)}")
+    print(f"Has write permission: {bitmapz.contains_all(my_grants, Grants.WRITE)}")
 
 
 if __name__ == "__main__":

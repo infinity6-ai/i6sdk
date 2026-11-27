@@ -23,12 +23,6 @@ const (
 
 	// Read grants permission to query, inspect, and export data.
 	Read Grant = 1 << 3 // 8 (0x08)
-
-	// Backward-compatible explicit aliases:
-	GrantSystem = System
-	GrantAdmin  = Admin
-	GrantWrite  = Write
-	GrantRead   = Read
 )
 
 // Info describes a grant for catalogs, UI checkboxes, and documentation.
@@ -49,11 +43,6 @@ var Catalog = []Info{
 // All returns a bitmask containing all registered grants combined.
 func All() Grant {
 	return System | Admin | Write | Read
-}
-
-// AllGrants is an alias for All.
-func AllGrants() Grant {
-	return All()
 }
 
 // Parse parses a string representation into a Grant (e.g. "read", "write,admin", or "12").

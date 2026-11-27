@@ -58,11 +58,11 @@ Checklist of cleanup tasks to eliminate legacy aliases, redundant overloads, dua
 
 ## Category 4: Eliminate 1-Line Functional Wrappers & Redundant Prefixing
 
-- [ ] **Go (`sdkcorez/grants`): Remove 1-line wrapper and stuttering constants**
+- [x] **Go (`sdkcorez/grants`): Remove 1-line wrapper and stuttering constants**
   - `sdkcorez/grants/grants.go`: Remove `AllGrants()` (keep `All()`).
   - `sdkcorez/grants/grants.go`: Remove `GrantSystem`, `GrantAdmin`, `GrantWrite`, `GrantRead` (keep `System`, `Admin`, `Write`, `Read`).
   - `sdkcorez/grants/grants_unit_test.go`: Update unit tests to verify canonical constants (`System`, `Admin`, etc.).
-- [ ] **Python (`sdkpy/grants.py`): Enforce PEP 8 uppercase enum constants**
+- [x] **Python (`sdkpy/grants.py`): Enforce PEP 8 uppercase enum constants**
   - `sdkpy/src/i6sdk/grants.py`: Remove TitleCase aliases (`System`, `Admin`, `Write`, `Read`, `All`); retain canonical `SYSTEM`, `ADMIN`, `WRITE`, `READ`, `ALL`.
   - `sdkpy/tests/`: Update any test references relying on TitleCase `Grants`.
 

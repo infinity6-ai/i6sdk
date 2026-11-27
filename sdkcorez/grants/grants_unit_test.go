@@ -12,11 +12,6 @@ func TestUnitGrantConstantsAndCatalog(t *testing.T) {
 	require.Equal(t, Grant(4), Write)
 	require.Equal(t, Grant(8), Read)
 
-	require.Equal(t, System, GrantSystem)
-	require.Equal(t, Admin, GrantAdmin)
-	require.Equal(t, Write, GrantWrite)
-	require.Equal(t, Read, GrantRead)
-
 	require.Len(t, Catalog, 4)
 	require.Equal(t, "system", Catalog[0].Name)
 	require.Equal(t, System, Catalog[0].Id)
@@ -28,7 +23,6 @@ func TestUnitGrantConstantsAndCatalog(t *testing.T) {
 	require.Equal(t, Read, Catalog[3].Id)
 
 	require.Equal(t, Grant(15), All())
-	require.Equal(t, Grant(15), AllGrants())
 }
 
 func TestUnitGrantParse(t *testing.T) {

@@ -14,12 +14,5 @@ class Grants(IntEnum):
     READ = 8
     ALL = 15
 
-    # Case-insensitive / TitleCase aliases for parity with Go and sdkweb
-    System = 1
-    Admin = 2
-    Write = 4
-    Read = 8
-    All = 15
-
 
 __all__ = ["Grants"]
