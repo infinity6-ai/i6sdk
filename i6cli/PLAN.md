@@ -9,7 +9,7 @@
 - **100% Feature Parity with SDKs**: Anything possible via `sdkgo`, `sdkpy`, or `sdkweb` can be performed from the terminal or shell scripts.
 - **Built on `sdkgo`**: `i6cli` acts as a presentation and UX layer over `github.com/infinity6-ai/i6sdk/sdkgo`, eliminating duplicate protocol, auth, cache, or ingestion code.
 - **True Static Binaries (`CGO_ENABLED=0`)**: Pure Go implementation using `modernc.org/sqlite` and Go standard library crypto/networking. Cross-compiles for Linux (`amd64`, `arm64`), macOS (`arm64`, `amd64`), and Windows without dynamic `libc`/`glibc` dependencies.
-- **Script-Friendly & CI-Ready**: Configurable output formats (`--output=json|yaml|table|csv|quiet`), predictable exit codes, stdin/stdout piping, and non-interactive execution modes.
+- **Script-Friendly & CI-Ready**: Flexible output formatting (`--format=table|tsv|json|quiet|raw`), predictable exit codes, stdin/stdout piping, and non-interactive execution modes.
 
 ---
 
@@ -164,7 +164,16 @@ $$\text{Profile Root Credential} \in \{\text{User Session}, \text{Dataset Refres
    - Token store: `$I6_CLI_CONFIG_DIR/$I6_CLI_CONFIG_PROFILE/tokens.db` (via `tokenstore.NewSqlite`)
    - Cache store: `$I6_CLI_CONFIG_DIR/$I6_CLI_CONFIG_PROFILE/cache/`
 
-Specific subcommands take positional arguments or command-scoped flags (e.g. `i6 dataset list --output=json`), preventing flag pollution on the root command.
+Specific subcommands take positional arguments or command-scoped flags, preventing flag pollution on the root command.
+
+### Output Formatting (`--format [table|tsv|json|quiet|raw]`)
+Commands producing data support the `--format` flag (with per-command contextual defaults):
+
+- **`table`** (Default for `list`, `get`, `status`, `dash query`): Aligned ASCII tables for human terminal readability.
+- **`tsv`**: Tab-separated values with headers, ideal for standard Unix pipelines (`cut`, `awk`, `xargs`).
+- **`json`**: Formatted structured JSON payloads, ideal for `jq` and programmatic ingestion.
+- **`quiet`**: Minimal output; prints only the primary ID or count (e.g. `dtr_abc123`), suppressing all tables and headers.
+- **`raw`** (Default for `expose`, `export`, and binary outputs): Direct, unquoted string or byte output (e.g. raw JWT or Ed25519 seed string ready for `export TOKEN=$(...)`).
 
 ---
 
@@ -193,7 +202,7 @@ i6cli/
     ├── cliconfig/                # Config file parsing and profile management
     │   ├── cliconfig.go
     │   └── cliconfig_unit_test.go
-    ├── outfmt/                   # Table, JSON, YAML, and CSV output formatters
+    ├── outfmt/                   # Table, TSV, JSON, quiet, and raw output formatters
     │   ├── outfmt.go
     │   └── outfmt_unit_test.go
     └── ui/                       # Terminal spinners, progress bars, and prompts
@@ -254,7 +263,7 @@ In `.github/workflows/release.yml`:
   - [x] Integrate with `build.sh` (`cmd_comps_list`), `comp.sh`, and root `go.work`.
   - [x] Verify test execution via `./comp.sh i6cli test` and `./build.sh test`.
   - [ ] Implement `internal/cliconfig` (profile, base directory, and config.json resolution).
-  - [ ] Implement `internal/outfmt` (table/JSON formatting for subcommands).
+  - [ ] Implement `internal/outfmt` (table, tsv, json, quiet, and raw formatters).
 
 - [ ] **Phase 2: Authentication & Local Profile Tokens (`auth`, `tokens`, `config`)**
   - [ ] Implement `i6 config init [--box sandbox|staging|prod] [-f/--force]` and `i6 config show`.
