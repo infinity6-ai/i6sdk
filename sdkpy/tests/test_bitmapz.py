@@ -96,11 +96,13 @@ class TestBitmapz(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "cannot exceed 8 bytes"):
             serialize(1 << 65)
 
-    def test_set_alias(self) -> None:
+    def test_set_alias_removed(self) -> None:
         from i6sdk import bitmapz
 
-        self.assertEqual(bitmapz.set(0, True, 4, 8), 12)
-        self.assertEqual(bitmapz.set(12, False, 4), 8)
+        # Ensure built-in set is not shadowed and set_bits is used directly
+        self.assertFalse(hasattr(bitmapz, "set"))
+        self.assertEqual(bitmapz.set_bits(0, True, 4, 8), 12)
+        self.assertEqual(bitmapz.set_bits(12, False, 4), 8)
 
 
 if __name__ == "__main__":

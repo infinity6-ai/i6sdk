@@ -94,7 +94,6 @@ func TestUnitWrite(t *testing.T) {
 				"\"query\": req.get(\"query\"),",
 				"\"headers\": req.get(\"headers\"),",
 				"\"json\": req.get(\"payload\"),",
-				"sampleFraction = sample_fraction",
 			},
 		})
 	})

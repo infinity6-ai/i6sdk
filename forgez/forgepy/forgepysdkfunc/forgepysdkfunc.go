@@ -7,7 +7,6 @@ import (
 	"unicode"
 
 	"github.com/infinity6-ai/gox/commonz/errorz"
-	"github.com/infinity6-ai/gox/commonz/stringz/camelz"
 	"github.com/infinity6-ai/gox/commonz/validation/checker"
 	"github.com/infinity6-ai/gox/schemaz/schemamold"
 	"github.com/infinity6-ai/gox/schemaz/typeastz"
@@ -124,18 +123,6 @@ func funcName(funcId string, version string) string {
 	return res
 }
 
-func camelFuncName(funcId string, version string) string {
-	name := strings.TrimPrefix(funcId, "sdkFunc")
-	if name == "" {
-		return ""
-	}
-	name = strings.ToLower(name[0:1]) + name[1:]
-	if version != "" {
-		name += camelz.P(version).P()
-	}
-	return name
-}
-
 func hasInputParams(fn *moldsdkfunc.SdkFunc) bool {
 	if fn.Req.Input.Head == nil {
 		return false
@@ -171,7 +158,6 @@ func Write(ctx context.Context, sdkFuncs []*moldsdkfunc.SdkFunc) string {
 		var decl strings.Builder
 		funcId := fn.Spec.CamelId
 		methodName := funcName(funcId, fn.Spec.Version)
-		camelName := camelFuncName(funcId, fn.Spec.Version)
 
 		hasInput := fn.Req.Input.Head != nil
 		hasPartitions := fn.Req.Partitions.Head != nil
@@ -281,11 +267,6 @@ func Write(ctx context.Context, sdkFuncs []*moldsdkfunc.SdkFunc) string {
 			writeln(&decl, "    return dash.query(query_opts)")
 		default:
 			writeln(&decl, "    return {}")
-		}
-
-		if camelName != "" && camelName != methodName {
-			writeln(&decl, "")
-			writeln(&decl, "%s = %s", camelName, methodName)
 		}
 
 		writeln(&b, "%s", indent(decl.String(), "    "))

@@ -6,19 +6,19 @@ Checklist of cleanup tasks to eliminate legacy aliases, redundant overloads, dua
 
 ## Category 1: Drop CamelCase Method Aliases & Built-in Shadowing in Python (`sdkpy`)
 
-- [ ] **Drop `forgepy` camelCase method alias generator**
+- [x] **Drop `forgepy` camelCase method alias generator**
   - `forgez/forgepy/forgepyapi/forgepyapi.go`: Remove generation of `%s = %s` camelCase aliases in `Apis` class.
   - `forgez/forgepy/forgepysdkfunc/forgepysdkfunc.go`: Remove generation of `%s = %s` camelCase aliases in `SdkFuncs` class.
-- [ ] **Regenerate `sdkpy` APIs and SdkFuncs**
+- [x] **Regenerate `sdkpy` APIs and SdkFuncs**
   - `sdkpy/src/i6sdk/sdkapis/apis.py`: Re-generate to strip ~43 redundant camelCase method aliases.
   - `sdkpy/src/i6sdk/sdkapis/sdkfuncs.py`: Re-generate to strip redundant camelCase SdkFunc method aliases.
-- [ ] **Remove manual camelCase method aliases in Python service classes**
+- [x] **Remove manual camelCase method aliases in Python service classes**
   - `sdkpy/src/i6sdk/services.py`: Remove `setConfig = set_config`.
   - `sdkpy/src/i6sdk/ingest/ingest.py`: Remove `getUrl = get_url`.
   - `sdkpy/src/i6sdk/infer/infer.py`: Remove `selectResults = select_results`.
-- [ ] **Remove built-in shadowing alias in `bitmapz.py`**
+- [x] **Remove built-in shadowing alias in `bitmapz.py`**
   - `sdkpy/src/i6sdk/internal/bitmapz.py`: Remove `set = set_bits` to avoid shadowing Python's built-in `set` type.
-- [ ] **Update tests & documentation**
+- [x] **Update tests & documentation**
   - `sdkpy/tests/test_apis.py`: Remove test assertions expecting camelCase method aliases.
   - `FEATURES_TABLE.md`: Update documentation to reflect pure `snake_case` in `sdkpy`.
 

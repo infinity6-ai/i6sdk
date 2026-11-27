@@ -66,14 +66,6 @@ func funcName(apiId string) string {
 	return toSnakeCase(name)
 }
 
-func camelFuncName(apiId string) string {
-	name := strings.TrimPrefix(apiId, "api")
-	if name == "" {
-		return ""
-	}
-	return strings.ToLower(name[0:1]) + name[1:]
-}
-
 func Write(ctx context.Context, apis []*apispecz.Api) string {
 	if len(apis) == 0 {
 		return ""
@@ -100,7 +92,6 @@ func Write(ctx context.Context, apis []*apispecz.Api) string {
 func writeApiDecl(b *strings.Builder, api *apispecz.Api) {
 	apiId := api.Spec.CamelId
 	methodName := funcName(apiId)
-	camelName := camelFuncName(apiId)
 
 	hasParams := api.Req.Params.Head != nil
 	hasQuery := api.Req.Query.Head != nil
@@ -206,10 +197,4 @@ func writeApiDecl(b *strings.Builder, api *apispecz.Api) {
 
 	writeln(b, "    }")
 	writeln(b, "    return self._services.invoker().invoke_result(**invoke_kwargs)")
-
-	// Provide camelCase alias if different from snake_case
-	if camelName != "" && camelName != methodName {
-		writeln(b, "")
-		writeln(b, "%s = %s", camelName, methodName)
-	}
 }

@@ -211,8 +211,6 @@ class Ingest:
             "urls": uploads,
         }
 
-    getUrl = get_url
-
     def upload(
         self,
         dataset: str,

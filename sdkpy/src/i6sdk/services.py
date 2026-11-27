@@ -59,8 +59,6 @@ class Services:
         self._infer = None
         self._dash = None
 
-    setConfig = set_config
-
     def fs(self) -> Fs:
         """Returns the shared local filesystem cache manager."""
         if self._fs is None:

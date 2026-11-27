@@ -133,8 +133,8 @@ class TestApis(unittest.TestCase):
         self.assertIn("/10.0/2.0", last_request["url"])
         self.assertIn("precision=2", last_request["url"])
 
-        # Also verify camelCase alias
-        self.assertTrue(hasattr(client.apis(), "sampleFraction"))
+        # Verify camelCase alias is removed
+        self.assertFalse(hasattr(client.apis(), "sampleFraction"))
 
     def test_funcs_accessor(self) -> None:
         client = I6Client(I6SdkConfig())

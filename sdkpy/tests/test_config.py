@@ -43,6 +43,12 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(str(client.fs().base_dir), "/tmp/custom-cache/sdkpy/fs")
         self.assertEqual(client.config().serv_urls.get("decsuite"), "https://custom.i6.ai")
 
+    def test_set_config(self) -> None:
+        client = i6sdk.create_client()
+        client.set_config({"app": "updated-app"})
+        self.assertEqual(client.config().app, "updated-app")
+        self.assertFalse(hasattr(client, "setConfig"))
+
 
 if __name__ == "__main__":
     unittest.main()

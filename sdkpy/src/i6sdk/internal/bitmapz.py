@@ -49,10 +49,6 @@ def set_bits(current: int, enable: bool, *values: int) -> int:
     return current & ~bits
 
 
-# Alias matching sdkweb
-set = set_bits
-
-
 def serialize(v: int) -> bytes:
     """Encodes the bitmask v into a compact variable-length byte array.
 
@@ -119,7 +115,6 @@ __all__ = [
     "contains_any",
     "split",
     "set_bits",
-    "set",
     "serialize",
     "deserialize",
 ]

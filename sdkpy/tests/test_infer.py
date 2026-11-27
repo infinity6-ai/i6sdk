@@ -84,6 +84,7 @@ class TestInfer(unittest.TestCase):
 
     def test_select_results_validation_errors(self) -> None:
         client = I6Client(I6SdkConfig())
+        self.assertFalse(hasattr(client.infer(), "selectResults"))
         valid = {
             "dataset": "dectest",
             "model_name": "m1",

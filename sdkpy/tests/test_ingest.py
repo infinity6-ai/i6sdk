@@ -228,6 +228,7 @@ class TestIngest(unittest.TestCase):
         self.assertEqual(res["url"], "https://storage.test/p1")
         body_dict = json.loads(calls[0]["body"])
         self.assertEqual(body_dict.get("amount"), 3)
+        self.assertFalse(hasattr(client.ingest(), "getUrl"))
 
     def test_upload_multiple_streams_concurrent(self) -> None:
         calls = []

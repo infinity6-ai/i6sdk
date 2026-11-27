@@ -350,5 +350,3 @@ class Infer:
 
         return selected
 
-    selectResults = select_results
-

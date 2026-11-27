@@ -59,7 +59,6 @@ func TestUnitWrite(t *testing.T) {
 				"\"model_name\": \"relevance-fashion-fbt\",",
 				"partitions[\"version\"] = \"v1\"",
 				"infer.select_results({",
-				"productRelevanceFashionFbtV1 = product_relevance_fashion_fbt_v1",
 			},
 		})
 	})
@@ -75,7 +74,6 @@ func TestUnitWrite(t *testing.T) {
 				") -> sdkFuncProductRelevanceFashionDashFunnelOutput:",
 				"dash = self._services.dash()",
 				"\"dash_name\": \"product-relevance-fashion-dash-funnel\",",
-				"productRelevanceFashionDashFunnelV1 = product_relevance_fashion_dash_funnel_v1",
 			},
 		})
 	})
