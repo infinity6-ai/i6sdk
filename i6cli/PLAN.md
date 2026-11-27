@@ -23,7 +23,8 @@
                                      │
  ┌───────────────────────────────────▼────────────────────────────────────┐
  │                     Cobra Subcommand Taxonomy                          │
- │  auth │ tokens │ dataset │ ingest │ infer │ dash │ pipe │ funcs │ config  │
+ │  auth │ tokens │ dataset │ ingest │ infer │ dash │ pipe │ funcs │ apis    │
+ │  config                                                                │
  └───────────────────────────────────┬────────────────────────────────────┘
                                      │ calls
  ┌───────────────────────────────────▼────────────────────────────────────┐
@@ -145,7 +146,13 @@ Zero-codegen dynamic execution for all registered Infinity6 workflow functions (
   - If `client_query` $\rightarrow$ routes to `c.Dash().QueryRaw()` and formats the analytical result.
   - If `client_infer` $\rightarrow$ routes to `c.Infer().Run()` (3-step candidate generation, remote scoring, and hydration).
 
-### H. Configuration (`i6 config`)
+### H. Platform APIs (`i6 apis`)
+Dynamic invocation of all 60+ registered Infinity6 HTTP APIs with automatic endpoint routing and bearer authentication:
+- `i6 apis list [--service userz|decsuite|tfinfer]`: Lists all registered APIs (API ID, HTTP Method, Path, and target service).
+- `i6 apis describe <api-id>`: Displays parameter, query, header, and payload schemas for the API.
+- `i6 apis call <api-id> [--params key=val,...] [--query key=val,...] [--payload <json|file|->]`: Dynamically executes the API call through `c.ClientForPath()`, automatically injecting authentication headers and formatting the response.
+
+### I. Configuration (`i6 config`)
 - `i6 config init [--box sandbox|staging|prod] [-f/--force]`: Initializes the active profile directory and writes `config.json` configured for the selected box (defaults to `prod`). Protected with `-f/--force` against accidental overwrites.
 - `i6 config show`: Displays active profile, directory paths, box environment, and resolved endpoint URLs.
 
@@ -220,6 +227,7 @@ i6cli/
 │   ├── dash.go                   # i6 dash subcommands
 │   ├── pipe.go                   # i6 pipe subcommands
 │   ├── funcs.go                  # i6 funcs subcommands (list, describe, run)
+│   ├── apis.go                   # i6 apis subcommands (list, describe, call)
 │   └── config.go                 # i6 config subcommands
 └── internal/
     ├── cliconfig/                # Config file parsing and profile management
@@ -320,11 +328,12 @@ In `.github/workflows/release.yml`:
     - `create [--type ingestion|recsys|refresh] [--annotation <text>] [--save]` (mints token on the server)
     - `delete <token-id-or-jti>` (revokes token on the server by ID or JTI)
 
-- [ ] **Phase 4: Analytics, Inference & Workflow Functions (`dash`, `infer`, `pipe`, `funcs`)**
+- [ ] **Phase 4: Analytics, Inference, APIs & Workflows (`dash`, `infer`, `pipe`, `funcs`, `apis`)**
   - [ ] Implement `i6 dash query` with table output.
   - [ ] Implement `i6 infer run` and `metadata`.
   - [ ] Implement `i6 pipe list`, `get`, `start`.
   - [ ] Implement `i6 funcs [list|describe|run]` for dynamic zero-codegen SdkFunc execution.
+  - [ ] Implement `i6 apis [list|describe|call]` for dynamic platform API execution.
 
 - [ ] **Phase 5: Release Packaging & Automation**
   - [ ] Add static binary cross-compilation matrix to `.github/workflows/release.yml`.
