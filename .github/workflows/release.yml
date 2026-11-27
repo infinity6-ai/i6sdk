@@ -52,8 +52,8 @@ jobs:
           mkdir -p dist
           sed -i 's/version = .*/version = "0.0.0.dev0"/' sdkpy/pyproject.toml
           python3 -m build sdkpy -o dist/
-          cp dist/*dev*.whl dist/i6sdk-edge-py3-none-any.whl
-          cp dist/*dev*.tar.gz dist/i6sdk-edge.tar.gz
+          cp dist/*dev*.whl dist/i6sdkpy-edge-py3-none-any.whl
+          cp dist/*dev*.tar.gz dist/i6sdkpy-edge.tar.gz
 
       - name: Build Python Tagged Distribution
         if: startsWith(github.ref_name, 'v') && !contains(github.ref_name, '/')
@@ -62,8 +62,8 @@ jobs:
           VERSION="${GITHUB_REF_NAME#v}"
           sed -i "s/version = .*/version = \"${VERSION}\"/" sdkpy/pyproject.toml
           python3 -m build sdkpy -o dist/
-          cp "dist/i6sdk-${VERSION}-py3-none-any.whl" dist/i6sdk-latest-py3-none-any.whl
-          cp "dist/i6sdk-${VERSION}.tar.gz" dist/i6sdk-latest.tar.gz
+          cp "dist/i6sdkpy-${VERSION}-py3-none-any.whl" dist/i6sdkpy-latest-py3-none-any.whl
+          cp "dist/i6sdkpy-${VERSION}.tar.gz" dist/i6sdkpy-latest.tar.gz
 
       # Web package builds
       - name: Build Web Edge Distribution

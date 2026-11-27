@@ -17,18 +17,18 @@ Pre-built wheels are published automatically on every release and edge build:
 
 ```bash
 # Specific version tag (e.g. v0.0.8)
-pip install "https://github.com/infinity6-ai/i6sdk/releases/download/v0.0.8/i6sdk-0.0.8-py3-none-any.whl"
+pip install "https://github.com/infinity6-ai/i6sdk/releases/download/v0.0.8/i6sdkpy-0.0.8-py3-none-any.whl"
 
 # Latest official release
-pip install --upgrade "https://github.com/infinity6-ai/i6sdk/releases/latest/download/i6sdk-latest-py3-none-any.whl"
+pip install --upgrade "https://github.com/infinity6-ai/i6sdk/releases/latest/download/i6sdkpy-latest-py3-none-any.whl"
 
 # Edge development build (continuous from 'edge' branch)
-pip install --upgrade "https://github.com/infinity6-ai/i6sdk/releases/download/edge/i6sdk-edge-py3-none-any.whl"
+pip install --upgrade "https://github.com/infinity6-ai/i6sdk/releases/download/edge/i6sdkpy-edge-py3-none-any.whl"
 ```
 
 To pin in `requirements.txt`:
 ```text
-i6sdk @ https://github.com/infinity6-ai/i6sdk/releases/latest/download/i6sdk-latest-py3-none-any.whl
+i6sdkpy @ https://github.com/infinity6-ai/i6sdk/releases/latest/download/i6sdkpy-latest-py3-none-any.whl
 ```
 
 ### From Git Repository
