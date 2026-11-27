@@ -16,17 +16,19 @@ def format_size(size_bytes: int) -> str:
     return f"{size_bytes} B"
 
 
-def generate_indexes(staging_dir: str):
-    staging_dir = os.path.abspath(staging_dir)
-    release_dir = os.path.join(staging_dir, "release")
-    if not os.path.exists(release_dir):
-        print(f"Warning: {release_dir} does not exist, nothing to index.")
-        return
+def get_landing_html() -> str:
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    candidates = [
+        os.path.join(script_dir, "..", "landing.html"),
+        os.path.join(os.getcwd(), ".github", "landing.html"),
+        os.path.join(os.getcwd(), "landing.html"),
+    ]
+    for c in candidates:
+        if os.path.isfile(c):
+            with open(c, "r", encoding="utf-8") as f:
+                return f.read()
 
-    # 1. Root redirect index.html
-    root_index = os.path.join(staging_dir, "index.html")
-    with open(root_index, "w", encoding="utf-8") as f:
-        f.write("""<!DOCTYPE html>
+    return """<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
@@ -37,7 +39,20 @@ def generate_indexes(staging_dir: str):
   <p>Redirecting to <a href="release/">release/</a>...</p>
 </body>
 </html>
-""")
+"""
+
+
+def generate_indexes(staging_dir: str):
+    staging_dir = os.path.abspath(staging_dir)
+    release_dir = os.path.join(staging_dir, "release")
+    if not os.path.exists(release_dir):
+        print(f"Warning: {release_dir} does not exist, nothing to index.")
+        return
+
+    # 1. Root landing page index.html
+    root_index = os.path.join(staging_dir, "index.html")
+    with open(root_index, "w", encoding="utf-8") as f:
+        f.write(get_landing_html())
 
     # 2. Walk release_dir and generate index.html in each directory
     count = 0
