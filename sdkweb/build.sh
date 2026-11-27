@@ -32,7 +32,7 @@ function cmd_release() {
     rsync -av --delete src/site/tokens/ ../../i6pages/tokens/ --exclude 'target'
 
     # jsdelivr
-    rsync -av --delete dist/ release/
+    # rsync -av --delete dist/ release/
 }
 
 function cmd_test_visual() {
