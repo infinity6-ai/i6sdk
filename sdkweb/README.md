@@ -7,7 +7,7 @@ The JavaScript/TypeScript SDK for the Infinity6 platform in the browser. Zero in
 All built bundles, ES modules, and TypeScript types are hosted at:
 
 ```
-https://sdk.code.infinity6.ai/release/sdkweb/<channel>/<path>
+https://sdk.lp.infinity6.ai/release/sdkweb/<channel>/<path>
 ```
 *(Fallback host: `https://infinity6-ai.github.io/i6sdk/release/sdkweb/<channel>/<path>`)*
 
@@ -28,7 +28,7 @@ https://sdk.code.infinity6.ai/release/sdkweb/<channel>/<path>
 Loads the entire SDK in a single minified bundle and exposes `window.I6Sdk`:
 
 ```html
-<script src="https://sdk.code.infinity6.ai/release/sdkweb/latest/bundle/i6sdk-web.min.js"></script>
+<script src="https://sdk.lp.infinity6.ai/release/sdkweb/latest/bundle/i6sdk-web.min.js"></script>
 <script>
   const sdk = new I6Sdk();
   // sdk.apis(), sdk.funcs(), sdk.auth(), sdk.tokens(), sdk.ingest(), sdk.infer(), sdk.dash()
@@ -41,7 +41,7 @@ Browser-native ES module imports:
 
 ```html
 <script type="module">
-  import { I6Sdk, Resp, bitmapz, Grants } from "https://sdk.code.infinity6.ai/release/sdkweb/latest/module-min/index.js";
+  import { I6Sdk, Resp, bitmapz, Grants } from "https://sdk.lp.infinity6.ai/release/sdkweb/latest/module-min/index.js";
   const sdk = new I6Sdk();
 </script>
 ```
@@ -66,7 +66,7 @@ Each channel hosts the complete build directory:
 To get IDE autocompletion in your project without an npm package:
 
 ```bash
-curl -L -o i6sdk-web.d.ts https://sdk.code.infinity6.ai/release/sdkweb/latest/bundle/i6sdk-web.d.ts
+curl -L -o i6sdk-web.d.ts https://sdk.lp.infinity6.ai/release/sdkweb/latest/bundle/i6sdk-web.d.ts
 ```
 
 ---
