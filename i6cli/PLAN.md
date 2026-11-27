@@ -261,6 +261,7 @@ In `.github/workflows/release.yml`:
   - [ ] Implement `i6 auth login` (Device code flow with polling; enforces mutual exclusivity).
   - [ ] Implement `i6 auth token [<token-string> | -] [--offline]` (universal token ingestion with auto-detection).
   - [ ] Implement `i6 auth logout` and `i6 auth status`.
+  - [ ] Implement `i6 tokens check [<token-string> | -]` (cryptographic token debugger calling /api/userz/token/check).
   - [ ] Implement `i6 tokens user [get|expose|export|delete]` (human user session root credential; expose prints access token, export prints refresh token).
   - [ ] Implement `i6 tokens dataset-refresh [get|export|set|delete]` (machine robot root credential; export prints robot refresh key).
   - [ ] Implement `i6 tokens dataset-access [--dataset <dataset>]` (multiple derived cached tokens):
