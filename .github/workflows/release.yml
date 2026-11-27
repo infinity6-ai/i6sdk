@@ -72,7 +72,7 @@ jobs:
           mkdir -p dist
           sed -i 's/"version": .*/"version": "0.0.0-dev",/' sdkweb/package.json
           (cd sdkweb && ./build.sh bundle)
-          tar -czf dist/i6sdk-web-edge.tar.gz -C sdkweb/dist .
+          tar -czf dist/i6sdkweb-edge.tar.gz -C sdkweb/dist .
 
       - name: Build Web Tagged Distribution
         if: startsWith(github.ref_name, 'v') && !contains(github.ref_name, '/')
@@ -81,8 +81,8 @@ jobs:
           VERSION="${GITHUB_REF_NAME#v}"
           sed -i "s/\"version\": .*/\"version\": \"${VERSION}\",/" sdkweb/package.json
           (cd sdkweb && ./build.sh bundle)
-          tar -czf "dist/i6sdk-web-${VERSION}.tar.gz" -C sdkweb/dist .
-          cp "dist/i6sdk-web-${VERSION}.tar.gz" dist/i6sdk-web-latest.tar.gz
+          tar -czf "dist/i6sdkweb-${VERSION}.tar.gz" -C sdkweb/dist .
+          cp "dist/i6sdkweb-${VERSION}.tar.gz" dist/i6sdkweb-latest.tar.gz
 
       - name: Upload Release Artifacts
         uses: actions/upload-artifact@v4

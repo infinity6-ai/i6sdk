@@ -1,5 +1,5 @@
 {
-  "name": "sdkweb",
+  "name": "i6sdkweb",
   "private": true,
   "version": "0.0.1",
   "type": "module",
@@ -12,8 +12,8 @@
     "esbuild": "^0.28.2",
     "typescript": "^7.0.2"
   },
-  "main": "dist/bundle/i6sdk-web.js",
-  "types": "dist/bundle/i6sdk-web.d.ts",
+  "main": "dist/bundle/i6sdkweb.js",
+  "types": "dist/bundle/i6sdkweb.d.ts",
   "dependencies": {
     "sql.js": "^1.14.2"
   }

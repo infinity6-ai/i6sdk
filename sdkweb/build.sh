@@ -14,11 +14,16 @@ function cmd_bundle() {
 
     # 2. Stitch them all into one giant file for IDEs & LLMs
     mkdir -p dist/bundle
-    find dist/types -name "*.d.ts" -exec cat {} + > dist/bundle/i6sdk-web.d.ts
+    find dist/types -name "*.d.ts" -exec cat {} + > dist/bundle/i6sdkweb.d.ts
+    cp dist/bundle/i6sdkweb.d.ts dist/bundle/i6sdk-web.d.ts
 
     # 3. Build the JavaScript bundles and modules
-    npx esbuild src/main/index.js --bundle --sourcemap --outfile=dist/bundle/i6sdk-web.js
-    npx esbuild src/main/index.js --bundle --minify --sourcemap --outfile=dist/bundle/i6sdk-web.min.js
+    npx esbuild src/main/index.js --bundle --sourcemap --outfile=dist/bundle/i6sdkweb.js
+    npx esbuild src/main/index.js --bundle --minify --sourcemap --outfile=dist/bundle/i6sdkweb.min.js
+    cp dist/bundle/i6sdkweb.js dist/bundle/i6sdk-web.js
+    cp dist/bundle/i6sdkweb.js.map dist/bundle/i6sdk-web.js.map
+    cp dist/bundle/i6sdkweb.min.js dist/bundle/i6sdk-web.min.js
+    cp dist/bundle/i6sdkweb.min.js.map dist/bundle/i6sdk-web.min.js.map
     npx esbuild "src/main/**/*.js" --minify --outdir=dist/module-min
     npx esbuild "src/main/**/*.js" --outdir=dist/module
 }

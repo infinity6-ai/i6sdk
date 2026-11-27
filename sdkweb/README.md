@@ -28,7 +28,7 @@ https://sdk.lp.infinity6.ai/release/sdkweb/<channel>/<path>
 Loads the entire SDK in a single minified bundle and exposes `window.I6Sdk`:
 
 ```html
-<script src="https://sdk.lp.infinity6.ai/release/sdkweb/latest/bundle/i6sdk-web.min.js"></script>
+<script src="https://sdk.lp.infinity6.ai/release/sdkweb/latest/bundle/i6sdkweb.min.js"></script>
 <script>
   const sdk = new I6Sdk();
   // sdk.apis(), sdk.funcs(), sdk.auth(), sdk.tokens(), sdk.ingest(), sdk.infer(), sdk.dash()
@@ -54,9 +54,9 @@ Each channel hosts the complete build directory:
 
 | Path | Format | Description |
 |---|---|---|
-| `bundle/i6sdk-web.min.js` | UMD / Global | Minified all-in-one browser bundle (recommended for `<script>`) |
-| `bundle/i6sdk-web.js` | UMD / Global | Unminified bundle with source maps for debugging |
-| `bundle/i6sdk-web.d.ts` | TypeScript | All type definitions stitched into a single file for IDEs |
+| `bundle/i6sdkweb.min.js` | UMD / Global | Minified all-in-one browser bundle (recommended for `<script>`) |
+| `bundle/i6sdkweb.js` | UMD / Global | Unminified bundle with source maps for debugging |
+| `bundle/i6sdkweb.d.ts` | TypeScript | All type definitions stitched into a single file for IDEs |
 | `module-min/` | ES Module | Minified individual ES modules, dynamically imported by the browser |
 | `module/` | ES Module | Unminified individual ES modules for reading and inspection |
 | `types/` | TypeScript | Granular TypeScript declaration files per module |
@@ -66,7 +66,7 @@ Each channel hosts the complete build directory:
 To get IDE autocompletion in your project without an npm package:
 
 ```bash
-curl -L -o i6sdk-web.d.ts https://sdk.lp.infinity6.ai/release/sdkweb/latest/bundle/i6sdk-web.d.ts
+curl -L -o i6sdkweb.d.ts https://sdk.lp.infinity6.ai/release/sdkweb/latest/bundle/i6sdkweb.d.ts
 ```
 
 ---
@@ -86,4 +86,4 @@ npm install
 
 ## Configuration
 
-By default, the SDK connects to the Infinity6 sandbox environment. Pass an explicit config object to `new I6Sdk({...})` to change endpoints (see `I6SdkConfig` in `i6sdk-web.d.ts`).
+By default, the SDK connects to the Infinity6 sandbox environment. Pass an explicit config object to `new I6Sdk({...})` to change endpoints (see `I6SdkConfig` in `i6sdkweb.d.ts`).

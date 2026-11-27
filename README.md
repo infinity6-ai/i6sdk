@@ -265,7 +265,7 @@ Browser-optimized JavaScript/TypeScript SDK served directly via CDN with zero in
 
 ### Quickstart
 ```html
-<script src="https://sdk.lp.infinity6.ai/release/sdkweb/latest/bundle/i6sdk-web.min.js"></script>
+<script src="https://sdk.lp.infinity6.ai/release/sdkweb/latest/bundle/i6sdkweb.min.js"></script>
 <script>
   const sdk = new I6Sdk();
   // sdk.apis(), sdk.funcs(), sdk.auth(), sdk.tokens(), sdk.ingest(), sdk.infer(), sdk.dash()

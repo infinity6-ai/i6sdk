@@ -11,7 +11,7 @@ We build it once, on **sdkweb**, because sdkweb runs in the browser. There is no
 ```
 apicollectionz ─► forge (parse, in process) ──────────┐
                                                       ├─► go run . docs ─► target/docs/*.html  (static, one page per method)
-sdkweb src ─► tsc ─► dts-bundle-generator ─► i6sdk-web.d.ts
+sdkweb src ─► tsc ─► dts-bundle-generator ─► i6sdkweb.d.ts
                                     │                 │
                                     └─► docgen.mjs ─► sdk.json (handwritten modules)
                                     └─► Monaco autocomplete (loaded by the pages)
@@ -46,7 +46,7 @@ sdkweb src ─► tsc ─► dts-bundle-generator ─► i6sdk-web.d.ts
 | 4 | One Go command, `go run . docs` in sdkweb, writes every page with `html/template` | Go, like the rest of forge. `html/template` escapes everything, so no doc text can break the page |
 | 5 | The API docs come from forge, in process: `docs` calls the same parse as `generate` | Same parse that writes `sdkapis.js`, so the docs can't drift from the code. No JSON file in between |
 | 6 | The handwritten modules (auth, tokens, ingest, infer, dash, `I6Sdk`) are read from the bundled `.d.ts` by `sdkweb/docgen.mjs`, which writes `sdk.json` for `docs` | They are not in forge. The `.d.ts` is also what Monaco uses, so the docs and the autocomplete always agree |
-| 7 | One real bundled `i6sdk-web.d.ts`, built with `dts-bundle-generator` (already a dev dependency) | The current one is the module files joined with `cat`; its relative imports don't resolve, so Monaco would show `any`. The new one also fixes the file customers download for their editors |
+| 7 | One real bundled `i6sdkweb.d.ts`, built with `dts-bundle-generator` (already a dev dependency) | The current one is the module files joined with `cat`; its relative imports don't resolve, so Monaco would show `any`. The new one also fixes the file customers download for their editors |
 | 8 | TypeScript 5 next to TypeScript 7, as a dev dependency. TypeScript 7 keeps building the code (`tsc`); TypeScript 5 is used by `dts-bundle-generator` and `docgen.mjs` | `dts-bundle-generator` needs the TypeScript 5 API: with TypeScript 7 it crashes on load. TypeScript 7 has an API only under `typescript/unstable/…`, which can break in any 7.x release. Since TypeScript 5 is needed for the bundler anyway, `docgen.mjs` uses it too |
 | 9 | The code box is a **JS** box per method, prefilled with the call, not a separate JSON body editor | Monaco completes the methods *and* the request fields from the same `.d.ts` |
 | 10 | The example in the box is written into the static page at build time, from the request typedef, with an empty value per field | Google sees it, and it is readable without JavaScript. Monaco takes it over when **Try it** is opened |
@@ -164,13 +164,13 @@ const resp = await inspect(sdk.apis().dszCreateCustomerPortal({
 ## Step 1 — The bundled `.d.ts`
 
 - `sdkweb/package.json`: add TypeScript 5 for the tools that need its API (decision 8): `"typescript5": "npm:typescript@5"` for `docgen.mjs`, and `"overrides": { "dts-bundle-generator": { "typescript": "^5" } }` so `dts-bundle-generator` gets TypeScript 5 while the project keeps TypeScript 7.
-- `sdkweb/build.sh bundle`: replace the `find … -exec cat` line with `dts-bundle-generator`, which writes one real `dist/bundle/i6sdk-web.d.ts` from the `tsc` output (`dist/types/index.d.ts`). Only what is reachable from the exports is in it, so unexported helper modules drop out by themselves.
+- `sdkweb/build.sh bundle`: replace the `find … -exec cat` line with `dts-bundle-generator`, which writes one real `dist/bundle/i6sdkweb.d.ts` from the `tsc` output (`dist/types/index.d.ts`). Only what is reachable from the exports is in it, so unexported helper modules drop out by themselves.
 
 ---
 
 ## Step 2 — `sdkweb/docgen.mjs`: the handwritten modules
 
-A Node script, about 150 lines. It reads `dist/bundle/i6sdk-web.d.ts` with the TypeScript compiler API and prints `target/sdk.json`. `tsc` has already turned the JSDoc into regular declarations, so the script only walks them: classes, methods, params, return types and typedefs, with their docs.
+A Node script, about 150 lines. It reads `dist/bundle/i6sdkweb.d.ts` with the TypeScript compiler API and prints `target/sdk.json`. `tsc` has already turned the JSDoc into regular declarations, so the script only walks them: classes, methods, params, return types and typedefs, with their docs.
 
 - **Dependency:** TypeScript 5, through the `typescript5` alias from Step 1 (`import ts from "typescript5"`). See decision 8.
 - **What it skips:** `Apis` and `SdkFuncs`, because `docs` gets those from forge, and any member starting with `_` or `#private`.
@@ -191,7 +191,7 @@ go run . docs --sdk target/sdk.json --out target/docs --base-url https://cdn.inf
 1. Parses the APIs and SdkFuncs the same way `generate` does, with the same few calls (`apicollectionz.Apis()`, `apispecz.New(...).ParseApis`, …). `generate` is left untouched.
 2. Reads `sdk.json`.
 3. Checks the docs: an API, SdkFunc or leaf field with an empty summary is reported (`api id: field: missing doc`). If any are found, it prints them all and exits 1. Today every API field has a summary, so this only guards the future; the fix goes in the `apicollectionz` spec.
-4. Writes the pages with `html/template` from templates in `sdkweb/cmdsdkweb/docstpl/` (embedded with `go:embed`): `index.html`, one page per section, one page per method, `sitemap.xml`, `methods.json`, `callback.html`, `404.html`. It also copies `src/site/docs/` (the JS and CSS), `dist/bundle/i6sdk-web.d.ts` and `dist/bundle/i6sdk-web.min.js` next to them.
+4. Writes the pages with `html/template` from templates in `sdkweb/cmdsdkweb/docstpl/` (embedded with `go:embed`): `index.html`, one page per section, one page per method, `sitemap.xml`, `methods.json`, `callback.html`, `404.html`. It also copies `src/site/docs/` (the JS and CSS), `dist/bundle/i6sdkweb.d.ts` and `dist/bundle/i6sdkweb.min.js` next to them.
 5. Renders the doc text with a small Markdown renderer (`docsmd.go`, about 80 lines), at build time. It covers exactly what the docs use today:
 
     | Markdown | Uses today | HTML |
@@ -218,11 +218,11 @@ go run . docs --sdk target/sdk.json --out target/docs --base-url https://cdn.inf
 | --- | --- |
 | `docs.css` | Styles (same look as `console.html`) |
 | `bar.js` | SDK config bar and account box: creates `sdk` from the saved or default config, **Edit**, **Reset**, **Sign in**, **Sign out** |
-| `tryit.js` | Loads Monaco and `i6sdk-web.d.ts` on the first **Try it**, adds `declare const sdk: I6Sdk`, runs the code, shows the result |
+| `tryit.js` | Loads Monaco and `i6sdkweb.d.ts` on the first **Try it**, adds `declare const sdk: I6Sdk`, runs the code, shows the result |
 | `inspect.js` | `inspect(x)` and the request recorder that wraps `window.fetch` |
 | `search.js` | Filters the nav links in the page |
 
-**Which SDK runs:** the `i6sdk-web.min.js` that `docs` copies next to the pages, so the pages always run the SDK they were built from, with no version to match and nothing to wait for on jsDelivr. Locally it is the same: rerun `build.sh docs` to see an SDK change.
+**Which SDK runs:** the `i6sdkweb.min.js` that `docs` copies next to the pages, so the pages always run the SDK they were built from, with no version to match and nothing to wait for on jsDelivr. Locally it is the same: rerun `build.sh docs` to see an SDK change.
 
 ---
 

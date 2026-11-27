@@ -87,7 +87,7 @@ const usageOpts = () => (serviceOptions() ? ', { bearerToken: "<your token>" }' 
 
 // The code of the SDK user, written with the values of the config card. Shown at the top of the page and run by the button
 function usage() {
-  return `import { I6Sdk } from './i6sdk-web.js'
+  return `import { I6Sdk } from './i6sdkweb.js'
 
 const sdk = new I6Sdk()
 sdk.setConfig(${JSON.stringify(sdkConfig)}) // anytime; overwrites only the given keys
