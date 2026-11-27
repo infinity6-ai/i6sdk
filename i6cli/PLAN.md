@@ -78,6 +78,10 @@ Controls the machine service account Ed25519 refresh key (mutually exclusive wit
 - `i6 tokens dataset-refresh export [--out <path|->]`: Prints the active Ed25519 dataset refresh token to stdout or a file.
 - `i6 tokens dataset-refresh set <key|file|-> [--dataset <dataset>]`: Sets or replaces the robot key for this profile.
 - `i6 tokens dataset-refresh delete`: Removes the robot credential from `tokens.db`.
+- **Sender-Constrained PoP Operations (`i6 tokens dataset-refresh bounded`)**:
+  Uses the profile's stored Ed25519 robot key without requiring manual key flags:
+  - `i6 tokens dataset-refresh bounded create [--grants=0x0F] [--exp=3600]`: Mints a sender-constrained Proof-of-Possession token cryptographically bound to the profile's robot public key.
+  - `i6 tokens dataset-refresh bounded sign-request --method <METHOD> --path <PATH> [--body <str|->]`: Generates the 121-byte Ed25519 signature envelope (`X-I6-Signature` header) over the target request using the profile's stored robot key.
 
 #### 3. Derived Access Tokens Cache (`i6 tokens dataset-access [--dataset <dataset>]`)
 Manages short-lived bearer access tokens cached in `tokens.db` (a profile can hold multiple tokens across different datasets):
@@ -283,7 +287,8 @@ In `.github/workflows/release.yml`:
   - [ ] Implement `i6 auth logout` and `i6 auth status`.
   - [ ] Implement `i6 tokens check [--refreshed]` (audits all credentials stored in active profile's tokens.db via /api/userz/token/check).
   - [ ] Implement `i6 tokens user [get|expose|export|delete]` (human user session root credential; expose prints access token, export prints refresh token).
-  - [ ] Implement `i6 tokens dataset-refresh [get|export|set|delete]` (machine robot root credential; export prints robot refresh key).
+  - [ ] Implement `i6 tokens dataset-refresh [get|export|set|delete]` (machine robot root credential; export prints robot refresh key):
+    - `bounded [create|sign-request]` (uses stored robot key to mint PoP token or sign HTTP requests)
   - [ ] Implement `i6 tokens dataset-access [--dataset <dataset>]` (multiple derived cached tokens):
     - `list` (lists all cached dataset tokens in tokens.db)
     - `get [--refreshed]` (metadata only; refreshes if needed)
