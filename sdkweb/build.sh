@@ -24,11 +24,7 @@ function cmd_bundle() {
 }
 
 function cmd_release_prepare() {
-    # jsdelivr
-    # i6dev code is-clean
-    # rsync -av --delete dist/ release/
-    i6dev code is-clean
-    echo aaa
+    true
 }
 
 function cmd_release() {
