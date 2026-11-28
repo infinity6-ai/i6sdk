@@ -373,23 +373,25 @@ In `.github/workflows/release.yml`:
     - `bounded-create --token <token|-> --key <privkey|->`
     - `sign-request --key <privkey|-> --method <METHOD> --path <PATH> [--body <str|->]`
 
-- [ ] **Phase 3: Ingestion & Dataset Management (`ingest`, `dataset`)**
-  - [ ] Implement `i6 ingest upload` with multi-stream parallel worker execution and live terminal progress bars (TTY-aware fallback).
-  - [ ] Implement `i6 ingest get-url` and `summary`.
+- [ ] **Phase 3: Data Lake, Ingestion & Pipelines (`dataset`, `ingest`, `pipe`)**
   - [ ] Implement `i6 dataset list`, `get`, `table`, and `store`.
   - [ ] Implement `i6 dataset tokens [--dataset <dataset>]` for remote server token management:
     - `list [--type all|ingestion|recsys|refresh]` (lists all registered tokens by JTI on the server)
     - `create [--type ingestion|recsys|refresh] [--annotation <text>] [--save]` (mints token on the server)
     - `delete <token-id-or-jti>` (revokes token on the server by ID or JTI)
-
-- [ ] **Phase 4: Analytics, Inference, Pipelines, APIs & Workflows (`dash`, `infer`, `pipe`, `funcs`, `apis`)**
-  - [ ] Implement `i6 dash query` with table output and default dataset fallback.
-  - [ ] Implement `i6 infer run` and `metadata`.
+  - [ ] Implement `i6 ingest upload` with multi-stream parallel worker execution and live terminal progress bars (TTY-aware fallback).
+  - [ ] Implement `i6 ingest get-url` and `summary`.
   - [ ] Implement `i6 pipe list`, `get`, `start <batch-ingest|main>`, and `scheduler <activate|deactivate> <batch-ingest|main>`.
-  - [ ] Implement `i6 funcs [list|describe|run]` for dynamic zero-codegen SdkFunc execution.
-  - [ ] Implement `i6 apis [list|describe|call]` for dynamic platform API execution.
 
-- [ ] **Phase 5: Release Packaging & Automation**
+- [ ] **Phase 4: Analytics & ML Inference (`dash`, `infer`)**
+  - [ ] Implement `i6 dash query` with analytical SQLite bundle caching (`fszcache`) and formatted output (`table`, `tsv`, `json`).
+  - [ ] Implement `i6 infer run` (3-step candidate generation -> remote TF scoring -> hydration) and `metadata`.
+
+- [ ] **Phase 5: Dynamic Reflection & Platform APIs (`funcs`, `apis`)**
+  - [ ] Implement `i6 funcs [list|describe|run]` for dynamic zero-codegen SdkFunc execution (`client_query` -> `c.Dash()`, `client_infer` -> `c.Infer()`).
+  - [ ] Implement `i6 apis [list|describe|call]` for dynamic inspection and execution of all 60+ platform HTTP APIs via `schemaz.Desc` and `c.ClientForPath()`.
+
+- [ ] **Phase 6: Release Packaging & Automation**
   - [ ] Add static binary cross-compilation matrix to `.github/workflows/release.yml`.
   - [ ] Add `install.sh` shell script for instant installation.
   - [ ] Write `i6cli/README.md` with complete command reference and quickstart examples.
