@@ -36,9 +36,6 @@ func Prepare(ctx context.Context) *cobra.Command {
 		},
 	})
 
-	// Shell completion command
-	rootCmd.AddCommand(newCompletionCmd())
-
 	return rootCmd
 }
 

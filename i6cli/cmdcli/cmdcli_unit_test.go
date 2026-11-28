@@ -58,12 +58,22 @@ func TestUnitCmdcli(t *testing.T) {
 		require.Equal(t, exitcode.Usage, code)
 		require.Contains(t, errBuf.String(), "simulated usage error")
 	})
+
+	t.Run("Unknown command returns error", func(t *testing.T) {
+		cmd := cmdcli.Prepare(t.Context())
+		errBuf := new(bytes.Buffer)
+		cmd.SetErr(errBuf)
+		cmd.SetArgs([]string{"nonexistent-cmd"})
+
+		code := cmdcli.ExecuteWithCode(t.Context(), cmd)
+		require.NotEqual(t, exitcode.Success, code)
+		require.Contains(t, errBuf.String(), `unknown command "nonexistent-cmd"`)
+	})
 }
 
 func TestUnitCompletion(t *testing.T) {
 	type testScenario struct {
 		shell       string
-		wantErrCode int
 		wantKeyword string
 	}
 
@@ -77,46 +87,35 @@ func TestUnitCompletion(t *testing.T) {
 		cmd.SetArgs([]string{"completion", s.shell})
 
 		code := cmdcli.ExecuteWithCode(t.Context(), cmd)
-		if s.wantErrCode != 0 {
-			require.Equal(t, s.wantErrCode, code)
-			return
-		}
 		require.Equal(t, exitcode.Success, code)
 		require.Contains(t, strings.ToLower(outBuf.String()), strings.ToLower(s.wantKeyword))
 	}
 
-	t.Run("Bash completion generates valid script", func(t *testing.T) {
+	t.Run("Bash completion generates valid script via Cobra built-in", func(t *testing.T) {
 		check(t, testScenario{
 			shell:       "bash",
 			wantKeyword: "bash completion",
 		})
 	})
 
-	t.Run("Zsh completion generates valid script", func(t *testing.T) {
+	t.Run("Zsh completion generates valid script via Cobra built-in", func(t *testing.T) {
 		check(t, testScenario{
 			shell:       "zsh",
 			wantKeyword: "compdef",
 		})
 	})
 
-	t.Run("Fish completion generates valid script", func(t *testing.T) {
+	t.Run("Fish completion generates valid script via Cobra built-in", func(t *testing.T) {
 		check(t, testScenario{
 			shell:       "fish",
 			wantKeyword: "complete",
 		})
 	})
 
-	t.Run("PowerShell completion generates valid script", func(t *testing.T) {
+	t.Run("PowerShell completion generates valid script via Cobra built-in", func(t *testing.T) {
 		check(t, testScenario{
 			shell:       "powershell",
 			wantKeyword: "Register-ArgumentCompleter",
-		})
-	})
-
-	t.Run("Unsupported shell returns Usage error code", func(t *testing.T) {
-		check(t, testScenario{
-			shell:       "unsupported-shell",
-			wantErrCode: exitcode.Usage,
 		})
 	})
 }

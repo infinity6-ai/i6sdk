@@ -168,8 +168,9 @@ Dynamic invocation of all 60+ registered Infinity6 HTTP APIs with automatic endp
 - `i6 config set <key> <value>`: Updates a configuration field (e.g. `box`, `dataset`) in the active profile's `config.json`.
 
 ### K. Shell Completion & Utilities (`i6 completion`)
-- `i6 completion [bash|zsh|fish|powershell]`: Generates shell completion script for the target shell.
-- Dynamic completion support for datasets, subcommands, output formats, and registered API/Func IDs.
+Provided natively by Cobra's default autocompletion engine:
+- `i6 completion [bash|zsh|fish|powershell]`: Generates shell completion scripts for the specified shell.
+- Includes dynamic completion support for flags, profiles, and subcommands.
 
 ---
 
@@ -278,7 +279,6 @@ i6cli/
 │   ├── funcs.go                  # i6 funcs subcommands (list, describe, run)
 │   ├── apis.go                   # i6 apis subcommands (list, describe, call)
 │   ├── config.go                 # i6 config subcommands
-│   └── completion.go             # i6 completion subcommands
 └── internal/
     ├── cliconfig/                # Config file parsing, profile resolution, and SQLite path resolution
     │   ├── cliconfig.go
@@ -348,7 +348,7 @@ In `.github/workflows/release.yml`:
   - [x] Implement `internal/cliconfig` (profile resolution, profile-isolated SQLite URL, dataset fallback, and config.json).
   - [x] Implement `internal/exitcode` (standardized exit codes 0-5).
   - [x] Implement `internal/outfmt` (table, tsv, json, quiet, and raw formatters with strict stdout routing).
-  - [x] Implement persistent `--profile` / `-p` root flag and `i6 completion [bash|zsh|fish|powershell]`.
+  - [x] Implement persistent `--profile` / `-p` root flag and enable Cobra native shell autocompletion (`bash`, `zsh`, `fish`, `powershell`).
 
 - [ ] **Phase 2: Authentication & Local Profile Tokens (`auth`, `tokens`, `config`)**
   - [ ] Implement `i6 config init [--box sandbox|staging|prod] [--dataset <dataset>] [-f/--force]`, `i6 config show`, and `i6 config set <k> <v>`.
