@@ -7,6 +7,7 @@ import (
 	"github.com/infinity6-ai/i6sdk/i6cli/internal/cliconfig"
 	"github.com/infinity6-ai/i6sdk/i6cli/internal/cmd/cmdconfig/cmdset"
 	"github.com/infinity6-ai/i6sdk/i6cli/internal/exitcode"
+	"github.com/infinity6-ai/i6sdk/sdkgo/config"
 	"github.com/stretchr/testify/require"
 )
 
@@ -61,6 +62,16 @@ func TestUnitCmdSet(t *testing.T) {
 		}
 	}
 
+	t.Run("Updates box preset to staging setting all 3 URLs", func(t *testing.T) {
+		check(t, testScenario{
+			args:        []string{"box", "staging"},
+			wantDataset: "orig-ds",
+			wantUserz:   config.StagingUrlOptions.Userz,
+			wantDec:     config.StagingUrlOptions.Decsuite,
+			wantTf:      config.StagingUrlOptions.Tfinfer,
+		})
+	})
+
 	t.Run("Updates default_dataset", func(t *testing.T) {
 		check(t, testScenario{
 			args:        []string{"default_dataset", "new-fashion-ds"},
@@ -96,6 +107,13 @@ func TestUnitCmdSet(t *testing.T) {
 			args:        []string{"tfinfer_url", "https://infer.internal.corp"},
 			wantDataset: "orig-ds",
 			wantTf:      "https://infer.internal.corp",
+		})
+	})
+
+	t.Run("Fails on invalid box value", func(t *testing.T) {
+		check(t, testScenario{
+			args:        []string{"box", "invalid-box-val"},
+			wantErrCode: exitcode.Usage,
 		})
 	})
 

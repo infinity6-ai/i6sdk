@@ -7,6 +7,7 @@ import (
 	"github.com/infinity6-ai/i6sdk/i6cli/internal/cliconfig"
 	"github.com/infinity6-ai/i6sdk/i6cli/internal/cmd/cmdconfig/cmdinit"
 	"github.com/infinity6-ai/i6sdk/i6cli/internal/exitcode"
+	"github.com/infinity6-ai/i6sdk/sdkgo/config"
 	"github.com/stretchr/testify/require"
 )
 
@@ -17,6 +18,7 @@ func TestUnitCmdInit(t *testing.T) {
 		args        []string
 		wantErrCode int
 		wantDataset string
+		wantUserz   string
 	}
 
 	check := func(t *testing.T, s testScenario) {
@@ -43,19 +45,37 @@ func TestUnitCmdInit(t *testing.T) {
 		cfg, err := cliconfig.ResolveConfig("main", ctx)
 		require.NoError(t, err)
 		require.Equal(t, s.wantDataset, cfg.DefaultDataset)
+		require.Equal(t, s.wantUserz, cfg.UserzUrl)
 	}
 
-	t.Run("Initializes default configuration", func(t *testing.T) {
+	t.Run("Initializes default prod configuration", func(t *testing.T) {
 		check(t, testScenario{
 			args:        []string{},
 			wantDataset: "",
+			wantUserz:   config.DefaultUrlOptions.Userz,
 		})
 	})
 
-	t.Run("Initializes configuration with default dataset", func(t *testing.T) {
+	t.Run("Initializes staging configuration with dataset and staging URLs", func(t *testing.T) {
 		check(t, testScenario{
-			args:        []string{"--dataset", "my-fashion-ds"},
+			args:        []string{"--box", "staging", "--dataset", "my-fashion-ds"},
 			wantDataset: "my-fashion-ds",
+			wantUserz:   config.StagingUrlOptions.Userz,
+		})
+	})
+
+	t.Run("Initializes sandbox configuration", func(t *testing.T) {
+		check(t, testScenario{
+			args:        []string{"--box", "sandbox"},
+			wantDataset: "",
+			wantUserz:   config.SandboxUrlOptions.Userz,
+		})
+	})
+
+	t.Run("Fails on invalid box preset", func(t *testing.T) {
+		check(t, testScenario{
+			args:        []string{"--box", "unknown-box"},
+			wantErrCode: exitcode.Usage,
 		})
 	})
 

@@ -23,6 +23,7 @@ func New(ctx context.Context) *cobra.Command {
 		Long: `Updates a configuration property in the active profile's config.json.
 
 Supported keys:
+  - box: Target box environment preset (prod | staging | sandbox) to update all service URLs
   - default_dataset (or dataset): Default dataset identifier for this profile
   - userz_url (or userz): Custom userz authentication service endpoint URL
   - decsuite_url (or decsuite): Custom decsuite dataset/lake service endpoint URL
@@ -46,6 +47,14 @@ Supported keys:
 			}
 
 			switch key {
+			case "box":
+				boxUrls, err := cliconfig.BoxPresetUrls(val)
+				if err != nil {
+					return err
+				}
+				cfg.UserzUrl = boxUrls.Userz
+				cfg.DecsuiteUrl = boxUrls.Decsuite
+				cfg.TfinferUrl = boxUrls.Tfinfer
 			case "default_dataset", "dataset":
 				cfg.DefaultDataset = val
 			case "userz_url", "userz":
@@ -57,7 +66,7 @@ Supported keys:
 			default:
 				return exitcode.New(
 					exitcode.Usage,
-					fmt.Sprintf("unknown configuration key %q: expected default_dataset, userz_url, decsuite_url, or tfinfer_url", key),
+					fmt.Sprintf("unknown configuration key %q: expected box, default_dataset, userz_url, decsuite_url, or tfinfer_url", key),
 				)
 			}
 

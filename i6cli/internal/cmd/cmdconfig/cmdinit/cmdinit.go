@@ -20,6 +20,7 @@ var logger = logz.Create(tlogger(true))
 // New constructs the 'init' command under 'config'.
 func New(ctx context.Context) *cobra.Command {
 	var (
+		box     string
 		dataset string
 		force   bool
 	)
@@ -29,8 +30,9 @@ func New(ctx context.Context) *cobra.Command {
 		Short: "Initialize profile configuration directory and config.json",
 		Long: `Initializes the active profile directory with a config.json configuration file.
 
-Allows configuring an optional default dataset. If the configuration already exists,
-the command fails unless -f/--force is provided to overwrite it.`,
+The --box flag applies service endpoint presets (prod, staging, sandbox) by configuring
+the concrete service URLs (Userz, Decsuite, Tfinfer). An optional default dataset can also
+be specified. If the configuration already exists, the command fails unless -f/--force is provided.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c := cmd.Context()
 			if c == nil {
@@ -39,6 +41,11 @@ the command fails unless -f/--force is provided to overwrite it.`,
 
 			profileFlag, _ := cmd.Flags().GetString("profile")
 			profile := cliconfig.ResolveProfile(profileFlag, c)
+
+			boxUrls, err := cliconfig.BoxPresetUrls(box)
+			if err != nil {
+				return err
+			}
 
 			pDir, err := cliconfig.EnsureProfileDir(profile, c)
 			if err != nil {
@@ -55,6 +62,9 @@ the command fails unless -f/--force is provided to overwrite it.`,
 
 			cfg := &cliconfig.Config{
 				DefaultDataset: strings.TrimSpace(dataset),
+				UserzUrl:       boxUrls.Userz,
+				DecsuiteUrl:    boxUrls.Decsuite,
+				TfinferUrl:     boxUrls.Tfinfer,
 			}
 
 			if err := cliconfig.SaveConfig(profile, cfg, c); err != nil {
@@ -64,6 +74,8 @@ the command fails unless -f/--force is provided to overwrite it.`,
 			logger.Info(c, "config-init", map[string]any{
 				"profile": profile,
 				"path":    configPath,
+				"box":     box,
+				"userz":   boxUrls.Userz,
 			})
 
 			fmt.Fprintf(cmd.OutOrStdout(), "Initialized profile %q at %s\n", profile, configPath)
@@ -71,6 +83,7 @@ the command fails unless -f/--force is provided to overwrite it.`,
 		},
 	}
 
+	cmd.Flags().StringVar(&box, "box", cliconfig.BoxProd, "Target box environment preset to set service URLs (prod|staging|sandbox)")
 	cmd.Flags().StringVar(&dataset, "dataset", "", "Default dataset identifier for this profile")
 	cmd.Flags().BoolVarP(&force, "force", "f", false, "Overwrite existing configuration file if present")
 

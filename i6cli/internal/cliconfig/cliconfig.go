@@ -18,6 +18,15 @@ import (
 const (
 	// DefaultProfile is the fallback profile name if none is explicitly specified.
 	DefaultProfile = "main"
+
+	// BoxProd selects the production service endpoints.
+	BoxProd = "prod"
+
+	// BoxStaging selects the staging service endpoints.
+	BoxStaging = "staging"
+
+	// BoxSandbox selects the sandbox service endpoints.
+	BoxSandbox = "sandbox"
 )
 
 var (
@@ -47,6 +56,23 @@ type Config struct {
 	UserzUrl       string `json:"userz_url,omitempty"`
 	DecsuiteUrl    string `json:"decsuite_url,omitempty"`
 	TfinferUrl     string `json:"tfinfer_url,omitempty"`
+}
+
+// BoxPresetUrls maps a box preset name ("prod", "staging", "sandbox") to its corresponding concrete UrlOptions.
+func BoxPresetUrls(box string) (config.UrlOptions, error) {
+	switch strings.ToLower(strings.TrimSpace(box)) {
+	case "", BoxProd:
+		return config.DefaultUrlOptions, nil
+	case BoxStaging:
+		return config.StagingUrlOptions, nil
+	case BoxSandbox:
+		return config.SandboxUrlOptions, nil
+	default:
+		return config.UrlOptions{}, exitcode.New(
+			exitcode.Usage,
+			fmt.Sprintf("invalid box environment %q: expected prod, staging, or sandbox", box),
+		)
+	}
 }
 
 // ResolveProfile determines the active profile name using flag, configz property, and default precedence.
