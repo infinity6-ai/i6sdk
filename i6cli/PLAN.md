@@ -76,7 +76,9 @@ Controls the authenticated human user session in `tokens.db`:
 - `i6 tokens user get`: Displays user profile metadata (user_id, tenant, expiration; omits tokens).
 - `i6 tokens user expose`: Prints raw active JWT access token to stdout (for curl / scripts).
 - `i6 tokens user export`: Prints the active user refresh token to stdout (for backup or environment transfer).
+- `i6 tokens user inspect [<token-string | ->]`: Performs deep cryptographic and claim diagnostics on a User JWT access token via `/api/userz/token/check`. If `<token-string>` is omitted, audits the active profile's stored user session.
 - `i6 tokens user attenuation --dataset <dataset> [--grants <grants>] [--exp <seconds>] [--solution <solution>]`: Mints an in-flight attenuated child access token for `--dataset` with reduced permissions and shortened TTL.
+- `i6 tokens user reqsign --dataset <dataset> --method <METHOD> --path <PATH> [--body <str|->] [--token <token-string | ->]`: Derives a sender-constrained Proof-of-Possession dataset token from a user session (or arbitrary user JWT) and signs the request envelope (`X-I6-Signature` header) ready for curl or downstream HTTP calls.
 - `i6 tokens user delete`: Revokes session on server and removes credentials from `tokens.db` (logout).
 
 #### 2. Machine Robot Root Credential (`i6 tokens dataset-refresh`)
@@ -387,6 +389,8 @@ In `.github/workflows/release.yml`:
   - [x] Implement `i6 auth logout` and `i6 auth status`.
   - [x] Implement `i6 tokens check [--refreshed]` (audits all credentials stored in active profile's tokens.db via /api/userz/token/check).
   - [x] Implement `i6 tokens user [get|expose|export|attenuation|delete]` (human user session root credential; attenuation mints attenuated dataset token).
+    - [ ] `inspect [<token|->]` (deep diagnostics of user JWT or active session)
+    - [ ] `reqsign --dataset <dataset> --method <METHOD> --path <PATH>` (derives sender-constrained PoP token and signs request envelope)
   - [x] Implement `i6 tokens dataset-refresh [get|export|set|attenuation|delete]` (machine robot root credential; attenuation mints attenuated dataset token):
     - `bounded [sign-request]` (uses stored robot key to mint PoP token or sign HTTP requests)
   - [x] Implement `i6 tokens dataset-access [--dataset <dataset>]` (multiple derived cached tokens):
