@@ -79,12 +79,12 @@ func TestUnitCmdStore(t *testing.T) {
 
 		outBuf := new(bytes.Buffer)
 		cmd.SetOut(outBuf)
-		cmd.SetArgs([]string{"create", "--name", "New Backup Store", "-p", profile})
+		cmd.SetArgs([]string{"create", "--id", "store-new", "-p", profile})
 
 		err := cmd.ExecuteContext(ctx)
 		require.NoError(t, err)
 
 		out := outBuf.String()
-		require.Contains(t, out, "Successfully registered store \"New Backup Store\"")
+		require.Contains(t, out, "Successfully registered store \"store-new\" (id: \"store-new\")")
 	})
 }

@@ -3,6 +3,7 @@ package cmdstore
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/infinity6-ai/gox/commonz/logz"
 	"github.com/infinity6-ai/gox/commonz/validation/checked"
@@ -13,6 +14,7 @@ import (
 	"github.com/infinity6-ai/i6sdk/i6cli/internal/outfmt"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/dszstore"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/solutiondomain"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/storeid"
 	"github.com/spf13/cobra"
 )
@@ -138,13 +140,14 @@ func newListCmd(ctx context.Context) *cobra.Command {
 
 func newCreateCmd(ctx context.Context) *cobra.Command {
 	var (
-		datasetFlag string
-		nameFlag    string
-		idFlag      string
+		datasetFlag   string
+		idFlag        string
+		nameFlag      string
+		solutionsFlag string
 	)
 
 	cmd := &cobra.Command{
-		Use:   "create --name <name>",
+		Use:   "create --id <id> [--name <name>] [--solutions <solution_domain,...>]",
 		Short: "Register a new cloud store in a dataset",
 		SilenceUsage:  true,
 		SilenceErrors: true,
@@ -154,8 +157,14 @@ func newCreateCmd(ctx context.Context) *cobra.Command {
 				c = ctx
 			}
 
+			idFlag = strings.TrimSpace(idFlag)
+			if idFlag == "" {
+				return exitcode.New(exitcode.Usage, "--id is required")
+			}
+
+			nameFlag = strings.TrimSpace(nameFlag)
 			if nameFlag == "" {
-				return exitcode.New(exitcode.Usage, "--name is required")
+				nameFlag = idFlag
 			}
 
 			profileFlag, _ := cmd.Flags().GetString("profile")
@@ -173,10 +182,24 @@ func newCreateCmd(ctx context.Context) *cobra.Command {
 			}
 
 			var stId storeid.StoreId
-			if idFlag != "" {
-				if err := checked.Set(&stId, idFlag); err != nil {
-					return exitcode.Wrap(exitcode.Usage, fmt.Errorf("invalid store id %q: %w", idFlag, err))
+			if err := checked.Set(&stId, idFlag); err != nil {
+				return exitcode.Wrap(exitcode.Usage, fmt.Errorf("invalid store id %q: %w", idFlag, err))
+			}
+
+			var solDomains []solutiondomain.SolutionDomain
+			for _, s := range strings.Split(solutionsFlag, ",") {
+				s = strings.TrimSpace(s)
+				if s == "" {
+					continue
 				}
+				sd, err := solutiondomain.ParseString(s)
+				if err != nil {
+					return exitcode.Wrap(exitcode.Usage, fmt.Errorf("invalid solution domain %q (expected format like 'relevance_fashion'): %w", s, err))
+				}
+				solDomains = append(solDomains, sd)
+			}
+			if len(solDomains) == 0 {
+				solDomains = append(solDomains, solutiondomain.MustParseString("relevance_fashion"))
 			}
 
 			cli, err := cliconfig.NewClient(profile, c)
@@ -191,8 +214,9 @@ func newCreateCmd(ctx context.Context) *cobra.Command {
 					},
 					Payload: &dszapistorecreate.ReqPayload{
 						Store: dszstore.DszStore{
-							Id:   stId,
-							Name: nameFlag,
+							Id:              stId,
+							Name:            nameFlag,
+							SolutionDomains: solDomains,
 						},
 					},
 				},
@@ -206,14 +230,16 @@ func newCreateCmd(ctx context.Context) *cobra.Command {
 				return exitcode.Wrap(exitcode.General, fmt.Errorf("server returned error %d creating store", status))
 			}
 
-			fmt.Fprintf(cmd.OutOrStdout(), "Successfully registered store %q in dataset %q\n", nameFlag, dsName)
+			fmt.Fprintf(cmd.OutOrStdout(), "Successfully registered store %q (id: %q) in dataset %q\n", nameFlag, idFlag, dsName)
 			return nil
 		},
 	}
 
 	cmd.Flags().StringVar(&datasetFlag, "dataset", "", "Target dataset identifier")
-	cmd.Flags().StringVar(&nameFlag, "name", "", "Human-readable name of the store")
-	cmd.Flags().StringVar(&idFlag, "id", "", "Optional custom store ID")
+	cmd.Flags().StringVar(&idFlag, "id", "", "Unique store ID (required)")
+	cmd.Flags().StringVar(&nameFlag, "name", "", "Human-readable name of the store (defaults to store ID)")
+	cmd.Flags().StringVar(&solutionsFlag, "solutions", "relevance_fashion", "Comma-separated solution domains (e.g. 'relevance_fashion')")
+	_ = cmd.MarkFlagRequired("id")
 
 	return cmd
 }
