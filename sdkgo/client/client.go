@@ -25,6 +25,23 @@ import (
 
 type authSkipKey struct{}
 
+// WithAuthSkip returns a context instructing client auth filters to bypass automatic token injection.
+func WithAuthSkip(ctx context.Context) context.Context {
+	return context.WithValue(ctx, authSkipKey{}, true)
+}
+
+func isAuthBypassPath(pathStr string) bool {
+	clean := strings.Trim(pathStr, "/")
+	return strings.HasPrefix(clean, "api/userz/refresh-") ||
+		strings.HasPrefix(clean, "api/userz/auth/device/") ||
+		strings.HasPrefix(clean, "api/userz/auth/signin/") ||
+		strings.HasPrefix(clean, "api/userz/auth/signup/") ||
+		strings.HasPrefix(clean, "api/userz/auth/exchange") ||
+		strings.HasPrefix(clean, "api/userz/auth/google") ||
+		strings.HasPrefix(clean, "api/userz/auth/password/reset") ||
+		strings.HasPrefix(clean, "api/userz/token/check")
+}
+
 func extractDatasetFromPath(path string) string {
 	parts := strings.Split(strings.Trim(path, "/"), "/")
 	for i, p := range parts {
@@ -98,14 +115,15 @@ func New(ctx context.Context, opts config.Options) (*I6Client, error) {
 
 	// 2. Auth filter for bearer token injection (supports dynamic user and dataset tokens)
 	authFilter := func(ctx context.Context, req *httpzrequest.Req, next httpzclient.Handler) (*httpzclient.Resp, error) {
-		if ctx.Value(authSkipKey{}) != true && req.Headers.Get("Authorization") == "" {
+		var pathStr string
+		if req.Path != nil {
+			pathStr = req.Path.String()
+		} else if req.Url != nil && req.Url.Path != nil {
+			pathStr = req.Url.Path.String()
+		}
+
+		if ctx.Value(authSkipKey{}) != true && !isAuthBypassPath(pathStr) && req.Headers.Get("Authorization") == "" {
 			var tokenToInject string
-			var pathStr string
-			if req.Path != nil {
-				pathStr = req.Path.String()
-			} else if req.Url != nil && req.Url.Path != nil {
-				pathStr = req.Url.Path.String()
-			}
 
 			if ds := extractDatasetFromPath(pathStr); ds != "" && c.tokens != nil {
 				if dsTok, err := c.tokens.GetValidDatasetAccessToken(ctx, ds); err == nil && dsTok != "" {

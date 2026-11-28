@@ -2,12 +2,19 @@ package cmdkeys
 
 import (
 	"context"
+	"crypto/ed25519"
+	"crypto/sha256"
+	"crypto/x509"
+	"encoding/base64"
+	"encoding/hex"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/infinity6-ai/gox/commonz/logz"
+	"github.com/infinity6-ai/gox/commonz/pathz"
 	"github.com/infinity6-ai/gox/commonz/validation/checked"
 	"github.com/infinity6-ai/i6sdk/apiuserz/userapidatasettokenrefreshcreate"
 	"github.com/infinity6-ai/i6sdk/apiuserz/userapidatasettokenrefreshdelete"
@@ -18,6 +25,7 @@ import (
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/lakedsz"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/dsz/solution"
 	"github.com/infinity6-ai/i6sdk/sdkcorez/grants"
+	"github.com/infinity6-ai/i6sdk/sdkcorez/reqsign"
 	"github.com/spf13/cobra"
 )
 
@@ -39,6 +47,7 @@ runners, background workers, and automation services to authenticate as a robot 
 
 	cmd.AddCommand(newListCmd(ctx))
 	cmd.AddCommand(newCreateCmd(ctx))
+	cmd.AddCommand(newReqsignCmd(ctx))
 	cmd.AddCommand(newDeleteCmd(ctx))
 
 	return cmd
@@ -324,6 +333,168 @@ Store it securely or pass --save to automatically persist it to the active profi
 	return cmd
 }
 
+func newReqsignCmd(ctx context.Context) *cobra.Command {
+	var (
+		datasetFlag  string
+		method       string
+		path         string
+		body         string
+		keyFlag      string
+		tokenFlag    string
+		unsignedBody bool
+	)
+
+	cmd := &cobra.Command{
+		Use:   "reqsign --method <METHOD> --path <PATH> [--dataset <dataset>] [--key <privkey|->]",
+		Short: "Generate Ed25519 request signature envelope (X-I6-Signature header)",
+		Long: `Generates a 121-byte Ed25519 request signature envelope (X-I6-Signature header)
+for authenticating downstream HTTP microservice calls.
+
+If --key is provided (or '-' via stdin), signs statelessly using that private key.
+If omitted, signs using the active profile's stored machine robot key.`,
+		SilenceUsage:  true,
+		SilenceErrors: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			c := cmd.Context()
+			if c == nil {
+				c = ctx
+			}
+
+			if strings.TrimSpace(method) == "" || strings.TrimSpace(path) == "" {
+				return exitcode.New(exitcode.Usage, "--method and --path are required")
+			}
+
+			profileFlag, _ := cmd.Flags().GetString("profile")
+			profile := cliconfig.ResolveProfile(profileFlag, c)
+			cfg, _ := cliconfig.ResolveConfig(profile, c)
+
+			dsName, err := cliconfig.ResolveDataset(datasetFlag, cfg, c)
+			if err != nil {
+				return err
+			}
+
+			cli, err := cliconfig.NewClient(profile, c)
+			if err != nil {
+				return err
+			}
+
+			var privKey ed25519.PrivateKey
+			var keyInput string
+
+			if keyFlag != "" {
+				if keyFlag == "-" {
+					data, err := io.ReadAll(cmd.InOrStdin())
+					if err != nil {
+						return fmt.Errorf("failed to read key from stdin: %w", err)
+					}
+					keyInput = strings.TrimSpace(string(data))
+				} else {
+					keyInput = strings.TrimSpace(keyFlag)
+				}
+			}
+
+			if keyInput != "" {
+				pk, err := parseEd25519Key(keyInput)
+				if err != nil {
+					return exitcode.Wrap(exitcode.Usage, fmt.Errorf("invalid ed25519 key: %w", err))
+				}
+				privKey = pk
+			} else {
+				rfKey, err := cli.Tokens().GetDatasetRefreshToken(c, dsName)
+				if err != nil || strings.TrimSpace(rfKey) == "" {
+					return exitcode.New(exitcode.NotFound, fmt.Sprintf("no robot refresh key found for dataset %q in profile %q. Provide --key or set via 'i6 tokens dataset-refresh set ...'", dsName, profile))
+				}
+				pk, err := parseEd25519Key(rfKey)
+				if err != nil {
+					return exitcode.Wrap(exitcode.General, fmt.Errorf("failed to parse stored robot key: %w", err))
+				}
+				privKey = pk
+			}
+
+			tok := strings.TrimSpace(tokenFlag)
+			if tok == "" {
+				t, err := cli.Tokens().GetValidDatasetAccessToken(c, dsName)
+				if err != nil {
+					return exitcode.Wrap(exitcode.Auth, fmt.Errorf("failed to acquire dataset access token for %q: %w", dsName, err))
+				}
+				tok = t
+			}
+
+			var bodyBytes []byte
+			if body == "-" {
+				data, err := io.ReadAll(cmd.InOrStdin())
+				if err != nil {
+					return fmt.Errorf("failed to read body from stdin: %w", err)
+				}
+				bodyBytes = data
+			} else if body != "" {
+				bodyBytes = []byte(body)
+			}
+
+			parsedPath, err := pathz.Parse(strings.TrimSpace(path))
+			if err != nil {
+				return exitcode.Wrap(exitcode.Usage, fmt.Errorf("invalid path %q: %w", path, err))
+			}
+
+			sigData := reqsign.RequestSignatureData{
+				AccessToken: tok,
+				Method:      strings.ToUpper(strings.TrimSpace(method)),
+				Path:        parsedPath,
+			}
+
+			opts := reqsign.RequestSignatureOptions{
+				PrivKey:      privKey,
+				UnsignedBody: unsignedBody,
+			}
+			if !unsignedBody {
+				hash := sha256.Sum256(bodyBytes)
+				sigData.BodyHash = hash[:]
+			}
+
+			sigHeader, err := reqsign.BuildRequestSignature(sigData, opts)
+			if err != nil {
+				return exitcode.Wrap(exitcode.General, fmt.Errorf("failed to build request signature: %w", err))
+			}
+
+			formatFlag, _ := cmd.Flags().GetString("format")
+			format, err := outfmt.ParseFormat(formatFlag, outfmt.FormatRaw)
+			if err != nil {
+				return err
+			}
+
+			data := outfmt.Data{
+				Headers: []string{"Property", "Value"},
+				Rows: [][]string{
+					{"Dataset", dsName},
+					{"Method", strings.ToUpper(strings.TrimSpace(method))},
+					{"Path", strings.TrimSpace(path)},
+					{"X-I6-Signature", sigHeader},
+				},
+				QuietId: []string{sigHeader},
+				Raw:     sigHeader,
+				JSON: map[string]string{
+					"dataset":        dsName,
+					"method":         strings.ToUpper(strings.TrimSpace(method)),
+					"path":           strings.TrimSpace(path),
+					"x_i6_signature": sigHeader,
+				},
+			}
+
+			return outfmt.Render(cmd.OutOrStdout(), format, data)
+		},
+	}
+
+	cmd.Flags().StringVar(&datasetFlag, "dataset", "", "Target dataset identifier (or default_dataset / I6_DATASET)")
+	cmd.Flags().StringVar(&method, "method", "GET", "HTTP request method (GET, POST, PUT, DELETE)")
+	cmd.Flags().StringVar(&path, "path", "", "HTTP request path")
+	cmd.Flags().StringVar(&body, "body", "", "HTTP request body (or '-' for stdin)")
+	cmd.Flags().StringVar(&keyFlag, "key", "", "Optional Ed25519 private key (or '-' for stdin)")
+	cmd.Flags().StringVar(&tokenFlag, "token", "", "Optional dataset access token to bind")
+	cmd.Flags().BoolVar(&unsignedBody, "unsigned-body", false, "Generate envelope permitting any body payload")
+
+	return cmd
+}
+
 func newDeleteCmd(ctx context.Context) *cobra.Command {
 	var datasetFlag string
 
@@ -407,4 +578,30 @@ func formatDataset(d lakedsz.Dataset) string {
 		return opt.Must()
 	}
 	return ""
+}
+
+func parseEd25519Key(keyInput string) (ed25519.PrivateKey, error) {
+	keyInput = strings.TrimSpace(keyInput)
+	rawBytes, err := base64.RawURLEncoding.DecodeString(strings.TrimRight(keyInput, "="))
+	if err != nil {
+		rawBytes, err = base64.StdEncoding.DecodeString(keyInput)
+		if err != nil {
+			rawBytes, err = hex.DecodeString(keyInput)
+			if err != nil {
+				rawBytes = []byte(keyInput)
+			}
+		}
+	}
+	if len(rawBytes) == ed25519.PrivateKeySize {
+		return ed25519.PrivateKey(rawBytes), nil
+	}
+	if len(rawBytes) == ed25519.SeedSize {
+		return ed25519.NewKeyFromSeed(rawBytes), nil
+	}
+	if parsed, err := x509.ParsePKCS8PrivateKey(rawBytes); err == nil {
+		if edKey, ok := parsed.(ed25519.PrivateKey); ok {
+			return edKey, nil
+		}
+	}
+	return nil, fmt.Errorf("invalid ed25519 key length: expected 32 (seed) or 64 bytes, got %d", len(rawBytes))
 }

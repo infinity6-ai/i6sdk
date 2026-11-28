@@ -3,6 +3,7 @@ package cmdauth
 import (
 	"context"
 
+	"github.com/infinity6-ai/i6sdk/i6cli/internal/cmd/cmdauth/cmdinspect"
 	"github.com/infinity6-ai/i6sdk/i6cli/internal/cmd/cmdauth/cmdlogin"
 	"github.com/infinity6-ai/i6sdk/i6cli/internal/cmd/cmdauth/cmdlogout"
 	"github.com/infinity6-ai/i6sdk/i6cli/internal/cmd/cmdauth/cmdstatus"
@@ -21,6 +22,7 @@ func New(ctx context.Context) *cobra.Command {
 	cmd.AddCommand(cmdlogin.New(ctx))
 	cmd.AddCommand(cmdtoken.New(ctx))
 	cmd.AddCommand(cmdstatus.New(ctx))
+	cmd.AddCommand(cmdinspect.New(ctx))
 	cmd.AddCommand(cmdlogout.New(ctx))
 
 	return cmd

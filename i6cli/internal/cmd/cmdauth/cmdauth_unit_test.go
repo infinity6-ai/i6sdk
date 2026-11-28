@@ -24,6 +24,7 @@ func TestUnitCmdAuth(t *testing.T) {
 		require.True(t, subcommands["login"])
 		require.True(t, subcommands["token"])
 		require.True(t, subcommands["status"])
+		require.True(t, subcommands["inspect"])
 		require.True(t, subcommands["logout"])
 	})
 
@@ -40,6 +41,7 @@ func TestUnitCmdAuth(t *testing.T) {
 		require.Contains(t, out, "login")
 		require.Contains(t, out, "token")
 		require.Contains(t, out, "status")
+		require.Contains(t, out, "inspect")
 		require.Contains(t, out, "logout")
 	})
 }

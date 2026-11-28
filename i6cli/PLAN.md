@@ -50,6 +50,7 @@ Commands follow modern CLI standards (`i6 <domain> <action> [flags]`):
   - **Standalone Dataset Bearer Token**: Saved as a non-refreshable dataset access token in `i6_ds:<dataset>`.
 - `i6 auth logout`: Revokes session token family on server via `UserAuthLogout` and wipes local credentials from active profile.
 - `i6 auth status` / `i6 auth me`: Displays active authentication identity (User Session vs. Robot Service Account vs. Standalone Bearer vs. Unauthenticated), tenant, dataset, and token expiration.
+- `i6 auth inspect [<token-string | ->]`: Performs deep cryptographic and claims diagnostics on a User JWT access token via `/api/userz/token/check`. If `<token-string>` is omitted, audits the active profile's stored user session access token.
 
 ### B. Local Profile Token Management (`i6 tokens`)
 
@@ -76,9 +77,7 @@ Controls the authenticated human user session in `tokens.db`:
 - `i6 tokens user get`: Displays user profile metadata (user_id, tenant, expiration; omits tokens).
 - `i6 tokens user expose`: Prints raw active JWT access token to stdout (for curl / scripts).
 - `i6 tokens user export`: Prints the active user refresh token to stdout (for backup or environment transfer).
-- `i6 tokens user inspect [<token-string | ->]`: Performs deep cryptographic and claim diagnostics on a User JWT access token via `/api/userz/token/check`. If `<token-string>` is omitted, audits the active profile's stored user session.
 - `i6 tokens user attenuation --dataset <dataset> [--grants <grants>] [--exp <seconds>] [--solution <solution>]`: Mints an in-flight attenuated child access token for `--dataset` with reduced permissions and shortened TTL.
-- `i6 tokens user reqsign --dataset <dataset> --method <METHOD> --path <PATH> [--body <str|->] [--token <token-string | ->]`: Derives a sender-constrained Proof-of-Possession dataset token from a user session (or arbitrary user JWT) and signs the request envelope (`X-I6-Signature` header) ready for curl or downstream HTTP calls.
 - `i6 tokens user delete`: Revokes session on server and removes credentials from `tokens.db` (logout).
 
 #### 2. Machine Robot Root Credential (`i6 tokens dataset-refresh`)
@@ -124,6 +123,7 @@ Pure in-memory cryptographic and token exchange operations that never read or wr
 Server-side key management where a dataset can have multiple registered machine robot keys with distinct JTIs:
 - `i6 dataset keys list`: Calls server API (`/api/userz/dataset-token-refresh/list`) to list all registered machine robot keys for the dataset (showing JTI, solution, grants, expiration; safely omits private keys).
 - `i6 dataset keys create [--solution <sol>] [--grants <g>] [--annotation <text>] [--save]`: Calls server API (`/api/userz/dataset-token-refresh/create`) to register a new machine robot Ed25519 key on the server. Dumps the one-time private key artifact; with `--save`, automatically stores it into active profile's `tokens.db`.
+- `i6 dataset keys reqsign --dataset <dataset> --method <METHOD> --path <PATH> [--body <str|->] [--key <privkey|->]`: Generates the 121-byte Ed25519 request signature envelope (`X-I6-Signature` header) using the stored robot key (or an arbitrary private key).
 - `i6 dataset keys delete <jti>`: Calls server API (`/api/userz/dataset-token-refresh/delete`) to revoke a machine robot key on the server.
 
 ### D. Data Ingestion (`i6 ingest`)
@@ -287,11 +287,12 @@ i6cli/
 │   └── cmdcli_unit_test.go
 └── internal/
     ├── cmd/                      # Command taxonomy packages (internal)
-    │   ├── cmdauth/              # i6 auth (cmdlogin, cmdtoken, cmdlogout, cmdstatus)
+    │   ├── cmdauth/              # i6 auth (cmdlogin, cmdtoken, cmdlogout, cmdstatus, cmdinspect)
     │   │   ├── cmdlogin/
     │   │   ├── cmdtoken/
     │   │   ├── cmdlogout/
-    │   │   └── cmdstatus/
+    │   │   ├── cmdstatus/
+    │   │   └── cmdinspect/
     │   ├── cmdconfig/            # i6 config (cmdinit, cmdlist, cmdshow, cmdset)
     │   │   ├── cmdinit/
     │   │   ├── cmdlist/
@@ -386,11 +387,11 @@ In `.github/workflows/release.yml`:
   - [x] Implement `i6 config init [--box prod|staging|sandbox] [--dataset <dataset>] [-f/--force]`, `i6 config list`, `i6 config show`, and `i6 config set <k> <v>`.
   - [x] Implement `i6 auth login` (Device code flow with polling; enforces mutual exclusivity).
   - [x] Implement `i6 auth token [<token-string> | -] [--offline]` (universal token ingestion with auto-detection).
+  - [x] Implement `i6 auth inspect [<token-string> | -] [--refreshed]` (deep diagnostics of arbitrary user JWT or active session).
   - [x] Implement `i6 auth logout` and `i6 auth status`.
   - [x] Implement `i6 tokens check [--refreshed]` (audits all credentials stored in active profile's tokens.db via /api/userz/token/check).
+  - [x] Implement `i6 tokens inspect [--refreshed]` (deep diagnostic inspection of all profile credentials).
   - [x] Implement `i6 tokens user [get|expose|export|attenuation|delete]` (human user session root credential; attenuation mints attenuated dataset token).
-    - [ ] `inspect [<token|->]` (deep diagnostics of user JWT or active session)
-    - [ ] `reqsign --dataset <dataset> --method <METHOD> --path <PATH>` (derives sender-constrained PoP token and signs request envelope)
   - [x] Implement `i6 tokens dataset-refresh [get|export|set|attenuation|delete]` (machine robot root credential; attenuation mints attenuated dataset token):
     - `bounded [sign-request]` (uses stored robot key to mint PoP token or sign HTTP requests)
   - [x] Implement `i6 tokens dataset-access [--dataset <dataset>]` (multiple derived cached tokens):
@@ -411,6 +412,7 @@ In `.github/workflows/release.yml`:
   - [x] Implement `i6 dataset keys [--dataset <dataset>]` for remote server machine robot key management:
     - [x] `list` (lists all registered machine robot keys by JTI on the server)
     - [x] `create [--solution <sol>] [--grants <g>] [--annotation <text>] [--save]` (registers machine key on server)
+    - [x] `reqsign --dataset <dataset> --method <METHOD> --path <PATH>` (signs request using machine robot key)
     - [x] `delete <jti>` (revokes machine robot key on the server by JTI)
   - [ ] Implement `i6 ingest upload` with multi-stream parallel worker execution and live terminal progress bars (TTY-aware fallback).
   - [ ] Implement `i6 ingest get-url` and `summary`.

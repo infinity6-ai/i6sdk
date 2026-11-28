@@ -2,9 +2,12 @@ package cmdkeys_test
 
 import (
 	"bytes"
+	"crypto/ed25519"
+	"encoding/base64"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -170,5 +173,41 @@ func TestUnitCmdKeys(t *testing.T) {
 		require.NoError(t, err)
 		require.True(t, deleted)
 		require.Contains(t, outBuf.String(), "Successfully revoked machine robot key")
+	})
+
+	t.Run("Reqsign generates valid signature header with provided key and token", func(t *testing.T) {
+		ctx := cliconfig.WithConfigDir(t.Context(), t.TempDir())
+		profile := "keys-reqsign"
+		require.NoError(t, cliconfig.SaveConfig(profile, &cliconfig.Config{
+			DefaultDataset: "ds-keys-test",
+		}, ctx))
+
+		_, priv, err := ed25519.GenerateKey(nil)
+		require.NoError(t, err)
+
+		privB64 := base64.RawURLEncoding.EncodeToString(priv)
+
+		cmd := cmdkeys.New(ctx)
+		cmd.PersistentFlags().StringP("profile", "p", profile, "Profile")
+		cmd.PersistentFlags().String("format", "raw", "Format")
+
+		outBuf := new(bytes.Buffer)
+		cmd.SetOut(outBuf)
+		cmd.SetArgs([]string{
+			"reqsign",
+			"--method", "GET",
+			"--path", "/api/datasetmanager/dataset/ds-keys-test/store/list",
+			"--key", privB64,
+			"--token", "test-bound-access-token",
+			"-p", profile,
+		})
+
+		err = cmd.ExecuteContext(ctx)
+		require.NoError(t, err)
+
+		sig := strings.TrimSpace(outBuf.String())
+		require.NotEmpty(t, sig)
+		require.Contains(t, sig, ".")
+		require.True(t, strings.HasSuffix(sig, ".test-bound-access-token"))
 	})
 }
