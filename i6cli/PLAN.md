@@ -376,9 +376,9 @@ In `.github/workflows/release.yml`:
 
 - [ ] **Phase 2: Authentication & Local Profile Tokens (`auth`, `tokens`, `config`)**
   - [x] Implement `i6 config init [--dataset <dataset>] [-f/--force]`, `i6 config show`, and `i6 config set <k> <v>`.
-  - [ ] Implement `i6 auth login` (Device code flow with polling; enforces mutual exclusivity).
-  - [ ] Implement `i6 auth token [<token-string> | -] [--offline]` (universal token ingestion with auto-detection).
-  - [ ] Implement `i6 auth logout` and `i6 auth status`.
+  - [x] Implement `i6 auth login` (Device code flow with polling; enforces mutual exclusivity).
+  - [x] Implement `i6 auth token [<token-string> | -] [--offline]` (universal token ingestion with auto-detection).
+  - [x] Implement `i6 auth logout` and `i6 auth status`.
   - [ ] Implement `i6 tokens check [--refreshed]` (audits all credentials stored in active profile's tokens.db via /api/userz/token/check).
   - [ ] Implement `i6 tokens user [get|expose|export|attenuation|delete]` (human user session root credential; attenuation mints attenuated dataset token).
   - [ ] Implement `i6 tokens dataset-refresh [get|export|set|attenuation|delete]` (machine robot root credential; attenuation mints attenuated dataset token):
