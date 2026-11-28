@@ -16,13 +16,8 @@ import (
 )
 
 func TestUnitCmdLogin(t *testing.T) {
-	ctx := t.Context()
-
 	t.Run("Fails when machine robot key already exists in profile", func(t *testing.T) {
-		tmpDir := t.TempDir()
-		rev, err := cliconfig.PropConfigDir.Set(ctx, "%s", tmpDir)
-		require.NoError(t, err)
-		defer rev.Close()
+		ctx := cliconfig.WithConfigDir(t.Context(), t.TempDir())
 
 		profile := "worker-profile"
 		cli, err := cliconfig.NewClient(profile, ctx)
@@ -72,10 +67,7 @@ func TestUnitCmdLogin(t *testing.T) {
 		}))
 		defer srv.Close()
 
-		tmpDir := t.TempDir()
-		rev, err := cliconfig.PropConfigDir.Set(ctx, "%s", tmpDir)
-		require.NoError(t, err)
-		defer rev.Close()
+		ctx := cliconfig.WithConfigDir(t.Context(), t.TempDir())
 
 		profile := "human-user"
 		cfg := &cliconfig.Config{UserzUrl: srv.URL}
@@ -87,7 +79,7 @@ func TestUnitCmdLogin(t *testing.T) {
 		cmd.SetOut(outBuf)
 		cmd.SetArgs([]string{"-p", profile})
 
-		err = cmd.ExecuteContext(ctx)
+		err := cmd.ExecuteContext(ctx)
 		require.NoError(t, err)
 
 		out := outBuf.String()
@@ -127,10 +119,7 @@ func TestUnitCmdLogin(t *testing.T) {
 		}))
 		defer srv.Close()
 
-		tmpDir := t.TempDir()
-		rev, err := cliconfig.PropConfigDir.Set(ctx, "%s", tmpDir)
-		require.NoError(t, err)
-		defer rev.Close()
+		ctx := cliconfig.WithConfigDir(t.Context(), t.TempDir())
 
 		profile := "deny-profile"
 		require.NoError(t, cliconfig.SaveConfig(profile, &cliconfig.Config{UserzUrl: srv.URL}, ctx))
@@ -139,7 +128,7 @@ func TestUnitCmdLogin(t *testing.T) {
 		cmd.PersistentFlags().StringP("profile", "p", profile, "Profile")
 		cmd.SetArgs([]string{"-p", profile})
 
-		err = cmd.ExecuteContext(ctx)
+		err := cmd.ExecuteContext(ctx)
 		require.Error(t, err)
 		require.Equal(t, exitcode.Auth, exitcode.Code(err))
 		require.Contains(t, err.Error(), "denied")

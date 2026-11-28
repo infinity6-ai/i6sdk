@@ -12,8 +12,6 @@ import (
 )
 
 func TestUnitCmdInit(t *testing.T) {
-	ctx := t.Context()
-
 	type testScenario struct {
 		args        []string
 		wantErrCode int
@@ -23,10 +21,7 @@ func TestUnitCmdInit(t *testing.T) {
 
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
-		tmpDir := t.TempDir()
-		rev, err := cliconfig.PropConfigDir.Set(ctx, "%s", tmpDir)
-		require.NoError(t, err)
-		defer rev.Close()
+		ctx := cliconfig.WithConfigDir(t.Context(), t.TempDir())
 
 		cmd := cmdinit.New(ctx)
 		cmd.PersistentFlags().StringP("profile", "p", "main", "Profile")
@@ -80,10 +75,7 @@ func TestUnitCmdInit(t *testing.T) {
 	})
 
 	t.Run("Fails when already exists without force flag", func(t *testing.T) {
-		tmpDir := t.TempDir()
-		rev, err := cliconfig.PropConfigDir.Set(ctx, "%s", tmpDir)
-		require.NoError(t, err)
-		defer rev.Close()
+		ctx := cliconfig.WithConfigDir(t.Context(), t.TempDir())
 
 		// First initialization succeeds
 		cmd1 := cmdinit.New(ctx)
@@ -93,7 +85,7 @@ func TestUnitCmdInit(t *testing.T) {
 		// Second initialization fails without force
 		cmd2 := cmdinit.New(ctx)
 		cmd2.PersistentFlags().StringP("profile", "p", "main", "Profile")
-		err = cmd2.ExecuteContext(ctx)
+		err := cmd2.ExecuteContext(ctx)
 		require.Error(t, err)
 		require.Equal(t, exitcode.Usage, exitcode.Code(err))
 		require.Contains(t, err.Error(), "already exists")

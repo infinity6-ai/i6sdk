@@ -10,13 +10,8 @@ import (
 )
 
 func TestUnitCmdShow(t *testing.T) {
-	ctx := t.Context()
-
 	t.Run("Shows uninitialized profile details in table format", func(t *testing.T) {
-		tmpDir := t.TempDir()
-		rev, err := cliconfig.PropConfigDir.Set(ctx, "%s", tmpDir)
-		require.NoError(t, err)
-		defer rev.Close()
+		ctx := cliconfig.WithConfigDir(t.Context(), t.TempDir())
 
 		cmd := cmdshow.New(ctx)
 		cmd.PersistentFlags().StringP("profile", "p", "main", "Profile")
@@ -25,7 +20,7 @@ func TestUnitCmdShow(t *testing.T) {
 		outBuf := new(bytes.Buffer)
 		cmd.SetOut(outBuf)
 
-		err = cmd.ExecuteContext(ctx)
+		err := cmd.ExecuteContext(ctx)
 		require.NoError(t, err)
 
 		output := outBuf.String()
@@ -36,10 +31,7 @@ func TestUnitCmdShow(t *testing.T) {
 	})
 
 	t.Run("Shows initialized profile in json format", func(t *testing.T) {
-		tmpDir := t.TempDir()
-		rev, err := cliconfig.PropConfigDir.Set(ctx, "%s", tmpDir)
-		require.NoError(t, err)
-		defer rev.Close()
+		ctx := cliconfig.WithConfigDir(t.Context(), t.TempDir())
 
 		profile := "custom-worker"
 		cfg := &cliconfig.Config{
@@ -56,7 +48,7 @@ func TestUnitCmdShow(t *testing.T) {
 		cmd.SetOut(outBuf)
 		cmd.SetArgs([]string{"-p", profile, "--format", "json"})
 
-		err = cmd.ExecuteContext(ctx)
+		err := cmd.ExecuteContext(ctx)
 		require.NoError(t, err)
 
 		output := outBuf.String()
@@ -67,10 +59,7 @@ func TestUnitCmdShow(t *testing.T) {
 	})
 
 	t.Run("Shows profile in quiet format", func(t *testing.T) {
-		tmpDir := t.TempDir()
-		rev, err := cliconfig.PropConfigDir.Set(ctx, "%s", tmpDir)
-		require.NoError(t, err)
-		defer rev.Close()
+		ctx := cliconfig.WithConfigDir(t.Context(), t.TempDir())
 
 		cmd := cmdshow.New(ctx)
 		cmd.PersistentFlags().StringP("profile", "p", "qa-profile", "Profile")
@@ -80,7 +69,7 @@ func TestUnitCmdShow(t *testing.T) {
 		cmd.SetOut(outBuf)
 		cmd.SetArgs([]string{"-p", "qa-profile", "--format", "quiet"})
 
-		err = cmd.ExecuteContext(ctx)
+		err := cmd.ExecuteContext(ctx)
 		require.NoError(t, err)
 		require.Equal(t, "qa-profile\n", outBuf.String())
 	})

@@ -10,13 +10,8 @@ import (
 )
 
 func TestUnitCmdList(t *testing.T) {
-	ctx := t.Context()
-
 	t.Run("Lists profiles in table format with active marker", func(t *testing.T) {
-		tmpDir := t.TempDir()
-		rev, err := cliconfig.PropConfigDir.Set(ctx, "%s", tmpDir)
-		require.NoError(t, err)
-		defer rev.Close()
+		ctx := cliconfig.WithConfigDir(t.Context(), t.TempDir())
 
 		require.NoError(t, cliconfig.SaveConfig("main", &cliconfig.Config{DefaultDataset: "ds-main"}, ctx))
 		require.NoError(t, cliconfig.SaveConfig("worker", &cliconfig.Config{DefaultDataset: "ds-worker"}, ctx))
@@ -29,7 +24,7 @@ func TestUnitCmdList(t *testing.T) {
 		cmd.SetOut(outBuf)
 		cmd.SetArgs([]string{"-p", "main"})
 
-		err = cmd.ExecuteContext(ctx)
+		err := cmd.ExecuteContext(ctx)
 		require.NoError(t, err)
 
 		out := outBuf.String()
@@ -42,10 +37,7 @@ func TestUnitCmdList(t *testing.T) {
 	})
 
 	t.Run("Lists profiles in quiet format", func(t *testing.T) {
-		tmpDir := t.TempDir()
-		rev, err := cliconfig.PropConfigDir.Set(ctx, "%s", tmpDir)
-		require.NoError(t, err)
-		defer rev.Close()
+		ctx := cliconfig.WithConfigDir(t.Context(), t.TempDir())
 
 		require.NoError(t, cliconfig.SaveConfig("alpha", &cliconfig.Config{}, ctx))
 		require.NoError(t, cliconfig.SaveConfig("beta", &cliconfig.Config{}, ctx))
@@ -58,7 +50,7 @@ func TestUnitCmdList(t *testing.T) {
 		cmd.SetOut(outBuf)
 		cmd.SetArgs([]string{"--format", "quiet"})
 
-		err = cmd.ExecuteContext(ctx)
+		err := cmd.ExecuteContext(ctx)
 		require.NoError(t, err)
 
 		out := outBuf.String()
@@ -67,10 +59,7 @@ func TestUnitCmdList(t *testing.T) {
 	})
 
 	t.Run("Lists profiles in json format", func(t *testing.T) {
-		tmpDir := t.TempDir()
-		rev, err := cliconfig.PropConfigDir.Set(ctx, "%s", tmpDir)
-		require.NoError(t, err)
-		defer rev.Close()
+		ctx := cliconfig.WithConfigDir(t.Context(), t.TempDir())
 
 		require.NoError(t, cliconfig.SaveConfig("test-json", &cliconfig.Config{DefaultDataset: "json-ds"}, ctx))
 
@@ -82,7 +71,7 @@ func TestUnitCmdList(t *testing.T) {
 		cmd.SetOut(outBuf)
 		cmd.SetArgs([]string{"--format", "json"})
 
-		err = cmd.ExecuteContext(ctx)
+		err := cmd.ExecuteContext(ctx)
 		require.NoError(t, err)
 
 		out := outBuf.String()

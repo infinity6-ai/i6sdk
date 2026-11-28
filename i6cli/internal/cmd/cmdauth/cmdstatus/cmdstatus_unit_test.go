@@ -12,13 +12,8 @@ import (
 )
 
 func TestUnitCmdStatus(t *testing.T) {
-	ctx := t.Context()
-
 	t.Run("Displays unauthenticated state", func(t *testing.T) {
-		tmpDir := t.TempDir()
-		rev, err := cliconfig.PropConfigDir.Set(ctx, "%s", tmpDir)
-		require.NoError(t, err)
-		defer rev.Close()
+		ctx := cliconfig.WithConfigDir(t.Context(), t.TempDir())
 
 		cmd := cmdstatus.New(ctx)
 		cmd.PersistentFlags().StringP("profile", "p", "main", "Profile")
@@ -27,7 +22,7 @@ func TestUnitCmdStatus(t *testing.T) {
 		outBuf := new(bytes.Buffer)
 		cmd.SetOut(outBuf)
 
-		err = cmd.ExecuteContext(ctx)
+		err := cmd.ExecuteContext(ctx)
 		require.NoError(t, err)
 
 		out := outBuf.String()
@@ -36,10 +31,7 @@ func TestUnitCmdStatus(t *testing.T) {
 	})
 
 	t.Run("Displays user session details", func(t *testing.T) {
-		tmpDir := t.TempDir()
-		rev, err := cliconfig.PropConfigDir.Set(ctx, "%s", tmpDir)
-		require.NoError(t, err)
-		defer rev.Close()
+		ctx := cliconfig.WithConfigDir(t.Context(), t.TempDir())
 
 		profile := "logged-in-user"
 		cli, err := cliconfig.NewClient(profile, ctx)
@@ -74,10 +66,7 @@ func TestUnitCmdStatus(t *testing.T) {
 	})
 
 	t.Run("Displays robot key identity with quiet format", func(t *testing.T) {
-		tmpDir := t.TempDir()
-		rev, err := cliconfig.PropConfigDir.Set(ctx, "%s", tmpDir)
-		require.NoError(t, err)
-		defer rev.Close()
+		ctx := cliconfig.WithConfigDir(t.Context(), t.TempDir())
 
 		profile := "service-account"
 		cli, err := cliconfig.NewClient(profile, ctx)

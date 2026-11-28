@@ -45,6 +45,20 @@ var (
 	PropDataset = configz.Create("I6_DATASET", "")
 )
 
+type contextKeyConfigDir struct{}
+type contextKeyConfigJSON struct{}
+
+// WithConfigDir attaches a base configuration directory override to the context.
+// Enables fully parallel, isolated test execution with t.Parallel() and t.TempDir().
+func WithConfigDir(ctx context.Context, dir string) context.Context {
+	return context.WithValue(ctx, contextKeyConfigDir{}, dir)
+}
+
+// WithConfigJSON attaches an inline JSON configuration override to the context.
+func WithConfigJSON(ctx context.Context, inline string) context.Context {
+	return context.WithValue(ctx, contextKeyConfigJSON{}, inline)
+}
+
 func getCtx(ctx ...context.Context) context.Context {
 	if len(ctx) > 0 && ctx[0] != nil {
 		return ctx[0]
@@ -184,6 +198,10 @@ func ResolveProfile(flagVal string, ctx ...context.Context) string {
 // ResolveBaseConfigDir returns the root CLI configuration directory ($HOME/.config/i6 or PropConfigDir).
 func ResolveBaseConfigDir(ctx ...context.Context) (string, error) {
 	c := getCtx(ctx...)
+	if override, ok := c.Value(contextKeyConfigDir{}).(string); ok && strings.TrimSpace(override) != "" {
+		return filepath.Abs(override)
+	}
+
 	if propDir, err := PropConfigDir.Get(c); err == nil {
 		if trimmed := strings.TrimSpace(propDir); trimmed != "" {
 			absDir, err := filepath.Abs(trimmed)
@@ -247,6 +265,9 @@ func ResolveTokensSqliteUrl(profile string, ctx ...context.Context) (*urlz.Url, 
 // ResolveTokenStore returns an in-memory Store if PropConfigJSON is present, or a persistent SQLite Store.
 func ResolveTokenStore(profile string, ctx ...context.Context) (tokenstore.Store, error) {
 	c := getCtx(ctx...)
+	if inline, ok := c.Value(contextKeyConfigJSON{}).(string); ok && strings.TrimSpace(inline) != "" {
+		return tokenstore.NewMemory(), nil
+	}
 	if inline, err := PropConfigJSON.Get(c); err == nil && strings.TrimSpace(inline) != "" {
 		return tokenstore.NewMemory(), nil
 	}
@@ -273,7 +294,16 @@ func ResolveCacheDir(profile string, ctx ...context.Context) (string, error) {
 // ResolveConfig loads the profile's Config, checking inline JSON, file, and defaults.
 func ResolveConfig(profile string, ctx ...context.Context) (*Config, error) {
 	c := getCtx(ctx...)
-	// 1. Check inline JSON override first (zero-disk execution)
+	// 1. Check context inline JSON override first
+	if inline, ok := c.Value(contextKeyConfigJSON{}).(string); ok && strings.TrimSpace(inline) != "" {
+		var cfg Config
+		if err := json.Unmarshal([]byte(inline), &cfg); err != nil {
+			return nil, exitcode.Wrap(exitcode.Usage, fmt.Errorf("failed to parse inline JSON: %w", err))
+		}
+		return &cfg, nil
+	}
+
+	// 2. Check property inline JSON override (zero-disk execution)
 	if inline, err := PropConfigJSON.Get(c); err == nil && strings.TrimSpace(inline) != "" {
 		var cfg Config
 		if err := json.Unmarshal([]byte(inline), &cfg); err != nil {

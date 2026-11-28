@@ -14,8 +14,6 @@ import (
 )
 
 func TestUnitCmdToken(t *testing.T) {
-	ctx := t.Context()
-
 	// Generate a valid 32-byte Ed25519 private key seed for offline robot key test
 	var privKeyB64 string
 	for {
@@ -28,10 +26,7 @@ func TestUnitCmdToken(t *testing.T) {
 	}
 
 	t.Run("Ingests Ed25519 robot refresh key offline", func(t *testing.T) {
-		tmpDir := t.TempDir()
-		rev, err := cliconfig.PropConfigDir.Set(ctx, "%s", tmpDir)
-		require.NoError(t, err)
-		defer rev.Close()
+		ctx := cliconfig.WithConfigDir(t.Context(), t.TempDir())
 
 		profile := "robot-worker"
 		cmd := cmdtoken.New(ctx)
@@ -47,7 +42,7 @@ func TestUnitCmdToken(t *testing.T) {
 			privKeyB64,
 		})
 
-		err = cmd.ExecuteContext(ctx)
+		err := cmd.ExecuteContext(ctx)
 		require.NoError(t, err)
 		require.Contains(t, outBuf.String(), "test-fashion")
 
@@ -60,10 +55,7 @@ func TestUnitCmdToken(t *testing.T) {
 	})
 
 	t.Run("Ingests token piped via stdin", func(t *testing.T) {
-		tmpDir := t.TempDir()
-		rev, err := cliconfig.PropConfigDir.Set(ctx, "%s", tmpDir)
-		require.NoError(t, err)
-		defer rev.Close()
+		ctx := cliconfig.WithConfigDir(t.Context(), t.TempDir())
 
 		profile := "stdin-profile"
 		cmd := cmdtoken.New(ctx)
@@ -81,7 +73,7 @@ func TestUnitCmdToken(t *testing.T) {
 			"-",
 		})
 
-		err = cmd.ExecuteContext(ctx)
+		err := cmd.ExecuteContext(ctx)
 		require.NoError(t, err)
 
 		out := outBuf.String()
@@ -90,10 +82,7 @@ func TestUnitCmdToken(t *testing.T) {
 	})
 
 	t.Run("Fails when token input is empty", func(t *testing.T) {
-		tmpDir := t.TempDir()
-		rev, err := cliconfig.PropConfigDir.Set(ctx, "%s", tmpDir)
-		require.NoError(t, err)
-		defer rev.Close()
+		ctx := cliconfig.WithConfigDir(t.Context(), t.TempDir())
 
 		cmd := cmdtoken.New(ctx)
 		cmd.PersistentFlags().StringP("profile", "p", "main", "Profile")
@@ -101,7 +90,7 @@ func TestUnitCmdToken(t *testing.T) {
 		cmd.SetIn(strings.NewReader("   "))
 		cmd.SetArgs([]string{"-"})
 
-		err = cmd.ExecuteContext(ctx)
+		err := cmd.ExecuteContext(ctx)
 		require.Error(t, err)
 		require.Equal(t, exitcode.Usage, exitcode.Code(err))
 		require.Contains(t, err.Error(), "token string cannot be empty")

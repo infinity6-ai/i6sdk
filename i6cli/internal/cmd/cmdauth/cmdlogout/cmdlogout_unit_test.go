@@ -15,13 +15,8 @@ import (
 )
 
 func TestUnitCmdLogout(t *testing.T) {
-	ctx := t.Context()
-
 	t.Run("Logs out when unauthenticated clears store without error", func(t *testing.T) {
-		tmpDir := t.TempDir()
-		rev, err := cliconfig.PropConfigDir.Set(ctx, "%s", tmpDir)
-		require.NoError(t, err)
-		defer rev.Close()
+		ctx := cliconfig.WithConfigDir(t.Context(), t.TempDir())
 
 		cmd := cmdlogout.New(ctx)
 		cmd.PersistentFlags().StringP("profile", "p", "main", "Profile")
@@ -29,7 +24,7 @@ func TestUnitCmdLogout(t *testing.T) {
 		cmd.SetOut(outBuf)
 		cmd.SetArgs([]string{"-p", "main"})
 
-		err = cmd.ExecuteContext(ctx)
+		err := cmd.ExecuteContext(ctx)
 		require.NoError(t, err)
 		require.Contains(t, outBuf.String(), "cleared credentials for profile \"main\"")
 	})
@@ -47,10 +42,7 @@ func TestUnitCmdLogout(t *testing.T) {
 		}))
 		defer srv.Close()
 
-		tmpDir := t.TempDir()
-		rev, err := cliconfig.PropConfigDir.Set(ctx, "%s", tmpDir)
-		require.NoError(t, err)
-		defer rev.Close()
+		ctx := cliconfig.WithConfigDir(t.Context(), t.TempDir())
 
 		profile := "active-session"
 		cfg := &cliconfig.Config{UserzUrl: srv.URL}
@@ -83,10 +75,7 @@ func TestUnitCmdLogout(t *testing.T) {
 	})
 
 	t.Run("Logs out robot key clears stored credentials", func(t *testing.T) {
-		tmpDir := t.TempDir()
-		rev, err := cliconfig.PropConfigDir.Set(ctx, "%s", tmpDir)
-		require.NoError(t, err)
-		defer rev.Close()
+		ctx := cliconfig.WithConfigDir(t.Context(), t.TempDir())
 
 		profile := "robot-profile"
 		cli, err := cliconfig.NewClient(profile, ctx)

@@ -12,8 +12,6 @@ import (
 )
 
 func TestUnitCmdSet(t *testing.T) {
-	ctx := t.Context()
-
 	type testScenario struct {
 		args        []string
 		wantErrCode int
@@ -25,10 +23,7 @@ func TestUnitCmdSet(t *testing.T) {
 
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
-		tmpDir := t.TempDir()
-		rev, err := cliconfig.PropConfigDir.Set(ctx, "%s", tmpDir)
-		require.NoError(t, err)
-		defer rev.Close()
+		ctx := cliconfig.WithConfigDir(t.Context(), t.TempDir())
 
 		// Seed initial configuration
 		initialCfg := &cliconfig.Config{DefaultDataset: "orig-ds"}

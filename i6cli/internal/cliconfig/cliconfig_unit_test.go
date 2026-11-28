@@ -243,6 +243,31 @@ func TestUnitNewClient(t *testing.T) {
 	require.NotNil(t, cli.Apis())
 }
 
+func TestUnitWithConfigDirParallel(t *testing.T) {
+	t.Run("Parallel subtests run in isolation with WithConfigDir", func(t *testing.T) {
+		for i := 0; i < 5; i++ {
+			t.Run(string(rune('A'+i)), func(t *testing.T) {
+				t.Parallel()
+				tmpDir := t.TempDir()
+				ctx := cliconfig.WithConfigDir(t.Context(), tmpDir)
+
+				baseDir, err := cliconfig.ResolveBaseConfigDir(ctx)
+				require.NoError(t, err)
+				require.Equal(t, tmpDir, baseDir)
+
+				// Save unique profile in isolated directory
+				profileName := "worker"
+				cfg := &cliconfig.Config{DefaultDataset: "ds-" + t.Name()}
+				require.NoError(t, cliconfig.SaveConfig(profileName, cfg, ctx))
+
+				readCfg, err := cliconfig.ResolveConfig(profileName, ctx)
+				require.NoError(t, err)
+				require.Equal(t, "ds-"+t.Name(), readCfg.DefaultDataset)
+			})
+		}
+	})
+}
+
 func TestUnitResolveDataset(t *testing.T) {
 	ctx := t.Context()
 
