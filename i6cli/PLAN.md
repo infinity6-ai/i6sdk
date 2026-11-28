@@ -407,8 +407,8 @@ In `.github/workflows/release.yml`:
     - `attenuation [<token|->] [--grants <mask|names>] [--solution <sol>] [--exp <seconds>]`
     - `sign-request --key <privkey|-> --token <token|-> --method <METHOD> --path <PATH> [--body <str|->]`
 
-- [ ] **Phase 3: Data Lake, Ingestion & Pipelines (`dataset`, `ingest`, `pipe`)**
-  - [ ] Implement `i6 dataset list`, `get`, `table`, and `store`.
+- [x] **Phase 3: Data Lake, Ingestion & Pipelines (`dataset`, `ingest`, `pipe`)**
+  - [x] Implement `i6 dataset list`, `get`, `table`, and `store`.
   - [x] Implement `i6 dataset keys [--dataset <dataset>]` for remote server machine robot key management:
     - [x] `list` (lists all registered machine robot keys by JTI on the server)
     - [x] `create [--solution <sol>] [--grants <g>] [--annotation <text>] [--save]` (registers machine key on server)
