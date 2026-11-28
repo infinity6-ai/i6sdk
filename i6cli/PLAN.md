@@ -9,7 +9,7 @@
 - **100% Feature Parity with SDKs**: Anything possible via `sdkgo`, `sdkpy`, or `sdkweb` can be performed from the terminal or shell scripts.
 - **Built on `sdkgo`**: `i6cli` acts as a presentation and UX layer over `github.com/infinity6-ai/i6sdk/sdkgo`, eliminating duplicate protocol, auth, cache, or ingestion code.
 - **True Static Binaries (`CGO_ENABLED=0`)**: Pure Go implementation using `modernc.org/sqlite` and Go standard library crypto/networking. Cross-compiles for Linux (`amd64`, `arm64`), macOS (`arm64`, `amd64`), and Windows without dynamic `libc`/`glibc` dependencies.
-- **Script-Friendly & CI-Ready**: Flexible output formatting (`--format=table|tsv|json|quiet|raw`), predictable exit codes, stdin/stdout piping, and non-interactive execution modes.
+- **Script-Friendly & CI-Ready**: Flexible output formatting (`--format=table|tsv|json|quiet|raw`), strict stdout/stderr separation, predictable exit codes, stdin/stdout piping, and non-interactive execution modes.
 
 ---
 
@@ -18,13 +18,13 @@
 ```
  ┌────────────────────────────────────────────────────────────────────────┐
  │                         i6 Command Line Tool                           │
- │   Environment: I6_CLI_CONFIG_DIR, I6_CLI_CONFIG_PROFILE, JSON override │
+ │   Global flags / Env: --profile / I6_CLI_CONFIG_PROFILE, JSON override │
  └───────────────────────────────────┬────────────────────────────────────┘
                                      │
  ┌───────────────────────────────────▼────────────────────────────────────┐
  │                     Cobra Subcommand Taxonomy                          │
- │  auth │ tokens │ dataset │ ingest │ infer │ dash │ pipe │ funcs │ apis    │
- │  config                                                                │
+ │  auth │ tokens │ dataset │ ingest │ dash │ infer │ pipe │ funcs │ apis │
+ │  config │ completion                                                   │
  └───────────────────────────────────┬────────────────────────────────────┘
                                      │ calls
  ┌───────────────────────────────────▼────────────────────────────────────┐
@@ -42,13 +42,13 @@
 Commands follow modern CLI standards (`i6 <domain> <action> [flags]`):
 
 ### A. Authentication & Session (`i6 auth`)
-- `i6 auth login`: Interactive browser login screen (OAuth 2.0 Device Code flow). Displays authorization code and URL, polls server, and saves full user session in `tokens.db`.
+- `i6 auth login`: Interactive browser login screen (OAuth 2.0 Device Code flow). Displays authorization code and URL, polls `/api/userz/auth/device/token`, and saves full user session in `tokens.db`.
 - `i6 auth token [<token-string> | -] [--offline]`: Universal token ingestion command. Automatically detects the token type via local formatting and `/api/userz/token/check` (with `--offline`, skips network calls and ingests locally):
   - **Ed25519 Dataset Robot Key**: Ingests as machine robot root credential (`i6_rf:<dataset>`).
   - **User Refresh Token**: Refreshes via `/api/userz/auth/refresh` to establish a full user session (`i6_user_user_token`).
   - **Standalone User Access Token**: Saved as a non-refreshable user session in `i6_user_user_token`.
   - **Standalone Dataset Bearer Token**: Saved as a non-refreshable dataset access token in `i6_ds:<dataset>`.
-- `i6 auth logout`: Revokes session token family on server via `UserAuthLogout` and wipes local credentials.
+- `i6 auth logout`: Revokes session token family on server via `UserAuthLogout` and wipes local credentials from active profile.
 - `i6 auth status` / `i6 auth me`: Displays active authentication identity (User Session vs. Robot Service Account vs. Standalone Bearer vs. Unauthenticated), tenant, dataset, and token expiration.
 
 ### B. Local Profile Token Management (`i6 tokens`)
@@ -124,21 +124,31 @@ Server-side token management where a dataset can have multiple registered tokens
   - Supports single/multiple files or shell globbing.
   - Automatically acquires upload URLs using `c.Ingest().GetUrl()`.
   - Concurrently uploads files via `c.Ingest().Upload()`.
-  - Renders live interactive terminal progress bars (multi-stream overall and per-file progress).
+  - Renders live interactive terminal progress bars (multi-stream overall and per-file progress) with non-interactive TTY fallback to stderr.
 - `i6 ingest get-url <dataset> <table> [--partitions key=val] [--amount N]`: Generates raw signed PUT upload URLs.
 - `i6 ingest summary <dataset> <ingest-id>`: Checks batch lake validation status and summary.
 
 ### E. Analytics & Dashboards (`i6 dash`)
-- `i6 dash query <query-name> --dataset <dataset> [--partitions key=val,...]`:
+- `i6 dash query <query-name> [--dataset <dataset>] [--partitions key=val,...]`:
   - Downloads and caches analytical SQLite databases via `c.Dash()`.
-  - Executes stored named queries and outputs formatted results (table or JSON).
+  - Executes stored named queries and outputs formatted results (table, TSV, or JSON).
 
 ### F. Inference & Scoring (`i6 infer`)
-- `i6 infer run <model-name> --dataset <dataset> [--input <json-or-file>]`:
+- `i6 infer run <model-name> [--dataset <dataset>] [--input <json-or-file>]`:
   - Executes the full 3-step inference pipeline (candidate generation -> remote TF scoring -> hydration).
 - `i6 infer metadata <model-name>`: Fetches model schema and signature metadata.
 
-### G. SdkFunc Workflows (`i6 funcs`)
+### G. Pipeline Orchestration (`i6 pipe`)
+Manages data pipelines and recurring scheduled workloads via `apipipez`:
+- `i6 pipe list [--dataset <dataset>]`: Lists all pipeline executions and their current statuses (`/api/pipez/list`).
+- `i6 pipe get <pipeline-id>`: Retrieves execution status, step timings, and failure diagnostics (`/api/pipez/get`).
+- `i6 pipe start <batch-ingest|main> [--dataset <dataset>]`: Triggers an immediate execution of a pipeline:
+  - `batch-ingest`: Starts batch ingestion processing (`/api/pipez/start/batch-ingest`).
+  - `main`: Starts main recommendation pipeline processing (`/api/pipez/start/main`).
+- `i6 pipe scheduler activate <batch-ingest|main> [--dataset <dataset>]`: Activates recurring scheduled execution for the target pipeline.
+- `i6 pipe scheduler deactivate <batch-ingest|main> [--dataset <dataset>]`: Deactivates recurring scheduled execution for the target pipeline.
+
+### H. SdkFunc Workflows (`i6 funcs`)
 Zero-codegen dynamic execution for all registered Infinity6 workflow functions (analytical queries and inference pipelines):
 - `i6 funcs list`: Lists all available SdkFuncs (ID, execution type: `client_query` vs `client_infer`, and product domain).
 - `i6 funcs describe <func-name>`: Displays input and output schemas, partition requirements, and functional description.
@@ -146,15 +156,20 @@ Zero-codegen dynamic execution for all registered Infinity6 workflow functions (
   - If `client_query` $\rightarrow$ routes to `c.Dash().QueryRaw()` and formats the analytical result.
   - If `client_infer` $\rightarrow$ routes to `c.Infer().Run()` (3-step candidate generation, remote scoring, and hydration).
 
-### H. Platform APIs (`i6 apis`)
+### I. Platform APIs (`i6 apis`)
 Dynamic invocation of all 60+ registered Infinity6 HTTP APIs with automatic endpoint routing and bearer authentication:
 - `i6 apis list [--service userz|decsuite|tfinfer]`: Lists all registered APIs (API ID, HTTP Method, Path, and target service).
 - `i6 apis describe <api-id>`: Displays parameter, query, header, and payload schemas for the API.
 - `i6 apis call <api-id> [--params key=val,...] [--query key=val,...] [--payload <json|file|->]`: Dynamically executes the API call through `c.ClientForPath()`, automatically injecting authentication headers and formatting the response.
 
-### I. Configuration (`i6 config`)
-- `i6 config init [--box sandbox|staging|prod] [-f/--force]`: Initializes the active profile directory and writes `config.json` configured for the selected box (defaults to `prod`). Protected with `-f/--force` against accidental overwrites.
-- `i6 config show`: Displays active profile, directory paths, box environment, and resolved endpoint URLs.
+### J. Configuration (`i6 config`)
+- `i6 config init [--box sandbox|staging|prod] [--dataset <dataset>] [-f/--force]`: Initializes the active profile directory and writes `config.json` configured for the selected box (defaults to `prod`) and optional default dataset. Protected with `-f/--force` against accidental overwrites.
+- `i6 config show`: Displays active profile, directory paths, box environment, default dataset, and resolved endpoint URLs.
+- `i6 config set <key> <value>`: Updates a configuration field (e.g. `box`, `dataset`) in the active profile's `config.json`.
+
+### K. Shell Completion & Utilities (`i6 completion`)
+- `i6 completion [bash|zsh|fish|powershell]`: Generates shell completion script for the target shell.
+- Dynamic completion support for datasets, subcommands, output formats, and registered API/Func IDs.
 
 ---
 
@@ -163,38 +178,54 @@ Dynamic invocation of all 60+ registered Infinity6 HTTP APIs with automatic endp
 All CLI configuration, credentials, and local caches are organized per profile:
 
 - **Config Base Directory**: `I6_CLI_CONFIG_DIR` (defaults to `$HOME/.config/i6/`).
-- **Active Profile**: `I6_CLI_CONFIG_PROFILE` (defaults to `"main"`).
+- **Active Profile Selection Hierarchy**:
+  1. Persistent root flag: `--profile <name>` (or `-p <name>`)
+  2. Environment variable: `I6_CLI_CONFIG_PROFILE`
+  3. Default profile: `"main"`
 - **Inline JSON Override**: `I6_CLI_CONFIG_JSON` (optional inline JSON string for zero-disk CI/CD execution).
-- *Clean Root Command*: There are no global CLI flags on the root `i6` command. All configuration routing is strictly environment-driven or relies on sensible defaults.
 
 ```
 $I6_CLI_CONFIG_DIR/ (defaults to $HOME/.config/i6/)
-└── [profile]/ (defaults to "main", selected via I6_CLI_CONFIG_PROFILE)
-    ├── config.json          # Profile configuration: box (sandbox/staging/prod), default dataset
+└── [profile]/ (defaults to "main", selected via --profile / I6_CLI_CONFIG_PROFILE)
+    ├── config.json          # Profile configuration: box (sandbox/staging/prod), default_dataset
     ├── tokens.db            # Persistent SQLite token store via tokenstore.NewSqlite (WAL, 0600)
     └── cache/               # Profile-scoped SQLite blobs, queries, models, ETags (fszcache)
         ├── dash/
         └── infer/
 ```
 
+### Profile-Scoped SQLite Path Resolution
+In `sdkgo/tokenstore/sqlite.go`, `tokenstore.DefaultSqliteUrl()` defaults to `$HOME/.config/i6/tokens.db`. To guarantee profile isolation, `i6cli`'s `cliconfig` packages MUST explicitly format the target URL rather than passing `nil`:
+```go
+dbPath := filepath.Join(profileDir, "tokens.db")
+targetUrl, err := urlz.Parse("file://" + filepath.ToSlash(dbPath))
+store, err := tokenstore.NewSqlite(targetUrl)
+```
+
+### Dataset Resolution Order
+When a command requires a target dataset, it resolves the dataset identifier using the following priority:
+1. Command flag: `--dataset <name>`
+2. Profile configuration: `default_dataset` in `config.json`
+3. Environment override: `I6_DATASET`
+4. If unresolved: fail fast with exit code `2` and an actionable error:
+   `"error: dataset required. Provide --dataset <name> or configure default via 'i6 config init --dataset <name>'"`
+
 ### Core Invariant: Mutually Exclusive Profile Identity
 Each CLI configuration profile represents either a **Human User** or a **Machine Service Account**, never both:
 $$\text{Profile Root Credential} \in \{\text{User Session}, \text{Dataset Refresh Key}, \emptyset\}$$
 
 - User session credentials (`i6_user_user_token`) and machine robot keys (`i6_rf:<dataset>`) cannot coexist within the same profile.
-- If a profile has an active user session, running `i6 tokens dataset-refresh set` returns an error directing the user to use a separate profile (e.g. `I6_CLI_CONFIG_PROFILE=worker`).
-- If a profile has an active robot key, running `i6 auth login` returns an error directing the user to use a separate profile (e.g. `I6_CLI_CONFIG_PROFILE=developer`).
+- If a profile has an active user session, running `i6 tokens dataset-refresh set` returns an error directing the user to use a separate profile (e.g. `i6 --profile worker ...`).
+- If a profile has an active robot key, running `i6 auth login` returns an error directing the user to use a separate profile (e.g. `i6 --profile developer ...`).
 - Derived short-lived dataset bearer tokens (`i6_ds:<dataset>`) can be cached for multiple datasets within any active profile.
 
 ### Configuration Hierarchy & Resolution Order
 1. **Zero-Disk Inline JSON**: If `I6_CLI_CONFIG_JSON` is populated, parse in-memory immediately using `tokenstore.NewMemory()` (bypasses filesystem reads, ideal for CI/CD runners).
 2. **Environment & Profile Defaults**:
-   - Target Directory: `$I6_CLI_CONFIG_DIR/$I6_CLI_CONFIG_PROFILE/`
-   - Config file: `$I6_CLI_CONFIG_DIR/$I6_CLI_CONFIG_PROFILE/config.json`
-   - Token store: `$I6_CLI_CONFIG_DIR/$I6_CLI_CONFIG_PROFILE/tokens.db` (via `tokenstore.NewSqlite`)
-   - Cache store: `$I6_CLI_CONFIG_DIR/$I6_CLI_CONFIG_PROFILE/cache/`
-
-Specific subcommands take positional arguments or command-scoped flags, preventing flag pollution on the root command.
+   - Target Directory: `$I6_CLI_CONFIG_DIR/<profile>/`
+   - Config file: `$I6_CLI_CONFIG_DIR/<profile>/config.json`
+   - Token store: `$I6_CLI_CONFIG_DIR/<profile>/tokens.db` (via explicit `file://` URL)
+   - Cache store: `$I6_CLI_CONFIG_DIR/<profile>/cache/`
 
 ### Output Formatting (`--format [table|tsv|json|quiet|raw]`)
 Commands producing data support the `--format` flag (with per-command contextual defaults):
@@ -204,6 +235,24 @@ Commands producing data support the `--format` flag (with per-command contextual
 - **`json`**: Formatted structured JSON payloads, ideal for `jq` and programmatic ingestion.
 - **`quiet`**: Minimal output; prints only the primary ID or count (e.g. `dtr_abc123`), suppressing all tables and headers.
 - **`raw`** (Default for `expose`, `export`, and binary outputs): Direct, unquoted string or byte output (e.g. raw JWT or Ed25519 seed string ready for `export TOKEN=$(...)`).
+
+### Unix Composability & Stream Separation
+To ensure clean piping and script integration:
+- **Strict Stream Separation**:
+  - `os.Stdout`: Reserved **exclusively** for command data payloads (tables, TSV, JSON, raw tokens).
+  - `os.Stderr`: Used for all diagnostic, interactive, and UI output (progress bars, spinners, automatic token refresh logs, informational messages).
+  - Enables clean composability: `export TOKEN=$(i6 tokens dataset-access expose)` without corrupted tokens.
+- **TTY Detection & Graceful Fallback**:
+  - When `os.Stderr` is not a terminal (e.g. inside Docker or CI runners `!isatty(os.Stderr.Fd())`), interactive progress bars degrade gracefully into throttled periodic log lines.
+
+### Standardized Predictable Exit Codes
+Scripts and CI/CD pipelines can rely on deterministic exit codes:
+- `0`: **Success**
+- `1`: **General runtime error** (server 500, network failure, unhandled error)
+- `2`: **Usage error** (invalid flags, missing arguments, invalid syntax)
+- `3`: **Authentication error** (unauthenticated, missing token, expired refresh session)
+- `4`: **Authorization error** (insufficient grants, forbidden operation, attenuated permission mismatch)
+- `5`: **Not found** (dataset, table, store, or model does not exist)
 
 ---
 
@@ -217,7 +266,7 @@ i6cli/
 ├── PLAN.md                       # This plan
 ├── README.md                     # CLI installation and usage guide
 ├── cmdcli/
-│   ├── cmdcli.go                 # Root command and version subcommand
+│   ├── cmdcli.go                 # Root command, persistent flags (--profile), and version
 │   ├── cmdcli_unit_test.go
 │   ├── auth.go                   # i6 auth subcommands
 │   ├── tokens.go                 # i6 tokens subcommands
@@ -228,15 +277,18 @@ i6cli/
 │   ├── pipe.go                   # i6 pipe subcommands
 │   ├── funcs.go                  # i6 funcs subcommands (list, describe, run)
 │   ├── apis.go                   # i6 apis subcommands (list, describe, call)
-│   └── config.go                 # i6 config subcommands
+│   ├── config.go                 # i6 config subcommands
+│   └── completion.go             # i6 completion subcommands
 └── internal/
-    ├── cliconfig/                # Config file parsing and profile management
+    ├── cliconfig/                # Config file parsing, profile resolution, and SQLite path resolution
     │   ├── cliconfig.go
     │   └── cliconfig_unit_test.go
     ├── outfmt/                   # Table, TSV, JSON, quiet, and raw output formatters
     │   ├── outfmt.go
     │   └── outfmt_unit_test.go
-    └── ui/                       # Terminal spinners, progress bars, and prompts
+    ├── exitcode/                 # Standardized CLI exit codes (0-5)
+    │   └── exitcode.go
+    └── ui/                       # Terminal spinners, progress bars (TTY-aware stderr)
         ├── progress.go
         └── spinner.go
 ```
@@ -293,11 +345,13 @@ In `.github/workflows/release.yml`:
   - [x] Scaffold `i6cli/` directory, `go.mod`, `main.go`, and `cmdcli/cmdcli.go`.
   - [x] Integrate with `build.sh` (`cmd_comps_list`), `comp.sh`, and root `go.work`.
   - [x] Verify test execution via `./comp.sh i6cli test` and `./build.sh test`.
-  - [ ] Implement `internal/cliconfig` (profile, base directory, and config.json resolution).
-  - [ ] Implement `internal/outfmt` (table, tsv, json, quiet, and raw formatters).
+  - [ ] Implement `internal/cliconfig` (profile resolution, profile-isolated SQLite URL, dataset fallback, and config.json).
+  - [ ] Implement `internal/exitcode` (standardized exit codes 0-5).
+  - [ ] Implement `internal/outfmt` (table, tsv, json, quiet, and raw formatters with strict stdout routing).
+  - [ ] Implement persistent `--profile` / `-p` root flag and `i6 completion [bash|zsh|fish|powershell]`.
 
 - [ ] **Phase 2: Authentication & Local Profile Tokens (`auth`, `tokens`, `config`)**
-  - [ ] Implement `i6 config init [--box sandbox|staging|prod] [-f/--force]` and `i6 config show`.
+  - [ ] Implement `i6 config init [--box sandbox|staging|prod] [--dataset <dataset>] [-f/--force]`, `i6 config show`, and `i6 config set <k> <v>`.
   - [ ] Implement `i6 auth login` (Device code flow with polling; enforces mutual exclusivity).
   - [ ] Implement `i6 auth token [<token-string> | -] [--offline]` (universal token ingestion with auto-detection).
   - [ ] Implement `i6 auth logout` and `i6 auth status`.
@@ -320,7 +374,7 @@ In `.github/workflows/release.yml`:
     - `sign-request --key <privkey|-> --method <METHOD> --path <PATH> [--body <str|->]`
 
 - [ ] **Phase 3: Ingestion & Dataset Management (`ingest`, `dataset`)**
-  - [ ] Implement `i6 ingest upload` with multi-stream parallel worker execution and live terminal progress bars.
+  - [ ] Implement `i6 ingest upload` with multi-stream parallel worker execution and live terminal progress bars (TTY-aware fallback).
   - [ ] Implement `i6 ingest get-url` and `summary`.
   - [ ] Implement `i6 dataset list`, `get`, `table`, and `store`.
   - [ ] Implement `i6 dataset tokens [--dataset <dataset>]` for remote server token management:
@@ -328,10 +382,10 @@ In `.github/workflows/release.yml`:
     - `create [--type ingestion|recsys|refresh] [--annotation <text>] [--save]` (mints token on the server)
     - `delete <token-id-or-jti>` (revokes token on the server by ID or JTI)
 
-- [ ] **Phase 4: Analytics, Inference, APIs & Workflows (`dash`, `infer`, `pipe`, `funcs`, `apis`)**
-  - [ ] Implement `i6 dash query` with table output.
+- [ ] **Phase 4: Analytics, Inference, Pipelines, APIs & Workflows (`dash`, `infer`, `pipe`, `funcs`, `apis`)**
+  - [ ] Implement `i6 dash query` with table output and default dataset fallback.
   - [ ] Implement `i6 infer run` and `metadata`.
-  - [ ] Implement `i6 pipe list`, `get`, `start`.
+  - [ ] Implement `i6 pipe list`, `get`, `start <batch-ingest|main>`, and `scheduler <activate|deactivate> <batch-ingest|main>`.
   - [ ] Implement `i6 funcs [list|describe|run]` for dynamic zero-codegen SdkFunc execution.
   - [ ] Implement `i6 apis [list|describe|call]` for dynamic platform API execution.
 
