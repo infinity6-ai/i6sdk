@@ -259,27 +259,42 @@ Scripts and CI/CD pipelines can rely on deterministic exit codes:
 
 ## 5. Mono-Repo File Structure
 
+The public API boundary is strictly encapsulated: **`cmdcli` is the only public package** exported by `i6cli`. All command and subcommand implementations live within dedicated, modular packages under `internal/cmd/`:
+
 ```
 i6cli/
 ├── go.mod
 ├── go.sum
 ├── main.go                       # Minimal entrypoint calling cmdcli.Execute()
-├── PLAN.md                       # This plan
+├── PLAN.md                       # This architectural plan
 ├── README.md                     # CLI installation and usage guide
-├── cmdcli/
-│   ├── cmdcli.go                 # Root command, persistent flags (--profile), and version
-│   ├── cmdcli_unit_test.go
-│   ├── auth.go                   # i6 auth subcommands
-│   ├── tokens.go                 # i6 tokens subcommands
-│   ├── dataset.go                # i6 dataset subcommands
-│   ├── ingest.go                 # i6 ingest subcommands
-│   ├── infer.go                  # i6 infer subcommands
-│   ├── dash.go                   # i6 dash subcommands
-│   ├── pipe.go                   # i6 pipe subcommands
-│   ├── funcs.go                  # i6 funcs subcommands (list, describe, run)
-│   ├── apis.go                   # i6 apis subcommands (list, describe, call)
-│   ├── config.go                 # i6 config subcommands
+├── cmdcli/                       # ONLY public package (Prepare, Execute)
+│   ├── cmdcli.go
+│   └── cmdcli_unit_test.go
 └── internal/
+    ├── cmd/                      # Command taxonomy packages (internal)
+    │   ├── cmdauth/              # i6 auth (cmdlogin, cmdtoken, cmdlogout, cmdstatus)
+    │   │   ├── cmdlogin/
+    │   │   ├── cmdtoken/
+    │   │   ├── cmdlogout/
+    │   │   └── cmdstatus/
+    │   ├── cmdconfig/            # i6 config (cmdinit, cmdshow, cmdset)
+    │   │   ├── cmdinit/
+    │   │   ├── cmdshow/
+    │   │   └── cmdset/
+    │   ├── cmdtokens/            # i6 tokens (cmdcheck, cmduser, cmddatasetrefresh, cmddatasetaccess, cmdraw)
+    │   │   ├── cmdcheck/
+    │   │   ├── cmduser/
+    │   │   ├── cmddatasetrefresh/
+    │   │   ├── cmddatasetaccess/
+    │   │   └── cmdraw/
+    │   ├── cmddataset/           # i6 dataset (cmdlist, cmdget, cmdtable, cmdstore, cmdtokens)
+    │   ├── cmdingest/            # i6 ingest (cmdupload, cmdgeturl, cmdsummary)
+    │   ├── cmdinfer/             # i6 infer (cmdrun, cmdmetadata)
+    │   ├── cmddash/              # i6 dash (cmdquery)
+    │   ├── cmdpipe/              # i6 pipe (cmdlist, cmdget, cmdstart, cmdscheduler)
+    │   ├── cmdfuncs/             # i6 funcs (cmdlist, cmddescribe, cmdrun)
+    │   └── cmdapis/              # i6 apis (cmdlist, cmddescribe, cmdcall)
     ├── cliconfig/                # Config file parsing, profile resolution, and SQLite path resolution
     │   ├── cliconfig.go
     │   └── cliconfig_unit_test.go
@@ -287,7 +302,8 @@ i6cli/
     │   ├── outfmt.go
     │   └── outfmt_unit_test.go
     ├── exitcode/                 # Standardized CLI exit codes (0-5)
-    │   └── exitcode.go
+    │   ├── exitcode.go
+    │   └── exitcode_unit_test.go
     └── ui/                       # Terminal spinners, progress bars (TTY-aware stderr)
         ├── progress.go
         └── spinner.go
