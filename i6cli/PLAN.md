@@ -341,14 +341,14 @@ In `.github/workflows/release.yml`:
 
 ## 7. Phased Implementation Roadmap
 
-- [ ] **Phase 1: Foundation & Scaffolding**
+- [x] **Phase 1: Foundation & Scaffolding**
   - [x] Scaffold `i6cli/` directory, `go.mod`, `main.go`, and `cmdcli/cmdcli.go`.
   - [x] Integrate with `build.sh` (`cmd_comps_list`), `comp.sh`, and root `go.work`.
   - [x] Verify test execution via `./comp.sh i6cli test` and `./build.sh test`.
-  - [ ] Implement `internal/cliconfig` (profile resolution, profile-isolated SQLite URL, dataset fallback, and config.json).
-  - [ ] Implement `internal/exitcode` (standardized exit codes 0-5).
-  - [ ] Implement `internal/outfmt` (table, tsv, json, quiet, and raw formatters with strict stdout routing).
-  - [ ] Implement persistent `--profile` / `-p` root flag and `i6 completion [bash|zsh|fish|powershell]`.
+  - [x] Implement `internal/cliconfig` (profile resolution, profile-isolated SQLite URL, dataset fallback, and config.json).
+  - [x] Implement `internal/exitcode` (standardized exit codes 0-5).
+  - [x] Implement `internal/outfmt` (table, tsv, json, quiet, and raw formatters with strict stdout routing).
+  - [x] Implement persistent `--profile` / `-p` root flag and `i6 completion [bash|zsh|fish|powershell]`.
 
 - [ ] **Phase 2: Authentication & Local Profile Tokens (`auth`, `tokens`, `config`)**
   - [ ] Implement `i6 config init [--box sandbox|staging|prod] [--dataset <dataset>] [-f/--force]`, `i6 config show`, and `i6 config set <k> <v>`.
