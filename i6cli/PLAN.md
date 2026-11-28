@@ -244,6 +244,11 @@ To ensure clean piping and script integration:
   - `os.Stdout`: Reserved **exclusively** for command data payloads (tables, TSV, JSON, raw tokens).
   - `os.Stderr`: Used for all diagnostic, interactive, and UI output (progress bars, spinners, automatic token refresh logs, informational messages).
   - Enables clean composability: `export TOKEN=$(i6 tokens dataset-access expose)` without corrupted tokens.
+- **Diagnostic Logging via `gox/commonz/logz`**:
+  - All internal logging across command packages uses `github.com/infinity6-ai/gox/commonz/logz` (`type tlogger logz.Type; var logger = logz.Create(tlogger(true))`).
+  - Automatically writes exclusively to `os.Stderr`.
+  - Supports automatic TTY color detection (colors suppressed when `os.Stderr` is redirected or in CI pipelines via `term.IsTerminal` / `I6_LOGZ_NO_COLOR=true`).
+  - Supports structured logging (`I6_LOGZ_STRUCTURED=true`) for enterprise log collectors.
 - **TTY Detection & Graceful Fallback**:
   - When `os.Stderr` is not a terminal (e.g. inside Docker or CI runners `!isatty(os.Stderr.Fd())`), interactive progress bars degrade gracefully into throttled periodic log lines.
 
