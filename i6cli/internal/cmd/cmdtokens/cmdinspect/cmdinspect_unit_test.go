@@ -63,10 +63,13 @@ func TestUnitCmdInspect(t *testing.T) {
 		cli, err := cliconfig.NewClient(profile, ctx)
 		require.NoError(t, err)
 
+		rfExp := time.Now().Add(30 * 24 * time.Hour).UnixMilli()
 		err = cli.Tokens().SetUserToken(ctx, &tokens.UserToken{
-			UserId:          "usr_inspect_123",
-			UserAccessToken: "jwt.inspect.token",
-			ExpiresAt:       time.Now().Add(2 * time.Hour).UnixMilli(),
+			UserId:                "usr_inspect_123",
+			UserAccessToken:       "jwt.inspect.token",
+			UserRefreshToken:      "rf.inspect.secret",
+			ExpiresAt:             time.Now().Add(2 * time.Hour).UnixMilli(),
+			RefreshTokenExpiresAt: &rfExp,
 		})
 		require.NoError(t, err)
 
@@ -83,9 +86,12 @@ func TestUnitCmdInspect(t *testing.T) {
 
 		out := outBuf.String()
 		require.Contains(t, out, `"credential_source": "user_session"`)
+		require.Contains(t, out, `"credential_source": "user_refresh_token"`)
 		require.Contains(t, out, `"target": "usr_inspect_123"`)
 		require.Contains(t, out, `"token_kind": "user_jwt"`)
+		require.Contains(t, out, `"token_kind": "user_refresh_token"`)
 		require.Contains(t, out, `"valid": true`)
 		require.Contains(t, out, `"summary": "User JWT verified against userz key"`)
+		require.Contains(t, out, `"summary": "Opaque session refresh token stored locally (enables silent renewal)"`)
 	})
 }

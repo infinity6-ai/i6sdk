@@ -3,6 +3,7 @@ package cmdinspect
 import (
 	"context"
 	"crypto/ed25519"
+	"crypto/x509"
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
@@ -46,12 +47,13 @@ func New(ctx context.Context) *cobra.Command {
 		Use:   "inspect",
 		Short: "Deep inspection and debugging of all credentials stored in active profile",
 		Long: `Performs a deep cryptographic and validation audit of every credential currently
-stored in the active profile's tokens.db against the server diagnostic endpoint (/api/userz/token/check).
+stored in the active profile's tokens.db.
 
 Inspects:
-  - Active user session access token (if human authenticated)
-  - Active machine robot refresh key assertion (if robot account)
-  - All cached derived dataset access tokens
+  - Active user session access token (cryptographically verified via /api/userz/token/check)
+  - Active user refresh token (audited against local session lifecycle state)
+  - Active machine robot refresh key assertion (cryptographically proven via /api/userz/token/check)
+  - All cached derived dataset access tokens (cryptographically verified via /api/userz/token/check)
 
 With --refreshed, automatically refreshes expired or missing tokens before inspecting.`,
 		SilenceUsage:  true,
@@ -73,7 +75,7 @@ With --refreshed, automatically refreshes expired or missing tokens before inspe
 
 			var reports []InspectionReport
 
-			// 1. Inspect User Access Token
+			// 1. Inspect User Access Token & Refresh Token
 			ut, _ := cli.Tokens().GetUserToken(c)
 			if ut != nil {
 				tokStr := ut.UserAccessToken
@@ -120,6 +122,57 @@ With --refreshed, automatically refreshes expired or missing tokens before inspe
 						Hint:             p.Diagnostics.Hint,
 						Diagnostics:      &p.Diagnostics,
 						RawPayload:       p,
+					})
+				}
+
+				// 1b. Inspect User Refresh Token
+				if ut.UserRefreshToken != "" {
+					remStr := "unlimited"
+					expStr := ""
+					isExpired := false
+					var expSec int64
+					var timeRemSec int64
+
+					if ut.RefreshTokenExpiresAt != nil && *ut.RefreshTokenExpiresAt > 0 {
+						expTime := time.UnixMilli(*ut.RefreshTokenExpiresAt)
+						expStr = expTime.Format(time.RFC3339)
+						expSec = *ut.RefreshTokenExpiresAt / 1000
+						remDur := time.Until(expTime)
+						timeRemSec = int64(remDur.Seconds())
+						if remDur <= 0 {
+							isExpired = true
+							remStr = "expired"
+						} else {
+							remStr = remDur.Round(time.Second).String()
+						}
+					}
+
+					status := "valid"
+					summary := "Opaque session refresh token stored locally (enables silent renewal)"
+					hint := ""
+					if isExpired {
+						status = "expired"
+						summary = "Session refresh token has expired"
+						hint = "Re-authenticate using 'i6 auth login' to establish a new session."
+					}
+
+					reports = append(reports, InspectionReport{
+						CredentialSource: "user_refresh_token",
+						Target:           ut.UserId,
+						TokenKind:        "user_refresh_token",
+						Valid:            !isExpired,
+						Status:           status,
+						Summary:          summary,
+						ExpiresAt:        expStr,
+						TTLRemaining:     remStr,
+						Hint:             hint,
+						Diagnostics: &userapitokencheck.Diagnostics{
+							UserId:               ut.UserId,
+							ExpiresAt:            expSec,
+							TimeRemainingSeconds: timeRemSec,
+							IsExpired:            isExpired,
+							Hint:                 hint,
+						},
 					})
 				}
 			}
@@ -325,6 +378,11 @@ func parseEd25519Key(keyInput string) (ed25519.PrivateKey, error) {
 	}
 	if len(rawBytes) == ed25519.SeedSize {
 		return ed25519.NewKeyFromSeed(rawBytes), nil
+	}
+	if parsed, err := x509.ParsePKCS8PrivateKey(rawBytes); err == nil {
+		if edKey, ok := parsed.(ed25519.PrivateKey); ok {
+			return edKey, nil
+		}
 	}
 	return nil, fmt.Errorf("invalid ed25519 key length: expected 32 (seed) or 64 bytes, got %d", len(rawBytes))
 }

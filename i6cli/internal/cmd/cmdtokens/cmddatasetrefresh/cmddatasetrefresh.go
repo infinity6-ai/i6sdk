@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/ed25519"
 	"crypto/sha256"
+	"crypto/x509"
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
@@ -556,6 +557,11 @@ func parseEd25519Key(keyInput string) (ed25519.PrivateKey, error) {
 	}
 	if len(rawBytes) == ed25519.SeedSize {
 		return ed25519.NewKeyFromSeed(rawBytes), nil
+	}
+	if parsed, err := x509.ParsePKCS8PrivateKey(rawBytes); err == nil {
+		if edKey, ok := parsed.(ed25519.PrivateKey); ok {
+			return edKey, nil
+		}
 	}
 	return nil, fmt.Errorf("invalid ed25519 key length: expected 32 (seed) or 64 bytes, got %d", len(rawBytes))
 }
