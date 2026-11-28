@@ -1,12 +1,14 @@
 package cliconfig
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/infinity6-ai/gox/commonz/configz"
 	"github.com/infinity6-ai/gox/commonz/urlz"
 	"github.com/infinity6-ai/i6sdk/i6cli/internal/exitcode"
 	"github.com/infinity6-ai/i6sdk/sdkgo/config"
@@ -16,18 +18,6 @@ import (
 const (
 	// DefaultProfile is the fallback profile name if none is explicitly specified.
 	DefaultProfile = "main"
-
-	// EnvConfigDir overrides the base configuration directory ($HOME/.config/i6).
-	EnvConfigDir = "I6_CLI_CONFIG_DIR"
-
-	// EnvConfigProfile sets the active profile via environment variable.
-	EnvConfigProfile = "I6_CLI_CONFIG_PROFILE"
-
-	// EnvConfigJSON provides an inline JSON configuration for zero-disk CI/CD execution.
-	EnvConfigJSON = "I6_CLI_CONFIG_JSON"
-
-	// EnvDataset overrides the target dataset identifier.
-	EnvDataset = "I6_DATASET"
 
 	// BoxProd selects the production service endpoints.
 	BoxProd = "prod"
@@ -39,31 +29,58 @@ const (
 	BoxSandbox = "sandbox"
 )
 
+var (
+	// PropConfigDir overrides the base configuration directory ($HOME/.config/i6).
+	PropConfigDir = configz.Create("I6_CLI_CONFIG_DIR", "")
+
+	// PropConfigProfile sets the active profile via environment property.
+	PropConfigProfile = configz.Create("I6_CLI_CONFIG_PROFILE", DefaultProfile)
+
+	// PropConfigJSON provides an inline JSON configuration for zero-disk CI/CD execution.
+	PropConfigJSON = configz.Create("I6_CLI_CONFIG_JSON", "")
+
+	// PropDataset overrides the target dataset identifier.
+	PropDataset = configz.Create("I6_DATASET", "")
+)
+
+func getCtx(ctx ...context.Context) context.Context {
+	if len(ctx) > 0 && ctx[0] != nil {
+		return ctx[0]
+	}
+	return context.Background()
+}
+
 // Config represents the persisted profile configuration (config.json).
 type Config struct {
 	Box            string `json:"box"`
 	DefaultDataset string `json:"default_dataset,omitempty"`
 }
 
-// ResolveProfile determines the active profile name using flag, env, and default precedence.
-func ResolveProfile(flagVal string) string {
+// ResolveProfile determines the active profile name using flag, configz property, and default precedence.
+func ResolveProfile(flagVal string, ctx ...context.Context) string {
 	if trimmed := strings.TrimSpace(flagVal); trimmed != "" {
 		return trimmed
 	}
-	if envVal := strings.TrimSpace(os.Getenv(EnvConfigProfile)); envVal != "" {
-		return envVal
+	c := getCtx(ctx...)
+	if propVal, err := PropConfigProfile.Get(c); err == nil {
+		if trimmed := strings.TrimSpace(propVal); trimmed != "" {
+			return trimmed
+		}
 	}
 	return DefaultProfile
 }
 
-// ResolveBaseConfigDir returns the root CLI configuration directory ($HOME/.config/i6 or I6_CLI_CONFIG_DIR).
-func ResolveBaseConfigDir() (string, error) {
-	if envDir := strings.TrimSpace(os.Getenv(EnvConfigDir)); envDir != "" {
-		absDir, err := filepath.Abs(envDir)
-		if err != nil {
-			return "", fmt.Errorf("failed to resolve absolute config dir from %s=%q: %w", EnvConfigDir, envDir, err)
+// ResolveBaseConfigDir returns the root CLI configuration directory ($HOME/.config/i6 or PropConfigDir).
+func ResolveBaseConfigDir(ctx ...context.Context) (string, error) {
+	c := getCtx(ctx...)
+	if propDir, err := PropConfigDir.Get(c); err == nil {
+		if trimmed := strings.TrimSpace(propDir); trimmed != "" {
+			absDir, err := filepath.Abs(trimmed)
+			if err != nil {
+				return "", fmt.Errorf("failed to resolve absolute config dir from %s=%q: %w", PropConfigDir, trimmed, err)
+			}
+			return absDir, nil
 		}
-		return absDir, nil
 	}
 
 	homeDir, err := os.UserHomeDir()
@@ -74,8 +91,8 @@ func ResolveBaseConfigDir() (string, error) {
 }
 
 // ResolveProfileDir returns the directory path for the given profile ($BASE_DIR/<profile>).
-func ResolveProfileDir(profile string) (string, error) {
-	baseDir, err := ResolveBaseConfigDir()
+func ResolveProfileDir(profile string, ctx ...context.Context) (string, error) {
+	baseDir, err := ResolveBaseConfigDir(ctx...)
 	if err != nil {
 		return "", err
 	}
@@ -87,8 +104,8 @@ func ResolveProfileDir(profile string) (string, error) {
 }
 
 // EnsureProfileDir guarantees the profile directory and cache directory exist with 0700 permissions.
-func EnsureProfileDir(profile string) (string, error) {
-	pDir, err := ResolveProfileDir(profile)
+func EnsureProfileDir(profile string, ctx ...context.Context) (string, error) {
+	pDir, err := ResolveProfileDir(profile, ctx...)
 	if err != nil {
 		return "", err
 	}
@@ -103,8 +120,8 @@ func EnsureProfileDir(profile string) (string, error) {
 }
 
 // ResolveTokensSqliteUrl constructs the profile-isolated SQLite URL (file://$BASE_DIR/<profile>/tokens.db).
-func ResolveTokensSqliteUrl(profile string) (*urlz.Url, error) {
-	pDir, err := ResolveProfileDir(profile)
+func ResolveTokensSqliteUrl(profile string, ctx ...context.Context) (*urlz.Url, error) {
+	pDir, err := ResolveProfileDir(profile, ctx...)
 	if err != nil {
 		return nil, err
 	}
@@ -116,12 +133,13 @@ func ResolveTokensSqliteUrl(profile string) (*urlz.Url, error) {
 	return u, nil
 }
 
-// ResolveTokenStore returns an in-memory Store if I6_CLI_CONFIG_JSON is present, or a persistent SQLite Store.
-func ResolveTokenStore(profile string) (tokenstore.Store, error) {
-	if strings.TrimSpace(os.Getenv(EnvConfigJSON)) != "" {
+// ResolveTokenStore returns an in-memory Store if PropConfigJSON is present, or a persistent SQLite Store.
+func ResolveTokenStore(profile string, ctx ...context.Context) (tokenstore.Store, error) {
+	c := getCtx(ctx...)
+	if inline, err := PropConfigJSON.Get(c); err == nil && strings.TrimSpace(inline) != "" {
 		return tokenstore.NewMemory(), nil
 	}
-	targetUrl, err := ResolveTokensSqliteUrl(profile)
+	targetUrl, err := ResolveTokensSqliteUrl(profile, ctx...)
 	if err != nil {
 		return nil, err
 	}
@@ -133,8 +151,8 @@ func ResolveTokenStore(profile string) (tokenstore.Store, error) {
 }
 
 // ResolveCacheDir returns the profile-scoped local cache directory.
-func ResolveCacheDir(profile string) (string, error) {
-	pDir, err := ResolveProfileDir(profile)
+func ResolveCacheDir(profile string, ctx ...context.Context) (string, error) {
+	pDir, err := ResolveProfileDir(profile, ctx...)
 	if err != nil {
 		return "", err
 	}
@@ -142,12 +160,13 @@ func ResolveCacheDir(profile string) (string, error) {
 }
 
 // ResolveConfig loads the profile's Config, checking inline JSON, file, and defaults.
-func ResolveConfig(profile string) (*Config, error) {
+func ResolveConfig(profile string, ctx ...context.Context) (*Config, error) {
+	c := getCtx(ctx...)
 	// 1. Check inline JSON override first (zero-disk execution)
-	if inline := strings.TrimSpace(os.Getenv(EnvConfigJSON)); inline != "" {
+	if inline, err := PropConfigJSON.Get(c); err == nil && strings.TrimSpace(inline) != "" {
 		var cfg Config
 		if err := json.Unmarshal([]byte(inline), &cfg); err != nil {
-			return nil, exitcode.Wrap(exitcode.Usage, fmt.Errorf("failed to parse %s JSON: %w", EnvConfigJSON, err))
+			return nil, exitcode.Wrap(exitcode.Usage, fmt.Errorf("failed to parse %s JSON: %w", PropConfigJSON, err))
 		}
 		if cfg.Box == "" {
 			cfg.Box = BoxProd
@@ -156,7 +175,7 @@ func ResolveConfig(profile string) (*Config, error) {
 	}
 
 	// 2. Read config.json from profile directory
-	pDir, err := ResolveProfileDir(profile)
+	pDir, err := ResolveProfileDir(profile, ctx...)
 	if err != nil {
 		return nil, err
 	}
@@ -180,11 +199,11 @@ func ResolveConfig(profile string) (*Config, error) {
 }
 
 // SaveConfig writes the Config to the profile's config.json with 0600 permissions.
-func SaveConfig(profile string, cfg *Config) error {
+func SaveConfig(profile string, cfg *Config, ctx ...context.Context) error {
 	if cfg == nil {
 		return fmt.Errorf("config cannot be nil")
 	}
-	pDir, err := EnsureProfileDir(profile)
+	pDir, err := EnsureProfileDir(profile, ctx...)
 	if err != nil {
 		return err
 	}
@@ -218,15 +237,16 @@ func ResolveBoxUrls(box string) (config.UrlOptions, error) {
 
 // ResolveDataset resolves the active dataset using flag, config.json, and environment precedence.
 // If unresolved, returns an ExitError with exit code 2 and actionable instructions.
-func ResolveDataset(flagVal string, cfg *Config) (string, error) {
+func ResolveDataset(flagVal string, cfg *Config, ctx ...context.Context) (string, error) {
 	if trimmed := strings.TrimSpace(flagVal); trimmed != "" {
 		return trimmed, nil
 	}
 	if cfg != nil && strings.TrimSpace(cfg.DefaultDataset) != "" {
 		return strings.TrimSpace(cfg.DefaultDataset), nil
 	}
-	if envDs := strings.TrimSpace(os.Getenv(EnvDataset)); envDs != "" {
-		return envDs, nil
+	c := getCtx(ctx...)
+	if propDs, err := PropDataset.Get(c); err == nil && strings.TrimSpace(propDs) != "" {
+		return strings.TrimSpace(propDs), nil
 	}
 	return "", exitcode.New(
 		exitcode.Usage,

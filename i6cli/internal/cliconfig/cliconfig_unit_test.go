@@ -1,7 +1,6 @@
 package cliconfig_test
 
 import (
-	"os"
 	"path/filepath"
 	"testing"
 
@@ -12,102 +11,120 @@ import (
 )
 
 func TestUnitResolveProfile(t *testing.T) {
+	ctx := t.Context()
+
 	type testScenario struct {
 		flagVal string
-		envVal  string
+		propVal string
 		want    string
 	}
 
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
-		if s.envVal != "" {
-			t.Setenv(cliconfig.EnvConfigProfile, s.envVal)
-		} else {
-			_ = os.Unsetenv(cliconfig.EnvConfigProfile)
-		}
-		got := cliconfig.ResolveProfile(s.flagVal)
+		rev, err := cliconfig.PropConfigProfile.Set(ctx, "%s", s.propVal)
+		require.NoError(t, err)
+		defer rev.Close()
+
+		got := cliconfig.ResolveProfile(s.flagVal, ctx)
 		require.Equal(t, s.want, got)
 	}
 
 	t.Run("Flag takes highest precedence", func(t *testing.T) {
 		check(t, testScenario{
 			flagVal: "custom-profile",
-			envVal:  "env-profile",
+			propVal: "env-profile",
 			want:    "custom-profile",
 		})
 	})
 
-	t.Run("Environment variable used when flag is empty", func(t *testing.T) {
+	t.Run("Config property used when flag is empty", func(t *testing.T) {
 		check(t, testScenario{
 			flagVal: "",
-			envVal:  "env-profile",
+			propVal: "env-profile",
 			want:    "env-profile",
 		})
 	})
 
-	t.Run("Default main profile used when flag and env are empty", func(t *testing.T) {
+	t.Run("Default main profile used when flag and prop are empty", func(t *testing.T) {
 		check(t, testScenario{
 			flagVal: "",
-			envVal:  "",
+			propVal: "",
 			want:    cliconfig.DefaultProfile,
 		})
 	})
 }
 
 func TestUnitResolveBaseConfigDir(t *testing.T) {
-	t.Run("Uses I6_CLI_CONFIG_DIR when set", func(t *testing.T) {
-		tmpDir := t.TempDir()
-		t.Setenv(cliconfig.EnvConfigDir, tmpDir)
+	ctx := t.Context()
 
-		baseDir, err := cliconfig.ResolveBaseConfigDir()
+	t.Run("Uses PropConfigDir when set", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		rev, err := cliconfig.PropConfigDir.Set(ctx, "%s", tmpDir)
+		require.NoError(t, err)
+		defer rev.Close()
+
+		baseDir, err := cliconfig.ResolveBaseConfigDir(ctx)
 		require.NoError(t, err)
 		require.Equal(t, tmpDir, baseDir)
 	})
 
-	t.Run("Falls back to home directory when env is unset", func(t *testing.T) {
-		_ = os.Unsetenv(cliconfig.EnvConfigDir)
-		baseDir, err := cliconfig.ResolveBaseConfigDir()
+	t.Run("Falls back to home directory when prop is unset", func(t *testing.T) {
+		rev, err := cliconfig.PropConfigDir.Set(ctx, "")
+		require.NoError(t, err)
+		defer rev.Close()
+
+		baseDir, err := cliconfig.ResolveBaseConfigDir(ctx)
 		require.NoError(t, err)
 		require.Contains(t, baseDir, filepath.Join(".config", "i6"))
 	})
 }
 
 func TestUnitEnsureProfileDirAndSqliteUrl(t *testing.T) {
+	ctx := t.Context()
 	tmpDir := t.TempDir()
-	t.Setenv(cliconfig.EnvConfigDir, tmpDir)
+	rev, err := cliconfig.PropConfigDir.Set(ctx, "%s", tmpDir)
+	require.NoError(t, err)
+	defer rev.Close()
 
 	profile := "test-worker"
-	pDir, err := cliconfig.EnsureProfileDir(profile)
+	pDir, err := cliconfig.EnsureProfileDir(profile, ctx)
 	require.NoError(t, err)
 	require.DirExists(t, pDir)
 	require.DirExists(t, filepath.Join(pDir, "cache"))
 
 	// Verify SQLite URL format
-	u, err := cliconfig.ResolveTokensSqliteUrl(profile)
+	u, err := cliconfig.ResolveTokensSqliteUrl(profile, ctx)
 	require.NoError(t, err)
 	require.NotNil(t, u)
 	require.Equal(t, "file", u.Scheme)
 	require.True(t, u.Path != nil && filepath.Base(u.Path.String()) == "tokens.db")
 
 	// Verify token store can be constructed
-	store, err := cliconfig.ResolveTokenStore(profile)
+	store, err := cliconfig.ResolveTokenStore(profile, ctx)
 	require.NoError(t, err)
 	require.NotNil(t, store)
 
 	// Verify memory token store when inline JSON is provided
-	t.Setenv(cliconfig.EnvConfigJSON, `{"box":"sandbox"}`)
-	memStore, err := cliconfig.ResolveTokenStore(profile)
+	revJSON, err := cliconfig.PropConfigJSON.Set(ctx, `{"box":"sandbox"}`)
+	require.NoError(t, err)
+	defer revJSON.Close()
+
+	memStore, err := cliconfig.ResolveTokenStore(profile, ctx)
 	require.NoError(t, err)
 	require.NotNil(t, memStore)
 }
 
 func TestUnitConfigSaveAndResolve(t *testing.T) {
+	ctx := t.Context()
 	tmpDir := t.TempDir()
-	t.Setenv(cliconfig.EnvConfigDir, tmpDir)
+	rev, err := cliconfig.PropConfigDir.Set(ctx, "%s", tmpDir)
+	require.NoError(t, err)
+	defer rev.Close()
+
 	profile := "staging-profile"
 
 	// Initial resolution when config.json is absent defaults to prod
-	cfg, err := cliconfig.ResolveConfig(profile)
+	cfg, err := cliconfig.ResolveConfig(profile, ctx)
 	require.NoError(t, err)
 	require.Equal(t, cliconfig.BoxProd, cfg.Box)
 	require.Empty(t, cfg.DefaultDataset)
@@ -115,18 +132,21 @@ func TestUnitConfigSaveAndResolve(t *testing.T) {
 	// Save modified config
 	cfg.Box = cliconfig.BoxStaging
 	cfg.DefaultDataset = "fashion-ds"
-	err = cliconfig.SaveConfig(profile, cfg)
+	err = cliconfig.SaveConfig(profile, cfg, ctx)
 	require.NoError(t, err)
 
 	// Read back saved config
-	readCfg, err := cliconfig.ResolveConfig(profile)
+	readCfg, err := cliconfig.ResolveConfig(profile, ctx)
 	require.NoError(t, err)
 	require.Equal(t, cliconfig.BoxStaging, readCfg.Box)
 	require.Equal(t, "fashion-ds", readCfg.DefaultDataset)
 
 	// Inline JSON override
-	t.Setenv(cliconfig.EnvConfigJSON, `{"box":"sandbox","default_dataset":"inline-ds"}`)
-	inlineCfg, err := cliconfig.ResolveConfig(profile)
+	revJSON, err := cliconfig.PropConfigJSON.Set(ctx, `{"box":"sandbox","default_dataset":"inline-ds"}`)
+	require.NoError(t, err)
+	defer revJSON.Close()
+
+	inlineCfg, err := cliconfig.ResolveConfig(profile, ctx)
 	require.NoError(t, err)
 	require.Equal(t, cliconfig.BoxSandbox, inlineCfg.Box)
 	require.Equal(t, "inline-ds", inlineCfg.DefaultDataset)
@@ -181,22 +201,23 @@ func TestUnitResolveBoxUrls(t *testing.T) {
 }
 
 func TestUnitResolveDataset(t *testing.T) {
+	ctx := t.Context()
+
 	type testScenario struct {
 		flagVal string
 		cfg     *cliconfig.Config
-		envVal  string
+		propVal string
 		want    string
 		wantErr bool
 	}
 
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
-		if s.envVal != "" {
-			t.Setenv(cliconfig.EnvDataset, s.envVal)
-		} else {
-			_ = os.Unsetenv(cliconfig.EnvDataset)
-		}
-		got, err := cliconfig.ResolveDataset(s.flagVal, s.cfg)
+		rev, err := cliconfig.PropDataset.Set(ctx, "%s", s.propVal)
+		require.NoError(t, err)
+		defer rev.Close()
+
+		got, err := cliconfig.ResolveDataset(s.flagVal, s.cfg, ctx)
 		if s.wantErr {
 			require.Error(t, err)
 			require.Equal(t, exitcode.Usage, exitcode.Code(err))
@@ -211,7 +232,7 @@ func TestUnitResolveDataset(t *testing.T) {
 		check(t, testScenario{
 			flagVal: "flag-ds",
 			cfg:     &cliconfig.Config{DefaultDataset: "cfg-ds"},
-			envVal:  "env-ds",
+			propVal: "env-ds",
 			want:    "flag-ds",
 		})
 	})
@@ -220,16 +241,16 @@ func TestUnitResolveDataset(t *testing.T) {
 		check(t, testScenario{
 			flagVal: "",
 			cfg:     &cliconfig.Config{DefaultDataset: "cfg-ds"},
-			envVal:  "env-ds",
+			propVal: "env-ds",
 			want:    "cfg-ds",
 		})
 	})
 
-	t.Run("Environment variable used when flag and config are empty", func(t *testing.T) {
+	t.Run("Config property used when flag and config are empty", func(t *testing.T) {
 		check(t, testScenario{
 			flagVal: "",
 			cfg:     &cliconfig.Config{},
-			envVal:  "env-ds",
+			propVal: "env-ds",
 			want:    "env-ds",
 		})
 	})
@@ -238,7 +259,7 @@ func TestUnitResolveDataset(t *testing.T) {
 		check(t, testScenario{
 			flagVal: "",
 			cfg:     &cliconfig.Config{},
-			envVal:  "",
+			propVal: "",
 			wantErr: true,
 		})
 	})

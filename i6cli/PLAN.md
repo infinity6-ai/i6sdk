@@ -176,14 +176,15 @@ Provided natively by Cobra's default autocompletion engine:
 
 ## 4. Configuration & State Layout
 
-All CLI configuration, credentials, and local caches are organized per profile:
+All CLI configuration, credentials, and local caches are organized per profile and managed through `github.com/infinity6-ai/gox/commonz/configz`:
 
-- **Config Base Directory**: `I6_CLI_CONFIG_DIR` (defaults to `$HOME/.config/i6/`).
+- **Config Base Directory**: `PropConfigDir` (`I6_CLI_CONFIG_DIR`, defaults to `$HOME/.config/i6/`).
 - **Active Profile Selection Hierarchy**:
   1. Persistent root flag: `--profile <name>` (or `-p <name>`)
-  2. Environment variable: `I6_CLI_CONFIG_PROFILE`
+  2. Configuration property: `PropConfigProfile` (`I6_CLI_CONFIG_PROFILE`)
   3. Default profile: `"main"`
-- **Inline JSON Override**: `I6_CLI_CONFIG_JSON` (optional inline JSON string for zero-disk CI/CD execution).
+- **Inline JSON Override**: `PropConfigJSON` (`I6_CLI_CONFIG_JSON`, optional inline JSON string for zero-disk CI/CD execution).
+- **Dataset Override**: `PropDataset` (`I6_DATASET`, optional default dataset override).
 
 ```
 $I6_CLI_CONFIG_DIR/ (defaults to $HOME/.config/i6/)
