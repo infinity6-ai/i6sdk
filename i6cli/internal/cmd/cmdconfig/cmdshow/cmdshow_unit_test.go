@@ -31,8 +31,7 @@ func TestUnitCmdShow(t *testing.T) {
 		output := outBuf.String()
 		require.Contains(t, output, "Profile")
 		require.Contains(t, output, "main")
-		require.Contains(t, output, "Box Environment")
-		require.Contains(t, output, "prod")
+		require.Contains(t, output, "Userz Service")
 		require.Contains(t, output, "not initialized")
 	})
 
@@ -44,8 +43,8 @@ func TestUnitCmdShow(t *testing.T) {
 
 		profile := "custom-worker"
 		cfg := &cliconfig.Config{
-			Box:            cliconfig.BoxStaging,
 			DefaultDataset: "ds-staging-1",
+			UserzUrl:       "https://custom-userz.corp",
 		}
 		require.NoError(t, cliconfig.SaveConfig(profile, cfg, ctx))
 
@@ -62,9 +61,9 @@ func TestUnitCmdShow(t *testing.T) {
 
 		output := outBuf.String()
 		require.Contains(t, output, `"profile": "custom-worker"`)
-		require.Contains(t, output, `"box": "staging"`)
 		require.Contains(t, output, `"default_dataset": "ds-staging-1"`)
 		require.Contains(t, output, `"status": "initialized"`)
+		require.Contains(t, output, `"userz": "https://custom-userz.corp"`)
 	})
 
 	t.Run("Shows profile in quiet format", func(t *testing.T) {

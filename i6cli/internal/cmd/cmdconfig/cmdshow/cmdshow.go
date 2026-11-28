@@ -22,7 +22,7 @@ func New(ctx context.Context) *cobra.Command {
 		Use:   "show",
 		Short: "Display active profile configuration, directories, and endpoints",
 		Long: `Displays the active profile configuration details including directory paths,
-box environment, service endpoint URLs, default dataset, and token store location.`,
+service endpoint URLs, default dataset, and token store location.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c := cmd.Context()
 			if c == nil {
@@ -42,10 +42,7 @@ box environment, service endpoint URLs, default dataset, and token store locatio
 				return fmt.Errorf("failed to load profile configuration: %w", err)
 			}
 
-			urls, err := cliconfig.ResolveBoxUrls(cfg.Box)
-			if err != nil {
-				return err
-			}
+			urls := cliconfig.ResolveUrls(cfg)
 
 			cacheDir, _ := cliconfig.ResolveCacheDir(profile, c)
 			sqliteUrl, _ := cliconfig.ResolveTokensSqliteUrl(profile, c)
@@ -73,7 +70,6 @@ box environment, service endpoint URLs, default dataset, and token store locatio
 					{"Status", configStatus},
 					{"Profile Directory", pDir},
 					{"Config File", configPath},
-					{"Box Environment", cfg.Box},
 					{"Default Dataset", defaultDs},
 					{"Userz Service", urls.Userz},
 					{"Decsuite Service", urls.Decsuite},
@@ -88,7 +84,6 @@ box environment, service endpoint URLs, default dataset, and token store locatio
 					"status":            configStatus,
 					"profile_directory": pDir,
 					"config_file":       configPath,
-					"box":               cfg.Box,
 					"default_dataset":   cfg.DefaultDataset,
 					"endpoints": map[string]string{
 						"userz":    urls.Userz,

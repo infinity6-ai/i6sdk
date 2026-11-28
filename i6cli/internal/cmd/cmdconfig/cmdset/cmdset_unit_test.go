@@ -16,8 +16,10 @@ func TestUnitCmdSet(t *testing.T) {
 	type testScenario struct {
 		args        []string
 		wantErrCode int
-		wantBox     string
 		wantDataset string
+		wantUserz   string
+		wantDec     string
+		wantTf      string
 	}
 
 	check := func(t *testing.T, s testScenario) {
@@ -28,7 +30,7 @@ func TestUnitCmdSet(t *testing.T) {
 		defer rev.Close()
 
 		// Seed initial configuration
-		initialCfg := &cliconfig.Config{Box: cliconfig.BoxProd, DefaultDataset: "orig-ds"}
+		initialCfg := &cliconfig.Config{DefaultDataset: "orig-ds"}
 		require.NoError(t, cliconfig.SaveConfig("main", initialCfg, ctx))
 
 		cmd := cmdset.New(ctx)
@@ -47,22 +49,21 @@ func TestUnitCmdSet(t *testing.T) {
 
 		cfg, err := cliconfig.ResolveConfig("main", ctx)
 		require.NoError(t, err)
-		require.Equal(t, s.wantBox, cfg.Box)
 		require.Equal(t, s.wantDataset, cfg.DefaultDataset)
+		if s.wantUserz != "" {
+			require.Equal(t, s.wantUserz, cfg.UserzUrl)
+		}
+		if s.wantDec != "" {
+			require.Equal(t, s.wantDec, cfg.DecsuiteUrl)
+		}
+		if s.wantTf != "" {
+			require.Equal(t, s.wantTf, cfg.TfinferUrl)
+		}
 	}
-
-	t.Run("Updates box environment to staging", func(t *testing.T) {
-		check(t, testScenario{
-			args:        []string{"box", "staging"},
-			wantBox:     cliconfig.BoxStaging,
-			wantDataset: "orig-ds",
-		})
-	})
 
 	t.Run("Updates default_dataset", func(t *testing.T) {
 		check(t, testScenario{
 			args:        []string{"default_dataset", "new-fashion-ds"},
-			wantBox:     cliconfig.BoxProd,
 			wantDataset: "new-fashion-ds",
 		})
 	})
@@ -70,15 +71,31 @@ func TestUnitCmdSet(t *testing.T) {
 	t.Run("Updates dataset using dataset alias", func(t *testing.T) {
 		check(t, testScenario{
 			args:        []string{"dataset", "aliased-ds"},
-			wantBox:     cliconfig.BoxProd,
 			wantDataset: "aliased-ds",
 		})
 	})
 
-	t.Run("Fails on invalid box value", func(t *testing.T) {
+	t.Run("Updates userz_url", func(t *testing.T) {
 		check(t, testScenario{
-			args:        []string{"box", "invalid-box-val"},
-			wantErrCode: exitcode.Usage,
+			args:        []string{"userz_url", "https://auth.internal.corp"},
+			wantDataset: "orig-ds",
+			wantUserz:   "https://auth.internal.corp",
+		})
+	})
+
+	t.Run("Updates decsuite_url", func(t *testing.T) {
+		check(t, testScenario{
+			args:        []string{"decsuite_url", "https://lake.internal.corp"},
+			wantDataset: "orig-ds",
+			wantDec:     "https://lake.internal.corp",
+		})
+	})
+
+	t.Run("Updates tfinfer_url", func(t *testing.T) {
+		check(t, testScenario{
+			args:        []string{"tfinfer_url", "https://infer.internal.corp"},
+			wantDataset: "orig-ds",
+			wantTf:      "https://infer.internal.corp",
 		})
 	})
 
@@ -91,8 +108,8 @@ func TestUnitCmdSet(t *testing.T) {
 
 	t.Run("Fails when insufficient arguments provided", func(t *testing.T) {
 		check(t, testScenario{
-			args:        []string{"box"},
-			wantErrCode: exitcode.General, // cobra flag/arg validation returns generic error
+			args:        []string{"dataset"},
+			wantErrCode: exitcode.General,
 		})
 	})
 }

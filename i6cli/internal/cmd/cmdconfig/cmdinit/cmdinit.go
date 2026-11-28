@@ -20,9 +20,8 @@ var logger = logz.Create(tlogger(true))
 // New constructs the 'init' command under 'config'.
 func New(ctx context.Context) *cobra.Command {
 	var (
-		box        string
-		dataset    string
-		force      bool
+		dataset string
+		force   bool
 	)
 
 	cmd := &cobra.Command{
@@ -30,9 +29,8 @@ func New(ctx context.Context) *cobra.Command {
 		Short: "Initialize profile configuration directory and config.json",
 		Long: `Initializes the active profile directory with a config.json configuration file.
 
-Configures the target box environment (prod, staging, or sandbox) and an optional
-default dataset. If the configuration already exists, the command fails unless -f/--force
-is provided to overwrite it.`,
+Allows configuring an optional default dataset. If the configuration already exists,
+the command fails unless -f/--force is provided to overwrite it.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c := cmd.Context()
 			if c == nil {
@@ -41,15 +39,6 @@ is provided to overwrite it.`,
 
 			profileFlag, _ := cmd.Flags().GetString("profile")
 			profile := cliconfig.ResolveProfile(profileFlag, c)
-
-			// Validate box environment
-			boxVal := strings.ToLower(strings.TrimSpace(box))
-			if boxVal == "" {
-				boxVal = cliconfig.BoxProd
-			}
-			if _, err := cliconfig.ResolveBoxUrls(boxVal); err != nil {
-				return err
-			}
 
 			pDir, err := cliconfig.EnsureProfileDir(profile, c)
 			if err != nil {
@@ -65,7 +54,6 @@ is provided to overwrite it.`,
 			}
 
 			cfg := &cliconfig.Config{
-				Box:            boxVal,
 				DefaultDataset: strings.TrimSpace(dataset),
 			}
 
@@ -75,7 +63,6 @@ is provided to overwrite it.`,
 
 			logger.Info(c, "config-init", map[string]any{
 				"profile": profile,
-				"box":     boxVal,
 				"path":    configPath,
 			})
 
@@ -84,7 +71,6 @@ is provided to overwrite it.`,
 		},
 	}
 
-	cmd.Flags().StringVar(&box, "box", cliconfig.BoxProd, "Target box environment (prod|staging|sandbox)")
 	cmd.Flags().StringVar(&dataset, "dataset", "", "Default dataset identifier for this profile")
 	cmd.Flags().BoolVarP(&force, "force", "f", false, "Overwrite existing configuration file if present")
 

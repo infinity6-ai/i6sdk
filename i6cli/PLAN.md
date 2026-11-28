@@ -373,7 +373,7 @@ In `.github/workflows/release.yml`:
   - [x] Implement persistent `--profile` / `-p` root flag and enable Cobra native shell autocompletion (`bash`, `zsh`, `fish`, `powershell`).
 
 - [ ] **Phase 2: Authentication & Local Profile Tokens (`auth`, `tokens`, `config`)**
-  - [ ] Implement `i6 config init [--box sandbox|staging|prod] [--dataset <dataset>] [-f/--force]`, `i6 config show`, and `i6 config set <k> <v>`.
+  - [x] Implement `i6 config init [--box sandbox|staging|prod] [--dataset <dataset>] [-f/--force]`, `i6 config show`, and `i6 config set <k> <v>`.
   - [ ] Implement `i6 auth login` (Device code flow with polling; enforces mutual exclusivity).
   - [ ] Implement `i6 auth token [<token-string> | -] [--offline]` (universal token ingestion with auto-detection).
   - [ ] Implement `i6 auth logout` and `i6 auth status`.

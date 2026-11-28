@@ -105,7 +105,7 @@ func TestUnitEnsureProfileDirAndSqliteUrl(t *testing.T) {
 	require.NotNil(t, store)
 
 	// Verify memory token store when inline JSON is provided
-	revJSON, err := cliconfig.PropConfigJSON.Set(ctx, `{"box":"sandbox"}`)
+	revJSON, err := cliconfig.PropConfigJSON.Set(ctx, `{"default_dataset":"mem-ds"}`)
 	require.NoError(t, err)
 	defer revJSON.Close()
 
@@ -123,79 +123,76 @@ func TestUnitConfigSaveAndResolve(t *testing.T) {
 
 	profile := "staging-profile"
 
-	// Initial resolution when config.json is absent defaults to prod
+	// Initial resolution when config.json is absent returns empty config
 	cfg, err := cliconfig.ResolveConfig(profile, ctx)
 	require.NoError(t, err)
-	require.Equal(t, cliconfig.BoxProd, cfg.Box)
 	require.Empty(t, cfg.DefaultDataset)
 
 	// Save modified config
-	cfg.Box = cliconfig.BoxStaging
 	cfg.DefaultDataset = "fashion-ds"
+	cfg.UserzUrl = "https://custom-userz.internal"
 	err = cliconfig.SaveConfig(profile, cfg, ctx)
 	require.NoError(t, err)
 
 	// Read back saved config
 	readCfg, err := cliconfig.ResolveConfig(profile, ctx)
 	require.NoError(t, err)
-	require.Equal(t, cliconfig.BoxStaging, readCfg.Box)
 	require.Equal(t, "fashion-ds", readCfg.DefaultDataset)
+	require.Equal(t, "https://custom-userz.internal", readCfg.UserzUrl)
 
 	// Inline JSON override
-	revJSON, err := cliconfig.PropConfigJSON.Set(ctx, `{"box":"sandbox","default_dataset":"inline-ds"}`)
+	revJSON, err := cliconfig.PropConfigJSON.Set(ctx, `{"default_dataset":"inline-ds"}`)
 	require.NoError(t, err)
 	defer revJSON.Close()
 
 	inlineCfg, err := cliconfig.ResolveConfig(profile, ctx)
 	require.NoError(t, err)
-	require.Equal(t, cliconfig.BoxSandbox, inlineCfg.Box)
 	require.Equal(t, "inline-ds", inlineCfg.DefaultDataset)
 }
 
-func TestUnitResolveBoxUrls(t *testing.T) {
+func TestUnitResolveUrls(t *testing.T) {
 	type testScenario struct {
-		box      string
+		cfg      *cliconfig.Config
 		wantUser string
-		wantErr  bool
+		wantDec  string
+		wantTf   string
 	}
 
 	check := func(t *testing.T, s testScenario) {
 		t.Helper()
-		urls, err := cliconfig.ResolveBoxUrls(s.box)
-		if s.wantErr {
-			require.Error(t, err)
-			require.Equal(t, exitcode.Usage, exitcode.Code(err))
-			return
-		}
-		require.NoError(t, err)
+		urls := cliconfig.ResolveUrls(s.cfg)
 		require.Equal(t, s.wantUser, urls.Userz)
+		require.Equal(t, s.wantDec, urls.Decsuite)
+		require.Equal(t, s.wantTf, urls.Tfinfer)
 	}
 
-	t.Run("Prod / default", func(t *testing.T) {
+	t.Run("Nil config resolves to production defaults", func(t *testing.T) {
 		check(t, testScenario{
-			box:      "prod",
+			cfg:      nil,
 			wantUser: config.DefaultUrlOptions.Userz,
+			wantDec:  config.DefaultUrlOptions.Decsuite,
+			wantTf:   config.DefaultUrlOptions.Tfinfer,
 		})
 	})
 
-	t.Run("Staging", func(t *testing.T) {
+	t.Run("Empty config resolves to production defaults", func(t *testing.T) {
 		check(t, testScenario{
-			box:      "staging",
-			wantUser: config.StagingUrlOptions.Userz,
+			cfg:      &cliconfig.Config{},
+			wantUser: config.DefaultUrlOptions.Userz,
+			wantDec:  config.DefaultUrlOptions.Decsuite,
+			wantTf:   config.DefaultUrlOptions.Tfinfer,
 		})
 	})
 
-	t.Run("Sandbox", func(t *testing.T) {
+	t.Run("Custom URLs override defaults", func(t *testing.T) {
 		check(t, testScenario{
-			box:      "sandbox",
-			wantUser: config.SandboxUrlOptions.Userz,
-		})
-	})
-
-	t.Run("Invalid box returns usage error", func(t *testing.T) {
-		check(t, testScenario{
-			box:     "unknown-env",
-			wantErr: true,
+			cfg: &cliconfig.Config{
+				UserzUrl:    "https://custom-user.example.com",
+				DecsuiteUrl: "https://custom-dec.example.com",
+			},
+			wantUser: "https://custom-user.example.com",
+			wantDec:  "https://custom-dec.example.com",
+			wantTf:   config.DefaultUrlOptions.Tfinfer,
 		})
 	})
 }

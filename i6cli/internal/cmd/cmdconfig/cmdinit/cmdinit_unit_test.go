@@ -16,7 +16,6 @@ func TestUnitCmdInit(t *testing.T) {
 	type testScenario struct {
 		args        []string
 		wantErrCode int
-		wantBox     string
 		wantDataset string
 	}
 
@@ -43,30 +42,20 @@ func TestUnitCmdInit(t *testing.T) {
 
 		cfg, err := cliconfig.ResolveConfig("main", ctx)
 		require.NoError(t, err)
-		require.Equal(t, s.wantBox, cfg.Box)
 		require.Equal(t, s.wantDataset, cfg.DefaultDataset)
 	}
 
-	t.Run("Initializes default prod configuration", func(t *testing.T) {
+	t.Run("Initializes default configuration", func(t *testing.T) {
 		check(t, testScenario{
 			args:        []string{},
-			wantBox:     cliconfig.BoxProd,
 			wantDataset: "",
 		})
 	})
 
-	t.Run("Initializes staging configuration with dataset", func(t *testing.T) {
+	t.Run("Initializes configuration with default dataset", func(t *testing.T) {
 		check(t, testScenario{
-			args:        []string{"--box", "staging", "--dataset", "my-fashion-ds"},
-			wantBox:     cliconfig.BoxStaging,
+			args:        []string{"--dataset", "my-fashion-ds"},
 			wantDataset: "my-fashion-ds",
-		})
-	})
-
-	t.Run("Fails on invalid box name with usage error", func(t *testing.T) {
-		check(t, testScenario{
-			args:        []string{"--box", "invalid-env"},
-			wantErrCode: exitcode.Usage,
 		})
 	})
 
@@ -92,11 +81,11 @@ func TestUnitCmdInit(t *testing.T) {
 		// Third initialization succeeds with force
 		cmd3 := cmdinit.New(ctx)
 		cmd3.PersistentFlags().StringP("profile", "p", "main", "Profile")
-		cmd3.SetArgs([]string{"-f", "--box", "sandbox"})
+		cmd3.SetArgs([]string{"-f", "--dataset", "overwritten-ds"})
 		require.NoError(t, cmd3.ExecuteContext(ctx))
 
 		cfg, err := cliconfig.ResolveConfig("main", ctx)
 		require.NoError(t, err)
-		require.Equal(t, cliconfig.BoxSandbox, cfg.Box)
+		require.Equal(t, "overwritten-ds", cfg.DefaultDataset)
 	})
 }

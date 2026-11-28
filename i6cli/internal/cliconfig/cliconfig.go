@@ -18,15 +18,6 @@ import (
 const (
 	// DefaultProfile is the fallback profile name if none is explicitly specified.
 	DefaultProfile = "main"
-
-	// BoxProd selects the production service endpoints.
-	BoxProd = "prod"
-
-	// BoxStaging selects the staging service endpoints.
-	BoxStaging = "staging"
-
-	// BoxSandbox selects the sandbox service endpoints.
-	BoxSandbox = "sandbox"
 )
 
 var (
@@ -52,8 +43,10 @@ func getCtx(ctx ...context.Context) context.Context {
 
 // Config represents the persisted profile configuration (config.json).
 type Config struct {
-	Box            string `json:"box"`
 	DefaultDataset string `json:"default_dataset,omitempty"`
+	UserzUrl       string `json:"userz_url,omitempty"`
+	DecsuiteUrl    string `json:"decsuite_url,omitempty"`
+	TfinferUrl     string `json:"tfinfer_url,omitempty"`
 }
 
 // ResolveProfile determines the active profile name using flag, configz property, and default precedence.
@@ -168,9 +161,6 @@ func ResolveConfig(profile string, ctx ...context.Context) (*Config, error) {
 		if err := json.Unmarshal([]byte(inline), &cfg); err != nil {
 			return nil, exitcode.Wrap(exitcode.Usage, fmt.Errorf("failed to parse %s JSON: %w", PropConfigJSON, err))
 		}
-		if cfg.Box == "" {
-			cfg.Box = BoxProd
-		}
 		return &cfg, nil
 	}
 
@@ -183,7 +173,7 @@ func ResolveConfig(profile string, ctx ...context.Context) (*Config, error) {
 	data, err := os.ReadFile(configPath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return &Config{Box: BoxProd}, nil
+			return &Config{}, nil
 		}
 		return nil, fmt.Errorf("failed to read profile config %q: %w", configPath, err)
 	}
@@ -191,9 +181,6 @@ func ResolveConfig(profile string, ctx ...context.Context) (*Config, error) {
 	var cfg Config
 	if err := json.Unmarshal(data, &cfg); err != nil {
 		return nil, fmt.Errorf("failed to parse profile config %q: %w", configPath, err)
-	}
-	if cfg.Box == "" {
-		cfg.Box = BoxProd
 	}
 	return &cfg, nil
 }
@@ -207,9 +194,6 @@ func SaveConfig(profile string, cfg *Config, ctx ...context.Context) error {
 	if err != nil {
 		return err
 	}
-	if cfg.Box == "" {
-		cfg.Box = BoxProd
-	}
 	data, err := json.MarshalIndent(cfg, "", "  ")
 	if err != nil {
 		return fmt.Errorf("failed to marshal config: %w", err)
@@ -221,18 +205,21 @@ func SaveConfig(profile string, cfg *Config, ctx ...context.Context) error {
 	return nil
 }
 
-// ResolveBoxUrls maps a box environment name to its corresponding service UrlOptions.
-func ResolveBoxUrls(box string) (config.UrlOptions, error) {
-	switch strings.ToLower(strings.TrimSpace(box)) {
-	case "", BoxProd:
-		return config.DefaultUrlOptions, nil
-	case BoxStaging:
-		return config.StagingUrlOptions, nil
-	case BoxSandbox:
-		return config.SandboxUrlOptions, nil
-	default:
-		return config.UrlOptions{}, exitcode.Wrap(exitcode.Usage, fmt.Errorf("invalid box environment %q: must be one of prod, staging, sandbox", box))
+// ResolveUrls resolves the service UrlOptions, applying profile custom URLs over defaults.
+func ResolveUrls(cfg *Config) config.UrlOptions {
+	urls := config.DefaultUrlOptions
+	if cfg != nil {
+		if u := strings.TrimSpace(cfg.UserzUrl); u != "" {
+			urls.Userz = u
+		}
+		if u := strings.TrimSpace(cfg.DecsuiteUrl); u != "" {
+			urls.Decsuite = u
+		}
+		if u := strings.TrimSpace(cfg.TfinferUrl); u != "" {
+			urls.Tfinfer = u
+		}
 	}
+	return urls
 }
 
 // ResolveDataset resolves the active dataset using flag, config.json, and environment precedence.
