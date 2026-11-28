@@ -404,10 +404,10 @@ In `.github/workflows/release.yml`:
 
 - [ ] **Phase 3: Data Lake, Ingestion & Pipelines (`dataset`, `ingest`, `pipe`)**
   - [ ] Implement `i6 dataset list`, `get`, `table`, and `store`.
-  - [ ] Implement `i6 dataset keys [--dataset <dataset>]` for remote server machine robot key management:
-    - `list` (lists all registered machine robot keys by JTI on the server)
-    - `create [--solution <sol>] [--grants <g>] [--annotation <text>] [--save]` (registers machine key on server)
-    - `delete <jti>` (revokes machine robot key on the server by JTI)
+  - [x] Implement `i6 dataset keys [--dataset <dataset>]` for remote server machine robot key management:
+    - [x] `list` (lists all registered machine robot keys by JTI on the server)
+    - [x] `create [--solution <sol>] [--grants <g>] [--annotation <text>] [--save]` (registers machine key on server)
+    - [x] `delete <jti>` (revokes machine robot key on the server by JTI)
   - [ ] Implement `i6 ingest upload` with multi-stream parallel worker execution and live terminal progress bars (TTY-aware fallback).
   - [ ] Implement `i6 ingest get-url` and `summary`.
   - [ ] Implement `i6 pipe list`, `get`, `start <batch-ingest|main>`, and `scheduler <activate|deactivate> <batch-ingest|main>`.
