@@ -163,9 +163,9 @@ Dynamic invocation of all 60+ registered Infinity6 HTTP APIs with automatic endp
 - `i6 apis call <api-id> [--params key=val,...] [--query key=val,...] [--payload <json|file|->]`: Dynamically executes the API call through `c.ClientForPath()`, automatically injecting authentication headers and formatting the response.
 
 ### J. Configuration (`i6 config`)
-- `i6 config init [--box sandbox|staging|prod] [--dataset <dataset>] [-f/--force]`: Initializes the active profile directory and writes `config.json` configured for the selected box (defaults to `prod`) and optional default dataset. Protected with `-f/--force` against accidental overwrites.
-- `i6 config show`: Displays active profile, directory paths, box environment, default dataset, and resolved endpoint URLs.
-- `i6 config set <key> <value>`: Updates a configuration field (e.g. `box`, `dataset`) in the active profile's `config.json`.
+- `i6 config init [--dataset <dataset>] [-f/--force]`: Initializes the active profile directory and writes `config.json` with an optional default dataset. Protected with `-f/--force` against accidental overwrites.
+- `i6 config show`: Displays active profile, directory paths, default dataset, and resolved service endpoint URLs.
+- `i6 config set <key> <value>`: Updates a configuration field (e.g. `default_dataset`, `userz_url`, `decsuite_url`, `tfinfer_url`) in the active profile's `config.json`.
 
 ### K. Shell Completion & Utilities (`i6 completion`)
 Provided natively by Cobra's default autocompletion engine:
@@ -189,7 +189,7 @@ All CLI configuration, credentials, and local caches are organized per profile a
 ```
 $I6_CLI_CONFIG_DIR/ (defaults to $HOME/.config/i6/)
 └── [profile]/ (defaults to "main", selected via --profile / I6_CLI_CONFIG_PROFILE)
-    ├── config.json          # Profile configuration: box (sandbox/staging/prod), default_dataset
+    ├── config.json          # Profile configuration: default_dataset, custom service URLs
     ├── tokens.db            # Persistent SQLite token store via tokenstore.NewSqlite (WAL, 0600)
     └── cache/               # Profile-scoped SQLite blobs, queries, models, ETags (fszcache)
         ├── dash/
@@ -373,7 +373,7 @@ In `.github/workflows/release.yml`:
   - [x] Implement persistent `--profile` / `-p` root flag and enable Cobra native shell autocompletion (`bash`, `zsh`, `fish`, `powershell`).
 
 - [ ] **Phase 2: Authentication & Local Profile Tokens (`auth`, `tokens`, `config`)**
-  - [x] Implement `i6 config init [--box sandbox|staging|prod] [--dataset <dataset>] [-f/--force]`, `i6 config show`, and `i6 config set <k> <v>`.
+  - [x] Implement `i6 config init [--dataset <dataset>] [-f/--force]`, `i6 config show`, and `i6 config set <k> <v>`.
   - [ ] Implement `i6 auth login` (Device code flow with polling; enforces mutual exclusivity).
   - [ ] Implement `i6 auth token [<token-string> | -] [--offline]` (universal token ingestion with auto-detection).
   - [ ] Implement `i6 auth logout` and `i6 auth status`.

@@ -14,7 +14,7 @@ func New(ctx context.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "config",
 		Short: "Manage local profile configuration, directories, and defaults",
-		Long:  `Manage Infinity6 CLI configuration profiles, target box environments, and defaults.`,
+		Long:  `Manage Infinity6 CLI configuration profiles, custom service endpoints, and defaults.`,
 	}
 
 	cmd.AddCommand(cmdinit.New(ctx))
