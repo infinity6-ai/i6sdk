@@ -118,11 +118,11 @@ Pure in-memory cryptographic and token exchange operations that never read or wr
 - `i6 dataset store list <dataset>`: Lists connected stores.
 - `i6 dataset store create <dataset> --name <name>`: Registers a new store.
 
-#### Remote Server Token Registry (`i6 dataset tokens [--dataset <dataset>]`)
-Server-side token management where a dataset can have multiple registered tokens with distinct JTIs:
-- `i6 dataset tokens list [--type all|ingestion|recsys|refresh]`: Calls server API to list all registered tokens for the dataset (showing JTI, labels, expiration; safely omits secrets).
-- `i6 dataset tokens create [--type ingestion|recsys|refresh] [--annotation <text>] [--save]`: Calls server API to mint a new token on the server. Dumps one-time secret key; with `--save`, automatically stores it into active profile's `tokens.db`.
-- `i6 dataset tokens delete <token-id-or-jti>`: Calls server API to revoke a specific registered token by its ID or JTI.
+#### Remote Server Machine Key Registry (`i6 dataset keys [--dataset <dataset>]`)
+Server-side key management where a dataset can have multiple registered machine robot keys with distinct JTIs:
+- `i6 dataset keys list`: Calls server API (`/api/userz/dataset-token-refresh/list`) to list all registered machine robot keys for the dataset (showing JTI, solution, grants, expiration; safely omits private keys).
+- `i6 dataset keys create [--solution <sol>] [--grants <g>] [--annotation <text>] [--save]`: Calls server API (`/api/userz/dataset-token-refresh/create`) to register a new machine robot Ed25519 key on the server. Dumps the one-time private key artifact; with `--save`, automatically stores it into active profile's `tokens.db`.
+- `i6 dataset keys delete <jti>`: Calls server API (`/api/userz/dataset-token-refresh/delete`) to revoke a machine robot key on the server.
 
 ### D. Data Ingestion (`i6 ingest`)
 - `i6 ingest upload <dataset> <table> <files...>`:
@@ -404,10 +404,10 @@ In `.github/workflows/release.yml`:
 
 - [ ] **Phase 3: Data Lake, Ingestion & Pipelines (`dataset`, `ingest`, `pipe`)**
   - [ ] Implement `i6 dataset list`, `get`, `table`, and `store`.
-  - [ ] Implement `i6 dataset tokens [--dataset <dataset>]` for remote server token management:
-    - `list [--type all|ingestion|recsys|refresh]` (lists all registered tokens by JTI on the server)
-    - `create [--type ingestion|recsys|refresh] [--annotation <text>] [--save]` (mints token on the server)
-    - `delete <token-id-or-jti>` (revokes token on the server by ID or JTI)
+  - [ ] Implement `i6 dataset keys [--dataset <dataset>]` for remote server machine robot key management:
+    - `list` (lists all registered machine robot keys by JTI on the server)
+    - `create [--solution <sol>] [--grants <g>] [--annotation <text>] [--save]` (registers machine key on server)
+    - `delete <jti>` (revokes machine robot key on the server by JTI)
   - [ ] Implement `i6 ingest upload` with multi-stream parallel worker execution and live terminal progress bars (TTY-aware fallback).
   - [ ] Implement `i6 ingest get-url` and `summary`.
   - [ ] Implement `i6 pipe list`, `get`, `start <batch-ingest|main>`, and `scheduler <activate|deactivate> <batch-ingest|main>`.

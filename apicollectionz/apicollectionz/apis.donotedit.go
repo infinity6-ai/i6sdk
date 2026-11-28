@@ -8,16 +8,12 @@ import (
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapidatasetlist"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapidatasetsolutions"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapidomainsolutionget"
-	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapiingestiontokencreate"
-	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapiingestiontokenslist"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapiloadresultbatchsummary"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapiloadresultcatalog"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapimodelget"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapipaymentautorenewupdate"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapipaymentlist"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapiplanlist"
-	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapirecsystokencreate"
-	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapirecsystokenslist"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapisignedurl"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapistorecreate"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapistoredisplaycreate"
@@ -28,7 +24,6 @@ import (
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapisubscriptionplanupdate"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapitableget"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapitablelist"
-	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapitokendelete"
 	"github.com/infinity6-ai/i6sdk/apiingestz/ingestzapibatchsummary"
 	"github.com/infinity6-ai/i6sdk/apiingestz/ingestzapieventcatalog"
 	"github.com/infinity6-ai/i6sdk/apiingestz/ingestzapieventevent"
@@ -69,23 +64,11 @@ func (a *SdkApis) DszCreateCustomerPortal(ctx context.Context, api *dszapicustom
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) DszCreateIngestionToken(ctx context.Context, api *dszapiingestiontokencreate.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) DszCreateRecsysToken(ctx context.Context, api *dszapirecsystokencreate.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
 func (a *SdkApis) DszCreateStore(ctx context.Context, api *dszapistorecreate.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
 func (a *SdkApis) DszDatasetSolutions(ctx context.Context, api *dszapidatasetsolutions.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) DszDeleteToken(ctx context.Context, api *dszapitokendelete.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
@@ -101,19 +84,11 @@ func (a *SdkApis) DszListDatasets(ctx context.Context, api *dszapidatasetlist.Ap
 	return a.Invoker(ctx, api)
 }
 
-func (a *SdkApis) DszListIngestionTokens(ctx context.Context, api *dszapiingestiontokenslist.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
 func (a *SdkApis) DszListPayments(ctx context.Context, api *dszapipaymentlist.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 
 func (a *SdkApis) DszListPlans(ctx context.Context, api *dszapiplanlist.Api) (int, error) {
-	return a.Invoker(ctx, api)
-}
-
-func (a *SdkApis) DszListRecsysTokens(ctx context.Context, api *dszapirecsystokenslist.Api) (int, error) {
 	return a.Invoker(ctx, api)
 }
 

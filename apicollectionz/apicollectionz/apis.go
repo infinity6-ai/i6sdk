@@ -12,16 +12,12 @@ import (
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapidatasetlist"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapidatasetsolutions"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapidomainsolutionget"
-	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapiingestiontokencreate"
-	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapiingestiontokenslist"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapiloadresultbatchsummary"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapiloadresultcatalog"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapimodelget"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapipaymentautorenewupdate"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapipaymentlist"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapiplanlist"
-	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapirecsystokencreate"
-	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapirecsystokenslist"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapisignedurl"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapistorecreate"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapistoredisplaycreate"
@@ -32,7 +28,6 @@ import (
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapisubscriptionplanupdate"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapitableget"
 	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapitablelist"
-	"github.com/infinity6-ai/i6sdk/apidatasetz/dszapitokendelete"
 	"github.com/infinity6-ai/i6sdk/apiingestz/ingestzapibatchsummary"
 	"github.com/infinity6-ai/i6sdk/apiingestz/ingestzapieventcatalog"
 	"github.com/infinity6-ai/i6sdk/apiingestz/ingestzapieventevent"
@@ -76,16 +71,12 @@ type SdkApis struct {
 	dszapidatasetlist.DszListDatasetsId
 	dszapidatasetsolutions.DszDatasetSolutionsId
 	dszapidomainsolutionget.DszDomainGetId
-	dszapiingestiontokencreate.DszCreateIngestionTokenId
-	dszapiingestiontokenslist.DszListIngestionTokensId
 	dszapiloadresultbatchsummary.DszResultLastBatchSummaryId
 	dszapiloadresultcatalog.DszResultRelevanceFashionCatalogId
 	dszapimodelget.DszModelGetId
 	dszapipaymentautorenewupdate.DszUpdatePaymentAutoRenewId
 	dszapipaymentlist.DszListPaymentsId
 	dszapiplanlist.DszListPlansId
-	dszapirecsystokencreate.DszCreateRecsysTokenId
-	dszapirecsystokenslist.DszListRecsysTokensId
 	dszapisignedurl.DszSignedUrlId
 	dszapistorecreate.DszCreateStoreId
 	dszapistoredisplaycreate.DszStoreDisplayCreateId
@@ -96,7 +87,6 @@ type SdkApis struct {
 	dszapisubscriptionplanupdate.DszUpdateSubscriptionPlanId
 	dszapitableget.DszTableGetId
 	dszapitablelist.DszTableListId
-	dszapitokendelete.DszDeleteTokenId
 	ingestzapibatchsummary.IngestzLastBatchSummaryId
 	ingestzapieventcatalog.IngestzEventRelevanceFashionCatalogId
 	ingestzapieventevent.IngestzEventRelevanceFashionEventId
