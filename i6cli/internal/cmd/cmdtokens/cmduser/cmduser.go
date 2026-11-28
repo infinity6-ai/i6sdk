@@ -26,14 +26,7 @@ func New(ctx context.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "user",
 		Short: "Manage the authenticated human user session root credential",
-		Long: `Controls the human user session credentials stored in the active profile's tokens.db.
-
-Subcommands:
-  - get: Displays user profile metadata safely without revealing secret tokens.
-  - expose: Prints the raw active JWT access token to stdout for scripts/curl.
-  - export: Prints the active user refresh token to stdout for backup or environment transfer.
-  - attenuation: Mints an in-flight attenuated child dataset access token with reduced permissions.
-  - delete: Revokes the session on the server and deletes credentials from the local store.`,
+		Long:  `Controls the human user session credentials stored in the active profile's tokens.db.`,
 	}
 
 	cmd.AddCommand(newGetCmd(ctx))

@@ -28,15 +28,7 @@ func New(ctx context.Context) *cobra.Command {
 		Aliases: []string{"bearer"},
 		Short:   "Manage short-lived dataset access tokens cached in profile",
 		Long: `Manages short-lived bearer access tokens cached in the active profile's tokens.db.
-A profile can cache tokens across multiple datasets concurrently.
-
-Subcommands:
-  - list: Lists all cached dataset access tokens in the profile.
-  - get: Displays metadata for target dataset safely without revealing secret token.
-  - expose: Prints the raw active Bearer token to stdout.
-  - attenuation: Derives an in-flight child token with reduced grants or solution restrictions.
-  - check: Cryptographically validates the token against /api/userz/token/check.
-  - delete: Evicts the cached token for target dataset from local tokens.db.`,
+A profile can cache tokens across multiple datasets concurrently.`,
 	}
 
 	cmd.AddCommand(newListCmd(ctx))
