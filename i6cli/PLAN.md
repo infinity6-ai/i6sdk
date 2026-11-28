@@ -163,9 +163,10 @@ Dynamic invocation of all 60+ registered Infinity6 HTTP APIs with automatic endp
 - `i6 apis call <api-id> [--params key=val,...] [--query key=val,...] [--payload <json|file|->]`: Dynamically executes the API call through `c.ClientForPath()`, automatically injecting authentication headers and formatting the response.
 
 ### J. Configuration (`i6 config`)
-- `i6 config init [--dataset <dataset>] [-f/--force]`: Initializes the active profile directory and writes `config.json` with an optional default dataset. Protected with `-f/--force` against accidental overwrites.
+- `i6 config list`: Lists all local configuration profiles discovered in `$I6_CLI_CONFIG_DIR`, marking the active profile with `*`, and showing default dataset, endpoint URLs, and token store status.
+- `i6 config init [--box prod|staging|sandbox] [--dataset <dataset>] [-f/--force]`: Initializes the active profile directory and writes `config.json` with service endpoint presets and optional default dataset. Protected with `-f/--force` against accidental overwrites.
 - `i6 config show`: Displays active profile, directory paths, default dataset, and resolved service endpoint URLs.
-- `i6 config set <key> <value>`: Updates a configuration field (e.g. `default_dataset`, `userz_url`, `decsuite_url`, `tfinfer_url`) in the active profile's `config.json`.
+- `i6 config set <key> <value>`: Updates a configuration field (e.g. `box`, `default_dataset`, `userz_url`, `decsuite_url`, `tfinfer_url`) in the active profile's `config.json`.
 
 ### K. Shell Completion & Utilities (`i6 completion`)
 Provided natively by Cobra's default autocompletion engine:
@@ -284,8 +285,9 @@ i6cli/
     │   │   ├── cmdtoken/
     │   │   ├── cmdlogout/
     │   │   └── cmdstatus/
-    │   ├── cmdconfig/            # i6 config (cmdinit, cmdshow, cmdset)
+    │   ├── cmdconfig/            # i6 config (cmdinit, cmdlist, cmdshow, cmdset)
     │   │   ├── cmdinit/
+    │   │   ├── cmdlist/
     │   │   ├── cmdshow/
     │   │   └── cmdset/
     │   ├── cmdtokens/            # i6 tokens (cmdcheck, cmduser, cmddatasetrefresh, cmddatasetaccess, cmdraw)

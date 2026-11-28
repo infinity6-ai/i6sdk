@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/infinity6-ai/gox/commonz/configz"
@@ -56,6 +57,96 @@ type Config struct {
 	UserzUrl       string `json:"userz_url,omitempty"`
 	DecsuiteUrl    string `json:"decsuite_url,omitempty"`
 	TfinferUrl     string `json:"tfinfer_url,omitempty"`
+}
+
+// ProfileSummary describes the metadata of an existing CLI profile.
+type ProfileSummary struct {
+	Name           string `json:"name"`
+	Active         bool   `json:"active"`
+	Path           string `json:"path"`
+	DefaultDataset string `json:"default_dataset,omitempty"`
+	UserzUrl       string `json:"userz_url,omitempty"`
+	HasConfig      bool   `json:"has_config"`
+	HasTokens      bool   `json:"has_tokens"`
+}
+
+// ListProfiles scans the configuration base directory and returns summaries of all discovered profiles.
+// The active profile is marked with Active=true.
+func ListProfiles(activeProfile string, ctx ...context.Context) ([]ProfileSummary, error) {
+	c := getCtx(ctx...)
+	active := ResolveProfile(activeProfile, c)
+
+	baseDir, err := ResolveBaseConfigDir(c)
+	if err != nil {
+		return nil, err
+	}
+
+	entries, err := os.ReadDir(baseDir)
+	if err != nil && !os.IsNotExist(err) {
+		return nil, fmt.Errorf("failed to read config directory %q: %w", baseDir, err)
+	}
+
+	profileMap := make(map[string]ProfileSummary)
+	for _, entry := range entries {
+		if !entry.IsDir() || strings.HasPrefix(entry.Name(), ".") {
+			continue
+		}
+		pName := entry.Name()
+		pDir := filepath.Join(baseDir, pName)
+		cfgPath := filepath.Join(pDir, "config.json")
+		tokensPath := filepath.Join(pDir, "tokens.db")
+
+		summary := ProfileSummary{
+			Name:   pName,
+			Active: pName == active,
+			Path:   pDir,
+		}
+
+		if _, err := os.Stat(cfgPath); err == nil {
+			summary.HasConfig = true
+			if cfg, err := ResolveConfig(pName, c); err == nil && cfg != nil {
+				summary.DefaultDataset = cfg.DefaultDataset
+				urls := ResolveUrls(cfg)
+				summary.UserzUrl = urls.Userz
+			}
+		} else {
+			urls := ResolveUrls(nil)
+			summary.UserzUrl = urls.Userz
+		}
+
+		if _, err := os.Stat(tokensPath); err == nil {
+			summary.HasTokens = true
+		}
+
+		profileMap[pName] = summary
+	}
+
+	// Always ensure the active profile is included even if directory is not yet created on disk
+	if _, exists := profileMap[active]; !exists {
+		pDir := filepath.Join(baseDir, active)
+		urls := ResolveUrls(nil)
+		profileMap[active] = ProfileSummary{
+			Name:      active,
+			Active:    true,
+			Path:      pDir,
+			UserzUrl:  urls.Userz,
+			HasConfig: false,
+			HasTokens: false,
+		}
+	}
+
+	// Convert map to sorted slice
+	names := make([]string, 0, len(profileMap))
+	for n := range profileMap {
+		names = append(names, n)
+	}
+	slices.Sort(names)
+
+	result := make([]ProfileSummary, 0, len(names))
+	for _, n := range names {
+		result = append(result, profileMap[n])
+	}
+	return result, nil
 }
 
 // BoxPresetUrls maps a box preset name ("prod", "staging", "sandbox") to its corresponding concrete UrlOptions.

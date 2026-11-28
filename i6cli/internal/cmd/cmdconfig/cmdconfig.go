@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/infinity6-ai/i6sdk/i6cli/internal/cmd/cmdconfig/cmdinit"
+	"github.com/infinity6-ai/i6sdk/i6cli/internal/cmd/cmdconfig/cmdlist"
 	"github.com/infinity6-ai/i6sdk/i6cli/internal/cmd/cmdconfig/cmdset"
 	"github.com/infinity6-ai/i6sdk/i6cli/internal/cmd/cmdconfig/cmdshow"
 	"github.com/spf13/cobra"
@@ -18,6 +19,7 @@ func New(ctx context.Context) *cobra.Command {
 	}
 
 	cmd.AddCommand(cmdinit.New(ctx))
+	cmd.AddCommand(cmdlist.New(ctx))
 	cmd.AddCommand(cmdshow.New(ctx))
 	cmd.AddCommand(cmdset.New(ctx))
 

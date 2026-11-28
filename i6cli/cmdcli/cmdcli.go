@@ -15,10 +15,18 @@ import (
 // Prepare builds the root cobra command for i6 CLI.
 func Prepare(ctx context.Context) *cobra.Command {
 	var rootCmd = &cobra.Command{
-		Version:       version.Version(),
-		Use:           "i6",
-		Short:         "Infinity6 Command Line Interface",
-		Long:          "i6 is the official standalone command-line client for Infinity6 platform services, APIs, and workflows.",
+		Version: version.Version(),
+		Use:     "i6",
+		Short:   "Infinity6 Command Line Interface",
+		Long: `i6 is the official standalone command-line client for Infinity6 platform services, APIs, and workflows.
+
+ENVIRONMENT VARIABLES:
+  I6_CLI_CONFIG_DIR        Base directory for CLI configuration and profiles (default: $HOME/.config/i6)
+  I6_CLI_CONFIG_PROFILE    Active profile name when --profile is not provided (default: "main")
+  I6_CLI_CONFIG_JSON       Inline JSON configuration for zero-disk execution (CI/CD runners)
+  I6_DATASET               Default dataset identifier when --dataset flag is omitted
+  I6_LOGZ_NO_COLOR         Disable ANSI terminal colors in logs (true|false, auto-detected)
+  I6_LOGZ_STRUCTURED       Output structured JSON logs to stderr (true|false)`,
 		SilenceUsage:  true,
 		SilenceErrors: true,
 	}

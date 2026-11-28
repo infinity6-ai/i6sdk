@@ -30,6 +30,24 @@ func TestUnitCmdcli(t *testing.T) {
 		require.Empty(t, formatFlag.DefValue)
 	})
 
+	t.Run("Root command help documents supported environment variables", func(t *testing.T) {
+		cmd := cmdcli.Prepare(t.Context())
+		buf := new(bytes.Buffer)
+		cmd.SetOut(buf)
+		cmd.SetArgs([]string{"--help"})
+
+		code := cmdcli.ExecuteWithCode(t.Context(), cmd)
+		require.Equal(t, exitcode.Success, code)
+		out := buf.String()
+		require.Contains(t, out, "ENVIRONMENT VARIABLES:")
+		require.Contains(t, out, "I6_CLI_CONFIG_DIR")
+		require.Contains(t, out, "I6_CLI_CONFIG_PROFILE")
+		require.Contains(t, out, "I6_CLI_CONFIG_JSON")
+		require.Contains(t, out, "I6_DATASET")
+		require.Contains(t, out, "I6_LOGZ_NO_COLOR")
+		require.Contains(t, out, "I6_LOGZ_STRUCTURED")
+	})
+
 	t.Run("Version command prints version to stdout", func(t *testing.T) {
 		cmd := cmdcli.Prepare(t.Context())
 		buf := new(bytes.Buffer)

@@ -22,6 +22,7 @@ func TestUnitCmdConfig(t *testing.T) {
 		}
 
 		require.True(t, subcommands["init"])
+		require.True(t, subcommands["list"])
 		require.True(t, subcommands["show"])
 		require.True(t, subcommands["set"])
 	})
@@ -37,6 +38,7 @@ func TestUnitCmdConfig(t *testing.T) {
 
 		out := outBuf.String()
 		require.Contains(t, out, "init")
+		require.Contains(t, out, "list")
 		require.Contains(t, out, "show")
 		require.Contains(t, out, "set")
 	})
