@@ -41,6 +41,17 @@ func TestUnitCmdcli(t *testing.T) {
 		require.Equal(t, version.Version()+"\n", buf.String())
 	})
 
+	t.Run("Config show executes through root command", func(t *testing.T) {
+		cmd := cmdcli.Prepare(t.Context())
+		buf := new(bytes.Buffer)
+		cmd.SetOut(buf)
+		cmd.SetArgs([]string{"config", "show", "--format", "quiet"})
+
+		code := cmdcli.ExecuteWithCode(t.Context(), cmd)
+		require.Equal(t, exitcode.Success, code)
+		require.Equal(t, "main\n", buf.String())
+	})
+
 	t.Run("ExecuteWithCode handles errors and extracts exit code", func(t *testing.T) {
 		cmd := cmdcli.Prepare(t.Context())
 		cmd.AddCommand(&cobra.Command{

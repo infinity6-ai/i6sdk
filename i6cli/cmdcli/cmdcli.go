@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/infinity6-ai/i6sdk/i6cli/internal/cliconfig"
+	"github.com/infinity6-ai/i6sdk/i6cli/internal/cmd/cmdconfig"
 	"github.com/infinity6-ai/i6sdk/i6cli/internal/exitcode"
 	"github.com/infinity6-ai/i6sdk/versionz/version"
 	"github.com/spf13/cobra"
@@ -23,7 +24,7 @@ func Prepare(ctx context.Context) *cobra.Command {
 	}
 
 	// Persistent root flags
-	defaultProfile := cliconfig.ResolveProfile("")
+	defaultProfile := cliconfig.ResolveProfile("", ctx)
 	rootCmd.PersistentFlags().StringP("profile", "p", defaultProfile, "Configuration profile name (or I6_CLI_CONFIG_PROFILE)")
 	rootCmd.PersistentFlags().String("format", "", "Output format (table|tsv|json|quiet|raw)")
 
@@ -35,6 +36,9 @@ func Prepare(ctx context.Context) *cobra.Command {
 			fmt.Fprintln(cmd.OutOrStdout(), version.Version())
 		},
 	})
+
+	// Profile configuration command group
+	rootCmd.AddCommand(cmdconfig.New(ctx))
 
 	return rootCmd
 }
