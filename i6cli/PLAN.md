@@ -374,28 +374,27 @@ In `.github/workflows/release.yml`:
   - [x] Implement `internal/outfmt` (table, tsv, json, quiet, and raw formatters with strict stdout routing).
   - [x] Implement persistent `--profile` / `-p` root flag and enable Cobra native shell autocompletion (`bash`, `zsh`, `fish`, `powershell`).
 
-- [ ] **Phase 2: Authentication & Local Profile Tokens (`auth`, `tokens`, `config`)**
-  - [x] Implement `i6 config init [--dataset <dataset>] [-f/--force]`, `i6 config show`, and `i6 config set <k> <v>`.
+- [x] **Phase 2: Authentication & Local Profile Tokens (`auth`, `tokens`, `config`)**
+  - [x] Implement `i6 config init [--box prod|staging|sandbox] [--dataset <dataset>] [-f/--force]`, `i6 config list`, `i6 config show`, and `i6 config set <k> <v>`.
   - [x] Implement `i6 auth login` (Device code flow with polling; enforces mutual exclusivity).
   - [x] Implement `i6 auth token [<token-string> | -] [--offline]` (universal token ingestion with auto-detection).
   - [x] Implement `i6 auth logout` and `i6 auth status`.
-  - [ ] Implement `i6 tokens check [--refreshed]` (audits all credentials stored in active profile's tokens.db via /api/userz/token/check).
-  - [ ] Implement `i6 tokens user [get|expose|export|attenuation|delete]` (human user session root credential; attenuation mints attenuated dataset token).
-  - [ ] Implement `i6 tokens dataset-refresh [get|export|set|attenuation|delete]` (machine robot root credential; attenuation mints attenuated dataset token):
-    - `bounded [create|sign-request]` (uses stored robot key to mint PoP token or sign HTTP requests)
-  - [ ] Implement `i6 tokens dataset-access [--dataset <dataset>]` (multiple derived cached tokens):
+  - [x] Implement `i6 tokens check [--refreshed]` (audits all credentials stored in active profile's tokens.db via /api/userz/token/check).
+  - [x] Implement `i6 tokens user [get|expose|export|attenuation|delete]` (human user session root credential; attenuation mints attenuated dataset token).
+  - [x] Implement `i6 tokens dataset-refresh [get|export|set|attenuation|delete]` (machine robot root credential; attenuation mints attenuated dataset token):
+    - `bounded [sign-request]` (uses stored robot key to mint PoP token or sign HTTP requests)
+  - [x] Implement `i6 tokens dataset-access [--dataset <dataset>]` (multiple derived cached tokens):
     - `list` (lists all cached dataset tokens in tokens.db)
     - `get [--refreshed]` (metadata only; refreshes if needed)
     - `expose [--refreshed]` (raw Bearer JWT; refreshes if needed)
     - `attenuation [--grants <g>] [--exp <s>] [--solution <sol>]` (derives further attenuated token)
     - `check [--refreshed]` (validates against server; refreshes if needed)
     - `delete` (evicts cached bearer token)
-  - [ ] Implement `i6 tokens raw` (stateless in-memory operations):
+  - [x] Implement `i6 tokens raw` (stateless in-memory operations):
     - `check <token-string | ->` (statelessly debugs arbitrary token)
     - `dataset-bearer --refresh-token <key|-> --dataset <dataset>`
     - `attenuation [<token|->] [--grants <mask|names>] [--solution <sol>] [--exp <seconds>]`
-    - `bounded-create --token <token|-> --key <privkey|->`
-    - `sign-request --key <privkey|-> --method <METHOD> --path <PATH> [--body <str|->]`
+    - `sign-request --key <privkey|-> --token <token|-> --method <METHOD> --path <PATH> [--body <str|->]`
 
 - [ ] **Phase 3: Data Lake, Ingestion & Pipelines (`dataset`, `ingest`, `pipe`)**
   - [ ] Implement `i6 dataset list`, `get`, `table`, and `store`.

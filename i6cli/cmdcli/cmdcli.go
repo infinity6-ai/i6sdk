@@ -8,6 +8,7 @@ import (
 	"github.com/infinity6-ai/i6sdk/i6cli/internal/cliconfig"
 	"github.com/infinity6-ai/i6sdk/i6cli/internal/cmd/cmdauth"
 	"github.com/infinity6-ai/i6sdk/i6cli/internal/cmd/cmdconfig"
+	"github.com/infinity6-ai/i6sdk/i6cli/internal/cmd/cmdtokens"
 	"github.com/infinity6-ai/i6sdk/i6cli/internal/exitcode"
 	"github.com/infinity6-ai/i6sdk/versionz/version"
 	"github.com/spf13/cobra"
@@ -51,6 +52,9 @@ ENVIRONMENT VARIABLES:
 
 	// Authentication and session command group
 	rootCmd.AddCommand(cmdauth.New(ctx))
+
+	// Profile token audit and management command group
+	rootCmd.AddCommand(cmdtokens.New(ctx))
 
 	return rootCmd
 }

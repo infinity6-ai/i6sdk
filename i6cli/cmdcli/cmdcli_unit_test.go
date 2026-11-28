@@ -81,6 +81,17 @@ func TestUnitCmdcli(t *testing.T) {
 		require.Equal(t, "unauthenticated\n", buf.String())
 	})
 
+	t.Run("Tokens check executes through root command", func(t *testing.T) {
+		cmd := cmdcli.Prepare(t.Context())
+		buf := new(bytes.Buffer)
+		cmd.SetOut(buf)
+		cmd.SetArgs([]string{"tokens", "check"})
+
+		code := cmdcli.ExecuteWithCode(t.Context(), cmd)
+		require.Equal(t, exitcode.Success, code)
+		require.Contains(t, buf.String(), "TYPE")
+	})
+
 	t.Run("ExecuteWithCode handles errors and extracts exit code", func(t *testing.T) {
 		cmd := cmdcli.Prepare(t.Context())
 		cmd.AddCommand(&cobra.Command{
