@@ -60,11 +60,16 @@ Manages the active credentials stored in the local profile's `tokens.db`.
 *Security Invariant*: `list` and `get` commands **never** display sensitive `secret` strings, tokens, or private keys. Revealing secrets is strictly restricted to explicit `expose` and `export` commands.
 
 #### Profile Tokens Health Audit (`i6 tokens check [--refreshed]`)
-- `i6 tokens check [--refreshed]`: Performs a comprehensive diagnostic audit of **all tokens stored in the active profile's `tokens.db`**:
+- `i6 tokens check [--refreshed]`: Performs an aggregated health audit of all tokens stored in the active profile's `tokens.db`:
   - Validates the active root credential (`tokens user` or `tokens dataset-refresh`).
   - Iterates through and validates all cached derived tokens (`tokens dataset-access`).
-  - Calls `/api/userz/token/check` for each token and displays an aggregated diagnostic report (credential type, dataset/user ID, server validity status, remaining TTL, grants).
-  - With `--refreshed`, automatically refreshes any expired or missing access tokens before reporting.
+  - Calls `/api/userz/token/check` for each token and displays an aggregated status report.
+
+#### Deep Profile Tokens Inspection (`i6 tokens inspect [--refreshed]`)
+- `i6 tokens inspect [--refreshed]`: Performs a deep cryptographic and diagnostic inspection of every credential currently stored in the active profile's `tokens.db` against `/api/userz/token/check`:
+  - Inspects active root credential (user JWT or robot key assertion).
+  - Inspects all cached derived dataset access tokens.
+  - Displays detailed diagnostics: token classification, mathematical validity, server summary message, expiration, remaining TTL, effective grants, and hints.
 
 #### 1. Human User Root Credential (`i6 tokens user`)
 Controls the authenticated human user session in `tokens.db`:
@@ -290,8 +295,9 @@ i6cli/
     │   │   ├── cmdlist/
     │   │   ├── cmdshow/
     │   │   └── cmdset/
-    │   ├── cmdtokens/            # i6 tokens (cmdcheck, cmduser, cmddatasetrefresh, cmddatasetaccess, cmdraw)
+    │   ├── cmdtokens/            # i6 tokens (cmdcheck, cmdinspect, cmduser, cmddatasetrefresh, cmddatasetaccess, cmdraw)
     │   │   ├── cmdcheck/
+    │   │   ├── cmdinspect/
     │   │   ├── cmduser/
     │   │   ├── cmddatasetrefresh/
     │   │   ├── cmddatasetaccess/

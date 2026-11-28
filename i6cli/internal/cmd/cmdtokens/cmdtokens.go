@@ -6,6 +6,7 @@ import (
 	"github.com/infinity6-ai/i6sdk/i6cli/internal/cmd/cmdtokens/cmdcheck"
 	"github.com/infinity6-ai/i6sdk/i6cli/internal/cmd/cmdtokens/cmddatasetaccess"
 	"github.com/infinity6-ai/i6sdk/i6cli/internal/cmd/cmdtokens/cmddatasetrefresh"
+	"github.com/infinity6-ai/i6sdk/i6cli/internal/cmd/cmdtokens/cmdinspect"
 	"github.com/infinity6-ai/i6sdk/i6cli/internal/cmd/cmdtokens/cmdraw"
 	"github.com/infinity6-ai/i6sdk/i6cli/internal/cmd/cmdtokens/cmduser"
 	"github.com/spf13/cobra"
@@ -20,6 +21,7 @@ func New(ctx context.Context) *cobra.Command {
 	}
 
 	cmd.AddCommand(cmdcheck.New(ctx))
+	cmd.AddCommand(cmdinspect.New(ctx))
 	cmd.AddCommand(cmduser.New(ctx))
 	cmd.AddCommand(cmddatasetrefresh.New(ctx))
 	cmd.AddCommand(cmddatasetaccess.New(ctx))

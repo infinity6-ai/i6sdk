@@ -22,6 +22,7 @@ func TestUnitCmdTokens(t *testing.T) {
 		}
 
 		require.True(t, subcommands["check"])
+		require.True(t, subcommands["inspect"])
 		require.True(t, subcommands["user"])
 		require.True(t, subcommands["dataset-refresh"])
 		require.True(t, subcommands["dataset-access"])
@@ -39,6 +40,7 @@ func TestUnitCmdTokens(t *testing.T) {
 
 		out := outBuf.String()
 		require.Contains(t, out, "check")
+		require.Contains(t, out, "inspect")
 		require.Contains(t, out, "user")
 		require.Contains(t, out, "dataset-refresh")
 		require.Contains(t, out, "dataset-access")
