@@ -18,30 +18,23 @@ func New(ctx context.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "List all local configuration profiles",
-		Long: `Lists all local configuration profiles discovered in the base configuration directory.
-The currently active profile is marked with an asterisk (*).`,
+		Long:  `Lists all local configuration profiles discovered in the base configuration directory.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c := cmd.Context()
 			if c == nil {
 				c = ctx
 			}
 
-			profileFlag, _ := cmd.Flags().GetString("profile")
-			profiles, err := cliconfig.ListProfiles(profileFlag, c)
+			profiles, err := cliconfig.ListProfiles(c)
 			if err != nil {
 				return err
 			}
 
-			headers := []string{"Active", "Profile", "Default Dataset", "Userz Service", "Config", "Tokens"}
+			headers := []string{"Profile", "Default Dataset", "Userz Service", "Config", "Tokens"}
 			rows := make([][]string, 0, len(profiles))
 			quietIds := make([]string, 0, len(profiles))
 
 			for _, p := range profiles {
-				activeMarker := ""
-				if p.Active {
-					activeMarker = "*"
-				}
-
 				ds := p.DefaultDataset
 				if ds == "" {
 					ds = "(none)"
@@ -58,7 +51,6 @@ The currently active profile is marked with an asterisk (*).`,
 				}
 
 				rows = append(rows, []string{
-					activeMarker,
 					p.Name,
 					ds,
 					p.UserzUrl,

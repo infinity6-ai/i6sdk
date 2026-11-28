@@ -77,7 +77,6 @@ type Config struct {
 // ProfileSummary describes the metadata of an existing CLI profile.
 type ProfileSummary struct {
 	Name           string `json:"name"`
-	Active         bool   `json:"active"`
 	Path           string `json:"path"`
 	DefaultDataset string `json:"default_dataset,omitempty"`
 	UserzUrl       string `json:"userz_url,omitempty"`
@@ -86,10 +85,8 @@ type ProfileSummary struct {
 }
 
 // ListProfiles scans the configuration base directory and returns summaries of all discovered profiles.
-// The active profile is marked with Active=true.
-func ListProfiles(activeProfile string, ctx ...context.Context) ([]ProfileSummary, error) {
+func ListProfiles(ctx ...context.Context) ([]ProfileSummary, error) {
 	c := getCtx(ctx...)
-	active := ResolveProfile(activeProfile, c)
 
 	baseDir, err := ResolveBaseConfigDir(c)
 	if err != nil {
@@ -101,7 +98,7 @@ func ListProfiles(activeProfile string, ctx ...context.Context) ([]ProfileSummar
 		return nil, fmt.Errorf("failed to read config directory %q: %w", baseDir, err)
 	}
 
-	profileMap := make(map[string]ProfileSummary)
+	var result []ProfileSummary
 	for _, entry := range entries {
 		if !entry.IsDir() || strings.HasPrefix(entry.Name(), ".") {
 			continue
@@ -112,9 +109,8 @@ func ListProfiles(activeProfile string, ctx ...context.Context) ([]ProfileSummar
 		tokensPath := filepath.Join(pDir, "tokens.db")
 
 		summary := ProfileSummary{
-			Name:   pName,
-			Active: pName == active,
-			Path:   pDir,
+			Name: pName,
+			Path: pDir,
 		}
 
 		if _, err := os.Stat(cfgPath); err == nil {
@@ -133,34 +129,13 @@ func ListProfiles(activeProfile string, ctx ...context.Context) ([]ProfileSummar
 			summary.HasTokens = true
 		}
 
-		profileMap[pName] = summary
+		result = append(result, summary)
 	}
 
-	// Always ensure the active profile is included even if directory is not yet created on disk
-	if _, exists := profileMap[active]; !exists {
-		pDir := filepath.Join(baseDir, active)
-		urls := ResolveUrls(nil)
-		profileMap[active] = ProfileSummary{
-			Name:      active,
-			Active:    true,
-			Path:      pDir,
-			UserzUrl:  urls.Userz,
-			HasConfig: false,
-			HasTokens: false,
-		}
-	}
+	slices.SortFunc(result, func(a, b ProfileSummary) int {
+		return strings.Compare(a.Name, b.Name)
+	})
 
-	// Convert map to sorted slice
-	names := make([]string, 0, len(profileMap))
-	for n := range profileMap {
-		names = append(names, n)
-	}
-	slices.Sort(names)
-
-	result := make([]ProfileSummary, 0, len(names))
-	for _, n := range names {
-		result = append(result, profileMap[n])
-	}
 	return result, nil
 }
 

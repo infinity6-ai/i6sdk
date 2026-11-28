@@ -198,35 +198,26 @@ func TestUnitResolveUrls(t *testing.T) {
 }
 
 func TestUnitListProfiles(t *testing.T) {
-	ctx := t.Context()
-	tmpDir := t.TempDir()
-	rev, err := cliconfig.PropConfigDir.Set(ctx, "%s", tmpDir)
-	require.NoError(t, err)
-	defer rev.Close()
+	ctx := cliconfig.WithConfigDir(t.Context(), t.TempDir())
 
-	// Initially, returns main profile as active even if not on disk
-	profiles, err := cliconfig.ListProfiles("", ctx)
+	// Initially, returns empty list when no profiles exist on disk
+	profiles, err := cliconfig.ListProfiles(ctx)
 	require.NoError(t, err)
-	require.Len(t, profiles, 1)
-	require.Equal(t, "main", profiles[0].Name)
-	require.True(t, profiles[0].Active)
+	require.Empty(t, profiles)
 
 	// Create a couple profiles on disk
 	require.NoError(t, cliconfig.SaveConfig("staging", &cliconfig.Config{DefaultDataset: "ds-stg"}, ctx))
 	require.NoError(t, cliconfig.SaveConfig("prod", &cliconfig.Config{DefaultDataset: "ds-prd"}, ctx))
 
-	profiles, err = cliconfig.ListProfiles("staging", ctx)
+	profiles, err = cliconfig.ListProfiles(ctx)
 	require.NoError(t, err)
 	require.Len(t, profiles, 2) // prod, staging
-	for _, p := range profiles {
-		if p.Name == "staging" {
-			require.True(t, p.Active)
-			require.Equal(t, "ds-stg", p.DefaultDataset)
-			require.True(t, p.HasConfig)
-		} else {
-			require.False(t, p.Active)
-		}
-	}
+	require.Equal(t, "prod", profiles[0].Name)
+	require.Equal(t, "ds-prd", profiles[0].DefaultDataset)
+	require.True(t, profiles[0].HasConfig)
+	require.Equal(t, "staging", profiles[1].Name)
+	require.Equal(t, "ds-stg", profiles[1].DefaultDataset)
+	require.True(t, profiles[1].HasConfig)
 }
 
 func TestUnitNewClient(t *testing.T) {
