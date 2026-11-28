@@ -12,6 +12,7 @@ import (
 	"github.com/infinity6-ai/gox/commonz/configz"
 	"github.com/infinity6-ai/gox/commonz/urlz"
 	"github.com/infinity6-ai/i6sdk/i6cli/internal/exitcode"
+	"github.com/infinity6-ai/i6sdk/sdkgo/client"
 	"github.com/infinity6-ai/i6sdk/sdkgo/config"
 	"github.com/infinity6-ai/i6sdk/sdkgo/tokenstore"
 )
@@ -356,4 +357,41 @@ func ResolveDataset(flagVal string, cfg *Config, ctx ...context.Context) (string
 		exitcode.Usage,
 		"dataset required. Provide --dataset <name> or configure default via 'i6 config init --dataset <name>'",
 	)
+}
+
+// NewClient initializes an *client.I6Client configured for the specified profile.
+func NewClient(profile string, ctx ...context.Context) (*client.I6Client, error) {
+	c := getCtx(ctx...)
+	p := ResolveProfile(profile, c)
+
+	cfg, err := ResolveConfig(p, c)
+	if err != nil {
+		return nil, fmt.Errorf("failed to resolve profile config: %w", err)
+	}
+
+	store, err := ResolveTokenStore(p, c)
+	if err != nil {
+		return nil, fmt.Errorf("failed to resolve profile token store: %w", err)
+	}
+
+	cacheDir, err := ResolveCacheDir(p, c)
+	if err != nil {
+		return nil, fmt.Errorf("failed to resolve profile cache dir: %w", err)
+	}
+
+	urls := ResolveUrls(cfg)
+
+	opts := config.Options{
+		TokenStore: store,
+		Urls:       urls,
+		Cache: config.CacheOptions{
+			Dir: cacheDir,
+		},
+	}
+
+	cli, err := client.New(c, opts)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize i6 client: %w", err)
+	}
+	return cli, nil
 }

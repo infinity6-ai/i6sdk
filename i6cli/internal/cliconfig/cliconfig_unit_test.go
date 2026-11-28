@@ -229,6 +229,20 @@ func TestUnitListProfiles(t *testing.T) {
 	}
 }
 
+func TestUnitNewClient(t *testing.T) {
+	ctx := t.Context()
+	tmpDir := t.TempDir()
+	rev, err := cliconfig.PropConfigDir.Set(ctx, "%s", tmpDir)
+	require.NoError(t, err)
+	defer rev.Close()
+
+	cli, err := cliconfig.NewClient("test-cli", ctx)
+	require.NoError(t, err)
+	require.NotNil(t, cli)
+	require.NotNil(t, cli.Tokens())
+	require.NotNil(t, cli.Apis())
+}
+
 func TestUnitResolveDataset(t *testing.T) {
 	ctx := t.Context()
 

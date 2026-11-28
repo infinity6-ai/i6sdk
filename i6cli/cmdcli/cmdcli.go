@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/infinity6-ai/i6sdk/i6cli/internal/cliconfig"
+	"github.com/infinity6-ai/i6sdk/i6cli/internal/cmd/cmdauth"
 	"github.com/infinity6-ai/i6sdk/i6cli/internal/cmd/cmdconfig"
 	"github.com/infinity6-ai/i6sdk/i6cli/internal/exitcode"
 	"github.com/infinity6-ai/i6sdk/versionz/version"
@@ -47,6 +48,9 @@ ENVIRONMENT VARIABLES:
 
 	// Profile configuration command group
 	rootCmd.AddCommand(cmdconfig.New(ctx))
+
+	// Authentication and session command group
+	rootCmd.AddCommand(cmdauth.New(ctx))
 
 	return rootCmd
 }
